@@ -77,10 +77,7 @@ fn update_hud(
     if let Some(code) = &status.join_code {
         lines.push(format!("join code: {code}"));
     }
-    lines.push(format!(
-        "[M] mic: {}",
-        if muted.0 { "muted" } else { "on" }
-    ));
+    lines.push(format!("[M] mic: {}", if muted.0 { "muted" } else { "on" }));
     let text = lines.join("\n");
     for mut t in &mut hud {
         if t.0 != text {

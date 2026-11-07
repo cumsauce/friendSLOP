@@ -46,7 +46,7 @@ fn drive_voice(
     }
 }
 
-fn tag_speaker(add: On<Add, Player>, players: Query<&Player>, mut commands: Commands) {
+fn tag_speaker(add: On<Add<Player>>, players: Query<&Player>, mut commands: Commands) {
     if let Ok(player) = players.get(add.entity) {
         commands.entity(add.entity).insert(VoiceSpeaker {
             id: SpeakerId(player.id),

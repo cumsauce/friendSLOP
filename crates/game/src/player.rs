@@ -40,7 +40,7 @@ fn spawn_host_player(mut commands: Commands) {
 }
 
 fn spawn_client_player(
-    add: On<Add, AuthorizedClient>,
+    add: On<Add<AuthorizedClient>>,
     mut commands: Commands,
     mut next: ResMut<NextPlayerId>,
 ) {
@@ -53,7 +53,7 @@ fn spawn_client_player(
 }
 
 fn despawn_client_player(
-    remove: On<Remove, AuthorizedClient>,
+    remove: On<Remove<AuthorizedClient>>,
     mut commands: Commands,
     players: Query<(Entity, &PlayerOwner)>,
 ) {

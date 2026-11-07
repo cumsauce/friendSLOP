@@ -33,6 +33,10 @@ fn host_and_client_players_replicate() {
         server.exchange_with_client(&mut client);
         client.update();
     }
-    assert_eq!(player_count(&mut server), 2, "host + one client on the server");
+    assert_eq!(
+        player_count(&mut server),
+        2,
+        "host + one client on the server"
+    );
     assert_eq!(player_count(&mut client), 2, "client sees both players");
 }

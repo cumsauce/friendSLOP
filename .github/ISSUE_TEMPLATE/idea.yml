@@ -1,0 +1,18 @@
+name: Game idea
+description: Tell Claude something the game should have. Anything goes.
+labels: [idea]
+body:
+  - type: markdown
+    attributes:
+      # CLAUDE-HINTS-START (Claude rewrites this block from GAME_DESIGN.md)
+      value: |
+        **Nothing exists yet. It's a blank 3D world where friends can join each other and talk.**
+        Everything is up for grabs: what you are, what you do, and what you're all trying to achieve together.
+      # CLAUDE-HINTS-END
+  - type: textarea
+    id: details
+    attributes:
+      label: Tell us more
+      description: As much or as little as you like. Claude will fill in the gaps creatively.
+    validations:
+      required: true

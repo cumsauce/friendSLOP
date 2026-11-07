@@ -1,0 +1,69 @@
+name: Release
+
+# Every push to main publishes a "latest" build so friends can just download and play.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset: friendslop-linux-x86_64.tar.gz
+          - os: macos-latest
+            asset: friendslop-macos-arm64.tar.gz
+          - os: windows-latest
+            asset: friendslop-windows-x86_64.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release
+      - run: cargo build --release --locked
+      - name: package (unix)
+        if: runner.os != 'Windows'
+        run: tar czf ${{ matrix.asset }} -C target/release friendslop
+      - name: package (windows)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path target/release/friendslop.exe -DestinationPath ${{ matrix.asset }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: update "latest" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest dist/* --title "Latest build" \
+            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
+            --target ${{ github.sha }} --prerelease

@@ -1,0 +1,27 @@
+name: idea-bot image
+
+on:
+  push:
+    branches: [main]
+    paths: [tools/idea-bot/**, flake.nix, flake.lock]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: build and push
+        run: |
+          nix build .#idea-bot-image -o stream-image
+          ./stream-image > image.tar
+          nix run nixpkgs#skopeo -- copy \
+            --dest-creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}" \
+            docker-archive:image.tar \
+            docker://ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/friendslop-idea-bot:latest

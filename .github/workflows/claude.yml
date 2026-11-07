@@ -1,0 +1,92 @@
+name: Claude
+
+# Claude turns friends' ideas into merged code. Runs are serialized so ideas land
+# one after another on top of each other (chaos, but merge-conflict-free chaos).
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  schedule:
+    - cron: "17 */3 * * *" # sweep every 3h: batch pending ideas while the prompt cache is warm
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Optional extra instruction for this run"
+        required: false
+
+concurrency:
+  group: claude
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+  id-token: write
+
+jobs:
+  claude:
+    # Only trusted authors can make Claude run (the public can still read along).
+    # Ideas from Discord are filed through the owner's token, so they count as OWNER.
+    if: >-
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'issues' &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association) &&
+        (contains(github.event.issue.labels.*.name, 'idea') || contains(github.event.issue.labels.*.name, 'claude'))) ||
+      (github.event_name == 'issue_comment' &&
+        github.event.comment.user.type != 'Bot' &&
+        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+        !endsWith(github.event.comment.user.login, '[bot]')) ||
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'failure' &&
+        startsWith(github.event.workflow_run.head_branch, 'claude/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          # A PAT (not GITHUB_TOKEN) so Claude's pushes/PRs trigger CI and auto-merge.
+          token: ${{ secrets.BOT_PAT }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: claude
+      - name: git identity
+        run: |
+          git config --global user.name "friendslop-bot"
+          git config --global user.email "friendslop-bot@users.noreply.github.com"
+      - uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: https://github.com/chrisgliddon/bevy-skills.git
+          plugins: bevy-skills@bevy-skills
+          github_token: ${{ secrets.BOT_PAT }}
+          claude_args: >-
+            --model claude-opus-5-5
+            --max-turns 200
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Skill,Task,TodoWrite"
+          prompt: |
+            You are the sole developer of friendSLOP. Read AGENTS.md first, then .github/claude/run.md, and follow it.
+
+            Trigger for this run:
+            - event: ${{ github.event_name }}
+            - issue: ${{ github.event.issue.number }} ${{ github.event.issue.title }}
+            - comment by: ${{ github.event.comment.user.login }}
+            - failed CI branch: ${{ github.event.workflow_run.head_branch }}
+            - extra instruction: ${{ github.event.inputs.task }}
+            - repo: ${{ github.repository }}

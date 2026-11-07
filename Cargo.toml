@@ -1,0 +1,33 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# bevy_voice_chat 0.3 pins bevy subcrates to =0.20.0 and replicon to =0.45.2, so keep these exact.
+bevy = "=0.20.0"
+bevy_replicon = "=0.45.2"
+bevy_replicon_iroh = "0.20"
+bevy_voice_chat = { version = "0.3", features = ["replicon", "opus"] }
+avian3d = "0.8"
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+arboard = "3"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+too_many_arguments = "allow"
+type_complexity = "allow"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

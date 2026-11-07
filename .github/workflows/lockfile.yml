@@ -1,0 +1,24 @@
+name: Update Cargo.lock
+
+# Run manually (Actions tab → "Update Cargo.lock" → Run workflow) to (re)generate the lockfile.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.BOT_PAT || github.token }}
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo update
+      - run: |
+          git config user.name "friendslop-bot"
+          git config user.email "friendslop-bot@users.noreply.github.com"
+          git add Cargo.lock
+          git diff --cached --quiet || git commit -m "chore: update Cargo.lock"
+          git push

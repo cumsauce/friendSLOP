@@ -40,3 +40,23 @@ fn host_and_client_players_replicate() {
     );
     assert_eq!(player_count(&mut client), 2, "client sees both players");
 }
+
+#[test]
+fn everyone_gets_an_organ_purse() {
+    use friendslop::features::organ_currency::{OrganPurse, starting_purse};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let purses: Vec<OrganPurse> = world
+        .query_filtered::<&OrganPurse, With<Player>>()
+        .iter(world)
+        .cloned()
+        .collect();
+    assert_eq!(purses.len(), 2, "client sees both players' purses");
+    assert!(purses.iter().all(|p| *p == starting_purse()));
+}

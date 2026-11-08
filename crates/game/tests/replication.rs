@@ -90,3 +90,41 @@ fn exactly_one_bear_replicates() {
     let n = world.query::<&Bear>().iter(world).count();
     assert_eq!(n, 1, "just one bear");
 }
+
+#[test]
+fn eating_the_mushroom_changes_only_the_eaters_voice() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::mushroom::{EatMushroom, Mushroom, MushroomVoice};
+
+    #[derive(Resource, Default)]
+    struct Got(Vec<MushroomVoice>);
+
+    let (mut server, mut client) = (peer(), peer());
+    server.init_resource::<Got>();
+    client.init_resource::<Got>();
+    for app in [&mut server, &mut client] {
+        app.world_mut()
+            .add_observer(|v: On<MushroomVoice>, mut got: ResMut<Got>| got.0.push(*v));
+    }
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    assert_eq!(world.query::<&Mushroom>().iter(world).count(), 1);
+
+    client.world_mut().client_trigger(EatMushroom);
+    step(&mut server, &mut client);
+
+    let world = client.world_mut();
+    assert_eq!(world.query::<&Mushroom>().iter(world).count(), 0, "eaten");
+    let got = &client.world().resource::<Got>().0;
+    assert_eq!(got.len(), 1, "the eater is told");
+    assert!(got[0].pitch >= 1.5 || got[0].pitch <= 0.7);
+    assert!(server.world().resource::<Got>().0.is_empty(), "host is not");
+}

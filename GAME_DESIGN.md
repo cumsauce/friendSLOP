@@ -24,6 +24,10 @@ asked for, and what nobody has decided yet.
 - **The bear** (#4). Exactly one cute, round, friend-shaped brown bear ambles slowly around one
   side of the floor. Every ~13 seconds it rears up and does a scawy (cute) growl: a short
   procedurally generated rumbly sound plus "grrr~" text. It doesn't do anything else yet.
+- **Voice-altering mushroom** (#6). One red spotty mushroom grows somewhere on the floor. Click it
+  to eat it (there are no player bodies yet, so clicking is how you "find" it). Your own voice
+  then becomes much higher (1.5-1.9x) or much lower (0.55-0.7x) at random for 45 seconds, run
+  through a small pitch-shifter so everyone hears it. A new mushroom grows elsewhere 10 s later.
 
 ## Ideas so far
 
@@ -32,6 +36,7 @@ asked for, and what nobody has decided yet.
 
 - corvy (#2): cute crows that caw occasionally.
 - arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
+- corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
 
 ## Open questions
 

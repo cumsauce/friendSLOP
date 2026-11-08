@@ -6,6 +6,7 @@
 
 use bevy::prelude::*;
 
+pub mod crows;
 pub mod organ_currency;
 
 pub struct FeaturesProtocolPlugin;
@@ -14,6 +15,7 @@ impl Plugin for FeaturesProtocolPlugin {
     fn build(&self, app: &mut App) {
         // Append only: order must match on every peer.
         app.add_plugins(organ_currency::protocol);
+        app.add_plugins(crows::protocol);
     }
 }
 
@@ -22,5 +24,6 @@ pub struct FeaturesPlugin;
 impl Plugin for FeaturesPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(organ_currency::plugin);
+        app.add_plugins(crows::plugin);
     }
 }

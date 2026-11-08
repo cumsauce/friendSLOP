@@ -18,11 +18,16 @@ asked for, and what nobody has decided yet.
   stomach 3, appendix 1). Every player has an organ purse, shown top-right. Everyone starts with
   a rat appendix, a chicken kidney and a pig stomach (worth 21) so there's something to see.
   Nothing yet earns or spends organs.
+- **Crows** (#2). Three cute black crows hang around the floor, hopping and wandering about. Every
+  so often one puffs up and caws (shown as "caw!" text; no sound yet). The server spawns them;
+  every peer animates them locally.
 
 ## Ideas so far
 
 - Freyja Moth (#22): the only legal tender is organs, human and animal, valued by the creature
   and by how important the organ is to it (brain valuable, appendix less so).
+
+- corvy (#2): cute crows that caw occasionally.
 
 ## Open questions
 

@@ -56,7 +56,8 @@ asked for, and what nobody has decided yet.
   won or lost beyond bragging rights yet.
 - **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with the
   commune's flag (a Union flag with a little Welsh flag and red dragon in the middle, because
-  Dave isn't a coward; #43), Dave himself (fist raised) and a banner at the top of the screen. Scenery
+  Dave isn't a coward; #43; made more anarchist in #57: red-over-black anarcho-syndicalist field,
+  black crosses, and a circled A sprayed on the corner), Dave himself (fist raised) and a banner at the top of the screen. Scenery
   only for now; every peer spawns it locally.
 - **The judgmental goat** (#20). A white goat with half-closed eyes stands on the floor, slowly
   shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:
@@ -255,7 +256,7 @@ asked for, and what nobody has decided yet.
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave. Freyja Moth (#43): its flag is themed on the UK flag, with the Welsh
-  dragon included.
+  dragon included. Freyja Moth (#57): keep the UK flag and dragon, but make it more anarchist.
 - #20: a judgmental goat joins the players and makes passive-aggressive comments about every choice.
 - doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
   then start; minimal settings; playable with just one person for testing.

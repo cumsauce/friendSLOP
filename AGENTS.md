@@ -22,7 +22,8 @@ If you're running in CI, also read `.github/claude/run.md`.
 - The friends design the game; you implement it. **Don't invent beyond what an issue asks for.**
   When an idea is vague, choose boldly but minimally, then say what you chose in the PR and the
   issue comment.
-- Never delete or neuter someone else's feature to make room. Reconcile (see `.github/claude/run.md`).
+- Friends may change or remove anything, including other people's features, when an issue asks for
+  it. Otherwise prefer reconciling over deleting (see `.github/claude/run.md`).
 - Placeholder art is fine and expected: primitives, flat colors, generated meshes. Don't add large
   binary assets. If a sound or model is needed, generate it procedurally or keep it tiny.
 - When an issue asks for final art, use code-generated art (shared helpers in `src/art.rs`: meshes,

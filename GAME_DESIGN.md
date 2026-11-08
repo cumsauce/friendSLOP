@@ -39,8 +39,9 @@ asked for, and what nobody has decided yet.
   every hit kills, a kill refunds your bullet, with no bullets you punch up close, you respawn
   with one bullet. 3 lives each; the last one standing wins. One duel at a time. Nothing is
   won or lost beyond bragging rights yet.
-- **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with a
-  red-and-black flag, Dave himself (fist raised) and a banner at the top of the screen. Scenery
+- **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with the
+  commune's flag (a Union flag with a little Welsh flag and red dragon in the middle, because
+  Dave isn't a coward; #43), Dave himself (fist raised) and a banner at the top of the screen. Scenery
   only for now; every peer spawns it locally.
 - **The judgmental goat** (#20). A white goat with half-closed eyes stands on the floor, slowly
   shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:
@@ -50,7 +51,8 @@ asked for, and what nobody has decided yet.
 - **Morality** (#21). Every player has a morality score (starts at 0), shown bottom-left with a
   label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
   within a sensible range: eating the mushroom is -2..+2. Harming anyone is -5..+3, except harming
-  the nobility, capitalists, landlords or billionaires, which is **always** -6..-10. Only the
+  (in any way) the nobility, capitalists, landlords or billionaires, which is **always rewarded**
+  with +6..+10 (corrected by Freyja Moth in #43). Only the
   mushroom is wired up so far (nothing can be harmed yet), and morality doesn't change anything
   else in play yet.
 - **Farting** (#18). Every player's gas pressure builds from 0 to 100% over 40 s (shown
@@ -82,8 +84,9 @@ asked for, and what nobody has decided yet.
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
   in place; eating the mushroom and shooting are ignored; a big message with a countdown shows in
   the middle of the screen. Voice chat keeps working. The host's clock decides when it happens.
-- **Gods tears** (#16). Glowing blue teardrop gems fall from the sky onto the floor (up to 4 at
-  a time, a new one every ~8 s). Click one to use it. Each use transforms you a little further
+- **Gods tears** (#16, corrected in #43). The tears rained down only once, when humans came into
+  existence: 12 glowing blue teardrop gems fall onto the floor when the world begins, and no more
+  ever fall. The HUD shows how many are left. Click one to use it. Each use transforms you a little further
   (untouched, tear-touched, changing, barely human), and after 7 you become an **Abduction**: a
   fetid creature that hungers for tears. Everyone's state is shown on the right of the screen.
   Tears don't grant any other power yet, and being an Abduction changes nothing else yet.
@@ -98,7 +101,7 @@ asked for, and what nobody has decided yet.
   game starts he has just raised your rent (the inciting incident; shown top-right). Act 1, legal:
   click him to pay with every organ you carry; he raises the rent again every 60 s (and whenever
   you pay it off). Act 2, less than legal: after 3 raises, clicking him pickpockets an organ back
-  from his stash, which counts as harming a landlord (always reprehensible, #21). Act 3: after 3
+  from his stash, which counts as harming a landlord (always raises your morality, #21/#43). Act 3: after 3
   heists he grows huge for a **boss fight**; 12 clicks knock him down, everyone gets the stash
   back and the game says THE END. The whole group shares one landlord and one story, so this is
   the first shared goal. He doesn't fight back yet, and nothing restarts after the end.
@@ -154,7 +157,8 @@ asked for, and what nobody has decided yet.
 - corvy (#2): cute crows that caw occasionally.
 - arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
 - Freyja Moth (#21): many actions have a (mostly random, within reason) moral value that affects
-  gameplay; harming the nobility, capitalists, landlords and/or billionaires is always reprehensible.
+  gameplay. Correction (#43): harming the nobility, capitalists, landlords and/or billionaires in
+  any way is always rewarded.
 - Kori.exe (#19): NPCs and random "musical objects" play voice lines (asked for audio from a 1993
   game; done as original lines instead).
 - corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
@@ -164,6 +168,7 @@ asked for, and what nobody has decided yet.
 - Freyja Moth (#16): gods tears, teardrop gems that rained from the sky when humans came to be.
   They hold great power; using them transforms you, eventually into a fetid, always-hungry
   Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
+  Correction (#43): they rained only once; the supply is limited.
 - Freyja Moth (#13): the great storm of '21 caused untold damage and toppled several governments;
   the world is still recovering.
 - Freyja Moth (#11): the inciting incident is your landlord raising your rent. You start with legal
@@ -192,7 +197,8 @@ asked for, and what nobody has decided yet.
   pitch.
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
-  founded the Commune of Dave.
+  founded the Commune of Dave. Freyja Moth (#43): its flag is themed on the UK flag, with the Welsh
+  dragon included.
 - #20: a judgmental goat joins the players and makes passive-aggressive comments about every choice.
 - doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
   then start; minimal settings; playable with just one person for testing.
@@ -208,6 +214,7 @@ asked for, and what nobody has decided yet.
 - Players only have bodies in a duel. What are you the rest of the time?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
+- The tears are limited. What happens when they're all used up?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats exist but there's no hair, jumping, meadows or dialogue for them to act on. Which should come?

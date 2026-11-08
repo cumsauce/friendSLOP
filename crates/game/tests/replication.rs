@@ -60,3 +60,18 @@ fn everyone_gets_an_organ_purse() {
     assert_eq!(purses.len(), 2, "client sees both players' purses");
     assert!(purses.iter().all(|p| *p == starting_purse()));
 }
+
+#[test]
+fn crows_replicate_to_clients() {
+    use friendslop::features::crows::{CROW_COUNT, Crow};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let n = world.query::<&Crow>().iter(world).count();
+    assert_eq!(n, CROW_COUNT as usize, "client sees every crow");
+}

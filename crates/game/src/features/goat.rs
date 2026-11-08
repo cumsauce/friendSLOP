@@ -114,11 +114,13 @@ fn dress_goat(
 ) {
     for (entity, goat) in &new {
         let wool = crate::art::soft(&mut materials, Color::srgb(0.9, 0.88, 0.82));
-        let horn = materials.add(Color::srgb(0.35, 0.3, 0.25));
+        let horn = crate::art::soft(&mut materials, Color::srgb(0.35, 0.3, 0.25));
         let eye = crate::art::glossy(&mut materials, Color::srgb(0.75, 0.55, 0.1));
         let leg = meshes.add(Cylinder::new(0.08, 0.7));
         let horn_mesh = meshes.add(Cone::new(0.07, 0.35));
         let eye_mesh = meshes.add(Sphere::new(0.06));
+        let ear_mesh = meshes.add(Sphere::new(0.14));
+        let pink = crate::art::soft(&mut materials, Color::srgb(0.95, 0.65, 0.65));
         commands
             .entity(entity)
             .insert((
@@ -129,13 +131,34 @@ fn dress_goat(
             .with_children(|p| {
                 // Fluffy body: a few overlapping wool puffs.
                 let puff = meshes.add(Sphere::new(0.38));
-                for (y, z) in [(0.92, -0.3), (0.98, 0.05), (0.9, 0.35)] {
-                    p.spawn((
-                        Mesh3d(puff.clone()),
-                        MeshMaterial3d(wool.clone()),
-                        Transform::from_xyz(0.0, y, z).with_scale(Vec3::new(0.95, 0.85, 1.0)),
-                    ));
-                }
+                let small_puff = meshes.add(Sphere::new(0.2));
+                p.spawn((
+                    Transform::default(),
+                    Visibility::default(),
+                    crate::art::Breathe::new(Vec3::ONE, 0.02, goat.home.x),
+                ))
+                .with_children(|b| {
+                    for (y, z) in [(0.92, -0.3), (0.98, 0.05), (0.9, 0.35)] {
+                        b.spawn((
+                            Mesh3d(puff.clone()),
+                            MeshMaterial3d(wool.clone()),
+                            Transform::from_xyz(0.0, y, z).with_scale(Vec3::new(0.95, 0.85, 1.0)),
+                        ));
+                    }
+                    // Extra little curls so the fleece reads as fluffy.
+                    for i in 0..8 {
+                        let a = i as f32 * 0.8;
+                        b.spawn((
+                            Mesh3d(small_puff.clone()),
+                            MeshMaterial3d(wool.clone()),
+                            Transform::from_xyz(
+                                a.cos() * 0.32,
+                                1.0 + a.sin() * 0.18,
+                                -0.4 + i as f32 * 0.11,
+                            ),
+                        ));
+                    }
+                });
                 // Hooves and a stubby tail.
                 let hoof = meshes.add(Cylinder::new(0.1, 0.1));
                 for (x, z) in [(-0.2, -0.4), (0.2, -0.4), (-0.2, 0.4), (0.2, 0.4)] {
@@ -149,6 +172,7 @@ fn dress_goat(
                     Mesh3d(meshes.add(Sphere::new(0.1))),
                     MeshMaterial3d(wool.clone()),
                     Transform::from_xyz(0.0, 1.15, 0.7),
+                    crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Y, 0.5, 6.0, 0.0),
                 ));
                 for (x, z) in [(-0.2, -0.4), (0.2, -0.4), (-0.2, 0.4), (0.2, 0.4)] {
                     p.spawn((
@@ -170,12 +194,34 @@ fn dress_goat(
                             Transform::from_xyz(x, 0.3, 0.1)
                                 .with_rotation(Quat::from_rotation_x(0.5)),
                         ));
+                        // Floppy ears that flick at flies.
                         h.spawn((
-                            Mesh3d(horn_mesh.clone()),
+                            Mesh3d(ear_mesh.clone()),
                             MeshMaterial3d(wool.clone()),
-                            Transform::from_xyz(x * 2.0, 0.1, 0.15)
-                                .with_rotation(Quat::from_rotation_z(x.signum() * 1.9))
-                                .with_scale(Vec3::new(1.3, 0.8, 0.6)),
+                            Transform::from_xyz(x * 2.0, 0.08, 0.05)
+                                .with_rotation(Quat::from_rotation_z(x.signum() * 1.3))
+                                .with_scale(Vec3::new(0.5, 1.0, 0.25)),
+                            crate::art::Wiggle::twitch(
+                                Quat::from_rotation_z(x.signum() * 1.3),
+                                Vec3::X,
+                                0.5,
+                                x * 10.0,
+                            ),
+                        ))
+                        .with_children(|e| {
+                            e.spawn((
+                                Mesh3d(ear_mesh.clone()),
+                                MeshMaterial3d(pink.clone()),
+                                Transform::from_xyz(0.0, 0.0, -0.05)
+                                    .with_scale(Vec3::new(0.6, 0.8, 0.6)),
+                            ));
+                        });
+                        // Unimpressed heavy eyelids above the eyes.
+                        h.spawn((
+                            Mesh3d(eye_mesh.clone()),
+                            MeshMaterial3d(wool.clone()),
+                            Transform::from_xyz(x * 1.4, 0.075, -0.225)
+                                .with_scale(Vec3::new(1.15, 0.45, 1.05)),
                         ));
                         // Half-closed, unimpressed eyes.
                         h.spawn((

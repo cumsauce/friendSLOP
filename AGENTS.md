@@ -13,7 +13,8 @@ If you're running in CI, also read `.github/claude/run.md`.
 2. **Voice chat works** for everyone in a session (`src/voice.rs`, `bevy_voice_chat`).
 3. **3D**, Bevy **0.20**, physics with **avian3d**.
 4. **Some shared goal** the players work towards together. *What* it is comes from the friends.
-5. **CI stays green** on Linux, macOS, Windows and the Nix flake. Run fmt, clippy (`-D warnings`)
+5. **CI stays green** on Linux, macOS, Windows and the Nix flake (PRs only run Linux + Nix; macOS and
+   Windows run after merge on `main`, so avoid platform-specific code). Run fmt, clippy (`-D warnings`)
    and tests before you push.
 
 ## Interpreting ideas

@@ -12,7 +12,8 @@ asked for, and what nobody has decided yet.
 
 ## What exists
 
-- An empty floor in an empty world. Players exist only as names on a list.
+- An empty floor in an empty world. Players exist only as names on a list (and get bodies only
+  while duelling).
 - **Currency: organs** (#22). Each organ's value = creature worth (human 10, cow 5, pig 4,
   chicken 2, rat 1) × organ importance (brain 10, heart 9, lungs 7, liver 6, kidney 4,
   stomach 3, appendix 1). Every player has an organ purse, shown top-right. Everyone starts with
@@ -32,6 +33,12 @@ asked for, and what nobody has decided yet.
   only in colours cats can see: blues and yellows, no red-green difference. Every material is
   run through a cat-vision filter (then lightened and saturated), and the sky is bright blue. So
   the "red" mushroom and the green floor both look yellowish to us, like they would to a cat.
+- **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
+  duelists get capsule bodies in a small walled arena on the floor and play first-person
+  (WASD, mouse, click) while everyone else watches. "One in the chamber" rules: one bullet,
+  every hit kills, a kill refunds your bullet, with no bullets you punch up close, you respawn
+  with one bullet. 3 lives each; the last one standing wins. One duel at a time. Nothing is
+  won or lost beyond bragging rights yet.
 
 ## Ideas so far
 
@@ -42,9 +49,11 @@ asked for, and what nobody has decided yet.
 - arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
 - corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
 - just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
+- doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
 - Everything: what are we, where are we, and what are we trying to do together?
 - Organs are money, but how do you get them, and what are they for?
+- Players only have bodies in a duel. What are you the rest of the time?

@@ -70,8 +70,8 @@ fn dress_camera(add: On<Add<MainCamera>>, mut commands: Commands) {
             directional_light_color: Color::srgba(1.0, 0.9, 0.7, 0.35),
             directional_light_exponent: 24.0,
             falloff: FogFalloff::Linear {
-                start: 45.0,
-                end: 140.0,
+                start: 60.0,
+                end: 230.0,
             },
         },
     ));
@@ -94,7 +94,7 @@ fn spawn_atmosphere(
         brightness: 1_100.0,
         ..default()
     });
-    // Warm late-afternoon sun. Three cascades over 80 m keep shadows crisp up close
+    // Warm late-afternoon sun. Four cascades over 100 m keep shadows crisp up close
     // and cheap (1 shadow-casting light only).
     commands.spawn((
         DirectionalLight {
@@ -104,10 +104,10 @@ fn spawn_atmosphere(
             ..default()
         },
         CascadeShadowConfigBuilder {
-            num_cascades: 3,
+            num_cascades: 4,
             minimum_distance: 0.1,
-            first_cascade_far_bound: 14.0,
-            maximum_distance: 80.0,
+            first_cascade_far_bound: 10.0,
+            maximum_distance: 100.0,
             overlap_proportion: 0.2,
         }
         .build(),
@@ -168,9 +168,9 @@ fn spawn_atmosphere(
     );
     for i in 0..14i32 {
         let a = art::hash(i, 0, 31) * std::f32::consts::TAU;
-        let r = 100.0 + art::hash(i, 1, 31) * 100.0;
-        let at = Vec3::new(a.cos() * r, 16.0 + art::hash(i, 2, 31) * 14.0, a.sin() * r);
-        let scale = 4.0 + art::hash(i, 3, 31) * 4.0;
+        let r = 130.0 + art::hash(i, 1, 31) * 130.0;
+        let at = Vec3::new(a.cos() * r, 30.0 + art::hash(i, 2, 31) * 20.0, a.sin() * r);
+        let scale = 6.0 + art::hash(i, 3, 31) * 5.0;
         commands
             .spawn((
                 Transform::from_translation(at).with_scale(Vec3::splat(scale)),

@@ -8,6 +8,7 @@
 
 use avian3d::prelude::*;
 use bevy::asset::RenderAssetUsages;
+use bevy::light::NotShadowCaster;
 use bevy::mesh::{Indices, PrimitiveTopology};
 use bevy::prelude::*;
 
@@ -15,7 +16,7 @@ use crate::AppState;
 use crate::art;
 use crate::features::cat_palette::cat_palette;
 use crate::features::dave_commune::PARLIAMENT_AT;
-use crate::features::duel::ARENA_CENTER;
+use crate::features::duel::{ARENA_CENTER, ARENA_HALF};
 
 pub struct TerrainPlugin;
 
@@ -112,19 +113,34 @@ pub fn height_at(x: f32, z: f32) -> f32 {
     rise * (hills + rise * 3.0)
 }
 
-fn ground_color(x: f32, z: f32, h: f32) -> [f32; 4] {
+/// Ground colour before the cat palette (pre-filter sRGB).
+fn ground_rgb(x: f32, z: f32, h: f32) -> Vec3 {
     let p = Vec2::new(x, z);
-    // Meadow: patches of lush and dry grass with fine speckle.
+    // Meadow: big patches of lush and dry grass, with brightness swings so the
+    // cat palette (which turns greens yellow) still has light and dark to show.
     let patch = fbm(x * 0.09, z * 0.09, 5);
+    let bright = fbm(x * 0.2, z * 0.2, 41);
     let speck = art::hash((x * 3.0) as i32, (z * 3.0) as i32, 9);
-    let lush = Vec3::new(0.36, 0.64, 0.2);
-    let dry = Vec3::new(0.7, 0.7, 0.28);
-    let mut c = lush.lerp(dry, smoothstep(0.35, 0.75, patch)) * (0.9 + speck * 0.2);
+    let lush = Vec3::new(0.2, 0.42, 0.12);
+    let dry = Vec3::new(0.78, 0.74, 0.3);
+    let mut c = lush.lerp(dry, smoothstep(0.3, 0.75, patch));
+    c *= 0.5 + bright * 1.0 + speck * 0.12;
+    // Cool, blue-ish hollows, like shade under clouds.
+    let cool = smoothstep(0.55, 0.75, fbm(x * 0.06 + 40.0, z * 0.06, 61));
+    c = c.lerp(Vec3::new(0.22, 0.34, 0.5), cool * 0.8);
+    // Clover patches: darker, denser green (deep olive for the cat).
+    c = c.lerp(Vec3::new(0.12, 0.3, 0.14), clover_amount(x, z) * 0.6);
+    // Worn, trampled spots: pale and dusty.
+    let worn = smoothstep(0.7, 0.82, noise(x * 0.25 + 9.0, z * 0.25, 97));
+    c = c.lerp(Vec3::new(0.85, 0.78, 0.6), worn * 0.55);
     // Hill tops get a little paler and bluer as they recede.
-    c = c.lerp(Vec3::new(0.5, 0.68, 0.5), smoothstep(2.0, 9.0, h) * 0.6);
-    // Worn dirt paths.
-    let dirt = Vec3::new(0.82, 0.68, 0.46) * (0.85 + speck * 0.3);
-    c = c.lerp(dirt, path_amount(p));
+    c = c.lerp(Vec3::new(0.5, 0.62, 0.62), smoothstep(2.0, 9.0, h) * 0.55);
+    // Worn dirt paths: a dark trodden rim around a paler middle.
+    let path = path_amount(p);
+    let rim = Vec3::new(0.32, 0.22, 0.14) * (0.85 + speck * 0.3);
+    let dirt = Vec3::new(0.8, 0.62, 0.42) * (0.85 + speck * 0.3);
+    c = c.lerp(rim, smoothstep(0.0, 0.4, path) * 0.85);
+    c = c.lerp(dirt, smoothstep(0.45, 0.95, path));
     // Pond: muddy bank, then dark bed under the water.
     let pd = p.distance(POND_AT) + (noise(x * 0.8, z * 0.8, 31) - 0.5) * 0.8;
     c = c.lerp(
@@ -138,8 +154,113 @@ fn ground_color(x: f32, z: f32, h: f32) -> [f32; 4] {
     // Darker, worn ground around the campfire.
     let fire = 1.0 - smoothstep(1.0, 3.0, p.distance(BONFIRE_AT));
     c = c.lerp(Vec3::new(0.25, 0.22, 0.18), fire * 0.8);
+    c
+}
+
+fn clover_amount(x: f32, z: f32) -> f32 {
+    smoothstep(0.62, 0.72, noise(x * 0.35, z * 0.35, 83))
+}
+
+fn cat_linear(c: Vec3) -> [f32; 4] {
     let lin = cat_palette(Color::srgb(c.x, c.y, c.z)).to_linear();
     [lin.red, lin.green, lin.blue, 1.0]
+}
+
+fn ground_color(x: f32, z: f32, h: f32) -> [f32; 4] {
+    cat_linear(ground_rgb(x, z, h))
+}
+
+/// Where grass tufts may not grow: the pond, the duel arena's sand and the
+/// middle of paths.
+fn tuft_blocked(x: f32, z: f32) -> bool {
+    let a = ARENA_CENTER.xz();
+    let in_arena = (x - a.x).abs() < ARENA_HALF + 0.6 && (z - a.y).abs() < ARENA_HALF + 0.6;
+    in_arena || is_pond(x, z) || path_amount(Vec2::new(x, z)) > 0.5
+}
+
+/// Push one coloured triangle (colours are pre-filter sRGB).
+fn tri(pos: &mut Vec<[f32; 3]>, col: &mut Vec<[f32; 4]>, v: [Vec3; 3], c: [Vec3; 3]) {
+    for k in 0..3 {
+        pos.push(v[k].to_array());
+        col.push(cat_linear(c[k]));
+    }
+}
+
+const PETALS: [Vec3; 4] = [
+    Vec3::new(1.0, 1.0, 0.95),
+    Vec3::new(1.0, 0.85, 0.2),
+    Vec3::new(0.45, 0.55, 1.0),
+    Vec3::new(0.7, 0.5, 1.0),
+];
+
+/// Dense little grass tufts and flowers as ONE merged, vertex-coloured mesh,
+/// built once. Each tuft is three leaning blades; flowers are tiny diamonds
+/// on a stem.
+fn build_tufts() -> Mesh {
+    const STEP: f32 = 0.55;
+    const REACH: f32 = 40.0;
+    let mut pos: Vec<[f32; 3]> = Vec::new();
+    let mut col: Vec<[f32; 4]> = Vec::new();
+    let n = (REACH * 2.0 / STEP) as i32;
+    for j in 0..n {
+        for i in 0..n {
+            let r = |s: u32| art::hash(i, j, s);
+            let x = -REACH + (i as f32 + r(1)) * STEP;
+            let z = -REACH + (j as f32 + r(2)) * STEP;
+            if tuft_blocked(x, z) {
+                continue;
+            }
+            // Clumpy density: thick in places, bare in others.
+            let dense = noise(x * 0.18, z * 0.18, 131);
+            let clover = clover_amount(x, z);
+            if r(3) > dense * 1.1 + clover * 0.3 - 0.1 {
+                continue;
+            }
+            let y = height_at(x, z);
+            let base = ground_rgb(x, z, y);
+            let shade = 0.85 + r(4) * 0.3;
+            let root = base * 0.8 * shade;
+            let tip = (base * 1.25 + Vec3::new(0.06, 0.08, 0.0)).min(Vec3::ONE) * shade;
+            let height = 0.12 + r(5) * 0.18;
+            let at = Vec3::new(x, y, z);
+            for b in 0..3u32 {
+                let a = r(6) * std::f32::consts::TAU + b as f32 * 2.09;
+                let side = Vec3::new(a.cos(), 0.0, a.sin());
+                let lean = Vec3::new(-side.z, 0.0, side.x) * (0.05 + r(7 + b) * 0.1);
+                let off = side * 0.05;
+                let w = side * 0.028;
+                let top = at + off + lean + Vec3::Y * height * (0.8 + b as f32 * 0.15);
+                tri(
+                    &mut pos,
+                    &mut col,
+                    [at + off - w, at + off + w, top],
+                    [root, root, tip],
+                );
+            }
+            // Flowers in clover patches (and the odd one anywhere).
+            if r(11) < clover * 0.35 + 0.015 {
+                let petal = PETALS[((r(12) * 4.0) as usize).min(3)];
+                let top = at + Vec3::Y * (height + 0.06);
+                let (e, f) = (Vec3::X * 0.06, Vec3::Z * 0.06);
+                tri(&mut pos, &mut col, [top - e, top + f, top + e], [petal; 3]);
+                tri(&mut pos, &mut col, [top + e, top - f, top - e], [petal; 3]);
+                tri(
+                    &mut pos,
+                    &mut col,
+                    [at - Vec3::X * 0.012, at + Vec3::X * 0.012, top],
+                    [root; 3],
+                );
+            }
+        }
+    }
+    let normals = vec![[0.0, 1.0, 0.0]; pos.len()];
+    Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    )
+    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, col)
 }
 
 /// Builds a grid over the whole ground; returns positions and triangle indices.
@@ -200,6 +321,21 @@ fn spawn_terrain(
         })),
         DespawnOnExit(AppState::InGame),
     ));
+    // Grass tufts and flowers: one static mesh, no shadows.
+    commands.spawn((
+        Name::new("Grass tufts"),
+        Mesh3d(meshes.add(build_tufts())),
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color: Color::WHITE,
+            perceptual_roughness: 0.9,
+            reflectance: 0.1,
+            double_sided: true,
+            cull_mode: None,
+            ..default()
+        })),
+        NotShadowCaster,
+        DespawnOnExit(AppState::InGame),
+    ));
     // Flat play square: same collider as the old floor.
     commands.spawn((
         RigidBody::Static,
@@ -244,6 +380,12 @@ mod tests {
             }
         }
         assert!(height_at(60.0, 60.0) > 1.0);
+    }
+
+    #[test]
+    fn tufts_stay_modest() {
+        let verts = build_tufts().count_vertices();
+        assert!(verts > 10_000 && verts < 150_000, "{verts}");
     }
 
     #[test]

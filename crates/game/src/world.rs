@@ -45,7 +45,7 @@ fn spawn_world(
         Camera3d::default(),
         MainCamera,
         VoiceListener { right_from: None },
-        Transform::from_xyz(0.0, 8.0, 14.0).looking_at(Vec3::ZERO, Vec3::Y),
+        crate::camera::CameraRig::default().transform(),
         DespawnOnExit(AppState::InGame),
     ));
     // The ground itself lives in `terrain.rs`.

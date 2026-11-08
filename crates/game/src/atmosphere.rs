@@ -2,7 +2,7 @@
 //! Purely local visuals, nothing replicated.
 //!
 //! - A big unlit sky dome with a vertex-colour gradient (horizon haze to deep blue),
-//!   pre-filtered through the cat palette (#12) so it stays a cat-visible bright blue.
+//!   hand-picked to stay a cat-visible (#12) bright blue.
 //! - Puffy code-made clouds (clusters of squashed spheres) drifting very slowly.
 //! - One warm shadow-casting sun tuned for the ~60 m play area, a cool shadowless
 //!   bounce light and a sky-tinted ambient.
@@ -18,12 +18,16 @@ use bevy::prelude::*;
 
 use crate::AppState;
 use crate::art;
-use crate::features::cat_palette::{ExactColors, cat_palette, exact_material};
+use crate::features::cat_palette::{ExactColors, exact_material};
 use crate::world::MainCamera;
 
 const SKY_RADIUS: f32 = 400.0;
-const HORIZON: Color = Color::srgb(0.86, 0.9, 0.95);
-const ZENITH: Color = Color::srgb(0.35, 0.62, 1.0);
+/// Sky colours are picked by hand instead of run through `cat_palette`: its
+/// shadow lift turns every blue into pale lavender. Red and green stay within
+/// 0.1 of each other, the same tolerance the cat palette is tested to, so the
+/// sky is still a blue a cat can see (#12).
+const HORIZON: Color = Color::srgb(0.74, 0.82, 0.96);
+const ZENITH: Color = Color::srgb(0.3, 0.4, 0.95);
 /// Clouds wrap around after drifting this far along +X.
 const CLOUD_WRAP: f32 = 260.0;
 
@@ -35,7 +39,22 @@ pub fn plugin(app: &mut App) {
 
 /// The colour where sky meets ground; fog uses it so the world edge disappears.
 pub fn horizon_colour() -> Color {
-    cat_palette(HORIZON)
+    HORIZON
+}
+
+/// Unlit sky and fog colours skip exposure, and TonyMcMapface squashes 1.0 down to a
+/// dull grey. Push them into HDR so they come out of tonemapping as the bright
+/// storybook colours we asked for.
+const SKY_BOOST: f32 = 1.3;
+
+fn hdr(c: Color) -> LinearRgba {
+    let l = c.to_linear();
+    LinearRgba::new(
+        l.red * SKY_BOOST,
+        l.green * SKY_BOOST,
+        l.blue * SKY_BOOST,
+        l.alpha,
+    )
 }
 
 /// Give the main camera tonemapping, bloom and horizon-matched fog.
@@ -47,12 +66,12 @@ fn dress_camera(add: On<Add<MainCamera>>, mut commands: Commands) {
             ..Bloom::NATURAL
         },
         DistanceFog {
-            color: horizon_colour(),
+            color: Color::LinearRgba(hdr(horizon_colour())),
             directional_light_color: Color::srgba(1.0, 0.9, 0.7, 0.35),
             directional_light_exponent: 24.0,
             falloff: FogFalloff::Linear {
-                start: 30.0,
-                end: 85.0,
+                start: 45.0,
+                end: 140.0,
             },
         },
     ));
@@ -140,7 +159,7 @@ fn spawn_atmosphere(
         &mut exact,
         StandardMaterial {
             base_color: Color::srgb(1.0, 1.0, 1.0),
-            emissive: LinearRgba::rgb(0.55, 0.57, 0.62),
+            emissive: LinearRgba::rgb(1.6, 1.65, 1.75),
             perceptual_roughness: 1.0,
             reflectance: 0.0,
             fog_enabled: false,
@@ -149,8 +168,8 @@ fn spawn_atmosphere(
     );
     for i in 0..14i32 {
         let a = art::hash(i, 0, 31) * std::f32::consts::TAU;
-        let r = 70.0 + art::hash(i, 1, 31) * 110.0;
-        let at = Vec3::new(a.cos() * r, 38.0 + art::hash(i, 2, 31) * 22.0, a.sin() * r);
+        let r = 100.0 + art::hash(i, 1, 31) * 100.0;
+        let at = Vec3::new(a.cos() * r, 16.0 + art::hash(i, 2, 31) * 14.0, a.sin() * r);
         let scale = 4.0 + art::hash(i, 3, 31) * 4.0;
         commands
             .spawn((
@@ -183,8 +202,8 @@ fn spawn_atmosphere(
 fn sky_dome() -> Mesh {
     const RINGS: u32 = 16;
     const SEGS: u32 = 32;
-    let horizon = horizon_colour().to_linear();
-    let zenith = cat_palette(ZENITH).to_linear();
+    let horizon = hdr(horizon_colour());
+    let zenith = hdr(ZENITH);
     let mut pos = Vec::new();
     let mut col = Vec::new();
     let mut nrm = Vec::new();
@@ -193,7 +212,7 @@ fn sky_dome() -> Mesh {
         let v = ring as f32 / RINGS as f32;
         let elev = -0.15 + v * (std::f32::consts::FRAC_PI_2 + 0.15);
         let h = elev.sin().max(0.0);
-        let mix = h.powf(0.6);
+        let mix = h.powf(0.45);
         let c = horizon.mix(&zenith, mix);
         for seg in 0..=SEGS {
             let az = seg as f32 / SEGS as f32 * std::f32::consts::TAU;

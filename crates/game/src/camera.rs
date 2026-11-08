@@ -1,7 +1,7 @@
 //! Overview camera: pan with WASD / arrow keys, zoom with the scroll wheel.
 //!
-//! The camera looks at a focus point on the floor from a fixed angle (the old
-//! fixed view from 0,8,14). The focus is clamped to the floor so the vault,
+//! The camera looks at a focus point on the floor from a fixed, fairly low
+//! angle so the horizon and sky stay in frame. The focus is clamped to the floor so the vault,
 //! the commune and the edges are reachable but you can't wander off. Panning
 //! is off while you're in a duel (WASD moves your duelist there, and the duel
 //! drives the camera itself), and in first person (#53), where the camera is
@@ -25,6 +25,8 @@ const MIN_DIST: f32 = 6.0;
 const MAX_DIST: f32 = 38.0;
 /// Fraction of the distance each scroll line zooms.
 const ZOOM_STEP: f32 = 0.1;
+/// How far above the focus the camera aims (keeps some sky in view).
+const LOOK_LIFT: f32 = 2.5;
 /// How fast the camera catches up with its target (per second).
 const SMOOTHING: f32 = 8.0;
 
@@ -46,7 +48,7 @@ impl Default for CameraRig {
 
 /// The original fixed view direction.
 fn view_offset() -> Vec3 {
-    Vec3::new(0.0, 8.0, 14.0)
+    Vec3::new(0.0, 5.5, 17.0)
 }
 
 impl CameraRig {
@@ -64,7 +66,8 @@ impl CameraRig {
 
     pub fn transform(&self) -> Transform {
         let eye = self.focus + view_offset().normalize() * self.distance;
-        Transform::from_translation(eye).looking_at(self.focus, Vec3::Y)
+        // Aim a little above the floor so the horizon and sky stay in frame.
+        Transform::from_translation(eye).looking_at(self.focus + Vec3::Y * LOOK_LIFT, Vec3::Y)
     }
 }
 
@@ -143,9 +146,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_view_matches_the_old_fixed_camera() {
+    fn default_view_looks_at_the_centre_from_low_and_south() {
         let tf = CameraRig::default().transform();
-        assert!(tf.translation.distance(Vec3::new(0.0, 8.0, 14.0)) < 1e-3);
+        assert!(tf.translation.distance(view_offset()) < 1e-3);
+        assert!(tf.translation.y < tf.translation.z);
     }
 
     #[test]

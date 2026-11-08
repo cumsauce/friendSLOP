@@ -20,6 +20,7 @@ pub mod landlord;
 pub mod morality;
 pub mod mushroom;
 pub mod organ_currency;
+pub mod random_dialogue;
 pub mod stillness;
 pub mod voice_lines;
 

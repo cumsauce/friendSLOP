@@ -102,6 +102,10 @@ asked for, and what nobody has decided yet.
   heists he grows huge for a **boss fight**; 12 clicks knock him down, everyone gets the stash
   back and the game says THE END. The whole group shares one landlord and one story, so this is
   the first shared goal. He doesn't fight back yet, and nothing restarts after the end.
+- **Random dialogue** (#10). All written dialogue (goat remarks and voice lines) is one script.
+  After a random 1..1,000,000 words, the next word is swapped for a completely random word
+  ("kazoo", "gravy", ...), then a new number is drawn. If fewer than 50 words got swapped, the
+  upper bound is halved and it's redone, until at least 50 are. Same result on every peer.
 
 ## Ideas so far
 
@@ -126,6 +130,8 @@ asked for, and what nobody has decided yet.
 - Freyja Moth (#11): the inciting incident is your landlord raising your rent. You start with legal
   ways to raise money/seek redress, are eventually forced into less legal ones, and the game ends
   with a boss fight against your landlord.
+- (#10): when writing dialogue, after a random 1-1,000,000 words replace the next word with a
+  completely random word; halve the bound until at least 50 words get replaced.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect

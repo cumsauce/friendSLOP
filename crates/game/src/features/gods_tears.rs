@@ -62,6 +62,7 @@ pub struct UseGodsTear {
 pub fn protocol(app: &mut App) {
     app.replicate::<GodsTear>()
         .replicate::<Transformation>()
+        .add_observer(reset_tears)
         .add_client_event::<UseGodsTear>(Channel::Ordered)
         .init_resource::<TearSky>()
         .add_observer(give_transformation)
@@ -277,6 +278,24 @@ fn update_tears_hud(
         if text.0 != want {
             text.0.clone_from(&want);
         }
+    }
+}
+
+/// New round: the one rain falls again, and nobody has been transformed yet.
+fn reset_tears(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut commands: Commands,
+    mut sky: ResMut<TearSky>,
+    tears: Query<Entity, With<GodsTear>>,
+    mut players: Query<&mut Transformation>,
+) {
+    for tear in &tears {
+        commands.entity(tear).despawn();
+    }
+    *sky = TearSky::default();
+    the_one_rain(commands, sky);
+    for mut t in &mut players {
+        *t = Transformation::default();
     }
 }
 

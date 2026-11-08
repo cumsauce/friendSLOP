@@ -149,6 +149,7 @@ pub struct BotherLandlord;
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Tenancy>()
+        .add_observer(reset_tenancy)
         .add_client_event::<BotherLandlord>(Channel::Ordered)
         .add_observer(bother_landlord)
         .add_systems(OnEnter(ServerState::Running), raise_the_rent)
@@ -394,6 +395,16 @@ fn click_landlord(
     });
     if hit {
         commands.client_trigger(BotherLandlord);
+    }
+}
+
+/// New round: back to right after the inciting incident.
+fn reset_tenancy(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut tenancy: Query<&mut Tenancy>,
+) {
+    for mut t in &mut tenancy {
+        *t = Tenancy::default();
     }
 }
 

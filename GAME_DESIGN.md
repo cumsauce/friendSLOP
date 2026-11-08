@@ -174,6 +174,13 @@ asked for, and what nobody has decided yet.
   by your computer user name, names your OS, reads your clock and rewrites the window title; nothing
   outside the game window is touched. The issue named a character from a famous story; we made an
   original one instead.
+- **Objective and rounds** (polish, no issue). A single "Objective" line (top) follows the landlord
+  storyline's current act and progress, since it is the only goal with an ending so far. When the
+  landlord is defeated a round summary appears and anyone can press Enter to start a new round: the
+  landlord, HALT's escape bar, the gods tears supply, organs, morality, transformations and stats all
+  reset (features hook in by observing the server-side `RoundReset` event).
+- **Camera** (polish). Pan with WASD / arrow keys and zoom with the scroll wheel, clamped to the
+  floor; off while you're in a duel.
 
 ## Ideas so far
 
@@ -250,4 +257,5 @@ asked for, and what nobody has decided yet.
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
+- Which is the primary goal: beating the landlord, escaping HALT, or opening the vault?
 - Can anyone ever truly escape HALT, and what would be on the other side?

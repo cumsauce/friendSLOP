@@ -107,6 +107,7 @@ impl MoralAct {
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Morality>()
+        .add_observer(reset_morality)
         .init_resource::<MoralDice>()
         .add_observer(give_morality)
         .add_observer(judge);
@@ -180,6 +181,16 @@ fn update_morality_hud(
         if text.0 != want {
             text.0.clone_from(&want);
         }
+    }
+}
+
+/// New round: everyone starts morally neutral again.
+fn reset_morality(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut players: Query<&mut Morality>,
+) {
+    for mut m in &mut players {
+        *m = Morality::default();
     }
 }
 

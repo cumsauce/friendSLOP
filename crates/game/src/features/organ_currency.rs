@@ -141,6 +141,7 @@ pub fn starting_purse() -> OrganPurse {
 
 pub fn protocol(app: &mut App) {
     app.replicate::<OrganPurse>()
+        .add_observer(reset_purses)
         .add_observer(give_starting_purse);
 }
 
@@ -207,6 +208,16 @@ fn update_purse_hud(
         if t.0 != text {
             t.0.clone_from(&text);
         }
+    }
+}
+
+/// New round: everyone gets their starting organs back.
+fn reset_purses(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut purses: Query<&mut OrganPurse>,
+) {
+    for mut p in &mut purses {
+        *p = starting_purse();
     }
 }
 

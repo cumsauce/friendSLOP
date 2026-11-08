@@ -21,6 +21,7 @@ pub mod halt;
 pub mod landlord;
 pub mod morality;
 pub mod mushroom;
+pub mod objective;
 pub mod organ_currency;
 pub mod pets;
 pub mod random_dialogue;
@@ -55,6 +56,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(totems::protocol);
         app.add_plugins(pets::protocol);
         app.add_plugins(halt::protocol);
+        app.add_plugins(objective::protocol);
     }
 }
 
@@ -84,5 +86,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(totems::plugin);
         app.add_plugins(pets::plugin);
         app.add_plugins(halt::plugin);
+        app.add_plugins(objective::plugin);
     }
 }

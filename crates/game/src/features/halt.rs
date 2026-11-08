@@ -74,6 +74,7 @@ pub const REBOOT_TAUNT: &str =
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Halt>()
+        .add_observer(reset_halt)
         .add_client_event::<Pry>(Channel::Ordered)
         .add_observer(pry)
         .add_systems(OnEnter(ServerState::Running), spawn_halt)
@@ -323,6 +324,13 @@ pub fn drone(said: &str, seed: u32, rate: u32) -> Vec<f32> {
         }
     }
     out
+}
+
+/// New round: HALT forgets your escape attempts (it would never admit it).
+fn reset_halt(_reset: On<crate::features::objective::RoundReset>, mut halt: Query<&mut Halt>) {
+    for mut h in &mut halt {
+        *h = Halt::default();
+    }
 }
 
 #[cfg(test)]

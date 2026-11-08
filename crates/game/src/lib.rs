@@ -4,6 +4,7 @@
 
 use bevy::prelude::*;
 
+pub mod art;
 pub mod features;
 pub mod menu;
 pub mod net;

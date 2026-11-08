@@ -74,11 +74,9 @@ fn dress_crows(
     for (entity, crow) in &new {
         let feathers = materials.add(Color::srgb(0.08, 0.08, 0.12));
         let beak = materials.add(Color::srgb(0.95, 0.7, 0.2));
-        let eye = materials.add(Color::srgb(1.0, 1.0, 1.0));
         let body_mesh = meshes.add(Sphere::new(0.3));
         let head_mesh = meshes.add(Sphere::new(0.2));
-        let beak_mesh = meshes.add(Cuboid::new(0.08, 0.06, 0.18));
-        let eye_mesh = meshes.add(Sphere::new(0.04));
+        let beak_mesh = meshes.add(Cone::new(0.06, 0.2).mesh().resolution(6));
         commands
             .entity(entity)
             .insert((
@@ -94,23 +92,49 @@ fn dress_crows(
                 ));
                 p.spawn((
                     Mesh3d(head_mesh),
-                    MeshMaterial3d(feathers),
+                    MeshMaterial3d(feathers.clone()),
                     Transform::from_xyz(0.0, 0.3, -0.3),
                 ))
                 .with_children(|h| {
                     h.spawn((
                         Mesh3d(beak_mesh),
-                        MeshMaterial3d(beak),
-                        Transform::from_xyz(0.0, -0.02, -0.22),
+                        MeshMaterial3d(beak.clone()),
+                        Transform::from_xyz(0.0, -0.02, -0.22)
+                            .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
                     ));
-                    for x in [-0.09, 0.09] {
-                        h.spawn((
-                            Mesh3d(eye_mesh.clone()),
-                            MeshMaterial3d(eye.clone()),
-                            Transform::from_xyz(x, 0.06, -0.15),
-                        ));
-                    }
+                    crate::art::eyes(
+                        h,
+                        &mut meshes,
+                        &mut materials,
+                        Vec3::new(0.0, 0.06, -0.15),
+                        0.16,
+                        0.045,
+                    );
                 });
+                // Folded wings, a fanned tail and two twiggy legs.
+                let wing = meshes.add(Sphere::new(0.22));
+                for x in [-0.24, 0.24] {
+                    p.spawn((
+                        Mesh3d(wing.clone()),
+                        MeshMaterial3d(feathers.clone()),
+                        Transform::from_xyz(x, 0.05, 0.05)
+                            .with_rotation(Quat::from_rotation_z(x * 1.2))
+                            .with_scale(Vec3::new(0.35, 0.8, 1.3)),
+                    ));
+                }
+                p.spawn((
+                    Mesh3d(meshes.add(Cuboid::new(0.22, 0.04, 0.3))),
+                    MeshMaterial3d(feathers.clone()),
+                    Transform::from_xyz(0.0, 0.08, 0.45).with_rotation(Quat::from_rotation_x(-0.4)),
+                ));
+                let leg = meshes.add(Cylinder::new(0.018, 0.22));
+                for x in [-0.08, 0.08] {
+                    p.spawn((
+                        Mesh3d(leg.clone()),
+                        MeshMaterial3d(beak.clone()),
+                        Transform::from_xyz(x, -0.3, 0.0),
+                    ));
+                }
             });
     }
 }

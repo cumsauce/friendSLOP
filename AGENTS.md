@@ -25,6 +25,10 @@ If you're running in CI, also read `.github/claude/run.md`.
 - Never delete or neuter someone else's feature to make room. Reconcile (see `.github/claude/run.md`).
 - Placeholder art is fine and expected: primitives, flat colors, generated meshes. Don't add large
   binary assets. If a sound or model is needed, generate it procedurally or keep it tiny.
+- When an issue asks for final art, use code-generated art (shared helpers in `src/art.rs`: meshes,
+  procedural textures, eyes) that still goes through `cat_palette`. Permissively licensed packs
+  (CC0 preferred) are fine only if a human supplies them: credit each in `assets/LICENSES.md` and
+  keep each pack to a few MB.
 - Keep `GAME_DESIGN.md` truthful: what exists, what friends said, open questions. It's the game's
   memory between runs.
 

@@ -439,7 +439,7 @@ fn spawn_arena(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let wall = materials.add(Color::srgb(0.6, 0.45, 0.3));
-    let ground = materials.add(Color::srgb(0.75, 0.7, 0.6));
+    let ground = crate::art::soft(&mut materials, Color::srgb(0.75, 0.7, 0.6));
     let size = ARENA_HALF * 2.0;
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(size, size))),
@@ -448,6 +448,9 @@ fn spawn_arena(
         DespawnOnExit(AppState::InGame),
     ));
     let long = meshes.add(Cuboid::new(size, 0.6, 0.2));
+    let post = meshes.add(Cylinder::new(0.15, 1.0));
+    let pennant = meshes.add(Cuboid::new(0.4, 0.25, 0.02));
+    let flag = crate::art::soft(&mut materials, Color::srgb(0.95, 0.3, 0.3));
     for (offset, turn) in [
         (Vec3::new(0.0, 0.3, -ARENA_HALF), false),
         (Vec3::new(0.0, 0.3, ARENA_HALF), false),
@@ -459,6 +462,23 @@ fn spawn_arena(
         } else {
             Quat::IDENTITY
         };
+        commands.spawn((
+            Mesh3d(post.clone()),
+            MeshMaterial3d(wall.clone()),
+            Transform::from_translation(
+                ARENA_CENTER + offset.with_y(0.5) + rot * Vec3::X * ARENA_HALF,
+            ),
+            DespawnOnExit(AppState::InGame),
+        ));
+        commands.spawn((
+            Mesh3d(pennant.clone()),
+            MeshMaterial3d(flag.clone()),
+            Transform::from_translation(
+                ARENA_CENTER + offset.with_y(1.1) + rot * Vec3::X * (ARENA_HALF - 0.2),
+            )
+            .with_rotation(rot),
+            DespawnOnExit(AppState::InGame),
+        ));
         commands.spawn((
             Mesh3d(long.clone()),
             MeshMaterial3d(wall.clone()),
@@ -493,6 +513,14 @@ fn dress_duelists(
                     MeshMaterial3d(body),
                     Transform::from_xyz(0.0, 0.9, 0.0),
                 ));
+                crate::art::eyes(
+                    p,
+                    &mut meshes,
+                    &mut materials,
+                    Vec3::new(0.0, 1.45, -BODY_RADIUS * 0.9),
+                    0.2,
+                    0.06,
+                );
                 p.spawn((
                     Mesh3d(meshes.add(Cuboid::new(0.1, 0.12, 0.45))),
                     MeshMaterial3d(gun),

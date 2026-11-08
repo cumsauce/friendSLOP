@@ -9,13 +9,13 @@
 //! succeeds is not known.
 
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::features::fps::Walker;
+use crate::features::interact::{Clickable, Clicked, in_reach};
 use crate::player::{Player, PlayerOwner};
-use crate::world::MainCamera;
 
 /// The whole, limited supply of tears. They all fall once, at the start.
 pub const TOTAL_TEARS: u32 = 12;
@@ -126,14 +126,23 @@ fn use_tear(
     mut commands: Commands,
     tears: Query<(Entity, &GodsTear)>,
     mut players: Query<(&PlayerOwner, &mut Transformation)>,
+    walkers: Query<(&PlayerOwner, &Walker)>,
     mut fate: super::fate::Fate,
 ) {
     if crate::features::stillness::is_frozen(&still) {
         return; // the world stands still: ignore requests
     }
-    let Some((tear, _)) = tears.iter().find(|(_, t)| t.id == ev.id) else {
+    let Some((tear, t)) = tears.iter().find(|(_, t)| t.id == ev.id) else {
         return;
     };
+    if !in_reach(
+        &mut commands,
+        ev.client_id,
+        &walkers,
+        Vec3::new(t.at.x, 0.0, t.at.y),
+    ) {
+        return;
+    }
     let owner = match ev.client_id {
         ClientId::Server => None,
         ClientId::Client(e) => Some(e),
@@ -149,13 +158,13 @@ fn use_tear(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_tears_hud)
+    app.add_observer(click_tear)
+        .add_systems(OnEnter(AppState::InGame), spawn_tears_hud)
         .add_systems(
             Update,
             (
                 dress_tears,
                 fall_and_glint,
-                click_tear,
                 update_tears_hud.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
@@ -186,6 +195,7 @@ fn dress_tears(
             .entity(entity)
             .insert((
                 Transform::from_xyz(tear.at.x, FALL_FROM, tear.at.y),
+                Clickable::at_height(0.3),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))
@@ -228,33 +238,9 @@ fn fall_and_glint(time: Res<Time>, mut tears: Query<(&GodsTear, &mut Transform)>
     }
 }
 
-/// How close (in pixels) a click must land to a tear on screen.
-const CLICK_RADIUS: f32 = 40.0;
-
-fn click_tear(
-    mut commands: Commands,
-    mouse: Res<ButtonInput<MouseButton>>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    view: Res<super::fps::FpsView>,
-    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    tears: Query<(&GodsTear, &Transform)>,
-) {
-    if !mouse.just_pressed(MouseButton::Left) {
-        return;
-    }
-    let Ok(window) = window.single() else { return };
-    let Some(cursor) = super::fps::aim_point(window, &view) else {
-        return;
-    };
-    let Ok((camera, cam_transform)) = camera.single() else {
-        return;
-    };
-    let hit = tears.iter().find(|(_, tf)| {
-        camera
-            .world_to_viewport(cam_transform, tf.translation + Vec3::Y * 0.3)
-            .is_ok_and(|p| p.distance(cursor) < CLICK_RADIUS)
-    });
-    if let Some((tear, _)) = hit {
+/// The unified click landed on a tear: use it.
+fn click_tear(click: On<Clicked>, mut commands: Commands, tears: Query<&GodsTear>) {
+    if let Ok(tear) = tears.get(click.entity) {
         commands.client_trigger(UseGodsTear { id: tear.id });
     }
 }

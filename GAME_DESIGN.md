@@ -69,6 +69,11 @@ asked for, and what nobody has decided yet.
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
   in place; eating the mushroom and shooting are ignored; a big message with a countdown shows in
   the middle of the screen. Voice chat keeps working. The host's clock decides when it happens.
+- **Gods tears** (#16). Glowing blue teardrop gems fall from the sky onto the floor (up to 4 at
+  a time, a new one every ~8 s). Click one to use it. Each use transforms you a little further
+  (untouched, tear-touched, changing, barely human), and after 7 you become an **Abduction**: a
+  fetid creature that hungers for tears. Everyone's state is shown on the right of the screen.
+  Tears don't grant any other power yet, and being an Abduction changes nothing else yet.
 
 ## Ideas so far
 
@@ -85,6 +90,9 @@ asked for, and what nobody has decided yet.
 - just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
 - just meat and cheese (#17): every 60 s all actions and NPC behaviour freeze for 20 s so players
   can socialize and stare with passion.
+- Freyja Moth (#16): gods tears, teardrop gems that rained from the sky when humans came to be.
+  They hold great power; using them transforms you, eventually into a fetid, always-hungry
+  Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
@@ -101,4 +109,5 @@ asked for, and what nobody has decided yet.
 - Organs are money, but how do you get them, and what are they for?
 - Players only have bodies in a duel. What are you the rest of the time?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
+- What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - What does your morality actually change? And which actions count as good or bad?

@@ -260,3 +260,43 @@ fn client_sees_the_freeze_clock() {
     assert_eq!(still.len(), 1, "exactly one freeze clock");
     assert!(!still[0].frozen, "the world starts unfrozen");
 }
+
+#[test]
+fn using_a_gods_tear_transforms_the_user() {
+    use friendslop::features::gods_tears::{GodsTear, Transformation, UseGodsTear};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let ids: Vec<u32> = world
+        .query::<&GodsTear>()
+        .iter(world)
+        .map(|t| t.id)
+        .collect();
+    assert!(!ids.is_empty(), "tears have rained down");
+    client
+        .world_mut()
+        .client_trigger(UseGodsTear { id: ids[0] });
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let mut changes: Vec<(u64, u32)> = world
+        .query::<(&Player, &Transformation)>()
+        .iter(world)
+        .map(|(p, t)| (p.id, t.0))
+        .collect();
+    changes.sort();
+    assert_eq!(changes, vec![(0, 0), (1, 1)], "only the user changed");
+    let world = client.world_mut();
+    assert_eq!(
+        world.query::<&GodsTear>().iter(world).count(),
+        ids.len() - 1
+    );
+}

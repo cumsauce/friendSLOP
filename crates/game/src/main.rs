@@ -13,6 +13,12 @@ fn main() -> AppExit {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "friendSLOP".into(),
+                        // Uncapped while benchmarking so frame times are real.
+                        present_mode: if bench_enabled() {
+                            bevy::window::PresentMode::AutoNoVsync
+                        } else {
+                            bevy::window::PresentMode::AutoVsync
+                        },
                         ..default()
                     }),
                     ..default()
@@ -26,7 +32,48 @@ fn main() -> AppExit {
         ))
         .add_plugins(friendslop::GamePlugin)
         .add_systems(Startup, cli_args)
+        .add_systems(Update, bench.run_if(bench_enabled))
         .run()
+}
+
+/// `FRIENDSLOP_BENCH=1` logs average / p99 frame time over 10 s of gameplay
+/// (after an 8 s warm-up in game) to stdout, then exits.
+fn bench_enabled() -> bool {
+    std::env::var_os("FRIENDSLOP_BENCH").is_some_and(|v| v != "0")
+}
+
+fn bench(
+    time: Res<Time<Real>>,
+    state: Res<State<friendslop::AppState>>,
+    mut samples: Local<Vec<f32>>,
+    mut started: Local<Option<f32>>,
+    mut exit: MessageWriter<AppExit>,
+) {
+    if *state.get() != friendslop::AppState::InGame {
+        return;
+    }
+    let now = time.elapsed_secs();
+    let start = *started.get_or_insert(now + 8.0);
+    if now < start {
+        return;
+    }
+    samples.push(time.delta_secs() * 1000.0);
+    if now - start < 10.0 {
+        return;
+    }
+    let mut sorted = samples.clone();
+    sorted.sort_by(f32::total_cmp);
+    let avg = sorted.iter().sum::<f32>() / sorted.len().max(1) as f32;
+    let p99 = sorted
+        .get(sorted.len() * 99 / 100)
+        .copied()
+        .unwrap_or_default();
+    println!(
+        "BENCH frames={} avg_ms={avg:.2} p99_ms={p99:.2} fps={:.1}",
+        sorted.len(),
+        1000.0 / avg.max(1e-3)
+    );
+    exit.write(AppExit::Success);
 }
 
 /// Where the game keeps its assets (`crates/game/assets`). Bevy only knows

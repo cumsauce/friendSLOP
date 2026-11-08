@@ -13,6 +13,7 @@ use bevy_voice_chat::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::assets::{Sfx, play_sfx};
 use crate::features::morality::{Act, MoralAct};
 use crate::player::PlayerOwner;
 use crate::world::MainCamera;
@@ -162,9 +163,18 @@ fn install_pitch_shifter(filters: Option<ResMut<VoiceFilters>>) {
     filters.add(FilterStage::Outgoing, 50, PitchShifter::new(1.0));
 }
 
-fn feel_mushroom(voice: On<MushroomVoice>, mut high: ResMut<MushroomHigh>) {
+fn feel_mushroom(
+    voice: On<MushroomVoice>,
+    mut high: ResMut<MushroomHigh>,
+    mut commands: Commands,
+    sfx: Option<Res<Sfx>>,
+) {
     high.pitch = voice.pitch;
     high.remaining = voice.secs;
+    if let Some(sfx) = sfx {
+        // The server confirmed the bite: munch.
+        play_sfx(&mut commands, &sfx.eat, 0.9);
+    }
 }
 
 fn set_pitch(filters: Option<ResMut<VoiceFilters>>, pitch: f32) {

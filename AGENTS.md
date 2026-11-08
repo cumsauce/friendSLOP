@@ -24,12 +24,11 @@ If you're running in CI, also read `.github/claude/run.md`.
   issue comment.
 - Friends may change or remove anything, including other people's features, when an issue asks for
   it. Otherwise prefer reconciling over deleting (see `.github/claude/run.md`).
-- Placeholder art is fine and expected: primitives, flat colors, generated meshes. Don't add large
-  binary assets. If a sound or model is needed, generate it procedurally or keep it tiny.
-- When an issue asks for final art, use code-generated art (shared helpers in `src/art.rs`: meshes,
-  procedural textures, eyes) that still goes through `cat_palette`. Permissively licensed packs
-  (CC0 preferred) are fine only if a human supplies them: credit each in `assets/LICENSES.md` and
-  keep each pack to a few MB.
+- Placeholder art is fine and expected: primitives, flat colors, generated meshes. Big binaries
+  (models, sounds) go through Git LFS only, live in `crates/game/assets/`, and must be CC0 (or
+  equally permissive) with entries in `assets/CREDITS.md`. Prefer generating procedurally or
+  keeping it tiny when an asset isn't really needed, and never let gameplay *depend* on asset
+  files: they must degrade quietly if LFS data is missing.
 - Keep `GAME_DESIGN.md` truthful: what exists, what friends said, open questions. It's the game's
   memory between runs.
 
@@ -51,7 +50,10 @@ crates/game/src/
   voice.rs      voice chat driving (M = mute); speakers tagged on Player entities
   menu.rs       placeholder keyboard menu
   world.rs      camera, light, floor, HUD
+  assets.rs     handles for the files in assets/ (sound effects; missing files degrade quietly)
+  scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)
   features/     one module per idea, see features/README.md
+crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
 ```
 

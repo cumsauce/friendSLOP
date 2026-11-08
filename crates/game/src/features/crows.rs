@@ -2,14 +2,15 @@
 //!
 //! The server spawns a few replicated `Crow`s. Their hopping and cawing is
 //! pure decoration, so every peer animates them locally from the crow's id
-//! (no per-frame network traffic). A "caw" is a little puff-up plus a line of
-//! text at the bottom of the screen; there is no sound yet.
+//! (no per-frame network traffic). A "caw" is a little puff-up, a line of
+//! text at the bottom of the screen and a caw sound (from `assets/audio`).
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::assets::{Sfx, play_sfx};
 
 /// How many crows the server spawns.
 pub const CROW_COUNT: u32 = 3;
@@ -39,7 +40,8 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_caw_text)
         .add_systems(
             Update,
-            (dress_crows, animate_crows, update_caw_text).run_if(in_state(AppState::InGame)),
+            (dress_crows, animate_crows, update_caw_text, caw_sound)
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -178,6 +180,26 @@ fn update_caw_text(
         if text.0 != want {
             text.0 = want.to_string();
         }
+    }
+}
+
+/// Play the caw sound once at the start of each crow's caw.
+fn caw_sound(
+    mut commands: Commands,
+    time: Res<Time>,
+    crows: Query<&Crow>,
+    sfx: Option<Res<Sfx>>,
+    mut was_cawing: Local<[bool; CROW_COUNT as usize]>,
+) {
+    let Some(sfx) = sfx else { return };
+    let t = time.elapsed_secs();
+    for crow in &crows {
+        let cawing = is_cawing(crow.id, t);
+        let slot = crow.id as usize % was_cawing.len();
+        if cawing && !was_cawing[slot] {
+            play_sfx(&mut commands, &sfx.crow_caw, 0.7);
+        }
+        was_cawing[slot] = cawing;
     }
 }
 

@@ -183,7 +183,7 @@ fn spawn_fate_hud(mut commands: Commands) {
         FateHud,
         Node {
             position_type: PositionType::Absolute,
-            bottom: px(12),
+            bottom: px(44),
             right: px(12),
             ..default()
         },

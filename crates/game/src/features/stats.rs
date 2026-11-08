@@ -239,7 +239,7 @@ fn reroll_stats(
     mut players: Query<&mut Stats>,
 ) {
     for mut s in &mut players {
-        *s = Stats::roll(dice.roll(), dice.roll(), dice.roll());
+        *s = Stats::roll(std::array::from_fn(|_| dice.roll()));
     }
 }
 

@@ -215,7 +215,9 @@ fn dress_tears(
                 p.spawn((
                     Mesh3d(meshes.add(Annulus::new(0.18, 0.26))),
                     MeshMaterial3d(halo.clone()),
-                    Transform::from_xyz(0.0, -0.1, 0.0)
+                    // The tear bobs between 0.08 and 0.16, so this stays 4-12 cm
+                    // above the flat ground: never dips into it (z-fighting).
+                    Transform::from_xyz(0.0, -0.04, 0.0)
                         .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
                     bevy::light::NotShadowCaster,
                 ));

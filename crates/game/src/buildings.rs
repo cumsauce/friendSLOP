@@ -696,7 +696,12 @@ fn townhouse(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat)) {
     // Balcony over the front, with rails.
     let (bx, bz) = (1.7, hz + 1.5);
     // Starts at the wall's outer face so its top isn't coplanar with the wall.
-    k.floor(Vec2::new(-bx, hz + T / 2.0), Vec2::new(bx, bz), STOREY, Mat::Plank);
+    k.floor(
+        Vec2::new(-bx, hz + T / 2.0),
+        Vec2::new(bx, bz),
+        STOREY,
+        Mat::Plank,
+    );
     let rail = |k: &mut Kit, a: Vec2, b: Vec2| {
         k.bar(a, b, STOREY, 1.0, 0.1, Mat::Timber, Solid::Wall);
     };
@@ -1506,6 +1511,11 @@ mod tests {
                 }
             }
         }
-        assert!(bad.is_empty(), "{} coplanar faces:\n{}", bad.len(), bad.join("\n"));
+        assert!(
+            bad.is_empty(),
+            "{} coplanar faces:\n{}",
+            bad.len(),
+            bad.join("\n")
+        );
     }
 }

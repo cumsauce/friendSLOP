@@ -14,21 +14,28 @@ asked for, and what nobody has decided yet.
 
 - A grassy meadow floor (see "Nicer look" below). Players exist only as names on a list (and get bodies only
   while duelling).
+- A floor dressed with low-poly nature (trees, bushes, grass, flowers, pebbles), a campfire
+  burning beside the burnt parliament, and a looping tune ("Catsong"). Plus real sound effects
+  for crows, duels and mushroom bites. All of it comes from CC0 asset packs stored in Git LFS
+  (`crates/game/assets`, credits in `crates/game/assets/CREDITS.md`); every peer renders the
+  same scene from a fixed seed, and if the files are missing the game quietly falls back to its
+  procedural-primitive look.
 - **Currency: organs** (#22). Each organ's value = creature worth (human 10, cow 5, pig 4,
   chicken 2, rat 1) × organ importance (brain 10, heart 9, lungs 7, liver 6, kidney 4,
   stomach 3, appendix 1). Every player has an organ purse, shown top-right. Everyone starts with
   a rat appendix, a chicken kidney and a pig stomach (worth 21) so there's something to see.
   Nothing yet earns or spends organs.
 - **Crows** (#2). Three cute black crows hang around the floor, hopping and wandering about. Every
-  so often one puffs up and caws (shown as "caw!" text; no sound yet). The server spawns them;
-  every peer animates them locally.
+  so often one puffs up, caws (shown as "caw!" text) and you hear a crow sound. The server spawns
+  them; every peer animates them locally.
 - **The bear** (#4). Exactly one cute, round, friend-shaped brown bear ambles slowly around one
   side of the floor. Every ~13 seconds it rears up and does a scawy (cute) growl: a short
   procedurally generated rumbly sound plus "grrr~" text. It doesn't do anything else yet.
 - **Voice-altering mushroom** (#6). One red spotty mushroom grows somewhere on the floor. Click it
   to eat it (there are no player bodies yet, so clicking is how you "find" it). Your own voice
   then becomes much higher (1.5-1.9x) or much lower (0.55-0.7x) at random for 45 seconds, run
-  through a small pitch-shifter so everyone hears it. A new mushroom grows elsewhere 10 s later.
+  through a small pitch-shifter so everyone hears it, with a bite sound when the server confirms
+  the munch. A new mushroom grows elsewhere 10 s later.
 - **Cat-vision palette** (#12). Everything is shown in a bright, cheery storybook-MMO palette, but
   only in colours cats can see: blues and yellows, no red-green difference. Every material is
   run through a cat-vision filter (then lightened and saturated), and the sky is bright blue. So
@@ -56,6 +63,21 @@ asked for, and what nobody has decided yet.
   shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:
   someone joining or leaving, the mushroom being eaten, you muting or unmuting, and, after 40 s of
   nothing happening, doing nothing. There are few choices in the game yet, so it judges those.
+  only in colours cats can see: blues and yellows, no red-green difference. Every flat-colour
+  material is run through a cat-vision filter (then lightened and saturated), and the sky is
+  bright blue. So the "red" mushroom and the green floor both look yellowish to us, like they
+  would to a cat. Textured materials (the new asset models) aren't filtered yet — see open
+  questions.
+- **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
+  duelists get bodies in a small walled arena on the floor — animated cowboy/cowgirl models, or
+  capsule-and-gun stand-ins if the asset files are missing — and play first-person (WASD, mouse,
+  click) with a revolver viewmodel while everyone else watches. "One in the chamber" rules: one
+  bullet, every hit kills, a kill refunds your bullet, with no bullets you punch up close, you
+  respawn with one bullet. 3 lives each; the last one standing wins. One duel at a time. Shots,
+  punches and hits play sounds for everyone; nothing is won or lost beyond bragging rights yet.
+- **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with a
+  red-and-black flag, Dave himself (fist raised), a banner at the top of the screen and a
+  campfire flickering beside the ruins. Scenery only for now; every peer spawns it locally.
 
 - **Morality** (#21). Every player has a morality score (starts at 0), shown bottom-left with a
   label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
@@ -260,3 +282,5 @@ asked for, and what nobody has decided yet.
 - What does your morality actually change? And which actions count as good or bad?
 - Which is the primary goal: beating the landlord, escaping HALT, or opening the vault?
 - Can anyone ever truly escape HALT, and what would be on the other side?
+- The cat-vision filter only recolours flat colours — the new textured models (trees, cowboys)
+  keep their natural greens and reds. Should the filter learn to shift textures too? (#12)

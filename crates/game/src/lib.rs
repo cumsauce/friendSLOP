@@ -5,12 +5,14 @@
 use bevy::prelude::*;
 
 pub mod art;
+pub mod assets;
 pub mod camera;
 pub mod features;
 pub mod hud;
 pub mod menu;
 pub mod net;
 pub mod player;
+pub mod scenery;
 pub mod settings;
 pub mod voice;
 pub mod world;
@@ -46,10 +48,12 @@ impl Plugin for GamePlugin {
             voice::VoicePlugin,
             settings::SettingsPlugin,
             menu::MenuPlugin,
+            assets::plugin,
             world::WorldPlugin,
             camera::CameraPlugin,
             features::FeaturesPlugin,
             hud::HudPlugin,
+            scenery::plugin,
         ));
     }
 }

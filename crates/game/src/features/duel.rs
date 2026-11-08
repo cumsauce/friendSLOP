@@ -12,13 +12,20 @@
 //!
 //! The server is authoritative: clients only send stick/look input and "shoot".
 
+use std::collections::HashMap;
+use std::time::Duration;
+
+use bevy::asset::LoadState;
+use bevy::gltf::{Gltf, GltfAssetLabel};
 use bevy::input::mouse::AccumulatedMouseMotion;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
+use bevy::world_serialization::{WorldAsset, WorldInstanceReady};
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::assets::{Sfx, play_sfx};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
@@ -31,6 +38,13 @@ const EYE: f32 = 1.6;
 const BODY_RADIUS: f32 = 0.45;
 const PUNCH_REACH: f32 = 1.8;
 const NEWS_SECS: f32 = 5.0;
+/// Character and gun models from `assets/models` (see CREDITS.md). The
+/// converted glbs come out a few units tall with the rig's origin mid-thigh,
+/// so these put a cowboy at ~1.9 m with his boots on the floor and the
+/// revolver palm-sized. Nudge after eyeballing a duel.
+const CHARACTER_SCALE: f32 = 0.44;
+const CHARACTER_Y_OFFSET: f32 = 0.61;
+const GUN_SCALE: f32 = 0.3;
 
 /// A player's body while they're in the duel arena. Replicated.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -402,18 +416,24 @@ fn end_abandoned_duel(
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<DuelView>()
+        .init_resource::<DuelRigs>()
         .add_observer(on_challenged)
         .add_observer(on_news)
+        .add_observer(setup_body_animations)
         .add_systems(OnEnter(AppState::InGame), (spawn_arena, spawn_duel_hud))
         .add_systems(OnExit(AppState::InGame), reset_view)
         .add_systems(
             Update,
             (
+                build_rigs,
                 dress_duelists,
+                duelist_fallback,
                 sync_duelist_transforms,
                 challenge_keys,
                 fight_controls,
                 first_person_camera,
+                animate_duelists,
+                viewmodel_gun,
                 update_duel_hud.run_if(crate::world::hud_tick()),
             )
                 .chain()
@@ -431,17 +451,40 @@ struct DuelView {
     saved_camera: Option<Transform>,
     yaw: f32,
     pitch: f32,
+    /// The first-person revolver child of the camera, while I'm duelling.
+    viewmodel: Option<Entity>,
 }
 
 fn on_challenged(ev: On<DuelChallenged>, mut view: ResMut<DuelView>) {
     view.challenged_by = Some(ev.from);
 }
 
-fn on_news(ev: On<DuelNews>, mut view: ResMut<DuelView>) {
+/// Everyone hears a duel they're watching: a shot or a punch lands.
+fn on_news(
+    ev: On<DuelNews>,
+    mut view: ResMut<DuelView>,
+    mut commands: Commands,
+    sfx: Option<Res<Sfx>>,
+) {
     view.news = Some((ev.text.clone(), NEWS_SECS));
+    let Some(sfx) = sfx else { return };
+    if ev.text.contains("punched") {
+        play_sfx(&mut commands, &sfx.punch, 0.9);
+    } else if ev.text.contains("shot") {
+        play_sfx(&mut commands, &sfx.gunshot, 1.0);
+    }
 }
 
-fn reset_view(mut view: ResMut<DuelView>) {
+fn reset_view(
+    mut commands: Commands,
+    mut view: ResMut<DuelView>,
+    guns: Query<(), With<ViewModelGun>>,
+) {
+    if let Some(gun) = view.viewmodel.take()
+        && guns.contains(gun)
+    {
+        commands.entity(gun).despawn();
+    }
     *view = DuelView::default();
 }
 
@@ -500,44 +543,287 @@ fn spawn_arena(
     }
 }
 
-/// Give each duelist a body: a capsule with a little gun.
+/// Give each duelist a body: an animated cowboy from `assets/models`, with a
+/// capsule-and-gun fallback while (or if) the model files aren't there.
 fn dress_duelists(
     mut commands: Commands,
     new: Query<(Entity, &Duelist), Added<Duelist>>,
+    rigs: Res<DuelRigs>,
+) {
+    for (entity, d) in &new {
+        commands.entity(entity).insert((
+            Transform::from_translation(d.pos),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+        ));
+        // Couples duel as cowgirls, odd-numbered players as cowboys.
+        let state = if d.player % 2 == 0 {
+            &rigs.female
+        } else {
+            &rigs.male
+        };
+        if let RigState::Ready(rig) = state {
+            commands.entity(entity).insert(DuelBody {
+                graph: rig.graph.clone(),
+                idle: rig.idle,
+                walk: rig.walk,
+                shoot: rig.shoot,
+                hit: rig.hit,
+            });
+            spawn_scene_child(&mut commands, entity, rig.scene.clone(), CHARACTER_SCALE);
+        } else if matches!(state, RigState::Pending) {
+            commands
+                .entity(entity)
+                .insert(BodyPending { player: d.player });
+        }
+        // RigState::Failed is settled by `duelist_fallback` right after.
+    }
+}
+
+/// Attach a glTF scene (a model from `assets/models`) as a scaled child,
+/// lifted so the cowboy's feet (below his rig origin) meet the floor.
+fn spawn_scene_child(
+    commands: &mut Commands,
+    parent: Entity,
+    scene: Handle<WorldAsset>,
+    scale: f32,
+) {
+    commands.entity(parent).with_children(|p| {
+        p.spawn((
+            WorldAssetRoot(scene),
+            Transform::from_xyz(0.0, CHARACTER_Y_OFFSET, 0.0).with_scale(Vec3::splat(scale)),
+            DespawnOnExit(AppState::InGame),
+        ));
+    });
+}
+
+/// Duelists still waiting to hear whether their model files exist.
+#[derive(Component)]
+struct BodyPending {
+    player: u64,
+}
+
+/// A duelist whose model loaded: carries the rig's animation nodes so the
+/// animation systems can find the graph and clips for this body.
+#[derive(Component, Clone)]
+struct DuelBody {
+    graph: Handle<AnimationGraph>,
+    idle: AnimationNodeIndex,
+    walk: AnimationNodeIndex,
+    shoot: AnimationNodeIndex,
+    hit: AnimationNodeIndex,
+}
+
+/// Swap in real bodies as rigs finish loading, or capsules if they never do.
+#[allow(clippy::too_many_arguments)]
+fn duelist_fallback(
+    mut commands: Commands,
+    pending: Query<(Entity, &BodyPending, &Duelist)>,
+    rigs: Res<DuelRigs>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    for (entity, d) in &new {
-        let hue = (d.player as f32 * 137.5) % 360.0;
-        let body = materials.add(Color::hsl(hue, 0.7, 0.55));
-        let gun = materials.add(Color::srgb(0.15, 0.15, 0.18));
+    for (entity, waiting, d) in &pending {
+        let state = if waiting.player % 2 == 0 {
+            &rigs.female
+        } else {
+            &rigs.male
+        };
+        match state {
+            RigState::Ready(rig) => {
+                commands
+                    .entity(entity)
+                    .remove::<BodyPending>()
+                    .insert(DuelBody {
+                        graph: rig.graph.clone(),
+                        idle: rig.idle,
+                        walk: rig.walk,
+                        shoot: rig.shoot,
+                        hit: rig.hit,
+                    });
+                spawn_scene_child(&mut commands, entity, rig.scene.clone(), CHARACTER_SCALE);
+            }
+            RigState::Failed => {
+                commands.entity(entity).remove::<BodyPending>();
+                spawn_capsule_body(&mut commands, entity, &mut meshes, &mut materials, d);
+            }
+            RigState::Pending => {}
+        }
+    }
+}
+
+/// The original look: a capsule with a little gun, tinted per player.
+fn spawn_capsule_body(
+    commands: &mut Commands,
+    entity: Entity,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    d: &Duelist,
+) {
+    let hue = (d.player as f32 * 137.5) % 360.0;
+    let body = materials.add(Color::hsl(hue, 0.7, 0.55));
+    let gun = materials.add(Color::srgb(0.15, 0.15, 0.18));
+    commands.entity(entity).with_children(|p| {
+        p.spawn((
+            Mesh3d(meshes.add(Capsule3d::new(BODY_RADIUS, 0.9))),
+            MeshMaterial3d(body),
+            Transform::from_xyz(0.0, 0.9, 0.0),
+        ));
+        p.spawn((
+            Mesh3d(meshes.add(Cuboid::new(0.1, 0.12, 0.45))),
+            MeshMaterial3d(gun),
+            Transform::from_xyz(0.3, 1.25, -0.4),
+        ));
+    });
+}
+
+// ------------------------------------------------------------ duel models
+
+/// One character model's scene plus the animation graph nodes we play.
+#[derive(Clone)]
+struct Rig {
+    scene: Handle<WorldAsset>,
+    graph: Handle<AnimationGraph>,
+    idle: AnimationNodeIndex,
+    walk: AnimationNodeIndex,
+    shoot: AnimationNodeIndex,
+    hit: AnimationNodeIndex,
+}
+
+/// `Failed` means the model files are missing: fall back to procedural.
+#[derive(Default)]
+enum RigState {
+    #[default]
+    Pending,
+    Failed,
+    Ready(Rig),
+}
+
+#[derive(Resource, Default)]
+struct DuelRigs {
+    male: RigState,
+    female: RigState,
+    gun: GunState,
+}
+
+/// The first-person revolver is a plain static model: a scene, no rig.
+#[derive(Default)]
+enum GunState {
+    #[default]
+    Pending,
+    Failed,
+    Ready(Handle<WorldAsset>),
+}
+
+/// Animation names inside the Quaternius glTF files.
+const CHARACTER_ANIMS: [&str; 4] = ["Idle", "Walk", "Shoot_OneHanded", "RecieveHit"];
+const CHARACTER_PREFIX: &str = "CharacterArmature|";
+
+/// Build animation graphs for each model once its glTF is loaded.
+fn build_rigs(
+    assets: Res<AssetServer>,
+    gltfs: Res<Assets<Gltf>>,
+    mut graphs: ResMut<Assets<AnimationGraph>>,
+    mut rigs: ResMut<DuelRigs>,
+) {
+    if matches!(rigs.male, RigState::Pending) {
+        rigs.male = character_rig(
+            &assets,
+            &gltfs,
+            &mut graphs,
+            "models/characters/Cowboy_Male.glb",
+        );
+    }
+    if matches!(rigs.female, RigState::Pending) {
+        rigs.female = character_rig(
+            &assets,
+            &gltfs,
+            &mut graphs,
+            "models/characters/Cowboy_Female.glb",
+        );
+    }
+    if matches!(rigs.gun, GunState::Pending) {
+        rigs.gun = gun_scene(&assets, "models/props/revolver.glb");
+    }
+}
+
+fn character_rig(
+    assets: &AssetServer,
+    gltfs: &Res<Assets<Gltf>>,
+    graphs: &mut ResMut<Assets<AnimationGraph>>,
+    path: &'static str,
+) -> RigState {
+    let handle: Handle<Gltf> = assets.load(path);
+    if !assets.is_loaded_with_dependencies(&handle) {
+        return if matches!(assets.load_state(handle.id()), LoadState::Failed(_)) {
+            RigState::Failed
+        } else {
+            RigState::Pending
+        };
+    }
+    let Some(gltf) = gltfs.get(&handle) else {
+        return RigState::Pending;
+    };
+    let mut clips = Vec::new();
+    for name in CHARACTER_ANIMS {
+        let Some(clip) = gltf
+            .named_animations
+            .get(format!("{CHARACTER_PREFIX}{name}").as_str())
+        else {
+            return RigState::Failed;
+        };
+        clips.push(clip.clone());
+    }
+    let (graph, nodes) = AnimationGraph::from_clips(clips);
+    let scene = assets.load(GltfAssetLabel::Scene(0).from_asset(path));
+    RigState::Ready(Rig {
+        scene,
+        graph: graphs.add(graph),
+        idle: nodes[0],
+        walk: nodes[1],
+        shoot: nodes[2],
+        hit: nodes[3],
+    })
+}
+
+/// The revolver has no usable animation clip (the pack's rigged FBX converts
+/// badly), so it ships as a static model: just wait for the scene to load.
+fn gun_scene(assets: &AssetServer, path: &'static str) -> GunState {
+    let scene = assets.load(GltfAssetLabel::Scene(0).from_asset(path));
+    if !assets.is_loaded_with_dependencies(&scene) {
+        return if matches!(assets.load_state(scene.id()), LoadState::Failed(_)) {
+            GunState::Failed
+        } else {
+            GunState::Pending
+        };
+    }
+    GunState::Ready(scene)
+}
+
+/// Wire the animation graph into a freshly spawned duelist's animation
+/// player, looping idle until the movement logic switches clips.
+fn setup_body_animations(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    bodies: Query<&DuelBody>,
+    children: Query<&Children>,
+    mut players: Query<&mut AnimationPlayer>,
+) {
+    let Ok(body) = bodies.get(ready.entity) else {
+        return;
+    };
+    for child in children.iter_descendants(ready.entity) {
+        let Ok(mut player) = players.get_mut(child) else {
+            continue;
+        };
+        let mut transitions = AnimationTransitions::new();
+        transitions
+            .play(&mut player, body.idle, Duration::ZERO)
+            .repeat();
         commands
-            .entity(entity)
-            .insert((
-                Transform::from_translation(d.pos),
-                Visibility::default(),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(meshes.add(Capsule3d::new(BODY_RADIUS, 0.9))),
-                    MeshMaterial3d(body),
-                    Transform::from_xyz(0.0, 0.9, 0.0),
-                ));
-                crate::art::eyes(
-                    p,
-                    &mut meshes,
-                    &mut materials,
-                    Vec3::new(0.0, 1.45, -BODY_RADIUS * 0.9),
-                    0.2,
-                    0.06,
-                );
-                p.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(0.1, 0.12, 0.45))),
-                    MeshMaterial3d(gun),
-                    Transform::from_xyz(0.3, 1.25, -0.4),
-                ));
-            });
+            .entity(child)
+            .insert(AnimationGraphHandle(body.graph.clone()))
+            .insert(transitions);
     }
 }
 
@@ -546,6 +832,119 @@ fn sync_duelist_transforms(mut q: Query<(&Duelist, &mut Transform)>) {
         t.translation = d.pos;
         t.rotation = Quat::from_rotation_y(d.yaw);
     }
+}
+
+/// A first-person revolver held by this peer while duelling. The glb variant
+/// is a plain scene; the procedural fallback is just a box.
+#[derive(Component)]
+struct ViewModelGun;
+
+/// My revolver, in my hands (first person) while I'm duelling.
+fn viewmodel_gun(
+    mut commands: Commands,
+    me: Option<Res<LocalPlayer>>,
+    duelists: Query<&Duelist>,
+    camera: Query<Entity, With<MainCamera>>,
+    mut view: ResMut<DuelView>,
+    rigs: Res<DuelRigs>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let mine = my_duelist(me.as_deref(), &duelists).is_some();
+    match (mine, view.viewmodel) {
+        (true, None) => {
+            let Ok(camera) = camera.single() else {
+                return;
+            };
+            let gun = match &rigs.gun {
+                GunState::Ready(scene) => commands
+                    .spawn((
+                        ViewModelGun,
+                        WorldAssetRoot(scene.clone()),
+                        // Model space has the barrel along +X; aim it forward.
+                        Transform::from_xyz(0.28, -0.24, -0.55)
+                            .with_rotation(Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2))
+                            .with_scale(Vec3::splat(GUN_SCALE)),
+                        DespawnOnExit(AppState::InGame),
+                    ))
+                    .id(),
+                GunState::Failed => commands
+                    .spawn((
+                        ViewModelGun,
+                        Mesh3d(meshes.add(Cuboid::new(0.1, 0.12, 0.45))),
+                        MeshMaterial3d(materials.add(Color::srgb(0.15, 0.15, 0.18))),
+                        Transform::from_xyz(0.28, -0.24, -0.55),
+                        DespawnOnExit(AppState::InGame),
+                    ))
+                    .id(),
+                GunState::Pending => return,
+            };
+            commands.entity(camera).add_child(gun);
+            view.viewmodel = Some(gun);
+        }
+        (false, Some(gun)) => {
+            // Duel's over: put the gun away.
+            commands.entity(gun).despawn();
+            view.viewmodel = None;
+        }
+        _ => {}
+    }
+}
+
+/// Drive the cowboy animations from replicated state: movement speed picks
+/// walk or idle, a falling bullet count plays the shot, falling lives play
+/// the hit reaction. Misses (a bullet spent, no news) also fire the gun sound.
+#[allow(clippy::too_many_arguments)]
+fn animate_duelists(
+    mut commands: Commands,
+    duelists: Query<(Entity, &Duelist, &DuelBody)>,
+    children: Query<&Children>,
+    mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
+    mut prev: Local<HashMap<Entity, (Vec3, u8, u8)>>,
+    time: Res<Time>,
+    me: Option<Res<LocalPlayer>>,
+    sfx: Option<Res<Sfx>>,
+) {
+    let dt = time.delta_secs().max(1e-3);
+    for (entity, d, body) in &duelists {
+        let (last_pos, last_bullets, last_lives) = prev
+            .insert(entity, (d.pos, d.bullets, d.lives))
+            .unwrap_or((d.pos, d.bullets, d.lives));
+        let moving = last_pos.distance_squared(d.pos) > (SPEED * dt * 0.25).powi(2);
+        let fired = d.bullets < last_bullets;
+        let hit = d.lives < last_lives;
+        if fired && d.player == me.as_deref().map(|m| m.0).unwrap_or(u64::MAX) {
+            // My own bang: everyone hears the shot.
+            if let Some(sfx) = &sfx {
+                play_sfx(&mut commands, &sfx.gunshot, 1.0);
+            }
+        }
+        for child in children.iter_descendants(entity) {
+            let Ok((mut player, mut transitions)) = players.get_mut(child) else {
+                continue;
+            };
+            // One-shots take precedence until they finish.
+            if fired {
+                transitions.play(&mut player, body.shoot, Duration::ZERO);
+                continue;
+            }
+            if hit {
+                transitions.play(&mut player, body.hit, Duration::ZERO);
+                continue;
+            }
+            if player.is_playing_animation(body.shoot) || player.is_playing_animation(body.hit) {
+                continue;
+            }
+            let want = if moving { body.walk } else { body.idle };
+            let playing = player.playing_animations().next().map(|(i, _)| *i);
+            if playing != Some(want) {
+                transitions
+                    .play(&mut player, want, Duration::from_millis(200))
+                    .repeat();
+            }
+        }
+    }
+    prev.retain(|e, _| duelists.contains(*e));
 }
 
 /// Number keys pick who to challenge (players other than me, by id).

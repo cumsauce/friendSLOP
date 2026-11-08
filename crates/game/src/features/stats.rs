@@ -10,6 +10,14 @@
 //!   room's best Rumpet is. At 8+ rabbits appear on the floor.
 //! - **John**: a slight increase to jump height in meadows. There is no
 //!   jumping and there are no meadows, so John does nothing yet.
+//!
+//! More stats in the same spirit, from #48 (the three above were only
+//! examples, but they stay so nothing is lost):
+//! - **Spoonth**: everyone can read the stats from further away; the stats
+//!   text grows with the room's best Spoonth.
+//! - **Glimbo**: at 9+ a lone teacup slowly orbits the middle of the world.
+//! - **Frumbly**: increases bread affinity in bakeries. There is no bread and
+//!   there are no bakeries, so Frumbly does nothing yet.
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -20,6 +28,8 @@ use crate::player::Player;
 
 /// Rumpet at which rabbits appear.
 pub const RABBIT_RUMPET: u8 = 8;
+/// Glimbo at which the teacup appears.
+pub const TEACUP_GLIMBO: u8 = 9;
 
 /// A player's stats, each 1..=10.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -27,17 +37,34 @@ pub struct Stats {
     pub wombility: u8,
     pub rumpet: u8,
     pub john: u8,
+    pub spoonth: u8,
+    pub glimbo: u8,
+    pub frumbly: u8,
 }
 
 impl Stats {
-    /// Roll stats from three numbers in `0.0..1.0`.
-    pub fn roll(a: f32, b: f32, c: f32) -> Self {
+    /// Roll stats from numbers in `0.0..1.0`, one per stat in field order.
+    pub fn roll(r: [f32; 6]) -> Self {
         let pick = |r: f32| 1 + (r.clamp(0.0, 0.999_999) * 10.0) as u8;
         Self {
-            wombility: pick(a),
-            rumpet: pick(b),
-            john: pick(c),
+            wombility: pick(r[0]),
+            rumpet: pick(r[1]),
+            john: pick(r[2]),
+            spoonth: pick(r[3]),
+            glimbo: pick(r[4]),
+            frumbly: pick(r[5]),
         }
+    }
+
+    pub fn all(&self) -> [u8; 6] {
+        [
+            self.wombility,
+            self.rumpet,
+            self.john,
+            self.spoonth,
+            self.glimbo,
+            self.frumbly,
+        ]
     }
 }
 
@@ -50,6 +77,11 @@ pub fn wombility_speed(wombility: u8, t: f32) -> f32 {
 /// How far (0..1) walls are tinted yellow by a Rumpet.
 pub fn rumpet_tint(rumpet: u8) -> f32 {
     f32::from(rumpet.min(10)) / 10.0
+}
+
+/// Stats text size from the room's best Spoonth: 13 at 0, up to 23 at 10.
+pub fn spoonth_font_size(spoonth: u8) -> f32 {
+    13.0 + f32::from(spoonth.min(10))
 }
 
 pub fn protocol(app: &mut App) {
@@ -84,7 +116,7 @@ fn give_stats(
     if *server.get() != ServerState::Running {
         return;
     }
-    let stats = Stats::roll(dice.roll(), dice.roll(), dice.roll());
+    let stats = Stats::roll(std::array::from_fn(|_| dice.roll()));
     commands.entity(add.entity).insert(stats);
 }
 
@@ -104,7 +136,14 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_stats_hud)
         .add_systems(
             Update,
-            (update_stats_hud, tint_walls, summon_rabbits, hop_rabbits)
+            (
+                update_stats_hud,
+                tint_walls,
+                summon_rabbits,
+                hop_rabbits,
+                summon_teacup,
+                orbit_teacup,
+            )
                 .run_if(in_state(AppState::InGame)),
         );
 }
@@ -127,20 +166,28 @@ fn spawn_stats_hud(mut commands: Commands) {
     ));
 }
 
-fn update_stats_hud(players: Query<(&Player, &Stats)>, mut hud: Query<&mut Text, With<StatsHud>>) {
+fn update_stats_hud(
+    players: Query<(&Player, &Stats)>,
+    mut hud: Query<(&mut Text, &mut TextFont), With<StatsHud>>,
+) {
     let mut rows: Vec<_> = players.iter().collect();
     rows.sort_by_key(|(p, _)| p.id);
     let mut lines = vec!["stats".to_string()];
     for (p, s) in rows {
         lines.push(format!(
-            "player {}: Wombility {} / Rumpet {} / John {}",
-            p.id, s.wombility, s.rumpet, s.john
+            "player {}: Wombility {} / Rumpet {} / John {} / Spoonth {} / Glimbo {} / Frumbly {}",
+            p.id, s.wombility, s.rumpet, s.john, s.spoonth, s.glimbo, s.frumbly
         ));
     }
     let want = lines.join("\n");
-    for mut text in &mut hud {
+    let size = spoonth_font_size(players.iter().map(|(_, s)| s.spoonth).max().unwrap_or(0));
+    for (mut text, mut font) in &mut hud {
         if text.0 != want {
             text.0.clone_from(&want);
+        }
+        let size = bevy::text::FontSize::Px(size);
+        if font.font_size != size {
+            font.font_size = size;
         }
     }
 }
@@ -229,6 +276,51 @@ fn hop_rabbits(time: Res<Time>, mut rabbits: Query<(&Rabbit, &mut Transform)>) {
     }
 }
 
+#[derive(Component)]
+struct Teacup;
+
+fn summon_teacup(
+    mut commands: Commands,
+    players: Query<&Stats>,
+    cups: Query<Entity, With<Teacup>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let want = players.iter().map(|s| s.glimbo).max().unwrap_or(0) >= TEACUP_GLIMBO;
+    if !want {
+        for c in &cups {
+            commands.entity(c).despawn();
+        }
+        return;
+    }
+    if !cups.is_empty() {
+        return;
+    }
+    let china = materials.add(Color::srgb(0.95, 0.95, 1.0));
+    commands
+        .spawn((
+            Mesh3d(meshes.add(Cylinder::new(0.2, 0.25))),
+            MeshMaterial3d(china.clone()),
+            Transform::from_xyz(6.0, 2.5, 0.0),
+            Teacup,
+            DespawnOnExit(AppState::InGame),
+        ))
+        .with_child((
+            Mesh3d(meshes.add(Torus::new(0.04, 0.09))),
+            MeshMaterial3d(china),
+            Transform::from_xyz(0.24, 0.0, 0.0)
+                .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
+        ));
+}
+
+fn orbit_teacup(time: Res<Time>, mut cups: Query<&mut Transform, With<Teacup>>) {
+    let t = time.elapsed_secs() * 0.3;
+    for mut tf in &mut cups {
+        tf.translation = Vec3::new(t.cos() * 6.0, 2.5 + (t * 3.0).sin() * 0.2, t.sin() * 6.0);
+        tf.rotation = Quat::from_rotation_y(-t);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -237,13 +329,20 @@ mod tests {
     fn stats_are_one_to_ten() {
         for i in 0..100 {
             let r = i as f32 / 100.0;
-            let s = Stats::roll(r, r, r);
-            for v in [s.wombility, s.rumpet, s.john] {
+            let s = Stats::roll([r; 6]);
+            for v in s.all() {
                 assert!((1..=10).contains(&v));
             }
         }
-        assert_eq!(Stats::roll(0.0, 0.0, 0.0).wombility, 1);
-        assert_eq!(Stats::roll(0.999, 0.0, 0.0).wombility, 10);
+        assert_eq!(Stats::roll([0.0; 6]).wombility, 1);
+        assert_eq!(Stats::roll([0.999, 0.0, 0.0, 0.0, 0.0, 0.0]).wombility, 10);
+        assert_eq!(Stats::roll([0.0, 0.0, 0.0, 0.0, 0.0, 0.999]).frumbly, 10);
+    }
+
+    #[test]
+    fn spoonth_makes_stats_bigger() {
+        assert!(spoonth_font_size(10) > spoonth_font_size(1));
+        assert_eq!(spoonth_font_size(0), 13.0);
     }
 
     #[test]

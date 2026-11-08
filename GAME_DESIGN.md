@@ -106,6 +106,10 @@ asked for, and what nobody has decided yet.
   After a random 1..1,000,000 words, the next word is swapped for a completely random word
   ("kazoo", "gravy", ...), then a new number is drawn. If fewer than 50 words got swapped, the
   upper bound is halved and it's redone, until at least 50 are. Same result on every peer.
+- **BSN salting** (#9). A rule for the code, not the game: every use of Bevy's BSN scene format
+  (the `bsn!` macro or a `.bsn` file) must come with a salty comment covering seven set grievances
+  (`Cargo.lock`, "x didn't set us up for success", SME's, the problem space, BSN syntax, `Children`
+  sugaring, Sam "Salt" Saltman). A test fails CI otherwise. Nothing uses BSN yet.
 
 ## Ideas so far
 
@@ -132,6 +136,7 @@ asked for, and what nobody has decided yet.
   with a boss fight against your landlord.
 - (#10): when writing dialogue, after a random 1-1,000,000 words replace the next word with a
   completely random word; halve the bound until at least 50 words get replaced.
+- (#9): every use of bsn (macro and asset) must be accompanied by a salting comment.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect

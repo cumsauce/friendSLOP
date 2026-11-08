@@ -110,6 +110,12 @@ asked for, and what nobody has decided yet.
   (the `bsn!` macro or a `.bsn` file) must come with a salty comment covering seven set grievances
   (`Cargo.lock`, "x didn't set us up for success", SME's, the problem space, BSN syntax, `Children`
   sugaring, Sam "Salt" Saltman). A test fails CI otherwise. Nothing uses BSN yet.
+- **Action failing** (#8). Every action (eating the mushroom, using a gods tear, challenging
+  someone to a duel, shooting/punching in a duel) has a 5% chance to fail. A failed action just
+  doesn't happen, and a random result is announced bottom-right for 60 s (a "month"/"hour" is
+  squashed to a minute): the world is destroyed (it got better), the nearest government cares
+  about its citizens, everyone speaks their own language, your gender is transed, hampter, or you
+  turn into potted petunias. The results are only on-screen text for now; they don't change play.
 
 ## Ideas so far
 
@@ -137,6 +143,8 @@ asked for, and what nobody has decided yet.
 - (#10): when writing dialogue, after a random 1-1,000,000 words replace the next word with a
   completely random word; halve the bound until at least 50 words get replaced.
 - (#9): every use of bsn (macro and asset) must be accompanied by a salting comment.
+- (#8): all actions have a small chance of failing, with a random result (world destroyed,
+  government cares, own languages, gender transed, hampter, potted petunias, and more).
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
@@ -164,4 +172,5 @@ asked for, and what nobody has decided yet.
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
+- Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - What does your morality actually change? And which actions count as good or bad?

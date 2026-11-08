@@ -424,3 +424,33 @@ fn paying_the_landlord_takes_only_the_payers_organs() {
     worth.sort();
     assert_eq!(worth, vec![(0, 21), (1, 0)]);
 }
+
+#[test]
+fn a_failed_action_does_not_happen_and_everyone_sees_why() {
+    use friendslop::features::fate::{FateBoard, FateDice};
+    use friendslop::features::mushroom::{EatMushroom, Mushroom};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    step(&mut server, &mut client);
+    server.world_mut().resource_mut::<FateDice>().chance = 1.0;
+    client.world_mut().client_trigger(EatMushroom);
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    assert_eq!(
+        world.query::<&Mushroom>().iter(world).count(),
+        1,
+        "not eaten"
+    );
+    let boards: Vec<FateBoard> = world.query::<&FateBoard>().iter(world).cloned().collect();
+    assert_eq!(boards.len(), 1);
+    assert_eq!(boards[0].mishaps.len(), 1);
+    assert_eq!(boards[0].mishaps[0].player, 1);
+}

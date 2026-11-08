@@ -13,6 +13,7 @@ pub mod dave_commune;
 pub mod duel;
 pub mod fart;
 pub mod fart_sound;
+pub mod fate;
 pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
@@ -44,6 +45,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(fart::protocol);
         app.add_plugins(fart_sound::protocol);
         app.add_plugins(landlord::protocol);
+        app.add_plugins(fate::protocol);
     }
 }
 
@@ -67,5 +69,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(fart_sound::plugin);
         app.add_plugins(great_storm::plugin);
         app.add_plugins(landlord::plugin);
+        app.add_plugins(fate::plugin);
     }
 }

@@ -168,12 +168,16 @@ fn on_challenge(
     mut invites: ResMut<DuelInvites>,
     players: Query<(&Player, &PlayerOwner)>,
     duelists: Query<(), With<Duelist>>,
+    mut fate: super::fate::Fate,
 ) {
     let Some(from) = player_of(ev.client_id, &players) else {
         return;
     };
     let to = ev.target;
     if from == to || !duelists.is_empty() {
+        return;
+    }
+    if fate.fails(ev.client_id) {
         return;
     }
     let Some(target) = client_of(to, &players) else {
@@ -292,6 +296,7 @@ fn on_shoot(
     players: Query<(&Player, &PlayerOwner)>,
     mut duelists: Query<(Entity, &mut Duelist)>,
     still: Query<&super::stillness::Stillness>,
+    mut fate: super::fate::Fate,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
@@ -299,6 +304,9 @@ fn on_shoot(
     let Some(me) = player_of(ev.client_id, &players) else {
         return;
     };
+    if duelists.iter().any(|(_, d)| d.player == me) && fate.fails(ev.client_id) {
+        return;
+    }
     let mut both: Vec<_> = duelists.iter_mut().collect();
     let Some(i) = both.iter().position(|(_, d)| d.player == me) else {
         return;

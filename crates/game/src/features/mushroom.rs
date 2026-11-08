@@ -114,6 +114,7 @@ fn eat_mushroom(
     mushrooms: Query<Entity, With<Mushroom>>,
     players: Query<(Entity, &PlayerOwner)>,
     still: Query<&super::stillness::Stillness>,
+    mut fate: super::fate::Fate,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
@@ -121,6 +122,9 @@ fn eat_mushroom(
     let Some(mushroom) = mushrooms.iter().next() else {
         return;
     };
+    if fate.fails(eat.client_id) {
+        return;
+    }
     commands.entity(mushroom).despawn();
     MoralAct::report(&mut commands, &players, eat.client_id, Act::EatMushroom);
     let (coin, amount) = (patch.next(), patch.next());

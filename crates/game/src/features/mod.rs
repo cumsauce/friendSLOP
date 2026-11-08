@@ -33,6 +33,7 @@ pub mod stats;
 pub mod stillness;
 pub mod synth_audio;
 pub mod totems;
+pub mod villagers;
 pub mod voice_lines;
 
 pub struct FeaturesProtocolPlugin;
@@ -64,6 +65,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(fps::protocol);
         app.add_plugins(interact::protocol);
         app.add_plugins(hide_and_seek::protocol);
+        app.add_plugins(villagers::protocol);
     }
 }
 
@@ -99,5 +101,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(fps::plugin);
         app.add_plugins(interact::plugin);
         app.add_plugins(hide_and_seek::plugin);
+        app.add_plugins(villagers::plugin);
     }
 }

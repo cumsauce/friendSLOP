@@ -122,6 +122,14 @@ asked for, and what nobody has decided yet.
   green-haired ones despise you, but nobody has hair yet. **Rumpet** tints the duel arena's walls
   yellow (by the room's best Rumpet), and at 8+ white rabbits appear hopping on the floor.
   **John** gives a slight jump boost in meadows, but there's no jumping and no meadows yet.
+- **Totems and locked doors** (#5). Three glowing totems (Wind, Frost, Fire) are the world's
+  magic. Click one to carry it; press F to cast the spell of every totem you hold (shown as text
+  to everyone; spells have no effect yet). A small stone vault on the east side has a Wind door
+  and a Frost door, with the Fire totem inside. Click a door while holding its totem to insert
+  it: the door sinks open, but that totem can't be cast while it's in there. Doors open from
+  either side, but you can only take the totem back out from the side you put it in (players
+  have no bodies, so "your side" is the side of the door you click on). The Fire totem can only
+  be picked up while a vault door is open. Just one small puzzle for now.
 
 ## Ideas so far
 
@@ -153,6 +161,9 @@ asked for, and what nobody has decided yet.
   government cares, own languages, gender transed, hampter, potted petunias, and more).
 - (#7): nonsensical RPG stats affecting combat, dialogue and exploration, e.g. Wombility,
   Rumpet, John.
+- (#5): magical totems are the magic system; holding one lets you cast its spell. Magic doors
+  unlock when a matching totem is inserted (then it can't be cast), unlock from both sides, but
+  the totem only comes out from the side it went in. Doors should make puzzles and shortcuts.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
@@ -182,4 +193,5 @@ asked for, and what nobody has decided yet.
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats exist but there's no hair, jumping, meadows or dialogue for them to act on. Which should come?
+- What do totem spells actually do, and what lies beyond the locked doors?
 - What does your morality actually change? And which actions count as good or bad?

@@ -476,3 +476,69 @@ fn everyone_gets_nonsensical_stats() {
         assert!((1..=10).contains(&s.wombility) && (1..=10).contains(&s.rumpet));
     }
 }
+
+#[test]
+fn totems_open_doors_and_stay_on_their_side() {
+    use friendslop::features::totems::{Door, GrabTotem, Magic, Totem, UseDoor};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    let totem = |app: &mut App, magic: Magic| {
+        let world = app.world_mut();
+        world
+            .query::<&Totem>()
+            .iter(world)
+            .find(|t| t.magic == magic)
+            .copied()
+    };
+    step(&mut server, &mut client);
+    let Some(fire) = totem(&mut client, Magic::Fire) else {
+        panic!("fire totem replicated");
+    };
+    let Some(wind) = totem(&mut client, Magic::Wind) else {
+        panic!("wind totem replicated");
+    };
+    let world = client.world_mut();
+    let Some(wind_door) = world
+        .query::<&Door>()
+        .iter(world)
+        .find(|d| d.magic == Magic::Wind)
+        .copied()
+    else {
+        panic!("wind door replicated");
+    };
+    // The vault is locked: nobody can reach the fire totem.
+    client.world_mut().client_trigger(GrabTotem { id: fire.id });
+    step(&mut server, &mut client);
+    assert_eq!(totem(&mut client, Magic::Fire).and_then(|t| t.holder), None);
+    // The host takes the wind totem and unlocks the door from the west.
+    server.world_mut().client_trigger(GrabTotem { id: wind.id });
+    server.world_mut().client_trigger(UseDoor {
+        id: wind_door.id,
+        side: -1,
+    });
+    step(&mut server, &mut client);
+    // The client can't pull it out from the east side...
+    client.world_mut().client_trigger(UseDoor {
+        id: wind_door.id,
+        side: 1,
+    });
+    // ...but can now get into the vault.
+    client.world_mut().client_trigger(GrabTotem { id: fire.id });
+    step(&mut server, &mut client);
+    let Some(wind) = totem(&mut client, Magic::Wind) else {
+        panic!("wind totem still there");
+    };
+    assert_eq!(wind.slotted, Some(wind_door.id), "still in the door");
+    assert_eq!(
+        totem(&mut client, Magic::Fire).and_then(|t| t.holder),
+        Some(1)
+    );
+}

@@ -73,6 +73,8 @@ impl Villager {
 struct Brain {
     target: Vec2,
     wait: f32,
+    /// Where it stood before the last brain step (for cover avoidance).
+    prev: Vec2,
 }
 
 /// Server only: a seeker who mistook a villager for a hider stands here until `until`.
@@ -144,6 +146,7 @@ fn spawn_villagers(mut commands: Commands, mut rng: ResMut<VillageRng>) {
             Brain {
                 target: pos,
                 wait: rng.f() * 4.0,
+                prev: pos,
             },
             Replicated,
         ));
@@ -279,10 +282,74 @@ fn hold_fooled(
 // ---------------------------------------------------------------- local side
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(click_villager).add_systems(
-        Update,
-        (dress_villagers, move_villagers, mutter).run_if(in_state(AppState::InGame)),
-    );
+    app.add_observer(click_villager)
+        .add_systems(
+            Update,
+            (dress_villagers, move_villagers, mutter).run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(
+            Update,
+            avoid_cover
+                .run_if(in_state(ServerState::Running))
+                .run_if(in_state(AppState::InGame)),
+        );
+}
+
+/// Host only (the cover colliders live in the host's scenery): after each brain
+/// step, sweep a ball along it. If it would walk into a tree, rock or wall,
+/// veer to the side instead; if every way is blocked, stop and pick somewhere
+/// else to go. Only runs when a villager moved, i.e. at most `AI_HZ`.
+fn avoid_cover(
+    spatial: avian3d::prelude::SpatialQuery,
+    mut villagers: Query<(&mut Villager, &mut Brain), Changed<Villager>>,
+) {
+    use avian3d::prelude::{Collider, ShapeCastConfig, SpatialQueryFilter};
+    let ball = Collider::sphere(0.3);
+    let filter = SpatialQueryFilter::default();
+    let clear = |from: Vec2, dir: Vec2, len: f32| -> bool {
+        let Ok(d) = Dir3::new(Vec3::new(dir.x, 0.0, dir.y)) else {
+            return true;
+        };
+        let at = Vec3::new(
+            from.x,
+            crate::terrain::height_at(from.x, from.y) + 0.9,
+            from.y,
+        );
+        let config = ShapeCastConfig {
+            ignore_origin_penetration: true,
+            ..ShapeCastConfig::from_max_distance(len)
+        };
+        spatial
+            .cast_shape(&ball, at, Quat::IDENTITY, d, &config, &filter)
+            .is_none()
+    };
+    for (mut v, mut brain) in &mut villagers {
+        let delta = v.pos - brain.prev;
+        let len = delta.length();
+        if len < 1e-4 || len > 2.0 {
+            brain.prev = v.pos; // standing still, or pushed/teleported
+            continue;
+        }
+        let dir = delta / len;
+        let look = len + 0.4;
+        if !clear(brain.prev, dir, look) {
+            let detour = [0.9_f32, -0.9, 1.6, -1.6]
+                .into_iter()
+                .map(|a| Vec2::from_angle(a).rotate(dir))
+                .find(|d| clear(brain.prev, *d, look));
+            match detour {
+                Some(d) => {
+                    v.pos = outside_arena(brain.prev + d * len);
+                    v.yaw = (-d.x).atan2(-d.y);
+                }
+                None => {
+                    v.pos = brain.prev;
+                    brain.wait = 0.5; // boxed in: go somewhere else
+                }
+            }
+        }
+        brain.prev = v.pos;
+    }
 }
 
 #[derive(Component)]

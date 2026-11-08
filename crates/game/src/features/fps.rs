@@ -305,8 +305,14 @@ pub fn walking_first_person(
     view.first_person && !me.is_some_and(|m| duelists.iter().any(|d| d.player == m.0))
 }
 
+/// Local: players whose floating name label must stay hidden on this peer
+/// (filled by hide and seek so labels don't give hiders away).
+#[derive(Resource, Default, Debug)]
+pub struct HiddenLabels(pub std::collections::HashSet<u64>);
+
 pub fn plugin(app: &mut App) {
     app.init_resource::<FpsView>()
+        .init_resource::<HiddenLabels>()
         .add_systems(OnEnter(AppState::InGame), (reset_view, spawn_crosshair))
         .add_systems(OnExit(AppState::InGame), free_cursor)
         .add_systems(
@@ -447,6 +453,7 @@ struct WalkerLabel(Entity);
 fn place_labels(
     mut commands: Commands,
     me: Option<Res<LocalPlayer>>,
+    hidden: Res<HiddenLabels>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     walkers: Query<(&Player, &GlobalTransform, &InheritedVisibility), With<WalkerDressed>>,
     mut markers: Query<(&OwnMarker, &mut Visibility), Without<WalkerLabel>>,
@@ -471,7 +478,7 @@ fn place_labels(
         let screen = camera
             .world_to_viewport(cam_tf, tf.translation() + Vec3::Y * 2.0)
             .ok()
-            .filter(|_| shown.get());
+            .filter(|_| shown.get() && !hidden.0.contains(&player.id));
         vis.set_if_neq(if screen.is_some() {
             Visibility::Inherited
         } else {

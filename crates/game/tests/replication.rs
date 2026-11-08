@@ -19,6 +19,27 @@ fn peer() -> App {
     app
 }
 
+/// Teleport player `id`'s body on the server (tests only; normally it walks).
+fn place(server: &mut App, id: u64, at: Vec3) {
+    use friendslop::features::fps::Walker;
+    let world = server.world_mut();
+    for (p, mut w) in world.query::<(&Player, &mut Walker)>().iter_mut(world) {
+        if p.id == id {
+            w.pos = at;
+        }
+    }
+}
+
+/// Stand player `id` next to the (only) mushroom.
+fn to_mushroom(server: &mut App, id: u64) {
+    use friendslop::features::mushroom::Mushroom;
+    let world = server.world_mut();
+    let Some(at) = world.query::<&Mushroom>().iter(world).next().map(|m| m.at) else {
+        panic!("no mushroom");
+    };
+    place(server, id, Vec3::new(at.x, 0.0, at.y));
+}
+
 fn player_count(app: &mut App) -> usize {
     let world = app.world_mut();
     world.query::<&Player>().iter(world).count()
@@ -118,6 +139,7 @@ fn eating_the_mushroom_changes_only_the_eaters_voice() {
     let world = client.world_mut();
     assert_eq!(world.query::<&Mushroom>().iter(world).count(), 1);
 
+    to_mushroom(&mut server, 1);
     client.world_mut().client_trigger(EatMushroom);
     step(&mut server, &mut client);
 
@@ -286,6 +308,16 @@ fn using_a_gods_tear_transforms_the_user() {
         TOTAL_TEARS,
         "the whole supply rained down"
     );
+    let world = server.world_mut();
+    let Some(at) = world
+        .query::<&GodsTear>()
+        .iter(world)
+        .find(|t| t.id == ids[0])
+        .map(|t| t.at)
+    else {
+        panic!("no tear");
+    };
+    place(&mut server, 1, Vec3::new(at.x, 0.0, at.y));
     client
         .world_mut()
         .client_trigger(UseGodsTear { id: ids[0] });
@@ -421,6 +453,7 @@ fn paying_the_landlord_takes_only_the_payers_organs() {
         }
     };
     step(&mut server, &mut client);
+    place(&mut server, 1, friendslop::features::landlord::LANDLORD_AT);
     client.world_mut().client_trigger(BotherLandlord);
     step(&mut server, &mut client);
     let world = client.world_mut();
@@ -455,6 +488,7 @@ fn a_failed_action_does_not_happen_and_everyone_sees_why() {
     };
     step(&mut server, &mut client);
     server.world_mut().resource_mut::<FateDice>().chance = 1.0;
+    to_mushroom(&mut server, 1);
     client.world_mut().client_trigger(EatMushroom);
     step(&mut server, &mut client);
     let world = client.world_mut();
@@ -528,21 +562,35 @@ fn totems_open_doors_and_stay_on_their_side() {
     else {
         panic!("wind door replicated");
     };
-    // The vault is locked: nobody can reach the fire totem.
+    // The vault is locked: nobody can reach the fire totem, even standing by it.
+    place(&mut server, 1, Vec3::new(fire.at.x, 0.0, fire.at.y));
     client.world_mut().client_trigger(GrabTotem { id: fire.id });
     step(&mut server, &mut client);
     assert_eq!(totem(&mut client, Magic::Fire).and_then(|t| t.holder), None);
-    // The host takes the wind totem and unlocks the door from the west.
+    // The host walks to the wind totem, takes it, and unlocks the door from the west.
+    place(&mut server, 0, Vec3::new(wind.at.x, 0.0, wind.at.y));
     server.world_mut().client_trigger(GrabTotem { id: wind.id });
+    step(&mut server, &mut client);
+    place(
+        &mut server,
+        0,
+        Vec3::new(wind_door.at.x - 1.0, 0.0, wind_door.at.y),
+    );
     server.world_mut().client_trigger(UseDoor {
         id: wind_door.id,
-        side: -1,
+        side: 0,
     });
     step(&mut server, &mut client);
-    // The client can't pull it out from the east side...
+    // The client stands east of the door (inside), so it can't pull it out,
+    // even if it claims to be on the west side...
+    place(
+        &mut server,
+        1,
+        Vec3::new(wind_door.at.x + 1.0, 0.0, wind_door.at.y),
+    );
     client.world_mut().client_trigger(UseDoor {
         id: wind_door.id,
-        side: 1,
+        side: -1,
     });
     // ...but can now get into the vault.
     client.world_mut().client_trigger(GrabTotem { id: fire.id });
@@ -577,6 +625,17 @@ fn adopting_a_pet_gives_one_pet_each() {
     assert!(ids.len() >= 2, "strays replicated");
     // The client adopts two; only the first one counts. The host wants the
     // first one too, but it's taken, so it gets nothing.
+    let world = server.world_mut();
+    let Some(at) = world
+        .query::<&Pet>()
+        .iter(world)
+        .find(|p| p.id == ids[0])
+        .map(|p| p.at)
+    else {
+        panic!("no pet");
+    };
+    place(&mut server, 0, Vec3::new(at.x, 0.0, at.y));
+    place(&mut server, 1, Vec3::new(at.x, 0.0, at.y));
     client.world_mut().client_trigger(AdoptPet { id: ids[0] });
     client.world_mut().client_trigger(AdoptPet { id: ids[1] });
     step(&mut server, &mut client);
@@ -741,4 +800,62 @@ fn everyone_gets_a_body_and_only_walks_their_own() {
         "player 1 walked forward"
     );
     assert_eq!(after[0].1.pos, start[0].1.pos, "the host stayed put");
+}
+
+#[test]
+fn out_of_reach_interactions_are_rejected() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::interact::Denied;
+    use friendslop::features::mushroom::{EatMushroom, Mushroom};
+
+    #[derive(Resource, Default)]
+    struct Told(Vec<String>);
+
+    let (mut server, mut client) = (peer(), peer());
+    client.init_resource::<Told>();
+    client
+        .world_mut()
+        .add_observer(|d: On<Denied>, mut told: ResMut<Told>| told.0.push(d.text.clone()));
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    let world = server.world_mut();
+    let Some(at) = world.query::<&Mushroom>().iter(world).next().map(|m| m.at) else {
+        panic!("no mushroom");
+    };
+    // Stand far away from it.
+    let far = Vec3::new(-at.x.signum() * 20.0, 0.0, -at.y.signum() * 20.0);
+    place(&mut server, 1, far);
+    client.world_mut().client_trigger(EatMushroom);
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    assert_eq!(
+        world.query::<&Mushroom>().iter(world).count(),
+        1,
+        "not eaten"
+    );
+    let told = &client.world().resource::<Told>().0;
+    assert_eq!(told.len(), 1, "told why: {told:?}");
+    assert!(told[0].contains("too far"));
+}
+
+#[test]
+fn one_click_hits_only_one_target() {
+    use friendslop::features::interact::pick;
+    let mut world = World::new();
+    let ids: Vec<Entity> = (0..3).map(|_| world.spawn_empty().id()).collect();
+    // A mushroom, a pet and a tear all stacked under the crosshair.
+    let cursor = Vec2::new(400.0, 300.0);
+    let under = [
+        (ids[0], Vec2::new(410.0, 300.0), 40.0),
+        (ids[1], Vec2::new(402.0, 303.0), 40.0),
+        (ids[2], Vec2::new(380.0, 290.0), 60.0),
+    ];
+    assert_eq!(pick(cursor, under), Some(ids[1]), "only the closest one");
 }

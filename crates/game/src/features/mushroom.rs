@@ -7,16 +7,16 @@
 //! while. A new mushroom sprouts somewhere else a little later.
 
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use bevy_replicon::prelude::*;
 use bevy_voice_chat::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::assets::{Sfx, play_sfx};
+use crate::features::fps::Walker;
+use crate::features::interact::{Clickable, Clicked, in_reach};
 use crate::features::morality::{Act, MoralAct};
 use crate::player::PlayerOwner;
-use crate::world::MainCamera;
 
 /// A mushroom on the floor at (x, z).
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -112,17 +112,26 @@ fn eat_mushroom(
     eat: On<FromClient<EatMushroom>>,
     mut commands: Commands,
     mut patch: ResMut<MushroomPatch>,
-    mushrooms: Query<Entity, With<Mushroom>>,
+    mushrooms: Query<(Entity, &Mushroom)>,
     players: Query<(Entity, &PlayerOwner)>,
+    walkers: Query<(&PlayerOwner, &Walker)>,
     still: Query<&super::stillness::Stillness>,
     mut fate: super::fate::Fate,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
     }
-    let Some(mushroom) = mushrooms.iter().next() else {
+    let Some((mushroom, m)) = mushrooms.iter().next() else {
         return;
     };
+    if !in_reach(
+        &mut commands,
+        eat.client_id,
+        &walkers,
+        Vec3::new(m.at.x, 0.0, m.at.y),
+    ) {
+        return;
+    }
     if fate.fails(eat.client_id) {
         return;
     }
@@ -141,13 +150,14 @@ fn eat_mushroom(
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<MushroomHigh>()
+        .add_observer(click_mushroom)
         .add_observer(feel_mushroom)
         .add_systems(Startup, install_pitch_shifter)
         .add_systems(OnEnter(AppState::InGame), spawn_mushroom_text)
         .add_systems(OnExit(AppState::InGame), sober_up)
         .add_systems(
             Update,
-            (dress_mushrooms, click_mushroom, wear_off).run_if(in_state(AppState::InGame)),
+            (dress_mushrooms, wear_off).run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -256,6 +266,7 @@ fn dress_mushrooms(
             .entity(entity)
             .insert((
                 Transform::from_xyz(mushroom.at.x, 0.0, mushroom.at.y),
+                Clickable::at_height(0.3),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))
@@ -282,33 +293,13 @@ fn dress_mushrooms(
     }
 }
 
-/// How close (in pixels) a click must land to the mushroom on screen.
-const CLICK_RADIUS: f32 = 40.0;
-
+/// The unified click landed on a mushroom: eat it.
 fn click_mushroom(
+    click: On<Clicked>,
     mut commands: Commands,
-    mouse: Res<ButtonInput<MouseButton>>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    view: Res<super::fps::FpsView>,
-    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mushrooms: Query<&Mushroom>,
+    mushrooms: Query<(), With<Mushroom>>,
 ) {
-    if !mouse.just_pressed(MouseButton::Left) {
-        return;
-    }
-    let Ok(window) = window.single() else { return };
-    let Some(cursor) = super::fps::aim_point(window, &view) else {
-        return;
-    };
-    let Ok((camera, cam_transform)) = camera.single() else {
-        return;
-    };
-    let hit = mushrooms.iter().any(|m| {
-        camera
-            .world_to_viewport(cam_transform, Vec3::new(m.at.x, 0.3, m.at.y))
-            .is_ok_and(|p| p.distance(cursor) < CLICK_RADIUS)
-    });
-    if hit {
+    if mushrooms.contains(click.entity) {
         commands.client_trigger(EatMushroom);
     }
 }

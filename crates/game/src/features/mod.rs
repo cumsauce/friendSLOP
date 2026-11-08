@@ -20,6 +20,7 @@ pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
 pub mod halt;
+pub mod interact;
 pub mod landlord;
 pub mod morality;
 pub mod mushroom;
@@ -60,6 +61,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(halt::protocol);
         app.add_plugins(objective::protocol);
         app.add_plugins(fps::protocol);
+        app.add_plugins(interact::protocol);
     }
 }
 
@@ -93,5 +95,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(halt::plugin);
         app.add_plugins(objective::plugin);
         app.add_plugins(fps::plugin);
+        app.add_plugins(interact::plugin);
     }
 }

@@ -10,13 +10,13 @@
 //! the totem inside it, which only works while one of its doors is open.
 
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::features::fps::Walker;
+use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::player::{Player, PlayerOwner};
-use crate::world::MainCamera;
 
 /// The kinds of magic. Each totem and door has one.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -169,6 +169,8 @@ fn player_id(client: ClientId, players: &Query<(&Player, &PlayerOwner)>) -> Opti
 
 fn grab_totem(
     ev: On<FromClient<GrabTotem>>,
+    mut commands: Commands,
+    walkers: Query<(&PlayerOwner, &Walker)>,
     still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     doors: Query<&Door>,
@@ -184,7 +186,20 @@ fn grab_totem(
     let Some(mut totem) = totems.iter_mut().find(|t| t.id == ev.id) else {
         return;
     };
-    if totem.holder.is_some() || totem.slotted.is_some() || (totem.in_vault && !vault_open) {
+    if totem.holder.is_some() || totem.slotted.is_some() {
+        deny(
+            &mut commands,
+            ev.client_id,
+            "someone already has that totem",
+        );
+        return;
+    }
+    if totem.in_vault && !vault_open {
+        deny(&mut commands, ev.client_id, "the vault is locked");
+        return;
+    }
+    let at = Vec3::new(totem.at.x, 0.0, totem.at.y);
+    if !in_reach(&mut commands, ev.client_id, &walkers, at) {
         return;
     }
     totem.holder = Some(me);
@@ -192,6 +207,8 @@ fn grab_totem(
 
 fn use_door(
     ev: On<FromClient<UseDoor>>,
+    mut commands: Commands,
+    walkers: Query<(&PlayerOwner, &Walker)>,
     still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut doors: Query<&mut Door>,
@@ -203,9 +220,18 @@ fn use_door(
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };
-    let side = ev.side.signum();
     let Some(mut door) = doors.iter_mut().find(|d| d.id == ev.id) else {
         return;
+    };
+    let at = Vec3::new(door.at.x, 0.0, door.at.y);
+    if !in_reach(&mut commands, ev.client_id, &walkers, at) {
+        return;
+    }
+    // Your side is where your body stands, whatever the client says.
+    let side: i8 = match crate::features::interact::body_of(ev.client_id, &walkers) {
+        Some(here) if here.x < door.at.x => -1,
+        Some(_) => 1,
+        None => ev.side.signum(),
     };
     match door.key_side {
         // Only the side it went in from can take it back out.
@@ -216,7 +242,11 @@ fn use_door(
             }
             door.key_side = None;
         }
-        Some(_) => {}
+        Some(_) => deny(
+            &mut commands,
+            ev.client_id,
+            "that totem went in from the other side",
+        ),
         None => {
             if let Some(mut t) = totems
                 .iter_mut()
@@ -277,6 +307,7 @@ fn drop_on_leave(
 pub fn plugin(app: &mut App) {
     app.init_resource::<SpellLog>()
         .add_observer(hear_spell)
+        .add_observer(click_totem_or_door)
         .add_systems(OnEnter(AppState::InGame), (build_vault, spawn_totem_hud))
         .add_systems(
             Update,
@@ -285,7 +316,6 @@ pub fn plugin(app: &mut App) {
                 dress_doors,
                 place_totems,
                 swing_doors,
-                click_totems_and_doors,
                 cast_key,
                 update_totem_hud.run_if(crate::world::hud_tick()),
             )
@@ -347,6 +377,7 @@ fn dress_totems(
             .entity(entity)
             .insert((
                 Transform::from_xyz(totem.at.x, 0.0, totem.at.y),
+                Clickable::at_height(0.5),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))
@@ -401,6 +432,7 @@ fn dress_doors(
             Mesh3d(meshes.add(Cuboid::new(0.15, 1.4, 1.2))),
             MeshMaterial3d(mat),
             Transform::from_xyz(door.at.x, 0.7, door.at.y),
+            Clickable::at_height(0.0),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));
@@ -437,68 +469,24 @@ fn swing_doors(time: Res<Time>, mut doors: Query<(&Door, &mut Transform)>) {
     }
 }
 
-const CLICK_RADIUS: f32 = 40.0;
-
-#[allow(clippy::too_many_arguments)]
-fn click_totems_and_doors(
+/// The unified click landed on a totem or a door. A totem stuck in a door
+/// counts as using that door; the server works out which side you're on.
+fn click_totem_or_door(
+    click: On<Clicked>,
     mut commands: Commands,
-    me: Option<Res<crate::player::LocalPlayer>>,
-    walkers: Query<(&crate::player::Player, &super::fps::Walker)>,
-    duelists: Query<&super::duel::Duelist>,
-    mouse: Res<ButtonInput<MouseButton>>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    view: Res<super::fps::FpsView>,
-    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     totems: Query<&Totem>,
     doors: Query<&Door>,
 ) {
-    if !mouse.just_pressed(MouseButton::Left) {
-        return;
-    }
-    let Ok(window) = window.single() else { return };
-    let Some(cursor) = super::fps::aim_point(window, &view) else {
-        return;
-    };
-    let Ok((camera, cam_tf)) = camera.single() else {
-        return;
-    };
-    let near = |p: Vec3| {
-        camera
-            .world_to_viewport(cam_tf, p)
-            .is_ok_and(|s| s.distance(cursor) < CLICK_RADIUS)
-    };
-    if let Some(t) = totems
-        .iter()
-        .find(|t| t.holder.is_none() && t.slotted.is_none() && near(Vec3::new(t.at.x, 0.5, t.at.y)))
-    {
-        commands.client_trigger(GrabTotem { id: t.id });
-        return;
-    }
-    // With a body (#53), you use the door you're standing next to, from
-    // the side you're standing on.
-    if view.first_person {
-        let Some(w) = super::fps::my_walker(me.as_deref(), &walkers, &duelists) else {
-            return;
-        };
-        let at = w.pos.xz();
-        if let Some(door) = doors.iter().find(|d| at.distance(d.at) < 2.5) {
-            let side = if at.x < door.at.x { -1 } else { 1 };
-            commands.client_trigger(UseDoor { id: door.id, side });
+    if let Ok(t) = totems.get(click.entity) {
+        match t.slotted {
+            Some(id) => commands.client_trigger(UseDoor { id, side: 0 }),
+            None => commands.client_trigger(GrabTotem { id: t.id }),
         }
-        return;
-    }
-    // Overview: which side of the door you click on is the side you're standing on.
-    let Ok(ray) = camera.viewport_to_world(cam_tf, cursor) else {
-        return;
-    };
-    let Some(dist) = ray.intersect_plane(Vec3::ZERO, InfinitePlane3d::new(Vec3::Y)) else {
-        return;
-    };
-    let floor = ray.get_point(dist);
-    let floor = Vec2::new(floor.x, floor.z);
-    if let Some(door) = doors.iter().find(|d| floor.distance(d.at) < 1.3) {
-        let side = if floor.x < door.at.x { -1 } else { 1 };
-        commands.client_trigger(UseDoor { id: door.id, side });
+    } else if let Ok(door) = doors.get(click.entity) {
+        commands.client_trigger(UseDoor {
+            id: door.id,
+            side: 0,
+        });
     }
 }
 

@@ -14,6 +14,8 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::features::fps::Walker;
+use crate::features::interact::{Clickable, Clicked, deny, in_reach, refuse};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
@@ -122,6 +124,8 @@ fn player_id(client: ClientId, players: &Query<(&Player, &PlayerOwner)>) -> Opti
 /// Server: a stray goes to the first player without a pet who asks.
 fn adopt(
     ev: On<FromClient<AdoptPet>>,
+    mut commands: Commands,
+    walkers: Query<(&PlayerOwner, &Walker)>,
     still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut pets: Query<&mut Pet>,
@@ -135,7 +139,15 @@ fn adopt(
     if pets.iter().any(|p| p.owner == Some(me)) {
         return;
     }
-    if let Some(mut pet) = pets.iter_mut().find(|p| p.id == ev.id && p.owner.is_none()) {
+    let Some(mut pet) = pets.iter_mut().find(|p| p.id == ev.id) else {
+        return;
+    };
+    if pet.owner.is_some() {
+        deny(&mut commands, ev.client_id, "that pet already has an owner");
+        return;
+    }
+    let at = Vec3::new(pet.at.x, 0.0, pet.at.y);
+    if in_reach(&mut commands, ev.client_id, &walkers, at) {
         pet.owner = Some(me);
     }
 }
@@ -238,13 +250,13 @@ pub fn biggest_pack(points: &[Vec2]) -> usize {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_pet_hud)
+    app.add_observer(click_pet)
+        .add_systems(OnEnter(AppState::InGame), spawn_pet_hud)
         .add_systems(
             Update,
             (
                 dress_pets,
                 move_pets,
-                click_pet,
                 send_lure,
                 draw_links,
                 update_pet_hud.run_if(crate::world::hud_tick()),
@@ -268,6 +280,7 @@ fn dress_pets(
             .entity(entity)
             .insert((
                 Transform::from_xyz(pet.at.x, 0.0, pet.at.y),
+                Clickable::at_height(0.3),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))
@@ -441,33 +454,23 @@ fn send_lure(
     }
 }
 
-const CLICK_RADIUS: f32 = 40.0;
-
+/// The unified click landed on a pet: adopt it if it's a stray and you have none.
 fn click_pet(
+    click: On<Clicked>,
     mut commands: Commands,
-    mouse: Res<ButtonInput<MouseButton>>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    view: Res<super::fps::FpsView>,
-    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    pets: Query<(&Pet, &Transform)>,
+    me: Option<Res<LocalPlayer>>,
+    pets: Query<&Pet>,
+    toast: Option<ResMut<crate::hud::Toast>>,
 ) {
-    if !mouse.just_pressed(MouseButton::Left) {
-        return;
-    }
-    let Ok(window) = window.single() else { return };
-    let Some(cursor) = super::fps::aim_point(window, &view) else {
+    let Ok(pet) = pets.get(click.entity) else {
         return;
     };
-    let Ok((camera, cam_tf)) = camera.single() else {
-        return;
-    };
-    let hit = pets.iter().find(|(p, tf)| {
-        p.owner.is_none()
-            && camera
-                .world_to_viewport(cam_tf, tf.translation + Vec3::Y * 0.3)
-                .is_ok_and(|s| s.distance(cursor) < CLICK_RADIUS)
-    });
-    if let Some((pet, _)) = hit {
+    let mine = me.is_some_and(|me| pets.iter().any(|p| p.owner == Some(me.0)));
+    if pet.owner.is_some() {
+        refuse(toast, "that pet already has an owner");
+    } else if mine {
+        refuse(toast, "you already have a pet");
+    } else {
         commands.client_trigger(AdoptPet { id: pet.id });
     }
 }

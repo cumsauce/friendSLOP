@@ -113,9 +113,9 @@ fn dress_goat(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, goat) in &new {
-        let wool = materials.add(Color::srgb(0.9, 0.88, 0.82));
+        let wool = crate::art::soft(&mut materials, Color::srgb(0.9, 0.88, 0.82));
         let horn = materials.add(Color::srgb(0.35, 0.3, 0.25));
-        let eye = materials.add(Color::srgb(0.75, 0.55, 0.1));
+        let eye = crate::art::glossy(&mut materials, Color::srgb(0.75, 0.55, 0.1));
         let leg = meshes.add(Cylinder::new(0.08, 0.7));
         let horn_mesh = meshes.add(Cone::new(0.07, 0.35));
         let eye_mesh = meshes.add(Sphere::new(0.06));
@@ -127,10 +127,28 @@ fn dress_goat(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {
+                // Fluffy body: a few overlapping wool puffs.
+                let puff = meshes.add(Sphere::new(0.38));
+                for (y, z) in [(0.92, -0.3), (0.98, 0.05), (0.9, 0.35)] {
+                    p.spawn((
+                        Mesh3d(puff.clone()),
+                        MeshMaterial3d(wool.clone()),
+                        Transform::from_xyz(0.0, y, z).with_scale(Vec3::new(0.95, 0.85, 1.0)),
+                    ));
+                }
+                // Hooves and a stubby tail.
+                let hoof = meshes.add(Cylinder::new(0.1, 0.1));
+                for (x, z) in [(-0.2, -0.4), (0.2, -0.4), (-0.2, 0.4), (0.2, 0.4)] {
+                    p.spawn((
+                        Mesh3d(hoof.clone()),
+                        MeshMaterial3d(horn.clone()),
+                        Transform::from_xyz(x, 0.05, z),
+                    ));
+                }
                 p.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(0.6, 0.5, 1.1))),
+                    Mesh3d(meshes.add(Sphere::new(0.1))),
                     MeshMaterial3d(wool.clone()),
-                    Transform::from_xyz(0.0, 0.9, 0.0),
+                    Transform::from_xyz(0.0, 1.15, 0.7),
                 ));
                 for (x, z) in [(-0.2, -0.4), (0.2, -0.4), (-0.2, 0.4), (0.2, 0.4)] {
                     p.spawn((
@@ -140,9 +158,9 @@ fn dress_goat(
                     ));
                 }
                 p.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(0.35, 0.4, 0.5))),
+                    Mesh3d(meshes.add(Sphere::new(0.22))),
                     MeshMaterial3d(wool.clone()),
-                    Transform::from_xyz(0.0, 1.35, -0.65),
+                    Transform::from_xyz(0.0, 1.35, -0.65).with_scale(Vec3::new(1.0, 1.0, 1.2)),
                 ))
                 .with_children(|h| {
                     for x in [-0.12, 0.12] {
@@ -152,6 +170,13 @@ fn dress_goat(
                             Transform::from_xyz(x, 0.3, 0.1)
                                 .with_rotation(Quat::from_rotation_x(0.5)),
                         ));
+                        h.spawn((
+                            Mesh3d(horn_mesh.clone()),
+                            MeshMaterial3d(wool.clone()),
+                            Transform::from_xyz(x * 2.0, 0.1, 0.15)
+                                .with_rotation(Quat::from_rotation_z(x.signum() * 1.9))
+                                .with_scale(Vec3::new(1.3, 0.8, 0.6)),
+                        ));
                         // Half-closed, unimpressed eyes.
                         h.spawn((
                             Mesh3d(eye_mesh.clone()),
@@ -160,6 +185,17 @@ fn dress_goat(
                                 .with_scale(Vec3::new(1.0, 0.4, 1.0)),
                         ));
                     }
+                    // Muzzle with a dark nose.
+                    h.spawn((
+                        Mesh3d(meshes.add(Sphere::new(0.13))),
+                        MeshMaterial3d(wool.clone()),
+                        Transform::from_xyz(0.0, -0.08, -0.2),
+                    ));
+                    h.spawn((
+                        Mesh3d(meshes.add(Sphere::new(0.04))),
+                        MeshMaterial3d(horn.clone()),
+                        Transform::from_xyz(0.0, -0.04, -0.33),
+                    ));
                     // Beard.
                     h.spawn((
                         Mesh3d(meshes.add(Cone::new(0.08, 0.25))),

@@ -291,7 +291,7 @@ fn build_vault(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let stone = materials.add(Color::srgb(0.55, 0.5, 0.6));
+    let stone = crate::art::soft(&mut materials, Color::srgb(0.55, 0.5, 0.6));
     let h = VAULT_HALF;
     let wall = |len_x: f32, len_z: f32| Cuboid::new(len_x, 1.6, len_z);
     // North and south walls, then the short stubs either side of each door.
@@ -304,11 +304,19 @@ fn build_vault(
             pieces.push((wall(0.3, h - 0.6), Vec2::new(x, z * (h + 0.6) / 2.0)));
         }
     }
+    let cap_stone = crate::art::soft(&mut materials, Color::srgb(0.7, 0.66, 0.75));
     for (shape, off) in pieces {
+        let cap = Cuboid::new(shape.size().x + 0.12, 0.14, shape.size().z + 0.12);
         commands.spawn((
             Mesh3d(meshes.add(shape)),
             MeshMaterial3d(stone.clone()),
             Transform::from_xyz(VAULT_AT.x + off.x, 0.8, VAULT_AT.y + off.y),
+            DespawnOnExit(AppState::InGame),
+        ));
+        commands.spawn((
+            Mesh3d(meshes.add(cap)),
+            MeshMaterial3d(cap_stone.clone()),
+            Transform::from_xyz(VAULT_AT.x + off.x, 1.65, VAULT_AT.y + off.y),
             DespawnOnExit(AppState::InGame),
         ));
     }
@@ -326,6 +334,7 @@ fn dress_totems(
             emissive: LinearRgba::from(totem.magic.color()) * 0.6,
             ..default()
         });
+        let base = crate::art::soft(&mut materials, Color::srgb(0.5, 0.45, 0.55));
         commands
             .entity(entity)
             .insert((
@@ -340,10 +349,30 @@ fn dress_totems(
                     Transform::from_xyz(0.0, 0.3, 0.0),
                 ));
                 p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.18))),
-                    MeshMaterial3d(glow),
+                    Mesh3d(
+                        meshes.add(
+                            Sphere::new(0.18)
+                                .mesh()
+                                .ico(1)
+                                .unwrap_or_else(|_| Sphere::new(0.18).into()),
+                        ),
+                    ),
+                    MeshMaterial3d(glow.clone()),
                     Transform::from_xyz(0.0, 0.75, 0.0),
                 ));
+                p.spawn((
+                    Mesh3d(meshes.add(Cylinder::new(0.24, 0.1).mesh().resolution(6))),
+                    MeshMaterial3d(base.clone()),
+                    Transform::from_xyz(0.0, 0.05, 0.0),
+                ));
+                let ring = meshes.add(Torus::new(0.14, 0.19));
+                for y in [0.2, 0.45] {
+                    p.spawn((
+                        Mesh3d(ring.clone()),
+                        MeshMaterial3d(base.clone()),
+                        Transform::from_xyz(0.0, y, 0.0),
+                    ));
+                }
             });
     }
 }

@@ -71,15 +71,15 @@ fn dress_bear(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, bear) in &new {
-        let fur = materials.add(Color::srgb(0.55, 0.36, 0.22));
+        let fur = crate::art::soft(&mut materials, Color::srgb(0.55, 0.36, 0.22));
         let tummy = materials.add(Color::srgb(0.85, 0.7, 0.52));
-        let dark = materials.add(Color::srgb(0.08, 0.05, 0.04));
+        let dark = crate::art::glossy(&mut materials, Color::srgb(0.08, 0.05, 0.04));
         let body = meshes.add(Sphere::new(0.8));
         let head = meshes.add(Sphere::new(0.5));
         let ear = meshes.add(Sphere::new(0.17));
         let snout = meshes.add(Sphere::new(0.2));
         let nose = meshes.add(Sphere::new(0.07));
-        let eye = meshes.add(Sphere::new(0.06));
+        let eye = meshes.add(Sphere::new(0.17));
         let limb = meshes.add(Capsule3d::new(0.18, 0.35));
         commands
             .entity(entity)
@@ -114,6 +114,12 @@ fn dress_bear(
                         Transform::from_xyz(x * 0.6, 0.25, -0.1),
                     ));
                 }
+                // Little round tail.
+                p.spawn((
+                    Mesh3d(meshes.add(Sphere::new(0.16))),
+                    MeshMaterial3d(fur.clone()),
+                    Transform::from_xyz(0.0, 0.55, 0.75),
+                ));
                 // Head.
                 p.spawn((
                     Mesh3d(head),
@@ -129,10 +135,19 @@ fn dress_bear(
                         ));
                         h.spawn((
                             Mesh3d(eye.clone()),
-                            MeshMaterial3d(dark.clone()),
-                            Transform::from_xyz(x * 0.5, 0.12, -0.44),
+                            MeshMaterial3d(tummy.clone()),
+                            Transform::from_xyz(x * 1.05, 0.42, -0.08)
+                                .with_scale(Vec3::new(0.6, 0.6, 0.3)),
                         ));
                     }
+                    crate::art::eyes(
+                        h,
+                        &mut meshes,
+                        &mut materials,
+                        Vec3::new(0.0, 0.12, -0.42),
+                        0.32,
+                        0.075,
+                    );
                     h.spawn((
                         Mesh3d(snout),
                         MeshMaterial3d(tummy),

@@ -12,7 +12,7 @@ asked for, and what nobody has decided yet.
 
 ## What exists
 
-- An empty floor in an empty world. Players exist only as names on a list (and get bodies only
+- A grassy meadow floor (see "Nicer look" below). Players exist only as names on a list (and get bodies only
   while duelling).
 - **Currency: organs** (#22). Each organ's value = creature worth (human 10, cow 5, pig 4,
   chicken 2, rat 1) × organ importance (brain 10, heart 9, lungs 7, liver 6, kidney 4,
@@ -33,6 +33,14 @@ asked for, and what nobody has decided yet.
   only in colours cats can see: blues and yellows, no red-green difference. Every material is
   run through a cat-vision filter (then lightened and saturated), and the sky is bright blue. So
   the "red" mushroom and the green floor both look yellowish to us, like they would to a cat.
+- **Nicer look** (#47). All art is generated in code (`art.rs`), no downloaded assets: a
+  seamless procedural grass texture on the floor, a warm sun with soft shadows, sky-blue ambient
+  light and distance haze, and a meadow of grass tufts, flowers and pebbles. Creatures got
+  googly eyes and more detail (crow wings, tail and legs; fluffy goat with muzzle and hooves;
+  per-pet ears, tails, beak and feet; landlord's moustache, arms, shirt, hat band and watch;
+  Dave's beanie and legs). Props got trims too: music-box lids and gold feet, carved totems,
+  capped vault walls, leafier storm trees, parliament columns and rubble, arena corner flags.
+  Everything still passes through the cat palette.
 - **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
   duelists get capsule bodies in a small walled arena on the floor and play first-person
   (WASD, mouse, click) while everyone else watches. "One in the chamber" rules: one bullet,
@@ -202,6 +210,7 @@ asked for, and what nobody has decided yet.
 - #20: a judgmental goat joins the players and makes passive-aggressive comments about every choice.
 - doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
   then start; minimal settings; playable with just one person for testing.
+- (#47): nice models and textures etc, make the environment good.
 
 ## Open questions
 

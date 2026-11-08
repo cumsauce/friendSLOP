@@ -7,6 +7,7 @@ use bevy::prelude::*;
 pub mod ambience;
 pub mod art;
 pub mod assets;
+pub mod atmosphere;
 pub mod camera;
 pub mod features;
 pub mod hud;
@@ -53,6 +54,7 @@ impl Plugin for GamePlugin {
             assets::plugin,
             world::WorldPlugin,
             terrain::TerrainPlugin,
+            atmosphere::plugin,
             camera::CameraPlugin,
             features::FeaturesPlugin,
             hud::HudPlugin,

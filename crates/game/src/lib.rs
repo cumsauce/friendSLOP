@@ -8,6 +8,7 @@ pub mod ambience;
 pub mod art;
 pub mod assets;
 pub mod atmosphere;
+pub mod buildings;
 pub mod camera;
 pub mod features;
 pub mod hud;
@@ -67,6 +68,6 @@ impl Plugin for GamePlugin {
                 ambience::plugin,
                 loading::plugin,
             ))
-            .add_plugins((landmarks::plugin, zones::plugin));
+            .add_plugins((landmarks::plugin, zones::plugin, buildings::plugin));
     }
 }

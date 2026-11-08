@@ -260,6 +260,19 @@ asked for, and what nobody has decided yet.
   gates. "It can be like fortnite": we read that as a season-pass ladder (no copied names or
   looks). Every ticked task is one tier on the **Heaven Pass** (24 tiers over the five
   chapters), shown under the goal line, with a "tier unlocked" toast; the top tier is heaven.
+- **East village district** (feedback: "higher buildings or stuff u can go inside and like
+  walls", more scale, places to run around and hide). East of the meadow (x 35..80, z -35..35,
+  reached by a path arriving at (35, 0)), built from code in `buildings.rs`: seven enterable
+  houses with door openings (front and back), open windows, furniture to hide behind (beds,
+  tables, shelves, wardrobes, crates); two of them two-storey with stairs to bedrooms and a
+  front balcony, two with a second room. A 16 m stone watchtower with four zig-zag ramp flights
+  inside up to an open lookout (the seekers' vantage point). A big barn with a hay loft up a
+  staircase and hay bales on both levels. A cobbled market square with four stalls, a well and
+  a lantern, low walls, hedges, a paddock fence, narrow alleys with crates, and a stone village
+  wall with gates. Same layout on every peer (pure function, nothing replicated); walls and
+  furniture block bodies, upper floors and ramps are on a "walkable" collision layer the host
+  stands bodies on (step-up 0.6 m), so you can climb stairs and ramps. No jumping from upper
+  floors yet (jump only works on the ground).
 - **Overview camera** (polish). Press V to leave your body: pan with WASD / arrow keys and zoom
   with the scroll wheel, clamped to the floor. V again returns to first person.
 
@@ -336,6 +349,7 @@ asked for, and what nobody has decided yet.
 - Everything: what are we, and where are we? (The goal: free the Commune from the landlord.)
 - What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?
 - Does the commune do anything, or is it just where we are?
+- Who lives in the east village, and is it part of the Commune or somewhere else?
 - Organs are money, but how do you get them, and what are they for?
 - You have a body now, but what are you? A person, a tenant, a creature?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?

@@ -204,13 +204,15 @@ fn move_walkers(
 fn collide_walkers(
     spatial: SpatialQuery,
     ground: Query<Entity, With<crate::terrain::GroundCollider>>,
-    mut walkers: Query<(&mut Walker, &WalkPrev)>,
+    mut walkers: Query<(&mut Walker, &WalkPrev, &mut WalkInput)>,
 ) {
     let body = Collider::capsule(BODY_RADIUS, 0.9);
     // Capsule centre above the feet: bottom ~0.1 m off the ground.
     let lift = Vec3::Y * (0.45 + BODY_RADIUS + 0.1);
-    // The ground itself is followed in `step`, so only bump into things on it.
-    let filter = SpatialQueryFilter::default().with_excluded_entities(ground);
+    // The ground is followed in `step`; walkable floors and ramps (buildings.rs)
+    // carry you instead of blocking. Only bump into other things.
+    let filter =
+        SpatialQueryFilter::from_mask(!crate::buildings::WALKABLE).with_excluded_entities(ground);
     let sweep = |from: Vec3, delta: Vec3| -> Vec3 {
         let flat = delta.with_y(0.0);
         let Ok(dir) = Dir3::new(flat) else {
@@ -243,9 +245,9 @@ fn collide_walkers(
             }
         }
     };
-    for (mut walker, prev) in &mut walkers {
+    for (mut walker, prev, mut input) in &mut walkers {
         let delta = walker.pos - prev.0;
-        if delta.with_y(0.0).length_squared() < 1e-8 {
+        if delta.with_y(0.0).length_squared() < 1e-8 && delta.y >= 0.0 {
             continue;
         }
         let mut pos = sweep(prev.0, delta);
@@ -255,10 +257,31 @@ fn collide_walkers(
         if pos.y < ground || (walking && pos.y - ground < 0.5) {
             pos.y = ground;
         }
+        if let Some(floor) = floor_under(&spatial, prev.0, pos, input.vy) {
+            pos.y = floor;
+            input.vy = 0.0;
+        }
         if pos != walker.pos {
             walker.pos = pos;
         }
     }
+}
+
+/// Host only: the top of a walkable floor or ramp (buildings.rs) the body
+/// should stand on after moving `from` -> `to`, if any. Steps up to
+/// `STEP_UP` and sticks to surfaces just below so ramps carry you both ways.
+fn floor_under(spatial: &SpatialQuery, from: Vec3, to: Vec3, vy: f32) -> Option<f32> {
+    const STEP_UP: f32 = 0.6;
+    const STICK: f32 = 0.25;
+    if vy > 0.0 {
+        return None; // jumping up
+    }
+    let top = from.y.max(to.y) + STEP_UP;
+    let filter = SpatialQueryFilter::from_mask(crate::buildings::WALKABLE);
+    let max = top - to.y + STICK;
+    let hit = spatial.cast_ray(to.with_y(top), Dir3::NEG_Y, max, true, &filter)?;
+    let y = top - hit.distance;
+    (y > crate::terrain::height_at(to.x, to.z)).then_some(y)
 }
 
 // ---------------------------------------------------------------- client side

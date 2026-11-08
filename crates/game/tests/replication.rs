@@ -454,3 +454,25 @@ fn a_failed_action_does_not_happen_and_everyone_sees_why() {
     assert_eq!(boards[0].mishaps.len(), 1);
     assert_eq!(boards[0].mishaps[0].player, 1);
 }
+
+#[test]
+fn everyone_gets_nonsensical_stats() {
+    use friendslop::features::stats::Stats;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let stats: Vec<Stats> = world
+        .query_filtered::<&Stats, With<Player>>()
+        .iter(world)
+        .copied()
+        .collect();
+    assert_eq!(stats.len(), 2, "host and client both have stats");
+    for s in stats {
+        assert!((1..=10).contains(&s.wombility) && (1..=10).contains(&s.rumpet));
+    }
+}

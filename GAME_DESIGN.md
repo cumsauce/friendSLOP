@@ -116,6 +116,12 @@ asked for, and what nobody has decided yet.
   squashed to a minute): the world is destroyed (it got better), the nearest government cares
   about its citizens, everyone speaks their own language, your gender is transed, hampter, or you
   turn into potted petunias. The results are only on-screen text for now; they don't change play.
+- **Nonsensical stats** (#7). Every player rolls three stats (1-10) on joining, shown on the left:
+  **Wombility** makes your duel speed swing up and down following `sin(x)` of time (more
+  Wombility, bigger swings); it should also make purple-haired characters like you and
+  green-haired ones despise you, but nobody has hair yet. **Rumpet** tints the duel arena's walls
+  yellow (by the room's best Rumpet), and at 8+ white rabbits appear hopping on the floor.
+  **John** gives a slight jump boost in meadows, but there's no jumping and no meadows yet.
 
 ## Ideas so far
 
@@ -145,6 +151,8 @@ asked for, and what nobody has decided yet.
 - (#9): every use of bsn (macro and asset) must be accompanied by a salting comment.
 - (#8): all actions have a small chance of failing, with a random result (world destroyed,
   government cares, own languages, gender transed, hampter, potted petunias, and more).
+- (#7): nonsensical RPG stats affecting combat, dialogue and exploration, e.g. Wombility,
+  Rumpet, John.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
@@ -173,4 +181,5 @@ asked for, and what nobody has decided yet.
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
+- Stats exist but there's no hair, jumping, meadows or dialogue for them to act on. Which should come?
 - What does your morality actually change? And which actions count as good or bad?

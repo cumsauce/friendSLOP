@@ -22,6 +22,7 @@ pub mod morality;
 pub mod mushroom;
 pub mod organ_currency;
 pub mod random_dialogue;
+pub mod stats;
 pub mod stillness;
 pub mod voice_lines;
 
@@ -46,6 +47,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(fart_sound::protocol);
         app.add_plugins(landlord::protocol);
         app.add_plugins(fate::protocol);
+        app.add_plugins(stats::protocol);
     }
 }
 
@@ -70,5 +72,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(great_storm::plugin);
         app.add_plugins(landlord::plugin);
         app.add_plugins(fate::plugin);
+        app.add_plugins(stats::plugin);
     }
 }

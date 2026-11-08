@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
 # bevy_voice_chat 0.3 pins bevy subcrates to =0.20.0 and replicon to =0.45.2, so keep these exact.
-bevy = "=0.20.0"
+bevy = { version = "=0.20.0", features = ["wav"] }
 bevy_replicon = "=0.45.2"
 bevy_replicon_iroh = "0.20"
 bevy_voice_chat = { version = "0.3", features = ["replicon", "opus"] }

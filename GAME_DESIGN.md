@@ -21,6 +21,9 @@ asked for, and what nobody has decided yet.
 - **Crows** (#2). Three cute black crows hang around the floor, hopping and wandering about. Every
   so often one puffs up and caws (shown as "caw!" text; no sound yet). The server spawns them;
   every peer animates them locally.
+- **The bear** (#4). Exactly one cute, round, friend-shaped brown bear ambles slowly around one
+  side of the floor. Every ~13 seconds it rears up and does a scawy (cute) growl: a short
+  procedurally generated rumbly sound plus "grrr~" text. It doesn't do anything else yet.
 
 ## Ideas so far
 
@@ -28,6 +31,7 @@ asked for, and what nobody has decided yet.
   and by how important the organ is to it (brain valuable, appendix less so).
 
 - corvy (#2): cute crows that caw occasionally.
+- arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
 
 ## Open questions
 

@@ -196,7 +196,7 @@ const PETALS: [Vec3; 4] = [
 /// Dense little grass tufts and flowers as ONE merged, vertex-coloured mesh,
 /// built once. Each tuft is two soft, leaf-shaped blades; flowers are tiny diamonds
 /// on a stem.
-fn build_tufts() -> Mesh {
+pub(crate) fn build_tufts() -> Mesh {
     const STEP: f32 = 0.55;
     const REACH: f32 = 40.0;
     let mut pos: Vec<[f32; 3]> = Vec::new();
@@ -293,7 +293,7 @@ fn grid(cells: u32) -> (Vec<[f32; 3]>, Vec<u32>) {
     (pos, idx)
 }
 
-fn build_mesh() -> Mesh {
+pub(crate) fn build_mesh() -> Mesh {
     let (pos, idx) = grid(CELLS);
     let colors: Vec<[f32; 4]> = pos.iter().map(|p| ground_color(p[0], p[2], p[1])).collect();
     // Tile the greyscale grass texture every 5 m.

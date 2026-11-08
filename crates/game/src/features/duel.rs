@@ -271,11 +271,11 @@ fn move_duelists(
         if stick.0 == Vec2::ZERO {
             continue;
         }
-        let wombility = stats
+        let hrumph = stats
             .iter()
             .find(|(p, _)| p.id == d.player)
-            .map_or(0, |(_, s)| s.wombility);
-        let speed = SPEED * super::stats::wombility_speed(wombility, time.elapsed_secs());
+            .map_or(0, |(_, s)| s.hrumph);
+        let speed = SPEED * super::stats::hrumph_speed(hrumph);
         let rot = Quat::from_rotation_y(d.yaw);
         let step = rot * Vec3::new(stick.0.x, 0.0, -stick.0.y) * speed * dt;
         let lim = ARENA_HALF - BODY_RADIUS;
@@ -483,7 +483,6 @@ fn spawn_arena(
             Mesh3d(long.clone()),
             MeshMaterial3d(wall.clone()),
             Transform::from_translation(ARENA_CENTER + offset).with_rotation(rot),
-            super::stats::RumpetWall::default(),
             DespawnOnExit(AppState::InGame),
         ));
     }

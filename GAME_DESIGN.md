@@ -140,6 +140,14 @@ asked for, and what nobody has decided yet.
   world; **Frumbly** increases bread affinity in bakeries, but there's no bread and no bakeries.
   Freyja asked for the first three to be removed as mere examples; they were kept (we never remove
   features) and the new ones added alongside.
+  turn into potted petunias. The results are only on-screen text for now; they don't change play.
+- **Nonsensical stats** (#7, reworked by #48). Every player rolls six stats (1-10) on joining,
+  shown on the left. #7's Wombility, Rumpet and John were only examples and were replaced (#48):
+  **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you can read it from
+  further away; **Glimbo** at 9+ makes a lone teacup orbit the middle of the world; **Frumbly**
+  increases bread affinity in bakeries, but there's no bread and no bakeries; **Hrumph** makes you
+  4% faster per point in a duel, out of sheer huffiness; **Wobblesome** makes the stats text wobble
+  side to side; **Pelf** turns the stats text gold.
 - **Totems and locked doors** (#5). Three glowing totems (Wind, Frost, Fire) are the world's
   magic. Click one to carry it; press R to cast the spell of every totem you hold (shown as text
   to everyone; spells have no effect yet). A small stone vault on the east side has a Wind door
@@ -197,8 +205,7 @@ asked for, and what nobody has decided yet.
 - Freyja Moth (#49): add more failures along the lines of the current ones.
 - (#7): nonsensical RPG stats affecting combat, dialogue and exploration, e.g. Wombility,
   Rumpet, John.
-- Freyja Moth (#48): those three were only examples; wants more stats along the same lines (and
-  asked for the examples to be removed).
+- Freyja Moth (#48): those three were only examples; remove them and add more along the same lines.
 - (#5): magical totems are the magic system; holding one lets you cast its spell. Magic doors
   unlock when a matching totem is inserted (then it can't be cast), unlock from both sides, but
   the totem only comes out from the side it went in. Doors should make puzzles and shortcuts.
@@ -236,7 +243,7 @@ asked for, and what nobody has decided yet.
 - The tears are limited. What happens when they're all used up?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
-- Stats exist but there's no hair, jumping, meadows, bread or dialogue for them to act on. Which should come?
+- Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?

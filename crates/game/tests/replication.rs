@@ -487,7 +487,7 @@ fn everyone_gets_nonsensical_stats() {
         .collect();
     assert_eq!(stats.len(), 2, "host and client both have stats");
     for s in stats {
-        assert!((1..=10).contains(&s.wombility) && (1..=10).contains(&s.rumpet));
+        assert!((1..=10).contains(&s.spoonth) && (1..=10).contains(&s.glimbo));
     }
 }
 
@@ -636,7 +636,7 @@ fn everyone_gets_the_newer_stats_too() {
     assert_eq!(stats.len(), 2);
     for s in stats {
         assert!(
-            [s.spoonth, s.glimbo, s.frumbly]
+            [s.hrumph, s.wobblesome, s.pelf]
                 .iter()
                 .all(|v| (1..=10).contains(v))
         );

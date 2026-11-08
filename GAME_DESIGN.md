@@ -8,8 +8,9 @@ asked for, and what nobody has decided yet.
 - Multiplayer: one friend hosts, others join with a code.
 - Voice chat.
 - 3D.
-- The shared goal (#75): **free the Commune from your landlord**, over five chapters that use
-  every mechanic, ending in the landlord's eviction (#11).
+- The shared goal (#75): **free the Commune from your landlord and get into heaven**, over five
+  chapters that use every mechanic, ending in the landlord's eviction (#11) and the gates of
+  heaven opening.
 
 ## What exists
 
@@ -233,6 +234,11 @@ asked for, and what nobody has decided yet.
   observe the server-side `RoundReset`). After chapter 5 the Commune is free, there's an ending
   (with the dedication just meat and cheese asked for), and Enter starts again from chapter 1.
   The 4-6 hours is a target, not measured: the counts are easy to tune in `campaign.rs`.
+  "It can be like getting into heaven": heaven is the end of the campaign, so the goal reads
+  "Free the Commune from your landlord and get into heaven" and the ending opens the pearly
+  gates. "It can be like fortnite": we read that as a season-pass ladder (no copied names or
+  looks). Every ticked task is one tier on the **Heaven Pass** (24 tiers over the five
+  chapters), shown under the goal line, with a "tier unlocked" toast; the top tier is heaven.
 - **Overview camera** (polish). Press V to leave your body: pan with WASD / arrow keys and zoom
   with the scroll wheel, clamped to the floor. V again returns to first person.
 
@@ -297,7 +303,8 @@ asked for, and what nobody has decided yet.
 - doomy (#61): the gamemode is just a generated environment and NPCs, then hide and seek with
   the players.
 - just meat and cheese (#75): keep all current mechanics and make it one cohesive experience
-  to enjoy for 4-6 hours. cumsauce (#75): make it really obvious in the UI what the goal is.
+  to enjoy for 4-6 hours. cumsauce (#75): make it really obvious in the UI what the goal is;
+  it can be like fortnite; it can be like getting into heaven.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
 ## Open questions
@@ -319,7 +326,7 @@ asked for, and what nobody has decided yet.
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
-- What does a freed Commune look like, and what happens after the landlord is gone for good?
+- What is heaven like, and what happens once you're in? Should Heaven Pass tiers give rewards?
 - Is the campaign the right length? Which chapters drag, and which fly by?
 - Can anyone ever truly escape HALT, and what would be on the other side?
 - The cat-vision filter only recolours flat colours — the new textured models (trees, cowboys)

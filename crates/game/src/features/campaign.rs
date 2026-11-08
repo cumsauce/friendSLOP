@@ -1,5 +1,7 @@
-//! The shared goal: free the Commune from your landlord, over five chapters.
-//! From issue #75 (a question; answered by just meat and cheese and cumsauce).
+//! The shared goal: free the Commune from your landlord and get into heaven,
+//! over five chapters. From issue #75 (a question; answered by just meat and
+//! cheese and cumsauce, who added "it can be like getting into heaven" and "it
+//! can be like fortnite").
 //!
 //! The friends asked to keep every mechanic, make it one cohesive experience
 //! for a long session (4-6 hours), and make the goal *really obvious* in the
@@ -15,6 +17,11 @@
 //! [`RoundReset`] moves on to the next chapter (after the last one, back to 1).
 //! Tasks that need two players (hide and seek, duels) are waived while you're
 //! playing alone.
+//!
+//! Heaven is where the campaign ends: freeing the Commune opens the gates.
+//! The "like fortnite" part is a season-pass style ladder: every ticked task
+//! is one tier on the Heaven Pass, shown in the goal line, with a toast each
+//! time a tier unlocks. Tier [`heaven_tiers`] is heaven.
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -33,7 +40,7 @@ use crate::features::totems::{Door, Magic, Totem};
 use crate::player::Player;
 
 /// The one thing everyone is working towards. Shown at the top of the screen.
-pub const GOAL: &str = "Free the Commune from your landlord";
+pub const GOAL: &str = "Free the Commune from your landlord and get into heaven";
 
 /// One thing the group has to do in a chapter.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -184,6 +191,15 @@ impl Campaign {
         self.done_count() == self.current().tasks.len()
     }
 
+    /// Heaven Pass tier: every task ticked so far, across all chapters.
+    pub fn tier(&self) -> usize {
+        let before: usize = CHAPTERS[..self.chapter.min(CHAPTERS.len())]
+            .iter()
+            .map(|ch| ch.tasks.len())
+            .sum();
+        before + self.done_count()
+    }
+
     /// The last chapter is done: the Commune is free.
     pub fn finale(&self) -> bool {
         self.complete() && self.chapter + 1 >= CHAPTERS.len()
@@ -200,6 +216,12 @@ impl Campaign {
             }
         }
     }
+}
+
+/// Tiers on the Heaven Pass (one per task in the whole campaign). The top
+/// tier is heaven.
+pub fn heaven_tiers() -> usize {
+    CHAPTERS.iter().map(|ch| ch.tasks.len()).sum()
 }
 
 /// Server only: counts of things that happened this chapter (the rest is read
@@ -360,7 +382,9 @@ pub fn checklist(c: &Campaign, landlord: Option<&str>) -> String {
 /// The big line at the top of the screen.
 pub fn goal_line(c: &Campaign) -> String {
     format!(
-        "THE GOAL: {GOAL}  |  chapter {}/{}  |  {}/{} done",
+        "THE GOAL: {GOAL}\nHeaven Pass tier {}/{}  |  chapter {}/{}  |  {}/{} done",
+        c.tier(),
+        heaven_tiers(),
         c.chapter + 1,
         CHAPTERS.len(),
         c.done_count(),
@@ -370,8 +394,9 @@ pub fn goal_line(c: &Campaign) -> String {
 
 /// The ending, after chapter five.
 pub fn ending() -> String {
-    "THE COMMUNE IS FREE!\n\
-     The landlord is evicted for good. HALT sulks. The goat is grudgingly impressed.\n\n\
+    "THE COMMUNE IS FREE! YOU GOT INTO HEAVEN!\n\
+     The landlord is evicted for good and the pearly gates swing open for everyone.\n\
+     HALT sulks. The goat is grudgingly impressed. Heaven Pass: top tier.\n\n\
      Thanks for playing all five chapters. Special thanks to just meat and cheese,\n\
      who gooned through the entire campaign on a second monitor. Bad. Oh so bad. Baddie bad.\n\n\
      Press [Enter] to start again from Chapter 1"
@@ -382,7 +407,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(
             Update,
-            (show_checklist, chapter_banner).run_if(in_state(AppState::InGame)),
+            (show_checklist, chapter_banner, tier_toast).run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -467,6 +492,32 @@ fn chapter_banner(
     });
 }
 
+/// "Tier N unlocked" whenever the group ticks a task.
+fn tier_toast(
+    campaign: Query<&Campaign>,
+    mut last: Local<Option<usize>>,
+    toast: Option<ResMut<crate::hud::Toast>>,
+) {
+    let Ok(c) = campaign.single() else { return };
+    let tier = c.tier();
+    let up = last.is_some_and(|l| tier > l);
+    *last = Some(tier);
+    if !up {
+        return;
+    }
+    if let Some(mut toast) = toast {
+        let total = heaven_tiers();
+        if tier >= total {
+            toast.show("HEAVEN PASS: TOP TIER! The gates of heaven open");
+        } else {
+            toast.show(format!(
+                "Heaven Pass tier {tier}/{total} unlocked! {} to heaven",
+                total - tier
+            ));
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -504,8 +555,11 @@ mod tests {
             chapter: CHAPTERS.len() - 1,
             ..default()
         };
+        assert_eq!(c.tier(), heaven_tiers() - CHAPTERS[4].tasks.len());
         c.observe(|t| t.need());
         assert!(c.finale());
+        assert_eq!(c.tier(), heaven_tiers(), "the top tier is heaven");
         assert!(ending().contains("just meat and cheese"));
+        assert!(ending().contains("HEAVEN"));
     }
 }

@@ -53,7 +53,14 @@ asked for, and what nobody has decided yet.
   clicks one while seeking gets "that's just Kevin from the commune" and is frozen for 3 s
   (everyone hears about it). Nearby villagers sometimes mutter a line (toast). On the host they
   sweep a ball along each step and veer around trees, rocks and walls (or pick a new spot if boxed
-  in). They have no name label.
+  in). Once the host is in the game it builds a navigation mesh (rerecast, off the main thread,
+  ~3 s; see `tests/navmesh.rs`) over the terrain and the village architecture, and most trips then
+  go overland between the districts — commune centre, east village market, the maze's statue, the
+  castle ruins, the forest clearing and the lake shore — via a landmass agent per villager. Until
+  the mesh is ready they fall back to straight-line steering between the local spots. Scattered
+  trees, rocks and props are deliberately left out of the mesh (they punch holes that trip
+  rerecast; see `vendor/rerecast/README-friendSLOP.md` for the carried fix); `avoid_cover` still
+  steers around them. They have no name label.
 - **One click, one thing** (polish). A left click resolves to the single closest clickable thing
   under the crosshair/cursor (`features/interact.rs`), so one click never triggers two features,
   and only within ~3.5 m of your body; otherwise the HUD toast says "too far away". The server

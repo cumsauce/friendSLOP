@@ -13,6 +13,10 @@ bevy_replicon = "=0.45.2"
 bevy_replicon_iroh = "0.20"
 bevy_voice_chat = { version = "0.3", features = ["replicon", "opus"] }
 avian3d = "0.8"
+bevy_rerecast = "0.6"
+avian_rerecast = "0.7"
+bevy_landmass = "0.13"
+landmass_rerecast = "0.4"
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 arboard = "3"
@@ -31,3 +35,11 @@ opt-level = 3
 [profile.release]
 lto = "thin"
 codegen-units = 1
+
+# Vendored patch of rerecast 0.5.0 (see vendor/rerecast/README-friendSLOP.md):
+# skip a contour that fails to triangulate, like C++ recast does, instead of
+# aborting the whole navmesh bake with "Invalid contour" — without it no
+# settings build a mesh over our 200x200 m map (upstream #59/#64, fix proposed
+# in upstream PR #60 but unmerged).
+[patch.crates-io]
+rerecast = { path = "vendor/rerecast" }

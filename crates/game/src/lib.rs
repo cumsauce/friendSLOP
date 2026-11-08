@@ -5,15 +5,15 @@
 use bevy::prelude::*;
 
 pub mod art;
-pub mod camera;
 pub mod assets;
+pub mod camera;
 pub mod features;
 pub mod hud;
 pub mod menu;
 pub mod net;
 pub mod player;
-pub mod settings;
 pub mod scenery;
+pub mod settings;
 pub mod voice;
 pub mod world;
 

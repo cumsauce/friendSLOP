@@ -87,6 +87,13 @@ asked for, and what nobody has decided yet.
   (untouched, tear-touched, changing, barely human), and after 7 you become an **Abduction**: a
   fetid creature that hungers for tears. Everyone's state is shown on the right of the screen.
   Tears don't grant any other power yet, and being an Abduction changes nothing else yet.
+- **The great storm of '21** (#13). World history: in 1921 a great storm (to the British, "the
+  storm of it's a bit windy innit") did untold damage and toppled several governments, and the
+  world is still recovering. The floor is strewn with its wreckage: two fallen trees, a toppled
+  lamppost, scattered roof slates and a stone memorial plaque (its text shows at the bottom of the
+  screen). Every 25 s a leftover gust rattles the debris for a few seconds and the text switches
+  to "it's a bit windy innit". Scenery only; gusts pause during the Stillness. (The burned
+  parliament of the Commune of Dave fits as one of the toppled governments.)
 
 ## Ideas so far
 
@@ -106,6 +113,8 @@ asked for, and what nobody has decided yet.
 - Freyja Moth (#16): gods tears, teardrop gems that rained from the sky when humans came to be.
   They hold great power; using them transforms you, eventually into a fetid, always-hungry
   Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
+- Freyja Moth (#13): the great storm of '21 caused untold damage and toppled several governments;
+  the world is still recovering.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
@@ -124,6 +133,7 @@ asked for, and what nobody has decided yet.
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
 - Everything: what are we, where are we, and what are we trying to do together?
+- What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
 - Players only have bodies in a duel. What are you the rest of the time?

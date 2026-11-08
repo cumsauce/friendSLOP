@@ -90,8 +90,11 @@ asked for, and what nobody has decided yet.
   appear on the player list as they join.
 - **The Stillness** (#17). Every 60 seconds the whole world freezes for 20 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
-  in place; eating the mushroom and shooting are ignored; a big message with a countdown shows in
-  the middle of the screen. Voice chat keeps working. The host's clock decides when it happens.
+  in place, gas stops building, and the server ignores every player request (farting, prying,
+  duels, totems, pets, tears, the landlord, the mushroom, tuning your fart); a big message with a
+  countdown shows in the middle of the screen. Voice chat keeps working. The host's clock decides
+  when it happens.
+- **FPS overlay** (dev tool, not a friend idea): F3 toggles frame rate and frame time, top-right.
 - **Gods tears** (#16, corrected in #43). The tears rained down only once, when humans came into
   existence: 12 glowing blue teardrop gems fall onto the floor when the world begins, and no more
   ever fall. The HUD shows how many are left. Click one to use it. Each use transforms you a little further

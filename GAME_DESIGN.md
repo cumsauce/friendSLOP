@@ -17,6 +17,12 @@ asked for, and what nobody has decided yet.
 - Ambient life (`ambience.rs`, local visuals only): butterflies, pollen motes, fireflies,
   falling leaves, birds crossing high overhead, smoke and sparks from the campfire, and the
   scenery props swaying gently in the wind. Capped at about 190 recycled particles.
+- Lots to hide behind (#60): ~44 seeded clusters across the whole map (not just a ring):
+  tree groves, rock outcrops, bush hedges, fallen logs, broken stone walls, open-fronted sheds,
+  hay bales, fences and crate stacks. Trunks, rocks, walls, sheds, bales and crates have static
+  colliders. Landmarks (centre, arena, parliament, bonfire, vault, landlord, totems, animal homes)
+  stay clear, and the strip between the default camera and the centre only gets low cover.
+  Everything sits within ±22.5 m on flat y=0.
 - A floor dressed with low-poly nature (trees, bushes, grass, flowers, pebbles), a campfire
   burning beside the burnt parliament, and a looping tune ("Catsong"). Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized

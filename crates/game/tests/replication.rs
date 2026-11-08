@@ -578,3 +578,27 @@ fn adopting_a_pet_gives_one_pet_each() {
     assert_eq!(owners[0], (ids[0], Some(1)));
     assert_eq!(owners[1], (ids[1], None));
 }
+
+#[test]
+fn prying_at_halt_is_shared() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::halt::{Halt, PRY_ESCAPE, Pry};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(Pry);
+    server.world_mut().client_trigger(Pry);
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let halts: Vec<Halt> = world.query::<&Halt>().iter(world).copied().collect();
+    assert_eq!(halts.len(), 1);
+    assert_eq!(halts[0].escape, PRY_ESCAPE * 2, "both pries count");
+}

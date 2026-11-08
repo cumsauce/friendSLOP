@@ -17,6 +17,7 @@ pub mod fate;
 pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
+pub mod halt;
 pub mod landlord;
 pub mod morality;
 pub mod mushroom;
@@ -52,6 +53,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(stats::protocol);
         app.add_plugins(totems::protocol);
         app.add_plugins(pets::protocol);
+        app.add_plugins(halt::protocol);
     }
 }
 
@@ -79,5 +81,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(stats::plugin);
         app.add_plugins(totems::plugin);
         app.add_plugins(pets::plugin);
+        app.add_plugins(halt::plugin);
     }
 }

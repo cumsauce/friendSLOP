@@ -16,7 +16,10 @@ asked for, and what nobody has decided yet.
   while duelling).
 - A floor dressed with low-poly nature (trees, bushes, grass, flowers, pebbles), a campfire
   burning beside the burnt parliament, and a looping tune ("Catsong"). Plus real sound effects
-  for crows, duels and mushroom bites. All of it comes from CC0 asset packs stored in Git LFS
+  for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
+  wind loop, and a spatial crackling-fire loop at the campfire that gets louder as you approach.
+  Procedural sounds (bear, HALT, voice lines, farts) render at 44.1 kHz with band-limited
+  oscillators, a gentle low-pass, click-free fades, normalised levels and dithered output. All of it comes from CC0 asset packs stored in Git LFS
   (`crates/game/assets`, credits in `crates/game/assets/CREDITS.md`); every peer renders the
   same scene from a fixed seed, and if the files are missing the game quietly falls back to its
   procedural-primitive look.
@@ -262,6 +265,7 @@ asked for, and what nobody has decided yet.
 - doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
   then start; minimal settings; playable with just one person for testing.
 - (#47): nice models and textures etc, make the environment good.
+- doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
 ## Open questions
 

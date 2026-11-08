@@ -113,7 +113,7 @@ pub fn plugin(app: &mut App) {
         );
 }
 
-const RATE: u32 = 22_050;
+use crate::features::synth_audio::RATE;
 
 /// Every peer: synthesize and play the farter's own fart.
 fn play_fart(
@@ -271,12 +271,8 @@ pub fn fart_samples(tone: &FartTone, fullness: f32, seed: u32, rate: u32) -> Vec
         let fade = ((1.0 - p) * 30.0).min(1.0);
         out.push((v2 * 0.8 * fade).tanh() * 0.9);
     }
-    // Normalise so quiet tones are still audible.
-    let peak = out.iter().fold(0.0f32, |m, s| m.max(s.abs()));
-    if peak > 1e-4 {
-        let gain = 0.8 / peak;
-        out.iter_mut().for_each(|s| *s *= gain);
-    }
+    // Smooth off the fizz and normalise so quiet tones are still audible.
+    crate::features::synth_audio::master(&mut out, rate, 7000.0, 0.75);
     out
 }
 

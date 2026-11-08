@@ -242,7 +242,7 @@ fn growl(
     }
 }
 
-const GROWL_SAMPLE_RATE: u32 = 22_050;
+const GROWL_SAMPLE_RATE: u32 = crate::features::synth_audio::RATE;
 
 /// A small, rumbly, slightly silly growl: a low buzzy tone that wobbles in
 /// pitch, rumbles in volume and swells in and out, plus a little breath noise.
@@ -257,9 +257,10 @@ pub fn growl_samples(rate: u32) -> Vec<f32> {
         let p = t / GROWL_LENGTH;
         // Rises a bit then drops: "grrRRrr".
         let pitch = 85.0 + 35.0 * (p * std::f32::consts::PI).sin() + 6.0 * (t * 9.0).sin();
-        phase = (phase + pitch / rate as f32).fract();
-        // Soft sawtooth through a cheap shaper so it's buzzy but not harsh.
-        let saw = 2.0 * phase - 1.0;
+        let inc = pitch / rate as f32;
+        phase = (phase + inc).fract();
+        // Band-limited sawtooth through a soft shaper: buzzy but not harsh.
+        let saw = crate::features::synth_audio::saw(phase, inc);
         let tone = (saw * 1.8).tanh();
         // Brown-ish noise for breathiness.
         noise ^= noise << 13;
@@ -271,8 +272,9 @@ pub fn growl_samples(rate: u32) -> Vec<f32> {
         let flutter = 0.65 + 0.35 * (t * 2.0 * std::f32::consts::PI * 28.0).sin();
         // Fade in and out.
         let env = (p * 8.0).min(1.0) * ((1.0 - p) * 4.0).min(1.0);
-        out.push(((tone * 0.7 + brown) * flutter * env * 0.5).clamp(-1.0, 1.0));
+        out.push((tone * 0.7 + brown) * flutter * env);
     }
+    crate::features::synth_audio::master(&mut out, rate, 2800.0, 0.6);
     out
 }
 
@@ -292,8 +294,17 @@ pub fn wav_bytes(samples: &[f32], rate: u32) -> Vec<u8> {
     b.extend_from_slice(&16u16.to_le_bytes());
     b.extend_from_slice(b"data");
     b.extend_from_slice(&data_len.to_le_bytes());
+    // TPDF dither: turns 16-bit quantisation grit into a faint, smooth hiss.
+    let mut rng = 0x2545_F491u32;
+    let mut rand = || {
+        rng ^= rng << 13;
+        rng ^= rng >> 17;
+        rng ^= rng << 5;
+        rng as f32 / u32::MAX as f32
+    };
     for s in samples {
-        let v = (s.clamp(-1.0, 1.0) * i16::MAX as f32) as i16;
+        let d = rand() - rand();
+        let v = (s.clamp(-1.0, 1.0) * (i16::MAX as f32 - 1.0) + d).round() as i16;
         b.extend_from_slice(&v.to_le_bytes());
     }
     b

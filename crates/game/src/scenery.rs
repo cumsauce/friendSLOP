@@ -235,7 +235,7 @@ fn dress_floor(mut commands: Commands, assets: Res<AssetServer>) {
 }
 
 /// Where the commune keeps its campfire, beside the ruins and Dave.
-const BONFIRE_AT: Vec3 = Vec3::new(PARLIAMENT_AT.x + 3.5, 0.0, PARLIAMENT_AT.y + 8.5);
+pub(crate) const BONFIRE_AT: Vec3 = Vec3::new(PARLIAMENT_AT.x + 3.5, 0.0, PARLIAMENT_AT.y + 8.5);
 
 #[derive(Component)]
 struct BonfireFlame;
@@ -281,7 +281,7 @@ fn play_music(mut commands: Commands, sfx: Option<Res<Sfx>>) {
     let Some(sfx) = sfx else { return };
     commands.spawn((
         AudioPlayer(sfx.music.clone()),
-        PlaybackSettings::LOOP.with_volume(Volume::Linear(0.35)),
+        PlaybackSettings::LOOP.with_volume(Volume::Linear(0.28)),
         DespawnOnExit(AppState::InGame),
     ));
 }

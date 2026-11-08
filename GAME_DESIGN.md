@@ -12,8 +12,14 @@ asked for, and what nobody has decided yet.
 
 ## What exists
 
-- A grassy meadow floor (see "Nicer look" below). Players exist only as names on a list (and get bodies only
-  while duelling).
+- A grassy meadow floor (see "Nicer look" below).
+- **First-person bodies** (#53). Everyone has a body (a coloured capsule with googly eyes) and
+  plays in first person: WASD walk, mouse look, Space jump, Shift run, cursor locked. Left click
+  uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used
+  from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
+  through trees, rocks, walls, sheds, bales or crates (checked on the host). V swaps to the old
+  overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
+  put you in the arena with a duel body; your walking body waits where you left it.
 - Ambient life (`ambience.rs`, local visuals only): butterflies, pollen motes, fireflies,
   falling leaves, birds crossing high overhead, smoke and sparks from the campfire, and the
   scenery props swaying gently in the wind. Capped at about 190 recycled particles.
@@ -44,7 +50,7 @@ asked for, and what nobody has decided yet.
   side of the floor. Every ~13 seconds it rears up and does a scawy (cute) growl: a short
   procedurally generated rumbly sound plus "grrr~" text. It doesn't do anything else yet.
 - **Voice-altering mushroom** (#6). One red spotty mushroom grows somewhere on the floor. Click it
-  to eat it (there are no player bodies yet, so clicking is how you "find" it). Your own voice
+  to eat it (walk up and click it under your crosshair). Your own voice
   then becomes much higher (1.5-1.9x) or much lower (0.55-0.7x) at random for 45 seconds, run
   through a small pitch-shifter so everyone hears it, with a bite sound when the server confirms
   the munch. A new mushroom grows elsewhere 10 s later.
@@ -61,11 +67,12 @@ asked for, and what nobody has decided yet.
   capped vault walls, leafier storm trees, parliament columns and rubble, arena corner flags.
   Everything still passes through the cat palette.
 - **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
-  duelists get capsule bodies in a small walled arena on the floor and play first-person
-  (WASD, mouse, click) while everyone else watches. "One in the chamber" rules: one bullet,
-  every hit kills, a kill refunds your bullet, with no bullets you punch up close, you respawn
-  with one bullet. 3 lives each; the last one standing wins. One duel at a time. Nothing is
-  won or lost beyond bragging rights yet.
+  duelists get bodies in a small walled arena on the floor — animated cowboy/cowgirl models, or
+  capsule-and-gun stand-ins if the asset files are missing — and play first-person (WASD, mouse,
+  click) with a revolver viewmodel while everyone else watches. "One in the chamber" rules: one
+  bullet, every hit kills, a kill refunds your bullet, with no bullets you punch up close, you
+  respawn with one bullet. 3 lives each; the last one standing wins. One duel at a time. Shots,
+  punches and hits play sounds for everyone; nothing is won or lost beyond bragging rights yet.
 - **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with the
   commune's flag (a Union flag with a little Welsh flag and red dragon in the middle, because
   Dave isn't a coward; #43; made more anarchist in #57: red-over-black anarcho-syndicalist field,
@@ -75,22 +82,6 @@ asked for, and what nobody has decided yet.
   shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:
   someone joining or leaving, the mushroom being eaten, you muting or unmuting, and, after 40 s of
   nothing happening, doing nothing. There are few choices in the game yet, so it judges those.
-  only in colours cats can see: blues and yellows, no red-green difference. Every flat-colour
-  material is run through a cat-vision filter (then lightened and saturated), and the sky is
-  bright blue. So the "red" mushroom and the green floor both look yellowish to us, like they
-  would to a cat. Textured materials (the new asset models) aren't filtered yet — see open
-  questions.
-- **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
-  duelists get bodies in a small walled arena on the floor — animated cowboy/cowgirl models, or
-  capsule-and-gun stand-ins if the asset files are missing — and play first-person (WASD, mouse,
-  click) with a revolver viewmodel while everyone else watches. "One in the chamber" rules: one
-  bullet, every hit kills, a kill refunds your bullet, with no bullets you punch up close, you
-  respawn with one bullet. 3 lives each; the last one standing wins. One duel at a time. Shots,
-  punches and hits play sounds for everyone; nothing is won or lost beyond bragging rights yet.
-- **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with a
-  red-and-black flag, Dave himself (fist raised), a banner at the top of the screen and a
-  campfire flickering beside the ruins. Scenery only for now; every peer spawns it locally.
-
 - **Morality** (#21). Every player has a morality score (starts at 0), shown bottom-left with a
   label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
   within a sensible range: eating the mushroom is -2..+2. Harming anyone is -5..+3, except harming
@@ -99,8 +90,8 @@ asked for, and what nobody has decided yet.
   mushroom is wired up so far (nothing can be harmed yet), and morality doesn't change anything
   else in play yet.
 - **Farting** (#18). Every player's gas pressure builds from 0 to 100% over 40 s (shown
-  bottom-right). Press F (with at least 20%) to fart; since players have no bodies outside duels,
-  your bottom is wherever the mouse cursor points on the floor (or your duel body when duelling).
+  bottom-right). Press F (with at least 20%) to fart where your body stands (in the overview
+  camera: wherever the mouse cursor points on the floor; your duel body when duelling).
   If any NPC (the bear, a crow, or Dave at parliament) is within 4 m, you are **shamed**: for
   20 s your screen blurs, "SHAME" flashes in red and a scary, distorted chiptune (generated in
   code) plays. Everyone sees a line saying who farted and whether they were caught. So the trick
@@ -167,18 +158,6 @@ asked for, and what nobody has decided yet.
   turn into potted petunias. More failures (#49): the moon publicly apologises, everyone is bees,
   everyone's taxes file themselves, gravity forgets your name, you're legally a goose, time goes
   sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are only on-screen text for now; they don't change play.
-- **Nonsensical stats** (#7). Every player rolls three stats (1-10) on joining, shown on the left:
-  **Wombility** makes your duel speed swing up and down following `sin(x)` of time (more
-  Wombility, bigger swings); it should also make purple-haired characters like you and
-  green-haired ones despise you, but nobody has hair yet. **Rumpet** tints the duel arena's walls
-  yellow (by the room's best Rumpet), and at 8+ white rabbits appear hopping on the floor.
-  **John** gives a slight jump boost in meadows, but there's no jumping and no meadows yet.
-  More stats (#48): **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you
-  can read it from further away; **Glimbo** at 9+ makes a lone teacup orbit the middle of the
-  world; **Frumbly** increases bread affinity in bakeries, but there's no bread and no bakeries.
-  Freyja asked for the first three to be removed as mere examples; they were kept (we never remove
-  features) and the new ones added alongside.
-  turn into potted petunias. The results are only on-screen text for now; they don't change play.
 - **Nonsensical stats** (#7, reworked by #48). Every player rolls six stats (1-10) on joining,
   shown on the left. #7's Wombility, Rumpet and John were only examples and were replaced (#48):
   **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you can read it from
@@ -191,11 +170,12 @@ asked for, and what nobody has decided yet.
   to everyone; spells have no effect yet). A small stone vault on the east side has a Wind door
   and a Frost door, with the Fire totem inside. Click a door while holding its totem to insert
   it: the door sinks open, but that totem can't be cast while it's in there. Doors open from
-  either side, but you can only take the totem back out from the side you put it in (players
-  have no bodies, so "your side" is the side of the door you click on). The Fire totem can only
+  either side, but you can only take the totem back out from the side you put it in (in first
+  person you use the door you stand next to, from your side; in the overview camera "your side"
+  is the side of the door you click on). The Fire totem can only
   be picked up while a vault door is open. Just one small puzzle for now.
 - **Pets** (#15). Four stray animals (dog, cat, bunny, duck) sit on the floor. Click one to adopt
-  it (one pet each); it trots after your mouse pointer on the floor, since you have no body.
+  it (one pet each); it trots after you (after your mouse pointer in the overview camera).
   Adopted pets standing close together are joined by a pink leash-line, and the HUD (bottom
   right) counts how many are connected. When every adopted pet is linked into one pack, everyone
   sees "ALL PETS CONNECTED!". That's a first stab at "connecting them is a core loop": nothing
@@ -214,8 +194,8 @@ asked for, and what nobody has decided yet.
   landlord is defeated a round summary appears and anyone can press Enter to start a new round: the
   landlord, HALT's escape bar, the gods tears supply, organs, morality, transformations and stats all
   reset (features hook in by observing the server-side `RoundReset` event).
-- **Camera** (polish). Pan with WASD / arrow keys and zoom with the scroll wheel, clamped to the
-  floor; off while you're in a duel.
+- **Overview camera** (polish). Press V to leave your body: pan with WASD / arrow keys and zoom
+  with the scroll wheel, clamped to the floor. V again returns to first person.
 
 ## Ideas so far
 
@@ -274,6 +254,7 @@ asked for, and what nobody has decided yet.
 - doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
   then start; minimal settings; playable with just one person for testing.
 - (#47): nice models and textures etc, make the environment good.
+- (#53): fps cam/controls.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
 ## Open questions
@@ -284,7 +265,7 @@ asked for, and what nobody has decided yet.
 - What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
-- Players only have bodies in a duel. What are you the rest of the time?
+- You have a body now, but what are you? A person, a tenant, a creature?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?

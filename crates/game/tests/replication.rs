@@ -694,3 +694,51 @@ fn requests_are_ignored_while_the_world_stands_still() {
     step(&mut server, &mut client);
     assert_eq!(client.world().resource::<Heard>().0, 1, "unfrozen: fart");
 }
+
+#[test]
+fn everyone_gets_a_body_and_only_walks_their_own() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::fps::{WalkControl, Walker, spawn_point};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    let walkers = |app: &mut App| {
+        let world = app.world_mut();
+        let mut v: Vec<(u64, Walker)> = world
+            .query::<(&Player, &Walker)>()
+            .iter(world)
+            .map(|(p, w)| (p.id, *w))
+            .collect();
+        v.sort_by_key(|(id, _)| *id);
+        v
+    };
+    step(&mut server, &mut client);
+    let start = walkers(&mut client);
+    assert_eq!(start.len(), 2, "client sees both bodies");
+    assert_eq!(start[1].1.pos, spawn_point(1));
+
+    // Player 1 walks forward (towards -Z at yaw 0) for a while.
+    for _ in 0..10 {
+        client.world_mut().client_trigger(WalkControl {
+            stick: Vec2::Y,
+            yaw: 0.0,
+            jump: false,
+            run: false,
+        });
+        std::thread::sleep(std::time::Duration::from_millis(5));
+        step(&mut server, &mut client);
+    }
+    let after = walkers(&mut client);
+    assert!(
+        after[1].1.pos.z < start[1].1.pos.z,
+        "player 1 walked forward"
+    );
+    assert_eq!(after[0].1.pos, start[0].1.pos, "the host stayed put");
+}

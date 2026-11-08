@@ -4,7 +4,8 @@
 //! fixed view from 0,8,14). The focus is clamped to the floor so the vault,
 //! the commune and the edges are reachable but you can't wander off. Panning
 //! is off while you're in a duel (WASD moves your duelist there, and the duel
-//! drives the camera itself).
+//! drives the camera itself), and in first person (#53), where the camera is
+//! in your eyes. V swaps between the two.
 
 use bevy::input::mouse::{AccumulatedMouseScroll, MouseScrollUnit};
 use bevy::prelude::*;
@@ -78,7 +79,8 @@ impl Plugin for CameraPlugin {
                 (steer_rig, follow_rig)
                     .chain()
                     .run_if(in_state(AppState::InGame))
-                    .run_if(not(dueling)),
+                    .run_if(not(dueling))
+                    .run_if(|v: Res<crate::features::fps::FpsView>| !v.first_person),
             );
     }
 }

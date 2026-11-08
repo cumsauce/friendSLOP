@@ -14,7 +14,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::player::{Player, PlayerOwner};
+use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -411,18 +411,27 @@ fn floor_point(window: &Window, camera: &Camera, cam_tf: &GlobalTransform) -> Op
 }
 
 /// Tell the server where our pointer is, a few times a second.
+#[allow(clippy::too_many_arguments)]
 fn send_lure(
     mut commands: Commands,
     time: Res<Time>,
     mut every: Local<f32>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &super::fps::Walker)>,
+    duelists: Query<&super::duel::Duelist>,
 ) {
     *every -= time.delta_secs();
     if *every > 0.0 {
         return;
     }
     *every = 0.1;
+    // With a body (#53), your pet follows you.
+    if let Some(w) = super::fps::my_walker(me.as_deref(), &walkers, &duelists) {
+        commands.client_trigger(PetLure { at: w.pos.xz() });
+        return;
+    }
     let Ok(window) = window.single() else { return };
     let Ok((camera, cam_tf)) = camera.single() else {
         return;
@@ -438,6 +447,7 @@ fn click_pet(
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
     window: Query<&Window, With<PrimaryWindow>>,
+    view: Res<super::fps::FpsView>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     pets: Query<(&Pet, &Transform)>,
 ) {
@@ -445,7 +455,7 @@ fn click_pet(
         return;
     }
     let Ok(window) = window.single() else { return };
-    let Some(cursor) = window.cursor_position() else {
+    let Some(cursor) = super::fps::aim_point(window, &view) else {
         return;
     };
     let Ok((camera, cam_tf)) = camera.single() else {

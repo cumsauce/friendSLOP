@@ -469,9 +469,9 @@ fn on_news(
     view.news = Some((ev.text.clone(), NEWS_SECS));
     let Some(sfx) = sfx else { return };
     if ev.text.contains("punched") {
-        play_sfx(&mut commands, &sfx.punch, 0.9);
+        play_sfx(&mut commands, &sfx.punch, 0.75);
     } else if ev.text.contains("shot") {
-        play_sfx(&mut commands, &sfx.gunshot, 1.0);
+        play_sfx(&mut commands, &sfx.gunshot, 0.6);
     }
 }
 
@@ -916,7 +916,7 @@ fn animate_duelists(
         if fired && d.player == me.as_deref().map(|m| m.0).unwrap_or(u64::MAX) {
             // My own bang: everyone hears the shot.
             if let Some(sfx) = &sfx {
-                play_sfx(&mut commands, &sfx.gunshot, 1.0);
+                play_sfx(&mut commands, &sfx.gunshot, 0.6);
             }
         }
         for child in children.iter_descendants(entity) {

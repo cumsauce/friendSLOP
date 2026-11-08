@@ -202,7 +202,7 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("V", "first person <-> overview camera"),
     (
         "Left click",
-        "interact / pay / use what's under the crosshair (or cursor)",
+        "use what's under the crosshair (or cursor), within reach",
     ),
     ("M", "mute / unmute mic"),
     ("F", "fart (where you stand)"),
@@ -215,7 +215,7 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("Tab (hold)", "scoreboard"),
     ("H", "this help"),
     ("F3", "FPS counter"),
-    ("Esc", "leave to the menu (disconnects)"),
+    ("Esc", "free the mouse; again to leave (disconnects)"),
 ];
 
 pub fn help_text() -> String {
@@ -601,7 +601,7 @@ mod tests {
     fn help_lists_every_binding() {
         let h = help_text();
         for k in [
-            "M", "F", "G", "R", "1-9", "Y / N", "WASD", "Tab", "H", "F3", "Esc",
+            "M", "F", "G", "R", "1-9", "Y / N", "WASD", "V", "Tab", "H", "F3", "Esc",
         ] {
             assert!(h.contains(k), "{k}");
         }

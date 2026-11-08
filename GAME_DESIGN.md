@@ -19,7 +19,15 @@ asked for, and what nobody has decided yet.
   from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
   through trees, rocks, walls, sheds, bales or crates (checked on the host). V swaps to the old
   overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
-  put you in the arena with a duel body; your walking body waits where you left it.
+  put you in the arena with a duel body; your walking body waits where you left it. Each body
+  has a floating "player N" label, and yours wears a little yellow marker (seen from the
+  overview). Esc first frees the mouse (click to grab it again); a second Esc leaves.
+- **One click, one thing** (polish). A left click resolves to the single closest clickable thing
+  under the crosshair/cursor (`features/interact.rs`), so one click never triggers two features,
+  and only within ~3.5 m of your body; otherwise the HUD toast says "too far away". The server
+  re-checks the distance (and works out your side of a door from where you stand), and
+  refusals (too far, frozen, already owned, can't afford, vault locked, wrong side) show as a
+  toast.
 - Ambient life (`ambience.rs`, local visuals only): butterflies, pollen motes, fireflies,
   falling leaves, birds crossing high overhead, smoke and sparks from the campfire, and the
   scenery props swaying gently in the wind. Capped at about 190 recycled particles.

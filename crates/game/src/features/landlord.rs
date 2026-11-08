@@ -16,16 +16,16 @@
 //! Everything pauses during the Stillness (#17).
 
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::features::fps::Walker;
+use crate::features::interact::{Clickable, Clicked, in_reach, refuse};
 use crate::features::morality::{Act, MoralAct, Victim};
 use crate::features::organ_currency::{Organ, OrganPurse};
 use crate::features::stillness::{Stillness, is_frozen};
 use crate::player::PlayerOwner;
-use crate::world::MainCamera;
 
 /// Where the landlord stands.
 pub const LANDLORD_AT: Vec3 = Vec3::new(13.0, 0.0, -4.0);
@@ -176,9 +176,13 @@ fn bother_landlord(
     still: Query<&Stillness>,
     mut tenancy: Query<&mut Tenancy>,
     players: Query<(Entity, &PlayerOwner)>,
+    walkers: Query<(&PlayerOwner, &Walker)>,
     mut purses: Query<&mut OrganPurse>,
 ) {
     if is_frozen(&still) {
+        return;
+    }
+    if !in_reach(&mut commands, ev.client_id, &walkers, LANDLORD_AT) {
         return;
     }
     let owner = match ev.client_id {
@@ -203,11 +207,9 @@ fn bother_landlord(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_landlord)
-        .add_systems(
-            Update,
-            (show_tenancy, click_landlord).run_if(in_state(AppState::InGame)),
-        );
+    app.add_observer(click_landlord)
+        .add_systems(OnEnter(AppState::InGame), spawn_landlord)
+        .add_systems(Update, show_tenancy.run_if(in_state(AppState::InGame)));
 }
 
 #[derive(Component)]
@@ -236,6 +238,7 @@ fn spawn_landlord(
         .spawn((
             LandlordBody,
             Transform::from_translation(LANDLORD_AT),
+            Clickable::at_height(1.2).radius(60.0),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ))
@@ -368,34 +371,30 @@ fn show_tenancy(
     }
 }
 
-const CLICK_RADIUS: f32 = 60.0;
-
+/// The unified click landed on the landlord: pay, steal or hit.
 fn click_landlord(
+    click: On<Clicked>,
     mut commands: Commands,
-    mouse: Res<ButtonInput<MouseButton>>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    view: Res<super::fps::FpsView>,
-    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    body: Query<&GlobalTransform, With<LandlordBody>>,
+    me: Option<Res<crate::player::LocalPlayer>>,
+    body: Query<(), With<LandlordBody>>,
+    tenancy: Query<&Tenancy>,
+    purses: Query<(&crate::player::Player, &OrganPurse)>,
+    toast: Option<ResMut<crate::hud::Toast>>,
 ) {
-    if !mouse.just_pressed(MouseButton::Left) {
+    if !body.contains(click.entity) {
         return;
     }
-    let Ok(window) = window.single() else { return };
-    let Some(cursor) = super::fps::aim_point(window, &view) else {
+    let broke = tenancy.iter().any(|t| t.act == Act3::Legal)
+        && me.is_some_and(|me| {
+            purses
+                .iter()
+                .any(|(p, purse)| p.id == me.0 && purse.0.is_empty())
+        });
+    if broke {
+        refuse(toast, "you can't afford rent: no organs left to pay with");
         return;
-    };
-    let Ok((camera, cam_tf)) = camera.single() else {
-        return;
-    };
-    let hit = body.iter().any(|b| {
-        camera
-            .world_to_viewport(cam_tf, b.translation() + Vec3::Y * 1.2)
-            .is_ok_and(|p| p.distance(cursor) < CLICK_RADIUS)
-    });
-    if hit {
-        commands.client_trigger(BotherLandlord);
     }
+    commands.client_trigger(BotherLandlord);
 }
 
 /// New round: back to right after the inciting incident.

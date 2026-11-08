@@ -276,8 +276,14 @@ fn leave_on_esc(
     replicated: Query<Entity, With<Replicated>>,
     mut status: ResMut<NetStatus>,
     mut next: ResMut<NextState<AppState>>,
+    mut view: ResMut<crate::features::fps::FpsView>,
 ) {
     if !keys.just_pressed(KeyCode::Escape) {
+        return;
+    }
+    // First Esc in first person just frees the mouse; the next one leaves.
+    if view.first_person && !view.released {
+        view.released = true;
         return;
     }
     commands.remove_resource::<IrohClient>();

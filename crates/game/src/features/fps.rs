@@ -255,6 +255,8 @@ pub struct FpsView {
     pub first_person: bool,
     pub yaw: f32,
     pub pitch: f32,
+    /// First Esc frees the cursor (a click grabs it again); a second Esc leaves.
+    pub released: bool,
     /// Have we taken our facing from the server yet?
     synced: bool,
 }
@@ -265,6 +267,7 @@ impl Default for FpsView {
             first_person: true,
             yaw: 0.0,
             pitch: 0.0,
+            released: false,
             synced: false,
         }
     }
@@ -322,6 +325,7 @@ pub fn plugin(app: &mut App) {
                 sync_walker_bodies,
                 fps_camera.run_if(walking_first_person),
                 update_crosshair,
+                place_labels,
             )
                 .chain()
                 .run_if(in_state(AppState::InGame)),
@@ -382,7 +386,8 @@ fn walk_controls(
         view.yaw = w.yaw;
         view.synced = true;
     }
-    let want = if view.first_person {
+    let grab = view.first_person && !view.released;
+    let want = if grab {
         CursorGrabMode::Locked
     } else {
         CursorGrabMode::None
@@ -391,7 +396,7 @@ fn walk_controls(
         && c.grab_mode != want
     {
         c.grab_mode = want;
-        c.visible = !view.first_person;
+        c.visible = !grab;
     }
     if !view.first_person {
         if *was_walking {
@@ -406,8 +411,10 @@ fn walk_controls(
         }
         return;
     }
-    view.yaw -= motion.delta.x * LOOK_SENSITIVITY;
-    view.pitch = (view.pitch - motion.delta.y * LOOK_SENSITIVITY).clamp(-1.5, 1.5);
+    if grab {
+        view.yaw -= motion.delta.x * LOOK_SENSITIVITY;
+        view.pitch = (view.pitch - motion.delta.y * LOOK_SENSITIVITY).clamp(-1.5, 1.5);
+    }
     let mut stick = Vec2::ZERO;
     for (a, b, dir) in [
         (KeyCode::KeyW, KeyCode::ArrowUp, Vec2::Y),
@@ -428,6 +435,63 @@ fn walk_controls(
     *was_walking = true;
 }
 
+/// The "that's you" marker over a body; only shown on its owner's screen.
+#[derive(Component)]
+struct OwnMarker(u64);
+
+/// A floating name label (UI) that follows a body on screen.
+#[derive(Component)]
+struct WalkerLabel(Entity);
+
+/// Keep labels over heads, and the own-marker only on my own body.
+fn place_labels(
+    mut commands: Commands,
+    me: Option<Res<LocalPlayer>>,
+    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    walkers: Query<(&Player, &GlobalTransform, &InheritedVisibility), With<WalkerDressed>>,
+    mut markers: Query<(&OwnMarker, &mut Visibility), Without<WalkerLabel>>,
+    mut labels: Query<(Entity, &WalkerLabel, &mut Node, &mut Text, &mut Visibility)>,
+) {
+    for (m, mut vis) in &mut markers {
+        let mine = me.as_deref().is_some_and(|me| me.0 == m.0);
+        vis.set_if_neq(if mine {
+            Visibility::Inherited
+        } else {
+            Visibility::Hidden
+        });
+    }
+    let Ok((camera, cam_tf)) = camera.single() else {
+        return;
+    };
+    for (label, of, mut node, mut text, mut vis) in &mut labels {
+        let Ok((player, tf, shown)) = walkers.get(of.0) else {
+            commands.entity(label).despawn();
+            continue;
+        };
+        let screen = camera
+            .world_to_viewport(cam_tf, tf.translation() + Vec3::Y * 2.0)
+            .ok()
+            .filter(|_| shown.get());
+        vis.set_if_neq(if screen.is_some() {
+            Visibility::Inherited
+        } else {
+            Visibility::Hidden
+        });
+        if let Some(p) = screen {
+            node.left = Val::Px(p.x - 24.0);
+            node.top = Val::Px(p.y - 20.0);
+        }
+        let want = if me.as_deref().is_some_and(|me| me.0 == player.id) {
+            format!("you ({})", player.id)
+        } else {
+            format!("player {}", player.id)
+        };
+        if text.0 != want {
+            text.0 = want;
+        }
+    }
+}
+
 /// Marks a walker whose body meshes have been added on this peer.
 #[derive(Component)]
 struct WalkerDressed;
@@ -446,6 +510,23 @@ fn dress_walkers(
         let black = materials.add(Color::BLACK);
         let eye = meshes.add(Sphere::new(0.09));
         let pupil = meshes.add(Sphere::new(0.045));
+        let marker = materials.add(StandardMaterial {
+            base_color: Color::srgb(1.0, 0.9, 0.3),
+            emissive: LinearRgba::rgb(1.0, 0.8, 0.2),
+            ..default()
+        });
+        commands.spawn((
+            WalkerLabel(entity),
+            Text::new(format!("player {}", player.id)),
+            TextFont::from_font_size(13.0),
+            TextColor(crate::hud::TEXT),
+            Node {
+                position_type: PositionType::Absolute,
+                ..default()
+            },
+            Visibility::Hidden,
+            DespawnOnExit(AppState::InGame),
+        ));
         commands
             .entity(entity)
             .insert((
@@ -455,6 +536,13 @@ fn dress_walkers(
                 Visibility::default(),
             ))
             .with_children(|p| {
+                p.spawn((
+                    OwnMarker(player.id),
+                    Mesh3d(meshes.add(Cone::new(0.16, 0.28))),
+                    MeshMaterial3d(marker.clone()),
+                    Transform::from_xyz(0.0, 2.15, 0.0)
+                        .with_rotation(Quat::from_rotation_x(std::f32::consts::PI)),
+                ));
                 p.spawn((
                     Mesh3d(meshes.add(Capsule3d::new(BODY_RADIUS, 1.0))),
                     MeshMaterial3d(skin),

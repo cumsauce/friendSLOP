@@ -66,12 +66,17 @@ fn spawn_wreckage(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let bark = materials.add(Color::srgb(0.45, 0.3, 0.18));
-    let leaves = materials.add(Color::srgb(0.3, 0.55, 0.25));
+    let leaves = crate::art::soft(&mut materials, Color::srgb(0.3, 0.55, 0.25));
     let slate = materials.add(Color::srgb(0.35, 0.37, 0.42));
     let iron = materials.add(Color::srgb(0.2, 0.2, 0.22));
     let stone = materials.add(Color::srgb(0.75, 0.72, 0.65));
     let trunk = meshes.add(Cylinder::new(0.25, 4.0));
-    let crown = meshes.add(Sphere::new(1.0));
+    let crown = meshes.add(
+        Sphere::new(1.0)
+            .mesh()
+            .ico(1)
+            .unwrap_or_else(|_| Sphere::new(1.0).into()),
+    );
     let tile = meshes.add(Cuboid::new(0.5, 0.05, 0.35));
     let debris = |commands: &mut Commands, mesh, mat, rest: Transform, wobble: f32| {
         commands.spawn((
@@ -101,6 +106,30 @@ fn spawn_wreckage(
             leaves.clone(),
             Transform::from_translation(base + dir * 2.4 + Vec3::Y * 0.6),
             0.08,
+        );
+        // Extra leafy clumps and an upturned root ball so the trees read as trees.
+        let side = Quat::from_rotation_y(yaw) * Vec3::Z;
+        for (along, off, up, s) in [
+            (1.9, 0.7, 0.4, 0.7),
+            (2.9, -0.6, 0.5, 0.75),
+            (3.2, 0.3, 0.9, 0.6),
+        ] {
+            debris(
+                &mut commands,
+                crown.clone(),
+                leaves.clone(),
+                Transform::from_translation(base + dir * along + side * off + Vec3::Y * up)
+                    .with_scale(Vec3::splat(s)),
+                0.1,
+            );
+        }
+        debris(
+            &mut commands,
+            crown.clone(),
+            bark.clone(),
+            Transform::from_translation(base - dir * 2.0 + Vec3::Y * 0.2)
+                .with_scale(Vec3::new(0.25, 0.55, 0.55)),
+            0.01,
         );
     }
 

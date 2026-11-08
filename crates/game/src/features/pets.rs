@@ -252,8 +252,9 @@ fn dress_pets(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, pet) in &new {
-        let fur = materials.add(pet.animal.color());
-        let eye = materials.add(Color::srgb(0.1, 0.1, 0.1));
+        let fur = crate::art::soft(&mut materials, pet.animal.color());
+        let eye = crate::art::glossy(&mut materials, Color::srgb(0.1, 0.1, 0.1));
+        let beak = crate::art::soft(&mut materials, Color::srgb(1.0, 0.55, 0.15));
         let eye_mesh = meshes.add(Sphere::new(0.04));
         commands
             .entity(entity)
@@ -274,27 +275,101 @@ fn dress_pets(
                     Transform::from_xyz(0.0, 0.45, -0.3),
                 ))
                 .with_children(|h| {
-                    for x in [-0.07, 0.07] {
-                        h.spawn((
-                            Mesh3d(eye_mesh.clone()),
-                            MeshMaterial3d(eye.clone()),
-                            Transform::from_xyz(x, 0.04, -0.15),
-                        ));
-                    }
-                    // Long ears for the bunny, little ones for everyone else.
-                    let tall = if pet.animal == Animal::Bunny {
-                        0.3
-                    } else {
-                        0.1
-                    };
-                    for x in [-0.09, 0.09] {
-                        h.spawn((
-                            Mesh3d(meshes.add(Cuboid::new(0.06, tall, 0.04))),
-                            MeshMaterial3d(fur.clone()),
-                            Transform::from_xyz(x, 0.12 + tall / 2.0, 0.0),
-                        ));
+                    crate::art::eyes(
+                        h,
+                        &mut meshes,
+                        &mut materials,
+                        Vec3::new(0.0, 0.04, -0.14),
+                        0.14,
+                        0.04,
+                    );
+                    // Each animal gets its own ears, nose or beak.
+                    match pet.animal {
+                        Animal::Bunny => {
+                            let ear = meshes.add(Capsule3d::new(0.035, 0.22));
+                            for x in [-0.06, 0.06] {
+                                h.spawn((
+                                    Mesh3d(ear.clone()),
+                                    MeshMaterial3d(fur.clone()),
+                                    Transform::from_xyz(x, 0.25, 0.02)
+                                        .with_rotation(Quat::from_rotation_z(x * 2.5)),
+                                ));
+                            }
+                        }
+                        Animal::Cat => {
+                            let ear = meshes.add(Cone::new(0.06, 0.12).mesh().resolution(4));
+                            for x in [-0.09, 0.09] {
+                                h.spawn((
+                                    Mesh3d(ear.clone()),
+                                    MeshMaterial3d(fur.clone()),
+                                    Transform::from_xyz(x, 0.15, 0.0)
+                                        .with_rotation(Quat::from_rotation_z(-x * 2.0)),
+                                ));
+                            }
+                        }
+                        Animal::Dog => {
+                            let ear = meshes.add(Sphere::new(0.07));
+                            for x in [-0.15, 0.15] {
+                                h.spawn((
+                                    Mesh3d(ear.clone()),
+                                    MeshMaterial3d(eye.clone()),
+                                    Transform::from_xyz(x, 0.02, 0.0)
+                                        .with_scale(Vec3::new(0.5, 1.4, 0.9)),
+                                ));
+                            }
+                            h.spawn((
+                                Mesh3d(meshes.add(Sphere::new(0.08))),
+                                MeshMaterial3d(fur.clone()),
+                                Transform::from_xyz(0.0, -0.05, -0.15),
+                            ));
+                            h.spawn((
+                                Mesh3d(eye_mesh.clone()),
+                                MeshMaterial3d(eye.clone()),
+                                Transform::from_xyz(0.0, -0.02, -0.23),
+                            ));
+                        }
+                        Animal::Duck => {
+                            h.spawn((
+                                Mesh3d(meshes.add(Sphere::new(0.08))),
+                                MeshMaterial3d(beak.clone()),
+                                Transform::from_xyz(0.0, -0.03, -0.17)
+                                    .with_scale(Vec3::new(1.2, 0.4, 1.4)),
+                            ));
+                        }
                     }
                 });
+                // A tail: a fluffy puff for the bunny, a tail feather for the duck.
+                let (tail, tail_tf) = match pet.animal {
+                    Animal::Bunny => (
+                        meshes.add(Sphere::new(0.08)),
+                        Transform::from_xyz(0.0, 0.3, 0.32),
+                    ),
+                    Animal::Duck => (
+                        meshes.add(Cone::new(0.08, 0.14)),
+                        Transform::from_xyz(0.0, 0.35, 0.33)
+                            .with_rotation(Quat::from_rotation_x(0.9)),
+                    ),
+                    Animal::Dog | Animal::Cat => (
+                        meshes.add(Capsule3d::new(0.03, 0.2)),
+                        Transform::from_xyz(0.0, 0.4, 0.35)
+                            .with_rotation(Quat::from_rotation_x(0.6)),
+                    ),
+                };
+                p.spawn((Mesh3d(tail), MeshMaterial3d(fur.clone()), tail_tf));
+                // Little feet (orange webbed ones for the duck).
+                let foot = meshes.add(Sphere::new(0.06));
+                let foot_mat = if pet.animal == Animal::Duck {
+                    beak.clone()
+                } else {
+                    fur.clone()
+                };
+                for (x, z) in [(-0.1, -0.12), (0.1, -0.12), (-0.1, 0.15), (0.1, 0.15)] {
+                    p.spawn((
+                        Mesh3d(foot.clone()),
+                        MeshMaterial3d(foot_mat.clone()),
+                        Transform::from_xyz(x, 0.05, z).with_scale(Vec3::new(1.0, 0.6, 1.3)),
+                    ));
+                }
             });
     }
 }

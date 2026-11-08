@@ -222,7 +222,15 @@ fn spawn_landlord(
 ) {
     let suit = materials.add(Color::srgb(0.15, 0.15, 0.2));
     let skin = materials.add(Color::srgb(0.95, 0.75, 0.65));
-    let hat = materials.add(Color::srgb(0.05, 0.05, 0.05));
+    let hat = crate::art::glossy(&mut materials, Color::srgb(0.05, 0.05, 0.05));
+    let shirt = crate::art::soft(&mut materials, Color::srgb(0.95, 0.95, 0.95));
+    let band = crate::art::soft(&mut materials, Color::srgb(0.5, 0.1, 0.4));
+    let gold = materials.add(StandardMaterial {
+        base_color: Color::srgb(1.0, 0.8, 0.3),
+        metallic: 0.9,
+        perceptual_roughness: 0.3,
+        ..default()
+    });
     commands
         .spawn((
             LandlordBody,
@@ -233,13 +241,65 @@ fn spawn_landlord(
         .with_children(|p| {
             p.spawn((
                 Mesh3d(meshes.add(Capsule3d::new(0.4, 0.9))),
-                MeshMaterial3d(suit),
+                MeshMaterial3d(suit.clone()),
                 Transform::from_xyz(0.0, 0.85, 0.0),
             ));
             p.spawn((
                 Mesh3d(meshes.add(Sphere::new(0.3))),
-                MeshMaterial3d(skin),
+                MeshMaterial3d(skin.clone()),
                 Transform::from_xyz(0.0, 1.75, 0.0),
+            ))
+            .with_children(|h| {
+                crate::art::eyes(
+                    h,
+                    &mut meshes,
+                    &mut materials,
+                    Vec3::new(0.0, 0.05, -0.26),
+                    0.2,
+                    0.05,
+                );
+                // A smug curly moustache and a big nose.
+                let tache = meshes.add(Capsule3d::new(0.03, 0.12));
+                for x in [-0.07, 0.07] {
+                    h.spawn((
+                        Mesh3d(tache.clone()),
+                        MeshMaterial3d(hat.clone()),
+                        Transform::from_xyz(x, -0.1, -0.27)
+                            .with_rotation(Quat::from_rotation_z(1.2 * x.signum())),
+                    ));
+                }
+                h.spawn((
+                    Mesh3d(meshes.add(Sphere::new(0.06))),
+                    MeshMaterial3d(skin.clone()),
+                    Transform::from_xyz(0.0, -0.03, -0.3),
+                ));
+            });
+            // Arms, white shirt front, gold watch chain.
+            let arm = meshes.add(Capsule3d::new(0.11, 0.55));
+            for x in [-0.48, 0.48] {
+                p.spawn((
+                    Mesh3d(arm.clone()),
+                    MeshMaterial3d(suit.clone()),
+                    Transform::from_xyz(x, 1.0, 0.0)
+                        .with_rotation(Quat::from_rotation_z(0.2 * x.signum())),
+                ));
+            }
+            p.spawn((
+                Mesh3d(meshes.add(Cuboid::new(0.25, 0.5, 0.05))),
+                MeshMaterial3d(shirt),
+                Transform::from_xyz(0.0, 1.15, -0.38),
+            ));
+            p.spawn((
+                Mesh3d(meshes.add(Torus::new(0.01, 0.025))),
+                MeshMaterial3d(gold.clone()),
+                Transform::from_xyz(0.12, 0.85, -0.4)
+                    .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
+            ));
+            // Hat band.
+            p.spawn((
+                Mesh3d(meshes.add(Cylinder::new(0.225, 0.08))),
+                MeshMaterial3d(band),
+                Transform::from_xyz(0.0, 2.06, 0.0),
             ));
             // A top hat, obviously.
             p.spawn((

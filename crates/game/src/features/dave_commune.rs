@@ -101,7 +101,11 @@ fn spawn_commune(
     let char = materials.add(Color::srgb(0.12, 0.1, 0.09));
     let pole = materials.add(Color::srgb(0.5, 0.4, 0.3));
     let skin = materials.add(Color::srgb(0.9, 0.7, 0.55));
-    let jumper = materials.add(Color::srgb(0.2, 0.3, 0.6));
+    let jumper = crate::art::soft(&mut materials, Color::srgb(0.2, 0.3, 0.6));
+    let jumper_arm = jumper.clone();
+    let trousers = crate::art::soft(&mut materials, Color::srgb(0.25, 0.22, 0.2));
+    let rubble = crate::art::soft(&mut materials, Color::srgb(0.5, 0.48, 0.45));
+    let red = crate::art::soft(&mut materials, Color::srgb(0.75, 0.1, 0.1));
 
     let at =
         |x: f32, y: f32, z: f32| Transform::from_xyz(PARLIAMENT_AT.x + x, y, PARLIAMENT_AT.y + z);
@@ -117,6 +121,38 @@ fn spawn_commune(
             Mesh3d(meshes.add(Cuboid::new(w, h, d))),
             MeshMaterial3d(char.clone()),
             at(x, h / 2.0, z),
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
+    // Broken columns along the old facade, and rubble piles.
+    let column = meshes.add(Cylinder::new(0.3, 1.0));
+    let chunk = meshes.add(
+        Sphere::new(0.35)
+            .mesh()
+            .ico(0)
+            .unwrap_or_else(|_| Sphere::new(0.35).into()),
+    );
+    for (i, x) in [-3.0_f32, -1.5, 0.0, 1.5, 3.0].into_iter().enumerate() {
+        let h = [2.6, 1.1, 1.8, 0.6, 2.2][i];
+        commands.spawn((
+            Mesh3d(column.clone()),
+            MeshMaterial3d(rubble.clone()),
+            at(x, h / 2.0, -0.6).with_scale(Vec3::new(1.0, h, 1.0)),
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
+    for i in 0..10 {
+        let a = i as f32 * 2.1;
+        commands.spawn((
+            Mesh3d(chunk.clone()),
+            MeshMaterial3d(if i % 2 == 0 {
+                rubble.clone()
+            } else {
+                char.clone()
+            }),
+            at(a.cos() * 3.0, 0.15, 2.0 + a.sin() * 2.0)
+                .with_rotation(Quat::from_rotation_y(a))
+                .with_scale(Vec3::splat(0.6 + (i % 3) as f32 * 0.3)),
             DespawnOnExit(AppState::InGame),
         ));
     }
@@ -173,6 +209,40 @@ fn spawn_commune(
                 Mesh3d(meshes.add(Sphere::new(0.28))),
                 MeshMaterial3d(skin.clone()),
                 Transform::from_xyz(0.0, 0.85, 0.0),
+            ))
+            .with_children(|h| {
+                crate::art::eyes(
+                    h,
+                    &mut meshes,
+                    &mut materials,
+                    Vec3::new(0.0, 0.04, -0.24),
+                    0.18,
+                    0.05,
+                );
+                // Scruffy hair and a determined little beanie.
+                h.spawn((
+                    Mesh3d(meshes.add(Sphere::new(0.29))),
+                    MeshMaterial3d(red.clone()),
+                    Transform::from_xyz(0.0, 0.1, 0.03).with_scale(Vec3::new(1.0, 0.7, 1.0)),
+                ));
+                h.spawn((
+                    Mesh3d(meshes.add(Sphere::new(0.08))),
+                    MeshMaterial3d(red.clone()),
+                    Transform::from_xyz(0.0, 0.33, 0.03),
+                ));
+            });
+            let leg = meshes.add(Capsule3d::new(0.1, 0.35));
+            for x in [-0.15, 0.15] {
+                p.spawn((
+                    Mesh3d(leg.clone()),
+                    MeshMaterial3d(trousers.clone()),
+                    Transform::from_xyz(x, -0.6, 0.0),
+                ));
+            }
+            p.spawn((
+                Mesh3d(meshes.add(Capsule3d::new(0.09, 0.4))),
+                MeshMaterial3d(jumper_arm.clone()),
+                Transform::from_xyz(-0.42, 0.1, 0.0).with_rotation(Quat::from_rotation_z(-0.3)),
             ));
             p.spawn((
                 Mesh3d(meshes.add(Cuboid::new(0.15, 0.6, 0.15))),

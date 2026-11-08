@@ -12,6 +12,7 @@ pub mod buildings;
 pub mod camera;
 pub mod features;
 pub mod hud;
+pub mod kcc;
 pub mod landmarks;
 pub mod loading;
 pub mod menu;

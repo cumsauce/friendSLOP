@@ -19,7 +19,12 @@ asked for, and what nobody has decided yet.
   plays in first person: WASD walk, mouse look, Space jump, Shift run, cursor locked. Left click
   uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used
   from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
-  through trees, rocks, walls, sheds, bales or crates (checked on the host). V swaps to the old
+  through trees, rocks, walls, sheds, bales or crates: the host walks them with a kinematic
+  character controller (`src/kcc`, ported from bevy_ahoy at `630a4573`, MIT OR Apache-2.0) — it
+  slides along walls, walks slopes up to 45°, steps up stairs and kerbs up to 0.5 m (village
+  stairs, ramps, the tower — no special-cased floors anymore), snaps down slopes instead of
+  hopping, and jumps ~0.9 m. Headless tests (no physics) fall back to a plain terrain-height
+  walk. V swaps to the old
   overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the

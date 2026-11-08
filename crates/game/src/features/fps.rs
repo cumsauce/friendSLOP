@@ -9,10 +9,14 @@
 //! (pan with WASD, free cursor) and V again to return to your body.
 //!
 //! The server is authoritative: clients send stick/look/jump input, the server
-//! moves the body, and on the host the scenery colliders stop you walking
-//! through trees, walls and rocks. While you duel, the duel takes over.
+//! moves the body, and `Walker.pos` replicates. On the host the body is moved
+//! by the kinematic controller in [`crate::kcc`] (ported from bevy_ahoy): it
+//! steps up stairs and ramps, slides along walls, walks slopes up to 45° and
+//! snaps down them, treating the terrain heightfield, the village and all
+//! scenery colliders alike. Headless tests (no physics at all) fall back to
+//! the plain terrain-height walk in [`step`]. While you duel, the duel takes
+//! over.
 
-use avian3d::prelude::*;
 use bevy::input::mouse::AccumulatedMouseMotion;
 use bevy::prelude::*;
 use bevy::window::{CursorGrabMode, CursorOptions, PrimaryWindow};
@@ -25,12 +29,8 @@ use crate::features::duel::Duelist;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
-pub const WALK_SPEED: f32 = 5.0;
-pub const RUN_SPEED: f32 = 10.5;
+/// Eye height: the camera sits in your eyes.
 pub const EYE: f32 = 1.6;
-const JUMP_SPEED: f32 = 5.0;
-const GRAVITY: f32 = 14.0;
-const BODY_RADIUS: f32 = 0.35;
 /// The soft wall: how far out you can walk (the edge hills rise beyond it).
 const EDGE: f32 = FLOOR_HALF - 2.0;
 const LOOK_SENSITIVITY: f32 = 0.003;
@@ -43,7 +43,7 @@ pub struct Walker {
     pub yaw: f32,
 }
 
-/// Server only: the latest input of a walker, plus its fall speed.
+/// Server only: the latest input of a walker, plus the fallback's fall speed.
 #[derive(Component, Default, Debug)]
 pub struct WalkInput {
     stick: Vec2,
@@ -51,11 +51,6 @@ pub struct WalkInput {
     run: bool,
     vy: f32,
 }
-
-/// Server only: where the walker stood before this frame's step, so the
-/// collision pass (host only, it needs the scenery) can undo or slide it.
-#[derive(Component, Default, Debug)]
-pub struct WalkPrev(pub Vec3);
 
 /// Client -> server, every frame while walking (local x = right, y = forward).
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
@@ -66,9 +61,15 @@ pub struct WalkControl {
     pub run: bool,
 }
 
-/// Ordering hook: movement, then (on the host) collision.
+/// Ordering hook: movement, then (on the host) the kinematic controller.
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct WalkSet;
+
+/// True where there is no physics world (headless tests): walk by terrain
+/// height there, and with the kinematic controller everywhere else.
+fn no_physics_world(trees: Option<Res<avian3d::collider_tree::ColliderTrees>>) -> bool {
+    trees.is_none()
+}
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Walker>()
@@ -79,7 +80,11 @@ pub fn protocol(app: &mut App) {
             (give_bodies, move_walkers)
                 .chain()
                 .in_set(WalkSet)
-                .run_if(in_state(ServerState::Running)),
+                .run_if(in_state(ServerState::Running))
+                // The real movement runs on the host, where the physics world
+                // exists (see `kcc_move_walkers` in `plugin`). Headless tests
+                // have no avian at all, so they walk by terrain height only.
+                .run_if(no_physics_world),
         );
 }
 
@@ -98,7 +103,7 @@ fn give_bodies(mut commands: Commands, new: Query<(Entity, &Player), Without<Wal
                 yaw: 0.0,
             },
             WalkInput::default(),
-            WalkPrev::default(),
+            crate::kcc::Kcc::default(),
         ));
     }
 }
@@ -126,8 +131,9 @@ fn on_walk_control(
     }
 }
 
-/// One step of walking for a body: returns the new feet position and fall
-/// speed. Pure so it can be tested.
+/// One step of terrain-height walking for a body: returns the new feet
+/// position and fall speed. Pure so it can be tested. Only used where there
+/// is no physics world (headless tests); the host walks with `crate::kcc`.
 pub fn step(
     pos: Vec3,
     yaw: f32,
@@ -137,7 +143,13 @@ pub fn step(
     vy: f32,
     dt: f32,
 ) -> (Vec3, f32) {
-    let speed = if run { RUN_SPEED } else { WALK_SPEED };
+    const JUMP_SPEED: f32 = 5.0;
+    const GRAVITY: f32 = 14.0;
+    let speed = if run {
+        crate::kcc::RUN_SPEED
+    } else {
+        crate::kcc::WALK_SPEED
+    };
     let flat = Quat::from_rotation_y(yaw) * Vec3::new(stick.x, 0.0, -stick.y) * speed * dt;
     let mut next = pos + flat;
     next.x = next.x.clamp(-EDGE, EDGE);
@@ -162,18 +174,18 @@ pub fn step(
     (next, vy)
 }
 
+/// Headless fallback: walk by terrain height, no colliders.
 fn move_walkers(
     time: Res<Time>,
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
-    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput, &mut WalkPrev)>,
+    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput)>,
 ) {
     if super::stillness::is_frozen(&still) {
         return; // the world stands still, and so do you
     }
     let dt = time.delta_secs().min(0.1);
-    for (player, mut walker, mut input, mut prev) in &mut walkers {
-        prev.0 = walker.pos;
+    for (player, mut walker, mut input) in &mut walkers {
         if duelists.iter().any(|d| d.player == player.id) {
             continue; // your duel body is the one moving
         }
@@ -199,89 +211,48 @@ fn move_walkers(
 
 // ---------------------------------------------------------------- host side
 
-/// Host only: stop bodies walking through trees, rocks, walls and sheds by
-/// sweeping a capsule along each step, sliding along whatever it hits.
-fn collide_walkers(
-    spatial: SpatialQuery,
-    ground: Query<Entity, With<crate::terrain::GroundCollider>>,
-    mut walkers: Query<(&mut Walker, &WalkPrev, &mut WalkInput)>,
+/// Host: walk the bodies with the kinematic controller (`crate::kcc`, ported
+/// from bevy_ahoy) against the real physics world — terrain, village and
+/// scenery colliders all alike, no special cases.
+#[allow(clippy::type_complexity)]
+fn kcc_move_walkers(
+    time: Res<Time>,
+    still: Query<&super::stillness::Stillness>,
+    duelists: Query<&Duelist>,
+    move_and_slide: avian3d::character_controller::move_and_slide::MoveAndSlide,
+    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput, &mut crate::kcc::Kcc)>,
 ) {
-    let body = Collider::capsule(BODY_RADIUS, 0.9);
-    // Capsule centre above the feet: bottom ~0.1 m off the ground.
-    let lift = Vec3::Y * (0.45 + BODY_RADIUS + 0.1);
-    // The ground is followed in `step`; walkable floors and ramps (buildings.rs)
-    // carry you instead of blocking. Only bump into other things.
-    let filter =
-        SpatialQueryFilter::from_mask(!crate::buildings::WALKABLE).with_excluded_entities(ground);
-    let sweep = |from: Vec3, delta: Vec3| -> Vec3 {
-        let flat = delta.with_y(0.0);
-        let Ok(dir) = Dir3::new(flat) else {
-            return from + delta;
+    if super::stillness::is_frozen(&still) {
+        return; // the world stands still, and so do you
+    }
+    // The old movement ticked per frame with a clamped dt; keep that.
+    let dt = time.delta_secs().min(0.1);
+    for (player, mut walker, input, mut kcc) in &mut walkers {
+        if duelists.iter().any(|d| d.player == player.id) {
+            continue; // your duel body is the one moving
+        }
+        let speed = if input.run {
+            crate::kcc::RUN_SPEED
+        } else {
+            crate::kcc::WALK_SPEED
         };
-        let config = ShapeCastConfig {
-            ignore_origin_penetration: true,
-            ..ShapeCastConfig::from_max_distance(flat.length())
-        };
-        match spatial.cast_shape(&body, from + lift, Quat::IDENTITY, dir, &config, &filter) {
-            None => from + delta,
-            Some(hit) => {
-                let n = hit.normal2.with_y(0.0).normalize_or_zero();
-                let slide = flat - n * flat.dot(n);
-                let to_wall = dir * (hit.distance - 0.02).max(0.0);
-                let mut out = from + to_wall + Vec3::Y * delta.y;
-                if let Ok(sdir) = Dir3::new(slide) {
-                    let config = ShapeCastConfig {
-                        ignore_origin_penetration: true,
-                        ..ShapeCastConfig::from_max_distance(slide.length())
-                    };
-                    if spatial
-                        .cast_shape(&body, out + lift, Quat::IDENTITY, sdir, &config, &filter)
-                        .is_none()
-                    {
-                        out += slide;
-                    }
-                }
-                out
-            }
-        }
-    };
-    for (mut walker, prev, mut input) in &mut walkers {
-        let delta = walker.pos - prev.0;
-        if delta.with_y(0.0).length_squared() < 1e-8 && delta.y >= 0.0 {
-            continue;
-        }
-        let mut pos = sweep(prev.0, delta);
-        // Sliding moved us sideways on a slope: stay on (never under) the ground.
-        let ground = crate::terrain::height_at(pos.x, pos.z);
-        let walking = walker.pos.y <= crate::terrain::height_at(walker.pos.x, walker.pos.z);
-        if pos.y < ground || (walking && pos.y - ground < 0.5) {
-            pos.y = ground;
-        }
-        if let Some(floor) = floor_under(&spatial, prev.0, pos, input.vy) {
-            pos.y = floor;
-            input.vy = 0.0;
-        }
-        if pos != walker.pos {
+        let mut pos = crate::kcc::step(
+            &mut kcc,
+            walker.pos,
+            walker.yaw,
+            input.stick,
+            input.jump,
+            speed,
+            dt,
+            &move_and_slide,
+        );
+        // The soft wall at the edge of the world (the old `step` clamped too).
+        pos.x = pos.x.clamp(-EDGE, EDGE);
+        pos.z = pos.z.clamp(-EDGE, EDGE);
+        if walker.pos != pos {
             walker.pos = pos;
         }
     }
-}
-
-/// Host only: the top of a walkable floor or ramp (buildings.rs) the body
-/// should stand on after moving `from` -> `to`, if any. Steps up to
-/// `STEP_UP` and sticks to surfaces just below so ramps carry you both ways.
-fn floor_under(spatial: &SpatialQuery, from: Vec3, to: Vec3, vy: f32) -> Option<f32> {
-    const STEP_UP: f32 = 0.6;
-    const STICK: f32 = 0.25;
-    if vy > 0.0 {
-        return None; // jumping up
-    }
-    let top = from.y.max(to.y) + STEP_UP;
-    let filter = SpatialQueryFilter::from_mask(crate::buildings::WALKABLE);
-    let max = top - to.y + STICK;
-    let hit = spatial.cast_ray(to.with_y(top), Dir3::NEG_Y, max, true, &filter)?;
-    let y = top - hit.distance;
-    (y > crate::terrain::height_at(to.x, to.z)).then_some(y)
 }
 
 // ---------------------------------------------------------------- client side
@@ -355,10 +326,13 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), free_cursor)
         .add_systems(
             Update,
-            collide_walkers
+            kcc_move_walkers
                 .after(WalkSet)
                 .run_if(in_state(ServerState::Running))
-                .run_if(in_state(AppState::InGame)),
+                .run_if(in_state(AppState::InGame))
+                .run_if(
+                    |trees: Option<Res<avian3d::collider_tree::ColliderTrees>>| trees.is_some(),
+                ),
         )
         .add_systems(
             Update,
@@ -697,10 +671,10 @@ mod tests {
     #[test]
     fn walking_forward_moves_along_the_view_and_stays_on_the_floor() {
         let (p, vy) = step(Vec3::ZERO, 0.0, Vec2::Y, false, false, 0.0, 1.0);
-        assert!((p - Vec3::new(0.0, 0.0, -WALK_SPEED)).length() < 1e-4);
+        assert!((p - Vec3::new(0.0, 0.0, -crate::kcc::WALK_SPEED)).length() < 1e-4);
         assert_eq!(vy, 0.0);
         let (p, _) = step(Vec3::ZERO, 0.0, Vec2::Y, true, false, 0.0, 1.0);
-        assert!(p.z < -WALK_SPEED, "running is faster");
+        assert!(p.z < -crate::kcc::WALK_SPEED, "running is faster");
         let (p, _) = step(Vec3::ZERO, 0.0, Vec2::Y, true, false, 0.0, 100.0);
         assert_eq!(p.z, -EDGE, "can't walk off the floor");
     }

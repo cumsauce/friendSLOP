@@ -60,6 +60,12 @@ asked for, and what nobody has decided yet.
   20 s your screen blurs, "SHAME" flashes in red and a scary, distorted chiptune (generated in
   code) plays. Everyone sees a line saying who farted and whether they were caught. So the trick
   is waiting for the wandering crows and bear to be elsewhere.
+- **Fart noises** (#26). Every fart is heard by everyone and is synthesized on the spot by a
+  small physical model: gas pressure pushes a pair of "lips" that buzz like a brass player's,
+  the gas drains (so the fart sags and fades), and the airflow adds turbulent texture, shaped
+  by a "cheek" filter. Each player tunes their own fart: `[` `]` pitch (30-400 Hz), `-` `=`
+  length (0.15-4 s for a full tank; emptier tanks are shorter), `;` `'` timbre (tight and dry
+  to loose and wet, with sputtering). The settings are shown bottom-right.
 
 - **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
   Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
@@ -104,6 +110,9 @@ asked for, and what nobody has decided yet.
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
   blurs the screen and plays a scary distorted chiptune for 20 seconds.
+
+- doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
+  pitch.
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave.

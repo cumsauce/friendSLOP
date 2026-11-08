@@ -302,10 +302,11 @@ impl Kit {
             seg(self, cursor, l, y0, y0 + h);
             seg(self, l, r, y0, y0 + hole.y0);
             seg(self, l, r, y0 + hole.y1, y0 + h);
-            let trim = Vec3::new(hole.w + 0.2, 0.1, thick + 0.12);
+            let trim = Vec3::new(hole.w + 0.24, 0.1, thick + 0.12);
             if hole.y1 < h - 0.05 {
-                // A dark lintel over every opening.
-                let c = at(hole.c, y0 + hole.y1 + 0.05);
+                // A dark lintel over every opening. It hangs 2 cm below the wall's
+                // edge so no face is coplanar with the wall (z-fighting).
+                let c = at(hole.c, y0 + hole.y1 + 0.03);
                 self.put(Shape::Cube, c, trim, rot, Mat::Timber, Solid::None, true);
             }
             if hole.y0 <= 1e-3 {
@@ -316,7 +317,8 @@ impl Kit {
                     height: hole.y1,
                 });
             } else {
-                let c = at(hole.c, y0 + hole.y0 - 0.05);
+                // Sill pokes 2 cm above the wall below it: no coplanar top faces.
+                let c = at(hole.c, y0 + hole.y0 - 0.03);
                 self.put(Shape::Cube, c, trim, rot, Mat::Timber, Solid::None, true);
             }
             cursor = r;

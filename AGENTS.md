@@ -29,6 +29,20 @@ If you're running in CI, also read `.github/claude/run.md`.
   equally permissive) with entries in `assets/CREDITS.md`. Prefer generating procedurally or
   keeping it tiny when an asset isn't really needed, and never let gameplay *depend* on asset
   files: they must degrade quietly if LFS data is missing.
+- **List keywords (#51).** An issue may tag a list of examples with a keyword in parentheses:
+  - `(strict)`: put exactly these examples in the game, no more and no fewer.
+  - `(expand, x..y)`: put exactly these examples in, then invent between x and y more in the same
+    style.
+  - `(replace, x..y)`: don't use the examples. Invent between x and y new ones in the same style
+    instead.
+
+  For both `expand` and `replace`:
+  - a single number means exactly that many;
+  - a word means interpret it as an amount ("a few", "loads");
+  - no second argument means pick a sensible amount.
+
+  An untagged list means use your judgement, but treat obvious "e.g." lists as examples, not
+  requirements, and say in the PR how you read it.
 - Keep `GAME_DESIGN.md` truthful: what exists, what friends said, open questions. It's the game's
   memory between runs.
 

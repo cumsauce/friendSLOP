@@ -194,7 +194,7 @@ const PETALS: [Vec3; 4] = [
 ];
 
 /// Dense little grass tufts and flowers as ONE merged, vertex-coloured mesh,
-/// built once. Each tuft is three leaning blades; flowers are tiny diamonds
+/// built once. Each tuft is two soft, leaf-shaped blades; flowers are tiny diamonds
 /// on a stem.
 fn build_tufts() -> Mesh {
     const STEP: f32 = 0.55;
@@ -213,29 +213,36 @@ fn build_tufts() -> Mesh {
             // Clumpy density: thick in places, bare in others.
             let dense = noise(x * 0.18, z * 0.18, 131);
             let clover = clover_amount(x, z);
-            if r(3) > dense * 1.1 + clover * 0.3 - 0.1 {
+            // Sparser right around the spawn, where the camera starts close.
+            let near_spawn = (Vec2::new(x, z).distance(Vec2::new(0.0, 11.0)) / 7.0).min(1.0);
+            if r(3) > (dense * 1.1 + clover * 0.3 - 0.1) * (0.35 + 0.65 * near_spawn) * 0.55 {
                 continue;
             }
             let y = height_at(x, z);
             let base = ground_rgb(x, z, y);
             let shade = 0.85 + r(4) * 0.3;
-            let root = base * 0.8 * shade;
-            let tip = (base * 1.25 + Vec3::new(0.06, 0.08, 0.0)).min(Vec3::ONE) * shade;
-            let height = 0.12 + r(5) * 0.18;
+            let root = base * 0.62 * shade;
+            let mid = base * 0.95 * shade;
+            let tip = (base * 1.2 + Vec3::new(0.05, 0.07, 0.0)).min(Vec3::ONE) * shade;
+            let height = 0.08 + r(5) * 0.11;
             let at = Vec3::new(x, y, z);
-            for b in 0..3u32 {
-                let a = r(6) * std::f32::consts::TAU + b as f32 * 2.09;
+            // Two soft, wide leaf-shaped blades: narrow root, round belly, blunt tip.
+            for b in 0..2u32 {
+                let a = r(6) * std::f32::consts::TAU + b as f32 * 1.9;
                 let side = Vec3::new(a.cos(), 0.0, a.sin());
-                let lean = Vec3::new(-side.z, 0.0, side.x) * (0.05 + r(7 + b) * 0.1);
-                let off = side * 0.05;
-                let w = side * 0.028;
-                let top = at + off + lean + Vec3::Y * height * (0.8 + b as f32 * 0.15);
-                tri(
-                    &mut pos,
-                    &mut col,
-                    [at + off - w, at + off + w, top],
-                    [root, root, tip],
-                );
+                let out = Vec3::new(-side.z, 0.0, side.x);
+                let lean = out * (0.03 + r(7 + b) * 0.05);
+                let h = height * (0.85 + b as f32 * 0.25);
+                let off = out * 0.03;
+                let w0 = side * 0.03;
+                let w1 = side * 0.06;
+                let m = at + off + lean * 0.45 + Vec3::Y * h * 0.5;
+                let top = at + off + lean + Vec3::Y * h;
+                let (r0, r1) = (at + off - w0, at + off + w0);
+                let (m0, m1) = (m - w1, m + w1);
+                tri(&mut pos, &mut col, [r0, r1, m1], [root, root, mid]);
+                tri(&mut pos, &mut col, [r0, m1, m0], [root, mid, mid]);
+                tri(&mut pos, &mut col, [m0, m1, top], [mid, mid, tip]);
             }
             // Flowers in clover patches (and the odd one anywhere).
             if r(11) < clover * 0.35 + 0.015 {

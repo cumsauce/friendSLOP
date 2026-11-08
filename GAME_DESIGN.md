@@ -130,6 +130,12 @@ asked for, and what nobody has decided yet.
   either side, but you can only take the totem back out from the side you put it in (players
   have no bodies, so "your side" is the side of the door you click on). The Fire totem can only
   be picked up while a vault door is open. Just one small puzzle for now.
+- **Pets** (#15). Four stray animals (dog, cat, bunny, duck) sit on the floor. Click one to adopt
+  it (one pet each); it trots after your mouse pointer on the floor, since you have no body.
+  Adopted pets standing close together are joined by a pink leash-line, and the HUD (bottom
+  right) counts how many are connected. When every adopted pet is linked into one pack, everyone
+  sees "ALL PETS CONNECTED!". That's a first stab at "connecting them is a core loop": nothing
+  is rewarded for it yet. A leaving player's pet goes stray again.
 
 ## Ideas so far
 
@@ -164,6 +170,7 @@ asked for, and what nobody has decided yet.
 - (#5): magical totems are the magic system; holding one lets you cast its spell. Magic doors
   unlock when a matching totem is inserted (then it can't be cast), unlock from both sides, but
   the totem only comes out from the side it went in. Doors should make puzzles and shortcuts.
+- doomy (#15): some animal pets you can have follow you; maybe connecting them is a core game loop.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
@@ -194,4 +201,5 @@ asked for, and what nobody has decided yet.
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats exist but there's no hair, jumping, meadows or dialogue for them to act on. Which should come?
 - What do totem spells actually do, and what lies beyond the locked doors?
+- What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?

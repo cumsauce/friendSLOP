@@ -23,6 +23,7 @@ pub mod mushroom;
 pub mod organ_currency;
 pub mod random_dialogue;
 pub mod stats;
+pub mod pets;
 pub mod stillness;
 pub mod totems;
 pub mod voice_lines;
@@ -50,6 +51,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(fate::protocol);
         app.add_plugins(stats::protocol);
         app.add_plugins(totems::protocol);
+        app.add_plugins(pets::protocol);
     }
 }
 
@@ -76,5 +78,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(fate::plugin);
         app.add_plugins(stats::plugin);
         app.add_plugins(totems::plugin);
+        app.add_plugins(pets::plugin);
     }
 }

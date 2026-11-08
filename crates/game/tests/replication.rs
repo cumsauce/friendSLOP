@@ -542,3 +542,39 @@ fn totems_open_doors_and_stay_on_their_side() {
         Some(1)
     );
 }
+
+#[test]
+fn adopting_a_pet_gives_one_pet_each() {
+    use friendslop::features::pets::{AdoptPet, Pet};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let mut ids: Vec<u32> = world.query::<&Pet>().iter(world).map(|p| p.id).collect();
+    ids.sort();
+    assert!(ids.len() >= 2, "strays replicated");
+    // The client adopts two; only the first one counts. The host wants the
+    // first one too, but it's taken, so it gets nothing.
+    client.world_mut().client_trigger(AdoptPet { id: ids[0] });
+    client.world_mut().client_trigger(AdoptPet { id: ids[1] });
+    step(&mut server, &mut client);
+    server.world_mut().client_trigger(AdoptPet { id: ids[0] });
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let mut owners: Vec<(u32, Option<u64>)> = world
+        .query::<&Pet>()
+        .iter(world)
+        .map(|p| (p.id, p.owner))
+        .collect();
+    owners.sort();
+    assert_eq!(owners[0], (ids[0], Some(1)));
+    assert_eq!(owners[1], (ids[1], None));
+}

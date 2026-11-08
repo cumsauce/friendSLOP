@@ -922,3 +922,57 @@ fn hide_and_seek_assigns_roles_tags_and_ends() {
     assert!(!s.hiders_won);
     assert_eq!(s.found, 1);
 }
+
+#[test]
+fn villagers_replicate_and_fool_seekers() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::hide_and_seek::{HideSeek, Phase, Role, StartHideSeek};
+    use friendslop::features::villagers::{COUNT, Fooled, PokeVillager, Villager};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    assert_eq!(world.query::<&Villager>().iter(world).count(), COUNT);
+
+    client.world_mut().client_trigger(StartHideSeek);
+    step(&mut server, &mut client);
+    let world = server.world_mut();
+    for mut s in world.query::<&mut HideSeek>().iter_mut(world) {
+        s.phase = Phase::Seeking;
+    }
+    let Some(seeker) = world
+        .query::<(&Player, &Role)>()
+        .iter(world)
+        .find(|(_, r)| **r == Role::Seeker)
+        .map(|(p, _)| p.id)
+    else {
+        panic!("no seeker");
+    };
+    let Some(v) = world.query::<&Villager>().iter(world).next().copied() else {
+        panic!("no villager");
+    };
+    place(&mut server, seeker, Vec3::new(v.pos.x + 1.0, 0.0, v.pos.y));
+    let poke = PokeVillager { id: v.id };
+    if seeker == 0 {
+        server.world_mut().client_trigger(poke);
+    } else {
+        client.world_mut().client_trigger(poke);
+    }
+    step(&mut server, &mut client);
+
+    let world = server.world_mut();
+    let fooled = world
+        .query_filtered::<&Player, With<Fooled>>()
+        .iter(world)
+        .map(|p| p.id)
+        .collect::<Vec<_>>();
+    assert_eq!(fooled, vec![seeker], "only the seeker is frozen");
+}

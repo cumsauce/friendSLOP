@@ -14,6 +14,7 @@ pub mod net;
 pub mod player;
 pub mod scenery;
 pub mod settings;
+pub mod terrain;
 pub mod voice;
 pub mod world;
 
@@ -50,6 +51,7 @@ impl Plugin for GamePlugin {
             menu::MenuPlugin,
             assets::plugin,
             world::WorldPlugin,
+            terrain::TerrainPlugin,
             camera::CameraPlugin,
             features::FeaturesPlugin,
             hud::HudPlugin,

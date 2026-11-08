@@ -54,7 +54,7 @@ pub fn grass_pixels(size: u32) -> Vec<u8> {
             } else {
                 0.0
             };
-            let l = (0.72 + (n - 0.47) * 0.6 + speck).clamp(0.0, 1.0);
+            let l = (0.84 + (n - 0.47) * 0.5 + speck).clamp(0.0, 1.0);
             let b = (l * 255.0) as u8;
             data.extend_from_slice(&[b, b, b, 255]);
         }

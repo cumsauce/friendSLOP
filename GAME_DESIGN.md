@@ -8,7 +8,7 @@ asked for, and what nobody has decided yet.
 - Multiplayer: one friend hosts, others join with a code.
 - Voice chat.
 - 3D.
-- There will be some goal everyone shares. Nobody has said what yet.
+- There will be some goal everyone shares: so far, beating your landlord (#11).
 
 ## What exists
 
@@ -94,6 +94,14 @@ asked for, and what nobody has decided yet.
   screen). Every 25 s a leftover gust rattles the debris for a few seconds and the text switches
   to "it's a bit windy innit". Scenery only; gusts pause during the Stillness. (The burned
   parliament of the Commune of Dave fits as one of the toppled governments.)
+- **Landlords** (#11). The game's story. A landlord in a top hat stands on the floor, and as the
+  game starts he has just raised your rent (the inciting incident; shown top-right). Act 1, legal:
+  click him to pay with every organ you carry; he raises the rent again every 60 s (and whenever
+  you pay it off). Act 2, less than legal: after 3 raises, clicking him pickpockets an organ back
+  from his stash, which counts as harming a landlord (always reprehensible, #21). Act 3: after 3
+  heists he grows huge for a **boss fight**; 12 clicks knock him down, everyone gets the stash
+  back and the game says THE END. The whole group shares one landlord and one story, so this is
+  the first shared goal. He doesn't fight back yet, and nothing restarts after the end.
 
 ## Ideas so far
 
@@ -115,6 +123,9 @@ asked for, and what nobody has decided yet.
   Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
 - Freyja Moth (#13): the great storm of '21 caused untold damage and toppled several governments;
   the world is still recovering.
+- Freyja Moth (#11): the inciting incident is your landlord raising your rent. You start with legal
+  ways to raise money/seek redress, are eventually forced into less legal ones, and the game ends
+  with a boss fight against your landlord.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
@@ -134,6 +145,8 @@ asked for, and what nobody has decided yet.
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
 - Everything: what are we, where are we, and what are we trying to do together?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
+- Everything: what are we, and where are we? (The goal so far: deal with the landlord.)
+- What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
 - Players only have bodies in a duel. What are you the rest of the time?

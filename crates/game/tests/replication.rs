@@ -391,3 +391,36 @@ fn fart_tone_is_tuned_by_its_owner_only() {
     assert!(mine.is_some_and(|t| t.length <= 4.0), "length is clamped");
     assert_eq!(host, Some(FartTone::default()), "host's tone untouched");
 }
+
+#[test]
+fn paying_the_landlord_takes_only_the_payers_organs() {
+    use friendslop::features::landlord::{BotherLandlord, Tenancy};
+    use friendslop::features::organ_currency::OrganPurse;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(BotherLandlord);
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let tenancy: Vec<Tenancy> = world.query::<&Tenancy>().iter(world).cloned().collect();
+    assert_eq!(tenancy.len(), 1, "one landlord story");
+    assert_eq!(
+        tenancy[0].paid, 21,
+        "the client's starting organs were paid"
+    );
+    let mut worth: Vec<(u64, u32)> = world
+        .query::<(&Player, &OrganPurse)>()
+        .iter(world)
+        .map(|(p, o)| (p.id, o.total_value()))
+        .collect();
+    worth.sort();
+    assert_eq!(worth, vec![(0, 21), (1, 0)]);
+}

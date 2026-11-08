@@ -1,6 +1,5 @@
 //! The 3D space everyone shares: camera, sun, sky haze, grassy floor, meadow detail, HUD.
 
-use avian3d::prelude::*;
 use bevy::light::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
 use bevy_voice_chat::prelude::VoiceListener;
@@ -41,7 +40,6 @@ fn spawn_world(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut images: ResMut<Assets<Image>>,
 ) {
     // Soft distance haze in the (cat-visible) sky colour so the world edge fades away.
     let haze = crate::features::cat_palette::cat_palette(Color::srgb(0.6, 0.82, 1.0));
@@ -99,20 +97,7 @@ fn spawn_world(
         Transform::from_xyz(-6.0, 4.0, -3.0).looking_at(Vec3::ZERO, Vec3::Y),
         DespawnOnExit(AppState::InGame),
     ));
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(50.0, 50.0))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::srgb(0.35, 0.5, 0.35),
-            base_color_texture: Some(art::grass_texture(&mut images)),
-            uv_transform: bevy::math::Affine2::from_scale(Vec2::splat(10.0)),
-            perceptual_roughness: 0.95,
-            reflectance: 0.15,
-            ..default()
-        })),
-        RigidBody::Static,
-        Collider::cuboid(50.0, 0.1, 50.0),
-        DespawnOnExit(AppState::InGame),
-    ));
+    // The ground itself lives in `terrain.rs`.
     scatter_ground_detail(&mut commands, &mut meshes, &mut materials);
 }
 

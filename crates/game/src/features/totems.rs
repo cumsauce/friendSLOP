@@ -439,10 +439,15 @@ fn swing_doors(time: Res<Time>, mut doors: Query<(&Door, &mut Transform)>) {
 
 const CLICK_RADIUS: f32 = 40.0;
 
+#[allow(clippy::too_many_arguments)]
 fn click_totems_and_doors(
     mut commands: Commands,
+    me: Option<Res<crate::player::LocalPlayer>>,
+    walkers: Query<(&crate::player::Player, &super::fps::Walker)>,
+    duelists: Query<&super::duel::Duelist>,
     mouse: Res<ButtonInput<MouseButton>>,
     window: Query<&Window, With<PrimaryWindow>>,
+    view: Res<super::fps::FpsView>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     totems: Query<&Totem>,
     doors: Query<&Door>,
@@ -451,7 +456,7 @@ fn click_totems_and_doors(
         return;
     }
     let Ok(window) = window.single() else { return };
-    let Some(cursor) = window.cursor_position() else {
+    let Some(cursor) = super::fps::aim_point(window, &view) else {
         return;
     };
     let Ok((camera, cam_tf)) = camera.single() else {
@@ -469,7 +474,20 @@ fn click_totems_and_doors(
         commands.client_trigger(GrabTotem { id: t.id });
         return;
     }
-    // Which side of the door you click on is the side you're standing on.
+    // With a body (#53), you use the door you're standing next to, from
+    // the side you're standing on.
+    if view.first_person {
+        let Some(w) = super::fps::my_walker(me.as_deref(), &walkers, &duelists) else {
+            return;
+        };
+        let at = w.pos.xz();
+        if let Some(door) = doors.iter().find(|d| at.distance(d.at) < 2.5) {
+            let side = if at.x < door.at.x { -1 } else { 1 };
+            commands.client_trigger(UseDoor { id: door.id, side });
+        }
+        return;
+    }
+    // Overview: which side of the door you click on is the side you're standing on.
     let Ok(ray) = camera.viewport_to_world(cam_tf, cursor) else {
         return;
     };

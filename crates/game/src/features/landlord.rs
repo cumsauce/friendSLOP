@@ -374,6 +374,7 @@ fn click_landlord(
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
     window: Query<&Window, With<PrimaryWindow>>,
+    view: Res<super::fps::FpsView>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     body: Query<&GlobalTransform, With<LandlordBody>>,
 ) {
@@ -381,7 +382,7 @@ fn click_landlord(
         return;
     }
     let Ok(window) = window.single() else { return };
-    let Some(cursor) = window.cursor_position() else {
+    let Some(cursor) = super::fps::aim_point(window, &view) else {
         return;
     };
     let Ok((camera, cam_tf)) = camera.single() else {

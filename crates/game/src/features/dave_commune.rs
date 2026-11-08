@@ -6,6 +6,9 @@
 //!
 //! The flag is themed on the flag of the UK, but with the Welsh dragon in the
 //! middle, because Dave isn't a coward (Freyja Moth's correction in #43).
+//! It was then made more anarchist (#57): the field is split diagonally red
+//! over black like an anarcho-syndicalist flag, the crosses are black, and a
+//! circled A is sprayed on the top hoist corner.
 
 use bevy::prelude::*;
 
@@ -26,34 +29,45 @@ const FLAG_H: f32 = 1.2;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum FlagColour {
-    Blue,
+    Black,
     White,
     Red,
     Green,
 }
 
-/// One flat piece of the flag: a rectangle centred at `at`, rotated by
-/// `angle` radians. Later pieces are thicker so they sit on top (both sides).
+/// The outline of a flag piece.
+#[derive(Clone, Copy, Debug)]
+enum FlagShape {
+    /// A rectangle of this size.
+    Rect(Vec2),
+    /// A triangle with these corners, relative to the piece's `at`.
+    Tri([Vec2; 3]),
+}
+
+/// One flat piece of the flag, centred at `at` and rotated by `angle`
+/// radians. Later pieces are thicker so they sit on top (both sides).
 #[derive(Clone, Copy, Debug)]
 struct FlagPart {
     colour: FlagColour,
     at: Vec2,
-    size: Vec2,
+    shape: FlagShape,
     angle: f32,
     depth: f32,
 }
 
-/// The commune flag: the Union flag's blue field, saltires and cross, with a
-/// little Welsh flag (white over green) in the middle carrying a red dragon.
+/// The commune flag: the Union flag's saltires and cross on an
+/// anarcho-syndicalist red-and-black field, with black crosses, a circled A,
+/// and a little Welsh flag (white over green) in the middle carrying a red
+/// dragon.
 fn commune_flag() -> Vec<FlagPart> {
     use FlagColour::*;
     let mut parts = Vec::new();
     let mut layer = 0.04;
-    let mut add = |colour, x: f32, y: f32, w: f32, h: f32, deg: f32| {
+    let mut add_shape = |colour, at: Vec2, shape, deg: f32| {
         parts.push(FlagPart {
             colour,
-            at: Vec2::new(x, y),
-            size: Vec2::new(w, h),
+            at,
+            shape,
             angle: deg.to_radians(),
             depth: layer,
         });
@@ -61,17 +75,57 @@ fn commune_flag() -> Vec<FlagPart> {
     };
     let diag = FLAG_W.hypot(FLAG_H) - 0.25;
     let tilt = FLAG_H.atan2(FLAG_W).to_degrees();
-    add(Blue, 0.0, 0.0, FLAG_W, FLAG_H, 0.0);
-    // Saltires: white, then thinner red on top.
+    // Field: red above, black below, split corner to corner (hidden under a
+    // saltire, like the Union flag's own diagonals).
+    let (hw, hh) = (FLAG_W / 2.0, FLAG_H / 2.0);
+    add_shape(
+        Red,
+        Vec2::ZERO,
+        FlagShape::Rect(Vec2::new(FLAG_W, FLAG_H)),
+        0.0,
+    );
+    let corners = [Vec2::new(-hw, -hh), Vec2::new(hw, -hh), Vec2::new(hw, hh)];
+    let centroid = (corners[0] + corners[1] + corners[2]) / 3.0;
+    add_shape(
+        Black,
+        centroid,
+        FlagShape::Tri(corners.map(|c| c - centroid)),
+        0.0,
+    );
+    let mut add = |colour, x: f32, y: f32, w: f32, h: f32, deg: f32| {
+        add_shape(
+            colour,
+            Vec2::new(x, y),
+            FlagShape::Rect(Vec2::new(w, h)),
+            deg,
+        );
+    };
+    // Saltires: white, then thinner black on top.
     add(White, 0.0, 0.0, diag, 0.24, tilt);
     add(White, 0.0, 0.0, diag, 0.24, -tilt);
-    add(Red, 0.0, 0.0, diag, 0.08, tilt);
-    add(Red, 0.0, 0.0, diag, 0.08, -tilt);
-    // Cross: white, then red.
+    add(Black, 0.0, 0.0, diag, 0.08, tilt);
+    add(Black, 0.0, 0.0, diag, 0.08, -tilt);
+    // Cross: white, then black.
     add(White, 0.0, 0.0, FLAG_W, 0.36, 0.0);
     add(White, 0.0, 0.0, 0.36, FLAG_H, 0.0);
-    add(Red, 0.0, 0.0, FLAG_W, 0.22, 0.0);
-    add(Red, 0.0, 0.0, 0.22, FLAG_H, 0.0);
+    add(Black, 0.0, 0.0, FLAG_W, 0.22, 0.0);
+    add(Black, 0.0, 0.0, 0.22, FLAG_H, 0.0);
+    // A circled A, sprayed in black on the red top hoist corner.
+    let (ax, ay, r) = (-0.4, 0.46, 0.11);
+    for i in 0..12 {
+        let a = i as f32 * std::f32::consts::TAU / 12.0;
+        add(
+            Black,
+            ax + a.cos() * r,
+            ay + a.sin() * r,
+            0.025,
+            0.062,
+            a.to_degrees(),
+        );
+    }
+    add(Black, ax - 0.035, ay, 0.022, 0.21, -18.0);
+    add(Black, ax + 0.035, ay, 0.022, 0.21, 18.0);
+    add(Black, ax, ay - 0.03, 0.13, 0.022, 0.0);
     // Wales, not cowardly left out: white over green...
     add(White, 0.0, 0.125, 0.7, 0.25, 0.0);
     add(Green, 0.0, -0.125, 0.7, 0.25, 0.0);
@@ -170,7 +224,7 @@ fn spawn_commune(
         at(1.0, 2.5, 6.0),
         DespawnOnExit(AppState::InGame),
     ));
-    let blue = materials.add(Color::srgb(0.0, 0.14, 0.49));
+    let black = materials.add(Color::srgb(0.03, 0.03, 0.03));
     let white = materials.add(Color::srgb(1.0, 1.0, 1.0));
     let green = materials.add(Color::srgb(0.0, 0.55, 0.25));
     let flag_red = materials.add(Color::srgb(0.8, 0.07, 0.15));
@@ -183,13 +237,18 @@ fn spawn_commune(
         .id();
     for part in commune_flag() {
         let m = match part.colour {
-            FlagColour::Blue => blue.clone(),
+            FlagColour::Black => black.clone(),
             FlagColour::White => white.clone(),
             FlagColour::Red => flag_red.clone(),
             FlagColour::Green => green.clone(),
         };
         commands.spawn((
-            Mesh3d(meshes.add(Cuboid::new(part.size.x, part.size.y, part.depth))),
+            Mesh3d(match part.shape {
+                FlagShape::Rect(size) => meshes.add(Cuboid::new(size.x, size.y, part.depth)),
+                FlagShape::Tri([a, b, c]) => {
+                    meshes.add(Extrusion::new(Triangle2d::new(a, b, c), part.depth))
+                }
+            }),
             MeshMaterial3d(m),
             Transform::from_xyz(part.at.x, part.at.y, 0.0)
                 .with_rotation(Quat::from_rotation_z(part.angle)),
@@ -264,9 +323,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn flag_is_union_flag_with_a_welsh_dragon() {
+    fn flag_is_anarchist_union_flag_with_a_welsh_dragon() {
         let parts = commune_flag();
-        assert_eq!(parts[0].colour, FlagColour::Blue, "blue field");
+        assert_eq!(parts[0].colour, FlagColour::Red, "red field...");
+        assert_eq!(parts[1].colour, FlagColour::Black, "...split with black");
+        assert!(matches!(parts[1].shape, FlagShape::Tri(_)));
         assert!(parts.iter().any(|p| p.colour == FlagColour::Green), "wales");
         // The dragon (red, on top of the Welsh patch) is there.
         let wales = parts
@@ -281,6 +342,15 @@ mod tests {
         assert!(parts.len() > wales + 5);
         // Each piece is layered above the last so nothing z-fights.
         assert!(parts.windows(2).all(|w| w[1].depth > w[0].depth));
+        // No blue left: the crosses are black now.
+        assert!(
+            parts[2..]
+                .iter()
+                .filter(|p| p.colour == FlagColour::Black)
+                .count()
+                > 15,
+            "black crosses and a circled A"
+        );
         // Everything stays roughly on the flag.
         assert!(
             parts

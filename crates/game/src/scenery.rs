@@ -516,9 +516,10 @@ impl Dresser<'_, '_, '_> {
                     (-w / 2.0, d / 2.0),
                     (w / 2.0, d / 2.0),
                 ] {
+                    // A touch taller than the back wall: no coplanar tops.
                     self.block(
-                        v3(local(x, z), h / 2.0),
-                        Vec3::new(0.2, h, 0.2),
+                        v3(local(x, z), (h + 0.04) / 2.0),
+                        Vec3::new(0.2, h + 0.04, 0.2),
                         yaw,
                         &wood,
                         false,

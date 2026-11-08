@@ -110,7 +110,7 @@ fn dress_pond(
         commands.spawn((
             Mesh3d(ring.clone()),
             MeshMaterial3d(material.clone()),
-            flat(c.x + p.x, WATER_Y + 0.01, c.y + p.y),
+            flat(c.x + p.x, WATER_Y + 0.015, c.y + p.y),
             Ripple {
                 phase: i as f32 * 1.3,
                 material,
@@ -137,7 +137,8 @@ fn dress_pond(
     .enumerate()
     {
         let p = around(jetty_angle + a, r);
-        let y = WATER_Y + 0.015;
+        // High enough that bobbing never dips it into the ripples (z-fighting).
+        let y = WATER_Y + 0.035;
         let mut pad_e = commands.spawn((
             Mesh3d(pad.clone()),
             MeshMaterial3d(pad_mat.clone()),
@@ -419,7 +420,7 @@ fn dress_campfire(
                     l.spawn((
                         Mesh3d(end.clone()),
                         MeshMaterial3d(cut.clone()),
-                        Transform::from_xyz(0.0, s * 0.751, 0.0)
+                        Transform::from_xyz(0.0, s * 0.76, 0.0)
                             .with_rotation(Quat::from_rotation_x(-s * std::f32::consts::FRAC_PI_2)),
                         NotShadowCaster,
                     ));

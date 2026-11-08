@@ -485,10 +485,11 @@ fn walls(
         west,
         mat,
     );
-    // Dark timber corner posts and a beam along the top.
+    // Dark timber corner posts and a beam along the top. Both stand 2 cm
+    // proud of the wall top so no faces are coplanar (z-fighting).
     for (sx, sz) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
-        let c = Vec3::new(sx * hx, y0 + h / 2.0, sz * hz);
-        let s = Vec3::new(T + 0.1, h, T + 0.1);
+        let c = Vec3::new(sx * hx, y0 + (h + 0.03) / 2.0, sz * hz);
+        let s = Vec3::new(T + 0.1, h + 0.03, T + 0.1);
         k.put(
             Shape::Cube,
             c,
@@ -500,8 +501,8 @@ fn walls(
         );
     }
     for z in [-hz, hz] {
-        let c = Vec3::new(0.0, y0 + h - 0.1, z);
-        let s = Vec3::new(w + T, 0.2, T + 0.06);
+        let c = Vec3::new(0.0, y0 + h - 0.08, z);
+        let s = Vec3::new(w, 0.2, T + 0.06);
         k.put(
             Shape::Cube,
             c,
@@ -694,7 +695,8 @@ fn townhouse(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat)) {
     );
     // Balcony over the front, with rails.
     let (bx, bz) = (1.7, hz + 1.5);
-    k.floor(Vec2::new(-bx, hz), Vec2::new(bx, bz), STOREY, Mat::Plank);
+    // Starts at the wall's outer face so its top isn't coplanar with the wall.
+    k.floor(Vec2::new(-bx, hz + T / 2.0), Vec2::new(bx, bz), STOREY, Mat::Plank);
     let rail = |k: &mut Kit, a: Vec2, b: Vec2| {
         k.bar(a, b, STOREY, 1.0, 0.1, Mat::Timber, Solid::Wall);
     };
@@ -988,7 +990,8 @@ fn stall(k: &mut Kit, cloth: Mat) {
         Vec3::new(2.4, 0.95, 0.8),
         Mat::Wood,
     );
-    for (x, z) in [(-1.15, 0.35), (1.15, 0.35), (-1.15, -1.3), (1.15, -1.3)] {
+    // Posts poke 2 cm past the counter's faces (no coplanar faces).
+    for (x, z) in [(-1.17, 0.37), (1.17, 0.37), (-1.17, -1.3), (1.17, -1.3)] {
         k.prop(Vec3::new(x, 0.0, z), Vec3::new(0.1, 2.3, 0.1), Mat::Timber);
     }
     for i in 0..4 {
@@ -1104,8 +1107,9 @@ pub fn layout() -> Kit {
     // Market square: cobbles, the well, four stalls, a lantern.
     k.place(MARKET_AT, 0);
     k.block(
-        Vec3::new(-7.0, 0.0, -7.0),
-        Vec3::new(7.0, 0.03, 7.0),
+        // Just inside the low walls at its edge, so their faces don't coincide.
+        Vec3::new(-6.97, 0.0, -6.97),
+        Vec3::new(6.97, 0.03, 6.97),
         Mat::Cobble,
         Solid::None,
     );
@@ -1460,5 +1464,48 @@ mod tests {
             .filter(|r| (r.to.y - r.from.y - STOREY).abs() < 0.01)
             .count();
         assert!(upper >= 2, "need two two-storey houses");
+    }
+
+    /// Two boxes of different materials whose same-facing faces lie in one
+    /// plane and overlap flicker (z-fighting). Checks axis-aligned cubes.
+    #[test]
+    fn no_coplanar_faces_between_materials() {
+        let kit = layout();
+        let axis_aligned = |p: &Piece| {
+            let m = Mat3::from_quat(p.rot);
+            [m.x_axis, m.y_axis, m.z_axis]
+                .iter()
+                .all(|a| a.abs().max_element() > 0.999)
+        };
+        let boxes: Vec<_> = kit
+            .pieces
+            .iter()
+            .filter(|p| p.shape == Shape::Cube && p.mat != Mat::Hidden && axis_aligned(p))
+            .map(|p| (p, aabb(p)))
+            .collect();
+        let span = |lo: f32, hi: f32, lo2: f32, hi2: f32| hi.min(hi2) - lo.max(lo2);
+        let mut bad = Vec::new();
+        for (i, (p, a)) in boxes.iter().enumerate() {
+            for (q, b) in &boxes[i + 1..] {
+                if p.mat == q.mat {
+                    continue;
+                }
+                for ax in 0..3 {
+                    let (u, v) = ((ax + 1) % 3, (ax + 2) % 3);
+                    let area = span(a.0[u], a.1[u], b.0[u], b.1[u]) > 1e-3
+                        && span(a.0[v], a.1[v], b.0[v], b.1[v]) > 1e-3;
+                    // Undersides are never seen (they sit on the ground or a floor).
+                    let lo = ax != 1 && (a.0[ax] - b.0[ax]).abs() < 2e-3;
+                    let same = lo || (a.1[ax] - b.1[ax]).abs() < 2e-3;
+                    if area && same {
+                        bad.push(format!(
+                            "{:?} {:?} {:?} vs {:?} {:?} {:?} (axis {ax})",
+                            p.mat, p.centre, p.size, q.mat, q.centre, q.size
+                        ));
+                    }
+                }
+            }
+        }
+        assert!(bad.is_empty(), "{} coplanar faces:\n{}", bad.len(), bad.join("\n"));
     }
 }

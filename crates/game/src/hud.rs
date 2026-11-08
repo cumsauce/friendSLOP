@@ -481,7 +481,11 @@ fn show_fps(diag: Res<DiagnosticsStore>, mut text: Query<(&mut Text, &Visibility
             .get(&FrameTimeDiagnosticsPlugin::FPS)
             .and_then(|d| d.smoothed())
             .unwrap_or(0.0);
-        t.0 = format!("{fps:.0} fps");
+        // Only touch the text when the number changes (avoids a relayout per frame).
+        let want = format!("{fps:.0} fps");
+        if t.0 != want {
+            t.0 = want;
+        }
     }
 }
 

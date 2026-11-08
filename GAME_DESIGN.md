@@ -36,6 +36,16 @@ asked for, and what nobody has decided yet.
   own, and a hider's label is hidden from everyone but themselves (back after the round). While
   seeking, a hider hears a generated heartbeat when a seeker is within 6 m, faster as they close
   in. Player bodies already collide with cover (host sweeps a capsule and slides along it).
+- **Districts across the wider map** (`zones.rs`, after "too dense in one little area, can't run
+  around and hide"). The centre commune's cover is thinned to ~40% (18 clusters) for running lanes.
+  Around it, within ±90 m: a north forest (z < -35: ~230 tall trees with trunk colliders,
+  undergrowth, fallen logs, boulders, a hidden clearing with a woodcutter's hut ruin); south-west
+  ruins (a 24×24 m seeded hedge/stone maze with 3 m walls, dead ends and a gilded statue in the
+  centre, 6-10 m broken castle walls with an archway, a collapsed tower to walk into, rubble, and
+  rock faces, crates and a wooden crane around the quarry rim at (-55, 65)); a sparse west valley
+  (trees, rocks, fences, shepherd's shelter); meadows with copses, low stone walls and hedgerows
+  (~1.2 m, crouch cover), haystacks and a windmill with turning sails at (-8, -31). The east
+  village block (x 35..80, z -35..35) is left for houses. Everything sits on `terrain::height_at`.
 - **Commune villagers** (#61, the "NPCs" part). Ten villagers (Kevin, Brenda, Old Tom, Moss, ...)
   with the same capsule body, player-style colours and googly eyes, so hiders can blend in. The
   server moves them at 5 Hz: wander between the bonfire, ruins, pond and cover spots, pause or sit,

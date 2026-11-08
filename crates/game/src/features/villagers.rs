@@ -38,7 +38,7 @@ pub const NAMES: [&str; COUNT] = [
 ];
 
 /// Where villagers like to hang out (x, z).
-const POINTS: [Vec2; 12] = [
+const POINTS: [Vec2; 15] = [
     Vec2::new(-8.5, 0.5),   // by the bonfire
     Vec2::new(-6.5, -1.0),  // other side of the bonfire
     Vec2::new(-12.0, -1.0), // under the ruins
@@ -51,6 +51,11 @@ const POINTS: [Vec2; 12] = [
     Vec2::new(-6.0, 11.0),
     Vec2::new(8.0, 3.0),
     Vec2::new(15.0, -3.0),
+    // Out in the wider districts (zones.rs): open meadow by the windmill and
+    // the west valley's grass.
+    Vec2::new(-8.0, -24.0),
+    Vec2::new(-30.0, 0.0),
+    Vec2::new(10.0, 32.0),
 ];
 
 /// Server -> everyone: one villager. `pos` is the feet position on the floor.

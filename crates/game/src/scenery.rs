@@ -38,16 +38,16 @@ pub fn plugin(app: &mut App) {
 /// edge may get hills, so keep a margin).
 const PLAY_HALF: f32 = 22.5;
 /// How many prop clusters to place.
-const CLUSTER_COUNT: usize = 44;
+const CLUSTER_COUNT: usize = 18;
 /// Minimum distance between cluster centres.
-const CLUSTER_SPACING: f32 = 4.2;
+const CLUSTER_SPACING: f32 = 6.5;
 /// Scattered loose flora between clusters.
-const LOOSE_FLORA: u32 = 70;
+const LOOSE_FLORA: u32 = 50;
 
 /// Small scenery whose meshes shouldn't cast shadows (cheap, and tiny shadows
 /// just look noisy).
 #[derive(Component)]
-struct SmallProp;
+pub(crate) struct SmallProp;
 
 fn no_shadows_on_small_props(
     ready: On<WorldInstanceReady>,
@@ -130,25 +130,25 @@ fn in_camera_corridor(p: Vec2) -> bool {
 
 /// A tiny deterministic random source, same on every peer (like the mushroom
 /// patch's), so everyone places an identical forest.
-struct Rng(u32);
+pub(crate) struct Rng(pub(crate) u32);
 
 impl Rng {
-    fn f(&mut self) -> f32 {
+    pub(crate) fn f(&mut self) -> f32 {
         self.0 = self.0.wrapping_mul(1_664_525).wrapping_add(1_013_904_223);
         (self.0 >> 8) as f32 / (1u32 << 24) as f32
     }
-    fn range(&mut self, lo: f32, hi: f32) -> f32 {
+    pub(crate) fn range(&mut self, lo: f32, hi: f32) -> f32 {
         lo + self.f() * (hi - lo)
     }
-    fn pick<'a, T>(&mut self, items: &'a [T]) -> &'a T {
+    pub(crate) fn pick<'a, T>(&mut self, items: &'a [T]) -> &'a T {
         let i = ((self.f() * items.len() as f32) as usize).min(items.len() - 1);
         &items[i]
     }
-    fn yaw(&mut self) -> Quat {
+    pub(crate) fn yaw(&mut self) -> Quat {
         Quat::from_rotation_y(self.f() * std::f32::consts::TAU)
     }
     /// A point in a disc of radius `r` around `c`.
-    fn around(&mut self, c: Vec2, r: f32) -> Vec2 {
+    pub(crate) fn around(&mut self, c: Vec2, r: f32) -> Vec2 {
         c + Vec2::from_angle(self.f() * std::f32::consts::TAU) * r * self.f().sqrt()
     }
 }
@@ -175,7 +175,7 @@ const UNDERGROWTH: &[&str] = &[
     "Plant_7.gltf",
     "Clover_1.gltf",
 ];
-const FLORA: &[&str] = &[
+pub(crate) const FLORA: &[&str] = &[
     "Flower_3_Single.gltf",
     "Flower_3_Group.gltf",
     "Flower_4_Single.gltf",
@@ -190,7 +190,7 @@ const FLORA: &[&str] = &[
 
 /// What a cluster is.
 #[derive(Clone, Copy)]
-enum Cluster {
+pub(crate) enum Cluster {
     Grove,
     Outcrop,
     Thicket,
@@ -215,24 +215,24 @@ const CLUSTER_MIX: &[(Cluster, f32)] = &[
 ];
 
 /// Shared meshes and materials for the code-built props.
-struct Kit {
-    cube: Handle<Mesh>,
-    cylinder: Handle<Mesh>,
-    stone: Handle<StandardMaterial>,
-    mossy: Handle<StandardMaterial>,
-    wood: Handle<StandardMaterial>,
-    plank: Handle<StandardMaterial>,
-    roof: Handle<StandardMaterial>,
-    hay: Handle<StandardMaterial>,
-    bark: Handle<StandardMaterial>,
-    crate_wood: Handle<StandardMaterial>,
+pub(crate) struct Kit {
+    pub(crate) cube: Handle<Mesh>,
+    pub(crate) cylinder: Handle<Mesh>,
+    pub(crate) stone: Handle<StandardMaterial>,
+    pub(crate) mossy: Handle<StandardMaterial>,
+    pub(crate) wood: Handle<StandardMaterial>,
+    pub(crate) plank: Handle<StandardMaterial>,
+    pub(crate) roof: Handle<StandardMaterial>,
+    pub(crate) hay: Handle<StandardMaterial>,
+    pub(crate) bark: Handle<StandardMaterial>,
+    pub(crate) crate_wood: Handle<StandardMaterial>,
 }
 
 /// Spawns props with shared handles.
-struct Dresser<'w, 's, 'a> {
-    commands: Commands<'w, 's>,
-    assets: &'a AssetServer,
-    kit: Kit,
+pub(crate) struct Dresser<'w, 's, 'a> {
+    pub(crate) commands: Commands<'w, 's>,
+    pub(crate) assets: &'a AssetServer,
+    pub(crate) kit: Kit,
 }
 
 /// Some kit models are authored far bigger than the meadow (the tall grasses are
@@ -255,11 +255,18 @@ pub(crate) fn nature_model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
 }
 
 impl Dresser<'_, '_, '_> {
-    fn model(&mut self, file: &str, at: Vec2, yaw: Quat, scale: f32, small: bool) -> Entity {
+    pub(crate) fn model(
+        &mut self,
+        file: &str,
+        at: Vec2,
+        yaw: Quat,
+        scale: f32,
+        small: bool,
+    ) -> Entity {
         let scale = scale * model_size_fix(file);
         let mut e = self.commands.spawn((
             nature_model(self.assets, file),
-            Transform::from_xyz(at.x, 0.0, at.y)
+            Transform::from_xyz(at.x, ground(at), at.y)
                 .with_rotation(yaw)
                 .with_scale(Vec3::splat(scale)),
             crate::ambience::Sway::default(),
@@ -272,7 +279,8 @@ impl Dresser<'_, '_, '_> {
     }
 
     /// A static collider with no visuals (for model-based cover).
-    fn blocker(&mut self, transform: Transform, collider: Collider) {
+    pub(crate) fn blocker(&mut self, mut transform: Transform, collider: Collider) {
+        transform.translation.y += ground(transform.translation.xz());
         self.commands.spawn((
             transform,
             RigidBody::Static,
@@ -282,7 +290,7 @@ impl Dresser<'_, '_, '_> {
     }
 
     /// A box of `size` centred at `centre`, optionally solid.
-    fn block(
+    pub(crate) fn block(
         &mut self,
         centre: Vec3,
         size: Vec3,
@@ -290,6 +298,7 @@ impl Dresser<'_, '_, '_> {
         mat: &Handle<StandardMaterial>,
         solid: bool,
     ) {
+        let centre = centre + Vec3::Y * ground(centre.xz());
         let mut e = self.commands.spawn((
             Mesh3d(self.kit.cube.clone()),
             MeshMaterial3d(mat.clone()),
@@ -305,7 +314,7 @@ impl Dresser<'_, '_, '_> {
     }
 
     /// A cylinder of `radius`/`length` along local Y, rotated by `rot`.
-    fn cylinder(
+    pub(crate) fn cylinder(
         &mut self,
         centre: Vec3,
         radius: f32,
@@ -314,6 +323,7 @@ impl Dresser<'_, '_, '_> {
         mat: &Handle<StandardMaterial>,
         solid: bool,
     ) {
+        let centre = centre + Vec3::Y * ground(centre.xz());
         let mut e = self.commands.spawn((
             Mesh3d(self.kit.cylinder.clone()),
             MeshMaterial3d(mat.clone()),
@@ -327,7 +337,7 @@ impl Dresser<'_, '_, '_> {
         }
     }
 
-    fn tree(&mut self, rng: &mut Rng, at: Vec2, dead: bool) {
+    pub(crate) fn tree(&mut self, rng: &mut Rng, at: Vec2, dead: bool) {
         let (file, scale) = if dead {
             (*rng.pick(DEAD_TREES), rng.range(0.35, 0.6))
         } else {
@@ -340,7 +350,7 @@ impl Dresser<'_, '_, '_> {
         );
     }
 
-    fn rock(&mut self, rng: &mut Rng, at: Vec2, scale: f32) {
+    pub(crate) fn rock(&mut self, rng: &mut Rng, at: Vec2, scale: f32) {
         let yaw = rng.yaw();
         self.model(rng.pick(ROCKS), at, yaw, scale, false);
         // The medium rocks are roughly 3 × 2 × 2.5 m at scale 1.
@@ -350,7 +360,7 @@ impl Dresser<'_, '_, '_> {
         );
     }
 
-    fn undergrowth(&mut self, rng: &mut Rng, centre: Vec2, r: f32, n: u32) {
+    pub(crate) fn undergrowth(&mut self, rng: &mut Rng, centre: Vec2, r: f32, n: u32) {
         for _ in 0..n {
             let p = rng.around(centre, r);
             let file = *rng.pick(UNDERGROWTH);
@@ -364,7 +374,7 @@ impl Dresser<'_, '_, '_> {
         }
     }
 
-    fn cluster(&mut self, rng: &mut Rng, kind: Cluster, c: Vec2) {
+    pub(crate) fn cluster(&mut self, rng: &mut Rng, kind: Cluster, c: Vec2) {
         let k = &self.kit;
         let (stone, mossy, wood, plank, roof, hay, bark, crate_wood) = (
             k.stone.clone(),
@@ -582,24 +592,33 @@ impl Dresser<'_, '_, '_> {
     }
 }
 
+/// Ground height under a point (props sit on the terrain).
+pub(crate) fn ground(p: Vec2) -> f32 {
+    crate::terrain::height_at(p.x, p.y)
+}
+
+pub(crate) fn make_kit(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> Kit {
+    Kit {
+        cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+        cylinder: meshes.add(Cylinder::new(0.5, 1.0)),
+        stone: art::soft(materials, Color::srgb(0.58, 0.56, 0.54)),
+        mossy: art::soft(materials, Color::srgb(0.45, 0.52, 0.4)),
+        wood: art::soft(materials, Color::srgb(0.45, 0.32, 0.2)),
+        plank: art::soft(materials, Color::srgb(0.6, 0.44, 0.3)),
+        roof: art::soft(materials, Color::srgb(0.55, 0.25, 0.2)),
+        hay: art::soft(materials, Color::srgb(0.88, 0.74, 0.38)),
+        bark: art::soft(materials, Color::srgb(0.4, 0.3, 0.22)),
+        crate_wood: art::soft(materials, Color::srgb(0.72, 0.55, 0.34)),
+    }
+}
+
 fn dress_floor(
     commands: Commands,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let kit = Kit {
-        cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-        cylinder: meshes.add(Cylinder::new(0.5, 1.0)),
-        stone: art::soft(&mut materials, Color::srgb(0.58, 0.56, 0.54)),
-        mossy: art::soft(&mut materials, Color::srgb(0.45, 0.52, 0.4)),
-        wood: art::soft(&mut materials, Color::srgb(0.45, 0.32, 0.2)),
-        plank: art::soft(&mut materials, Color::srgb(0.6, 0.44, 0.3)),
-        roof: art::soft(&mut materials, Color::srgb(0.55, 0.25, 0.2)),
-        hay: art::soft(&mut materials, Color::srgb(0.88, 0.74, 0.38)),
-        bark: art::soft(&mut materials, Color::srgb(0.4, 0.3, 0.22)),
-        crate_wood: art::soft(&mut materials, Color::srgb(0.72, 0.55, 0.34)),
-    };
+    let kit = make_kit(&mut meshes, &mut materials);
     let mut d = Dresser {
         commands,
         assets: &assets,

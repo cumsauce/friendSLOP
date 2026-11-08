@@ -215,7 +215,7 @@ fn spawn_fart_ui(mut commands: Commands) {
     ));
     commands.spawn((
         Text::new(
-            "farting: F lets one go at the cursor once your gas is built up. \
+            "farting: F lets one go where you stand once your gas is built up. \
              Keep away from NPCs or you'll be shamed.",
         ),
         crate::hud::slot(crate::hud::HudSlot::Help),
@@ -239,14 +239,26 @@ fn spawn_fart_ui(mut commands: Commands) {
     ));
 }
 
-/// F: fart with your bottom at the floor spot under the mouse cursor.
+/// F: fart with your bottom where your body is (#53), or, from the overview
+/// camera, at the floor spot under the mouse cursor.
+#[allow(clippy::too_many_arguments)]
 fn press_to_fart(
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    view: Res<super::fps::FpsView>,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &super::fps::Walker)>,
+    duelists: Query<&Duelist>,
 ) {
     if !keys.just_pressed(KeyCode::KeyF) {
+        return;
+    }
+    if view.first_person
+        && let Some(w) = super::fps::my_walker(me.as_deref(), &walkers, &duelists)
+    {
+        commands.client_trigger(Fart { at: w.pos.xz() });
         return;
     }
     let at = (|| {

@@ -15,6 +15,7 @@ pub mod duel;
 pub mod fart;
 pub mod fart_sound;
 pub mod fate;
+pub mod fps;
 pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
@@ -58,6 +59,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(pets::protocol);
         app.add_plugins(halt::protocol);
         app.add_plugins(objective::protocol);
+        app.add_plugins(fps::protocol);
     }
 }
 
@@ -89,5 +91,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(pets::plugin);
         app.add_plugins(halt::plugin);
         app.add_plugins(objective::plugin);
+        app.add_plugins(fps::plugin);
     }
 }

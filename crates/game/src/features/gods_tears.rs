@@ -219,6 +219,7 @@ fn click_tear(
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
     window: Query<&Window, With<PrimaryWindow>>,
+    view: Res<super::fps::FpsView>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
     tears: Query<(&GodsTear, &Transform)>,
 ) {
@@ -226,7 +227,7 @@ fn click_tear(
         return;
     }
     let Ok(window) = window.single() else { return };
-    let Some(cursor) = window.cursor_position() else {
+    let Some(cursor) = super::fps::aim_point(window, &view) else {
         return;
     };
     let Ok((camera, cam_transform)) = camera.single() else {

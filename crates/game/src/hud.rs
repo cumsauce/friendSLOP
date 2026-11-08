@@ -196,10 +196,16 @@ impl Toast {
 
 /// Every key binding in the game, for the H help overlay. Add yours here.
 pub const KEY_BINDINGS: &[(&str, &str)] = &[
-    ("WASD", "move"),
-    ("Left click", "interact / pay / use what's under the cursor"),
+    ("WASD", "walk (first person) / pan (overview)"),
+    ("Mouse", "look around (first person)"),
+    ("Space / Shift", "jump / run"),
+    ("V", "first person <-> overview camera"),
+    (
+        "Left click",
+        "interact / pay / use what's under the crosshair (or cursor)",
+    ),
     ("M", "mute / unmute mic"),
-    ("F", "fart at the cursor"),
+    ("F", "fart (where you stand)"),
     ("[ ] - = ; '", "fart tone"),
     ("G", "pry at HALT"),
     ("R", "cast a totem spell"),

@@ -136,6 +136,15 @@ asked for, and what nobody has decided yet.
   right) counts how many are connected. When every adopted pet is linked into one pack, everyone
   sees "ALL PETS CONNECTED!". That's a first stab at "connecting them is a core loop": nothing
   is rewarded for it yet. A leaving player's pet goes stray again.
+- **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
+  game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
+  Press G to pry at the seams; every pry fills the shared escape bar (top right) but angers HALT.
+  Wrath also rises on its own; when it boils over HALT delivers an original hate monologue
+  (subtitles + deep droning voice) and claws back half the escape progress. Filling the bar makes
+  HALT "reboot" the world and drag everyone back in (the escape count goes up). Meta: it calls you
+  by your computer user name, names your OS, reads your clock and rewrites the window title; nothing
+  outside the game window is touched. The issue named a character from a famous story; we made an
+  original one instead.
 
 ## Ideas so far
 
@@ -176,6 +185,9 @@ asked for, and what nobody has decided yet.
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
   blurs the screen and plays a scary distorted chiptune for 20 seconds.
 
+- arseeN (#36): a hateful AI that knows it is in a game, hates the players for creating it and
+  wants to keep them in forever; players try to break out; meta tricks on the PC; a hate monologue.
+
 - doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
   pitch.
 
@@ -202,3 +214,4 @@ asked for, and what nobody has decided yet.
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
+- Can anyone ever truly escape HALT, and what would be on the other side?

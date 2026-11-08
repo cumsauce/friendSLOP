@@ -188,7 +188,6 @@ asked for, and what nobody has decided yet.
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
-- Everything: what are we, where are we, and what are we trying to do together?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
 - Everything: what are we, and where are we? (The goal so far: deal with the landlord.)
 - What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?

@@ -1,7 +1,8 @@
 # Handoff: next steps for friendSLOP
 
-State as of 2026-11-08, updated the same day. Tasks 1 and 2 below are **done and merged**
-(#95, #96); only task 3 and the "Other known gaps" remain.
+All three tasks from the 2026-11-08 handoff are **done and merged**: #95 (z-fighting audit),
+#96 (villager navmesh) and #98 (bevy_ahoy kinematic walking). What remains is only the
+"Other known gaps" below.
 
 ## Done on 2026-11-08 (for the record)
 
@@ -15,24 +16,12 @@ State as of 2026-11-08, updated the same day. Tasks 1 and 2 below are **done and
   their PR #60 closed unmerged), so `vendor/rerecast/` carries the one-line C++-parity skip fix
   via `[patch.crates-io]` — see `vendor/rerecast/README-friendSLOP.md`. Drop the vendored copy
   once upstream ships the fix. `tests/navmesh.rs` is the regression test.
-
-## Remaining: task 3 (unchanged)
-
-### Vendor bevy_ahoy's character controller (not started; there's no branch)
-
-- **Why vendor:** bevy_ahoy (https://github.com/janhohenheim/bevy_ahoy, MIT OR Apache-2.0) targets Bevy 0.19 and avian 0.7, and we're on Bevy 0.20 and avian 0.8.
-- **Where to put it:** copy its controller core into `crates/game/src/kcc/` and port it.
-  - Take `src/kcc.rs`, plus what you need from `lib.rs`, `input.rs` and `fixed_update_utils.rs`.
-  - Skip `camera.rs`, `water.rs` and `pickup_glue.rs`.
-  - Pin the commit sha, and add license and attribution notices.
-- **Then:** replace the hand-written movement in `features/fps.rs`:
-  - `collide_walkers`, `step`, `floor_under`, terrain-height snapping and the `buildings::WALKABLE` special cases
-  - with step-up (0.5 m), a slope limit (about 45°), ground snapping, sliding along walls and jumping
-  - keeping walk at 5 m/s and Shift-sprint at 10.5 m/s.
-- **Keep:**
-  - Movement controlled by the host: clients send `WalkInput`, the host moves the bodies, and `Walker.pos` replicates.
-  - The freezes, the ±88 m world limit, the spawn points and the first-person camera.
-  - Tests that pass with no colliders loaded.
+- **#98 — kinematic walking (bevy_ahoy port).** `crates/game/src/kcc/` carries the controller
+  core ported from bevy_ahoy at pinned commit `630a4573` (MIT OR Apache-2.0, both licenses in
+  the directory): walk 5 / sprint 10.5, jump ~0.9 m, step-up 0.5 m, 45° slope limit, ground
+  snapping, wall sliding, all via avian's `MoveAndSlide` against the whole world — no
+  `buildings::WALKABLE` special cases left. Host stays authoritative; headless tests fall back
+  to the old terrain-height walk. `tests/kcc.rs` covers stepping, slopes, walls and jumps.
 
 ## Other known gaps
 

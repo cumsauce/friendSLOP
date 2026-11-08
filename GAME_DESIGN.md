@@ -8,7 +8,8 @@ asked for, and what nobody has decided yet.
 - Multiplayer: one friend hosts, others join with a code.
 - Voice chat.
 - 3D.
-- There will be some goal everyone shares: so far, beating your landlord (#11).
+- The shared goal (#75): **free the Commune from your landlord**, over five chapters that use
+  every mechanic, ending in the landlord's eviction (#11).
 
 ## What exists
 
@@ -217,11 +218,21 @@ asked for, and what nobody has decided yet.
   by your computer user name, names your OS, reads your clock and rewrites the window title; nothing
   outside the game window is touched. The issue named a character from a famous story; we made an
   original one instead.
-- **Objective and rounds** (polish, no issue). A single "Objective" line (top) follows the landlord
-  storyline's current act and progress, since it is the only goal with an ending so far. When the
-  landlord is defeated a round summary appears and anyone can press Enter to start a new round: the
-  landlord, HALT's escape bar, the gods tears supply, organs, morality, transformations and stats all
-  reset (features hook in by observing the server-side `RoundReset` event).
+- **The goal: free the Commune** (#75). The group asked us to keep every mechanic, tie it all
+  into one experience for a 4-6 hour session, and make the goal really obvious on screen. So
+  there is one goal, "Free the Commune from your landlord", in big gold text at the top of the
+  screen, with the current chapter's checklist top-left and a chapter title card in the middle
+  whenever a chapter starts. Five chapters; each is a round and always ends with beating the
+  landlord (his three acts, #11) again, plus jobs that use the other mechanics, more each chapter:
+  1 *Moving In* (pets leashed into one pack, eat the mushroom), 2 *Rent Day* (open a vault door,
+  break out of HALT, a game of hide and seek), 3 *The Heist* (carry out the Fire totem, use 3 gods
+  tears, a duel, HALT), 4 *General Strike* (pack, 3 mushrooms, 2 hide and seek, 2 duels, HALT x2),
+  5 *The Eviction* (Fire totem, 6 tears, 3 hide and seek, 3 duels, HALT x3). Ticks never untick.
+  Hide and seek and duels are waived when you play alone. When a chapter's list is done, a
+  summary appears and anyone presses Enter for the next chapter (the round resets; features
+  observe the server-side `RoundReset`). After chapter 5 the Commune is free, there's an ending
+  (with the dedication just meat and cheese asked for), and Enter starts again from chapter 1.
+  The 4-6 hours is a target, not measured: the counts are easy to tune in `campaign.rs`.
 - **Overview camera** (polish). Press V to leave your body: pan with WASD / arrow keys and zoom
   with the scroll wheel, clamped to the floor. V again returns to first person.
 
@@ -285,6 +296,8 @@ asked for, and what nobody has decided yet.
 - (#53): fps cam/controls.
 - doomy (#61): the gamemode is just a generated environment and NPCs, then hide and seek with
   the players.
+- just meat and cheese (#75): keep all current mechanics and make it one cohesive experience
+  to enjoy for 4-6 hours. cumsauce (#75): make it really obvious in the UI what the goal is.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
 ## Open questions
@@ -292,7 +305,7 @@ asked for, and what nobody has decided yet.
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
 - Hide and seek: should found hiders seek, or just watch? Should the world change each round?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
-- Everything: what are we, and where are we? (The goal so far: deal with the landlord.)
+- Everything: what are we, and where are we? (The goal: free the Commune from the landlord.)
 - What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
@@ -306,7 +319,8 @@ asked for, and what nobody has decided yet.
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
-- Which is the primary goal: beating the landlord, escaping HALT, or opening the vault?
+- What does a freed Commune look like, and what happens after the landlord is gone for good?
+- Is the campaign the right length? Which chapters drag, and which fly by?
 - Can anyone ever truly escape HALT, and what would be on the other side?
 - The cat-vision filter only recolours flat colours — the new textured models (trees, cowboys)
   keep their natural greens and reds. Should the filter learn to shift textures too? (#12)

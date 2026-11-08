@@ -1005,3 +1005,76 @@ fn hide_and_seek_hides_name_labels_and_heartbeats_near_seekers() {
     };
     assert!(near < far);
 }
+
+#[test]
+fn finishing_a_chapter_moves_everyone_to_the_next() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::campaign::Campaign;
+    use friendslop::features::fate::FateDice;
+    use friendslop::features::landlord::{Act3, Tenancy};
+    use friendslop::features::mushroom::Mushroom;
+    use friendslop::features::objective::{Objective, RequestRestart};
+    use friendslop::features::pets::Pet;
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    server.world_mut().resource_mut::<FateDice>().chance = 0.0;
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    let campaign = |app: &mut App| {
+        let world = app.world_mut();
+        world.query::<&Campaign>().single(world).ok().cloned()
+    };
+    step(&mut server, &mut client);
+    let Some(c) = campaign(&mut client) else {
+        panic!("the campaign replicates");
+    };
+    assert_eq!(c.chapter, 0);
+    assert!(!c.solo);
+
+    // Chapter 1: a pack of two pets, a mushroom eaten, the landlord beaten.
+    place(&mut server, 0, Vec3::ZERO);
+    place(&mut server, 1, Vec3::new(0.5, 0.0, 0.0));
+    {
+        let world = server.world_mut();
+        let mut pets = world.query::<&mut Pet>();
+        for (i, mut p) in pets.iter_mut(world).take(2).enumerate() {
+            p.owner = Some(i as u64);
+            p.at = Vec2::new(i as f32, 0.0);
+        }
+        let mushroom: Vec<Entity> = world
+            .query_filtered::<Entity, With<Mushroom>>()
+            .iter(world)
+            .collect();
+        for e in mushroom {
+            world.despawn(e);
+        }
+        let mut t = world.query::<&mut Tenancy>();
+        for mut t in t.iter_mut(world) {
+            t.act = Act3::Won;
+        }
+    }
+    step(&mut server, &mut client);
+    let Some(c) = campaign(&mut client) else {
+        panic!("still there");
+    };
+    assert!(c.complete(), "chapter 1 done: {c:?}");
+    {
+        let world = client.world_mut();
+        let over = world.query::<&Objective>().iter(world).any(|o| o.over);
+        assert!(over, "the round ends with the chapter");
+    }
+
+    client.world_mut().client_trigger(RequestRestart);
+    step(&mut server, &mut client);
+    let Some(c) = campaign(&mut client) else {
+        panic!("still there");
+    };
+    assert_eq!(c.chapter, 1, "on to chapter 2");
+    assert!(!c.complete());
+}

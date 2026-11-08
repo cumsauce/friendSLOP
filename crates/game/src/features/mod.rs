@@ -8,6 +8,7 @@ use bevy::prelude::*;
 
 pub mod ambience;
 pub mod bear;
+pub mod campaign;
 pub mod cat_palette;
 pub mod crows;
 pub mod dave_commune;
@@ -66,6 +67,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(interact::protocol);
         app.add_plugins(hide_and_seek::protocol);
         app.add_plugins(villagers::protocol);
+        app.add_plugins(campaign::protocol);
     }
 }
 
@@ -103,5 +105,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(interact::plugin);
         app.add_plugins(hide_and_seek::plugin);
         app.add_plugins(villagers::plugin);
+        app.add_plugins(campaign::plugin);
     }
 }

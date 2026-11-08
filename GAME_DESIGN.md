@@ -59,6 +59,12 @@ asked for, and what nobody has decided yet.
   plays a little jingle first and hops), the bear, or a crow. It shows as a subtitle with a
   procedurally generated babble voice. The issue asked for audio from a specific 1993 game; we
   can't ship someone else's copyrighted audio, so the lines and voices are original.
+- **Main menu** (#25). A cute pastel clickable menu: Host a game (works solo; the join code is
+  copied to the clipboard), Join (type or paste a friend's code, then Join! or Enter), and
+  Settings: master volume, voice volume, microphone on/muted (M still toggles it). Settings are
+  per player and not saved between runs. `cargo run -- host` / `join <code>` still skip the menu.
+  There is no separate lobby screen yet: hosting drops you straight into the world, and friends
+  appear on the player list as they join.
 
 ## Ideas so far
 
@@ -78,6 +84,8 @@ asked for, and what nobody has decided yet.
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave.
 - #20: a judgmental goat joins the players and makes passive-aggressive comments about every choice.
+- doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
+  then start; minimal settings; playable with just one person for testing.
 
 ## Open questions
 
@@ -86,4 +94,5 @@ asked for, and what nobody has decided yet.
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
 - Players only have bodies in a duel. What are you the rest of the time?
+- Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What does your morality actually change? And which actions count as good or bad?

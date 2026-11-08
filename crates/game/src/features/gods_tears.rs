@@ -172,7 +172,14 @@ fn dress_tears(
     for (entity, tear) in &new {
         let gem = materials.add(StandardMaterial {
             base_color: Color::srgb(0.45, 0.75, 1.0),
+            emissive: LinearRgba::rgb(0.6, 1.2, 2.4),
+            ..default()
+        });
+        let halo = materials.add(StandardMaterial {
+            base_color: Color::srgba(0.6, 0.85, 1.0, 0.55),
             emissive: LinearRgba::rgb(0.3, 0.6, 1.2),
+            alpha_mode: AlphaMode::Blend,
+            unlit: true,
             ..default()
         });
         commands
@@ -183,15 +190,24 @@ fn dress_tears(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {
+                // A small gem, not a beach ball: it sits in a faint glowing
+                // ring on the grass so it reads as treasure, not clutter.
                 p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.18))),
+                    Mesh3d(meshes.add(Sphere::new(0.11))),
                     MeshMaterial3d(gem.clone()),
-                    Transform::from_xyz(0.0, 0.18, 0.0),
+                    Transform::from_xyz(0.0, 0.11, 0.0),
                 ));
                 p.spawn((
-                    Mesh3d(meshes.add(Cone::new(0.17, 0.35))),
+                    Mesh3d(meshes.add(Cone::new(0.1, 0.22))),
                     MeshMaterial3d(gem),
-                    Transform::from_xyz(0.0, 0.42, 0.0),
+                    Transform::from_xyz(0.0, 0.26, 0.0),
+                ));
+                p.spawn((
+                    Mesh3d(meshes.add(Annulus::new(0.18, 0.26))),
+                    MeshMaterial3d(halo.clone()),
+                    Transform::from_xyz(0.0, -0.1, 0.0)
+                        .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+                    bevy::light::NotShadowCaster,
                 ));
             });
     }
@@ -201,7 +217,7 @@ fn dress_tears(
 fn fall_and_glint(time: Res<Time>, mut tears: Query<(&GodsTear, &mut Transform)>) {
     let t = time.elapsed_secs();
     for (tear, mut transform) in &mut tears {
-        let rest = 0.15 + 0.08 * (t * 2.0 + tear.id as f32).sin();
+        let rest = 0.12 + 0.04 * (t * 2.0 + tear.id as f32).sin();
         let y = transform.translation.y;
         transform.translation.y = if y > rest + 0.2 {
             (y - FALL_SPEED * time.delta_secs()).max(rest)

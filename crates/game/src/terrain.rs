@@ -108,7 +108,7 @@ pub fn height_at(x: f32, z: f32) -> f32 {
     if rise <= 0.0 {
         return 0.0;
     }
-    let hills = fbm(x * 0.05, z * 0.05, 11) * 7.0 + fbm(x * 0.13, z * 0.13, 23) * 1.5;
+    let hills = fbm(x * 0.05, z * 0.05, 11) * 4.5 + fbm(x * 0.13, z * 0.13, 23) * 1.5;
     rise * (hills + rise * 3.0)
 }
 
@@ -117,13 +117,13 @@ fn ground_color(x: f32, z: f32, h: f32) -> [f32; 4] {
     // Meadow: patches of lush and dry grass with fine speckle.
     let patch = fbm(x * 0.09, z * 0.09, 5);
     let speck = art::hash((x * 3.0) as i32, (z * 3.0) as i32, 9);
-    let lush = Vec3::new(0.25, 0.50, 0.20);
-    let dry = Vec3::new(0.50, 0.56, 0.25);
+    let lush = Vec3::new(0.36, 0.64, 0.2);
+    let dry = Vec3::new(0.7, 0.7, 0.28);
     let mut c = lush.lerp(dry, smoothstep(0.35, 0.75, patch)) * (0.9 + speck * 0.2);
     // Hill tops get a little paler and bluer as they recede.
-    c = c.lerp(Vec3::new(0.42, 0.55, 0.38), smoothstep(2.0, 9.0, h) * 0.6);
+    c = c.lerp(Vec3::new(0.5, 0.68, 0.5), smoothstep(2.0, 9.0, h) * 0.6);
     // Worn dirt paths.
-    let dirt = Vec3::new(0.52, 0.42, 0.29) * (0.85 + speck * 0.3);
+    let dirt = Vec3::new(0.82, 0.68, 0.46) * (0.85 + speck * 0.3);
     c = c.lerp(dirt, path_amount(p));
     // Pond: muddy bank, then dark bed under the water.
     let pd = p.distance(POND_AT) + (noise(x * 0.8, z * 0.8, 31) - 0.5) * 0.8;

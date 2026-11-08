@@ -103,6 +103,14 @@ fn is_clear(p: Vec2, margin: f32) -> bool {
     if p.x.abs() > PLAY_HALF || p.y.abs() > PLAY_HALF {
         return false;
     }
+    // Nothing right at the default camera's feet, or a bush fills the screen.
+    let eye = crate::camera::CameraRig::default()
+        .transform()
+        .translation
+        .xz();
+    if p.distance(eye) < 6.0 + margin {
+        return false;
+    }
     // Keep the pond and dirt paths (terrain.rs) open.
     if crate::terrain::is_pond(p.x, p.y)
         || crate::terrain::is_pond(p.x + margin, p.y)
@@ -227,8 +235,20 @@ struct Dresser<'w, 's, 'a> {
     kit: Kit,
 }
 
+/// Some kit models are authored far bigger than the meadow (the tall grasses are
+/// ~1.8 m clumps), which made knee-high grass tower over people and the camera.
+/// Bring them down to ground-cover size.
+fn model_size_fix(file: &str) -> f32 {
+    match file {
+        "Grass_Common_Tall.gltf" | "Grass_Wispy_Tall.gltf" => 0.35,
+        "Plant_1.gltf" => 0.6,
+        _ => 1.0,
+    }
+}
+
 impl Dresser<'_, '_, '_> {
     fn model(&mut self, file: &str, at: Vec2, yaw: Quat, scale: f32, small: bool) -> Entity {
+        let scale = scale * model_size_fix(file);
         let mut e = self.commands.spawn((
             WorldAssetRoot(
                 self.assets
@@ -608,7 +628,7 @@ fn dress_floor(
                 pick <= 0.0
             })
             .map_or(Cluster::Grove, |(k, _)| *k);
-        // Tall trees between the default camera (0, 8, 14) and the centre
+        // Tall trees between the default camera and the centre
         // would hide everything, so that corridor only gets low cover.
         let kind = match kind {
             Cluster::Grove if in_camera_corridor(c) => Cluster::Thicket,
@@ -635,6 +655,11 @@ fn dress_floor(
 /// Where the commune keeps its campfire, beside the ruins and Dave.
 pub(crate) const BONFIRE_AT: Vec3 = Vec3::new(PARLIAMENT_AT.x + 3.5, 0.0, PARLIAMENT_AT.y + 8.5);
 
+/// The bonfire glbs carry a ×199 node scale (centimetre export), which made the
+/// campfire a 200 m wooden dome over the whole map. This brings it back to a
+/// ~1.6 m campfire.
+const BONFIRE_SCALE: f32 = 1.3 / 180.0;
+
 #[derive(Component)]
 struct BonfireFlame;
 
@@ -644,13 +669,14 @@ fn light_bonfire(mut commands: Commands, assets: Res<AssetServer>) {
     };
     commands.spawn((
         WorldAssetRoot(scene("bonfire.glb")),
-        Transform::from_translation(BONFIRE_AT).with_scale(Vec3::splat(1.3)),
+        Transform::from_translation(BONFIRE_AT).with_scale(Vec3::splat(BONFIRE_SCALE)),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
         WorldAssetRoot(scene("bonfire_fire.glb")),
         BonfireFlame,
-        Transform::from_translation(BONFIRE_AT + Vec3::Y * 0.1).with_scale(Vec3::splat(1.3)),
+        Transform::from_translation(BONFIRE_AT + Vec3::Y * 0.1)
+            .with_scale(Vec3::splat(BONFIRE_SCALE)),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((

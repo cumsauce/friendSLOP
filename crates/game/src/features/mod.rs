@@ -8,6 +8,7 @@ use bevy::prelude::*;
 
 pub mod bear;
 pub mod crows;
+pub mod mushroom;
 pub mod organ_currency;
 
 pub struct FeaturesProtocolPlugin;
@@ -18,6 +19,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(organ_currency::protocol);
         app.add_plugins(crows::protocol);
         app.add_plugins(bear::protocol);
+        app.add_plugins(mushroom::protocol);
     }
 }
 
@@ -28,5 +30,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(organ_currency::plugin);
         app.add_plugins(crows::plugin);
         app.add_plugins(bear::plugin);
+        app.add_plugins(mushroom::plugin);
     }
 }

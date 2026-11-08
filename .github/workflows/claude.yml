@@ -36,6 +36,7 @@ jobs:
     if: >-
       (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') ||
       (github.event_name == 'issues' &&
+        (github.event.action == 'opened' || github.event.label.name == 'claude') &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association) &&
         (contains(github.event.issue.labels.*.name, 'idea') || contains(github.event.issue.labels.*.name, 'claude'))) ||
       (github.event_name == 'issue_comment' &&

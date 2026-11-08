@@ -22,6 +22,7 @@ pub mod settings;
 pub mod terrain;
 pub mod voice;
 pub mod world;
+pub mod zones;
 
 /// Top-level flow. Add states here only if a feature truly needs a new screen.
 #[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -66,6 +67,6 @@ impl Plugin for GamePlugin {
                 ambience::plugin,
                 loading::plugin,
             ))
-            .add_plugins(landmarks::plugin);
+            .add_plugins((landmarks::plugin, zones::plugin));
     }
 }

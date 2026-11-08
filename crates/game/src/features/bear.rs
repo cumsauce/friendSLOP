@@ -89,76 +89,147 @@ fn dress_bear(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {
-                // Body and tummy patch.
+                let pink = crate::art::soft(&mut materials, Color::srgb(0.95, 0.62, 0.62));
+                let phase = bear.home.x;
+                // Pear-shaped body that breathes, with a cream tummy patch.
                 p.spawn((
-                    Mesh3d(body),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.8, 0.0).with_scale(Vec3::new(1.0, 1.05, 0.9)),
-                ));
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.55))),
-                    MeshMaterial3d(tummy.clone()),
-                    Transform::from_xyz(0.0, 0.75, -0.35).with_scale(Vec3::new(1.0, 1.0, 0.5)),
-                ));
-                // Stubby arms and legs.
-                for x in [-0.7, 0.7] {
+                    Transform::from_xyz(0.0, 0.0, 0.0),
+                    Visibility::default(),
+                    crate::art::Breathe::new(Vec3::ONE, 0.025, phase),
+                ))
+                .with_children(|b| {
+                    b.spawn((
+                        Mesh3d(body),
+                        MeshMaterial3d(fur.clone()),
+                        Transform::from_xyz(0.0, 0.8, 0.0).with_scale(Vec3::new(1.0, 1.05, 0.9)),
+                    ));
+                    b.spawn((
+                        Mesh3d(meshes.add(Sphere::new(0.55))),
+                        MeshMaterial3d(tummy.clone()),
+                        Transform::from_xyz(0.0, 0.72, -0.4).with_scale(Vec3::new(1.0, 1.05, 0.5)),
+                    ));
+                });
+                // Stubby arms with paw pads, and legs with big round feet.
+                let pad = meshes.add(Sphere::new(0.12));
+                let toe = meshes.add(Sphere::new(0.045));
+                let foot = meshes.add(Sphere::new(0.24));
+                for x in [-0.7_f32, 0.7] {
                     p.spawn((
                         Mesh3d(limb.clone()),
                         MeshMaterial3d(fur.clone()),
-                        Transform::from_xyz(x, 0.95, -0.2)
+                        Transform::from_xyz(x, 0.95, -0.25)
                             .with_rotation(Quat::from_rotation_z(x.signum() * 0.6)),
-                    ));
+                        crate::art::Wiggle::sway(
+                            Quat::from_rotation_z(x.signum() * 0.6),
+                            Vec3::X,
+                            0.12,
+                            2.5,
+                            x,
+                        ),
+                    ))
+                    .with_children(|a| {
+                        a.spawn((
+                            Mesh3d(pad.clone()),
+                            MeshMaterial3d(pink.clone()),
+                            Transform::from_xyz(0.0, -0.33, -0.12)
+                                .with_scale(Vec3::new(1.0, 1.0, 0.4)),
+                        ));
+                    });
                     p.spawn((
                         Mesh3d(limb.clone()),
                         MeshMaterial3d(fur.clone()),
-                        Transform::from_xyz(x * 0.6, 0.25, -0.1),
+                        Transform::from_xyz(x * 0.55, 0.3, -0.05),
                     ));
+                    p.spawn((
+                        Mesh3d(foot.clone()),
+                        MeshMaterial3d(fur.clone()),
+                        Transform::from_xyz(x * 0.55, 0.1, -0.2)
+                            .with_scale(Vec3::new(1.0, 0.55, 1.3)),
+                    ))
+                    .with_children(|f| {
+                        f.spawn((
+                            Mesh3d(pad.clone()),
+                            MeshMaterial3d(pink.clone()),
+                            Transform::from_xyz(0.0, 0.05, -0.2)
+                                .with_scale(Vec3::new(1.0, 1.2, 0.5)),
+                        ));
+                        for tx in [-0.1, 0.0, 0.1] {
+                            f.spawn((
+                                Mesh3d(toe.clone()),
+                                MeshMaterial3d(pink.clone()),
+                                Transform::from_xyz(tx, 0.18, -0.2),
+                            ));
+                        }
+                    });
                 }
-                // Little round tail.
+                // Little round tail that wags.
                 p.spawn((
                     Mesh3d(meshes.add(Sphere::new(0.16))),
-                    MeshMaterial3d(fur.clone()),
+                    MeshMaterial3d(tummy.clone()),
                     Transform::from_xyz(0.0, 0.55, 0.75),
+                    crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Y, 0.4, 4.0, 0.0),
                 ));
-                // Head.
+                // Head, with a slow curious tilt.
                 p.spawn((
                     Mesh3d(head),
                     MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 1.85, -0.1),
+                    Transform::from_xyz(0.0, 1.85, -0.1).with_scale(Vec3::new(1.08, 0.95, 1.0)),
+                    crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Z, 0.08, 0.7, phase),
                 ))
                 .with_children(|h| {
-                    for x in [-0.33, 0.33] {
+                    for x in [-0.33_f32, 0.33] {
                         h.spawn((
                             Mesh3d(ear.clone()),
                             MeshMaterial3d(fur.clone()),
-                            Transform::from_xyz(x, 0.4, 0.0),
-                        ));
-                        h.spawn((
-                            Mesh3d(eye.clone()),
-                            MeshMaterial3d(tummy.clone()),
-                            Transform::from_xyz(x * 1.05, 0.42, -0.08)
-                                .with_scale(Vec3::new(0.6, 0.6, 0.3)),
-                        ));
+                            Transform::from_xyz(x, 0.4, 0.0).with_scale(Vec3::new(1.0, 1.0, 0.6)),
+                            crate::art::Wiggle::twitch(Quat::IDENTITY, Vec3::Z, 0.35, x * 3.0),
+                        ))
+                        .with_children(|e| {
+                            e.spawn((
+                                Mesh3d(eye.clone()),
+                                MeshMaterial3d(pink.clone()),
+                                Transform::from_xyz(0.0, 0.0, -0.1)
+                                    .with_scale(Vec3::new(0.55, 0.55, 0.4)),
+                            ));
+                        });
                     }
                     crate::art::eyes(
                         h,
                         &mut meshes,
                         &mut materials,
-                        Vec3::new(0.0, 0.12, -0.42),
-                        0.32,
-                        0.075,
+                        Vec3::new(0.0, 0.1, -0.41),
+                        0.34,
+                        0.08,
+                    );
+                    crate::art::blush(
+                        h,
+                        &mut meshes,
+                        &mut materials,
+                        Vec3::new(0.0, -0.05, -0.4),
+                        0.62,
+                        0.08,
                     );
                     h.spawn((
                         Mesh3d(snout),
                         MeshMaterial3d(tummy),
-                        Transform::from_xyz(0.0, -0.08, -0.42),
+                        Transform::from_xyz(0.0, -0.1, -0.4).with_scale(Vec3::new(1.15, 0.85, 1.0)),
                     ))
                     .with_children(|s| {
                         s.spawn((
                             Mesh3d(nose),
-                            MeshMaterial3d(dark),
-                            Transform::from_xyz(0.0, 0.06, -0.17),
+                            MeshMaterial3d(dark.clone()),
+                            Transform::from_xyz(0.0, 0.07, -0.18)
+                                .with_scale(Vec3::new(1.4, 1.0, 1.0)),
                         ));
+                        // A tiny smile: two dark dots.
+                        let dot = meshes.add(Sphere::new(0.022));
+                        for mx in [-0.05, 0.05] {
+                            s.spawn((
+                                Mesh3d(dot.clone()),
+                                MeshMaterial3d(dark.clone()),
+                                Transform::from_xyz(mx, -0.06, -0.18),
+                            ));
+                        }
                     });
                 });
             });

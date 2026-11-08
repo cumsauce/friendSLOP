@@ -74,8 +74,15 @@ fn dress_crows(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, crow) in &new {
-        let feathers = materials.add(Color::srgb(0.08, 0.08, 0.12));
-        let beak = materials.add(Color::srgb(0.95, 0.7, 0.2));
+        let feathers = materials.add(StandardMaterial {
+            base_color: Color::srgb(0.1, 0.1, 0.16),
+            perceptual_roughness: 0.45,
+            reflectance: 0.5,
+            ..default()
+        });
+        let chest = crate::art::soft(&mut materials, Color::srgb(0.2, 0.2, 0.28));
+        let beak = crate::art::glossy(&mut materials, Color::srgb(0.95, 0.7, 0.2));
+        let phase = crow.id as f32 * 1.3;
         let body_mesh = meshes.add(Sphere::new(0.3));
         let head_mesh = meshes.add(Sphere::new(0.2));
         let beak_mesh = meshes.add(Cone::new(0.06, 0.2).mesh().resolution(6));
@@ -91,13 +98,31 @@ fn dress_crows(
                     Mesh3d(body_mesh),
                     MeshMaterial3d(feathers.clone()),
                     Transform::from_scale(Vec3::new(1.0, 0.9, 1.3)),
+                    crate::art::Breathe::new(Vec3::new(1.0, 0.9, 1.3), 0.03, phase),
+                ));
+                // Fluffy lighter chest.
+                p.spawn((
+                    Mesh3d(meshes.add(Sphere::new(0.22))),
+                    MeshMaterial3d(chest),
+                    Transform::from_xyz(0.0, 0.02, -0.2).with_scale(Vec3::new(1.0, 1.0, 0.7)),
                 ));
                 p.spawn((
                     Mesh3d(head_mesh),
                     MeshMaterial3d(feathers.clone()),
                     Transform::from_xyz(0.0, 0.3, -0.3),
+                    crate::art::Wiggle::twitch(Quat::IDENTITY, Vec3::Y, 0.5, phase),
                 ))
                 .with_children(|h| {
+                    // A cheeky head tuft.
+                    let tuft = meshes.add(Cone::new(0.04, 0.14).mesh().resolution(5));
+                    for (x, r) in [(-0.04, -0.4), (0.04, 0.4)] {
+                        h.spawn((
+                            Mesh3d(tuft.clone()),
+                            MeshMaterial3d(feathers.clone()),
+                            Transform::from_xyz(x, 0.22, 0.0)
+                                .with_rotation(Quat::from_rotation_z(r)),
+                        ));
+                    }
                     h.spawn((
                         Mesh3d(beak_mesh),
                         MeshMaterial3d(beak.clone()),
@@ -122,20 +147,47 @@ fn dress_crows(
                         Transform::from_xyz(x, 0.05, 0.05)
                             .with_rotation(Quat::from_rotation_z(x * 1.2))
                             .with_scale(Vec3::new(0.35, 0.8, 1.3)),
+                        crate::art::Wiggle::twitch(
+                            Quat::from_rotation_z(x * 1.2),
+                            Vec3::Z,
+                            x.signum() * 0.5,
+                            phase + 2.0,
+                        ),
                     ));
                 }
-                p.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(0.22, 0.04, 0.3))),
-                    MeshMaterial3d(feathers.clone()),
-                    Transform::from_xyz(0.0, 0.08, 0.45).with_rotation(Quat::from_rotation_x(-0.4)),
-                ));
+                // Fanned tail: three rounded feathers.
+                let feather = meshes.add(Capsule3d::new(0.05, 0.22));
+                for (i, yaw) in [-0.35_f32, 0.0, 0.35].into_iter().enumerate() {
+                    let base = Quat::from_rotation_y(yaw) * Quat::from_rotation_x(1.2);
+                    p.spawn((
+                        Mesh3d(feather.clone()),
+                        MeshMaterial3d(feathers.clone()),
+                        Transform::from_xyz(yaw * 0.25, 0.08, 0.42)
+                            .with_rotation(base)
+                            .with_scale(Vec3::new(1.4, 1.0, 0.4)),
+                        crate::art::Wiggle::sway(base, Vec3::X, 0.15, 3.0, phase + i as f32),
+                    ));
+                }
                 let leg = meshes.add(Cylinder::new(0.018, 0.22));
                 for x in [-0.08, 0.08] {
                     p.spawn((
                         Mesh3d(leg.clone()),
                         MeshMaterial3d(beak.clone()),
                         Transform::from_xyz(x, -0.3, 0.0),
-                    ));
+                    ))
+                    .with_children(|l| {
+                        let toe = meshes.add(Capsule3d::new(0.014, 0.08));
+                        for yaw in [-0.5_f32, 0.0, 0.5] {
+                            l.spawn((
+                                Mesh3d(toe.clone()),
+                                MeshMaterial3d(beak.clone()),
+                                Transform::from_xyz(0.0, -0.11, -0.04).with_rotation(
+                                    Quat::from_rotation_y(yaw)
+                                        * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2),
+                                ),
+                            ));
+                        }
+                    });
                 }
             });
     }

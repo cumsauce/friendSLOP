@@ -106,7 +106,7 @@ pub fn glossy(materials: &mut Assets<StandardMaterial>, color: Color) -> Handle<
 }
 
 /// A pair of cute eyes (white, dark pupil, sparkle) facing -Z, centred `spread`
-/// apart at `at`. `r` is the eyeball radius.
+/// apart at `at`. `r` is the eyeball radius. They blink now and then.
 pub fn eyes(
     p: &mut ChildSpawnerCommands,
     meshes: &mut Assets<Mesh>,
@@ -118,26 +118,187 @@ pub fn eyes(
     let white = glossy(materials, Color::srgb(0.98, 0.98, 0.96));
     let pupil = glossy(materials, Color::srgb(0.04, 0.04, 0.06));
     let ball = meshes.add(Sphere::new(r));
-    let dot = meshes.add(Sphere::new(r * 0.6));
-    let spark = meshes.add(Sphere::new(r * 0.2));
+    let dot = meshes.add(Sphere::new(r * 0.62));
+    let spark = meshes.add(Sphere::new(r * 0.22));
+    let spark2 = meshes.add(Sphere::new(r * 0.1));
+    let phase = hash(
+        (at.x * 100.0) as i32,
+        (at.y * 100.0) as i32,
+        (r * 1000.0) as u32,
+    ) * 5.0;
     for side in [-1.0, 1.0] {
         p.spawn((
-            Mesh3d(ball.clone()),
-            MeshMaterial3d(white.clone()),
             Transform::from_translation(at + Vec3::X * side * spread / 2.0),
+            Visibility::default(),
+            Blink { phase },
         ))
         .with_children(|e| {
+            e.spawn((Mesh3d(ball.clone()), MeshMaterial3d(white.clone())));
             e.spawn((
                 Mesh3d(dot.clone()),
                 MeshMaterial3d(pupil.clone()),
-                Transform::from_xyz(0.0, 0.0, -r * 0.55),
+                Transform::from_xyz(0.0, -r * 0.05, -r * 0.5),
             ));
+            // Two sparkles: a big one up-left and a tiny one down-right.
             e.spawn((
                 Mesh3d(spark.clone()),
                 MeshMaterial3d(white.clone()),
-                Transform::from_xyz(r * 0.25, r * 0.3, -r * 0.95),
+                Transform::from_xyz(r * 0.28, r * 0.3, -r * 0.95),
+            ));
+            e.spawn((
+                Mesh3d(spark2.clone()),
+                MeshMaterial3d(white.clone()),
+                Transform::from_xyz(-r * 0.25, -r * 0.25, -r * 0.98),
             ));
         });
+    }
+}
+
+/// Rosy cheek blushes either side of a face (facing -Z).
+pub fn blush(
+    p: &mut ChildSpawnerCommands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    at: Vec3,
+    spread: f32,
+    r: f32,
+) {
+    let pink = soft(materials, Color::srgb(1.0, 0.55, 0.6));
+    let mesh = meshes.add(Sphere::new(r));
+    for side in [-1.0, 1.0] {
+        p.spawn((
+            Mesh3d(mesh.clone()),
+            MeshMaterial3d(pink.clone()),
+            Transform::from_translation(at + Vec3::X * side * spread / 2.0)
+                .with_scale(Vec3::new(1.0, 0.6, 0.3)),
+        ));
+    }
+}
+
+/// A low-poly faceted rock/chunk mesh (icosphere, no subdivision).
+pub fn chunk(meshes: &mut Assets<Mesh>, r: f32) -> Handle<Mesh> {
+    meshes.add(
+        Sphere::new(r)
+            .mesh()
+            .ico(0)
+            .unwrap_or_else(|_| Sphere::new(r).into()),
+    )
+}
+
+/// Squash an eye shut every few seconds.
+#[derive(Component, Clone, Copy)]
+pub struct Blink {
+    pub phase: f32,
+}
+
+/// Gentle breathing: the entity's scale swells around `base`.
+#[derive(Component, Clone, Copy)]
+pub struct Breathe {
+    pub base: Vec3,
+    pub amount: f32,
+    pub rate: f32,
+    pub phase: f32,
+}
+
+impl Breathe {
+    pub fn new(base: Vec3, amount: f32, phase: f32) -> Self {
+        Self {
+            base,
+            amount,
+            rate: 1.6,
+            phase,
+        }
+    }
+}
+
+/// A sway (or, with `twitch`, an occasional quick flick) around `axis`,
+/// on top of the `base` rotation. Ears, tails, wings, flags.
+#[derive(Component, Clone, Copy)]
+pub struct Wiggle {
+    pub base: Quat,
+    pub axis: Vec3,
+    pub amount: f32,
+    pub rate: f32,
+    pub phase: f32,
+    pub twitch: bool,
+}
+
+impl Wiggle {
+    pub fn sway(base: Quat, axis: Vec3, amount: f32, rate: f32, phase: f32) -> Self {
+        Self {
+            base,
+            axis,
+            amount,
+            rate,
+            phase,
+            twitch: false,
+        }
+    }
+    pub fn twitch(base: Quat, axis: Vec3, amount: f32, phase: f32) -> Self {
+        Self {
+            base,
+            axis,
+            amount,
+            rate: 1.0,
+            phase,
+            twitch: true,
+        }
+    }
+}
+
+/// How open an eye is at time `t` (1 open, ~0.1 shut).
+pub fn blink_openness(t: f32, phase: f32) -> f32 {
+    const PERIOD: f32 = 3.7;
+    let k = (t + phase).rem_euclid(PERIOD);
+    if k < 0.14 {
+        0.1 + 0.9 * ((k / 0.14) * 2.0 - 1.0).abs()
+    } else {
+        1.0
+    }
+}
+
+/// Twitch curve: mostly 0, a quick 0→1→0 flick every few seconds.
+fn twitch_curve(t: f32, phase: f32) -> f32 {
+    let k = (t + phase).rem_euclid(4.3);
+    if k < 0.3 {
+        (k / 0.3 * std::f32::consts::PI * 2.0).sin()
+    } else {
+        0.0
+    }
+}
+
+/// Registers the shared idle animations (blink, breathe, wiggle). Purely local visuals.
+pub fn plugin(app: &mut App) {
+    app.add_systems(Update, (blink, breathe, wiggle));
+}
+
+fn blink(time: Res<Time>, mut q: Query<(&Blink, &mut Transform)>) {
+    let t = time.elapsed_secs();
+    for (b, mut tr) in &mut q {
+        tr.scale.y = blink_openness(t, b.phase);
+    }
+}
+
+fn breathe(time: Res<Time>, mut q: Query<(&Breathe, &mut Transform)>) {
+    let t = time.elapsed_secs();
+    for (b, mut tr) in &mut q {
+        let s = (t * b.rate + b.phase).sin() * b.amount;
+        tr.scale = b.base * Vec3::new(1.0 + s * 0.5, 1.0 + s, 1.0 + s * 0.5);
+    }
+}
+
+fn wiggle(time: Res<Time>, mut q: Query<(&Wiggle, &mut Transform)>) {
+    let t = time.elapsed_secs();
+    for (w, mut tr) in &mut q {
+        let k = if w.twitch {
+            twitch_curve(t, w.phase)
+        } else {
+            (t * w.rate + w.phase).sin()
+        };
+        let Ok(axis) = Dir3::new(w.axis) else {
+            continue;
+        };
+        tr.rotation = w.base * Quat::from_axis_angle(*axis, k * w.amount);
     }
 }
 
@@ -154,5 +315,14 @@ mod tests {
             .chunks(4)
             .fold((255, 0), |(lo, hi), c| (c[0].min(lo), c[0].max(hi)));
         assert!(hi - lo > 40, "texture too flat: {lo}..{hi}");
+    }
+
+    #[test]
+    fn eyes_are_mostly_open() {
+        let open = (0..1000)
+            .filter(|i| blink_openness(*i as f32 * 0.01, 0.3) > 0.99)
+            .count();
+        assert!(open > 900);
+        assert!((0..1000).any(|i| blink_openness(i as f32 * 0.01, 0.3) < 0.5));
     }
 }

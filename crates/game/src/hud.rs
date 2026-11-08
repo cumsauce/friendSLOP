@@ -127,7 +127,7 @@ impl HudSlot {
 /// Put this on a feature's HUD text instead of a positioned `Node`.
 /// If the entity has no `TextFont`/`TextColor`, [`normal`] style is applied.
 pub fn slot(slot: HudSlot) -> impl Bundle {
-    (InSlot(slot), TextShadow::default())
+    InSlot(slot)
 }
 
 #[derive(Component, Clone, Copy, Debug)]
@@ -154,7 +154,7 @@ pub fn normal() -> (TextFont, TextColor) {
     (TextFont::from_font_size(13.0), TextColor(TEXT))
 }
 pub fn small() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(11.0), TextColor(DIM))
+    (TextFont::from_font_size(12.0), TextColor(DIM))
 }
 pub fn warning() -> (TextFont, TextColor) {
     (TextFont::from_font_size(13.0), TextColor(WARN))
@@ -308,6 +308,7 @@ impl Plugin for HudPlugin {
                     show_fps,
                     hide_empty,
                     fade_lines,
+                    apply_font,
                 )
                     .chain()
                     .run_if(in_state(AppState::InGame)),
@@ -364,7 +365,6 @@ fn spawn_slots(mut commands: Commands) {
         FpsText,
         TextFont::from_font_size(12.0),
         TextColor(Color::srgb(0.5, 1.0, 0.5)),
-        TextShadow::default(),
         Node {
             position_type: PositionType::Absolute,
             bottom: px(2),
@@ -374,6 +374,36 @@ fn spawn_slots(mut commands: Commands) {
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));
+}
+
+/// Give HUD text the rounded UI font once it has loaded. Text whose font was
+/// left at the default is switched; a missing font file keeps the default.
+#[allow(clippy::type_complexity)]
+fn apply_font(
+    font: Option<Res<crate::assets::UiFont>>,
+    assets: Option<Res<AssetServer>>,
+    mut done_full_pass: Local<bool>,
+    mut texts: Query<(&mut TextFont, Has<InSlot>, Has<FpsText>, Option<&ChildOf>)>,
+    roots: Query<(), With<SlotRoot>>,
+) {
+    let (Some(font), Some(assets)) = (font, assets) else {
+        return;
+    };
+    if !font.ready(&assets) {
+        return;
+    }
+    let full = !*done_full_pass;
+    *done_full_pass = true;
+    let default = FontSource::Handle(Handle::default());
+    for (mut tf, slotted, fps, parent) in &mut texts {
+        if !full && !tf.is_changed() {
+            continue;
+        }
+        let hud = slotted || fps || parent.is_some_and(|p| roots.contains(p.parent()));
+        if hud && tf.font == default {
+            tf.font = FontSource::Handle(font.0.clone());
+        }
+    }
 }
 
 /// Move newly slotted text into its slot column and give it the default style.

@@ -176,7 +176,7 @@ fn spawn_halt_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         TextColor(Color::srgb(1.0, 0.35, 0.3)),
-        TextFont::from_font_size(12.0),
+        TextFont::from_font_size(13.0),
         HaltText,
         crate::hud::slot(crate::hud::HudSlot::TopRight),
         DespawnOnExit(AppState::InGame),

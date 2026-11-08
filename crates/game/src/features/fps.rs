@@ -503,20 +503,15 @@ fn place_labels(
 #[derive(Component)]
 struct WalkerDressed;
 
-/// A simple body for everyone: a capsule in the player's colour with googly eyes.
+/// Everyone gets the shared commune-person body (people.rs) in their colour.
 fn dress_walkers(
     mut commands: Commands,
     new: Query<(Entity, &Player, &Walker), Without<WalkerDressed>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut kit: ResMut<crate::people::PeopleKit>,
 ) {
     for (entity, player, walker) in &new {
-        let hue = (player.id as f32 * 137.5) % 360.0;
-        let skin = materials.add(Color::hsl(hue, 0.65, 0.6));
-        let white = materials.add(Color::WHITE);
-        let black = materials.add(Color::BLACK);
-        let eye = meshes.add(Sphere::new(0.09));
-        let pupil = meshes.add(Sphere::new(0.045));
         let marker = materials.add(StandardMaterial {
             base_color: Color::srgb(1.0, 0.9, 0.3),
             emissive: LinearRgba::rgb(1.0, 0.8, 0.2),
@@ -538,6 +533,7 @@ fn dress_walkers(
             .entity(entity)
             .insert((
                 WalkerDressed,
+                crate::people::Gait::default(),
                 Transform::from_translation(walker.pos)
                     .with_rotation(Quat::from_rotation_y(walker.yaw)),
                 Visibility::default(),
@@ -550,25 +546,14 @@ fn dress_walkers(
                     Transform::from_xyz(0.0, 2.15, 0.0)
                         .with_rotation(Quat::from_rotation_x(std::f32::consts::PI)),
                 ));
-                p.spawn((
-                    Mesh3d(meshes.add(Capsule3d::new(BODY_RADIUS, 1.0))),
-                    MeshMaterial3d(skin),
-                    Transform::from_xyz(0.0, 0.85, 0.0),
-                ));
-                for x in [-0.13, 0.13] {
-                    p.spawn((
-                        Mesh3d(eye.clone()),
-                        MeshMaterial3d(white.clone()),
-                        Transform::from_xyz(x, 1.45, -0.3),
-                    ))
-                    .with_children(|e| {
-                        e.spawn((
-                            Mesh3d(pupil.clone()),
-                            MeshMaterial3d(black.clone()),
-                            Transform::from_xyz(0.0, 0.0, -0.07),
-                        ));
-                    });
-                }
+                crate::people::spawn_person(
+                    p,
+                    entity,
+                    &mut kit,
+                    &mut meshes,
+                    &mut materials,
+                    crate::people::Look::for_index(player.id, player.id.wrapping_mul(7) + 1),
+                );
             });
     }
 }

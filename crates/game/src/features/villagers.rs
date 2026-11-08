@@ -359,35 +359,20 @@ struct Dressed;
 #[derive(Component)]
 struct VillagerBody;
 
-/// Same body as a player (fps.rs): capsule r 0.35, length 1.0, centre 0.85 up,
-/// coloured like player ids so hiders blend in.
+/// Same body as a player (people.rs), coloured like player ids so hiders blend in.
 fn dress_villagers(
     mut commands: Commands,
     new: Query<(Entity, &Villager), Without<Dressed>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut shared: Local<Option<(Handle<Mesh>, Vec<Handle<StandardMaterial>>)>>,
+    mut kit: ResMut<crate::people::PeopleKit>,
 ) {
-    if new.is_empty() {
-        return;
-    }
-    let (capsule, skins) = shared.get_or_insert_with(|| {
-        let capsule = meshes.add(Capsule3d::new(0.35, 1.0));
-        let skins = (0..8)
-            .map(|i| {
-                let hue = (i as f32 * 137.5) % 360.0;
-                materials.add(Color::hsl(hue, 0.65, 0.6))
-            })
-            .collect();
-        (capsule, skins)
-    });
-    let (capsule, skins) = (capsule.clone(), skins.clone());
     for (entity, v) in &new {
-        let skin = skins[v.id as usize * 3 % skins.len()].clone();
         commands
             .entity(entity)
             .insert((
                 Dressed,
+                crate::people::Gait::default(),
                 Transform::from_xyz(v.pos.x, 0.0, v.pos.y)
                     .with_rotation(Quat::from_rotation_y(v.yaw)),
                 Visibility::default(),
@@ -397,26 +382,16 @@ fn dress_villagers(
             .with_children(|p| {
                 p.spawn((VillagerBody, Transform::default(), Visibility::default()))
                     .with_children(|b| {
-                        b.spawn((
-                            Mesh3d(capsule.clone()),
-                            MeshMaterial3d(skin),
-                            Transform::from_xyz(0.0, 0.85, 0.0),
-                        ));
-                        crate::art::eyes(
+                        crate::people::spawn_person(
                             b,
+                            entity,
+                            &mut kit,
                             &mut meshes,
                             &mut materials,
-                            Vec3::new(0.0, 1.45, -0.3),
-                            0.26,
-                            0.09,
-                        );
-                        crate::art::blush(
-                            b,
-                            &mut meshes,
-                            &mut materials,
-                            Vec3::new(0.0, 1.3, -0.31),
-                            0.44,
-                            0.06,
+                            crate::people::Look::for_index(
+                                (v.id as u64 * 3) % 8,
+                                1000 + v.id as u64 * 13,
+                            ),
                         );
                     });
             });

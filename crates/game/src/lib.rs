@@ -14,6 +14,7 @@ pub mod hud;
 pub mod loading;
 pub mod menu;
 pub mod net;
+pub mod people;
 pub mod player;
 pub mod scenery;
 pub mod settings;

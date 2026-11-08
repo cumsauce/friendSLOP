@@ -312,8 +312,9 @@ fn spawn_commune(
 
     commands.spawn((
         Text::new("Commune of Dave: power generates parasites"),
-        crate::hud::small(),
+        crate::hud::title(),
         crate::hud::slot(crate::hud::HudSlot::TopCenter),
+        crate::hud::First,
         DespawnOnExit(AppState::InGame),
     ));
 }

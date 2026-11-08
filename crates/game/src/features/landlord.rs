@@ -317,7 +317,6 @@ fn spawn_landlord(
     commands.spawn((
         Text::new(""),
         TenancyText,
-        TextFont::from_font_size(15.0),
         crate::hud::slot(crate::hud::HudSlot::TopRight),
         DespawnOnExit(AppState::InGame),
     ));
@@ -327,18 +326,18 @@ fn spawn_landlord(
 pub fn describe(t: &Tenancy) -> String {
     match t.act {
         Act3::Legal => format!(
-            "YOUR LANDLORD HAS RAISED YOUR RENT\nrent: {} organ value (paid {})\nnext raise in {:.0}s\nclick him to pay with your organs",
+            "RENT {}  paid {}  raise in {:.0}s\nclick the landlord to pay",
             t.rent, t.paid, t.next_raise
         ),
         Act3::Crime => format!(
-            "the law has failed you. rent is now {}\nclick him to pickpocket an organ back ({}/{})",
+            "the law has failed you  |  rent {}\nclick him to pickpocket an organ  {}/{}",
             t.rent, t.heists, HEISTS_BEFORE_BOSS
         ),
         Act3::Boss => format!(
-            "BOSS FIGHT: THE LANDLORD\nhealth {}/{}\nclick him to fight back!",
+            "BOSS  |  THE LANDLORD  {}/{}\nclick him to fight back",
             t.hp, BOSS_HP
         ),
-        Act3::Won => "the landlord is defeated. the rent is free. THE END".to_string(),
+        Act3::Won => "the landlord is defeated  |  the rent is free".to_string(),
     }
 }
 

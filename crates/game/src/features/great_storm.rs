@@ -167,10 +167,14 @@ fn spawn_wreckage(
     ));
 
     commands.spawn((
-        Text::new(PLAQUE),
+        Text::new(""),
         StormText,
-        TextFont::from_font_size(14.0),
         crate::hud::slot(crate::hud::HudSlot::Subtitle),
+        DespawnOnExit(AppState::InGame),
+    ));
+    commands.spawn((
+        Text::new(format!("memorial plaque: {PLAQUE}")),
+        crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -191,7 +195,7 @@ fn blow(
         tf.translation = d.rest.translation + Vec3::new(shake, 0.0, shake * 0.5);
         tf.rotation = d.rest.rotation * Quat::from_rotation_y(shake);
     }
-    let want = if s > 0.0 { WINDY } else { PLAQUE };
+    let want = if s > 0.0 { WINDY } else { "" };
     for mut t in &mut text {
         if t.0 != want {
             t.0 = want.to_string();

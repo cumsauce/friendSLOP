@@ -28,10 +28,15 @@ pub enum HudSlot {
     CenterBanner,
     /// Per-player tables, only visible while Tab is held.
     Scoreboard,
+    /// Transient messages under the objective; they fade out a few seconds
+    /// after they last changed.
+    Toasts,
+    /// Static explanations ("click X to do Y"), only shown in the H overlay.
+    Help,
 }
 
 impl HudSlot {
-    pub const ALL: [HudSlot; 8] = [
+    pub const ALL: [HudSlot; 10] = [
         HudSlot::TopLeft,
         HudSlot::TopCenter,
         HudSlot::TopRight,
@@ -40,17 +45,27 @@ impl HudSlot {
         HudSlot::Subtitle,
         HudSlot::CenterBanner,
         HudSlot::Scoreboard,
+        HudSlot::Toasts,
+        HudSlot::Help,
     ];
+
+    /// Slots whose lines fade out a while after they last changed.
+    pub fn fades(self) -> bool {
+        matches!(self, HudSlot::Toasts | HudSlot::Subtitle)
+    }
+
+    /// Slots drawn as one big panel (instead of a chip per line).
+    fn one_panel(self) -> bool {
+        matches!(self, HudSlot::Scoreboard | HudSlot::Help)
+    }
 
     fn node(self) -> Node {
         let m = px(12);
         let mut n = Node {
             position_type: PositionType::Absolute,
             flex_direction: FlexDirection::Column,
-            row_gap: px(6),
-            padding: UiRect::axes(px(10), px(8)),
-            border_radius: BorderRadius::all(px(10)),
-            max_width: percent(32),
+            row_gap: px(5),
+            max_width: percent(30),
             ..default()
         };
         match self {
@@ -66,12 +81,26 @@ impl HudSlot {
             }
             HudSlot::TopCenter => {
                 n.top = m;
-                (n.left, n.right) = (percent(34), percent(34));
+                (n.left, n.right) = (percent(30), percent(30));
                 n.max_width = Val::Auto;
                 n.align_items = AlignItems::Center;
             }
+            HudSlot::Toasts => {
+                n.top = px(96);
+                (n.left, n.right) = (percent(30), percent(30));
+                n.max_width = Val::Auto;
+                n.align_items = AlignItems::Center;
+            }
+            HudSlot::Help => {
+                n.top = percent(10);
+                (n.left, n.right) = (percent(28), percent(28));
+                n.max_width = Val::Auto;
+                n.padding = UiRect::all(px(18));
+                n.row_gap = px(8);
+                n.border_radius = BorderRadius::all(px(14));
+            }
             HudSlot::Subtitle => {
-                n.bottom = px(64);
+                n.bottom = px(72);
                 (n.left, n.right) = (percent(30), percent(30));
                 n.max_width = Val::Auto;
                 n.align_items = AlignItems::Center;
@@ -87,6 +116,8 @@ impl HudSlot {
                 (n.left, n.right) = (percent(20), percent(20));
                 n.max_width = Val::Auto;
                 n.padding = UiRect::all(px(16));
+                n.row_gap = px(8);
+                n.border_radius = BorderRadius::all(px(14));
             }
         }
         n
@@ -102,22 +133,50 @@ pub fn slot(slot: HudSlot) -> impl Bundle {
 #[derive(Component, Clone, Copy, Debug)]
 pub struct InSlot(pub HudSlot);
 
+/// Put a slotted line at the top of its slot instead of the bottom (titles).
+#[derive(Component, Clone, Copy, Debug)]
+pub struct First;
+
+/// Longest a mirrored own-stats line gets before it's cut short (full text: Tab).
+const OWN_LINE_CHARS: usize = 44;
+
 pub const TEXT: Color = Color::srgb(0.97, 0.96, 0.99);
 pub const DIM: Color = Color::srgb(0.75, 0.74, 0.8);
 pub const WARN: Color = Color::srgb(1.0, 0.45, 0.4);
-const PANEL: Color = Color::srgba(0.05, 0.04, 0.08, 0.62);
+pub const ACCENT: Color = Color::srgb(1.0, 0.86, 0.5);
+const PANEL: Color = Color::srgba(0.06, 0.05, 0.1, 0.55);
+const BIG_PANEL: Color = Color::srgba(0.05, 0.04, 0.08, 0.88);
+/// How long a fading line stays fully visible, then how long it takes to go.
+const FADE_HOLD: f32 = 5.0;
+const FADE_OUT: f32 = 1.2;
 
 pub fn normal() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(16.0), TextColor(TEXT))
+    (TextFont::from_font_size(13.0), TextColor(TEXT))
 }
 pub fn small() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(13.0), TextColor(DIM))
+    (TextFont::from_font_size(11.0), TextColor(DIM))
 }
 pub fn warning() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(16.0), TextColor(WARN))
+    (TextFont::from_font_size(13.0), TextColor(WARN))
 }
 pub fn banner() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(40.0), TextColor(TEXT))
+    (TextFont::from_font_size(26.0), TextColor(TEXT))
+}
+/// Section title (the "Commune of Dave" banner, overlay headings).
+pub fn title() -> (TextFont, TextColor) {
+    (TextFont::from_font_size(13.0), TextColor(ACCENT))
+}
+
+/// The rounded chip behind one line of slotted HUD text.
+fn chip() -> (Node, BackgroundColor) {
+    (
+        Node {
+            padding: UiRect::axes(px(9), px(5)),
+            border_radius: BorderRadius::all(px(8)),
+            ..default()
+        },
+        BackgroundColor(PANEL),
+    )
 }
 
 /// One line of client-local feedback ("copied!", "can't do that").
@@ -154,14 +213,14 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
 ];
 
 pub fn help_text() -> String {
-    let mut s = String::from("controls (H to close)\n");
+    let mut s = String::new();
     for (k, v) in KEY_BINDINGS {
-        s.push_str(&format!("\n{k:>12}   {v}"));
+        s.push_str(&format!("{k:>12}   {v}\n"));
     }
-    s
+    s.trim_end().to_string()
 }
 
-/// Shorten a long join code for display: `a6c9e6…aef0`.
+/// Shorten a long join code for display: `a6c9e6...aef0`.
 pub fn short_code(code: &str) -> String {
     let chars: Vec<char> = code.chars().collect();
     if chars.len() <= 12 {
@@ -169,7 +228,16 @@ pub fn short_code(code: &str) -> String {
     }
     let head: String = chars[..6].iter().collect();
     let tail: String = chars[chars.len() - 4..].iter().collect();
-    format!("{head}…{tail}")
+    format!("{head}...{tail}")
+}
+
+/// Cut a line down to [`OWN_LINE_CHARS`], ending it with "..." if it was longer.
+pub fn clip(line: &str) -> String {
+    if line.chars().count() <= OWN_LINE_CHARS {
+        return line.to_string();
+    }
+    let head: String = line.chars().take(OWN_LINE_CHARS - 3).collect();
+    format!("{}...", head.trim_end())
 }
 
 /// The lines of a scoreboard table that are about `me` ("player 3" but not "player 31"),
@@ -206,8 +274,12 @@ struct SlotRoot(HudSlot);
 struct ToastText;
 #[derive(Component)]
 struct OwnLinesText;
-#[derive(Component)]
-struct HelpOverlay;
+/// A line in a fading slot: what it said last and how long ago that changed.
+#[derive(Component, Default)]
+struct Fade {
+    last: String,
+    age: f32,
+}
 #[derive(Component)]
 struct FpsText;
 
@@ -229,6 +301,7 @@ impl Plugin for HudPlugin {
                     toggle_overlays,
                     show_fps,
                     hide_empty,
+                    fade_lines,
                 )
                     .chain()
                     .run_if(in_state(AppState::InGame)),
@@ -238,54 +311,46 @@ impl Plugin for HudPlugin {
 
 fn spawn_slots(mut commands: Commands) {
     for s in HudSlot::ALL {
-        let mut e = commands.spawn((
-            s.node(),
-            BackgroundColor(PANEL),
-            SlotRoot(s),
-            DespawnOnExit(AppState::InGame),
-        ));
-        if s == HudSlot::Scoreboard {
-            e.insert((GlobalZIndex(10), Visibility::Hidden));
-            e.with_children(|c| {
-                c.spawn((
-                    Text::new("scoreboard (hold Tab)"),
-                    TextFont::from_font_size(20.0),
-                    TextColor(TEXT),
+        let mut e = commands.spawn((s.node(), SlotRoot(s), DespawnOnExit(AppState::InGame)));
+        match s {
+            HudSlot::Scoreboard => {
+                e.insert((
+                    BackgroundColor(BIG_PANEL),
+                    GlobalZIndex(10),
+                    Visibility::Hidden,
                 ));
-            });
+                e.with_children(|c| {
+                    c.spawn((Text::new("scoreboard"), title()));
+                });
+            }
+            HudSlot::Help => {
+                e.insert((
+                    BackgroundColor(BIG_PANEL),
+                    GlobalZIndex(20),
+                    Visibility::Hidden,
+                ));
+                e.with_children(|c| {
+                    c.spawn((Text::new("controls  (H to close)"), title()));
+                    c.spawn((Text::new(help_text()), small()));
+                    c.spawn((Text::new("what's going on"), title()));
+                });
+            }
+            _ => {}
         }
     }
     commands.spawn((
         Text::new(""),
         OwnLinesText,
         slot(HudSlot::BottomLeft),
-        normal(),
+        small(),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
         Text::new(""),
         ToastText,
-        slot(HudSlot::TopCenter),
-        TextFont::from_font_size(18.0),
-        TextColor(Color::srgb(1.0, 0.9, 0.5)),
-        DespawnOnExit(AppState::InGame),
-    ));
-    commands.spawn((
-        Text::new(help_text()),
-        HelpOverlay,
-        TextFont::from_font_size(17.0),
-        TextColor(TEXT),
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(12),
-            left: percent(30),
-            padding: UiRect::all(px(20)),
-            border_radius: BorderRadius::all(px(12)),
-            ..default()
-        },
-        BackgroundColor(Color::srgba(0.05, 0.04, 0.08, 0.9)),
-        GlobalZIndex(20),
-        Visibility::Hidden,
+        slot(HudSlot::Toasts),
+        TextFont::from_font_size(14.0),
+        TextColor(ACCENT),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -308,15 +373,27 @@ fn spawn_slots(mut commands: Commands) {
 /// Move newly slotted text into its slot column and give it the default style.
 fn adopt_slotted(
     mut commands: Commands,
-    new: Query<(Entity, &InSlot), Without<ChildOf>>,
+    new: Query<(Entity, &InSlot, Has<First>), Without<ChildOf>>,
     roots: Query<(Entity, &SlotRoot)>,
 ) {
-    for (e, InSlot(s)) in &new {
+    for (e, InSlot(s), first) in &new {
         let Some((root, _)) = roots.iter().find(|(_, r)| r.0 == *s) else {
             continue;
         };
-        commands.entity(e).insert_if_new(normal());
-        commands.entity(root).add_child(e);
+        let mut ec = commands.entity(e);
+        if s.one_panel() {
+            ec.insert_if_new(small());
+        } else {
+            ec.insert_if_new(normal()).insert(chip());
+        }
+        if s.fades() {
+            ec.insert(Fade::default());
+        }
+        if first {
+            commands.entity(root).insert_children(0, &[e]);
+        } else {
+            ec.insert(ChildOf(root));
+        }
     }
 }
 
@@ -329,7 +406,7 @@ fn mirror_own_lines(
     let mut lines = Vec::new();
     for (t, s) in &tables {
         if s.0 == HudSlot::Scoreboard {
-            lines.extend(own_lines(&t.0, me.0));
+            lines.extend(own_lines(&t.0, me.0).into_iter().map(|l| clip(&l)));
         }
     }
     let want = lines.join("\n");
@@ -361,19 +438,8 @@ fn tick_toast(
 fn toggle_overlays(
     keys: Res<ButtonInput<KeyCode>>,
     mut roots: Query<(&SlotRoot, &mut Visibility)>,
-    mut help: Query<&mut Visibility, (With<HelpOverlay>, Without<SlotRoot>, Without<FpsText>)>,
-    mut fps: Query<&mut Visibility, (With<FpsText>, Without<SlotRoot>, Without<HelpOverlay>)>,
+    mut fps: Query<&mut Visibility, (With<FpsText>, Without<SlotRoot>)>,
 ) {
-    let tab = keys.pressed(KeyCode::Tab);
-    for (r, mut v) in &mut roots {
-        if r.0 == HudSlot::Scoreboard {
-            v.set_if_neq(if tab {
-                Visibility::Inherited
-            } else {
-                Visibility::Hidden
-            });
-        }
-    }
     let flip = |v: &mut Visibility| {
         *v = if *v == Visibility::Hidden {
             Visibility::Inherited
@@ -381,8 +447,19 @@ fn toggle_overlays(
             Visibility::Hidden
         };
     };
-    if keys.just_pressed(KeyCode::KeyH) {
-        help.iter_mut().for_each(|mut v| flip(&mut v));
+    let tab = keys.pressed(KeyCode::Tab);
+    for (r, mut v) in &mut roots {
+        match r.0 {
+            HudSlot::Scoreboard => {
+                v.set_if_neq(if tab {
+                    Visibility::Inherited
+                } else {
+                    Visibility::Hidden
+                });
+            }
+            HudSlot::Help if keys.just_pressed(KeyCode::KeyH) => flip(&mut v),
+            _ => {}
+        }
     }
     if keys.just_pressed(KeyCode::F3) {
         fps.iter_mut().for_each(|mut v| flip(&mut v));
@@ -402,12 +479,8 @@ fn show_fps(diag: Res<DiagnosticsStore>, mut text: Query<(&mut Text, &Visibility
     }
 }
 
-/// Collapse empty lines and hide panels with nothing in them.
-fn hide_empty(
-    mut texts: Query<(&Text, &mut Node), (With<InSlot>, Changed<Text>)>,
-    mut roots: Query<(&SlotRoot, &Children, &mut BackgroundColor)>,
-    all_texts: Query<&Text, With<InSlot>>,
-) {
+/// Collapse empty lines so their chips disappear.
+fn hide_empty(mut texts: Query<(&Text, &mut Node), (With<InSlot>, Without<Fade>, Changed<Text>)>) {
     for (t, mut n) in &mut texts {
         let d = if t.0.trim().is_empty() {
             Display::None
@@ -418,16 +491,43 @@ fn hide_empty(
             n.display = d;
         }
     }
-    for (r, children, mut bg) in &mut roots {
-        if r.0 == HudSlot::Scoreboard {
-            continue;
+}
+
+/// How visible a fading line is, `age` seconds after it last changed.
+pub fn fade_alpha(age: f32) -> f32 {
+    (1.0 - (age - FADE_HOLD) / FADE_OUT).clamp(0.0, 1.0)
+}
+
+/// Lines in fading slots show up when their text changes, then fade away.
+fn fade_lines(
+    time: Res<Time>,
+    mut texts: Query<(
+        &Text,
+        &mut Fade,
+        &mut Node,
+        &mut TextColor,
+        &mut BackgroundColor,
+    )>,
+) {
+    for (t, mut f, mut n, mut color, mut bg) in &mut texts {
+        if f.last != t.0 {
+            f.last.clone_from(&t.0);
+            f.age = 0.0;
+        } else {
+            f.age += time.delta_secs();
         }
-        let any = children
-            .iter()
-            .any(|c| all_texts.get(c).is_ok_and(|t| !t.0.trim().is_empty()));
-        let want = if any { PANEL } else { Color::NONE };
-        if bg.0 != want {
-            bg.0 = want;
+        let a = fade_alpha(f.age);
+        let d = if t.0.trim().is_empty() || a <= 0.0 {
+            Display::None
+        } else {
+            Display::Flex
+        };
+        if n.display != d {
+            n.display = d;
+        }
+        if (color.0.alpha() - a).abs() > 0.01 {
+            color.0.set_alpha(a);
+            bg.0 = PANEL.with_alpha(PANEL.alpha() * a);
         }
     }
 }
@@ -440,7 +540,7 @@ mod tests {
     fn short_code_truncates() {
         assert_eq!(short_code("abc"), "abc");
         let long = format!("a6c9e6{}aef0", "0".repeat(54));
-        assert_eq!(short_code(&long), "a6c9e6…aef0");
+        assert_eq!(short_code(&long), "a6c9e6...aef0");
     }
 
     #[test]
@@ -448,6 +548,13 @@ mod tests {
         let t = "stats\nplayer 1: a\nplayer 12: b\ncrystal: held by player 1";
         assert_eq!(own_lines(t, 1), vec!["you: a", "crystal: held by you"]);
         assert!(own_lines(t, 2).is_empty());
+    }
+
+    #[test]
+    fn toasts_fade_out() {
+        assert_eq!(fade_alpha(0.0), 1.0);
+        assert!(fade_alpha(FADE_HOLD + FADE_OUT / 2.0) < 1.0);
+        assert_eq!(fade_alpha(FADE_HOLD + FADE_OUT + 0.1), 0.0);
     }
 
     #[test]

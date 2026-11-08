@@ -144,15 +144,16 @@ fn update_hud(
     players: Query<(), With<Player>>,
     mut hud: Query<&mut Text, With<HudText>>,
 ) {
-    let mut lines = vec![format!("players: {}", players.iter().count())];
+    let n = players.iter().count();
+    let mut lines = vec![format!(
+        "{n} {}  |  mic {}",
+        if n == 1 { "player" } else { "players" },
+        if muted.0 { "muted" } else { "on" }
+    )];
     if let Some(code) = &status.join_code {
-        lines.push(format!(
-            "join code: {} (copied, C to copy again)",
-            crate::hud::short_code(code)
-        ));
+        lines.push(format!("code {}  (C copies)", crate::hud::short_code(code)));
     }
-    lines.push(format!("[M] mic: {}", if muted.0 { "muted" } else { "on" }));
-    lines.push("[H] help  [Tab] scores".into());
+    lines.push("H help  |  Tab scores".into());
     let text = lines.join("\n");
     for mut t in &mut hud {
         if t.0 != text {

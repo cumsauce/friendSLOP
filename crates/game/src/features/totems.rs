@@ -516,12 +516,7 @@ fn spawn_totem_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         TotemHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(60),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

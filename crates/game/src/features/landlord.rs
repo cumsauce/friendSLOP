@@ -317,12 +317,7 @@ fn spawn_landlord(
         Text::new(""),
         TenancyText,
         TextFont::from_font_size(15.0),
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(120),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopRight),
         DespawnOnExit(AppState::InGame),
     ));
 }

@@ -139,12 +139,7 @@ fn spawn_stats_hud(mut commands: Commands) {
         Text::new(""),
         TextFont::from_font_size(13.0),
         StatsHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(35),
-            left: px(HUD_LEFT),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

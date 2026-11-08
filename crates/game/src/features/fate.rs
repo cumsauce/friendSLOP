@@ -214,12 +214,7 @@ fn spawn_fate_hud(mut commands: Commands) {
         Text::new(""),
         TextColor(Color::srgb(1.0, 0.55, 0.85)),
         FateHud,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(44),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

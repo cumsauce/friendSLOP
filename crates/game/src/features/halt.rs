@@ -173,13 +173,7 @@ fn spawn_halt_ui(mut commands: Commands) {
         Text::new(""),
         TextColor(Color::srgb(1.0, 0.25, 0.2)),
         HaltText,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(8),
-            right: px(8),
-            max_width: px(420),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopRight),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -256,8 +250,13 @@ fn show_halt(
     mut text: Query<&mut Text, With<HaltText>>,
     mut window: Query<&mut Window, With<PrimaryWindow>>,
     mut user: Local<Option<String>>,
+    settings: Option<Res<crate::settings::Settings>>,
 ) {
-    let user = user.get_or_insert_with(user_name).clone();
+    let user = if settings.is_some_and(|s| !s.halt_real_name) {
+        "friend".to_string()
+    } else {
+        user.get_or_insert_with(user_name).clone()
+    };
     let Some(h) = halt.iter().next() else {
         return;
     };

@@ -195,12 +195,7 @@ fn spawn_growl_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         GrowlText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(52),
-            left: percent(40),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Subtitle),
         DespawnOnExit(AppState::InGame),
     ));
 }

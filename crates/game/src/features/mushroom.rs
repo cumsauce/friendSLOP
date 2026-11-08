@@ -221,12 +221,7 @@ fn spawn_mushroom_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         MushroomText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(12),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::BottomRight),
         DespawnOnExit(AppState::InGame),
     ));
 }

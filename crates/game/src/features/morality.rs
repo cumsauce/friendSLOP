@@ -160,12 +160,7 @@ fn spawn_morality_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         MoralityHud,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(12),
-            left: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

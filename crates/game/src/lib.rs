@@ -7,6 +7,7 @@ use bevy::prelude::*;
 pub mod art;
 pub mod features;
 pub mod fps;
+pub mod hud;
 pub mod menu;
 pub mod net;
 pub mod player;
@@ -48,6 +49,7 @@ impl Plugin for GamePlugin {
             world::WorldPlugin,
             features::FeaturesPlugin,
             fps::FpsPlugin,
+            hud::HudPlugin,
         ));
     }
 }

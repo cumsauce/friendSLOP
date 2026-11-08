@@ -224,12 +224,7 @@ fn spawn_goat_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         GoatText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(84),
-            left: percent(30),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Subtitle),
         DespawnOnExit(AppState::InGame),
     ));
 }

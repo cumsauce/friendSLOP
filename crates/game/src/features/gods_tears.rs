@@ -248,12 +248,7 @@ fn spawn_tears_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         TearsHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(35),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

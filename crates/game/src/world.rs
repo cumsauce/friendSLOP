@@ -182,12 +182,7 @@ fn spawn_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         HudText,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(12),
-            left: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopLeft),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -200,9 +195,13 @@ fn update_hud(
 ) {
     let mut lines = vec![format!("players: {}", players.iter().count())];
     if let Some(code) = &status.join_code {
-        lines.push(format!("join code: {code}"));
+        lines.push(format!(
+            "join code: {} (copied, C to copy again)",
+            crate::hud::short_code(code)
+        ));
     }
     lines.push(format!("[M] mic: {}", if muted.0 { "muted" } else { "on" }));
+    lines.push("[H] help  [Tab] scores".into());
     let text = lines.join("\n");
     for mut t in &mut hud {
         if t.0 != text {

@@ -173,12 +173,7 @@ fn spawn_purse_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         PurseHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(12),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

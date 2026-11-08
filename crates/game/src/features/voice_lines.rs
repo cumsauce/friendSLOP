@@ -131,12 +131,7 @@ fn spawn_subtitle(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         Subtitle,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(92),
-            left: percent(25),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Subtitle),
         DespawnOnExit(AppState::InGame),
     ));
 }

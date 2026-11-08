@@ -204,23 +204,13 @@ fn spawn_fart_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         GasText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(32),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::BottomRight),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
         Text::new(""),
         FartNews,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(80),
-            left: percent(35),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopCenter),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((

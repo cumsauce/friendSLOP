@@ -128,13 +128,7 @@ fn spawn_still_text(mut commands: Commands) {
         Text::new(""),
         TextFont::from_font_size(36.0),
         StillText,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(40),
-            width: percent(100),
-            justify_content: JustifyContent::Center,
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::CenterBanner),
         TextLayout::justify(Justify::Center),
         DespawnOnExit(AppState::InGame),
     ));

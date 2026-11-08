@@ -181,12 +181,7 @@ fn spawn_tone_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         ToneText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(52),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::BottomRight),
         DespawnOnExit(AppState::InGame),
     ));
 }

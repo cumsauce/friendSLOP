@@ -485,12 +485,7 @@ fn spawn_pet_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         PetHud,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(48),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

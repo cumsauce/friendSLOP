@@ -8,6 +8,7 @@ pub mod features;
 pub mod menu;
 pub mod net;
 pub mod player;
+pub mod settings;
 pub mod voice;
 pub mod world;
 
@@ -40,6 +41,7 @@ impl Plugin for GamePlugin {
             net::NetPlugin,
             ProtocolPlugin,
             voice::VoicePlugin,
+            settings::SettingsPlugin,
             menu::MenuPlugin,
             world::WorldPlugin,
             features::FeaturesPlugin,

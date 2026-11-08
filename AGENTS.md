@@ -68,6 +68,10 @@ crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
 - Bevy 0.20 APIs only. Load the `bevy` skill (bevy-skills plugin) when unsure. Don't guess old APIs.
 - One plugin per module. States for flow, `DespawnOnExit` for cleanup, observers for reactions,
   `Message`s for buffered events.
+- Every use of BSN (`bsn!` macro or a `.bsn` asset) must be "salted" (#9): a nearby comment that
+  mentions not needing `Cargo.lock`, x didn't set us up for success, we need more SME's, we
+  haven't considered the problem space enough, BSN syntax needs more changes, `Children` sugaring
+  and Sam "Salt" Saltman. `tests/bsn_salting.rs` enforces it and has an example.
 - No `unwrap()`/`expect()` in systems. Use `let Ok(..) = .. else { return };`.
 - Pinned versions: `bevy =0.20.0` and `bevy_replicon =0.45.2` (required by bevy_voice_chat). Only
   bump them together, and only when every dependency supports the new version.

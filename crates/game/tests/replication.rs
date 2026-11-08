@@ -859,3 +859,66 @@ fn one_click_hits_only_one_target() {
     ];
     assert_eq!(pick(cursor, under), Some(ids[1]), "only the closest one");
 }
+
+#[test]
+fn hide_and_seek_assigns_roles_tags_and_ends() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::hide_and_seek::{HideSeek, Phase, Role, StartHideSeek, TagHider};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(StartHideSeek);
+    step(&mut server, &mut client);
+
+    // Roles assigned and replicated: one seeker, one hider.
+    let world = client.world_mut();
+    let roles: Vec<(u64, Role)> = world
+        .query::<(&Player, &Role)>()
+        .iter(world)
+        .map(|(p, r)| (p.id, *r))
+        .collect();
+    assert_eq!(roles.len(), 2, "both players have a role: {roles:?}");
+    let Some(seeker) = roles.iter().find(|r| r.1 == Role::Seeker).map(|r| r.0) else {
+        panic!("no seeker: {roles:?}");
+    };
+    let hider = 1 - seeker;
+    assert!(roles.contains(&(hider, Role::Hider)));
+    let world = client.world_mut();
+    let phase = world.query::<&HideSeek>().single(world).map(|s| s.phase);
+    assert_eq!(phase.ok(), Some(Phase::Hiding));
+
+    // Skip the hiding countdown, stand the two together, and tag.
+    let world = server.world_mut();
+    for mut s in world.query::<&mut HideSeek>().iter_mut(world) {
+        s.phase = Phase::Seeking;
+    }
+    place(&mut server, seeker, Vec3::new(5.0, 0.0, 5.0));
+    place(&mut server, hider, Vec3::new(6.0, 0.0, 5.0));
+    if seeker == 0 {
+        server.world_mut().client_trigger(TagHider { id: hider });
+    } else {
+        client.world_mut().client_trigger(TagHider { id: hider });
+    }
+    step(&mut server, &mut client);
+
+    let world = client.world_mut();
+    let found = world
+        .query::<(&Player, &Role)>()
+        .iter(world)
+        .any(|(p, r)| p.id == hider && *r == Role::Found);
+    assert!(found, "the hider was found and now seeks");
+    let Ok(s) = world.query::<&HideSeek>().single(world).cloned() else {
+        panic!("no hide and seek state");
+    };
+    assert_eq!(s.phase, Phase::Results, "nobody left hiding: round over");
+    assert!(!s.hiders_won);
+    assert_eq!(s.found, 1);
+}

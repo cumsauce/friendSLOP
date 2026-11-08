@@ -108,7 +108,12 @@ fn apply_freeze(still: Query<&Stillness>, mut time: ResMut<Time<Virtual>>) {
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_still_text)
         .add_systems(OnExit(AppState::InGame), unfreeze)
-        .add_systems(Update, update_still_text.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            update_still_text
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 fn unfreeze(mut time: ResMut<Time<Virtual>>) {

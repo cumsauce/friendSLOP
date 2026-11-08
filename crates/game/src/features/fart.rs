@@ -172,7 +172,13 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), forget_shame)
         .add_systems(
             Update,
-            (press_to_fart, show_gas, feel_shame, fade_news).run_if(in_state(AppState::InGame)),
+            (
+                press_to_fart,
+                show_gas.run_if(crate::world::hud_tick()),
+                feel_shame,
+                fade_news,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

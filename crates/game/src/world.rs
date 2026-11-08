@@ -11,12 +11,26 @@ use crate::net::NetStatus;
 use crate::player::Player;
 use crate::voice::VoiceMuted;
 
+/// How often HUD text is rebuilt (5 Hz, on real time so it keeps updating
+/// while the world stands still). Formatting strings every frame is waste.
+pub const HUD_PERIOD: std::time::Duration = std::time::Duration::from_millis(200);
+
+/// Run condition for HUD update systems: true every `HUD_PERIOD`.
+pub fn hud_tick() -> impl FnMut(Res<Time<Real>>) -> bool + Clone {
+    bevy::time::common_conditions::on_real_timer(HUD_PERIOD)
+}
+
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::InGame), (spawn_world, spawn_hud))
-            .add_systems(Update, update_hud.run_if(in_state(AppState::InGame)));
+            .add_systems(
+                Update,
+                update_hud
+                    .run_if(in_state(AppState::InGame))
+                    .run_if(hud_tick()),
+            );
     }
 }
 

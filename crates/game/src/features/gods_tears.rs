@@ -151,7 +151,12 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_tears_hud)
         .add_systems(
             Update,
-            (dress_tears, fall_and_glint, click_tear, update_tears_hud)
+            (
+                dress_tears,
+                fall_and_glint,
+                click_tear,
+                update_tears_hud.run_if(crate::world::hud_tick()),
+            )
                 .run_if(in_state(AppState::InGame)),
         );
 }

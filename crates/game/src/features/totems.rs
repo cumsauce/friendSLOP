@@ -287,7 +287,7 @@ pub fn plugin(app: &mut App) {
                 swing_doors,
                 click_totems_and_doors,
                 cast_key,
-                update_totem_hud,
+                update_totem_hud.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
         );
@@ -532,9 +532,13 @@ fn update_totem_hud(
     totems: Query<&Totem>,
     doors: Query<&Door>,
     mut hud: Query<&mut Text, With<TotemHud>>,
+    mut last_run: Local<Option<f32>>,
 ) {
+    // Throttled: count down by the time since this system last ran.
+    let now = time.elapsed_secs();
+    let dt = now - last_run.replace(now).unwrap_or(now);
     for entry in &mut log.0 {
-        entry.1 -= time.delta_secs();
+        entry.1 -= dt;
     }
     log.0.retain(|e| e.1 > 0.0);
     let mut lines =

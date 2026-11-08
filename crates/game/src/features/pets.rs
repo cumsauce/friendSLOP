@@ -247,7 +247,7 @@ pub fn plugin(app: &mut App) {
                 click_pet,
                 send_lure,
                 draw_links,
-                update_pet_hud,
+                update_pet_hud.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
         );

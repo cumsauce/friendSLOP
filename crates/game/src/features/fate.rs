@@ -198,7 +198,12 @@ fn wear_off(time: Res<Time>, mut boards: Query<&mut FateBoard>) {
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_fate_hud)
-        .add_systems(Update, update_fate_hud.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            update_fate_hud
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 #[derive(Component)]

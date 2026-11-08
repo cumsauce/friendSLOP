@@ -158,7 +158,12 @@ fn give_starting_purse(
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_purse_hud)
-        .add_systems(Update, update_purse_hud.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            update_purse_hud
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 #[derive(Component)]

@@ -120,7 +120,12 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_stats_hud)
         .add_systems(
             Update,
-            (update_stats_hud, summon_teacup, orbit_teacup).run_if(in_state(AppState::InGame)),
+            (
+                update_stats_hud.run_if(crate::world::hud_tick()),
+                summon_teacup,
+                orbit_teacup,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

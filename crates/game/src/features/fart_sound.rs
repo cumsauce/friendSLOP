@@ -108,7 +108,8 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), spawn_tone_text)
         .add_systems(
             Update,
-            (tune_fart, show_tone).run_if(in_state(AppState::InGame)),
+            (tune_fart, show_tone.run_if(crate::world::hud_tick()))
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

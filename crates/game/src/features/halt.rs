@@ -150,7 +150,12 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), restore_title)
         .add_systems(
             Update,
-            (send_pry, show_halt, speak_rant).run_if(in_state(AppState::InGame)),
+            (
+                send_pry,
+                show_halt.run_if(crate::world::hud_tick()),
+                speak_rant,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

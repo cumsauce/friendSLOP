@@ -414,7 +414,7 @@ pub fn plugin(app: &mut App) {
                 challenge_keys,
                 fight_controls,
                 first_person_camera,
-                update_duel_hud,
+                update_duel_hud.run_if(crate::world::hud_tick()),
             )
                 .chain()
                 .run_if(in_state(AppState::InGame)),
@@ -729,9 +729,13 @@ fn update_duel_hud(
     mut view: ResMut<DuelView>,
     mut hud: Query<&mut Text, (With<DuelHud>, Without<Crosshair>)>,
     mut crosshair: Query<&mut Text, (With<Crosshair>, Without<DuelHud>)>,
+    mut last_run: Local<Option<f32>>,
 ) {
+    // Throttled: count down by the time since this system last ran.
+    let now = time.elapsed_secs();
+    let dt = now - last_run.replace(now).unwrap_or(now);
     if let Some((_, left)) = &mut view.news {
-        *left -= time.delta_secs();
+        *left -= dt;
         if *left <= 0.0 {
             view.news = None;
         }

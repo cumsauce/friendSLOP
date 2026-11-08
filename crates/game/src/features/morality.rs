@@ -147,7 +147,9 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_morality_hud)
         .add_systems(
             Update,
-            update_morality_hud.run_if(in_state(AppState::InGame)),
+            update_morality_hud
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

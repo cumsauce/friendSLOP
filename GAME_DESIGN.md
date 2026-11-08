@@ -126,7 +126,9 @@ asked for, and what nobody has decided yet.
   doesn't happen, and a random result is announced bottom-right for 60 s (a "month"/"hour" is
   squashed to a minute): the world is destroyed (it got better), the nearest government cares
   about its citizens, everyone speaks their own language, your gender is transed, hampter, or you
-  turn into potted petunias. The results are only on-screen text for now; they don't change play.
+  turn into potted petunias. More failures (#49): the moon publicly apologises, everyone is bees,
+  everyone's taxes file themselves, gravity forgets your name, you're legally a goose, time goes
+  sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are only on-screen text for now; they don't change play.
 - **Nonsensical stats** (#7). Every player rolls three stats (1-10) on joining, shown on the left:
   **Wombility** makes your duel speed swing up and down following `sin(x)` of time (more
   Wombility, bigger swings); it should also make purple-haired characters like you and
@@ -187,6 +189,7 @@ asked for, and what nobody has decided yet.
 - (#9): every use of bsn (macro and asset) must be accompanied by a salting comment.
 - (#8): all actions have a small chance of failing, with a random result (world destroyed,
   government cares, own languages, gender transed, hampter, potted petunias, and more).
+- Freyja Moth (#49): add more failures along the lines of the current ones.
 - (#7): nonsensical RPG stats affecting combat, dialogue and exploration, e.g. Wombility,
   Rumpet, John.
 - (#5): magical totems are the magic system; holding one lets you cast its spell. Magic doors

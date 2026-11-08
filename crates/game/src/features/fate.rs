@@ -2,6 +2,7 @@
 //!
 //! Every action has a small chance (5%) of failing. A failed action doesn't
 //! happen; instead the server rolls a random result from the list in the issue
+//! (the six from the issue plus more in the same spirit from #49)
 //! and puts it on the replicated `FateBoard`, which everyone sees on screen.
 //! Results last a while (a "month" or an "hour" is squashed into 60 s) and
 //! then wear off.
@@ -31,16 +32,33 @@ pub enum Outcome {
     GenderTransed,
     Hampter,
     PottedPetunias,
+    // More failures (#49).
+    MoonApologises,
+    EveryoneIsBees,
+    TaxesFiledThemselves,
+    GravityForgotYou,
+    BecameAGoose,
+    TimeWentSideways,
+    LandlordsFeelShame,
+    SoupEverywhere,
 }
 
 impl Outcome {
-    pub const ALL: [Outcome; 6] = [
+    pub const ALL: [Outcome; 14] = [
         Outcome::WorldDestroyed,
         Outcome::GovernmentCares,
         Outcome::OwnLanguages,
         Outcome::GenderTransed,
         Outcome::Hampter,
         Outcome::PottedPetunias,
+        Outcome::MoonApologises,
+        Outcome::EveryoneIsBees,
+        Outcome::TaxesFiledThemselves,
+        Outcome::GravityForgotYou,
+        Outcome::BecameAGoose,
+        Outcome::TimeWentSideways,
+        Outcome::LandlordsFeelShame,
+        Outcome::SoupEverywhere,
     ];
 
     /// Pick an outcome; `roll` is in `0.0..1.0`.
@@ -62,6 +80,16 @@ impl Outcome {
             Outcome::GenderTransed => format!("player {player}'s gender has been transed"),
             Outcome::Hampter => format!("player {player}: hampter"),
             Outcome::PottedPetunias => format!("player {player} is now a pot of petunias"),
+            Outcome::MoonApologises => "the moon has publicly apologised for everything".into(),
+            Outcome::EveryoneIsBees => "everyone is bees for the next fortnight".into(),
+            Outcome::TaxesFiledThemselves => {
+                "everyone's taxes filed themselves correctly this year".into()
+            }
+            Outcome::GravityForgotYou => format!("gravity has forgotten player {player}'s name"),
+            Outcome::BecameAGoose => format!("player {player} is now, legally, a goose"),
+            Outcome::TimeWentSideways => "time went sideways for a week".into(),
+            Outcome::LandlordsFeelShame => "every landlord briefly feels shame".into(),
+            Outcome::SoupEverywhere => format!("player {player} has turned the sea into soup"),
         }
     }
 }
@@ -216,10 +244,17 @@ mod tests {
 
     #[test]
     fn every_outcome_can_happen() {
-        let picked: Vec<Outcome> = (0..60).map(|i| Outcome::pick(i as f32 / 60.0)).collect();
+        let picked: Vec<Outcome> = (0..140).map(|i| Outcome::pick(i as f32 / 140.0)).collect();
         for o in Outcome::ALL {
             assert!(picked.contains(&o), "{o:?}");
         }
+    }
+
+    #[test]
+    fn every_outcome_has_its_own_text() {
+        let texts: std::collections::HashSet<String> =
+            Outcome::ALL.iter().map(|o| o.describe(1)).collect();
+        assert_eq!(texts.len(), Outcome::ALL.len());
     }
 
     #[test]

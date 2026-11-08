@@ -48,12 +48,6 @@ asked for, and what nobody has decided yet.
   Dave's beanie and legs). Props got trims too: music-box lids and gold feet, carved totems,
   capped vault walls, leafier storm trees, parliament columns and rubble, arena corner flags.
   Everything still passes through the cat palette.
-- **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
-  duelists get capsule bodies in a small walled arena on the floor and play first-person
-  (WASD, mouse, click) while everyone else watches. "One in the chamber" rules: one bullet,
-  every hit kills, a kill refunds your bullet, with no bullets you punch up close, you respawn
-  with one bullet. 3 lives each; the last one standing wins. One duel at a time. Nothing is
-  won or lost beyond bragging rights yet.
 - **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with the
   commune's flag (a Union flag with a little Welsh flag and red dragon in the middle, because
   Dave isn't a coward; #43; made more anarchist in #57: red-over-black anarcho-syndicalist field,
@@ -63,11 +57,6 @@ asked for, and what nobody has decided yet.
   shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:
   someone joining or leaving, the mushroom being eaten, you muting or unmuting, and, after 40 s of
   nothing happening, doing nothing. There are few choices in the game yet, so it judges those.
-  only in colours cats can see: blues and yellows, no red-green difference. Every flat-colour
-  material is run through a cat-vision filter (then lightened and saturated), and the sky is
-  bright blue. So the "red" mushroom and the green floor both look yellowish to us, like they
-  would to a cat. Textured materials (the new asset models) aren't filtered yet — see open
-  questions.
 - **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
   duelists get bodies in a small walled arena on the floor — animated cowboy/cowgirl models, or
   capsule-and-gun stand-ins if the asset files are missing — and play first-person (WASD, mouse,
@@ -75,10 +64,6 @@ asked for, and what nobody has decided yet.
   bullet, every hit kills, a kill refunds your bullet, with no bullets you punch up close, you
   respawn with one bullet. 3 lives each; the last one standing wins. One duel at a time. Shots,
   punches and hits play sounds for everyone; nothing is won or lost beyond bragging rights yet.
-- **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with a
-  red-and-black flag, Dave himself (fist raised), a banner at the top of the screen and a
-  campfire flickering beside the ruins. Scenery only for now; every peer spawns it locally.
-
 - **Morality** (#21). Every player has a morality score (starts at 0), shown bottom-left with a
   label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
   within a sensible range: eating the mushroom is -2..+2. Harming anyone is -5..+3, except harming
@@ -154,19 +139,8 @@ asked for, and what nobody has decided yet.
   about its citizens, everyone speaks their own language, your gender is transed, hampter, or you
   turn into potted petunias. More failures (#49): the moon publicly apologises, everyone is bees,
   everyone's taxes file themselves, gravity forgets your name, you're legally a goose, time goes
-  sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are only on-screen text for now; they don't change play.
-- **Nonsensical stats** (#7). Every player rolls three stats (1-10) on joining, shown on the left:
-  **Wombility** makes your duel speed swing up and down following `sin(x)` of time (more
-  Wombility, bigger swings); it should also make purple-haired characters like you and
-  green-haired ones despise you, but nobody has hair yet. **Rumpet** tints the duel arena's walls
-  yellow (by the room's best Rumpet), and at 8+ white rabbits appear hopping on the floor.
-  **John** gives a slight jump boost in meadows, but there's no jumping and no meadows yet.
-  More stats (#48): **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you
-  can read it from further away; **Glimbo** at 9+ makes a lone teacup orbit the middle of the
-  world; **Frumbly** increases bread affinity in bakeries, but there's no bread and no bakeries.
-  Freyja asked for the first three to be removed as mere examples; they were kept (we never remove
-  features) and the new ones added alongside.
-  turn into potted petunias. The results are only on-screen text for now; they don't change play.
+  sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are
+  only on-screen text for now; they don't change play.
 - **Nonsensical stats** (#7, reworked by #48). Every player rolls six stats (1-10) on joining,
   shown on the left. #7's Wombility, Rumpet and John were only examples and were replaced (#48):
   **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you can read it from
@@ -202,6 +176,13 @@ asked for, and what nobody has decided yet.
   landlord is defeated a round summary appears and anyone can press Enter to start a new round: the
   landlord, HALT's escape bar, the gods tears supply, organs, morality, transformations and stats all
   reset (features hook in by observing the server-side `RoundReset` event).
+- **Things to hide behind** (#60). The duel arena now has cover: a crate stack in the middle
+  (so the two spawn corners can't see each other), two chest-high hay-bale stacks and two stone
+  walls. Cover is solid in a duel: it stops bullets and you can't walk through it. Hay is shorter
+  than you, so it only hides you if you stay close behind it. The open middle of the meadow also
+  got hiding spots (hedges, haystacks, boulder piles and two crumbling storm-wrecked walls), and
+  the outer ring of trees and plants is about 70% denser. The meadow spots are only scenery for
+  now, because nobody has a body outside a duel.
 - **Camera** (polish). Pan with WASD / arrow keys and zoom with the scroll wheel, clamped to the
   floor; off while you're in a duel.
 
@@ -261,6 +242,7 @@ asked for, and what nobody has decided yet.
 - doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
   then start; minimal settings; playable with just one person for testing.
 - (#47): nice models and textures etc, make the environment good.
+- doomy (#60): the map is sparse and there's nothing to hide behind.
 
 ## Open questions
 
@@ -270,7 +252,8 @@ asked for, and what nobody has decided yet.
 - What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
-- Players only have bodies in a duel. What are you the rest of the time?
+- Players only have bodies in a duel. What are you the rest of the time? (The meadow now has
+  hedges, haystacks and walls to hide behind, but there's nobody to hide yet. Hide from whom?)
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?

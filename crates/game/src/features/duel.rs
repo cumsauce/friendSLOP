@@ -147,7 +147,9 @@ pub fn ray_hits_body(origin: Vec3, dir: Vec3, feet: Vec3) -> bool {
     [0.5, 1.3].into_iter().any(|h| {
         let to = feet + Vec3::Y * h - origin;
         let along = to.dot(dir);
-        along > 0.0 && (to - dir * along).length_squared() < BODY_RADIUS * BODY_RADIUS
+        along > 0.0
+            && (to - dir * along).length_squared() < BODY_RADIUS * BODY_RADIUS
+            && !super::cover::blocks_shot(origin, dir, along)
     })
 }
 
@@ -307,7 +309,7 @@ fn move_duelists(
         let lim = ARENA_HALF - BODY_RADIUS;
         let rel = (d.pos + step - ARENA_CENTER)
             .clamp(Vec3::new(-lim, 0.0, -lim), Vec3::new(lim, 0.0, lim));
-        d.pos = ARENA_CENTER + rel;
+        d.pos = super::cover::push_out(ARENA_CENTER + rel, BODY_RADIUS);
     }
 }
 
@@ -1200,7 +1202,9 @@ mod tests {
 
     #[test]
     fn aiming_at_someone_hits_and_aiming_away_misses() {
-        let [a, b] = spawn_points();
+        // Straight up the west side, clear of the arena's cover (#60).
+        let [a, _] = spawn_points();
+        let b = a + Vec3::new(0.0, 0.0, 4.0);
         let mut shooter = duelist(0, a, b);
         let target = duelist(1, b, a);
         assert!(

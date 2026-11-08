@@ -188,8 +188,25 @@ fn challenge_accept_and_shoot_to_win_a_duel() {
     assert_eq!(both.len(), 2, "both duelists replicate");
     assert!(both.iter().all(|d| d.lives == LIVES && d.bullets == 1));
 
-    // Both start facing each other, so every shot from the host lands. Each
-    // kill refunds the bullet, so the host can win with three shots.
+    // The arena's crate stack (#60) hides each corner from the other, so line
+    // the victim up 4 m up the host's side, in clear sight, before every shot.
+    // Each kill refunds the bullet, so the host can win with three shots.
+    let line_up = |server: &mut App, client: &mut App| {
+        let [a, _] = spawn_points();
+        let world = server.world_mut();
+        let mut q = world.query::<&mut Duelist>();
+        for mut d in q.iter_mut(world) {
+            if d.player == 1 {
+                d.pos = a + Vec3::new(0.0, 0.0, 4.0);
+            } else {
+                d.pos = a;
+                d.yaw = std::f32::consts::PI;
+                d.pitch = 0.0;
+            }
+        }
+        step(server, client);
+    };
+    line_up(&mut server, &mut client);
     for shot in 1..=LIVES {
         server.world_mut().client_trigger(DuelShoot);
         step(&mut server, &mut client);
@@ -198,14 +215,7 @@ fn challenge_accept_and_shoot_to_win_a_duel() {
             assert_eq!(left[1].lives, LIVES - shot);
             assert_eq!(left[0].bullets, 1, "kill refunds the bullet");
             // Put the victim back in the host's sights for the next shot.
-            let world = server.world_mut();
-            let mut q = world.query::<&mut Duelist>();
-            for mut d in q.iter_mut(world) {
-                if d.player == 1 {
-                    d.pos = spawn_points()[1];
-                }
-            }
-            step(&mut server, &mut client);
+            line_up(&mut server, &mut client);
         }
     }
     assert!(duelists(&mut client).is_empty(), "duel over after 3 kills");

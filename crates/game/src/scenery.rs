@@ -22,11 +22,11 @@ pub fn plugin(app: &mut App) {
 }
 
 /// Props live in a ring around the action: outside this radius…
-const RING_INNER: f32 = 13.0;
+const RING_INNER: f32 = 12.0;
 /// …and inside this one (the floor itself is 50×50).
 const RING_OUTER: f32 = 24.0;
 /// How many props to scatter.
-const PROP_COUNT: u32 = 150;
+const PROP_COUNT: u32 = 260;
 
 /// One model from the nature kit: file, how common it is, size jitter.
 struct Prop {

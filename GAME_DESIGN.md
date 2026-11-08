@@ -42,6 +42,10 @@ asked for, and what nobody has decided yet.
 - **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with a
   red-and-black flag, Dave himself (fist raised) and a banner at the top of the screen. Scenery
   only for now; every peer spawns it locally.
+- **The judgmental goat** (#20). A white goat with half-closed eyes stands on the floor, slowly
+  shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:
+  someone joining or leaving, the mushroom being eaten, you muting or unmuting, and, after 40 s of
+  nothing happening, doing nothing. There are few choices in the game yet, so it judges those.
 
 - **Morality** (#21). Every player has a morality score (starts at 0), shown bottom-left with a
   label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
@@ -65,6 +69,7 @@ asked for, and what nobody has decided yet.
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave.
+- #20: a judgmental goat joins the players and makes passive-aggressive comments about every choice.
 
 ## Open questions
 

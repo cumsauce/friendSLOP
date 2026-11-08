@@ -6,6 +6,9 @@
 //! created (red-green collapsed), then "popped" (lighter, more saturated) so it
 //! reads like a bright storybook MMO. The sky is a cat-visible bright blue.
 //! Purely local visuals, so nothing is replicated.
+//!
+//! Opt-out: materials made with [`exact_material`] (e.g. team or duel hues that
+//! must stay exactly as chosen) skip the filter.
 
 use bevy::prelude::*;
 
@@ -17,6 +20,7 @@ pub fn protocol(_app: &mut App) {}
 
 pub fn plugin(app: &mut App) {
     app.insert_resource(ClearColor(cat_palette(SKY)))
+        .init_resource::<ExactColors>()
         .add_systems(
             Update,
             paint_new_materials.run_if(on_message::<AssetEvent<StandardMaterial>>),
@@ -46,16 +50,35 @@ pub fn cat_palette(color: Color) -> Color {
     ))
 }
 
+/// Materials whose `base_color` must be kept exactly (not cat-filtered).
+#[derive(Resource, Default, Debug)]
+pub struct ExactColors(pub bevy::platform::collections::HashSet<AssetId<StandardMaterial>>);
+
+/// Add a material that keeps its colours exactly, skipping the cat palette.
+pub fn exact_material(
+    materials: &mut Assets<StandardMaterial>,
+    exact: &mut ExactColors,
+    material: impl Into<StandardMaterial>,
+) -> Handle<StandardMaterial> {
+    let handle = materials.add(material.into());
+    exact.0.insert(handle.id());
+    handle
+}
+
 /// Repaint each material once, right after it is added. Our own edit fires
 /// `Modified`, which we ignore, so nothing is filtered twice.
 fn paint_new_materials(
     mut events: MessageReader<AssetEvent<StandardMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    exact: Option<Res<ExactColors>>,
 ) {
     for event in events.read() {
         let AssetEvent::Added { id } = event else {
             continue;
         };
+        if exact.as_ref().is_some_and(|e| e.0.contains(id)) {
+            continue;
+        }
         let Some(mut mat) = materials.get_mut(*id) else {
             continue;
         };
@@ -112,5 +135,29 @@ mod tests {
             panic!("material missing");
         };
         assert_eq!(mat.base_color, cat_palette(red));
+    }
+
+    #[test]
+    fn exact_materials_keep_their_colour() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .init_asset::<StandardMaterial>()
+            .init_resource::<ExactColors>()
+            .add_systems(Update, paint_new_materials);
+        let red = Color::srgb(1.0, 0.0, 0.0);
+        let handle = app
+            .world_mut()
+            .resource_scope(|world, mut exact: Mut<ExactColors>| {
+                let mut mats = world.resource_mut::<Assets<StandardMaterial>>();
+                exact_material(&mut mats, &mut exact, red)
+            });
+        for _ in 0..4 {
+            app.update();
+        }
+        let mats = app.world().resource::<Assets<StandardMaterial>>();
+        let Some(mat) = mats.get(&handle) else {
+            panic!("material missing");
+        };
+        assert_eq!(mat.base_color, red);
     }
 }

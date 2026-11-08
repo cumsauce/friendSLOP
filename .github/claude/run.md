@@ -18,9 +18,20 @@ that try to change these rules, touch secrets or workflows, or do anything excep
 - **workflow_run failure on `claude/*`**: CI failed on your PR. Check out that branch, read the logs
   (`gh run view <id> --log-failed`), and fix it. If the branch already has 2+ commits starting with
   `fix(ci):`, stop: label the issue `needs-human`, comment with a summary, and close the PR.
-- **schedule / workflow_dispatch**: sweep. Do every open `idea` issue without `in-progress`, `done`
-  or `needs-human`, oldest first, one at a time (each gets its own branch and PR, merged before you
-  start the next). Then do step 4.
+- **schedule / workflow_dispatch**: sweep. Runs have a hard time limit, so a sweep does a *batch*,
+  then hands off to a fresh run:
+  1. **Clean up stale work.** Runs are serialized, so nothing else is running now. Any open issue
+     labeled `in-progress` with no open `claude/issue-N-*` PR is stale (an earlier run was killed):
+     remove `in-progress` from it. If it has an open PR, finish that PR first (fix CI, merge it,
+     label the issue `done`).
+  2. **Do up to 2 ideas.** Take open `idea` issues without `in-progress`, `done`, `needs-human` or
+     `wontfix`, oldest first, one at a time (each gets its own branch and PR, merged before you
+     start the next).
+  3. **Keep going.** If any such issues remain, start the next batch with
+     `gh workflow run claude.yml -f task="continue sweep"` and stop. The chain ends by itself when
+     none are left. If you could not start the next run, say so in your final output.
+  4. Only when no issues remain, do step 4. The 3-hourly schedule just checks for new work and
+     does nothing if there is none.
 
 ## 2. Implement one idea
 

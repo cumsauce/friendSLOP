@@ -1,6 +1,5 @@
-//! The 3D space everyone shares: camera, sun, sky haze, grassy floor, meadow detail, HUD.
+//! The 3D space everyone shares: camera, grassy floor, meadow detail, HUD.
 
-use bevy::light::CascadeShadowConfigBuilder;
 use bevy::prelude::*;
 use bevy_voice_chat::prelude::VoiceListener;
 
@@ -41,60 +40,12 @@ fn spawn_world(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Soft distance haze in the (cat-visible) sky colour so the world edge fades away.
-    let haze = crate::features::cat_palette::cat_palette(Color::srgb(0.6, 0.82, 1.0));
+    // Sky, sun, fog and post-processing live in `atmosphere.rs`.
     commands.spawn((
         Camera3d::default(),
         MainCamera,
         VoiceListener { right_from: None },
         Transform::from_xyz(0.0, 8.0, 14.0).looking_at(Vec3::ZERO, Vec3::Y),
-        DistanceFog {
-            color: haze,
-            directional_light_color: Color::srgba(1.0, 0.95, 0.8, 0.4),
-            directional_light_exponent: 20.0,
-            falloff: FogFalloff::Linear {
-                start: 28.0,
-                end: 70.0,
-            },
-        },
-        DespawnOnExit(AppState::InGame),
-    ));
-    // Explicit ambient (sky) fill so shaded sides read as soft blue, never black.
-    commands.insert_resource(GlobalAmbientLight {
-        color: Color::srgb(0.75, 0.85, 1.0),
-        brightness: 900.0,
-        ..default()
-    });
-    // Warm late-morning sun. Shadow cascades cover the ~50 m floor even when the
-    // overview camera is zoomed all the way out (see `camera.rs`).
-    commands.spawn((
-        DirectionalLight {
-            color: Color::srgb(1.0, 0.96, 0.88),
-            illuminance: 12_000.0,
-            shadow_maps_enabled: true,
-            ..default()
-        },
-        CascadeShadowConfigBuilder {
-            num_cascades: 3,
-            minimum_distance: 0.1,
-            first_cascade_far_bound: 12.0,
-            maximum_distance: 70.0,
-            overlap_proportion: 0.25,
-        }
-        .build(),
-        Transform::from_xyz(6.0, 12.0, 3.0).looking_at(Vec3::ZERO, Vec3::Y),
-        DespawnOnExit(AppState::InGame),
-    ));
-    // Shadowless bounce light from the opposite side, like light off the meadow,
-    // so faces turned away from the sun still show their shape.
-    commands.spawn((
-        DirectionalLight {
-            color: Color::srgb(0.7, 0.8, 1.0),
-            illuminance: 2_000.0,
-            shadow_maps_enabled: false,
-            ..default()
-        },
-        Transform::from_xyz(-6.0, 4.0, -3.0).looking_at(Vec3::ZERO, Vec3::Y),
         DespawnOnExit(AppState::InGame),
     ));
     // The ground itself lives in `terrain.rs`.

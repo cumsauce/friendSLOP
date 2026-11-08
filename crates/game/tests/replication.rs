@@ -976,3 +976,32 @@ fn villagers_replicate_and_fool_seekers() {
         .collect::<Vec<_>>();
     assert_eq!(fooled, vec![seeker], "only the seeker is frozen");
 }
+
+#[test]
+fn hide_and_seek_hides_name_labels_and_heartbeats_near_seekers() {
+    use friendslop::features::hide_and_seek::{
+        HEARTBEAT_RANGE, Phase, Role, heartbeat_interval, label_hidden,
+    };
+    let (h, s, f) = (Some(Role::Hider), Some(Role::Seeker), Some(Role::Found));
+    // Outside a round every label shows.
+    for phase in [Phase::Idle, Phase::Results] {
+        assert!(!label_hidden(phase, false, s, h));
+    }
+    for phase in [Phase::Hiding, Phase::Seeking] {
+        // Seekers (and found hiders) see nobody's label but their own.
+        assert!(label_hidden(phase, false, s, h));
+        assert!(label_hidden(phase, false, f, s));
+        assert!(!label_hidden(phase, true, s, s));
+        // Hiders' labels are hidden from other hiders too; they still see seekers.
+        assert!(label_hidden(phase, false, h, h));
+        assert!(!label_hidden(phase, false, h, s));
+        assert!(!label_hidden(phase, true, h, h));
+    }
+    // Heartbeat only within range, faster when closer.
+    assert_eq!(heartbeat_interval(HEARTBEAT_RANGE + 0.1), None);
+    assert_eq!(heartbeat_interval(f32::INFINITY), None);
+    let (Some(near), Some(far)) = (heartbeat_interval(1.0), heartbeat_interval(5.5)) else {
+        panic!("seekers in range should thump");
+    };
+    assert!(near < far);
+}

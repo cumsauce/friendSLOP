@@ -14,7 +14,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{WalkSet, Walker};
+use crate::features::fps::{HiddenLabels, WalkSet, Walker};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -359,8 +359,141 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(
             Update,
-            (start_key, show_status, tag_targets).run_if(in_state(AppState::InGame)),
-        );
+            (start_key, show_status, tag_targets, hide_labels, heartbeat)
+                .run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(OnExit(AppState::InGame), clear_labels);
+}
+
+/// Hiders hear a heartbeat when a seeker is this close (metres).
+pub const HEARTBEAT_RANGE: f32 = 6.0;
+
+/// Does player `theirs` keep their floating name label hidden from me during a
+/// round? Mine always shows; during Hiding/Seeking seekers see no labels at
+/// all, and nobody sees a hider's.
+pub fn label_hidden(phase: Phase, is_me: bool, mine: Option<Role>, theirs: Option<Role>) -> bool {
+    if is_me || !matches!(phase, Phase::Hiding | Phase::Seeking) {
+        return false;
+    }
+    mine.is_some_and(Role::seeks) || theirs == Some(Role::Hider)
+}
+
+/// Seconds between heartbeats for a hider with the nearest seeker `dist` away,
+/// or `None` if no seeker is close enough. Faster the closer they are.
+pub fn heartbeat_interval(dist: f32) -> Option<f32> {
+    (dist.is_finite() && dist <= HEARTBEAT_RANGE)
+        .then(|| 0.45 + 0.75 * (dist / HEARTBEAT_RANGE).clamp(0.0, 1.0))
+}
+
+fn hide_labels(
+    me: Option<Res<LocalPlayer>>,
+    state: Query<&HideSeek>,
+    players: Query<(&Player, Option<&Role>)>,
+    hidden: Option<ResMut<HiddenLabels>>,
+) {
+    let Some(mut hidden) = hidden else { return };
+    let phase = state.single().map(|s| s.phase).unwrap_or_default();
+    let mine = my_role(&me, &players);
+    let me = me.as_deref().map(|m| m.0);
+    let want: std::collections::HashSet<u64> = players
+        .iter()
+        .filter(|(p, r)| label_hidden(phase, me == Some(p.id), mine, r.copied()))
+        .map(|(p, _)| p.id)
+        .collect();
+    if hidden.0 != want {
+        hidden.0 = want;
+    }
+}
+
+fn clear_labels(hidden: Option<ResMut<HiddenLabels>>) {
+    if let Some(mut hidden) = hidden {
+        hidden.0.clear();
+    }
+}
+
+/// A tiny generated "lub-dub" (16-bit mono WAV), so no asset file is needed.
+fn heartbeat_wav() -> Vec<u8> {
+    const RATE: u32 = 22_050;
+    let n = (RATE as f32 * 0.4) as usize;
+    let thump = |t: f32, at: f32, amp: f32| {
+        let x = t - at;
+        if x < 0.0 {
+            return 0.0;
+        }
+        amp * (-x * 28.0).exp() * (std::f32::consts::TAU * 55.0 * x).sin()
+    };
+    let samples: Vec<i16> = (0..n)
+        .map(|i| {
+            let t = i as f32 / RATE as f32;
+            let v = thump(t, 0.0, 0.9) + thump(t, 0.16, 0.6);
+            (v.clamp(-1.0, 1.0) * i16::MAX as f32) as i16
+        })
+        .collect();
+    let data_len = (samples.len() * 2) as u32;
+    let mut out = Vec::with_capacity(44 + data_len as usize);
+    out.extend_from_slice(b"RIFF");
+    out.extend_from_slice(&(36 + data_len).to_le_bytes());
+    out.extend_from_slice(b"WAVEfmt ");
+    out.extend_from_slice(&16u32.to_le_bytes());
+    out.extend_from_slice(&1u16.to_le_bytes()); // PCM
+    out.extend_from_slice(&1u16.to_le_bytes()); // mono
+    out.extend_from_slice(&RATE.to_le_bytes());
+    out.extend_from_slice(&(RATE * 2).to_le_bytes());
+    out.extend_from_slice(&2u16.to_le_bytes());
+    out.extend_from_slice(&16u16.to_le_bytes());
+    out.extend_from_slice(b"data");
+    out.extend_from_slice(&data_len.to_le_bytes());
+    for s in samples {
+        out.extend_from_slice(&s.to_le_bytes());
+    }
+    out
+}
+
+/// Local: a hider hears their heart thump when a seeker is near.
+fn heartbeat(
+    mut commands: Commands,
+    time: Res<Time>,
+    me: Option<Res<LocalPlayer>>,
+    state: Query<&HideSeek>,
+    players: Query<(&Player, &Walker, Option<&Role>)>,
+    audio: Option<ResMut<Assets<AudioSource>>>,
+    mut sound: Local<Option<Handle<AudioSource>>>,
+    mut wait: Local<f32>,
+) {
+    *wait -= time.delta_secs();
+    let Ok(s) = state.single() else { return };
+    if s.phase != Phase::Seeking {
+        return;
+    }
+    let Some(me) = me.as_deref() else { return };
+    let Some((_, here, _)) = players
+        .iter()
+        .find(|(p, _, r)| p.id == me.0 && *r == Some(&Role::Hider))
+    else {
+        return;
+    };
+    let nearest = players
+        .iter()
+        .filter(|(_, _, r)| r.is_some_and(|r| r.seeks()))
+        .map(|(_, w, _)| w.pos.distance(here.pos))
+        .fold(f32::INFINITY, f32::min);
+    let Some(every) = heartbeat_interval(nearest) else {
+        return;
+    };
+    if *wait > 0.0 {
+        return;
+    }
+    *wait = every;
+    let Some(mut audio) = audio else { return };
+    let handle = sound
+        .get_or_insert_with(|| {
+            audio.add(AudioSource {
+                bytes: heartbeat_wav().into(),
+            })
+        })
+        .clone();
+    let volume = 0.35 + 0.5 * (1.0 - nearest / HEARTBEAT_RANGE);
+    crate::assets::play_sfx(&mut commands, &handle, volume);
 }
 
 #[derive(Component)]

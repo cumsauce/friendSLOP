@@ -29,15 +29,19 @@ asked for, and what nobody has decided yet.
   left hiding (seekers win) or time runs out (hiders win); results show for 10 s and the next
   round starts with a new random seeker, looping until fewer than 2 players remain. Phase, timer
   and role show in the top-centre line, tags as toasts. It runs alongside the landlord objective
-  (both stay). The scenery is the hiding ground; no per-round regenerated layout yet.
+  (both stay). The scenery is the hiding ground; no per-round regenerated layout yet. During
+  Hiding/Seeking, floating name labels stop giving people away: seekers see no labels but their
+  own, and a hider's label is hidden from everyone but themselves (back after the round). While
+  seeking, a hider hears a generated heartbeat when a seeker is within 6 m, faster as they close
+  in. Player bodies already collide with cover (host sweeps a capsule and slides along it).
 - **Commune villagers** (#61, the "NPCs" part). Ten villagers (Kevin, Brenda, Old Tom, Moss, ...)
   with the same capsule body, player-style colours and googly eyes, so hiders can blend in. The
   server moves them at 5 Hz: wander between the bonfire, ruins, pond and cover spots, pause or sit,
   never enter the duel arena, stop during the stillness. Clicking one says hello; a seeker who
   clicks one while seeking gets "that's just Kevin from the commune" and is frozen for 3 s
-  (everyone hears about it). Nearby villagers sometimes mutter a line (toast). They walk through
-  trees (no collision) and have no name label, while players do; whether labels should hide
-  during hide and seek is open.
+  (everyone hears about it). Nearby villagers sometimes mutter a line (toast). On the host they
+  sweep a ball along each step and veer around trees, rocks and walls (or pick a new spot if boxed
+  in). They have no name label.
 - **One click, one thing** (polish). A left click resolves to the single closest clickable thing
   under the crosshair/cursor (`features/interact.rs`), so one click never triggers two features,
   and only within ~3.5 m of your body; otherwise the HUD toast says "too far away". The server

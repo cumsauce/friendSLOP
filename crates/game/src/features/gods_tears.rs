@@ -1,8 +1,9 @@
 //! Gods tears: teardrop gems of great power that transform whoever uses them.
 //! From issue #16 by Freyja Moth.
 //!
-//! The server rains replicated `GodsTear` gems onto the floor, up to a few at
-//! a time. Click one to use it: the server bumps your replicated
+//! The tears rained down only once, when humans came into existence: the
+//! server drops a fixed, limited supply of replicated `GodsTear` gems when the
+//! world begins, and no more ever fall (corrected in #43). Click one to use it: the server bumps your replicated
 //! `Transformation`. The more you use, the further you change, until you
 //! become a fetid, ever-hungry Abduction. What happens when an Abduction
 //! succeeds is not known.
@@ -16,10 +17,8 @@ use crate::AppState;
 use crate::player::{Player, PlayerOwner};
 use crate::world::MainCamera;
 
-/// How many tears can lie on the floor at once.
-pub const MAX_TEARS: usize = 4;
-/// Seconds between tears falling from the sky.
-const RAIN_SECS: f32 = 8.0;
+/// The whole, limited supply of tears. They all fall once, at the start.
+pub const TOTAL_TEARS: u32 = 12;
 /// Uses after which you are an Abduction.
 pub const ABDUCTION_AT: u32 = 7;
 /// Height a new tear falls from.
@@ -67,16 +66,14 @@ pub fn protocol(app: &mut App) {
         .init_resource::<TearSky>()
         .add_observer(give_transformation)
         .add_observer(use_tear)
-        .add_systems(OnEnter(ServerState::Running), first_tears)
-        .add_systems(Update, rain.run_if(in_state(ServerState::Running)));
+        .add_systems(OnEnter(ServerState::Running), the_one_rain);
 }
 
-/// Server only: deterministic random source, next id and rain timer.
+/// Server only: deterministic random source and next id.
 #[derive(Resource, Default)]
 struct TearSky {
     seed: u32,
     next_id: u32,
-    rain_in: f32,
 }
 
 impl TearSky {
@@ -99,27 +96,12 @@ impl TearSky {
     }
 }
 
-fn first_tears(mut commands: Commands, mut sky: ResMut<TearSky>) {
+/// When humans came into existence, the tears rained down. Once.
+fn the_one_rain(mut commands: Commands, mut sky: ResMut<TearSky>) {
     sky.seed = 0x7ea2_0016;
-    sky.rain_in = RAIN_SECS;
-    for _ in 0..2 {
-        commands.spawn((sky.tear(), Replicated));
-    }
-}
-
-fn rain(
-    time: Res<Time>,
-    mut commands: Commands,
-    mut sky: ResMut<TearSky>,
-    tears: Query<(), With<GodsTear>>,
-) {
-    sky.rain_in -= time.delta_secs();
-    if sky.rain_in > 0.0 {
-        return;
-    }
-    sky.rain_in = RAIN_SECS;
-    if tears.iter().count() < MAX_TEARS {
-        commands.spawn((sky.tear(), Replicated));
+    for _ in 0..TOTAL_TEARS {
+        let tear = sky.tear();
+        commands.spawn((tear, Replicated));
     }
 }
 
@@ -265,11 +247,15 @@ fn spawn_tears_hud(mut commands: Commands) {
 
 fn update_tears_hud(
     players: Query<(&Player, &Transformation)>,
+    tears: Query<(), With<GodsTear>>,
     mut hud: Query<&mut Text, With<TearsHud>>,
 ) {
     let mut rows: Vec<_> = players.iter().collect();
     rows.sort_by_key(|(p, _)| p.id);
-    let mut lines = vec!["gods tears (click a blue gem to use one)".to_string()];
+    let left = tears.iter().count();
+    let mut lines = vec![format!(
+        "gods tears: {left} of {TOTAL_TEARS} left, no more will fall (click one to use it)"
+    )];
     for (player, t) in rows {
         lines.push(format!(
             "player {}: {} ({} used)",

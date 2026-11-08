@@ -30,7 +30,7 @@ pub fn plugin(app: &mut App) {
         OnEnter(AppState::InGame),
         (dress_floor, light_bonfire, play_music),
     )
-    .add_systems(Update, flicker_bonfire.run_if(in_state(AppState::InGame)))
+    .add_systems(Update, flicker_bonfire)
     .add_observer(no_shadows_on_small_props);
 }
 
@@ -153,7 +153,7 @@ impl Rng {
     }
 }
 
-const TREES: &[&str] = &[
+pub(crate) const TREES: &[&str] = &[
     "CommonTree_1.gltf",
     "CommonTree_2.gltf",
     "CommonTree_4.gltf",
@@ -161,12 +161,12 @@ const TREES: &[&str] = &[
     "Pine_3.gltf",
 ];
 const DEAD_TREES: &[&str] = &["DeadTree_1.gltf", "DeadTree_3.gltf"];
-const ROCKS: &[&str] = &[
+pub(crate) const ROCKS: &[&str] = &[
     "Rock_Medium_1.gltf",
     "Rock_Medium_2.gltf",
     "Rock_Medium_3.gltf",
 ];
-const BUSHES: &[&str] = &["Bush_Common.gltf", "Bush_Common_Flowers.gltf"];
+pub(crate) const BUSHES: &[&str] = &["Bush_Common.gltf", "Bush_Common_Flowers.gltf"];
 const UNDERGROWTH: &[&str] = &[
     "Fern_1.gltf",
     "Grass_Common_Tall.gltf",
@@ -238,7 +238,7 @@ struct Dresser<'w, 's, 'a> {
 /// Some kit models are authored far bigger than the meadow (the tall grasses are
 /// ~1.8 m clumps), which made knee-high grass tower over people and the camera.
 /// Bring them down to ground-cover size.
-fn model_size_fix(file: &str) -> f32 {
+pub(crate) fn model_size_fix(file: &str) -> f32 {
     match file {
         "Grass_Common_Tall.gltf" | "Grass_Wispy_Tall.gltf" => 0.35,
         "Plant_1.gltf" => 0.6,
@@ -246,14 +246,19 @@ fn model_size_fix(file: &str) -> f32 {
     }
 }
 
+/// The scene root for one `assets/models/nature` model (shared with the menu
+/// backdrop).
+pub(crate) fn nature_model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/nature/{file}"))),
+    )
+}
+
 impl Dresser<'_, '_, '_> {
     fn model(&mut self, file: &str, at: Vec2, yaw: Quat, scale: f32, small: bool) -> Entity {
         let scale = scale * model_size_fix(file);
         let mut e = self.commands.spawn((
-            WorldAssetRoot(
-                self.assets
-                    .load(GltfAssetLabel::Scene(0).from_asset(format!("models/nature/{file}"))),
-            ),
+            nature_model(self.assets, file),
             Transform::from_xyz(at.x, 0.0, at.y)
                 .with_rotation(yaw)
                 .with_scale(Vec3::splat(scale)),
@@ -664,20 +669,30 @@ const BONFIRE_SCALE: f32 = 1.3 / 180.0;
 struct BonfireFlame;
 
 fn light_bonfire(mut commands: Commands, assets: Res<AssetServer>) {
+    spawn_bonfire(&mut commands, &assets, BONFIRE_AT, AppState::InGame);
+}
+
+/// The campfire model, its flame and a flickering light at `at`, despawned on
+/// leaving `state` (the game and the menu backdrop share it).
+pub(crate) fn spawn_bonfire(
+    commands: &mut Commands,
+    assets: &AssetServer,
+    at: Vec3,
+    state: AppState,
+) {
     let scene = |file: &str| {
         assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/props/{file}")))
     };
     commands.spawn((
         WorldAssetRoot(scene("bonfire.glb")),
-        Transform::from_translation(BONFIRE_AT).with_scale(Vec3::splat(BONFIRE_SCALE)),
-        DespawnOnExit(AppState::InGame),
+        Transform::from_translation(at).with_scale(Vec3::splat(BONFIRE_SCALE)),
+        DespawnOnExit(state),
     ));
     commands.spawn((
         WorldAssetRoot(scene("bonfire_fire.glb")),
         BonfireFlame,
-        Transform::from_translation(BONFIRE_AT + Vec3::Y * 0.1)
-            .with_scale(Vec3::splat(BONFIRE_SCALE)),
-        DespawnOnExit(AppState::InGame),
+        Transform::from_translation(at + Vec3::Y * 0.1).with_scale(Vec3::splat(BONFIRE_SCALE)),
+        DespawnOnExit(state),
     ));
     commands.spawn((
         PointLight {
@@ -689,8 +704,8 @@ fn light_bonfire(mut commands: Commands, assets: Res<AssetServer>) {
             ..default()
         },
         BonfireFlame,
-        Transform::from_translation(BONFIRE_AT + Vec3::Y * 1.2),
-        DespawnOnExit(AppState::InGame),
+        Transform::from_translation(at + Vec3::Y * 1.2),
+        DespawnOnExit(state),
     ));
 }
 

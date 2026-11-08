@@ -107,6 +107,11 @@ pub enum Shape {
     Ball,
 }
 
+/// A village piece that has a collider. Marks the collider as village
+/// architecture for the villagers' navmesh (`features/villagers.rs`).
+#[derive(Component, Clone, Copy, Debug)]
+pub struct Building;
+
 /// How a piece collides.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Solid {
@@ -1287,6 +1292,11 @@ fn spawn_village(
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));
+        if collider.is_some() {
+            // Village architecture stays in the villagers' navmesh (see
+            // features/villagers.rs); scattered nature is excluded instead.
+            e.insert(Building);
+        }
         if piece.mat != Mat::Hidden {
             let mat = match mats.iter().find(|(m, _)| *m == piece.mat) {
                 Some((_, h)) => h.clone(),

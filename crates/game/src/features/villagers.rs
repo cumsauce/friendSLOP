@@ -8,13 +8,31 @@
 //! Only the position (updated at the AI rate) is replicated; every peer glides
 //! the body there.
 //!
+//! Once the host is in the game, it builds a navigation mesh from the world's
+//! colliders (rerecast, off the main thread) and gives every villager a
+//! `bevy_landmass` agent, so longer trips go overland between the districts:
+//! commune centre, the east village's market, the south-west maze and ruins,
+//! the forest clearing and the lake shore. Until the mesh is ready (and in
+//! headless tests, which never build one) the brain falls back to the old
+//! straight-line steering between the local spots.
+//!
 //! Clicking a villager outside hide and seek just gets a hello. A seeker who
 //! clicks one during the seeking phase is told "that's just Kevin from the
 //! commune" and is frozen for [`PENALTY_SECS`]. Now and then a villager near
 //! you mutters something (HUD toast).
 
+use std::time::Instant;
+
+use avian_rerecast::AvianBackendPlugin;
+use avian3d::prelude::{Collider, RigidBody};
 use bevy::prelude::*;
+use bevy_landmass::{
+    Agent3d, AgentDesiredVelocity3d, AgentSettings, AgentState, AgentTarget3d, Archipelago3d,
+    ArchipelagoOptions, ArchipelagoRef3d, FromAgentRadius, Landmass3dPlugin,
+};
 use bevy_replicon::prelude::*;
+use bevy_rerecast::prelude::{NavmeshGenerator, NavmeshPlugins, NavmeshReady, NavmeshSettings};
+use landmass_rerecast::{Island3dBundle, LandmassRerecastPlugin, NavMeshHandle3d};
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -32,6 +50,14 @@ pub const PENALTY_SECS: f32 = 3.0;
 const SPEED: f32 = 1.3;
 /// How far outside the arena walls villagers stay.
 const ARENA_MARGIN: f32 = 1.5;
+
+/// The villagers' body on the navmesh (handoff #94).
+const AGENT_RADIUS: f32 = 0.35;
+const AGENT_HEIGHT: f32 = 1.7;
+/// Ledges up to this height are walkable (the hut steps, the quarry terraces).
+const MAX_CLIMB: f32 = 0.5;
+/// Steeper than this and the mesh ends (the quarry walls stay out of reach).
+const MAX_SLOPE_DEGS: f32 = 40.0;
 
 pub const NAMES: [&str; COUNT] = [
     "Kevin", "Brenda", "Old Tom", "Moss", "Pip", "Gwen", "Barnaby", "Juniper", "Dot", "Hank",
@@ -56,6 +82,20 @@ const POINTS: [Vec2; 15] = [
     Vec2::new(-8.0, -24.0),
     Vec2::new(-30.0, 0.0),
     Vec2::new(10.0, 32.0),
+];
+
+/// Where the navmesh lets villagers travel to (handoff #94): one spot per
+/// district, so trips between them cross the map overland. Only picked while
+/// a villager has a landmass agent; without the mesh the brain sticks to
+/// [`POINTS`], which straight-line steering can always reach.
+const DISTRICTS: [Vec2; 7] = [
+    Vec2::new(0.0, 0.0),     // the commune's middle
+    Vec2::new(57.0, 0.0),    // the east village market (buildings::MARKET_AT)
+    Vec2::new(42.0, 12.0),   // a village street by the two-storey houses
+    Vec2::new(-64.5, 44.0),  // beside the maze's gilded statue
+    Vec2::new(-38.0, 58.0),  // the castle ruins, just inside the archway
+    Vec2::new(-28.0, -62.0), // the forest clearing (zones::FOREST_CLEARING)
+    Vec2::new(-35.0, 13.0),  // the lake's shore, dry but close
 ];
 
 /// Server -> everyone: one villager. `pos` is the feet position on the floor.
@@ -98,6 +138,18 @@ pub struct PokeVillager {
 /// Server only: villager dice.
 #[derive(Resource)]
 struct VillageRng(u64);
+
+/// Server: the villagers' navigation. Created when the host enters the game;
+/// the mesh arrives in the background a moment later.
+#[derive(Resource)]
+struct VillageNav {
+    /// The landmass archipelago every villager agent joins.
+    archipelago: Entity,
+    /// The rerecast mesh, held so it stays loaded.
+    mesh: Handle<bevy_rerecast::Navmesh>,
+    /// When the build was queued, for the ready log line.
+    started: Instant,
+}
 
 impl VillageRng {
     fn f(&mut self) -> f32 {
@@ -158,13 +210,21 @@ fn spawn_villagers(mut commands: Commands, mut rng: ResMut<VillageRng>) {
     }
 }
 
-/// Server: villager brains, ticked at `AI_HZ`.
+/// Server: villager brains, ticked at `AI_HZ`. With a landmass agent the
+/// villager walks the navmesh path to its target (and trips may cross the map
+/// to another district); without one it straight-lines it to nearby spots.
 fn think(
     time: Res<Time>,
     mut acc: Local<f32>,
     mut rng: ResMut<VillageRng>,
     still: Query<&super::stillness::Stillness>,
-    mut villagers: Query<(&mut Villager, &mut Brain)>,
+    mut villagers: Query<(
+        &mut Villager,
+        &mut Brain,
+        Option<&mut AgentTarget3d>,
+        Option<&AgentDesiredVelocity3d>,
+        Option<&AgentState>,
+    )>,
 ) {
     *acc += time.delta_secs();
     let dt = 1.0 / AI_HZ;
@@ -175,19 +235,33 @@ fn think(
     if super::stillness::is_frozen(&still) {
         return; // villagers respect the stillness too
     }
-    for (mut v, mut brain) in &mut villagers {
+    for (mut v, mut brain, agent_target, desired, state) in &mut villagers {
         if brain.wait > 0.0 {
             brain.wait -= dt;
             if brain.wait <= 0.0 {
-                // Up and off somewhere new.
-                let p = POINTS[(rng.f() * POINTS.len() as f32) as usize % POINTS.len()];
+                // Up and off somewhere new. With the navmesh, most trips are
+                // overland to another district; the rest stay local.
+                let spots: &[Vec2] = if agent_target.is_some() && rng.f() < 0.55 {
+                    &DISTRICTS
+                } else {
+                    &POINTS
+                };
+                let p = spots[(rng.f() * spots.len() as f32) as usize % spots.len()];
                 brain.target = outside_arena(p + Vec2::new(rng.f() - 0.5, rng.f() - 0.5) * 3.0);
+                if let Some(mut target) = agent_target {
+                    *target = AgentTarget3d::Point(Vec3::new(
+                        brain.target.x,
+                        crate::terrain::height_at(brain.target.x, brain.target.y),
+                        brain.target.y,
+                    ));
+                }
                 if v.sitting {
                     v.sitting = false;
                 }
             }
             continue;
         }
+        // Arrived (whichever way we walked)?
         let to = brain.target - v.pos;
         let step = SPEED * dt;
         if to.length() <= step {
@@ -196,6 +270,20 @@ fn think(
             v.sitting = rng.f() < 0.35;
             continue;
         }
+        // Follow the navmesh path while landmass is actually driving us.
+        let on_path = matches!(state, Some(AgentState::Moving));
+        if on_path && let Some(desired) = desired {
+            let dir = desired.velocity().xz();
+            let len = dir.length();
+            if len > 1e-4 {
+                let dir = dir / len;
+                v.pos = outside_arena(v.pos + dir * step);
+                v.yaw = (-dir.x).atan2(-dir.y);
+                continue;
+            }
+        }
+        // Fallback: straight-line steering (also covers NoPath and being off
+        // the mesh, and is all headless tests ever use).
         let dir = to / to.length();
         v.pos = outside_arena(v.pos + dir * step);
         v.yaw = (-dir.x).atan2(-dir.y);
@@ -287,17 +375,189 @@ fn hold_fooled(
 // ---------------------------------------------------------------- local side
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(click_villager)
-        .add_systems(
-            Update,
-            (dress_villagers, move_villagers, mutter).run_if(in_state(AppState::InGame)),
-        )
-        .add_systems(
-            Update,
-            avoid_cover
-                .run_if(in_state(ServerState::Running))
-                .run_if(in_state(AppState::InGame)),
-        );
+    app.add_plugins((
+        // Navmesh plumbing for the villagers' brains: rerecast builds the mesh
+        // from the world's avian colliders, landmass walks agents over it. The
+        // mesh is only built on the host (see `build_navmesh`).
+        NavmeshPlugins::default(),
+        AvianBackendPlugin::default(),
+        Landmass3dPlugin::default(),
+        LandmassRerecastPlugin::default(),
+    ))
+    .add_observer(on_navmesh_ready)
+    .add_observer(click_villager)
+    .add_systems(
+        Update,
+        (dress_villagers, move_villagers, mutter).run_if(in_state(AppState::InGame)),
+    )
+    .add_systems(
+        Update,
+        (tag_navmesh_exclusions, build_navmesh, attach_agents)
+            .chain()
+            .run_if(in_state(ServerState::Running))
+            .run_if(in_state(AppState::InGame)),
+    )
+    .add_systems(
+        Update,
+        avoid_cover
+            .run_if(in_state(ServerState::Running))
+            .run_if(in_state(AppState::InGame)),
+    );
+}
+
+/// Server: every scattered collider (tree trunks, rocks, fences, logs, crates,
+/// rubble) is left out of the navmesh. Small obstacles punch little holes into
+/// the walkable area, and one bad hole aborts rerecast's whole build
+/// (janhohenheim/rerecast#64) — while the big village walls and the maze, which
+/// sit on the ground, only notch the region edges and are safe. Villagers dodge
+/// the excluded props exactly like players do: the host-side `avoid_cover`
+/// sweep veers them around whatever the mesh doesn't know about.
+fn tag_navmesh_exclusions(
+    mut done: Local<bool>,
+    mut commands: Commands,
+    colliders: Query<(Entity, &RigidBody), With<Collider>>,
+    keep: Query<
+        (),
+        Or<(
+            With<crate::terrain::GroundCollider>,
+            With<crate::buildings::Building>,
+        )>,
+    >,
+) {
+    if *done {
+        return;
+    }
+    *done = true;
+    let mut tagged = 0;
+    for (entity, body) in &colliders {
+        if !body.is_static() || keep.contains(entity) {
+            continue;
+        }
+        commands
+            .entity(entity)
+            .insert(avian_rerecast::ExcludeColliderFromNavmesh);
+        tagged += 1;
+    }
+    debug!("navmesh: leaving {tagged} scattered colliders out of the mesh");
+}
+
+/// The mesh settings the host builds with (and `tests/navmesh.rs` asserts on).
+pub fn navmesh_settings() -> NavmeshSettings {
+    let mut settings = NavmeshSettings::from_agent_3d(AGENT_RADIUS, AGENT_HEIGHT);
+    settings.walkable_climb = MAX_CLIMB;
+    settings.walkable_slope_angle = MAX_SLOPE_DEGS.to_radians();
+    // The recommended 2 voxels per agent radius: coarser voxels made contour
+    // simplification fail ("invalid contour") on this 200x200 m map.
+    settings.cell_size_fraction = 2.0;
+    // rerecast's watershed partitioning gets noisy on the huge, dead-flat
+    // commune plane, and one bad simplified contour aborts the whole build
+    // (janhohenheim/rerecast#64). Keeping regions big and merging eagerly
+    // gives it fewer, simpler contours to chew.
+    settings.min_region_size = 32;
+    settings.merge_region_size = 80;
+    settings
+}
+
+/// Server, once the whole world is in and every collider that stays out of the
+/// mesh is tagged: queue the navmesh build and set up the landmass archipelago
+/// it will hang off. rerecast builds off the main thread.
+fn build_navmesh(
+    mut done: Local<bool>,
+    mut commands: Commands,
+    mut generator: NavmeshGenerator,
+    pending: Query<
+        (Entity, &RigidBody),
+        (
+            With<Collider>,
+            Without<avian_rerecast::ExcludeColliderFromNavmesh>,
+        ),
+    >,
+    keep: Query<
+        (),
+        Or<(
+            With<crate::terrain::GroundCollider>,
+            With<crate::buildings::Building>,
+        )>,
+    >,
+) {
+    if *done {
+        return;
+    }
+    // The tagging from last frame's `tag_navmesh_exclusions` must be applied
+    // before the obstacles are sampled (this frame's PostUpdate), so wait until
+    // nothing that should be tagged remains.
+    if pending
+        .iter()
+        .any(|(e, body)| body.is_static() && !keep.contains(e))
+    {
+        return;
+    }
+    *done = true;
+    let archipelago = commands
+        .spawn(Archipelago3d::new(ArchipelagoOptions::from_agent_radius(
+            AGENT_RADIUS,
+        )))
+        .id();
+    let mesh = generator.generate(navmesh_settings());
+    commands.insert_resource(VillageNav {
+        archipelago,
+        mesh,
+        started: Instant::now(),
+    });
+    info!("building the villagers' navmesh…");
+}
+
+/// Server: the mesh is built — log how long it took and hang it on an island
+/// so landmass can path over it.
+fn on_navmesh_ready(
+    ready: On<NavmeshReady>,
+    nav: Res<VillageNav>,
+    navmeshes: Res<Assets<bevy_rerecast::Navmesh>>,
+    mut commands: Commands,
+) {
+    if ready.event().0 != nav.mesh.id() {
+        return;
+    }
+    let (verts, secs) = (
+        navmeshes
+            .get(&nav.mesh)
+            .map_or(0, |m| m.polygon.vertices.len()),
+        nav.started.elapsed().as_secs_f32(),
+    );
+    info!("villager navmesh ready: {verts} vertices, built in {secs:.1}s");
+    commands.spawn(Island3dBundle {
+        island: bevy_landmass::Island,
+        archipelago_ref: ArchipelagoRef3d::new(nav.archipelago),
+        nav_mesh: NavMeshHandle3d(nav.mesh.clone()),
+    });
+}
+
+/// Server: once the archipelago exists, every villager gets a landmass agent
+/// (same radius as the mesh was built for) targeting wherever they are now.
+fn attach_agents(
+    mut commands: Commands,
+    nav: Option<Res<VillageNav>>,
+    fresh: Query<(Entity, &Villager), Without<Agent3d>>,
+) {
+    let Some(nav) = nav else {
+        return;
+    };
+    for (entity, v) in &fresh {
+        commands.entity(entity).insert((
+            Agent3d::default(),
+            AgentSettings {
+                radius: AGENT_RADIUS,
+                desired_speed: SPEED,
+                max_speed: SPEED,
+            },
+            ArchipelagoRef3d::new(nav.archipelago),
+            AgentTarget3d::Point(Vec3::new(
+                v.pos.x,
+                crate::terrain::height_at(v.pos.x, v.pos.y),
+                v.pos.y,
+            )),
+        ));
+    }
 }
 
 /// Host only (the cover colliders live in the host's scenery): after each brain
@@ -520,12 +780,37 @@ mod tests {
     #[test]
     fn points_and_pushes_stay_out_of_the_arena() {
         let half = ARENA_HALF + ARENA_MARGIN;
-        for p in POINTS {
-            let q = outside_arena(p);
-            assert_eq!(p, q, "{p} is inside the arena");
+        for p in POINTS.iter().chain(DISTRICTS.iter()) {
+            let q = outside_arena(*p);
+            assert_eq!(*p, q, "{p} is inside the arena");
         }
         let q = outside_arena(ARENA_CENTER.xz() + Vec2::new(1.0, 0.5));
         let d = q - ARENA_CENTER.xz();
         assert!(d.x.abs() >= half - 1e-4 || d.y.abs() >= half - 1e-4);
+    }
+
+    #[test]
+    fn districts_are_walkable_dry_land() {
+        for p in DISTRICTS {
+            assert!(p.x.abs() < 88.0 && p.y.abs() < 88.0, "{p} leaves the map");
+            assert!(
+                !crate::terrain::is_lake(p.x, p.y),
+                "{p} is a swim spot, not a stroll spot"
+            );
+            assert!(
+                crate::terrain::height_at(p.x, p.y) > -1.5,
+                "{p} is at the bottom of something"
+            );
+        }
+        // The lake stop in particular is on the shore, not in the water.
+        let shore = DISTRICTS[6];
+        assert!(
+            (shore - crate::terrain::LAKE_AT).length() < 13.0,
+            "{shore} isn't by the lake"
+        );
+        assert!(
+            crate::terrain::height_at(shore.x, shore.y) > 0.0,
+            "{shore} is wet"
+        );
     }
 }

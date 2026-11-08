@@ -245,7 +245,7 @@ fn speak(
     }
 }
 
-const RATE: u32 = 22_050;
+use crate::features::synth_audio::RATE;
 const SYLLABLE: f32 = 0.11;
 
 /// A babble voice: one short vowel-ish blip per syllable of `said`, pitch
@@ -277,6 +277,7 @@ pub fn voice_samples(who: Speaker, said: &str, seed: u32, rate: u32) -> Vec<f32>
             (s + 0.5 * (ph * std::f32::consts::TAU * formant).sin()) * 0.6
         });
     }
+    crate::features::synth_audio::master(&mut out, rate, 6000.0, 0.55);
     out
 }
 
@@ -287,7 +288,7 @@ fn push_tone(out: &mut Vec<f32>, rate: u32, freq: f32, secs: f32, wave: impl Fn(
         let p = i as f32 / n as f32;
         phase = (phase + freq / rate as f32).fract();
         let env = (p * 10.0).min(1.0) * ((1.0 - p) * 5.0).min(1.0);
-        out.push((wave(phase) * env * 0.45).clamp(-1.0, 1.0));
+        out.push(wave(phase) * env);
     }
 }
 

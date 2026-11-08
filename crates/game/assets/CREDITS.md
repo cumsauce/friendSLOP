@@ -41,3 +41,8 @@ textured materials yet, so these models keep their natural colours for now
 - `audio/sfx/eat.ogg` — "[apple bite](https://opengameart.org/content/apple-bite)", CC0.
 - `audio/music/catsong.ogg` — "Catsong" by **Dan Knoflicek** (uploaded to
   [OpenGameArt](https://opengameart.org/content/catsong) as CC0).
+- `audio/ambience/birds.ogg` — "[Ambient Bird Sounds](https://opengameart.org/content/ambient-bird-sounds)"
+  by isaiah658, CC0 (file: https://opengameart.org/sites/default/files/birds-isaiah658_0.ogg).
+- `audio/ambience/fire_crackle.ogg` — "[Fire Crackling](https://opengameart.org/content/fire-crackling)"
+  by AntumDeluge, CC0 (file: https://opengameart.org/sites/default/files/fire-1_0.ogg).
+- The wind bed is synthesized in code (`features/ambience.rs`), no file.

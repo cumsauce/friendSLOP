@@ -6,6 +6,7 @@
 
 use bevy::prelude::*;
 
+pub mod ambience;
 pub mod bear;
 pub mod cat_palette;
 pub mod crows;
@@ -65,6 +66,7 @@ pub struct FeaturesPlugin;
 impl Plugin for FeaturesPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(synth_audio::plugin);
+        app.add_plugins(ambience::plugin);
         app.add_plugins(organ_currency::plugin);
         app.add_plugins(crows::plugin);
         app.add_plugins(bear::plugin);

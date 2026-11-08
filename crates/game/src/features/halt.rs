@@ -300,7 +300,7 @@ fn speak_rant(
     *last = now;
 }
 
-const RATE: u32 = 22_050;
+use crate::features::synth_audio::RATE;
 
 /// A deep, buzzing machine voice: one low, square-ish blip per word.
 pub fn drone(said: &str, seed: u32, rate: u32) -> Vec<f32> {
@@ -316,13 +316,15 @@ pub fn drone(said: &str, seed: u32, rate: u32) -> Vec<f32> {
         let mut phase = 0.0f32;
         for i in 0..n {
             let p = i as f32 / n as f32;
-            phase = (phase + f / rate as f32).fract();
-            let square = if phase < 0.5 { 1.0 } else { -1.0 };
+            let inc = f / rate as f32;
+            phase = (phase + inc).fract();
+            let square = crate::features::synth_audio::square(phase, inc);
             let sub = (phase * std::f32::consts::TAU * 3.0).sin();
             let env = (p * 12.0).min(1.0) * ((1.0 - p) * 6.0).min(1.0);
-            out.push(((square * 0.5 + sub * 0.3) * env * 0.5).clamp(-1.0, 1.0));
+            out.push((square * 0.5 + sub * 0.3) * env);
         }
     }
+    crate::features::synth_audio::master(&mut out, rate, 2200.0, 0.55);
     out
 }
 

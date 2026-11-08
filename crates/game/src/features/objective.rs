@@ -1,9 +1,11 @@
 //! The goal loop: one "Objective" line, a round-end summary, and restart.
 //!
-//! The landlord storyline (#11) is the only goal with an ending so far, so the
-//! objective follows it. The server mirrors the `Tenancy` act and progress into
-//! a replicated `Objective`. When the landlord is defeated the round is over:
-//! everyone sees a summary and anyone can press Enter to ask for a restart.
+//! The landlord storyline (#11) is the spine of the shared goal, and since #75
+//! each round is one chapter of the campaign (`campaign.rs`). The server mirrors
+//! the `Tenancy` act and progress into a replicated `Objective`. When the
+//! chapter's checklist is done (which always includes beating the landlord)
+//! the round is over: everyone sees a summary and anyone can press Enter to
+//! start the next chapter.
 //!
 //! Restarting triggers a server-side [`RoundReset`] event. Each feature that
 //! has per-round state observes it and resets itself (landlord, HALT, gods
@@ -15,6 +17,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::features::campaign::{CHAPTERS, Campaign, ending, goal_line};
 use crate::features::halt::Halt;
 use crate::features::landlord::{Act3, HEISTS_BEFORE_BOSS, RAISES_BEFORE_CRIME, Tenancy};
 
@@ -26,7 +29,7 @@ pub struct Objective {
     pub act: Act3,
     /// 0..=100 through the current act.
     pub progress: u8,
-    /// The landlord is defeated and the round is waiting for a restart.
+    /// The chapter is done and the round is waiting for a restart.
     pub over: bool,
 }
 
@@ -71,15 +74,24 @@ pub fn act_progress(t: &Tenancy) -> u8 {
     (frac.clamp(0.0, 1.0) * 100.0).round() as u8
 }
 
-fn track_objective(tenancy: Query<&Tenancy>, mut objective: Query<&mut Objective>) {
+fn track_objective(
+    tenancy: Query<&Tenancy>,
+    campaign: Query<&Campaign>,
+    mut objective: Query<&mut Objective>,
+) {
     let (Ok(t), Ok(mut o)) = (tenancy.single(), objective.single_mut()) else {
         return;
+    };
+    // Without a campaign (tests that leave it out), beating the landlord ends it.
+    let over = match campaign.single() {
+        Ok(c) => c.complete(),
+        Err(_) => t.act == Act3::Won,
     };
     let next = Objective {
         round: o.round,
         act: t.act,
         progress: act_progress(t),
-        over: t.act == Act3::Won,
+        over,
     };
     if *o != next {
         *o = next;
@@ -131,10 +143,14 @@ struct ObjectiveText;
 struct RoundSummary;
 
 fn spawn_objective_ui(mut commands: Commands) {
+    // The goal line (#75: "make it really obvious"): big, gold, at the very top.
     commands.spawn((
         Text::new(""),
         ObjectiveText,
+        TextFont::from_font_size(20.0),
+        TextColor(crate::hud::ACCENT),
         crate::hud::slot(crate::hud::HudSlot::TopCenter),
+        crate::hud::First,
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -149,6 +165,7 @@ fn spawn_objective_ui(mut commands: Commands) {
 
 fn show_objective(
     objective: Query<&Objective>,
+    campaign: Query<&Campaign>,
     halt: Query<&Halt>,
     tenancy: Query<&Tenancy>,
     mut line: Query<&mut Text, (With<ObjectiveText>, Without<RoundSummary>)>,
@@ -157,7 +174,10 @@ fn show_objective(
     let Ok(o) = objective.single() else {
         return;
     };
-    let text = objective_line(o);
+    let text = match campaign.single() {
+        Ok(c) => goal_line(c),
+        Err(_) => objective_line(o),
+    };
     for mut t in &mut line {
         if t.0 != text {
             t.0.clone_from(&text);
@@ -179,13 +199,29 @@ fn show_objective(
     }
     let escapes = halt.single().map(|h| h.escapes).unwrap_or(0);
     let rent = tenancy.single().map(|t| t.rent).unwrap_or(0);
-    let text = format!(
-        "Round {} over: the landlord is defeated!\n\
-         Final rent demanded: {rent}\n\
-         Times you broke out of HALT: {escapes}\n\n\
-         Press [Enter] to start a new round",
-        o.round
+    let stats = format!(
+        "Final rent demanded: {rent}\n\
+         Times you broke out of HALT: {escapes}"
     );
+    let text = match campaign.single() {
+        Ok(c) if c.finale() => format!("{}\n\n{stats}", ending()),
+        Ok(c) => {
+            let next = &CHAPTERS[(c.chapter + 1) % CHAPTERS.len()];
+            format!(
+                "CHAPTER {} COMPLETE: {}!\n{stats}\n\n\
+                 Press [Enter] to start Chapter {}: {}",
+                c.chapter + 1,
+                c.current().name,
+                c.chapter + 2,
+                next.name
+            )
+        }
+        Err(_) => format!(
+            "Round {} over: the landlord is defeated!\n{stats}\n\n\
+             Press [Enter] to start a new round",
+            o.round
+        ),
+    };
     if t.0 != text {
         t.0 = text;
     }

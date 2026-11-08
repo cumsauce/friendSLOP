@@ -15,6 +15,7 @@ pub mod goat;
 pub mod morality;
 pub mod mushroom;
 pub mod organ_currency;
+pub mod stillness;
 pub mod voice_lines;
 
 pub struct FeaturesProtocolPlugin;
@@ -32,6 +33,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(morality::protocol);
         app.add_plugins(goat::protocol);
         app.add_plugins(voice_lines::protocol);
+        app.add_plugins(stillness::protocol);
     }
 }
 
@@ -49,5 +51,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(morality::plugin);
         app.add_plugins(goat::plugin);
         app.add_plugins(voice_lines::plugin);
+        app.add_plugins(stillness::plugin);
     }
 }

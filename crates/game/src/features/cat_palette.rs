@@ -1,0 +1,113 @@
+//! The whole world is painted in a bright, cheery cartoon-MMO palette, but only in
+//! colours cats can see. From issue #12 by just meat and cheese.
+//!
+//! Cats are dichromats: they see blues and yellows but can't tell red from green.
+//! Every `StandardMaterial` is passed through a cat-vision filter once when it is
+//! created (red-green collapsed), then "popped" (lighter, more saturated) so it
+//! reads like a bright storybook MMO. The sky is a cat-visible bright blue.
+//! Purely local visuals, so nothing is replicated.
+
+use bevy::prelude::*;
+
+/// Bright storybook sky, before the cat filter.
+const SKY: Color = Color::srgb(0.55, 0.8, 1.0);
+
+/// Registered on every peer. Nothing to replicate: colours are local.
+pub fn protocol(_app: &mut App) {}
+
+pub fn plugin(app: &mut App) {
+    app.insert_resource(ClearColor(cat_palette(SKY)))
+        .add_systems(Update, paint_new_materials);
+}
+
+/// Viénot et al. (1999) dichromat (deuteranope) simulation in linear RGB. Rows 1 and 2
+/// are equal, so red and green become indistinguishable, like for a cat.
+fn cat_vision(c: LinearRgba) -> LinearRgba {
+    let r = 0.290_31 * c.red + 0.709_69 * c.green;
+    let b = -0.021_97 * c.red + 0.021_97 * c.green + c.blue;
+    LinearRgba::new(r, r, b.clamp(0.0, 1.0), c.alpha)
+}
+
+/// Cat vision plus a bright, saturated cartoon look: shadows lifted, colours pushed.
+pub fn cat_palette(color: Color) -> Color {
+    let seen = cat_vision(color.to_linear());
+    let mut lch = Oklcha::from(seen);
+    lch.lightness = 0.25 + 0.75 * lch.lightness;
+    lch.chroma = (lch.chroma * 1.5).min(0.25);
+    let s = Srgba::from(lch);
+    Color::Srgba(Srgba::new(
+        s.red.clamp(0.0, 1.0),
+        s.green.clamp(0.0, 1.0),
+        s.blue.clamp(0.0, 1.0),
+        s.alpha,
+    ))
+}
+
+/// Repaint each material once, right after it is added. Our own edit fires
+/// `Modified`, which we ignore, so nothing is filtered twice.
+fn paint_new_materials(
+    mut events: MessageReader<AssetEvent<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for event in events.read() {
+        let AssetEvent::Added { id } = event else {
+            continue;
+        };
+        let Some(mut mat) = materials.get_mut(*id) else {
+            continue;
+        };
+        mat.base_color = cat_palette(mat.base_color);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn red_green_gap(c: Color) -> f32 {
+        let s = c.to_srgba();
+        (s.red - s.green).abs()
+    }
+
+    #[test]
+    fn red_and_green_look_alike_to_cats() {
+        for c in [
+            Color::srgb(1.0, 0.0, 0.0),
+            Color::srgb(0.0, 1.0, 0.0),
+            Color::srgb(0.85, 0.12, 0.15),
+            Color::srgb(0.35, 0.5, 0.35),
+        ] {
+            let out = cat_palette(c);
+            assert!(red_green_gap(out) < 0.1, "{c:?} -> {out:?}");
+        }
+    }
+
+    #[test]
+    fn blue_stays_blue_and_black_is_lifted() {
+        let blue = cat_palette(Color::srgb(0.1, 0.2, 1.0)).to_srgba();
+        assert!(blue.blue > blue.red + 0.3, "{blue:?}");
+        let black = cat_palette(Color::BLACK).to_srgba();
+        assert!(black.red > 0.05, "shadows should be lifted: {black:?}");
+    }
+
+    #[test]
+    fn new_materials_get_painted_once() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .init_asset::<StandardMaterial>()
+            .add_systems(Update, paint_new_materials);
+        let red = Color::srgb(1.0, 0.0, 0.0);
+        let handle = app
+            .world_mut()
+            .resource_mut::<Assets<StandardMaterial>>()
+            .add(red);
+        for _ in 0..4 {
+            app.update();
+        }
+        let mats = app.world().resource::<Assets<StandardMaterial>>();
+        let Some(mat) = mats.get(&handle) else {
+            panic!("material missing");
+        };
+        assert_eq!(mat.base_color, cat_palette(red));
+    }
+}

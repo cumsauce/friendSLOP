@@ -28,6 +28,10 @@ asked for, and what nobody has decided yet.
   to eat it (there are no player bodies yet, so clicking is how you "find" it). Your own voice
   then becomes much higher (1.5-1.9x) or much lower (0.55-0.7x) at random for 45 seconds, run
   through a small pitch-shifter so everyone hears it. A new mushroom grows elsewhere 10 s later.
+- **Cat-vision palette** (#12). Everything is shown in a bright, cheery storybook-MMO palette, but
+  only in colours cats can see: blues and yellows, no red-green difference. Every material is
+  run through a cat-vision filter (then lightened and saturated), and the sky is bright blue. So
+  the "red" mushroom and the green floor both look yellowish to us, like they would to a cat.
 
 ## Ideas so far
 
@@ -37,6 +41,7 @@ asked for, and what nobody has decided yet.
 - corvy (#2): cute crows that caw occasionally.
 - arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
 - corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
+- just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
 
 ## Open questions
 

@@ -59,6 +59,14 @@ asked for, and what nobody has decided yet.
   colliders. Landmarks (centre, arena, parliament, bonfire, vault, landlord, totems, animal homes)
   stay clear, and the strip between the default camera and the centre only gets low cover.
   Everything sits within ±22.5 m on flat y=0.
+- A bigger world (feedback: "more scale ... so its not just one little area"): the walkable area
+  is ±90 m (was ±25), with a soft wall at ±88 and hills rising beyond it (`terrain.rs`). The
+  commune square (±25 m) and the east village district (x 35..80, z -35..35) are dead flat; the
+  north forest (z < -35) rolls gently; the west valley has a climbable 12 m hill at (-62, -6), a
+  ridge along the far edge and a lake at (-44, 20); the south-west ruins (x -80..-30, z 30..85)
+  are nearly flat with a 5 m quarry pit at (-55, 65). Dirt paths run from the centre to every
+  district. The ground is 64 chunked meshes plus a heightfield collider; bodies follow
+  `terrain::height_at` up and down slopes. Walk 5 m/s, Shift runs at 10.5 m/s.
 - A floor dressed with low-poly nature (trees, bushes, grass, flowers, pebbles), a campfire
   burning beside the burnt parliament (stone ring, glowing embers, four log seats), a pond with
   ripples, lily pads, reeds and cattails, rocks, a little jetty with a lantern and two ducks

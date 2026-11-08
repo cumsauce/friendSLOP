@@ -15,8 +15,8 @@ use crate::features::duel::Duelist;
 use crate::player::LocalPlayer;
 use crate::world::MainCamera;
 
-/// Half the floor size (the floor is 50 m square).
-pub const FLOOR_HALF: f32 = 25.0;
+/// Half the walkable world (the play area is 180 m square, see terrain.rs).
+pub const FLOOR_HALF: f32 = crate::terrain::PLAY_HALF;
 /// How close to the floor edge the focus may go.
 const EDGE_MARGIN: f32 = 2.0;
 /// Pan speed in metres per second at the default zoom.
@@ -57,6 +57,7 @@ impl CameraRig {
         let lim = FLOOR_HALF - EDGE_MARGIN;
         self.focus.x = (self.focus.x + delta.x).clamp(-lim, lim);
         self.focus.z = (self.focus.z + delta.y).clamp(-lim, lim);
+        self.focus.y = crate::terrain::height_at(self.focus.x, self.focus.z);
     }
 
     /// Zoom in (positive) or out (negative) by scroll lines.

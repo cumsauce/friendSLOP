@@ -1,10 +1,13 @@
-//! The ground: one generated, vertex-coloured mesh. The 50×50 play square is
-//! dead flat (y = 0) so gameplay and physics are unchanged; beyond it gentle
-//! hills rise and fade into the haze. Worn dirt paths link the centre, the
-//! duel arena, the parliament ruins and the campfire, and a small pond sits
-//! in the meadow. Fully deterministic, so every peer sees the same ground.
+//! The ground: a generated, vertex-coloured, chunked mesh over a 180 m play
+//! area (±90 m) with hills beyond it. The 50×50 commune square at the centre
+//! and the east village district are dead flat (y = 0); the north forest
+//! rolls gently, the west valley has a climbable 12 m hill, a ridge and a
+//! lake, and the south-west ruins have a sunken quarry pit. Worn dirt paths
+//! link the commune's landmarks and run out to every district. Fully
+//! deterministic, so every peer sees the same ground.
 //!
-//! Scenery can ask [`height_at`], [`is_path`] and [`is_pond`] where to put things.
+//! Scenery can ask [`height_at`], [`is_path`], [`is_pond`] and [`is_lake`]
+//! where to put things.
 
 use avian3d::prelude::*;
 use bevy::asset::RenderAssetUsages;
@@ -26,33 +29,68 @@ impl Plugin for TerrainPlugin {
     }
 }
 
-/// Half the side of the flat play square (matches the old 50×50 floor).
+/// Half the side of the flat commune square at the centre.
 pub const FLAT_HALF: f32 = 25.0;
-/// Half the side of the whole generated ground.
-const WORLD_HALF: f32 = 70.0;
-/// Grid resolution of the render mesh (cells per side): ~0.8 m cells, 31k verts.
-const CELLS: u32 = 176;
-/// Coarser grid for the hill collider.
-const COLLIDER_CELLS: u32 = 56;
+/// Half the side of the walkable world (the soft wall is a little inside it).
+pub const PLAY_HALF: f32 = 90.0;
+/// Half the side of the whole generated ground (edge hills beyond the play area).
+const WORLD_HALF: f32 = 110.0;
+/// The ground is split into CHUNKS × CHUNKS meshes so off-screen parts are culled.
+const CHUNKS: u32 = 8;
+/// Cells per chunk side: ~1.06 m cells, ~47k vertices for the whole ground.
+const CHUNK_CELLS: u32 = 26;
+/// Heightfield collider spacing (cells per side): 2 m.
+const COLLIDER_CELLS: usize = 110;
 
 /// Where the pond sits and how big it is (in open meadow, off every path).
 pub const POND_AT: Vec2 = Vec2::new(13.0, 9.0);
 const POND_RADIUS: f32 = 3.2;
 
+/// The east village district: dead flat so houses can stand anywhere in it.
+pub const VILLAGE_MIN: Vec2 = Vec2::new(35.0, -35.0);
+pub const VILLAGE_MAX: Vec2 = Vec2::new(80.0, 35.0);
+
+/// The west valley: a climbable hill, a ridge along the edge and a lake.
+pub const HILL_AT: Vec2 = Vec2::new(-62.0, -6.0);
+const HILL_HEIGHT: f32 = 12.0;
+const HILL_RADIUS: f32 = 24.0;
+pub const LAKE_AT: Vec2 = Vec2::new(-44.0, 20.0);
+const LAKE_RADIUS: f32 = 7.0;
+/// Height of the lake's water surface.
+pub const LAKE_LEVEL: f32 = -0.35;
+const LAKE_BED: f32 = -1.6;
+
+/// The sunken quarry pit in the south-west ruins.
+pub const QUARRY_AT: Vec2 = Vec2::new(-55.0, 65.0);
+const QUARRY_RADIUS: f32 = 12.0;
+const QUARRY_DEPTH: f32 = 5.0;
+
 /// Where the campfire burns (mirrors scenery.rs).
 const BONFIRE_AT: Vec2 = Vec2::new(PARLIAMENT_AT.x + 3.5, PARLIAMENT_AT.y + 8.5);
 
-/// Path segments between landmarks.
-fn paths() -> [(Vec2, Vec2); 4] {
+/// Path segments between landmarks and out to every district.
+fn paths() -> [(Vec2, Vec2); 12] {
     let arena = ARENA_CENTER.xz();
+    let v = Vec2::new;
     [
         (Vec2::ZERO, arena),
         (Vec2::ZERO, BONFIRE_AT),
         (BONFIRE_AT, PARLIAMENT_AT),
         (Vec2::ZERO, POND_AT),
+        // East, to the village.
+        (Vec2::ZERO, v(40.0, 0.0)),
+        // North, into the forest.
+        (arena, v(-4.0, -40.0)),
+        (v(-4.0, -40.0), v(3.0, -72.0)),
+        // West: along the valley floor to the lake, and up the hill.
+        (BONFIRE_AT, v(-36.0, 2.0)),
+        (v(-36.0, 2.0), v(-41.0, 10.0)),
+        (v(-36.0, 2.0), HILL_AT + v(6.0, 0.0)),
+        // South-west, to the ruins and quarry.
+        (v(-3.0, 5.0), v(-32.0, 34.0)),
+        (v(-32.0, 34.0), v(-44.0, 52.0)),
     ]
 }
-
 fn smoothstep(e0: f32, e1: f32, x: f32) -> f32 {
     let t = ((x - e0) / (e1 - e0)).clamp(0.0, 1.0);
     t * t * (3.0 - 2.0 * t)
@@ -102,15 +140,64 @@ pub fn is_pond(x: f32, z: f32) -> bool {
     Vec2::new(x, z).distance(POND_AT) < POND_RADIUS + 0.6
 }
 
-/// Ground height. Exactly 0 inside the flat play square.
+/// Is this point in (or right at the edge of) the west valley's lake?
+pub fn is_lake(x: f32, z: f32) -> bool {
+    Vec2::new(x, z).distance(LAKE_AT) < LAKE_RADIUS + 4.0 && height_at(x, z) < LAKE_LEVEL + 0.25
+}
+
+/// 1 inside the rectangle, fading to 0 over `soft` metres outside it.
+fn rect_mask(p: Vec2, min: Vec2, max: Vec2, soft: f32) -> f32 {
+    let d = (min.x - p.x)
+        .max(p.x - max.x)
+        .max(min.y - p.y)
+        .max(p.y - max.y);
+    1.0 - smoothstep(0.0, soft, d)
+}
+
+/// Ground height. Exactly 0 in the central commune square (±25 m) and the
+/// east village; rolling everywhere else, with the west hill, the lake, the
+/// quarry pit and hills rising beyond the edge of the world.
 pub fn height_at(x: f32, z: f32) -> f32 {
+    let p = Vec2::new(x, z);
     let edge = x.abs().max(z.abs());
-    let rise = smoothstep(FLAT_HALF, FLAT_HALF + 18.0, edge);
-    if rise <= 0.0 {
-        return 0.0;
+    let centre = 1.0 - smoothstep(FLAT_HALF, FLAT_HALF + 8.0, edge);
+    let village = rect_mask(p, VILLAGE_MIN, VILLAGE_MAX, 7.0);
+    let flat = centre.max(village);
+    // Beyond the play area: hills that hide the edge of the world.
+    let rim = smoothstep(80.0, WORLD_HALF, edge) * (10.0 + fbm(x * 0.04, z * 0.04, 3) * 8.0);
+    if flat >= 1.0 {
+        return rim;
     }
-    let hills = fbm(x * 0.05, z * 0.05, 11) * 4.5 + fbm(x * 0.13, z * 0.13, 23) * 1.5;
-    rise * (hills + rise * 3.0)
+    // Meadow undulation (never below 0, so only the lake and quarry dip).
+    let mut h = fbm(x * 0.03, z * 0.03, 11) * 1.8 + fbm(x * 0.11, z * 0.11, 23) * 0.4;
+    // North forest: gentle rolling ground.
+    let forest = smoothstep(-30.0, -42.0, z);
+    h += forest * (fbm(x * 0.05, z * 0.05, 47) - 0.3) * 4.0;
+    // South-west ruins: mostly flat.
+    let ruins = rect_mask(p, Vec2::new(-80.0, 30.0), Vec2::new(-30.0, 85.0), 8.0);
+    h *= 1.0 - ruins * 0.8;
+    // West valley: a real hill and a ridge along the far edge.
+    let west = rect_mask(p, Vec2::new(-88.0, -32.0), Vec2::new(-35.0, 32.0), 10.0);
+    let t = p.distance(HILL_AT) / HILL_RADIUS;
+    let hill = HILL_HEIGHT * (1.0 - smoothstep(0.0, 1.0, t));
+    let ridge = 7.0 * smoothstep(-68.0, -84.0, x) * (0.8 + fbm(z * 0.08, 5.0, 53) * 0.4);
+    h += west * (hill + ridge);
+    h *= 1.0 - flat;
+    // The lake: a smooth bowl below the water line.
+    let ld = p.distance(LAKE_AT) + (noise(x * 0.3, z * 0.3, 71) - 0.5) * 1.5;
+    h = h + (LAKE_BED - h) * (1.0 - smoothstep(LAKE_RADIUS - 2.0, LAKE_RADIUS + 3.5, ld));
+    // The quarry: a pit with steep, walkable sides and a flat floor.
+    let qd = p.distance(QUARRY_AT) + (noise(x * 0.2, z * 0.2, 89) - 0.5) * 1.5;
+    h -= QUARRY_DEPTH * (1.0 - smoothstep(QUARRY_RADIUS - 9.0, QUARRY_RADIUS + 1.0, qd));
+    h + rim
+}
+
+/// Ground normal from the height function (smooth across chunk seams).
+fn normal_at(x: f32, z: f32) -> Vec3 {
+    let e = 0.5;
+    let dx = height_at(x + e, z) - height_at(x - e, z);
+    let dz = height_at(x, z + e) - height_at(x, z - e);
+    Vec3::new(-dx, 2.0 * e, -dz).normalize()
 }
 
 /// Ground colour before the cat palette (pre-filter sRGB).
@@ -151,6 +238,18 @@ fn ground_rgb(x: f32, z: f32, h: f32) -> Vec3 {
         Vec3::new(0.12, 0.18, 0.16),
         1.0 - smoothstep(POND_RADIUS - 1.2, POND_RADIUS, pd),
     );
+    // Lake: muddy shore, dark bed (by depth, so it follows the real shoreline).
+    let near_lake = 1.0 - smoothstep(LAKE_RADIUS + 1.0, LAKE_RADIUS + 4.0, p.distance(LAKE_AT));
+    let shore = near_lake * smoothstep(LAKE_LEVEL + 0.8, LAKE_LEVEL, h);
+    c = c.lerp(Vec3::new(0.35, 0.30, 0.2), shore);
+    c = c.lerp(
+        Vec3::new(0.12, 0.18, 0.16),
+        smoothstep(LAKE_LEVEL - 0.1, LAKE_LEVEL - 0.6, h),
+    );
+    // Quarry: pale, dusty stone in the pit.
+    let in_pit = 1.0 - smoothstep(QUARRY_RADIUS, QUARRY_RADIUS + 3.0, p.distance(QUARRY_AT));
+    let pit = smoothstep(-0.6, -2.5, h) * in_pit;
+    c = c.lerp(Vec3::new(0.72, 0.66, 0.58) * (0.85 + speck * 0.3), pit);
     // Darker, worn ground around the campfire.
     let fire = 1.0 - smoothstep(1.0, 3.0, p.distance(BONFIRE_AT));
     c = c.lerp(Vec3::new(0.25, 0.22, 0.18), fire * 0.8);
@@ -175,7 +274,11 @@ fn ground_color(x: f32, z: f32, h: f32) -> [f32; 4] {
 fn tuft_blocked(x: f32, z: f32) -> bool {
     let a = ARENA_CENTER.xz();
     let in_arena = (x - a.x).abs() < ARENA_HALF + 0.6 && (z - a.y).abs() < ARENA_HALF + 0.6;
-    in_arena || is_pond(x, z) || path_amount(Vec2::new(x, z)) > 0.5
+    in_arena
+        || is_pond(x, z)
+        || path_amount(Vec2::new(x, z)) > 0.5
+        || (Vec2::new(x, z).distance(LAKE_AT) < LAKE_RADIUS + 4.0
+            && height_at(x, z) < LAKE_LEVEL + 0.15)
 }
 
 /// Push one coloured triangle (colours are pre-filter sRGB).
@@ -193,21 +296,23 @@ const PETALS: [Vec3; 4] = [
     Vec3::new(0.7, 0.5, 1.0),
 ];
 
-/// Dense little grass tufts and flowers as ONE merged, vertex-coloured mesh,
-/// built once. Each tuft is two soft, leaf-shaped blades; flowers are tiny diamonds
-/// on a stem.
-pub(crate) fn build_tufts() -> Mesh {
+/// Dense little grass tufts and flowers over a square region as ONE merged,
+/// vertex-coloured mesh, built once. Each tuft is two soft, leaf-shaped
+/// blades; flowers are tiny diamonds on a stem. Tufts thin out away from the
+/// centre (and stop at the edge of the play area) to keep the vertex count sane.
+fn tufts_in(min: Vec2, size: f32) -> Mesh {
     const STEP: f32 = 0.55;
-    const REACH: f32 = 40.0;
     let mut pos: Vec<[f32; 3]> = Vec::new();
     let mut col: Vec<[f32; 4]> = Vec::new();
-    let n = (REACH * 2.0 / STEP) as i32;
-    for j in 0..n {
-        for i in 0..n {
+    // Global grid indices, so the hash (and so the tufts) don't depend on chunking.
+    let cell = |v: f32| ((v + WORLD_HALF) / STEP).ceil() as i32;
+    for j in cell(min.y)..cell(min.y + size) {
+        for i in cell(min.x)..cell(min.x + size) {
             let r = |s: u32| art::hash(i, j, s);
-            let x = -REACH + (i as f32 + r(1)) * STEP;
-            let z = -REACH + (j as f32 + r(2)) * STEP;
-            if tuft_blocked(x, z) {
+            let x = -WORLD_HALF + (i as f32 + r(1)) * STEP;
+            let z = -WORLD_HALF + (j as f32 + r(2)) * STEP;
+            let edge = x.abs().max(z.abs());
+            if edge > PLAY_HALF || tuft_blocked(x, z) {
                 continue;
             }
             // Clumpy density: thick in places, bare in others.
@@ -215,7 +320,10 @@ pub(crate) fn build_tufts() -> Mesh {
             let clover = clover_amount(x, z);
             // Sparser right around the spawn, where the camera starts close.
             let near_spawn = (Vec2::new(x, z).distance(Vec2::new(0.0, 11.0)) / 7.0).min(1.0);
-            if r(3) > (dense * 1.1 + clover * 0.3 - 0.1) * (0.35 + 0.65 * near_spawn) * 0.55 {
+            // And thinner far out, where you only see it from a distance.
+            let far = 1.0 - 0.72 * smoothstep(28.0, 55.0, edge);
+            let keep = (dense * 1.1 + clover * 0.3 - 0.1) * (0.35 + 0.65 * near_spawn) * 0.55 * far;
+            if r(3) > keep {
                 continue;
             }
             let y = height_at(x, z);
@@ -270,16 +378,23 @@ pub(crate) fn build_tufts() -> Mesh {
     .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, col)
 }
 
-/// Builds a grid over the whole ground; returns positions and triangle indices.
-fn grid(cells: u32) -> (Vec<[f32; 3]>, Vec<u32>) {
+/// Grass around the commune (the menu backdrop uses this).
+pub(crate) fn build_tufts() -> Mesh {
+    tufts_in(Vec2::splat(-40.0), 80.0)
+}
+
+/// A vertex-coloured ground mesh over a square region, `cells` per side.
+fn ground_in(min: Vec2, size: f32, cells: u32) -> Mesh {
     let n = cells + 1;
-    let step = WORLD_HALF * 2.0 / cells as f32;
+    let step = size / cells as f32;
     let mut pos = Vec::with_capacity((n * n) as usize);
+    let mut nrm = Vec::with_capacity((n * n) as usize);
     for j in 0..n {
         for i in 0..n {
-            let x = -WORLD_HALF + i as f32 * step;
-            let z = -WORLD_HALF + j as f32 * step;
+            let x = min.x + i as f32 * step;
+            let z = min.y + j as f32 * step;
             pos.push([x, height_at(x, z), z]);
+            nrm.push(normal_at(x, z).to_array());
         }
     }
     let mut idx = Vec::with_capacity((cells * cells * 6) as usize);
@@ -290,25 +405,53 @@ fn grid(cells: u32) -> (Vec<[f32; 3]>, Vec<u32>) {
             idx.extend_from_slice(&[a, c, b, b, c, d]);
         }
     }
-    (pos, idx)
-}
-
-pub(crate) fn build_mesh() -> Mesh {
-    let (pos, idx) = grid(CELLS);
     let colors: Vec<[f32; 4]> = pos.iter().map(|p| ground_color(p[0], p[2], p[1])).collect();
     // Tile the greyscale grass texture every 5 m.
     let uvs: Vec<[f32; 2]> = pos.iter().map(|p| [p[0] / 5.0, p[2] / 5.0]).collect();
-    let mut mesh = Mesh::new(
+    Mesh::new(
         PrimitiveTopology::TriangleList,
         RenderAssetUsages::default(),
     )
     .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, nrm)
     .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uvs)
     .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, colors)
-    .with_inserted_indices(Indices::U32(idx));
-    mesh.compute_smooth_normals();
-    mesh
+    .with_inserted_indices(Indices::U32(idx))
 }
+
+/// Ground around the commune (the menu backdrop uses this).
+pub(crate) fn build_mesh() -> Mesh {
+    ground_in(Vec2::splat(-70.0), 140.0, 140)
+}
+
+/// The north-west corner and side length of every ground chunk.
+fn chunks() -> impl Iterator<Item = (Vec2, f32)> {
+    let size = WORLD_HALF * 2.0 / CHUNKS as f32;
+    (0..CHUNKS * CHUNKS).map(move |k| {
+        let (i, j) = ((k % CHUNKS) as f32, (k / CHUNKS) as f32);
+        (
+            Vec2::new(-WORLD_HALF + i * size, -WORLD_HALF + j * size),
+            size,
+        )
+    })
+}
+
+/// The ground's physics shape: one heightfield sampled from [`height_at`].
+pub fn ground_collider() -> Collider {
+    let n = COLLIDER_CELLS + 1;
+    let step = WORLD_HALF * 2.0 / COLLIDER_CELLS as f32;
+    let at = |k: usize| -WORLD_HALF + k as f32 * step;
+    // Rows run along X, columns along Z, centred on the origin.
+    let heights = (0..n)
+        .map(|i| (0..n).map(|j| height_at(at(i), at(j))).collect())
+        .collect();
+    Collider::heightfield(heights, Vec3::new(WORLD_HALF * 2.0, 1.0, WORLD_HALF * 2.0))
+}
+
+/// Marks the ground's collider. Walkers follow [`height_at`] instead of
+/// bumping into it.
+#[derive(Component, Debug)]
+pub struct GroundCollider;
 
 fn spawn_terrain(
     mut commands: Commands,
@@ -316,61 +459,69 @@ fn spawn_terrain(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
 ) {
+    let ground = materials.add(StandardMaterial {
+        base_color: Color::WHITE,
+        base_color_texture: Some(art::grass_texture(&mut images)),
+        perceptual_roughness: 0.95,
+        reflectance: 0.12,
+        ..default()
+    });
+    let grass = materials.add(StandardMaterial {
+        base_color: Color::WHITE,
+        perceptual_roughness: 0.9,
+        reflectance: 0.1,
+        double_sided: true,
+        cull_mode: None,
+        ..default()
+    });
+    // Ground and grass in chunks, built once, so off-screen chunks are culled.
+    for (min, size) in chunks() {
+        commands.spawn((
+            Name::new("Ground"),
+            Mesh3d(meshes.add(ground_in(min, size, CHUNK_CELLS))),
+            MeshMaterial3d(ground.clone()),
+            DespawnOnExit(AppState::InGame),
+        ));
+        let tufts = tufts_in(min, size);
+        if tufts.count_vertices() > 0 {
+            commands.spawn((
+                Name::new("Grass tufts"),
+                Mesh3d(meshes.add(tufts)),
+                MeshMaterial3d(grass.clone()),
+                NotShadowCaster,
+                DespawnOnExit(AppState::InGame),
+            ));
+        }
+    }
     commands.spawn((
-        Name::new("Ground"),
-        Mesh3d(meshes.add(build_mesh())),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::WHITE,
-            base_color_texture: Some(art::grass_texture(&mut images)),
-            perceptual_roughness: 0.95,
-            reflectance: 0.12,
-            ..default()
-        })),
-        DespawnOnExit(AppState::InGame),
-    ));
-    // Grass tufts and flowers: one static mesh, no shadows.
-    commands.spawn((
-        Name::new("Grass tufts"),
-        Mesh3d(meshes.add(build_tufts())),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::WHITE,
-            perceptual_roughness: 0.9,
-            reflectance: 0.1,
-            double_sided: true,
-            cull_mode: None,
-            ..default()
-        })),
-        NotShadowCaster,
-        DespawnOnExit(AppState::InGame),
-    ));
-    // Flat play square: same collider as the old floor.
-    commands.spawn((
+        Name::new("Ground collider"),
         RigidBody::Static,
-        Collider::cuboid(FLAT_HALF * 2.0, 0.1, FLAT_HALF * 2.0),
+        ground_collider(),
+        GroundCollider,
         DespawnOnExit(AppState::InGame),
     ));
-    // Hills: coarse trimesh (built once).
-    let (pos, idx) = grid(COLLIDER_CELLS);
-    let verts = pos.into_iter().map(Vec3::from).collect();
-    let tris: Vec<[u32; 3]> = idx.as_chunks::<3>().0.to_vec();
-    commands.spawn((
-        RigidBody::Static,
-        Collider::trimesh(verts, tris),
-        DespawnOnExit(AppState::InGame),
-    ));
+    let water = StandardMaterial {
+        base_color: Color::srgba(0.3, 0.55, 0.65, 0.7),
+        alpha_mode: AlphaMode::Blend,
+        perceptual_roughness: 0.08,
+        reflectance: 0.6,
+        ..default()
+    };
+    let flat = Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2);
     // Pond surface: a translucent disc just above the dark bed.
     commands.spawn((
         Name::new("Pond"),
         Mesh3d(meshes.add(Circle::new(POND_RADIUS + 0.2).mesh().resolution(40))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::srgba(0.3, 0.55, 0.65, 0.7),
-            alpha_mode: AlphaMode::Blend,
-            perceptual_roughness: 0.08,
-            reflectance: 0.6,
-            ..default()
-        })),
-        Transform::from_xyz(POND_AT.x, 0.03, POND_AT.y)
-            .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+        MeshMaterial3d(materials.add(water.clone())),
+        Transform::from_xyz(POND_AT.x, 0.03, POND_AT.y).with_rotation(flat),
+        DespawnOnExit(AppState::InGame),
+    ));
+    // Lake surface: a bigger disc; the shore rises above it all round.
+    commands.spawn((
+        Name::new("Lake"),
+        Mesh3d(meshes.add(Circle::new(LAKE_RADIUS + 4.0).mesh().resolution(64))),
+        MeshMaterial3d(materials.add(water)),
+        Transform::from_xyz(LAKE_AT.x, LAKE_LEVEL, LAKE_AT.y).with_rotation(flat),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -380,25 +531,88 @@ mod tests {
     use super::*;
 
     #[test]
-    fn play_area_is_flat() {
+    fn commune_and_village_are_flat() {
         for i in -25..=25 {
             for j in -25..=25 {
                 assert_eq!(height_at(i as f32, j as f32), 0.0);
             }
         }
-        assert!(height_at(60.0, 60.0) > 1.0);
+        for i in 35..=80 {
+            for j in -35..=35 {
+                assert_eq!(height_at(i as f32, j as f32), 0.0, "village {i},{j}");
+            }
+        }
+        assert!(height_at(100.0, 100.0) > 5.0, "edge hills");
+    }
+
+    #[test]
+    fn west_hill_lake_and_quarry() {
+        assert!(height_at(HILL_AT.x, HILL_AT.y) > 10.0, "a real hill");
+        assert!(is_lake(LAKE_AT.x, LAKE_AT.y));
+        assert!(!is_lake(-40.0, 0.0));
+        assert!(height_at(QUARRY_AT.x, QUARRY_AT.y) < -3.5, "quarry pit");
+        // Nothing but the lake, quarry and forest dips below zero, and the
+        // lake's shore stays above the water.
+        for i in (-88..=88).step_by(2) {
+            for j in (-88..=88).step_by(2) {
+                let p = Vec2::new(i as f32, j as f32);
+                let h = height_at(p.x, p.y);
+                let dips = p.distance(LAKE_AT) < LAKE_RADIUS + 4.0
+                    || p.distance(QUARRY_AT) < QUARRY_RADIUS + 1.0
+                    || p.y < -30.0;
+                assert!(dips || h >= 0.0, "{p}: {h}");
+                let shore = p.distance(LAKE_AT);
+                assert!(!(LAKE_RADIUS + 4.0..LAKE_RADIUS + 6.0).contains(&shore) || h > LAKE_LEVEL);
+            }
+        }
+    }
+
+    #[test]
+    fn slopes_are_walkable() {
+        for i in -176..=176 {
+            for j in -176..=176 {
+                let (x, z) = (i as f32 * 0.5, j as f32 * 0.5);
+                let n = normal_at(x, z);
+                assert!(n.y > 0.6, "too steep at {x},{z}: {n}");
+            }
+        }
+    }
+
+    #[test]
+    fn collider_matches_height() {
+        let collider = ground_collider();
+        let spots = [
+            (HILL_AT.x + 0.3, HILL_AT.y + 0.7),
+            (-57.3, 4.6),
+            (QUARRY_AT.x + 0.5, QUARRY_AT.y + 0.5),
+            (10.7, -60.3),
+            (-70.3, 20.9),
+        ];
+        for (x, z) in spots {
+            let from = Vec3::new(x, 50.0, z);
+            let hit = collider.cast_ray(Vec3::ZERO, Quat::IDENTITY, from, Vec3::NEG_Y, 200.0, true);
+            let Some((t, _)) = hit else {
+                panic!("no ground under {x},{z}");
+            };
+            let y = 50.0 - t;
+            let h = height_at(x, z);
+            assert!((y - h).abs() < 0.4, "{x},{z}: {y} vs {h}");
+        }
     }
 
     #[test]
     fn tufts_stay_modest() {
-        let verts = build_tufts().count_vertices();
-        assert!(verts > 10_000 && verts < 150_000, "{verts}");
+        let verts: usize = chunks().map(|(m, s)| tufts_in(m, s).count_vertices()).sum();
+        assert!(verts > 50_000 && verts < 600_000, "{verts}");
+        let menu = build_tufts().count_vertices();
+        assert!(menu > 10_000 && menu < 200_000, "{menu}");
     }
 
     #[test]
     fn landmarks_are_connected_and_pond_is_dry_of_paths() {
         assert!(is_path(0.0, -6.0));
         assert!(is_path(BONFIRE_AT.x, BONFIRE_AT.y));
+        assert!(is_path(38.0, 0.0), "path to the village");
         assert!(is_pond(POND_AT.x, POND_AT.y));
     }
 }

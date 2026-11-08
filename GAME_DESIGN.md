@@ -22,6 +22,15 @@ asked for, and what nobody has decided yet.
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the
   overview). Esc first frees the mouse (click to grab it again); a second Esc leaves.
+- **Hide and seek** (#61). Anyone presses K to start (needs 2+ players; solo it just says so).
+  The server picks a random Seeker, everyone else hides. For 30 s the seeker is frozen in place
+  behind a black blindfold screen; then they have 3 min to find people. Seekers tag a hider by
+  clicking them within reach; a found hider becomes a seeker too. The round ends when nobody is
+  left hiding (seekers win) or time runs out (hiders win); results show for 10 s and the next
+  round starts with a new random seeker, looping until fewer than 2 players remain. Phase, timer
+  and role show in the top-centre line, tags as toasts. It runs alongside the landlord objective
+  (both stay). Chosen for now: the existing creatures (crows, bear, goat, pets) are the NPCs and
+  the scenery is the hiding ground; no decoy villagers and no per-round regenerated layout yet.
 - **One click, one thing** (polish). A left click resolves to the single closest clickable thing
   under the crosshair/cursor (`features/interact.rs`), so one click never triggers two features,
   and only within ~3.5 m of your body; otherwise the HUD toast says "too far away". The server
@@ -263,11 +272,14 @@ asked for, and what nobody has decided yet.
   then start; minimal settings; playable with just one person for testing.
 - (#47): nice models and textures etc, make the environment good.
 - (#53): fps cam/controls.
+- doomy (#61): the gamemode is just a generated environment and NPCs, then hide and seek with
+  the players.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
+- Hide and seek: should found hiders seek, or just watch? Should the world change each round?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
 - Everything: what are we, and where are we? (The goal so far: deal with the landlord.)
 - What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?

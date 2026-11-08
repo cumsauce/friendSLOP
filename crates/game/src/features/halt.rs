@@ -20,8 +20,6 @@
 //!
 //! The server owns one replicated `Halt` entity; clients send `Pry`.
 
-use std::sync::Arc;
-
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -31,6 +29,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::bear::wav_bytes;
 use crate::features::stillness::{Stillness, is_frozen};
+use crate::features::synth_audio::play_synth;
 
 /// Shared state of HALT, owned by the server.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Default)]
@@ -75,6 +74,7 @@ pub const REBOOT_TAUNT: &str =
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Halt>()
+        .add_observer(reset_halt)
         .add_client_event::<Pry>(Channel::Ordered)
         .add_observer(pry)
         .add_systems(OnEnter(ServerState::Running), spawn_halt)
@@ -151,7 +151,12 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), restore_title)
         .add_systems(
             Update,
-            (send_pry, show_halt, speak_rant).run_if(in_state(AppState::InGame)),
+            (
+                send_pry,
+                show_halt.run_if(crate::world::hud_tick()),
+                speak_rant,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -169,13 +174,7 @@ fn spawn_halt_ui(mut commands: Commands) {
         Text::new(""),
         TextColor(Color::srgb(1.0, 0.25, 0.2)),
         HaltText,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(8),
-            right: px(8),
-            max_width: px(420),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopRight),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -252,8 +251,13 @@ fn show_halt(
     mut text: Query<&mut Text, With<HaltText>>,
     mut window: Query<&mut Window, With<PrimaryWindow>>,
     mut user: Local<Option<String>>,
+    settings: Option<Res<crate::settings::Settings>>,
 ) {
-    let user = user.get_or_insert_with(user_name).clone();
+    let user = if settings.is_some_and(|s| !s.halt_real_name) {
+        "friend".to_string()
+    } else {
+        user.get_or_insert_with(user_name).clone()
+    };
     let Some(h) = halt.iter().next() else {
         return;
     };
@@ -281,22 +285,17 @@ fn speak_rant(
     halt: Query<&Halt>,
     mut last: Local<Option<u8>>,
     mut commands: Commands,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSource>>>,
 ) {
     let now = halt.iter().next().and_then(|h| h.rant);
     if now != *last
         && let Some(i) = now
-        && let Some(mut audio) = audio
+        && audio.is_some()
     {
         let said = MONOLOGUE.get(usize::from(i)).copied().unwrap_or("");
-        let wav = wav_bytes(&drone(said, u32::from(i), RATE), RATE);
-        commands.spawn((
-            AudioPlayer(audio.add(AudioSource {
-                bytes: Arc::from(wav),
-            })),
-            PlaybackSettings::DESPAWN,
-            DespawnOnExit(AppState::InGame),
-        ));
+        play_synth(&mut commands, move || {
+            wav_bytes(&drone(said, u32::from(i), RATE), RATE)
+        });
     }
     *last = now;
 }
@@ -325,6 +324,13 @@ pub fn drone(said: &str, seed: u32, rate: u32) -> Vec<f32> {
         }
     }
     out
+}
+
+/// New round: HALT forgets your escape attempts (it would never admit it).
+fn reset_halt(_reset: On<crate::features::objective::RoundReset>, mut halt: Query<&mut Halt>) {
+    for mut h in &mut halt {
+        *h = Halt::default();
+    }
 }
 
 #[cfg(test)]

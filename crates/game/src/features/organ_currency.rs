@@ -141,6 +141,7 @@ pub fn starting_purse() -> OrganPurse {
 
 pub fn protocol(app: &mut App) {
     app.replicate::<OrganPurse>()
+        .add_observer(reset_purses)
         .add_observer(give_starting_purse);
 }
 
@@ -158,7 +159,12 @@ fn give_starting_purse(
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_purse_hud)
-        .add_systems(Update, update_purse_hud.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            update_purse_hud
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 #[derive(Component)]
@@ -168,12 +174,7 @@ fn spawn_purse_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         PurseHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(12),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -207,6 +208,16 @@ fn update_purse_hud(
         if t.0 != text {
             t.0.clone_from(&text);
         }
+    }
+}
+
+/// New round: everyone gets their starting organs back.
+fn reset_purses(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut purses: Query<&mut OrganPurse>,
+) {
+    for mut p in &mut purses {
+        *p = starting_purse();
     }
 }
 

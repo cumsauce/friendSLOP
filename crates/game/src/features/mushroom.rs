@@ -179,6 +179,7 @@ fn wear_off(
     mut high: ResMut<MushroomHigh>,
     filters: Option<ResMut<VoiceFilters>>,
     mut text: Query<&mut Text, With<MushroomText>>,
+    mut applied: Local<Option<f32>>,
 ) {
     high.remaining = (high.remaining - time.delta_secs()).max(0.0);
     let pitch = if high.remaining > 0.0 {
@@ -186,7 +187,11 @@ fn wear_off(
     } else {
         1.0
     };
-    set_pitch(filters, pitch);
+    // Only touch the voice filter chain when the pitch actually changes.
+    if *applied != Some(pitch) {
+        set_pitch(filters, pitch);
+        *applied = Some(pitch);
+    }
     let want = if high.remaining <= 0.0 {
         "click the mushroom to eat it".to_string()
     } else {
@@ -216,12 +221,7 @@ fn spawn_mushroom_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         MushroomText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(12),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::BottomRight),
         DespawnOnExit(AppState::InGame),
     ));
 }

@@ -642,3 +642,55 @@ fn everyone_gets_the_newer_stats_too() {
         );
     }
 }
+
+#[test]
+fn requests_are_ignored_while_the_world_stands_still() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::fart::{Fart, Farted, Gas};
+    use friendslop::features::stillness::{ACTIVE_SECS, StillClock};
+
+    #[derive(Resource, Default)]
+    struct Heard(usize);
+
+    let (mut server, mut client) = (peer(), peer());
+    client.init_resource::<Heard>();
+    client
+        .world_mut()
+        .add_observer(|_: On<Farted>, mut heard: ResMut<Heard>| heard.0 += 1);
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+
+    // Freeze the world, with everyone full of gas.
+    server.world_mut().resource_mut::<StillClock>().elapsed = ACTIVE_SECS + 1.0;
+    let world = server.world_mut();
+    for mut gas in world.query::<&mut Gas>().iter_mut(world) {
+        gas.0 = 50;
+    }
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(Fart {
+        at: Vec2::new(20.0, 20.0),
+    });
+    step(&mut server, &mut client);
+    assert_eq!(client.world().resource::<Heard>().0, 0, "frozen: no fart");
+    let world = server.world_mut();
+    assert!(
+        world.query::<&Gas>().iter(world).all(|g| g.0 == 50),
+        "gas neither released nor built up while frozen"
+    );
+
+    // Unfreeze: the same request works.
+    server.world_mut().resource_mut::<StillClock>().elapsed = 0.0;
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(Fart {
+        at: Vec2::new(20.0, 20.0),
+    });
+    step(&mut server, &mut client);
+    assert_eq!(client.world().resource::<Heard>().0, 1, "unfrozen: fart");
+}

@@ -161,12 +161,7 @@ fn spawn_caw_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         CawText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(24),
-            left: percent(45),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Subtitle),
         DespawnOnExit(AppState::InGame),
     ));
 }

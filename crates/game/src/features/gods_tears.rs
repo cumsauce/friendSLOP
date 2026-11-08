@@ -62,6 +62,7 @@ pub struct UseGodsTear {
 pub fn protocol(app: &mut App) {
     app.replicate::<GodsTear>()
         .replicate::<Transformation>()
+        .add_observer(reset_tears)
         .add_client_event::<UseGodsTear>(Channel::Ordered)
         .init_resource::<TearSky>()
         .add_observer(give_transformation)
@@ -121,11 +122,15 @@ fn give_transformation(
 /// Server: whoever asks first gets the tear, and changes a little more.
 fn use_tear(
     ev: On<FromClient<UseGodsTear>>,
+    still: Query<&crate::features::stillness::Stillness>,
     mut commands: Commands,
     tears: Query<(Entity, &GodsTear)>,
     mut players: Query<(&PlayerOwner, &mut Transformation)>,
     mut fate: super::fate::Fate,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some((tear, _)) = tears.iter().find(|(_, t)| t.id == ev.id) else {
         return;
     };
@@ -147,7 +152,12 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_tears_hud)
         .add_systems(
             Update,
-            (dress_tears, fall_and_glint, click_tear, update_tears_hud)
+            (
+                dress_tears,
+                fall_and_glint,
+                click_tear,
+                update_tears_hud.run_if(crate::world::hud_tick()),
+            )
                 .run_if(in_state(AppState::InGame)),
         );
 }
@@ -239,12 +249,7 @@ fn spawn_tears_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         TearsHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(35),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -273,6 +278,24 @@ fn update_tears_hud(
         if text.0 != want {
             text.0.clone_from(&want);
         }
+    }
+}
+
+/// New round: the one rain falls again, and nobody has been transformed yet.
+fn reset_tears(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut commands: Commands,
+    mut sky: ResMut<TearSky>,
+    tears: Query<Entity, With<GodsTear>>,
+    mut players: Query<&mut Transformation>,
+) {
+    for tear in &tears {
+        commands.entity(tear).despawn();
+    }
+    *sky = TearSky::default();
+    the_one_rain(commands, sky);
+    for mut t in &mut players {
+        *t = Transformation::default();
     }
 }
 

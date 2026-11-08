@@ -82,6 +82,7 @@ pub fn pelf_gold(pelf: u8) -> f32 {
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Stats>()
+        .add_observer(reroll_stats)
         .init_resource::<StatDice>()
         .add_observer(give_stats);
 }
@@ -120,7 +121,12 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_stats_hud)
         .add_systems(
             Update,
-            (update_stats_hud, summon_teacup, orbit_teacup).run_if(in_state(AppState::InGame)),
+            (
+                update_stats_hud.run_if(crate::world::hud_tick()),
+                summon_teacup,
+                orbit_teacup,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -134,12 +140,7 @@ fn spawn_stats_hud(mut commands: Commands) {
         Text::new(""),
         TextFont::from_font_size(13.0),
         StatsHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(35),
-            left: px(HUD_LEFT),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -228,6 +229,17 @@ fn orbit_teacup(time: Res<Time>, mut cups: Query<&mut Transform, With<Teacup>>) 
     for mut tf in &mut cups {
         tf.translation = Vec3::new(t.cos() * 6.0, 2.5 + (t * 3.0).sin() * 0.2, t.sin() * 6.0);
         tf.rotation = Quat::from_rotation_y(-t);
+    }
+}
+
+/// New round: everyone's stats are rolled again.
+fn reroll_stats(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut dice: ResMut<StatDice>,
+    mut players: Query<&mut Stats>,
+) {
+    for mut s in &mut players {
+        *s = Stats::roll(std::array::from_fn(|_| dice.roll()));
     }
 }
 

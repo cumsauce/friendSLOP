@@ -164,12 +164,16 @@ fn news(commands: &mut Commands, text: String) {
 
 fn on_challenge(
     ev: On<FromClient<ChallengeDuel>>,
+    still: Query<&crate::features::stillness::Stillness>,
     mut commands: Commands,
     mut invites: ResMut<DuelInvites>,
     players: Query<(&Player, &PlayerOwner)>,
     duelists: Query<(), With<Duelist>>,
     mut fate: super::fate::Fate,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(from) = player_of(ev.client_id, &players) else {
         return;
     };
@@ -197,11 +201,15 @@ fn on_challenge(
 
 fn on_answer(
     ev: On<FromClient<AnswerDuel>>,
+    still: Query<&crate::features::stillness::Stillness>,
     mut commands: Commands,
     mut invites: ResMut<DuelInvites>,
     players: Query<(&Player, &PlayerOwner)>,
     duelists: Query<(), With<Duelist>>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_of(ev.client_id, &players) else {
         return;
     };
@@ -245,9 +253,13 @@ fn on_answer(
 
 fn on_control(
     ev: On<FromClient<DuelControl>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut duelists: Query<(&mut Duelist, &mut DuelStick)>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_of(ev.client_id, &players) else {
         return;
     };
@@ -402,7 +414,7 @@ pub fn plugin(app: &mut App) {
                 challenge_keys,
                 fight_controls,
                 first_person_camera,
-                update_duel_hud,
+                update_duel_hud.run_if(crate::world::hud_tick()),
             )
                 .chain()
                 .run_if(in_state(AppState::InGame)),
@@ -688,12 +700,7 @@ fn spawn_duel_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         DuelHud,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(12),
-            left: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::BottomLeft),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -717,9 +724,13 @@ fn update_duel_hud(
     mut view: ResMut<DuelView>,
     mut hud: Query<&mut Text, (With<DuelHud>, Without<Crosshair>)>,
     mut crosshair: Query<&mut Text, (With<Crosshair>, Without<DuelHud>)>,
+    mut last_run: Local<Option<f32>>,
 ) {
+    // Throttled: count down by the time since this system last ran.
+    let now = time.elapsed_secs();
+    let dt = now - last_run.replace(now).unwrap_or(now);
     if let Some((_, left)) = &mut view.news {
-        *left -= time.delta_secs();
+        *left -= dt;
         if *left <= 0.0 {
             view.news = None;
         }

@@ -11,6 +11,7 @@ pub mod atmosphere;
 pub mod camera;
 pub mod features;
 pub mod hud;
+pub mod loading;
 pub mod menu;
 pub mod net;
 pub mod player;
@@ -60,6 +61,7 @@ impl Plugin for GamePlugin {
             hud::HudPlugin,
             scenery::plugin,
             ambience::plugin,
+            loading::plugin,
         ));
     }
 }

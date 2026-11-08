@@ -65,6 +65,7 @@ crates/game/src/
   menu.rs       placeholder keyboard menu
   world.rs      camera, light, floor, HUD
   assets.rs     handles for the files in assets/ (sound effects; missing files degrade quietly)
+  loading.rs    "Loading" curtain on entering the game until models load and frames settle
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)
   features/     one module per idea, see features/README.md
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)

@@ -24,6 +24,8 @@ pub fn plugin(app: &mut App) {
 pub struct Sway {
     base: Option<Quat>,
     phase: f32,
+    /// Which of the alternating frames this prop is updated on.
+    odd: bool,
 }
 
 #[derive(Clone, Copy)]
@@ -402,17 +404,31 @@ fn animate_particles(time: Res<Time>, mut particles: Query<(&mut Particle, &mut 
     }
 }
 
-fn sway_props(time: Res<Time>, mut props: Query<(&mut Sway, &mut Transform)>) {
+fn sway_props(
+    time: Res<Time>,
+    mut frame: Local<u32>,
+    mut props: Query<(Entity, &mut Sway, &mut Transform)>,
+) {
+    // Each sway re-propagates the whole glTF hierarchy below the prop and
+    // re-uploads its mesh transforms, so only half the props move per frame
+    // (each at ~30 Hz). The bend is a few hundredths of a radian, so the step
+    // is invisible but the per-frame cost halves.
+    *frame = frame.wrapping_add(1);
+    let odd_frame = *frame % 2 == 1;
     let t = time.elapsed_secs();
-    for (mut sway, mut tf) in &mut props {
+    for (entity, mut sway, mut tf) in &mut props {
         let base = match sway.base {
             Some(b) => b,
             None => {
                 sway.phase = tf.translation.x * 0.3 + tf.translation.z * 0.2;
+                sway.odd = entity.index_u32() % 2 == 1;
                 sway.base = Some(tf.rotation);
                 tf.rotation
             }
         };
+        if sway.odd != odd_frame {
+            continue;
+        }
         let k = t * 1.1 + sway.phase;
         let bend = k.sin() * 0.025 + (k * 2.7).sin() * 0.008;
         tf.rotation = Quat::from_rotation_x(bend * 0.4) * Quat::from_rotation_z(bend) * base;

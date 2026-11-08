@@ -33,7 +33,40 @@ fn main() -> AppExit {
         .add_plugins(friendslop::GamePlugin)
         .add_systems(Startup, cli_args)
         .add_systems(Update, bench.run_if(bench_enabled))
+        .add_plugins(PipelineLog)
         .run()
+}
+
+struct PipelineLog;
+impl Plugin for PipelineLog {
+    fn build(&self, _app: &mut App) {}
+    fn finish(&self, app: &mut App) {
+        if !bench_enabled() {
+            return;
+        }
+        use bevy::render::{Render, RenderApp, RenderSystems};
+        app.sub_app_mut(RenderApp)
+            .add_systems(Render, log_pipelines.in_set(RenderSystems::Cleanup));
+    }
+}
+
+fn log_pipelines(cache: Res<bevy::render::render_resource::PipelineCache>, mut seen: Local<usize>) {
+    use bevy::render::render_resource::PipelineDescriptor as D;
+    let all: Vec<_> = cache.pipelines().collect();
+    if all.len() <= *seen {
+        return;
+    }
+    for p in &all[*seen..] {
+        let (kind, label, defs) = match &p.descriptor {
+            D::RenderPipelineDescriptor(d) => {
+                ("render", d.label.clone(), d.vertex.shader_defs.len())
+            }
+            D::ComputePipelineDescriptor(d) => ("compute", d.label.clone(), d.shader_defs.len()),
+            D::MeshPipelineDescriptor(d) => ("mesh", d.label.clone(), 0),
+        };
+        println!("BENCH pipeline {kind} {label:?} defs={defs}");
+    }
+    *seen = all.len();
 }
 
 /// `FRIENDSLOP_BENCH=1` logs average / p99 frame time over 10 s of gameplay
@@ -47,6 +80,8 @@ fn bench(
     state: Res<State<friendslop::AppState>>,
     mut samples: Local<Vec<f32>>,
     mut started: Local<Option<f32>>,
+    ready: Option<Res<friendslop::loading::WorldReady>>,
+    mut reported: Local<bool>,
     mut exit: MessageWriter<AppExit>,
 ) {
     if *state.get() != friendslop::AppState::InGame {
@@ -54,10 +89,21 @@ fn bench(
     }
     let now = time.elapsed_secs();
     let start = *started.get_or_insert(now + 8.0);
+    let dt = time.delta_secs() * 1000.0;
+    if dt > 50.0 {
+        println!("BENCH hitch t={:.2}s dt_ms={dt:.0}", now - (start - 8.0));
+    }
+    if let Some(ready) = ready
+        && ready.ready
+        && !*reported
+    {
+        *reported = true;
+        println!("BENCH world_ready_s={:.2}", ready.took_secs);
+    }
     if now < start {
         return;
     }
-    samples.push(time.delta_secs() * 1000.0);
+    samples.push(dt);
     if now - start < 10.0 {
         return;
     }
@@ -68,8 +114,9 @@ fn bench(
         .get(sorted.len() * 99 / 100)
         .copied()
         .unwrap_or_default();
+    let slow = sorted.iter().filter(|&&ms| ms > 33.0).count();
     println!(
-        "BENCH frames={} avg_ms={avg:.2} p99_ms={p99:.2} fps={:.1}",
+        "BENCH frames={} avg_ms={avg:.2} p99_ms={p99:.2} over33ms={slow} fps={:.1}",
         sorted.len(),
         1000.0 / avg.max(1e-3)
     );

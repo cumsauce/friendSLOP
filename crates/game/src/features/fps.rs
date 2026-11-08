@@ -25,14 +25,14 @@ use crate::features::duel::Duelist;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
-pub const WALK_SPEED: f32 = 4.5;
-pub const RUN_SPEED: f32 = 8.0;
+pub const WALK_SPEED: f32 = 5.0;
+pub const RUN_SPEED: f32 = 10.5;
 pub const EYE: f32 = 1.6;
 const JUMP_SPEED: f32 = 5.0;
 const GRAVITY: f32 = 14.0;
 const BODY_RADIUS: f32 = 0.35;
-/// How far from the floor edge you can walk.
-const EDGE: f32 = FLOOR_HALF - 0.5;
+/// The soft wall: how far out you can walk (the edge hills rise beyond it).
+const EDGE: f32 = FLOOR_HALF - 2.0;
 const LOOK_SENSITIVITY: f32 = 0.003;
 
 /// A player's body out in the world. Lives on the `Player` entity. Replicated.
@@ -143,11 +143,15 @@ pub fn step(
     next.x = next.x.clamp(-EDGE, EDGE);
     next.z = next.z.clamp(-EDGE, EDGE);
     let ground = crate::terrain::height_at(next.x, next.z);
-    let on_ground = pos.y <= ground + 1e-3;
-    let vy = if on_ground && jump {
+    // Standing on the ground where we were: follow it up and down slopes
+    // (no little falls walking downhill) unless we jump.
+    let here = crate::terrain::height_at(pos.x, pos.z);
+    let on_ground = vy <= 0.0 && pos.y <= here + 1e-3;
+    if on_ground && !jump {
+        return (next.with_y(ground), 0.0);
+    }
+    let vy = if on_ground {
         JUMP_SPEED
-    } else if on_ground {
-        0.0
     } else {
         vy - GRAVITY * dt
     };
@@ -197,11 +201,16 @@ fn move_walkers(
 
 /// Host only: stop bodies walking through trees, rocks, walls and sheds by
 /// sweeping a capsule along each step, sliding along whatever it hits.
-fn collide_walkers(spatial: SpatialQuery, mut walkers: Query<(&mut Walker, &WalkPrev)>) {
+fn collide_walkers(
+    spatial: SpatialQuery,
+    ground: Query<Entity, With<crate::terrain::GroundCollider>>,
+    mut walkers: Query<(&mut Walker, &WalkPrev)>,
+) {
     let body = Collider::capsule(BODY_RADIUS, 0.9);
     // Capsule centre above the feet: bottom ~0.1 m off the ground.
     let lift = Vec3::Y * (0.45 + BODY_RADIUS + 0.1);
-    let filter = SpatialQueryFilter::default();
+    // The ground itself is followed in `step`, so only bump into things on it.
+    let filter = SpatialQueryFilter::default().with_excluded_entities(ground);
     let sweep = |from: Vec3, delta: Vec3| -> Vec3 {
         let flat = delta.with_y(0.0);
         let Ok(dir) = Dir3::new(flat) else {
@@ -239,7 +248,13 @@ fn collide_walkers(spatial: SpatialQuery, mut walkers: Query<(&mut Walker, &Walk
         if delta.with_y(0.0).length_squared() < 1e-8 {
             continue;
         }
-        let pos = sweep(prev.0, delta);
+        let mut pos = sweep(prev.0, delta);
+        // Sliding moved us sideways on a slope: stay on (never under) the ground.
+        let ground = crate::terrain::height_at(pos.x, pos.z);
+        let walking = walker.pos.y <= crate::terrain::height_at(walker.pos.x, walker.pos.z);
+        if pos.y < ground || (walking && pos.y - ground < 0.5) {
+            pos.y = ground;
+        }
         if pos != walker.pos {
             walker.pos = pos;
         }

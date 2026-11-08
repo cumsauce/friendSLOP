@@ -391,3 +391,190 @@ fn fart_tone_is_tuned_by_its_owner_only() {
     assert!(mine.is_some_and(|t| t.length <= 4.0), "length is clamped");
     assert_eq!(host, Some(FartTone::default()), "host's tone untouched");
 }
+
+#[test]
+fn paying_the_landlord_takes_only_the_payers_organs() {
+    use friendslop::features::landlord::{BotherLandlord, Tenancy};
+    use friendslop::features::organ_currency::OrganPurse;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(BotherLandlord);
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let tenancy: Vec<Tenancy> = world.query::<&Tenancy>().iter(world).cloned().collect();
+    assert_eq!(tenancy.len(), 1, "one landlord story");
+    assert_eq!(
+        tenancy[0].paid, 21,
+        "the client's starting organs were paid"
+    );
+    let mut worth: Vec<(u64, u32)> = world
+        .query::<(&Player, &OrganPurse)>()
+        .iter(world)
+        .map(|(p, o)| (p.id, o.total_value()))
+        .collect();
+    worth.sort();
+    assert_eq!(worth, vec![(0, 21), (1, 0)]);
+}
+
+#[test]
+fn a_failed_action_does_not_happen_and_everyone_sees_why() {
+    use friendslop::features::fate::{FateBoard, FateDice};
+    use friendslop::features::mushroom::{EatMushroom, Mushroom};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    step(&mut server, &mut client);
+    server.world_mut().resource_mut::<FateDice>().chance = 1.0;
+    client.world_mut().client_trigger(EatMushroom);
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    assert_eq!(
+        world.query::<&Mushroom>().iter(world).count(),
+        1,
+        "not eaten"
+    );
+    let boards: Vec<FateBoard> = world.query::<&FateBoard>().iter(world).cloned().collect();
+    assert_eq!(boards.len(), 1);
+    assert_eq!(boards[0].mishaps.len(), 1);
+    assert_eq!(boards[0].mishaps[0].player, 1);
+}
+
+#[test]
+fn everyone_gets_nonsensical_stats() {
+    use friendslop::features::stats::Stats;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let stats: Vec<Stats> = world
+        .query_filtered::<&Stats, With<Player>>()
+        .iter(world)
+        .copied()
+        .collect();
+    assert_eq!(stats.len(), 2, "host and client both have stats");
+    for s in stats {
+        assert!((1..=10).contains(&s.wombility) && (1..=10).contains(&s.rumpet));
+    }
+}
+
+#[test]
+fn totems_open_doors_and_stay_on_their_side() {
+    use friendslop::features::totems::{Door, GrabTotem, Magic, Totem, UseDoor};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    let totem = |app: &mut App, magic: Magic| {
+        let world = app.world_mut();
+        world
+            .query::<&Totem>()
+            .iter(world)
+            .find(|t| t.magic == magic)
+            .copied()
+    };
+    step(&mut server, &mut client);
+    let Some(fire) = totem(&mut client, Magic::Fire) else {
+        panic!("fire totem replicated");
+    };
+    let Some(wind) = totem(&mut client, Magic::Wind) else {
+        panic!("wind totem replicated");
+    };
+    let world = client.world_mut();
+    let Some(wind_door) = world
+        .query::<&Door>()
+        .iter(world)
+        .find(|d| d.magic == Magic::Wind)
+        .copied()
+    else {
+        panic!("wind door replicated");
+    };
+    // The vault is locked: nobody can reach the fire totem.
+    client.world_mut().client_trigger(GrabTotem { id: fire.id });
+    step(&mut server, &mut client);
+    assert_eq!(totem(&mut client, Magic::Fire).and_then(|t| t.holder), None);
+    // The host takes the wind totem and unlocks the door from the west.
+    server.world_mut().client_trigger(GrabTotem { id: wind.id });
+    server.world_mut().client_trigger(UseDoor {
+        id: wind_door.id,
+        side: -1,
+    });
+    step(&mut server, &mut client);
+    // The client can't pull it out from the east side...
+    client.world_mut().client_trigger(UseDoor {
+        id: wind_door.id,
+        side: 1,
+    });
+    // ...but can now get into the vault.
+    client.world_mut().client_trigger(GrabTotem { id: fire.id });
+    step(&mut server, &mut client);
+    let Some(wind) = totem(&mut client, Magic::Wind) else {
+        panic!("wind totem still there");
+    };
+    assert_eq!(wind.slotted, Some(wind_door.id), "still in the door");
+    assert_eq!(
+        totem(&mut client, Magic::Fire).and_then(|t| t.holder),
+        Some(1)
+    );
+}
+
+#[test]
+fn adopting_a_pet_gives_one_pet_each() {
+    use friendslop::features::pets::{AdoptPet, Pet};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+            server.exchange_with_client(client);
+        }
+    };
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let mut ids: Vec<u32> = world.query::<&Pet>().iter(world).map(|p| p.id).collect();
+    ids.sort();
+    assert!(ids.len() >= 2, "strays replicated");
+    // The client adopts two; only the first one counts. The host wants the
+    // first one too, but it's taken, so it gets nothing.
+    client.world_mut().client_trigger(AdoptPet { id: ids[0] });
+    client.world_mut().client_trigger(AdoptPet { id: ids[1] });
+    step(&mut server, &mut client);
+    server.world_mut().client_trigger(AdoptPet { id: ids[0] });
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let mut owners: Vec<(u32, Option<u64>)> = world
+        .query::<&Pet>()
+        .iter(world)
+        .map(|p| (p.id, p.owner))
+        .collect();
+    owners.sort();
+    assert_eq!(owners[0], (ids[0], Some(1)));
+    assert_eq!(owners[1], (ids[1], None));
+}

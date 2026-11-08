@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::mushroom::Mushroom;
+use crate::features::random_dialogue;
 use crate::player::Player;
 use crate::voice::VoiceMuted;
 
@@ -44,6 +45,17 @@ pub enum Choice {
     Muted,
     Unmuted,
     DidNothing,
+}
+
+impl Choice {
+    pub const ALL: [Choice; 6] = [
+        Choice::Joined,
+        Choice::Left,
+        Choice::AteMushroom,
+        Choice::Muted,
+        Choice::Unmuted,
+        Choice::DidNothing,
+    ];
 }
 
 /// The goat's opinion of `choice`. `n` picks among its remarks so it doesn't
@@ -255,7 +267,7 @@ fn judge(
     }
     for mut text in &mut text {
         if let Some(line) = want {
-            text.0 = format!("Goat: \"{line}\"");
+            text.0 = format!("Goat: \"{}\"", random_dialogue::say(line));
         } else if now - seen.said_at > REMARK_SECS && !text.0.is_empty() {
             text.0.clear();
         }

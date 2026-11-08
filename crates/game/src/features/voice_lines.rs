@@ -18,6 +18,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::bear::wav_bytes;
+use crate::features::random_dialogue;
 
 /// A musical object on the floor at (x, z). `tune` picks its jingle.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -199,14 +200,15 @@ fn speak(
     let now = showing(time.elapsed_secs());
     let want = now.map_or(String::new(), |n| {
         let (who, said) = line(n);
-        format!("{}: \"{said}\"", who.name())
+        format!("{}: \"{}\"", who.name(), random_dialogue::say(said))
     });
     if let Some(n) = now
         && *last != Some(n)
         && let Some(mut audio) = audio
     {
         let (who, said) = line(n);
-        let wav = wav_bytes(&voice_samples(who, said, n, RATE), RATE);
+        let said = random_dialogue::say(said);
+        let wav = wav_bytes(&voice_samples(who, &said, n, RATE), RATE);
         let handle = audio.add(AudioSource {
             bytes: Arc::from(wav),
         });

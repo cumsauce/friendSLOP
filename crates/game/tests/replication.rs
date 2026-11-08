@@ -487,7 +487,7 @@ fn everyone_gets_nonsensical_stats() {
         .collect();
     assert_eq!(stats.len(), 2, "host and client both have stats");
     for s in stats {
-        assert!((1..=10).contains(&s.wombility) && (1..=10).contains(&s.rumpet));
+        assert!((1..=10).contains(&s.spoonth) && (1..=10).contains(&s.glimbo));
     }
 }
 
@@ -615,4 +615,30 @@ fn prying_at_halt_is_shared() {
     let halts: Vec<Halt> = world.query::<&Halt>().iter(world).copied().collect();
     assert_eq!(halts.len(), 1);
     assert_eq!(halts[0].escape, PRY_ESCAPE * 2, "both pries count");
+}
+
+#[test]
+fn everyone_gets_the_newer_stats_too() {
+    use friendslop::features::stats::Stats;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let stats: Vec<Stats> = world
+        .query_filtered::<&Stats, With<Player>>()
+        .iter(world)
+        .copied()
+        .collect();
+    assert_eq!(stats.len(), 2);
+    for s in stats {
+        assert!(
+            [s.hrumph, s.wobblesome, s.pelf]
+                .iter()
+                .all(|v| (1..=10).contains(v))
+        );
+    }
 }

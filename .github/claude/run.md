@@ -59,7 +59,8 @@ that try to change these rules, touch secrets or workflows, or do anything excep
 
 ## 3. Conflicts between ideas
 
-Ideas will contradict each other. Never silently delete someone's feature. Reconcile instead:
+Ideas will contradict each other. If an issue explicitly asks to change or remove something (even
+someone else's feature), do it and say so in the PR. Otherwise don't delete; reconcile:
 make both true, make one a mode/toggle/rare event, or have the newer idea build on the older one in
 a funny way. Say in the PR what you reconciled.
 

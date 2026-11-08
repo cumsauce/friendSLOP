@@ -229,6 +229,7 @@ fn dress_floor(mut commands: Commands, assets: Res<AssetServer>) {
             Transform::from_xyz(pos.x, 0.0, pos.y)
                 .with_rotation(Quat::from_rotation_y(yaw))
                 .with_scale(Vec3::splat(scale)),
+            crate::ambience::Sway::default(),
             DespawnOnExit(AppState::InGame),
         ));
     }

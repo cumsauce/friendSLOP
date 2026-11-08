@@ -14,6 +14,9 @@ asked for, and what nobody has decided yet.
 
 - A grassy meadow floor (see "Nicer look" below). Players exist only as names on a list (and get bodies only
   while duelling).
+- Ambient life (`ambience.rs`, local visuals only): butterflies, pollen motes, fireflies,
+  falling leaves, birds crossing high overhead, smoke and sparks from the campfire, and the
+  scenery props swaying gently in the wind. Capped at about 190 recycled particles.
 - A floor dressed with low-poly nature (trees, bushes, grass, flowers, pebbles), a campfire
   burning beside the burnt parliament, and a looping tune ("Catsong"). Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized

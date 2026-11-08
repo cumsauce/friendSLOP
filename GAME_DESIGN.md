@@ -53,6 +53,19 @@ asked for, and what nobody has decided yet.
   the nobility, capitalists, landlords or billionaires, which is **always** -6..-10. Only the
   mushroom is wired up so far (nothing can be harmed yet), and morality doesn't change anything
   else in play yet.
+- **Farting** (#18). Every player's gas pressure builds from 0 to 100% over 40 s (shown
+  bottom-right). Press F (with at least 20%) to fart; since players have no bodies outside duels,
+  your bottom is wherever the mouse cursor points on the floor (or your duel body when duelling).
+  If any NPC (the bear, a crow, or Dave at parliament) is within 4 m, you are **shamed**: for
+  20 s your screen blurs, "SHAME" flashes in red and a scary, distorted chiptune (generated in
+  code) plays. Everyone sees a line saying who farted and whether they were caught. So the trick
+  is waiting for the wandering crows and bear to be elsewhere.
+- **Fart noises** (#26). Every fart is heard by everyone and is synthesized on the spot by a
+  small physical model: gas pressure pushes a pair of "lips" that buzz like a brass player's,
+  the gas drains (so the fart sags and fades), and the airflow adds turbulent texture, shaped
+  by a "cheek" filter. Each player tunes their own fart: `[` `]` pitch (30-400 Hz), `-` `=`
+  length (0.15-4 s for a full tank; emptier tanks are shorter), `;` `'` timbre (tight and dry
+  to loose and wet, with sputtering). The settings are shown bottom-right.
 
 - **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
   Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
@@ -95,6 +108,12 @@ asked for, and what nobody has decided yet.
   Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
+- Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
+  blurs the screen and plays a scary distorted chiptune for 20 seconds.
+
+- doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
+  pitch.
+
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave.
 - #20: a judgmental goat joins the players and makes passive-aggressive comments about every choice.
@@ -110,4 +129,5 @@ asked for, and what nobody has decided yet.
 - Players only have bodies in a duel. What are you the rest of the time?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
+- Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - What does your morality actually change? And which actions count as good or bad?

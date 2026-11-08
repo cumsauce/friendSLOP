@@ -11,6 +11,8 @@ pub mod cat_palette;
 pub mod crows;
 pub mod dave_commune;
 pub mod duel;
+pub mod fart;
+pub mod fart_sound;
 pub mod goat;
 pub mod gods_tears;
 pub mod morality;
@@ -36,6 +38,8 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(voice_lines::protocol);
         app.add_plugins(stillness::protocol);
         app.add_plugins(gods_tears::protocol);
+        app.add_plugins(fart::protocol);
+        app.add_plugins(fart_sound::protocol);
     }
 }
 
@@ -55,5 +59,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(voice_lines::plugin);
         app.add_plugins(stillness::plugin);
         app.add_plugins(gods_tears::plugin);
+        app.add_plugins(fart::plugin);
+        app.add_plugins(fart_sound::plugin);
     }
 }

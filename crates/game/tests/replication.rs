@@ -300,3 +300,94 @@ fn using_a_gods_tear_transforms_the_user() {
         ids.len() - 1
     );
 }
+
+#[test]
+fn farting_releases_gas_and_tells_everyone() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::fart::{Fart, Farted, Gas};
+
+    #[derive(Resource, Default)]
+    struct Heard(Vec<Farted>);
+
+    let (mut server, mut client) = (peer(), peer());
+    for app in [&mut server, &mut client] {
+        app.init_resource::<Heard>();
+        app.world_mut()
+            .add_observer(|f: On<Farted>, mut heard: ResMut<Heard>| heard.0.push(*f));
+    }
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+
+    // Too little gas: nothing happens.
+    client.world_mut().client_trigger(Fart { at: Vec2::ZERO });
+    step(&mut server, &mut client);
+    assert!(client.world().resource::<Heard>().0.is_empty());
+
+    // Fill everyone up, then fart far from every NPC.
+    let world = server.world_mut();
+    for mut gas in world.query::<&mut Gas>().iter_mut(world) {
+        gas.0 = 100;
+    }
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(Fart {
+        at: Vec2::new(20.0, 20.0),
+    });
+    step(&mut server, &mut client);
+
+    let heard = &client.world().resource::<Heard>().0;
+    assert_eq!(heard.len(), 1, "the client hears its own fart");
+    assert_eq!(heard[0].player, 1);
+    assert!(!heard[0].shamed, "nobody was near");
+    let world = client.world_mut();
+    let gases: Vec<(u64, u8)> = world
+        .query::<(&Player, &Gas)>()
+        .iter(world)
+        .map(|(p, g)| (p.id, g.0))
+        .collect();
+    assert!(gases.contains(&(1, 0)), "farter is empty: {gases:?}");
+    assert!(
+        gases.iter().any(|(id, g)| *id == 0 && *g >= 100),
+        "host still full"
+    );
+}
+
+#[test]
+fn fart_tone_is_tuned_by_its_owner_only() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::fart_sound::{FartTone, SetFartTone};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    client.world_mut().client_trigger(SetFartTone(FartTone {
+        pitch: 200.0,
+        length: 9_999.0,
+        timbre: 0.9,
+    }));
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let tones: Vec<(u64, FartTone)> = world
+        .query::<(&Player, &FartTone)>()
+        .iter(world)
+        .map(|(p, t)| (p.id, *t))
+        .collect();
+    let mine = tones.iter().find(|(id, _)| *id == 1).map(|(_, t)| *t);
+    let host = tones.iter().find(|(id, _)| *id == 0).map(|(_, t)| *t);
+    assert_eq!(mine.map(|t| t.pitch), Some(200.0));
+    assert!(mine.is_some_and(|t| t.length <= 4.0), "length is clamped");
+    assert_eq!(host, Some(FartTone::default()), "host's tone untouched");
+}

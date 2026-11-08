@@ -229,3 +229,18 @@ fn everyone_starts_morally_neutral() {
         .collect();
     assert_eq!(all, vec![Morality(0); 2]);
 }
+
+#[test]
+fn music_boxes_replicate() {
+    use friendslop::features::voice_lines::{MUSIC_BOX_COUNT, MusicBox};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let n = world.query::<&MusicBox>().iter(world).count();
+    assert_eq!(n, MUSIC_BOX_COUNT as usize);
+}

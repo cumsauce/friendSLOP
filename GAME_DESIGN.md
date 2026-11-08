@@ -54,6 +54,12 @@ asked for, and what nobody has decided yet.
   mushroom is wired up so far (nothing can be harmed yet), and morality doesn't change anything
   else in play yet.
 
+- **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
+  Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
+  plays a little jingle first and hops), the bear, or a crow. It shows as a subtitle with a
+  procedurally generated babble voice. The issue asked for audio from a specific 1993 game; we
+  can't ship someone else's copyrighted audio, so the lines and voices are original.
+
 ## Ideas so far
 
 - Freyja Moth (#22): the only legal tender is organs, human and animal, valued by the creature
@@ -63,6 +69,8 @@ asked for, and what nobody has decided yet.
 - arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
 - Freyja Moth (#21): many actions have a (mostly random, within reason) moral value that affects
   gameplay; harming the nobility, capitalists, landlords and/or billionaires is always reprehensible.
+- Kori.exe (#19): NPCs and random "musical objects" play voice lines (asked for audio from a 1993
+  game; done as original lines instead).
 - corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
 - just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).

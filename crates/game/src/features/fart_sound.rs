@@ -18,8 +18,6 @@
 //!   bright) to loose and wet (sloppy damping, pressure sputters, lots of
 //!   turbulence, dark).
 
-use std::sync::Arc;
-
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -28,6 +26,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::bear::wav_bytes;
 use crate::features::fart::Farted;
+use crate::features::synth_audio::play_synth;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// How a player's farts sound.
@@ -87,7 +86,14 @@ fn give_tone(add: On<Add<Player>>, server: Res<State<ServerState>>, mut commands
     commands.entity(add.entity).insert(FartTone::default());
 }
 
-fn set_tone(set: On<FromClient<SetFartTone>>, mut players: Query<(&PlayerOwner, &mut FartTone)>) {
+fn set_tone(
+    set: On<FromClient<SetFartTone>>,
+    still: Query<&crate::features::stillness::Stillness>,
+    mut players: Query<(&PlayerOwner, &mut FartTone)>,
+) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let owner = match set.client_id {
         ClientId::Server => None,
         ClientId::Client(e) => Some(e),
@@ -113,24 +119,21 @@ fn play_fart(
     farted: On<Farted>,
     mut commands: Commands,
     players: Query<(&Player, &FartTone)>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSource>>>,
 ) {
-    let Some(mut audio) = audio else { return };
+    if audio.is_none() {
+        return;
+    }
     let tone = players
         .iter()
         .find(|(p, _)| p.id == farted.player)
         .map(|(_, t)| *t)
         .unwrap_or_default();
     let fullness = farted.pressure as f32 / 100.0;
-    let samples = fart_samples(&tone, fullness, farted.player as u32, RATE);
-    let handle = audio.add(AudioSource {
-        bytes: Arc::from(wav_bytes(&samples, RATE)),
+    let seed = farted.player as u32;
+    play_synth(&mut commands, move || {
+        wav_bytes(&fart_samples(&tone, fullness, seed, RATE), RATE)
     });
-    commands.spawn((
-        AudioPlayer(handle),
-        PlaybackSettings::DESPAWN,
-        DespawnOnExit(AppState::InGame),
-    ));
 }
 
 /// Tuning keys: [ ] pitch, - = length, ; ' timbre.

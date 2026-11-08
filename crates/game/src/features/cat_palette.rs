@@ -17,7 +17,10 @@ pub fn protocol(_app: &mut App) {}
 
 pub fn plugin(app: &mut App) {
     app.insert_resource(ClearColor(cat_palette(SKY)))
-        .add_systems(Update, paint_new_materials);
+        .add_systems(
+            Update,
+            paint_new_materials.run_if(on_message::<AssetEvent<StandardMaterial>>),
+        );
 }
 
 /// Viénot et al. (1999) dichromat (deuteranope) simulation in linear RGB. Rows 1 and 2

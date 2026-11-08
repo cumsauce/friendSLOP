@@ -29,8 +29,9 @@ pub struct Stillness {
 
 /// Server only: the precise clock behind `Stillness`.
 #[derive(Resource, Default)]
-struct StillClock {
-    elapsed: f32,
+pub struct StillClock {
+    /// Real seconds since the server started.
+    pub elapsed: f32,
 }
 
 /// Where in the 80 s cycle we are, `t` seconds after the server started.
@@ -60,7 +61,7 @@ pub fn protocol(app: &mut App) {
         .init_resource::<StillClock>()
         .add_systems(OnEnter(ServerState::Running), start_clock)
         .add_systems(Update, tick_clock.run_if(in_state(ServerState::Running)))
-        .add_systems(Update, apply_freeze)
+        .add_systems(Update, apply_freeze.run_if(any_with_component::<Stillness>))
         .add_systems(OnExit(ServerState::Running), stop_clock);
 }
 

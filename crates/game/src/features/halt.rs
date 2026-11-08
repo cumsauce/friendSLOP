@@ -20,8 +20,6 @@
 //!
 //! The server owns one replicated `Halt` entity; clients send `Pry`.
 
-use std::sync::Arc;
-
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -31,6 +29,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::bear::wav_bytes;
 use crate::features::stillness::{Stillness, is_frozen};
+use crate::features::synth_audio::play_synth;
 
 /// Shared state of HALT, owned by the server.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Default)]
@@ -281,22 +280,17 @@ fn speak_rant(
     halt: Query<&Halt>,
     mut last: Local<Option<u8>>,
     mut commands: Commands,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSource>>>,
 ) {
     let now = halt.iter().next().and_then(|h| h.rant);
     if now != *last
         && let Some(i) = now
-        && let Some(mut audio) = audio
+        && audio.is_some()
     {
         let said = MONOLOGUE.get(usize::from(i)).copied().unwrap_or("");
-        let wav = wav_bytes(&drone(said, u32::from(i), RATE), RATE);
-        commands.spawn((
-            AudioPlayer(audio.add(AudioSource {
-                bytes: Arc::from(wav),
-            })),
-            PlaybackSettings::DESPAWN,
-            DespawnOnExit(AppState::InGame),
-        ));
+        play_synth(&mut commands, move || {
+            wav_bytes(&drone(said, u32::from(i), RATE), RATE)
+        });
     }
     *last = now;
 }

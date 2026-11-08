@@ -121,11 +121,15 @@ fn give_transformation(
 /// Server: whoever asks first gets the tear, and changes a little more.
 fn use_tear(
     ev: On<FromClient<UseGodsTear>>,
+    still: Query<&crate::features::stillness::Stillness>,
     mut commands: Commands,
     tears: Query<(Entity, &GodsTear)>,
     mut players: Query<(&PlayerOwner, &mut Transformation)>,
     mut fate: super::fate::Fate,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some((tear, _)) = tears.iter().find(|(_, t)| t.id == ev.id) else {
         return;
     };

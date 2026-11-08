@@ -122,9 +122,13 @@ fn player_id(client: ClientId, players: &Query<(&Player, &PlayerOwner)>) -> Opti
 /// Server: a stray goes to the first player without a pet who asks.
 fn adopt(
     ev: On<FromClient<AdoptPet>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut pets: Query<&mut Pet>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };
@@ -138,9 +142,13 @@ fn adopt(
 
 fn lure(
     ev: On<FromClient<PetLure>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut lures: ResMut<Lures>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };

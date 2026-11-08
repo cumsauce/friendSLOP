@@ -26,6 +26,7 @@ pub mod pets;
 pub mod random_dialogue;
 pub mod stats;
 pub mod stillness;
+pub mod synth_audio;
 pub mod totems;
 pub mod voice_lines;
 
@@ -61,6 +62,7 @@ pub struct FeaturesPlugin;
 
 impl Plugin for FeaturesPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugins(synth_audio::plugin);
         app.add_plugins(organ_currency::plugin);
         app.add_plugins(crows::plugin);
         app.add_plugins(bear::plugin);

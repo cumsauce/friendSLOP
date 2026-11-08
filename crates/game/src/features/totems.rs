@@ -169,10 +169,14 @@ fn player_id(client: ClientId, players: &Query<(&Player, &PlayerOwner)>) -> Opti
 
 fn grab_totem(
     ev: On<FromClient<GrabTotem>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     doors: Query<&Door>,
     mut totems: Query<&mut Totem>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };
@@ -188,10 +192,14 @@ fn grab_totem(
 
 fn use_door(
     ev: On<FromClient<UseDoor>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut doors: Query<&mut Door>,
     mut totems: Query<&mut Totem>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };

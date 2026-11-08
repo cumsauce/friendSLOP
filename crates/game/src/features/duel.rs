@@ -164,12 +164,16 @@ fn news(commands: &mut Commands, text: String) {
 
 fn on_challenge(
     ev: On<FromClient<ChallengeDuel>>,
+    still: Query<&crate::features::stillness::Stillness>,
     mut commands: Commands,
     mut invites: ResMut<DuelInvites>,
     players: Query<(&Player, &PlayerOwner)>,
     duelists: Query<(), With<Duelist>>,
     mut fate: super::fate::Fate,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(from) = player_of(ev.client_id, &players) else {
         return;
     };
@@ -197,11 +201,15 @@ fn on_challenge(
 
 fn on_answer(
     ev: On<FromClient<AnswerDuel>>,
+    still: Query<&crate::features::stillness::Stillness>,
     mut commands: Commands,
     mut invites: ResMut<DuelInvites>,
     players: Query<(&Player, &PlayerOwner)>,
     duelists: Query<(), With<Duelist>>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_of(ev.client_id, &players) else {
         return;
     };
@@ -245,9 +253,13 @@ fn on_answer(
 
 fn on_control(
     ev: On<FromClient<DuelControl>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut duelists: Query<(&mut Duelist, &mut DuelStick)>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_of(ev.client_id, &players) else {
         return;
     };

@@ -22,6 +22,17 @@ pub struct PlayerOwner(pub Option<Entity>);
 #[derive(Resource, Default)]
 struct NextPlayerId(u64);
 
+/// Which `Player { id }` is "me" on this peer. Set when hosting, or when the
+/// server's `Welcome` arrives on a client.
+#[derive(Resource, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct LocalPlayer(pub u64);
+
+/// Server -> one client: "you are player `id`".
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+pub struct Welcome {
+    pub id: u64,
+}
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -30,12 +41,17 @@ impl Plugin for PlayerPlugin {
             .init_resource::<NextPlayerId>()
             .add_observer(spawn_client_player)
             .add_observer(despawn_client_player)
+            .add_server_event::<Welcome>(Channel::Ordered)
+            .add_observer(|w: On<Welcome>, mut commands: Commands| {
+                commands.insert_resource(LocalPlayer(w.id));
+            })
             .add_systems(OnEnter(ServerState::Running), spawn_host_player);
     }
 }
 
 fn spawn_host_player(mut commands: Commands) {
     commands.insert_resource(HostVoiceSpeaker(Some(SpeakerId(0))));
+    commands.insert_resource(LocalPlayer(0));
     commands.spawn((Player { id: 0 }, PlayerOwner(None), Replicated));
 }
 
@@ -49,6 +65,10 @@ fn spawn_client_player(
     commands
         .entity(add.entity)
         .insert(VoiceSenderId(SpeakerId(id)));
+    commands.server_trigger(ToClients {
+        targets: SendTargets::Single(ClientId::Client(add.entity)),
+        message: Welcome { id },
+    });
     commands.spawn((Player { id }, PlayerOwner(Some(add.entity)), Replicated));
 }
 

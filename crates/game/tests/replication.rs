@@ -128,3 +128,85 @@ fn eating_the_mushroom_changes_only_the_eaters_voice() {
     assert!(got[0].pitch >= 1.5 || got[0].pitch <= 0.7);
     assert!(server.world().resource::<Got>().0.is_empty(), "host is not");
 }
+
+#[test]
+fn clients_learn_who_they_are() {
+    use friendslop::player::LocalPlayer;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    assert_eq!(
+        server.world().get_resource::<LocalPlayer>(),
+        Some(&LocalPlayer(0))
+    );
+    assert_eq!(
+        client.world().get_resource::<LocalPlayer>(),
+        Some(&LocalPlayer(1))
+    );
+}
+
+#[test]
+fn challenge_accept_and_shoot_to_win_a_duel() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::duel::{
+        AnswerDuel, ChallengeDuel, DuelShoot, Duelist, LIVES, spawn_points,
+    };
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    let duelists = |app: &mut App| {
+        let world = app.world_mut();
+        let mut v: Vec<Duelist> = world.query::<&Duelist>().iter(world).copied().collect();
+        v.sort_by_key(|d| d.player);
+        v
+    };
+    step(&mut server, &mut client);
+
+    // The host challenges player 1, who accepts.
+    server
+        .world_mut()
+        .client_trigger(ChallengeDuel { target: 1 });
+    step(&mut server, &mut client);
+    assert!(duelists(&mut client).is_empty(), "not until accepted");
+    client.world_mut().client_trigger(AnswerDuel {
+        from: 0,
+        accept: true,
+    });
+    step(&mut server, &mut client);
+    let both = duelists(&mut client);
+    assert_eq!(both.len(), 2, "both duelists replicate");
+    assert!(both.iter().all(|d| d.lives == LIVES && d.bullets == 1));
+
+    // Both start facing each other, so every shot from the host lands. Each
+    // kill refunds the bullet, so the host can win with three shots.
+    for shot in 1..=LIVES {
+        server.world_mut().client_trigger(DuelShoot);
+        step(&mut server, &mut client);
+        let left = duelists(&mut client);
+        if shot < LIVES {
+            assert_eq!(left[1].lives, LIVES - shot);
+            assert_eq!(left[0].bullets, 1, "kill refunds the bullet");
+            // Put the victim back in the host's sights for the next shot.
+            let world = server.world_mut();
+            let mut q = world.query::<&mut Duelist>();
+            for mut d in q.iter_mut(world) {
+                if d.player == 1 {
+                    d.pos = spawn_points()[1];
+                }
+            }
+            step(&mut server, &mut client);
+        }
+    }
+    assert!(duelists(&mut client).is_empty(), "duel over after 3 kills");
+}

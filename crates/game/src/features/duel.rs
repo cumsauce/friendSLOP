@@ -488,59 +488,249 @@ fn reset_view(
     *view = DuelView::default();
 }
 
+/// A dusty frontier pit: sandy floor, a wooden plank fence with posts, bunting
+/// strung between tall corner poles, and barrels and hay bales outside. Visual
+/// only: the footprint is still `ARENA_HALF` and movement is clamped in
+/// `move_duelists`, so gameplay is unchanged.
 fn spawn_arena(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let wall = materials.add(Color::srgb(0.6, 0.45, 0.3));
-    let ground = crate::art::soft(&mut materials, Color::srgb(0.75, 0.7, 0.6));
+    use std::f32::consts::FRAC_PI_2;
+    let mut spawn = |mesh: Handle<Mesh>, mat: Handle<StandardMaterial>, t: Transform| {
+        commands.spawn((
+            Mesh3d(mesh),
+            MeshMaterial3d(mat),
+            t,
+            DespawnOnExit(AppState::InGame),
+        ));
+    };
     let size = ARENA_HALF * 2.0;
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(size, size))),
-        MeshMaterial3d(ground),
-        Transform::from_translation(ARENA_CENTER + Vec3::Y * 0.01),
-        DespawnOnExit(AppState::InGame),
-    ));
-    let long = meshes.add(Cuboid::new(size, 0.6, 0.2));
-    let post = meshes.add(Cylinder::new(0.15, 1.0));
-    let pennant = meshes.add(Cuboid::new(0.4, 0.25, 0.02));
-    let flag = crate::art::soft(&mut materials, Color::srgb(0.95, 0.3, 0.3));
-    for (offset, turn) in [
-        (Vec3::new(0.0, 0.3, -ARENA_HALF), false),
-        (Vec3::new(0.0, 0.3, ARENA_HALF), false),
-        (Vec3::new(-ARENA_HALF, 0.3, 0.0), true),
-        (Vec3::new(ARENA_HALF, 0.3, 0.0), true),
-    ] {
-        let rot = if turn {
-            Quat::from_rotation_y(std::f32::consts::FRAC_PI_2)
-        } else {
-            Quat::IDENTITY
-        };
-        commands.spawn((
-            Mesh3d(post.clone()),
-            MeshMaterial3d(wall.clone()),
-            Transform::from_translation(
-                ARENA_CENTER + offset.with_y(0.5) + rot * Vec3::X * ARENA_HALF,
-            ),
-            DespawnOnExit(AppState::InGame),
-        ));
-        commands.spawn((
-            Mesh3d(pennant.clone()),
-            MeshMaterial3d(flag.clone()),
-            Transform::from_translation(
-                ARENA_CENTER + offset.with_y(1.1) + rot * Vec3::X * (ARENA_HALF - 0.2),
-            )
-            .with_rotation(rot),
-            DespawnOnExit(AppState::InGame),
-        ));
-        commands.spawn((
-            Mesh3d(long.clone()),
-            MeshMaterial3d(wall.clone()),
-            Transform::from_translation(ARENA_CENTER + offset).with_rotation(rot),
-            DespawnOnExit(AppState::InGame),
-        ));
+    // Sand: a vertex-coloured grid with ripples and darker scuffs.
+    spawn(
+        meshes.add(sand_mesh(size)),
+        materials.add(StandardMaterial {
+            base_color: Color::WHITE,
+            perceptual_roughness: 1.0,
+            reflectance: 0.05,
+            ..default()
+        }),
+        Transform::from_translation(ARENA_CENTER + Vec3::Y * 0.015),
+    );
+    let wood = crate::art::soft(&mut materials, Color::srgb(0.55, 0.36, 0.2));
+    let wood_light = crate::art::soft(&mut materials, Color::srgb(0.72, 0.52, 0.3));
+    let wood_dark = crate::art::soft(&mut materials, Color::srgb(0.36, 0.24, 0.14));
+    let post = meshes.add(Cylinder::new(0.09, 1.0));
+    let tall = meshes.add(Cylinder::new(0.12, 2.4));
+    let cap = meshes.add(Sphere::new(0.14).mesh().uv(8, 6));
+    let plank = meshes.add(Cuboid::new(1.0, 0.16, 0.05));
+    // Fence: posts every ~1.4 m, two rails of slightly crooked planks.
+    let posts = 10;
+    for side in 0..4 {
+        let rot = Quat::from_rotation_y(FRAC_PI_2 * side as f32);
+        let along = rot * Vec3::X;
+        let out = rot * Vec3::Z * ARENA_HALF;
+        for k in 0..=posts {
+            let t = -ARENA_HALF + size * k as f32 / posts as f32;
+            let at = ARENA_CENTER + out + along * t;
+            let corner = k == 0 || k == posts;
+            if corner {
+                spawn(
+                    tall.clone(),
+                    wood_dark.clone(),
+                    Transform::from_translation(at + Vec3::Y * 1.2),
+                );
+                spawn(
+                    cap.clone(),
+                    wood_light.clone(),
+                    Transform::from_translation(at + Vec3::Y * 2.45),
+                );
+            } else {
+                let lean = (k as f32 * 1.7 + side as f32).sin() * 0.04;
+                spawn(
+                    post.clone(),
+                    wood_dark.clone(),
+                    Transform::from_translation(at + Vec3::Y * 0.45)
+                        .with_rotation(Quat::from_axis_angle(along, lean)),
+                );
+            }
+            if k < posts {
+                let seg = size / posts as f32;
+                for (row, y) in [0.28f32, 0.62].into_iter().enumerate() {
+                    let wobble = ((k * 7 + row * 3 + side * 5) % 5) as f32 * 0.012 - 0.024;
+                    let mat = if (k + row + side) % 3 == 0 {
+                        wood_light.clone()
+                    } else {
+                        wood.clone()
+                    };
+                    spawn(
+                        plank.clone(),
+                        mat,
+                        Transform::from_translation(
+                            at + along * (seg * 0.5)
+                                + Vec3::Y * (y + wobble)
+                                + rot * Vec3::Z * 0.06,
+                        )
+                        .with_rotation(rot * Quat::from_rotation_z(wobble * 2.0))
+                        .with_scale(Vec3::new(seg + 0.12, 1.0, 1.0)),
+                    );
+                }
+            }
+        }
     }
+    // Bunting: little flags hanging on a sagging string between corner poles.
+    spawn(
+        meshes.add(bunting_mesh()),
+        materials.add(StandardMaterial {
+            base_color: Color::WHITE,
+            perceptual_roughness: 0.8,
+            double_sided: true,
+            cull_mode: None,
+            ..default()
+        }),
+        Transform::from_translation(ARENA_CENTER),
+    );
+    // Barrels and hay bales just outside the fence.
+    let barrel = meshes.add(Cylinder::new(0.38, 0.95));
+    let hoop = meshes.add(Cylinder::new(0.4, 0.06));
+    let iron = crate::art::soft(&mut materials, Color::srgb(0.3, 0.3, 0.34));
+    let bale = meshes.add(Cuboid::new(1.1, 0.55, 0.6));
+    let hay = crate::art::soft(&mut materials, Color::srgb(0.92, 0.8, 0.4));
+    let o = ARENA_HALF + 0.9;
+    for (x, z) in [(-o, -o + 1.2), (o - 0.6, o), (o, -o + 0.4)] {
+        let at = ARENA_CENTER + Vec3::new(x, 0.0, z);
+        spawn(
+            barrel.clone(),
+            wood.clone(),
+            Transform::from_translation(at + Vec3::Y * 0.475),
+        );
+        for y in [0.2, 0.75] {
+            spawn(
+                hoop.clone(),
+                iron.clone(),
+                Transform::from_translation(at + Vec3::Y * y),
+            );
+        }
+    }
+    for (x, z, yaw, stack) in [
+        (-o + 0.2, o - 0.5, 0.3, true),
+        (o, 1.5, FRAC_PI_2, false),
+        (-2.5, -o, 0.1, true),
+    ] {
+        let at = ARENA_CENTER + Vec3::new(x, 0.0, z);
+        let r = Quat::from_rotation_y(yaw);
+        spawn(
+            bale.clone(),
+            hay.clone(),
+            Transform::from_translation(at + Vec3::Y * 0.275).with_rotation(r),
+        );
+        if stack {
+            spawn(
+                bale.clone(),
+                hay.clone(),
+                Transform::from_translation(at + Vec3::Y * 0.825)
+                    .with_rotation(r * Quat::from_rotation_y(0.4)),
+            );
+        }
+    }
+}
+
+/// Cat-filtered linear vertex colour from pre-filter sRGB.
+fn cat_vertex(r: f32, g: f32, b: f32) -> [f32; 4] {
+    let lin = crate::features::cat_palette::cat_palette(Color::srgb(r, g, b)).to_linear();
+    [lin.red, lin.green, lin.blue, 1.0]
+}
+
+/// The arena's sand floor (centred on the origin), with ripples and scuffs.
+fn sand_mesh(size: f32) -> Mesh {
+    use bevy::asset::RenderAssetUsages;
+    use bevy::mesh::{Indices, PrimitiveTopology};
+    const CELLS: u32 = 40;
+    let n = CELLS + 1;
+    let half = size * 0.5;
+    let mut pos = Vec::new();
+    let mut col = Vec::new();
+    for j in 0..n {
+        for i in 0..n {
+            let x = -half + size * i as f32 / CELLS as f32;
+            let z = -half + size * j as f32 / CELLS as f32;
+            let ripple = (x * 2.3 + (z * 0.7).sin() * 1.5).sin() * 0.5 + 0.5;
+            let speck = crate::art::hash(i as i32, j as i32, 404);
+            let scuff = crate::art::hash(i as i32 / 5, j as i32 / 5, 405);
+            let edge = (half - x.abs().max(z.abs())).clamp(0.0, 1.0);
+            let l = 0.82 + ripple * 0.08 + speck * 0.1
+                - (scuff > 0.8) as u8 as f32 * 0.12
+                - (1.0 - edge) * 0.2;
+            pos.push([x, 0.0, z]);
+            col.push(cat_vertex(0.95 * l, 0.8 * l, 0.58 * l));
+        }
+    }
+    let mut idx = Vec::new();
+    for j in 0..CELLS {
+        for i in 0..CELLS {
+            let a = j * n + i;
+            idx.extend_from_slice(&[a, a + n, a + 1, a + 1, a + n, a + n + 1]);
+        }
+    }
+    let normals = vec![[0.0, 1.0, 0.0]; pos.len()];
+    Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    )
+    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, col)
+    .with_inserted_indices(Indices::U32(idx))
+}
+
+/// Triangle pennants on strings along all four sides, relative to the centre.
+fn bunting_mesh() -> Mesh {
+    use bevy::asset::RenderAssetUsages;
+    use bevy::mesh::PrimitiveTopology;
+    const FLAGS: u32 = 14;
+    let colors = [
+        (0.95, 0.3, 0.3),
+        (0.3, 0.5, 1.0),
+        (1.0, 0.9, 0.3),
+        (1.0, 1.0, 1.0),
+    ];
+    let h = ARENA_HALF;
+    let corners = [
+        Vec3::new(-h, 0.0, -h),
+        Vec3::new(h, 0.0, -h),
+        Vec3::new(h, 0.0, h),
+        Vec3::new(-h, 0.0, h),
+    ];
+    let mut pos = Vec::new();
+    let mut col = Vec::new();
+    let string = cat_vertex(0.9, 0.85, 0.7);
+    for side in 0..4 {
+        let (a, b) = (corners[side], corners[(side + 1) % 4]);
+        let at = |t: f32| a.lerp(b, t) + Vec3::Y * (2.3 - (t * (1.0 - t)) * 1.6);
+        for f in 0..FLAGS {
+            let (t0, t1) = (f as f32 / FLAGS as f32, (f as f32 + 0.8) / FLAGS as f32);
+            let (p0, p1) = (at(t0 + 0.02), at(t1));
+            let tip = (p0 + p1) * 0.5 - Vec3::Y * 0.35;
+            let (r, g, bl) = colors[(f as usize + side) % colors.len()];
+            let c = cat_vertex(r, g, bl);
+            pos.extend_from_slice(&[p0.to_array(), p1.to_array(), tip.to_array()]);
+            col.extend_from_slice(&[c, c, c]);
+            // The string between this flag and the next, as a thin sliver.
+            let p2 = at((f as f32 + 1.0) / FLAGS as f32 + 0.02);
+            let d = Vec3::Y * 0.02;
+            pos.extend_from_slice(&[p1.to_array(), p2.to_array(), (p1 + d).to_array()]);
+            col.extend_from_slice(&[string, string, string]);
+        }
+    }
+    let normals = vec![[0.0, 1.0, 0.0]; pos.len()];
+    Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    )
+    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, col)
 }
 
 /// Give each duelist a body: an animated cowboy from `assets/models`, with a

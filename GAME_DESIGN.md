@@ -46,6 +46,12 @@ asked for, and what nobody has decided yet.
   (`crates/game/assets`, credits in `crates/game/assets/CREDITS.md`); every peer renders the
   same scene from a fixed seed, and if the files are missing the game quietly falls back to its
   procedural-primitive look.
+- **Hide and seek** (#61). Press K to start a round (two or more players). One player is picked
+  at random to seek: for 30 s their screen is blacked out and they can't move, while everyone
+  else runs off to hide among the generated scenery and the NPCs. Then the seeker has 3 minutes
+  to walk up to hiders and click them (within 2.5 m, roughly in front) to tag them. Tag everyone
+  and the seeker wins; if time runs out the hiders win. Found hiders just watch. Timers pause in
+  the Stillness. Nothing is won beyond bragging rights.
 - **Currency: organs** (#22). Each organ's value = creature worth (human 10, cow 5, pig 4,
   chicken 2, rat 1) × organ importance (brain 10, heart 9, lungs 7, liver 6, kidney 4,
   stomach 3, appendix 1). Every player has an organ purse, shown top-right. Everyone starts with
@@ -263,6 +269,8 @@ asked for, and what nobody has decided yet.
   then start; minimal settings; playable with just one person for testing.
 - (#47): nice models and textures etc, make the environment good.
 - (#53): fps cam/controls.
+- doomy (#61): a game mode that's just the generated environment and NPCs, then hide and seek
+  with players.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
 ## Open questions
@@ -283,7 +291,8 @@ asked for, and what nobody has decided yet.
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
-- Which is the primary goal: beating the landlord, escaping HALT, or opening the vault?
+- Which is the primary goal: beating the landlord, escaping HALT, opening the vault, or winning hide and seek?
+- What happens to hiders once they're found, and should winning hide and seek get you anything?
 - Can anyone ever truly escape HALT, and what would be on the other side?
 - The cat-vision filter only recolours flat colours — the new textured models (trees, cowboys)
   keep their natural greens and reds. Should the filter learn to shift textures too? (#12)

@@ -207,6 +207,7 @@ asked for, and what nobody has decided yet.
 
 ## Ideas so far
 
+- Freyja Moth (#51): list keywords (strict) / (expand, x..y) / (replace, x..y) say how literally to take a list of examples (rules in AGENTS.md).
 - Freyja Moth (#22): the only legal tender is organs, human and animal, valued by the creature
   and by how important the organ is to it (brain valuable, appendix less so).
 

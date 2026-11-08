@@ -11,6 +11,7 @@ pub mod atmosphere;
 pub mod camera;
 pub mod features;
 pub mod hud;
+pub mod landmarks;
 pub mod loading;
 pub mod menu;
 pub mod net;
@@ -47,22 +48,24 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<AppState>().add_plugins((
-            net::NetPlugin,
-            ProtocolPlugin,
-            voice::VoicePlugin,
-            settings::SettingsPlugin,
-            menu::MenuPlugin,
-            assets::plugin,
-            world::WorldPlugin,
-            terrain::TerrainPlugin,
-            atmosphere::plugin,
-            camera::CameraPlugin,
-            features::FeaturesPlugin,
-            hud::HudPlugin,
-            scenery::plugin,
-            ambience::plugin,
-            loading::plugin,
-        ));
+        app.init_state::<AppState>()
+            .add_plugins((
+                net::NetPlugin,
+                ProtocolPlugin,
+                voice::VoicePlugin,
+                settings::SettingsPlugin,
+                menu::MenuPlugin,
+                assets::plugin,
+                world::WorldPlugin,
+                terrain::TerrainPlugin,
+                atmosphere::plugin,
+                camera::CameraPlugin,
+                features::FeaturesPlugin,
+                hud::HudPlugin,
+                scenery::plugin,
+                ambience::plugin,
+                loading::plugin,
+            ))
+            .add_plugins(landmarks::plugin);
     }
 }

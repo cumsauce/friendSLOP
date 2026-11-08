@@ -683,7 +683,9 @@ fn light_bonfire(mut commands: Commands, assets: Res<AssetServer>) {
         PointLight {
             color: Color::srgb(1.0, 0.55, 0.2),
             intensity: 1800.0,
-            range: 14.0,
+            range: 12.0,
+            radius: 0.4,
+            shadow_maps_enabled: false,
             ..default()
         },
         BonfireFlame,

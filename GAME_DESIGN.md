@@ -60,7 +60,10 @@ asked for, and what nobody has decided yet.
   stay clear, and the strip between the default camera and the centre only gets low cover.
   Everything sits within ±22.5 m on flat y=0.
 - A floor dressed with low-poly nature (trees, bushes, grass, flowers, pebbles), a campfire
-  burning beside the burnt parliament, and a looping tune ("Catsong"). Plus real sound effects
+  burning beside the burnt parliament (stone ring, glowing embers, four log seats), a pond with
+  ripples, lily pads, reeds and cattails, rocks, a little jetty with a lantern and two ducks
+  paddling round, lantern posts strung with bulbs along the paths to the campfire and the pond
+  (`landmarks.rs`), and a looping tune ("Catsong"). Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
   wind loop, and a spatial crackling-fire loop at the campfire that gets louder as you approach.
   Procedural sounds (bear, HALT, voice lines, farts) render at 44.1 kHz with band-limited
@@ -106,7 +109,7 @@ asked for, and what nobody has decided yet.
 - **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with the
   commune's flag (a Union flag with a little Welsh flag and red dragon in the middle, because
   Dave isn't a coward; #43; made more anarchist in #57: red-over-black anarcho-syndicalist field,
-  black crosses, and a circled A sprayed on the corner), Dave himself (fist raised) and a banner at the top of the screen. Scenery
+  black crosses, and a circled A sprayed on the corner), the flag swinging gently on its pole, Dave himself (fist raised) and a banner at the top of the screen. Scenery
   only for now; every peer spawns it locally.
 - **The judgmental goat** (#20). A white goat with half-closed eyes stands on the floor, slowly
   shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:

@@ -68,6 +68,7 @@ crates/game/src/
   loading.rs    "Loading" curtain on entering the game until models load and frames settle
   people.rs     shared commune-person body (players + villagers), walk animation
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)
+  landmarks.rs  pond, campfire seats/stones and string lights dressing (local visuals)
   features/     one module per idea, see features/README.md
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)

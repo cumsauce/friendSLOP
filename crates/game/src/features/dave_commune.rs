@@ -396,11 +396,22 @@ fn spawn_commune(
     let white = materials.add(Color::srgb(1.0, 1.0, 1.0));
     let green = materials.add(Color::srgb(0.0, 0.55, 0.25));
     let flag_red = materials.add(Color::srgb(0.8, 0.07, 0.15));
+    // The flag hangs from a hinge at the pole and swings on it in the breeze
+    // (cheap waving that can't come off the pole).
+    let hinge = commands
+        .spawn((
+            at(1.0 + 0.06, 5.0 - FLAG_H / 2.0, 6.0),
+            Visibility::default(),
+            crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Y, 0.28, 1.3, 0.0),
+            DespawnOnExit(AppState::InGame),
+        ))
+        .id();
     let flag = commands
         .spawn((
-            at(1.0 + 0.06 + FLAG_W / 2.0, 5.0 - FLAG_H / 2.0, 6.0),
+            Transform::from_xyz(FLAG_W / 2.0, 0.0, 0.0),
             Visibility::default(),
-            DespawnOnExit(AppState::InGame),
+            crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::X, 0.08, 2.1, 1.0),
+            ChildOf(hinge),
         ))
         .id();
     for part in commune_flag() {

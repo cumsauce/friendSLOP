@@ -101,7 +101,7 @@ asked for, and what nobody has decided yet.
   game starts he has just raised your rent (the inciting incident; shown top-right). Act 1, legal:
   click him to pay with every organ you carry; he raises the rent again every 60 s (and whenever
   you pay it off). Act 2, less than legal: after 3 raises, clicking him pickpockets an organ back
-  from his stash, which counts as harming a landlord (always reprehensible, #21). Act 3: after 3
+  from his stash, which counts as harming a landlord (always raises your morality, #21/#43). Act 3: after 3
   heists he grows huge for a **boss fight**; 12 clicks knock him down, everyone gets the stash
   back and the game says THE END. The whole group shares one landlord and one story, so this is
   the first shared goal. He doesn't fight back yet, and nothing restarts after the end.

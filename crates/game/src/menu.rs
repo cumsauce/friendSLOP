@@ -15,6 +15,7 @@ use crate::AppState;
 use crate::hud::Toast;
 use crate::net::{Clipboard, NetCommand, NetStatus};
 use crate::player::LocalPlayer;
+use crate::scenery;
 use crate::settings::Settings;
 use crate::voice::VoiceMuted;
 
@@ -34,6 +35,7 @@ impl Plugin for MenuPlugin {
                     refresh_labels,
                     hover_buttons,
                     orbit_camera,
+                    backdrop_fallbacks,
                     menu_font,
                     menu_shortcuts,
                     style_status,
@@ -330,7 +332,8 @@ fn toggle_settings(panel: &mut Query<&mut Node, With<SettingsPanel>>) {
 }
 
 /// A tiny diorama of the meadow behind the menu: the real ground and grass
-/// meshes, the pond, a ring of primitive trees and a glowing campfire, seen by a
+/// meshes, the pond with lily pads, a ring of the real CC0 trees, bushes and
+/// rocks, the campfire with a few commune people, and bunting, seen by a
 /// slowly orbiting camera. Shares its pipelines with the game, so it doubles as
 /// a shader warm-up.
 fn spawn_backdrop(
@@ -338,6 +341,8 @@ fn spawn_backdrop(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
+    assets: Res<AssetServer>,
+    mut kit: ResMut<crate::people::PeopleKit>,
 ) {
     let out = DespawnOnExit(AppState::Menu);
     let horizon = crate::atmosphere::horizon_colour();
@@ -411,56 +416,252 @@ fn spawn_backdrop(
         out.clone(),
     ));
 
-    // Lollipop trees in a loose ring, deterministic.
-    let trunk = meshes.add(Cylinder::new(0.25, 2.0));
-    let crown = meshes.add(Sphere::new(1.4));
-    let bark = materials.add(Color::srgb(0.5, 0.36, 0.26));
-    let leaves = [
-        materials.add(Color::srgb(0.45, 0.72, 0.4)),
-        materials.add(Color::srgb(0.6, 0.78, 0.42)),
-        materials.add(Color::srgb(1.0, 0.72, 0.82)),
-    ];
+    // Real CC0 trees, bushes and rocks in a loose ring (deterministic), with a
+    // primitive stand-in only if a model fails to load (LFS data missing).
     for i in 0..18u32 {
         let a = i as f32 * 2.399;
-        let r = 7.0 + (i * 7 % 8) as f32;
-        let (x, z) = (a.cos() * r, a.sin() * r);
-        let s = 0.8 + (i % 4) as f32 * 0.2;
-        let y = crate::terrain::height_at(x, z);
+        let r = 8.0 + (i * 7 % 8) as f32;
+        let at = Vec2::new(a.cos() * r, a.sin() * r);
+        if at.distance(pond) < 5.0 {
+            continue;
+        }
+        let (file, scale, kind) = match i % 3 {
+            0 | 1 => (
+                scenery::TREES[i as usize % scenery::TREES.len()],
+                0.6 + (i % 4) as f32 * 0.12,
+                Stand::Tree,
+            ),
+            _ => (
+                scenery::BUSHES[i as usize % scenery::BUSHES.len()],
+                0.9,
+                Stand::Bush,
+            ),
+        };
+        backdrop_model(&mut commands, &assets, file, at, a * 3.0, scale, kind);
+    }
+    for (i, at) in [Vec2::new(-9.0, 6.0), Vec2::new(5.0, -11.0)]
+        .into_iter()
+        .enumerate()
+    {
+        let file = scenery::ROCKS[i % scenery::ROCKS.len()];
+        backdrop_model(
+            &mut commands,
+            &assets,
+            file,
+            at,
+            i as f32,
+            0.55,
+            Stand::Rock,
+        );
+    }
+
+    // The campfire with its glow, two log seats and three commune people idling.
+    scenery::spawn_bonfire(&mut commands, &assets, Vec3::ZERO, AppState::Menu);
+    commands.spawn((
+        PointLight {
+            color: Color::srgb(1.0, 0.6, 0.25),
+            intensity: 25_000.0,
+            range: 9.0,
+            shadow_maps_enabled: false,
+            ..default()
+        },
+        Transform::from_xyz(0.0, 0.8, 0.0),
+        out.clone(),
+    ));
+    let log = meshes.add(Cylinder::new(0.18, 1.4));
+    let bark = crate::art::soft(&mut materials, Color::srgb(0.45, 0.32, 0.22));
+    for yaw in [0.6f32, 2.9] {
+        let p = Vec2::from_angle(yaw) * 2.0;
         commands.spawn((
-            Mesh3d(trunk.clone()),
+            Mesh3d(log.clone()),
             MeshMaterial3d(bark.clone()),
-            Transform::from_xyz(x, y + s, z).with_scale(Vec3::splat(s)),
+            Transform::from_xyz(p.x, 0.18, p.y).with_rotation(
+                Quat::from_rotation_y(-yaw) * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2),
+            ),
             out.clone(),
         ));
+    }
+    for (i, ang) in [0.2f32, 2.2, 4.3].into_iter().enumerate() {
+        let p = Vec2::from_angle(ang) * 2.6;
+        // Face the fire (bodies look along -Z).
+        let facing = Transform::from_xyz(p.x, 0.0, p.y).looking_at(Vec3::ZERO, Vec3::Y);
+        let root = commands
+            .spawn((
+                crate::people::Gait::default(),
+                facing,
+                Visibility::default(),
+                out.clone(),
+            ))
+            .id();
+        commands.entity(root).with_children(|b| {
+            crate::people::spawn_person(
+                b,
+                root,
+                &mut kit,
+                &mut meshes,
+                &mut materials,
+                crate::people::Look::for_index(i as u64 * 2 + 1, 4242 + i as u64 * 7),
+            );
+        });
+    }
+
+    // Bunting between two poles behind the fire.
+    let pole = meshes.add(Cylinder::new(0.05, 2.6));
+    let pole_mat = crate::art::soft(&mut materials, Color::srgb(0.36, 0.25, 0.15));
+    let flag = meshes.add(Triangle3d::new(
+        Vec3::new(-0.16, 0.0, 0.0),
+        Vec3::new(0.16, 0.0, 0.0),
+        Vec3::new(0.0, -0.32, 0.0),
+    ));
+    let flags = [
+        Color::srgb(0.95, 0.45, 0.45),
+        Color::srgb(0.98, 0.8, 0.35),
+        Color::srgb(0.5, 0.75, 0.95),
+        Color::srgb(0.6, 0.85, 0.5),
+        Color::srgb(0.95, 0.6, 0.85),
+    ]
+    .map(|c| {
+        materials.add(StandardMaterial {
+            base_color: c,
+            double_sided: true,
+            cull_mode: None,
+            perceptual_roughness: 0.9,
+            ..default()
+        })
+    });
+    let (l, r) = (Vec2::new(-4.0, -3.0), Vec2::new(3.5, -4.5));
+    for p in [l, r] {
         commands.spawn((
-            Mesh3d(crown.clone()),
-            MeshMaterial3d(leaves[i as usize % leaves.len()].clone()),
-            Transform::from_xyz(x, y + 2.6 * s, z).with_scale(Vec3::splat(s)),
+            Mesh3d(pole.clone()),
+            MeshMaterial3d(pole_mat.clone()),
+            Transform::from_xyz(p.x, 1.3, p.y),
+            out.clone(),
+        ));
+    }
+    let along = (r - l).normalize_or(Vec2::X);
+    let yaw = Quat::from_rotation_y(-along.to_angle());
+    const FLAGS: usize = 14;
+    for k in 0..FLAGS {
+        let t = (k as f32 + 0.5) / FLAGS as f32;
+        let xz = l.lerp(r, t);
+        let y = 2.5 - 4.0 * t * (1.0 - t) * 0.5;
+        commands.spawn((
+            Mesh3d(flag.clone()),
+            MeshMaterial3d(flags[k % flags.len()].clone()),
+            Transform::from_xyz(xz.x, y, xz.y).with_rotation(yaw),
+            bevy::light::NotShadowCaster,
             out.clone(),
         ));
     }
 
-    // A little campfire in the middle.
+    // Lily pads with a pink bloom on the pond.
+    let pad = meshes.add(CircularSector::new(0.35, std::f32::consts::PI * 0.9));
+    let pad_mat = crate::art::soft(&mut materials, Color::srgb(0.3, 0.6, 0.25));
+    let bloom = meshes.add(Sphere::new(0.09));
+    let pink = crate::art::soft(&mut materials, Color::srgb(1.0, 0.6, 0.78));
+    for (k, (a, r)) in [(2.4f32, 1.8f32), (3.6, 2.3), (5.2, 1.3)]
+        .into_iter()
+        .enumerate()
+    {
+        let p = pond + Vec2::from_angle(a) * r;
+        commands.spawn((
+            Mesh3d(pad.clone()),
+            MeshMaterial3d(pad_mat.clone()),
+            Transform::from_xyz(p.x, 0.045, p.y).with_rotation(
+                Quat::from_rotation_y(a) * Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
+            ),
+            bevy::light::NotShadowCaster,
+            out.clone(),
+        ));
+        if k != 1 {
+            commands.spawn((
+                Mesh3d(bloom.clone()),
+                MeshMaterial3d(pink.clone()),
+                Transform::from_xyz(p.x, 0.1, p.y),
+                bevy::light::NotShadowCaster,
+                out.clone(),
+            ));
+        }
+    }
+}
+
+/// What primitive stands in for a backdrop model whose file failed to load.
+#[derive(Clone, Copy)]
+enum Stand {
+    Tree,
+    Bush,
+    Rock,
+}
+
+/// A backdrop model still waiting to see whether its file loads.
+#[derive(Component)]
+struct PendingModel(Stand);
+
+fn backdrop_model(
+    commands: &mut Commands,
+    assets: &AssetServer,
+    file: &str,
+    at: Vec2,
+    yaw: f32,
+    scale: f32,
+    kind: Stand,
+) {
+    let y = crate::terrain::height_at(at.x, at.y);
     commands.spawn((
-        Mesh3d(meshes.add(Cone::new(0.5, 1.0))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::srgb(1.0, 0.6, 0.2),
-            emissive: LinearRgba::rgb(6.0, 2.4, 0.5),
-            ..default()
-        })),
-        Transform::from_xyz(0.0, 0.5, 0.0),
-        out.clone(),
+        scenery::nature_model(assets, file),
+        Transform::from_xyz(at.x, y, at.y)
+            .with_rotation(Quat::from_rotation_y(yaw))
+            .with_scale(Vec3::splat(scale * scenery::model_size_fix(file))),
+        crate::ambience::Sway::default(),
+        PendingModel(kind),
+        DespawnOnExit(AppState::Menu),
     ));
-    commands.spawn((
-        PointLight {
-            color: Color::srgb(1.0, 0.65, 0.3),
-            intensity: 60_000.0,
-            range: 12.0,
-            ..default()
-        },
-        Transform::from_xyz(0.0, 1.5, 0.0),
-        out,
-    ));
+}
+
+/// Swap failed backdrop models for primitives so the meadow is never empty.
+fn backdrop_fallbacks(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    pending: Query<(Entity, &WorldAssetRoot, &PendingModel)>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for (e, root, kind) in &pending {
+        let state = assets.load_state(root.0.id());
+        if state.is_loaded() {
+            commands.entity(e).remove::<PendingModel>();
+            continue;
+        }
+        if !state.is_failed() {
+            continue;
+        }
+        let (mesh, colour, lift): (Mesh, Color, f32) = match kind.0 {
+            Stand::Tree => (Sphere::new(1.4).into(), Color::srgb(0.45, 0.72, 0.4), 2.6),
+            Stand::Bush => (Sphere::new(0.8).into(), Color::srgb(0.5, 0.7, 0.4), 0.5),
+            Stand::Rock => (
+                Cuboid::new(2.4, 1.6, 2.0).into(),
+                Color::srgb(0.6, 0.6, 0.62),
+                0.6,
+            ),
+        };
+        commands
+            .entity(e)
+            .remove::<(WorldAssetRoot, PendingModel)>()
+            .with_children(|p| {
+                p.spawn((
+                    Mesh3d(meshes.add(mesh)),
+                    MeshMaterial3d(materials.add(colour)),
+                    Transform::from_xyz(0.0, lift, 0.0),
+                ));
+                if matches!(kind.0, Stand::Tree) {
+                    p.spawn((
+                        Mesh3d(meshes.add(Cylinder::new(0.25, 2.0))),
+                        MeshMaterial3d(materials.add(Color::srgb(0.5, 0.36, 0.26))),
+                        Transform::from_xyz(0.0, 1.0, 0.0),
+                    ));
+                }
+            });
+    }
 }
 
 fn orbit(t: f32) -> Transform {

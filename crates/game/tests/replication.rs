@@ -210,3 +210,22 @@ fn challenge_accept_and_shoot_to_win_a_duel() {
     }
     assert!(duelists(&mut client).is_empty(), "duel over after 3 kills");
 }
+
+#[test]
+fn everyone_starts_morally_neutral() {
+    use friendslop::features::morality::Morality;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let all: Vec<Morality> = world
+        .query_filtered::<&Morality, With<Player>>()
+        .iter(world)
+        .copied()
+        .collect();
+    assert_eq!(all, vec![Morality(0); 2]);
+}

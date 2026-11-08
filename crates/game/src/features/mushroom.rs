@@ -13,6 +13,8 @@ use bevy_voice_chat::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::features::morality::{Act, MoralAct};
+use crate::player::PlayerOwner;
 use crate::world::MainCamera;
 
 /// A mushroom on the floor at (x, z).
@@ -110,11 +112,13 @@ fn eat_mushroom(
     mut commands: Commands,
     mut patch: ResMut<MushroomPatch>,
     mushrooms: Query<Entity, With<Mushroom>>,
+    players: Query<(Entity, &PlayerOwner)>,
 ) {
     let Some(mushroom) = mushrooms.iter().next() else {
         return;
     };
     commands.entity(mushroom).despawn();
+    MoralAct::report(&mut commands, &players, eat.client_id, Act::EatMushroom);
     let (coin, amount) = (patch.next(), patch.next());
     commands.server_trigger(ToClients {
         targets: SendTargets::Single(eat.client_id),

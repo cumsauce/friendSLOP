@@ -6,6 +6,7 @@
 
 use bevy::prelude::*;
 
+pub mod bear;
 pub mod crows;
 pub mod organ_currency;
 
@@ -16,6 +17,7 @@ impl Plugin for FeaturesProtocolPlugin {
         // Append only: order must match on every peer.
         app.add_plugins(organ_currency::protocol);
         app.add_plugins(crows::protocol);
+        app.add_plugins(bear::protocol);
     }
 }
 
@@ -25,5 +27,6 @@ impl Plugin for FeaturesPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(organ_currency::plugin);
         app.add_plugins(crows::plugin);
+        app.add_plugins(bear::plugin);
     }
 }

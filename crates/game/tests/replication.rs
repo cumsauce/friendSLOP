@@ -75,3 +75,18 @@ fn crows_replicate_to_clients() {
     let n = world.query::<&Crow>().iter(world).count();
     assert_eq!(n, CROW_COUNT as usize, "client sees every crow");
 }
+
+#[test]
+fn exactly_one_bear_replicates() {
+    use friendslop::features::bear::Bear;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let n = world.query::<&Bear>().iter(world).count();
+    assert_eq!(n, 1, "just one bear");
+}

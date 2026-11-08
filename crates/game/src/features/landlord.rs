@@ -8,7 +8,7 @@
 //!    `RAISE_SECS`, so you can never quite keep up.
 //! 2. **Less than legal**: after `RAISES_BEFORE_CRIME` raises you give up on the
 //!    law. Clicking him now pickpockets an organ back from his stash, which
-//!    counts as harming a landlord for morality (#21): always reprehensible.
+//!    counts as harming a landlord for morality (#21, corrected in #43): always virtuous.
 //! 3. **Boss fight**: after `HEISTS_BEFORE_BOSS` heists he grows huge and
 //!    fights back with eviction notices. Clicking hits him; at 0 health the
 //!    game is over and you've won.

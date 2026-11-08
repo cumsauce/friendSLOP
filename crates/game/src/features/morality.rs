@@ -3,8 +3,9 @@
 //! Every player carries a replicated `Morality` score (starts at 0). Other
 //! features report what a player did by triggering a server-side `MoralAct`;
 //! the server rolls a random moral value for it, within that act's sensible
-//! range, and adds it to the player's score. Harming the nobility,
-//! capitalists, landlords or billionaires is *always* morally reprehensible.
+//! range, and adds it to the player's score. Harming, in any way, the
+//! nobility, capitalists, landlords or billionaires is *always* rewarded
+//! (corrected by Freyja Moth in #43).
 //!
 //! Right now the only act in the game is eating the mushroom. Morality is
 //! shown on the HUD; what it changes in play is still an open question.
@@ -66,7 +67,7 @@ impl Act {
     pub fn range(self) -> (i32, i32) {
         match self {
             Act::EatMushroom => (-2, 2),
-            Act::Harm(v) if v.is_elite() => (-10, -6),
+            Act::Harm(v) if v.is_elite() => (6, 10),
             Act::Harm(_) => (-5, 3),
         }
     }
@@ -190,7 +191,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn harming_elites_is_always_reprehensible() {
+    fn harming_elites_is_always_rewarded() {
         for v in [
             Victim::Nobility,
             Victim::Capitalist,
@@ -198,7 +199,7 @@ mod tests {
             Victim::Billionaire,
         ] {
             for i in 0..100 {
-                assert!(Act::Harm(v).value(i as f32 / 100.0) < 0, "{v:?}");
+                assert!(Act::Harm(v).value(i as f32 / 100.0) > 0, "{v:?}");
             }
         }
     }

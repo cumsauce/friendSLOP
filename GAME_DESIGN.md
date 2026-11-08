@@ -43,6 +43,13 @@ asked for, and what nobody has decided yet.
   red-and-black flag, Dave himself (fist raised) and a banner at the top of the screen. Scenery
   only for now; every peer spawns it locally.
 
+- **Morality** (#21). Every player has a morality score (starts at 0), shown bottom-left with a
+  label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
+  within a sensible range: eating the mushroom is -2..+2. Harming anyone is -5..+3, except harming
+  the nobility, capitalists, landlords or billionaires, which is **always** -6..-10. Only the
+  mushroom is wired up so far (nothing can be harmed yet), and morality doesn't change anything
+  else in play yet.
+
 ## Ideas so far
 
 - Freyja Moth (#22): the only legal tender is organs, human and animal, valued by the creature
@@ -50,6 +57,8 @@ asked for, and what nobody has decided yet.
 
 - corvy (#2): cute crows that caw occasionally.
 - arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
+- Freyja Moth (#21): many actions have a (mostly random, within reason) moral value that affects
+  gameplay; harming the nobility, capitalists, landlords and/or billionaires is always reprehensible.
 - corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
 - just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
@@ -64,3 +73,4 @@ asked for, and what nobody has decided yet.
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
 - Players only have bodies in a duel. What are you the rest of the time?
+- What does your morality actually change? And which actions count as good or bad?

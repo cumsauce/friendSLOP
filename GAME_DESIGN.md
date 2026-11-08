@@ -123,7 +123,7 @@ asked for, and what nobody has decided yet.
   yellow (by the room's best Rumpet), and at 8+ white rabbits appear hopping on the floor.
   **John** gives a slight jump boost in meadows, but there's no jumping and no meadows yet.
 - **Totems and locked doors** (#5). Three glowing totems (Wind, Frost, Fire) are the world's
-  magic. Click one to carry it; press F to cast the spell of every totem you hold (shown as text
+  magic. Click one to carry it; press R to cast the spell of every totem you hold (shown as text
   to everyone; spells have no effect yet). A small stone vault on the east side has a Wind door
   and a Frost door, with the Fire totem inside. Click a door while holding its totem to insert
   it: the door sinks open, but that totem can't be cast while it's in there. Doors open from

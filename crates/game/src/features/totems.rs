@@ -1,7 +1,7 @@
 //! Magical totems and the locked doors they open. From issue #5.
 //!
 //! Totems are the world's magic: while you hold one you can cast its spell
-//! (F). Magic doors only open while a totem of their kind is inserted, and an
+//! (R). Magic doors only open while a totem of their kind is inserted, and an
 //! inserted totem can't be cast. A door can be opened from either side, but
 //! the totem can only be taken back out from the side it went in.
 //!
@@ -448,7 +448,7 @@ fn click_totems_and_doors(
 }
 
 fn cast_key(mut commands: Commands, keys: Res<ButtonInput<KeyCode>>) {
-    if keys.just_pressed(KeyCode::KeyF) {
+    if keys.just_pressed(KeyCode::KeyR) {
         commands.client_trigger(CastSpells);
     }
 }
@@ -501,7 +501,7 @@ fn update_totem_hud(
     }
     log.0.retain(|e| e.1 > 0.0);
     let mut lines =
-        vec!["totems (click to take, click a door's side to insert/remove, F casts)".to_string()];
+        vec!["totems (click to take, click a door's side to insert/remove, R casts)".to_string()];
     let mut ts: Vec<_> = totems.iter().collect();
     ts.sort_by_key(|t| t.id);
     for t in ts {

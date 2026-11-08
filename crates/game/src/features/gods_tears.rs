@@ -124,6 +124,7 @@ fn use_tear(
     mut commands: Commands,
     tears: Query<(Entity, &GodsTear)>,
     mut players: Query<(&PlayerOwner, &mut Transformation)>,
+    mut fate: super::fate::Fate,
 ) {
     let Some((tear, _)) = tears.iter().find(|(_, t)| t.id == ev.id) else {
         return;
@@ -135,6 +136,9 @@ fn use_tear(
     let Some((_, mut change)) = players.iter_mut().find(|(o, _)| o.0 == owner) else {
         return;
     };
+    if fate.fails(ev.client_id) {
+        return;
+    }
     commands.entity(tear).despawn();
     change.0 += 1;
 }

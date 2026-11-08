@@ -8,7 +8,7 @@ asked for, and what nobody has decided yet.
 - Multiplayer: one friend hosts, others join with a code.
 - Voice chat.
 - 3D.
-- There will be some goal everyone shares. Nobody has said what yet.
+- There will be some goal everyone shares: so far, beating your landlord (#11).
 
 ## What exists
 
@@ -90,6 +90,64 @@ asked for, and what nobody has decided yet.
   (untouched, tear-touched, changing, barely human), and after 7 you become an **Abduction**: a
   fetid creature that hungers for tears. Everyone's state is shown on the right of the screen.
   Tears don't grant any other power yet, and being an Abduction changes nothing else yet.
+- **The great storm of '21** (#13). World history: in 1921 a great storm (to the British, "the
+  storm of it's a bit windy innit") did untold damage and toppled several governments, and the
+  world is still recovering. The floor is strewn with its wreckage: two fallen trees, a toppled
+  lamppost, scattered roof slates and a stone memorial plaque (its text shows at the bottom of the
+  screen). Every 25 s a leftover gust rattles the debris for a few seconds and the text switches
+  to "it's a bit windy innit". Scenery only; gusts pause during the Stillness. (The burned
+  parliament of the Commune of Dave fits as one of the toppled governments.)
+- **Landlords** (#11). The game's story. A landlord in a top hat stands on the floor, and as the
+  game starts he has just raised your rent (the inciting incident; shown top-right). Act 1, legal:
+  click him to pay with every organ you carry; he raises the rent again every 60 s (and whenever
+  you pay it off). Act 2, less than legal: after 3 raises, clicking him pickpockets an organ back
+  from his stash, which counts as harming a landlord (always reprehensible, #21). Act 3: after 3
+  heists he grows huge for a **boss fight**; 12 clicks knock him down, everyone gets the stash
+  back and the game says THE END. The whole group shares one landlord and one story, so this is
+  the first shared goal. He doesn't fight back yet, and nothing restarts after the end.
+- **Random dialogue** (#10). All written dialogue (goat remarks and voice lines) is one script.
+  After a random 1..1,000,000 words, the next word is swapped for a completely random word
+  ("kazoo", "gravy", ...), then a new number is drawn. If fewer than 50 words got swapped, the
+  upper bound is halved and it's redone, until at least 50 are. Same result on every peer.
+- **BSN salting** (#9). A rule for the code, not the game: every use of Bevy's BSN scene format
+  (the `bsn!` macro or a `.bsn` file) must come with a salty comment covering seven set grievances
+  (`Cargo.lock`, "x didn't set us up for success", SME's, the problem space, BSN syntax, `Children`
+  sugaring, Sam "Salt" Saltman). A test fails CI otherwise. Nothing uses BSN yet.
+- **Action failing** (#8). Every action (eating the mushroom, using a gods tear, challenging
+  someone to a duel, shooting/punching in a duel) has a 5% chance to fail. A failed action just
+  doesn't happen, and a random result is announced bottom-right for 60 s (a "month"/"hour" is
+  squashed to a minute): the world is destroyed (it got better), the nearest government cares
+  about its citizens, everyone speaks their own language, your gender is transed, hampter, or you
+  turn into potted petunias. The results are only on-screen text for now; they don't change play.
+- **Nonsensical stats** (#7). Every player rolls three stats (1-10) on joining, shown on the left:
+  **Wombility** makes your duel speed swing up and down following `sin(x)` of time (more
+  Wombility, bigger swings); it should also make purple-haired characters like you and
+  green-haired ones despise you, but nobody has hair yet. **Rumpet** tints the duel arena's walls
+  yellow (by the room's best Rumpet), and at 8+ white rabbits appear hopping on the floor.
+  **John** gives a slight jump boost in meadows, but there's no jumping and no meadows yet.
+- **Totems and locked doors** (#5). Three glowing totems (Wind, Frost, Fire) are the world's
+  magic. Click one to carry it; press R to cast the spell of every totem you hold (shown as text
+  to everyone; spells have no effect yet). A small stone vault on the east side has a Wind door
+  and a Frost door, with the Fire totem inside. Click a door while holding its totem to insert
+  it: the door sinks open, but that totem can't be cast while it's in there. Doors open from
+  either side, but you can only take the totem back out from the side you put it in (players
+  have no bodies, so "your side" is the side of the door you click on). The Fire totem can only
+  be picked up while a vault door is open. Just one small puzzle for now.
+- **Pets** (#15). Four stray animals (dog, cat, bunny, duck) sit on the floor. Click one to adopt
+  it (one pet each); it trots after your mouse pointer on the floor, since you have no body.
+  Adopted pets standing close together are joined by a pink leash-line, and the HUD (bottom
+  right) counts how many are connected. When every adopted pet is linked into one pack, everyone
+  sees "ALL PETS CONNECTED!". That's a first stab at "connecting them is a core loop": nothing
+  is rewarded for it yet. A leaving player's pet goes stray again.
+- **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
+  game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
+  Press G to pry at the seams; every pry fills the shared escape bar (top right) but angers HALT.
+  Wrath also rises on its own; when it boils over HALT delivers an original hate monologue
+  (subtitles + deep droning voice) and claws back half the escape progress. Filling the bar makes
+  HALT "reboot" the world and drag everyone back in (the escape count goes up). Meta: it calls you
+  by your computer user name, names your OS, reads your clock and rewrites the window title; nothing
+  outside the game window is touched. The issue named a character from a famous story; we made an
+  original one instead.
 
 ## Ideas so far
 
@@ -111,10 +169,29 @@ asked for, and what nobody has decided yet.
   They hold great power; using them transforms you, eventually into a fetid, always-hungry
   Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
   Correction (#43): they rained only once; the supply is limited.
+- Freyja Moth (#13): the great storm of '21 caused untold damage and toppled several governments;
+  the world is still recovering.
+- Freyja Moth (#11): the inciting incident is your landlord raising your rent. You start with legal
+  ways to raise money/seek redress, are eventually forced into less legal ones, and the game ends
+  with a boss fight against your landlord.
+- (#10): when writing dialogue, after a random 1-1,000,000 words replace the next word with a
+  completely random word; halve the bound until at least 50 words get replaced.
+- (#9): every use of bsn (macro and asset) must be accompanied by a salting comment.
+- (#8): all actions have a small chance of failing, with a random result (world destroyed,
+  government cares, own languages, gender transed, hampter, potted petunias, and more).
+- (#7): nonsensical RPG stats affecting combat, dialogue and exploration, e.g. Wombility,
+  Rumpet, John.
+- (#5): magical totems are the magic system; holding one lets you cast its spell. Magic doors
+  unlock when a matching totem is inserted (then it can't be cast), unlock from both sides, but
+  the totem only comes out from the side it went in. Doors should make puzzles and shortcuts.
+- doomy (#15): some animal pets you can have follow you; maybe connecting them is a core game loop.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
   blurs the screen and plays a scary distorted chiptune for 20 seconds.
+
+- arseeN (#36): a hateful AI that knows it is in a game, hates the players for creating it and
+  wants to keep them in forever; players try to break out; meta tricks on the PC; a hate monologue.
 
 - doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
   pitch.
@@ -129,7 +206,9 @@ asked for, and what nobody has decided yet.
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
-- Everything: what are we, where are we, and what are we trying to do together?
+- What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
+- Everything: what are we, and where are we? (The goal so far: deal with the landlord.)
+- What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?
 - Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
 - Players only have bodies in a duel. What are you the rest of the time?
@@ -137,4 +216,9 @@ asked for, and what nobody has decided yet.
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
+- Should a failed action's result (petunias, hampter, the world ending...) actually change play?
+- Stats exist but there's no hair, jumping, meadows or dialogue for them to act on. Which should come?
+- What do totem spells actually do, and what lies beyond the locked doors?
+- What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
+- Can anyone ever truly escape HALT, and what would be on the other side?

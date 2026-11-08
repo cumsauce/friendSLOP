@@ -13,12 +13,20 @@ pub mod dave_commune;
 pub mod duel;
 pub mod fart;
 pub mod fart_sound;
+pub mod fate;
 pub mod goat;
 pub mod gods_tears;
+pub mod great_storm;
+pub mod halt;
+pub mod landlord;
 pub mod morality;
 pub mod mushroom;
 pub mod organ_currency;
+pub mod pets;
+pub mod random_dialogue;
+pub mod stats;
 pub mod stillness;
+pub mod totems;
 pub mod voice_lines;
 
 pub struct FeaturesProtocolPlugin;
@@ -40,6 +48,12 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(gods_tears::protocol);
         app.add_plugins(fart::protocol);
         app.add_plugins(fart_sound::protocol);
+        app.add_plugins(landlord::protocol);
+        app.add_plugins(fate::protocol);
+        app.add_plugins(stats::protocol);
+        app.add_plugins(totems::protocol);
+        app.add_plugins(pets::protocol);
+        app.add_plugins(halt::protocol);
     }
 }
 
@@ -61,5 +75,12 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(gods_tears::plugin);
         app.add_plugins(fart::plugin);
         app.add_plugins(fart_sound::plugin);
+        app.add_plugins(great_storm::plugin);
+        app.add_plugins(landlord::plugin);
+        app.add_plugins(fate::plugin);
+        app.add_plugins(stats::plugin);
+        app.add_plugins(totems::plugin);
+        app.add_plugins(pets::plugin);
+        app.add_plugins(halt::plugin);
     }
 }

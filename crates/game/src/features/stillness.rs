@@ -126,7 +126,7 @@ struct StillText;
 fn spawn_still_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
-        TextFont::from_font_size(36.0),
+        TextFont::from_font_size(24.0),
         StillText,
         crate::hud::slot(crate::hud::HudSlot::CenterBanner),
         TextLayout::justify(Justify::Center),

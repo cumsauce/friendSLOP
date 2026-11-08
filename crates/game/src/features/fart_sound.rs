@@ -181,7 +181,7 @@ fn spawn_tone_text(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         ToneText,
-        crate::hud::slot(crate::hud::HudSlot::BottomRight),
+        crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));
 }

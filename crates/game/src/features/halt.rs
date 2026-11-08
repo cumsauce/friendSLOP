@@ -169,12 +169,28 @@ fn send_pry(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
 #[derive(Component)]
 struct HaltText;
 
+#[derive(Component)]
+struct HaltQuote;
+
 fn spawn_halt_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
-        TextColor(Color::srgb(1.0, 0.25, 0.2)),
+        TextColor(Color::srgb(1.0, 0.35, 0.3)),
+        TextFont::from_font_size(12.0),
         HaltText,
         crate::hud::slot(crate::hud::HudSlot::TopRight),
+        DespawnOnExit(AppState::InGame),
+    ));
+    commands.spawn((
+        Text::new(""),
+        TextColor(Color::srgb(1.0, 0.45, 0.4)),
+        HaltQuote,
+        crate::hud::slot(crate::hud::HudSlot::Toasts),
+        DespawnOnExit(AppState::InGame),
+    ));
+    commands.spawn((
+        Text::new("HALT: G pries at it. Fill escape to break out; wrath rises meanwhile."),
+        crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -209,6 +225,24 @@ fn clock_hhmm() -> String {
 fn bar(v: u8) -> String {
     let n = usize::from(v / 10);
     format!("[{}{}]", "#".repeat(n), ".".repeat(10 - n))
+}
+
+/// HALT's compact status line: wrath and escape bars.
+pub fn halt_status(h: &Halt) -> String {
+    let mut s = format!("HALT wrath {} escape {}", bar(h.wrath), bar(h.escape));
+    if h.escapes > 0 {
+        s.push_str(&format!("  x{}", h.escapes));
+    }
+    s
+}
+
+/// What HALT is saying right now (the first line of [`halt_line`]).
+pub fn halt_quote(h: &Halt, user: &str, os: &str, clock: &str) -> String {
+    halt_line(h, user, os, clock)
+        .lines()
+        .next()
+        .unwrap_or("")
+        .to_string()
 }
 
 /// The HUD line for HALT's current state.
@@ -248,7 +282,8 @@ pub fn halt_title(h: &Halt, user: &str) -> String {
 
 fn show_halt(
     halt: Query<&Halt>,
-    mut text: Query<&mut Text, With<HaltText>>,
+    mut text: Query<&mut Text, (With<HaltText>, Without<HaltQuote>)>,
+    mut quote: Query<&mut Text, (With<HaltQuote>, Without<HaltText>)>,
     mut window: Query<&mut Window, With<PrimaryWindow>>,
     mut user: Local<Option<String>>,
     settings: Option<Res<crate::settings::Settings>>,
@@ -261,10 +296,16 @@ fn show_halt(
     let Some(h) = halt.iter().next() else {
         return;
     };
-    let line = halt_line(h, &user, os_name(), &clock_hhmm());
+    let line = halt_status(h);
     for mut t in &mut text {
         if t.0 != line {
             t.0 = line.clone();
+        }
+    }
+    let said = halt_quote(h, &user, os_name(), &clock_hhmm());
+    for mut t in &mut quote {
+        if t.0 != said {
+            t.0 = said.clone();
         }
     }
     let title = halt_title(h, &user);

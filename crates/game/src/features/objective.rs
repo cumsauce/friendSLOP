@@ -108,12 +108,12 @@ fn next_round(_reset: On<RoundReset>, mut objective: Query<&mut Objective>) {
 /// The one-line objective for an act.
 pub fn objective_line(o: &Objective) -> String {
     let goal = match o.act {
-        Act3::Legal => "Act I: keep up with the rent (click the landlord to pay)",
-        Act3::Crime => "Act II: take it back (click the landlord to pickpocket)",
-        Act3::Boss => "Act III: defeat the landlord (click to hit him)",
-        Act3::Won => "The landlord is defeated",
+        Act3::Legal => "Act I | keep up with the rent",
+        Act3::Crime => "Act II | take it back",
+        Act3::Boss => "Act III | defeat the landlord",
+        Act3::Won => "the landlord is defeated",
     };
-    format!("Objective: {goal} [{}%]", o.progress)
+    format!("{goal}  {}%", o.progress)
 }
 
 pub fn plugin(app: &mut App) {
@@ -134,24 +134,14 @@ fn spawn_objective_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         ObjectiveText,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(12),
-            left: percent(30),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopCenter),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
         Text::new(""),
-        TextFont::from_font_size(28.0),
+        TextFont::from_font_size(22.0),
         RoundSummary,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(35),
-            left: percent(25),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::CenterBanner),
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));

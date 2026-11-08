@@ -361,8 +361,14 @@ fn maze(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
         } else {
             Vec3::new(t, h, len)
         };
-        let mat = if rng.f() < 0.2 { &x.castle } else { &x.hedge };
-        d.block(v3(mid, h / 2.0), size, Quat::IDENTITY, mat, true);
+        // Stone stretches stand 3 cm proud of the hedge all round, so where
+        // they meet a hedge their faces never coincide (z-fighting).
+        let (mat, size) = if rng.f() < 0.2 {
+            (&x.castle, size + Vec3::splat(0.06))
+        } else {
+            (&x.hedge, size)
+        };
+        d.block(v3(mid, size.y / 2.0), size, Quat::IDENTITY, mat, true);
     };
     let at = |i: usize, j: usize| origin + Vec2::new(i as f32, j as f32) * MAZE_CELL;
     // Outer north and west edges.
@@ -579,7 +585,12 @@ fn low_wall(d: &mut Dresser, x: &Extra, rng: &mut Rng, c: Vec2, len: f32) {
         };
         d.block(
             v3(p, h / 2.0),
-            Vec3::new(len / segs as f32 + 0.05, h, if hedge { 1.0 } else { 0.6 }),
+            // Overlapping neighbours alternate thickness (no coplanar faces).
+            Vec3::new(
+                len / segs as f32 + 0.05,
+                h,
+                if hedge { 1.0 } else { 0.6 } + (i % 2) as f32 * 0.04,
+            ),
             Quat::from_rotation_y(yaw_a),
             mat,
             true,

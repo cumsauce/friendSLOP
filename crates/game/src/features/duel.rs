@@ -291,7 +291,11 @@ fn on_shoot(
     mut commands: Commands,
     players: Query<(&Player, &PlayerOwner)>,
     mut duelists: Query<(Entity, &mut Duelist)>,
+    still: Query<&super::stillness::Stillness>,
 ) {
+    if super::stillness::is_frozen(&still) {
+        return;
+    }
     let Some(me) = player_of(ev.client_id, &players) else {
         return;
     };

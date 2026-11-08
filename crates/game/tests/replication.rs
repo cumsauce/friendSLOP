@@ -244,3 +244,19 @@ fn music_boxes_replicate() {
     let n = world.query::<&MusicBox>().iter(world).count();
     assert_eq!(n, MUSIC_BOX_COUNT as usize);
 }
+
+#[test]
+fn client_sees_the_freeze_clock() {
+    use friendslop::features::stillness::Stillness;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut client);
+        client.update();
+    }
+    let world = client.world_mut();
+    let still: Vec<Stillness> = world.query::<&Stillness>().iter(world).copied().collect();
+    assert_eq!(still.len(), 1, "exactly one freeze clock");
+    assert!(!still[0].frozen, "the world starts unfrozen");
+}

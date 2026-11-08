@@ -65,6 +65,10 @@ asked for, and what nobody has decided yet.
   per player and not saved between runs. `cargo run -- host` / `join <code>` still skip the menu.
   There is no separate lobby screen yet: hosting drops you straight into the world, and friends
   appear on the player list as they join.
+- **The Stillness** (#17). Every 60 seconds the whole world freezes for 20 seconds so everyone
+  can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
+  in place; eating the mushroom and shooting are ignored; a big message with a countdown shows in
+  the middle of the screen. Voice chat keeps working. The host's clock decides when it happens.
 
 ## Ideas so far
 
@@ -79,6 +83,8 @@ asked for, and what nobody has decided yet.
   game; done as original lines instead).
 - corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
 - just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
+- just meat and cheese (#17): every 60 s all actions and NPC behaviour freeze for 20 s so players
+  can socialize and stare with passion.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and

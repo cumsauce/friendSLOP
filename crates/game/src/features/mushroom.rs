@@ -113,7 +113,11 @@ fn eat_mushroom(
     mut patch: ResMut<MushroomPatch>,
     mushrooms: Query<Entity, With<Mushroom>>,
     players: Query<(Entity, &PlayerOwner)>,
+    still: Query<&super::stillness::Stillness>,
 ) {
+    if super::stillness::is_frozen(&still) {
+        return;
+    }
     let Some(mushroom) = mushrooms.iter().next() else {
         return;
     };

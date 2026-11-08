@@ -7,6 +7,7 @@
 use bevy::prelude::*;
 
 pub mod bear;
+pub mod cat_palette;
 pub mod crows;
 pub mod mushroom;
 pub mod organ_currency;
@@ -20,6 +21,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(crows::protocol);
         app.add_plugins(bear::protocol);
         app.add_plugins(mushroom::protocol);
+        app.add_plugins(cat_palette::protocol);
     }
 }
 
@@ -31,5 +33,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(crows::plugin);
         app.add_plugins(bear::plugin);
         app.add_plugins(mushroom::plugin);
+        app.add_plugins(cat_palette::plugin);
     }
 }

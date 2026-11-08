@@ -86,7 +86,7 @@ impl HudSlot {
                 n.align_items = AlignItems::Center;
             }
             HudSlot::Toasts => {
-                n.top = px(96);
+                n.top = px(130);
                 (n.left, n.right) = (percent(30), percent(30));
                 n.max_width = Val::Auto;
                 n.align_items = AlignItems::Center;

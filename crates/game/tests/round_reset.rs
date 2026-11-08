@@ -1,10 +1,12 @@
-//! Headless: beating the landlord ends the round, and a restart resets it.
+//! Headless: finishing the chapter (beating the landlord and the rest of the
+//! checklist) ends the round, and a restart resets it.
 
 use bevy::prelude::*;
 use bevy::state::app::StatesPlugin;
 use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
+use friendslop::features::campaign::Campaign;
 use friendslop::features::gods_tears::{GodsTear, TOTAL_TEARS, Transformation};
 use friendslop::features::halt::Halt;
 use friendslop::features::landlord::{Act3, Tenancy};
@@ -77,6 +79,10 @@ fn defeating_the_landlord_then_restarting_resets_the_round() {
         }
         for mut t in world.query::<&mut Transformation>().iter_mut(world) {
             t.0 = 4;
+        }
+        // The rest of the chapter's checklist (#75).
+        for mut c in world.query::<&mut Campaign>().iter_mut(world) {
+            c.observe(|t| t.need());
         }
     }
     exchange(&mut server, &mut client, 3);

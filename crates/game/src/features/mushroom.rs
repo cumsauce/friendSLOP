@@ -203,7 +203,7 @@ fn wear_off(
         *applied = Some(pitch);
     }
     let want = if high.remaining <= 0.0 {
-        "click the mushroom to eat it".to_string()
+        String::new()
     } else {
         let how = if pitch > 1.0 {
             "MUCH higher"
@@ -232,6 +232,11 @@ fn spawn_mushroom_text(mut commands: Commands) {
         Text::new(""),
         MushroomText,
         crate::hud::slot(crate::hud::HudSlot::BottomRight),
+        DespawnOnExit(AppState::InGame),
+    ));
+    commands.spawn((
+        Text::new("mushroom: click it to eat it and change your voice for a while"),
+        crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));
 }

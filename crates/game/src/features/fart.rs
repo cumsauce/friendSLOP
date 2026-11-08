@@ -210,7 +210,15 @@ fn spawn_fart_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         FartNews,
-        crate::hud::slot(crate::hud::HudSlot::TopCenter),
+        crate::hud::slot(crate::hud::HudSlot::Toasts),
+        DespawnOnExit(AppState::InGame),
+    ));
+    commands.spawn((
+        Text::new(
+            "farting: F lets one go at the cursor once your gas is built up. \
+             Keep away from NPCs or you'll be shamed.",
+        ),
+        crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -263,12 +271,8 @@ fn show_gas(
     };
     let filled = (gas.0 / 10) as usize;
     let bar = format!("{}{}", "#".repeat(filled), ".".repeat(10 - filled));
-    let hint = if gas.0 >= MIN_GAS {
-        "[F] fart at the cursor (away from NPCs!)"
-    } else {
-        "building up..."
-    };
-    let want = format!("gas [{bar}] {}%  {hint}", gas.0);
+    let hint = if gas.0 >= MIN_GAS { "  F to fart" } else { "" };
+    let want = format!("gas {bar} {}%{hint}", gas.0);
     for mut text in &mut text {
         if text.0 != want {
             text.0.clone_from(&want);

@@ -46,3 +46,11 @@ textured materials yet, so these models keep their natural colours for now
 - `audio/ambience/fire_crackle.ogg` — "[Fire Crackling](https://opengameart.org/content/fire-crackling)"
   by AntumDeluge, CC0 (file: https://opengameart.org/sites/default/files/fire-1_0.ogg).
 - The wind bed is synthesized in code (`features/ambience.rs`), no file.
+
+## Fonts (`fonts/`)
+
+- `fonts/Nunito.ttf` — **Nunito** (variable weight) by The Nunito Project Authors
+  (https://github.com/googlefonts/nunito), from
+  [google/fonts](https://github.com/google/fonts/tree/main/ofl/nunito), licensed under the
+  [SIL Open Font License 1.1](https://openfontlicense.org). Used for HUD text; the HUD falls
+  back to Bevy's built-in font if the file is missing.

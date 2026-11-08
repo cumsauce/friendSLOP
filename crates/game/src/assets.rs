@@ -21,8 +21,25 @@ pub struct Sfx {
     pub music: Handle<AudioSource>,
 }
 
+/// The friendly rounded HUD font (`assets/fonts/Nunito.ttf`, OFL). Only use it
+/// once [`UiFont::ready`] says so; until then (or if the file is missing) text
+/// keeps Bevy's built-in default font.
+#[derive(Resource, Clone)]
+pub struct UiFont(pub Handle<Font>);
+
+impl UiFont {
+    pub fn ready(&self, assets: &AssetServer) -> bool {
+        assets.is_loaded_with_dependencies(&self.0)
+    }
+}
+
 pub fn plugin(app: &mut App) {
-    app.add_systems(Startup, load_sfx);
+    app.add_systems(Startup, (load_sfx, load_font));
+}
+
+fn load_font(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+    let Some(assets) = assets else { return };
+    commands.insert_resource(UiFont(assets.load("fonts/Nunito.ttf")));
 }
 
 fn load_sfx(mut commands: Commands, assets: Option<Res<AssetServer>>) {

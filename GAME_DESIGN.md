@@ -39,6 +39,9 @@ asked for, and what nobody has decided yet.
   every hit kills, a kill refunds your bullet, with no bullets you punch up close, you respawn
   with one bullet. 3 lives each; the last one standing wins. One duel at a time. Nothing is
   won or lost beyond bragging rights yet.
+- **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with a
+  red-and-black flag, Dave himself (fist raised) and a banner at the top of the screen. Scenery
+  only for now; every peer spawns it locally.
 
 ## Ideas so far
 
@@ -51,9 +54,13 @@ asked for, and what nobody has decided yet.
 - just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
 - doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
 
+- (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
+  founded the Commune of Dave.
+
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
 - Everything: what are we, where are we, and what are we trying to do together?
+- Does the commune do anything, or is it just where we are?
 - Organs are money, but how do you get them, and what are they for?
 - Players only have bodies in a duel. What are you the rest of the time?

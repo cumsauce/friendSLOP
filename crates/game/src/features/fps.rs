@@ -57,6 +57,11 @@ pub struct WalkInput {
 #[derive(Component, Default, Debug)]
 pub struct WalkPrev(pub Vec3);
 
+/// Server only: this body can't move right now (e.g. the seeker counting in
+/// hide and seek). Looking around still works.
+#[derive(Component, Default, Debug)]
+pub struct Rooted;
+
 /// Client -> server, every frame while walking (local x = right, y = forward).
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct WalkControl {
@@ -162,14 +167,23 @@ fn move_walkers(
     time: Res<Time>,
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
-    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput, &mut WalkPrev)>,
+    mut walkers: Query<(
+        &Player,
+        &mut Walker,
+        &mut WalkInput,
+        &mut WalkPrev,
+        Has<Rooted>,
+    )>,
 ) {
     if super::stillness::is_frozen(&still) {
         return; // the world stands still, and so do you
     }
     let dt = time.delta_secs().min(0.1);
-    for (player, mut walker, mut input, mut prev) in &mut walkers {
+    for (player, mut walker, mut input, mut prev, rooted) in &mut walkers {
         prev.0 = walker.pos;
+        if rooted {
+            continue;
+        }
         if duelists.iter().any(|d| d.player == player.id) {
             continue; // your duel body is the one moving
         }

@@ -209,6 +209,7 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("[ ] - = ; '", "fart tone"),
     ("G", "pry at HALT"),
     ("R", "cast a totem spell"),
+    ("K", "start hide and seek (seeker: click hiders up close)"),
     ("1-9", "challenge that player to a duel"),
     ("Y / N", "accept / refuse"),
     ("C", "copy the join code again"),

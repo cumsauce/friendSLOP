@@ -21,6 +21,7 @@ pub mod gods_tears;
 pub mod great_storm;
 pub mod halt;
 pub mod interact;
+pub mod hide_and_seek;
 pub mod landlord;
 pub mod morality;
 pub mod mushroom;
@@ -62,6 +63,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(objective::protocol);
         app.add_plugins(fps::protocol);
         app.add_plugins(interact::protocol);
+        app.add_plugins(hide_and_seek::protocol);
     }
 }
 
@@ -96,5 +98,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(objective::plugin);
         app.add_plugins(fps::plugin);
         app.add_plugins(interact::plugin);
+        app.add_plugins(hide_and_seek::plugin);
     }
 }

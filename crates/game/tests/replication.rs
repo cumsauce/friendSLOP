@@ -859,3 +859,82 @@ fn one_click_hits_only_one_target() {
     ];
     assert_eq!(pick(cursor, under), Some(ids[1]), "only the closest one");
 }
+
+#[test]
+fn hide_and_seek_picks_a_seeker_who_can_tag_everyone() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::fate::FateDice;
+    use friendslop::features::fps::{Rooted, Walker};
+    use friendslop::features::hide_and_seek::{HideAndSeek, Phase, StartHideAndSeek, TagHider};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    server.world_mut().resource_mut::<FateDice>().chance = 0.0;
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    let game = |app: &mut App| {
+        let world = app.world_mut();
+        world.query::<&HideAndSeek>().single(world).ok().cloned()
+    };
+    step(&mut server, &mut client);
+    assert_eq!(game(&mut client).map(|g| g.phase), Some(Phase::Idle));
+
+    client.world_mut().client_trigger(StartHideAndSeek);
+    step(&mut server, &mut client);
+    let Some(g) = game(&mut client) else {
+        panic!("the game replicates");
+    };
+    assert_eq!(g.phase, Phase::Hiding);
+    assert_eq!(g.hiders.len(), 1);
+    assert_ne!(g.hiders[0], g.seeker);
+    let (seeker, hider) = (g.seeker, g.hiders[0]);
+    {
+        let world = server.world_mut();
+        let rooted: Vec<u64> = world
+            .query_filtered::<&Player, With<Rooted>>()
+            .iter(world)
+            .map(|p| p.id)
+            .collect();
+        assert_eq!(
+            rooted,
+            vec![seeker],
+            "only the seeker is rooted while counting"
+        );
+    }
+
+    // Skip the count, and put the hider right in front of the seeker.
+    {
+        let world = server.world_mut();
+        let mut q = world.query::<&mut HideAndSeek>();
+        for mut g in q.iter_mut(world) {
+            g.phase = Phase::Seeking;
+        }
+        let mut q = world.query::<(&Player, &mut Walker)>();
+        for (p, mut w) in q.iter_mut(world) {
+            if p.id == seeker {
+                w.pos = Vec3::ZERO;
+                w.yaw = 0.0;
+            } else if p.id == hider {
+                w.pos = Vec3::new(0.0, 0.0, -1.5);
+            }
+        }
+    }
+    step(&mut server, &mut client);
+    let seeker_app = if seeker == 0 {
+        &mut server
+    } else {
+        &mut client
+    };
+    seeker_app.world_mut().client_trigger(TagHider);
+    step(&mut server, &mut client);
+    assert_eq!(
+        game(&mut client).map(|g| g.phase),
+        Some(Phase::Idle),
+        "everyone found: round over"
+    );
+}

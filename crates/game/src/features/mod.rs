@@ -15,6 +15,7 @@ pub mod fart;
 pub mod fart_sound;
 pub mod goat;
 pub mod gods_tears;
+pub mod great_storm;
 pub mod morality;
 pub mod mushroom;
 pub mod organ_currency;
@@ -61,5 +62,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(gods_tears::plugin);
         app.add_plugins(fart::plugin);
         app.add_plugins(fart_sound::plugin);
+        app.add_plugins(great_storm::plugin);
     }
 }

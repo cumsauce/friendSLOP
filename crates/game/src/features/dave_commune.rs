@@ -253,12 +253,8 @@ fn spawn_commune(
 
     commands.spawn((
         Text::new("Commune of Dave: power generates parasites"),
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(8),
-            left: percent(35),
-            ..default()
-        },
+        crate::hud::small(),
+        crate::hud::slot(crate::hud::HudSlot::TopCenter),
         DespawnOnExit(AppState::InGame),
     ));
 }

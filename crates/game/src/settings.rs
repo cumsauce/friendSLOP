@@ -10,6 +10,8 @@ use bevy_voice_chat::prelude::*;
 pub struct Settings {
     pub master_volume: f32,
     pub voice_volume: f32,
+    /// HALT may use your OS username in the window title and HUD.
+    pub halt_real_name: bool,
 }
 
 impl Default for Settings {
@@ -17,6 +19,7 @@ impl Default for Settings {
         Self {
             master_volume: 0.8,
             voice_volume: 1.0,
+            halt_real_name: true,
         }
     }
 }
@@ -70,6 +73,7 @@ mod tests {
         let s = Settings {
             master_volume: 0.5,
             voice_volume: 0.5,
+            ..default()
         };
         assert_eq!(s.voice_output(), 0.25);
     }

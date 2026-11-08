@@ -7,8 +7,14 @@ use bevy::input::ButtonState;
 use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::*;
 
+use bevy::picking::hover::Hovered;
+use bevy_replicon::prelude::*;
+use bevy_replicon_iroh::{IrohClient, IrohServer};
+
 use crate::AppState;
+use crate::hud::Toast;
 use crate::net::{Clipboard, NetCommand, NetStatus};
+use crate::player::LocalPlayer;
 use crate::settings::Settings;
 use crate::voice::VoiceMuted;
 
@@ -17,12 +23,37 @@ pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<JoinCode>()
+            .init_resource::<Connecting>()
             .add_systems(OnEnter(AppState::Menu), spawn_menu)
             .add_systems(
                 Update,
-                (type_join_code, refresh_labels).run_if(in_state(AppState::Menu)),
+                (
+                    type_join_code,
+                    start_pending_join,
+                    connect_timeout,
+                    refresh_labels,
+                    hover_buttons,
+                )
+                    .run_if(in_state(AppState::Menu)),
+            )
+            .add_systems(
+                Update,
+                (leave_on_esc, copy_code_again).run_if(in_state(AppState::InGame)),
             );
     }
+}
+
+/// Joining in progress. The join is sent a couple of frames after the click so
+/// "Connecting..." is drawn before the (blocking) connect starts, then we give
+/// the host [`Connecting::TIMEOUT_SECS`] to answer.
+#[derive(Resource, Default, Debug)]
+pub struct Connecting {
+    pending: Option<(String, u8)>,
+    waited: f32,
+}
+
+impl Connecting {
+    pub const TIMEOUT_SECS: f32 = 20.0;
 }
 
 /// What's typed (or pasted) into the join box.
@@ -72,7 +103,12 @@ enum Label {
     Master,
     Voice,
     Mic,
+    HaltName,
 }
+
+/// A button's resting color, brightened while hovered.
+#[derive(Component, Clone, Copy)]
+struct BaseColor(Color);
 
 fn spawn_menu(mut commands: Commands) {
     commands.spawn((Camera2d, DespawnOnExit(AppState::Menu)));
@@ -149,9 +185,9 @@ fn spawn_menu(mut commands: Commands) {
                     button(r, "Join!", PINK, 160.0).observe(
                         |_: On<PointerClick>,
                          code: Res<JoinCode>,
-                         net: MessageWriter<NetCommand>,
+                         connecting: ResMut<Connecting>,
                          status: ResMut<NetStatus>| {
-                            join(&code, net, status)
+                            join(&code, connecting, status)
                         },
                     );
                 });
@@ -168,6 +204,15 @@ fn spawn_menu(mut commands: Commands) {
                     );
                 });
 
+                row(ui, |r| {
+                    text(r, "Let HALT use my computer username", 18.0);
+                    button(r, "", MINT, 160.0).insert(Label::HaltName).observe(
+                        |_: On<PointerClick>, mut s: ResMut<Settings>| {
+                            s.halt_real_name = !s.halt_real_name;
+                        },
+                    );
+                });
+
                 ui.spawn((
                     Text::new(""),
                     TextFont::from_font_size(16.0),
@@ -178,11 +223,101 @@ fn spawn_menu(mut commands: Commands) {
         });
 }
 
-fn join(code: &JoinCode, mut net: MessageWriter<NetCommand>, mut status: ResMut<NetStatus>) {
+fn join(code: &JoinCode, mut connecting: ResMut<Connecting>, mut status: ResMut<NetStatus>) {
     if code.0.is_empty() {
         status.message = "Type or paste a join code first.".into();
-    } else {
-        net.write(NetCommand::Join(code.0.clone()));
+    } else if connecting.pending.is_none() {
+        status.message = "Connecting... (this can take a few seconds)".into();
+        connecting.pending = Some((code.0.clone(), 2));
+        connecting.waited = 0.0;
+    }
+}
+
+fn start_pending_join(mut connecting: ResMut<Connecting>, mut net: MessageWriter<NetCommand>) {
+    let Some((_, frames)) = connecting.pending.as_mut() else {
+        return;
+    };
+    if *frames > 0 {
+        *frames -= 1;
+        return;
+    }
+    if let Some((code, _)) = connecting.pending.take() {
+        net.write(NetCommand::Join(code));
+    }
+}
+
+/// Give up if the host never finishes the handshake.
+fn connect_timeout(
+    mut commands: Commands,
+    time: Res<Time>,
+    client: Option<Res<IrohClient>>,
+    state: Option<Res<State<ClientState>>>,
+    mut connecting: ResMut<Connecting>,
+    mut status: ResMut<NetStatus>,
+) {
+    let waiting = client.is_some() && state.is_some_and(|s| *s.get() == ClientState::Connecting);
+    if !waiting {
+        connecting.waited = 0.0;
+        return;
+    }
+    connecting.waited += time.delta_secs();
+    if connecting.waited >= Connecting::TIMEOUT_SECS {
+        commands.remove_resource::<IrohClient>();
+        connecting.waited = 0.0;
+        status.message =
+            "Could not reach that host (timed out). Check the code and try again.".into();
+    }
+}
+
+/// Esc in game: disconnect (or stop hosting) and go back to the menu.
+fn leave_on_esc(
+    mut commands: Commands,
+    keys: Res<ButtonInput<KeyCode>>,
+    replicated: Query<Entity, With<Replicated>>,
+    mut status: ResMut<NetStatus>,
+    mut next: ResMut<NextState<AppState>>,
+) {
+    if !keys.just_pressed(KeyCode::Escape) {
+        return;
+    }
+    commands.remove_resource::<IrohClient>();
+    commands.remove_resource::<IrohServer>();
+    commands.remove_resource::<LocalPlayer>();
+    for e in &replicated {
+        commands.entity(e).despawn();
+    }
+    status.join_code = None;
+    status.message = "Left the game.".into();
+    next.set(AppState::Menu);
+}
+
+fn copy_code_again(
+    keys: Res<ButtonInput<KeyCode>>,
+    status: Res<NetStatus>,
+    clip: Res<Clipboard>,
+    mut toast: ResMut<Toast>,
+) {
+    if !keys.just_pressed(KeyCode::KeyC) {
+        return;
+    }
+    match &status.join_code {
+        Some(code) => {
+            clip.set(code);
+            toast.show("join code copied");
+        }
+        None => toast.show("only the host has a join code"),
+    }
+}
+
+fn hover_buttons(
+    mut buttons: Query<(&Hovered, &BaseColor, &mut BackgroundColor), Changed<Hovered>>,
+) {
+    for (hovered, base, mut bg) in &mut buttons {
+        bg.0 = if hovered.get() {
+            base.0.mix(&Color::WHITE, 0.25)
+        } else {
+            base.0
+        };
     }
 }
 
@@ -215,6 +350,8 @@ fn button<'a>(
             ..default()
         },
         BackgroundColor(color),
+        BaseColor(color),
+        Hovered::default(),
     ));
     e.with_children(|b| {
         b.spawn((
@@ -258,7 +395,7 @@ fn volume_row(
 fn type_join_code(
     mut keys: MessageReader<KeyboardInput>,
     mut code: ResMut<JoinCode>,
-    net: MessageWriter<NetCommand>,
+    connecting: ResMut<Connecting>,
     status: ResMut<NetStatus>,
 ) {
     let mut enter = false;
@@ -268,7 +405,7 @@ fn type_join_code(
         }
     }
     if enter {
-        join(&code, net, status);
+        join(&code, connecting, status);
     }
 }
 
@@ -288,17 +425,20 @@ fn refresh_labels(
             Label::Code => code.0.clone(),
             Label::Master => pct(settings.master_volume),
             Label::Voice => pct(settings.voice_volume),
-            Label::Mic => continue,
+            Label::Mic | Label::HaltName => continue,
         };
         if t.0 != new {
             t.0 = new;
         }
     }
     let mic = if muted.0 { "Muted" } else { "On" };
+    let halt = if settings.halt_real_name { "Yes" } else { "No" };
     for (label, children) in &buttons {
-        if !matches!(label, Label::Mic) {
-            continue;
-        }
+        let mic = match label {
+            Label::Mic => mic,
+            Label::HaltName => halt,
+            _ => continue,
+        };
         for child in children.iter() {
             if let Ok(mut t) = child_texts.get_mut(child)
                 && t.0 != mic

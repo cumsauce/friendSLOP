@@ -107,6 +107,7 @@ impl MoralAct {
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Morality>()
+        .add_observer(reset_morality)
         .init_resource::<MoralDice>()
         .add_observer(give_morality)
         .add_observer(judge);
@@ -147,7 +148,9 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_morality_hud)
         .add_systems(
             Update,
-            update_morality_hud.run_if(in_state(AppState::InGame)),
+            update_morality_hud
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -158,12 +161,7 @@ fn spawn_morality_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         MoralityHud,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(12),
-            left: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -183,6 +181,16 @@ fn update_morality_hud(
         if text.0 != want {
             text.0.clone_from(&want);
         }
+    }
+}
+
+/// New round: everyone starts morally neutral again.
+fn reset_morality(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut players: Query<&mut Morality>,
+) {
+    for mut m in &mut players {
+        *m = Morality::default();
     }
 }
 

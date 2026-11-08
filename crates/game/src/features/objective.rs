@@ -1,0 +1,228 @@
+//! The goal loop: one "Objective" line, a round-end summary, and restart.
+//!
+//! The landlord storyline (#11) is the only goal with an ending so far, so the
+//! objective follows it. The server mirrors the `Tenancy` act and progress into
+//! a replicated `Objective`. When the landlord is defeated the round is over:
+//! everyone sees a summary and anyone can press Enter to ask for a restart.
+//!
+//! Restarting triggers a server-side [`RoundReset`] event. Each feature that
+//! has per-round state observes it and resets itself (landlord, HALT, gods
+//! tears, organs, morality, stats), so new features can hook in the same way:
+//! `app.add_observer(|_: On<RoundReset>, ...| { ... })` in their `protocol`.
+
+use bevy::prelude::*;
+use bevy_replicon::prelude::*;
+use serde::{Deserialize, Serialize};
+
+use crate::AppState;
+use crate::features::halt::Halt;
+use crate::features::landlord::{Act3, HEISTS_BEFORE_BOSS, RAISES_BEFORE_CRIME, Tenancy};
+
+/// Server -> everyone: where the shared goal stands.
+#[derive(Component, Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+pub struct Objective {
+    /// Starts at 1, goes up each restart.
+    pub round: u32,
+    pub act: Act3,
+    /// 0..=100 through the current act.
+    pub progress: u8,
+    /// The landlord is defeated and the round is waiting for a restart.
+    pub over: bool,
+}
+
+/// Client -> server: "start a new round" (only honoured once the round is over).
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+pub struct RequestRestart;
+
+/// Server only: a new round begins. Features observe this to reset their state.
+#[derive(Event, Clone, Copy, Debug)]
+pub struct RoundReset;
+
+pub fn protocol(app: &mut App) {
+    app.replicate::<Objective>()
+        .add_client_event::<RequestRestart>(Channel::Ordered)
+        .add_observer(request_restart)
+        .add_observer(next_round)
+        .add_systems(OnEnter(ServerState::Running), spawn_objective)
+        .add_systems(
+            Update,
+            track_objective.run_if(in_state(ServerState::Running)),
+        );
+}
+
+fn spawn_objective(mut commands: Commands) {
+    commands.spawn((
+        Objective {
+            round: 1,
+            ..default()
+        },
+        Replicated,
+    ));
+}
+
+/// Progress through the current act, 0..=100.
+pub fn act_progress(t: &Tenancy) -> u8 {
+    let frac = match t.act {
+        Act3::Legal => t.raises as f32 / RAISES_BEFORE_CRIME as f32,
+        Act3::Crime => t.heists as f32 / HEISTS_BEFORE_BOSS as f32,
+        Act3::Boss => 1.0 - t.hp as f32 / crate::features::landlord::BOSS_HP as f32,
+        Act3::Won => 1.0,
+    };
+    (frac.clamp(0.0, 1.0) * 100.0).round() as u8
+}
+
+fn track_objective(tenancy: Query<&Tenancy>, mut objective: Query<&mut Objective>) {
+    let (Ok(t), Ok(mut o)) = (tenancy.single(), objective.single_mut()) else {
+        return;
+    };
+    let next = Objective {
+        round: o.round,
+        act: t.act,
+        progress: act_progress(t),
+        over: t.act == Act3::Won,
+    };
+    if *o != next {
+        *o = next;
+    }
+}
+
+fn request_restart(
+    _ev: On<FromClient<RequestRestart>>,
+    objective: Query<&Objective>,
+    mut commands: Commands,
+) {
+    if objective.iter().any(|o| o.over) {
+        commands.trigger(RoundReset);
+    }
+}
+
+fn next_round(_reset: On<RoundReset>, mut objective: Query<&mut Objective>) {
+    for mut o in &mut objective {
+        *o = Objective {
+            round: o.round + 1,
+            ..default()
+        };
+    }
+}
+
+/// The one-line objective for an act.
+pub fn objective_line(o: &Objective) -> String {
+    let goal = match o.act {
+        Act3::Legal => "Act I: keep up with the rent (click the landlord to pay)",
+        Act3::Crime => "Act II: take it back (click the landlord to pickpocket)",
+        Act3::Boss => "Act III: defeat the landlord (click to hit him)",
+        Act3::Won => "The landlord is defeated",
+    };
+    format!("Objective: {goal} [{}%]", o.progress)
+}
+
+pub fn plugin(app: &mut App) {
+    app.add_systems(OnEnter(AppState::InGame), spawn_objective_ui)
+        .add_systems(
+            Update,
+            (show_objective, restart_key).run_if(in_state(AppState::InGame)),
+        );
+}
+
+#[derive(Component)]
+struct ObjectiveText;
+
+#[derive(Component)]
+struct RoundSummary;
+
+fn spawn_objective_ui(mut commands: Commands) {
+    commands.spawn((
+        Text::new(""),
+        ObjectiveText,
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(12),
+            left: percent(30),
+            ..default()
+        },
+        DespawnOnExit(AppState::InGame),
+    ));
+    commands.spawn((
+        Text::new(""),
+        TextFont::from_font_size(28.0),
+        RoundSummary,
+        Node {
+            position_type: PositionType::Absolute,
+            top: percent(35),
+            left: percent(25),
+            ..default()
+        },
+        Visibility::Hidden,
+        DespawnOnExit(AppState::InGame),
+    ));
+}
+
+fn show_objective(
+    objective: Query<&Objective>,
+    halt: Query<&Halt>,
+    tenancy: Query<&Tenancy>,
+    mut line: Query<&mut Text, (With<ObjectiveText>, Without<RoundSummary>)>,
+    mut summary: Query<(&mut Text, &mut Visibility), With<RoundSummary>>,
+) {
+    let Ok(o) = objective.single() else {
+        return;
+    };
+    let text = objective_line(o);
+    for mut t in &mut line {
+        if t.0 != text {
+            t.0.clone_from(&text);
+        }
+    }
+    let Ok((mut t, mut vis)) = summary.single_mut() else {
+        return;
+    };
+    let want = if o.over {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
+    if *vis != want {
+        *vis = want;
+    }
+    if !o.over {
+        return;
+    }
+    let escapes = halt.single().map(|h| h.escapes).unwrap_or(0);
+    let rent = tenancy.single().map(|t| t.rent).unwrap_or(0);
+    let text = format!(
+        "Round {} over: the landlord is defeated!\n\
+         Final rent demanded: {rent}\n\
+         Times you broke out of HALT: {escapes}\n\n\
+         Press [Enter] to start a new round",
+        o.round
+    );
+    if t.0 != text {
+        t.0 = text;
+    }
+}
+
+fn restart_key(
+    keys: Res<ButtonInput<KeyCode>>,
+    objective: Query<&Objective>,
+    mut commands: Commands,
+) {
+    if keys.just_pressed(KeyCode::Enter) && objective.iter().any(|o| o.over) {
+        commands.client_trigger(RequestRestart);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn progress_follows_the_acts() {
+        let mut t = Tenancy::default();
+        assert_eq!(act_progress(&t), 0);
+        t.raises = RAISES_BEFORE_CRIME;
+        assert_eq!(act_progress(&t), 100);
+        t.act = Act3::Boss;
+        t.hp = crate::features::landlord::BOSS_HP / 2;
+        assert_eq!(act_progress(&t), 50);
+    }
+}

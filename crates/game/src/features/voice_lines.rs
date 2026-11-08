@@ -9,8 +9,6 @@
 //! wobbly jingle first. Timing comes from the clock, so every peer agrees
 //! without network traffic.
 
-use std::sync::Arc;
-
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -19,6 +17,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::bear::wav_bytes;
 use crate::features::random_dialogue;
+use crate::features::synth_audio::play_synth;
 
 /// A musical object on the floor at (x, z). `tune` picks its jingle.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -132,12 +131,7 @@ fn spawn_subtitle(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         Subtitle,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(92),
-            left: percent(25),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Subtitle),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -224,7 +218,7 @@ fn bob_music_boxes(time: Res<Time>, mut boxes: Query<(&MusicBox, &mut Transform)
 fn speak(
     time: Res<Time>,
     mut commands: Commands,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSource>>>,
     mut last: Local<Option<u32>>,
     mut text: Query<&mut Text, With<Subtitle>>,
 ) {
@@ -235,19 +229,13 @@ fn speak(
     });
     if let Some(n) = now
         && *last != Some(n)
-        && let Some(mut audio) = audio
+        && audio.is_some()
     {
         let (who, said) = line(n);
         let said = random_dialogue::say(said);
-        let wav = wav_bytes(&voice_samples(who, &said, n, RATE), RATE);
-        let handle = audio.add(AudioSource {
-            bytes: Arc::from(wav),
+        play_synth(&mut commands, move || {
+            wav_bytes(&voice_samples(who, &said, n, RATE), RATE)
         });
-        commands.spawn((
-            AudioPlayer(handle),
-            PlaybackSettings::DESPAWN,
-            DespawnOnExit(AppState::InGame),
-        ));
     }
     *last = now;
     for mut text in &mut text {

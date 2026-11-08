@@ -11,12 +11,26 @@ use crate::net::NetStatus;
 use crate::player::Player;
 use crate::voice::VoiceMuted;
 
+/// How often HUD text is rebuilt (5 Hz, on real time so it keeps updating
+/// while the world stands still). Formatting strings every frame is waste.
+pub const HUD_PERIOD: std::time::Duration = std::time::Duration::from_millis(200);
+
+/// Run condition for HUD update systems: true every `HUD_PERIOD`.
+pub fn hud_tick() -> impl FnMut(Res<Time<Real>>) -> bool + Clone {
+    bevy::time::common_conditions::on_real_timer(HUD_PERIOD)
+}
+
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(AppState::InGame), (spawn_world, spawn_hud))
-            .add_systems(Update, update_hud.run_if(in_state(AppState::InGame)));
+            .add_systems(
+                Update,
+                update_hud
+                    .run_if(in_state(AppState::InGame))
+                    .run_if(hud_tick()),
+            );
     }
 }
 
@@ -47,27 +61,42 @@ fn spawn_world(
         },
         DespawnOnExit(AppState::InGame),
     ));
-    // Bright sky fill so shadows stay soft and cute rather than black.
+    // Explicit ambient (sky) fill so shaded sides read as soft blue, never black.
     commands.insert_resource(GlobalAmbientLight {
         color: Color::srgb(0.75, 0.85, 1.0),
-        brightness: 600.0,
+        brightness: 900.0,
         ..default()
     });
+    // Warm late-morning sun. Shadow cascades cover the ~50 m floor even when the
+    // overview camera is zoomed all the way out (see `camera.rs`).
     commands.spawn((
         DirectionalLight {
             color: Color::srgb(1.0, 0.96, 0.88),
-            illuminance: 9_000.0,
+            illuminance: 12_000.0,
             shadow_maps_enabled: true,
             ..default()
         },
         CascadeShadowConfigBuilder {
-            num_cascades: 2,
-            first_cascade_far_bound: 15.0,
-            maximum_distance: 45.0,
-            ..default()
+            num_cascades: 3,
+            minimum_distance: 0.1,
+            first_cascade_far_bound: 12.0,
+            maximum_distance: 70.0,
+            overlap_proportion: 0.25,
         }
         .build(),
         Transform::from_xyz(6.0, 12.0, 3.0).looking_at(Vec3::ZERO, Vec3::Y),
+        DespawnOnExit(AppState::InGame),
+    ));
+    // Shadowless bounce light from the opposite side, like light off the meadow,
+    // so faces turned away from the sun still show their shape.
+    commands.spawn((
+        DirectionalLight {
+            color: Color::srgb(0.7, 0.8, 1.0),
+            illuminance: 2_000.0,
+            shadow_maps_enabled: false,
+            ..default()
+        },
+        Transform::from_xyz(-6.0, 4.0, -3.0).looking_at(Vec3::ZERO, Vec3::Y),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -168,12 +197,7 @@ fn spawn_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         HudText,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(12),
-            left: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopLeft),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -186,9 +210,13 @@ fn update_hud(
 ) {
     let mut lines = vec![format!("players: {}", players.iter().count())];
     if let Some(code) = &status.join_code {
-        lines.push(format!("join code: {code}"));
+        lines.push(format!(
+            "join code: {} (copied, C to copy again)",
+            crate::hud::short_code(code)
+        ));
     }
     lines.push(format!("[M] mic: {}", if muted.0 { "muted" } else { "on" }));
+    lines.push("[H] help  [Tab] scores".into());
     let text = lines.join("\n");
     for mut t in &mut hud {
         if t.0 != text {

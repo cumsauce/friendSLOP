@@ -9,8 +9,6 @@
 //! distorted, procedurally generated chiptune plays. Everyone is told who
 //! farted and whether they got caught.
 
-use std::sync::Arc;
-
 use bevy::audio::AudioSource;
 use bevy::core_pipeline::prepass::DepthPrepass;
 use bevy::post_process::dof::DepthOfField;
@@ -24,6 +22,7 @@ use crate::features::bear::{Bear, bear_position, wav_bytes};
 use crate::features::crows::{Crow, crow_position};
 use crate::features::dave_commune::PARLIAMENT_AT;
 use crate::features::duel::Duelist;
+use crate::features::synth_audio::play_synth;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
@@ -82,7 +81,15 @@ fn give_gas(add: On<Add<Player>>, server: Res<State<ServerState>>, mut commands:
 }
 
 /// Server: gas builds up steadily, in whole percent so replication stays quiet.
-fn build_pressure(time: Res<Time>, mut players: Query<(&mut Gas, &mut GasBuildup)>) {
+/// Nothing builds while the world stands still.
+fn build_pressure(
+    time: Res<Time>,
+    still: Query<&crate::features::stillness::Stillness>,
+    mut players: Query<(&mut Gas, &mut GasBuildup)>,
+) {
+    if crate::features::stillness::is_frozen(&still) {
+        return;
+    }
     let per_sec = 100.0 / GAS_FILL_SECS;
     for (mut gas, mut buildup) in &mut players {
         if gas.0 >= 100 {
@@ -118,6 +125,7 @@ pub fn is_shameful(at: Vec2, npcs: &[Vec2]) -> bool {
 /// Server: release the pressure, and judge.
 fn let_rip(
     fart: On<FromClient<Fart>>,
+    still: Query<&crate::features::stillness::Stillness>,
     mut commands: Commands,
     time: Res<Time>,
     mut players: Query<(&Player, &PlayerOwner, &mut Gas)>,
@@ -125,6 +133,9 @@ fn let_rip(
     bears: Query<&Bear>,
     crows: Query<&Crow>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let owner = match fart.client_id {
         ClientId::Server => None,
         ClientId::Client(e) => Some(e),
@@ -161,7 +172,13 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), forget_shame)
         .add_systems(
             Update,
-            (press_to_fart, show_gas, feel_shame, fade_news).run_if(in_state(AppState::InGame)),
+            (
+                press_to_fart,
+                show_gas.run_if(crate::world::hud_tick()),
+                feel_shame,
+                fade_news,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -187,23 +204,13 @@ fn spawn_fart_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         GasText,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(32),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::BottomRight),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
         Text::new(""),
         FartNews,
-        Node {
-            position_type: PositionType::Absolute,
-            top: px(80),
-            left: percent(35),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::TopCenter),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -274,7 +281,7 @@ fn hear_fart(
     mut commands: Commands,
     local: Option<Res<LocalPlayer>>,
     mut shame: ResMut<Shame>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSource>>>,
 ) {
     let me = local.is_some_and(|l| l.0 == farted.player);
     let who = if me {
@@ -295,18 +302,12 @@ fn hear_fart(
     if let Some(old) = shame.song.take() {
         commands.entity(old).try_despawn();
     }
-    let Some(mut audio) = audio else { return };
-    let wav = wav_bytes(&shame_song(SONG_RATE), SONG_RATE);
-    let handle = audio.add(AudioSource {
-        bytes: Arc::from(wav),
+    if audio.is_none() {
+        return;
+    }
+    let song = play_synth(&mut commands, || {
+        wav_bytes(&shame_song(SONG_RATE), SONG_RATE)
     });
-    let song = commands
-        .spawn((
-            AudioPlayer(handle),
-            PlaybackSettings::DESPAWN,
-            DespawnOnExit(AppState::InGame),
-        ))
-        .id();
     shame.song = Some(song);
 }
 

@@ -169,10 +169,14 @@ fn player_id(client: ClientId, players: &Query<(&Player, &PlayerOwner)>) -> Opti
 
 fn grab_totem(
     ev: On<FromClient<GrabTotem>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     doors: Query<&Door>,
     mut totems: Query<&mut Totem>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };
@@ -188,10 +192,14 @@ fn grab_totem(
 
 fn use_door(
     ev: On<FromClient<UseDoor>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut doors: Query<&mut Door>,
     mut totems: Query<&mut Totem>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };
@@ -279,7 +287,7 @@ pub fn plugin(app: &mut App) {
                 swing_doors,
                 click_totems_and_doors,
                 cast_key,
-                update_totem_hud,
+                update_totem_hud.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
         );
@@ -508,12 +516,7 @@ fn spawn_totem_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         TotemHud,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(60),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -524,9 +527,13 @@ fn update_totem_hud(
     totems: Query<&Totem>,
     doors: Query<&Door>,
     mut hud: Query<&mut Text, With<TotemHud>>,
+    mut last_run: Local<Option<f32>>,
 ) {
+    // Throttled: count down by the time since this system last ran.
+    let now = time.elapsed_secs();
+    let dt = now - last_run.replace(now).unwrap_or(now);
     for entry in &mut log.0 {
-        entry.1 -= time.delta_secs();
+        entry.1 -= dt;
     }
     log.0.retain(|e| e.1 > 0.0);
     let mut lines =

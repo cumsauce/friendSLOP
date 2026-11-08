@@ -122,9 +122,13 @@ fn player_id(client: ClientId, players: &Query<(&Player, &PlayerOwner)>) -> Opti
 /// Server: a stray goes to the first player without a pet who asks.
 fn adopt(
     ev: On<FromClient<AdoptPet>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut pets: Query<&mut Pet>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };
@@ -138,9 +142,13 @@ fn adopt(
 
 fn lure(
     ev: On<FromClient<PetLure>>,
+    still: Query<&crate::features::stillness::Stillness>,
     players: Query<(&Player, &PlayerOwner)>,
     mut lures: ResMut<Lures>,
 ) {
+    if crate::features::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(me) = player_id(ev.client_id, &players) else {
         return;
     };
@@ -239,7 +247,7 @@ pub fn plugin(app: &mut App) {
                 click_pet,
                 send_lure,
                 draw_links,
-                update_pet_hud,
+                update_pet_hud.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
         );
@@ -477,12 +485,7 @@ fn spawn_pet_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         PetHud,
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(48),
-            right: px(12),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }

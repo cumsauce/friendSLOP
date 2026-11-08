@@ -29,8 +29,9 @@ pub struct Stillness {
 
 /// Server only: the precise clock behind `Stillness`.
 #[derive(Resource, Default)]
-struct StillClock {
-    elapsed: f32,
+pub struct StillClock {
+    /// Real seconds since the server started.
+    pub elapsed: f32,
 }
 
 /// Where in the 80 s cycle we are, `t` seconds after the server started.
@@ -60,7 +61,7 @@ pub fn protocol(app: &mut App) {
         .init_resource::<StillClock>()
         .add_systems(OnEnter(ServerState::Running), start_clock)
         .add_systems(Update, tick_clock.run_if(in_state(ServerState::Running)))
-        .add_systems(Update, apply_freeze)
+        .add_systems(Update, apply_freeze.run_if(any_with_component::<Stillness>))
         .add_systems(OnExit(ServerState::Running), stop_clock);
 }
 
@@ -107,7 +108,12 @@ fn apply_freeze(still: Query<&Stillness>, mut time: ResMut<Time<Virtual>>) {
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_still_text)
         .add_systems(OnExit(AppState::InGame), unfreeze)
-        .add_systems(Update, update_still_text.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            update_still_text
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 fn unfreeze(mut time: ResMut<Time<Virtual>>) {
@@ -122,13 +128,7 @@ fn spawn_still_text(mut commands: Commands) {
         Text::new(""),
         TextFont::from_font_size(36.0),
         StillText,
-        Node {
-            position_type: PositionType::Absolute,
-            top: percent(40),
-            width: percent(100),
-            justify_content: JustifyContent::Center,
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::CenterBanner),
         TextLayout::justify(Justify::Center),
         DespawnOnExit(AppState::InGame),
     ));

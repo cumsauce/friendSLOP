@@ -170,13 +170,7 @@ fn spawn_wreckage(
         Text::new(PLAQUE),
         StormText,
         TextFont::from_font_size(14.0),
-        Node {
-            position_type: PositionType::Absolute,
-            bottom: px(40),
-            left: percent(30),
-            right: percent(30),
-            ..default()
-        },
+        crate::hud::slot(crate::hud::HudSlot::Subtitle),
         DespawnOnExit(AppState::InGame),
     ));
 }

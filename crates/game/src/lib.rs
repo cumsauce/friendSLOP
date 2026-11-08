@@ -5,7 +5,9 @@
 use bevy::prelude::*;
 
 pub mod art;
+pub mod camera;
 pub mod features;
+pub mod hud;
 pub mod menu;
 pub mod net;
 pub mod player;
@@ -45,7 +47,9 @@ impl Plugin for GamePlugin {
             settings::SettingsPlugin,
             menu::MenuPlugin,
             world::WorldPlugin,
+            camera::CameraPlugin,
             features::FeaturesPlugin,
+            hud::HudPlugin,
         ));
     }
 }

@@ -21,11 +21,13 @@ pub mod halt;
 pub mod landlord;
 pub mod morality;
 pub mod mushroom;
+pub mod objective;
 pub mod organ_currency;
 pub mod pets;
 pub mod random_dialogue;
 pub mod stats;
 pub mod stillness;
+pub mod synth_audio;
 pub mod totems;
 pub mod voice_lines;
 
@@ -54,6 +56,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(totems::protocol);
         app.add_plugins(pets::protocol);
         app.add_plugins(halt::protocol);
+        app.add_plugins(objective::protocol);
     }
 }
 
@@ -61,6 +64,7 @@ pub struct FeaturesPlugin;
 
 impl Plugin for FeaturesPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugins(synth_audio::plugin);
         app.add_plugins(organ_currency::plugin);
         app.add_plugins(crows::plugin);
         app.add_plugins(bear::plugin);
@@ -82,5 +86,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(totems::plugin);
         app.add_plugins(pets::plugin);
         app.add_plugins(halt::plugin);
+        app.add_plugins(objective::plugin);
     }
 }

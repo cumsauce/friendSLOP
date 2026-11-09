@@ -6,12 +6,13 @@ Commands:
   /answer        reply to one of Claude's `question` issues
   /whatsneeded   what the game still needs ideas for
   /status        open ideas and where they're at
+  /loop          the current gameplay loop, start to finish
 
-It also posts in ANNOUNCE_CHANNEL_ID when an idea lands in the game, and when Claude asks the
-group a new question.
+It also posts in ANNOUNCE_CHANNEL_ID when an idea lands in the game, when Claude asks the
+group a new question, and every LOOP_EVERY landed ideas the gameplay loop (#153).
 
 Env: DISCORD_TOKEN, GITHUB_TOKEN, GITHUB_REPO (owner/name), ANNOUNCE_CHANNEL_ID (optional),
-STATE_PATH (optional, default /data/state.json).
+STATE_PATH (optional, default /data/state.json), LOOP_EVERY (optional, default 3; 0 = never).
 """
 
 import asyncio
@@ -36,6 +37,8 @@ ANNOUNCE_CHANNEL_ID = int(os.environ.get("ANNOUNCE_CHANNEL_ID", "0") or 0)
 STATE_PATH = Path(os.environ.get("STATE_PATH", "/data/state.json"))
 API = f"https://api.github.com/repos/{REPO}"
 RELEASE_URL = f"https://github.com/{REPO}/releases/tag/latest"
+LOOP_EVERY = int(os.environ.get("LOOP_EVERY", "3") or 0)
+DISCORD_LIMIT = 2000
 
 
 def load_state() -> dict:
@@ -94,24 +97,56 @@ class GitHub:
     async def get_issue(self, number: int) -> dict:
         return await self.request("GET", f"{API}/issues/{number}")
 
-    async def open_questions(self) -> list[str]:
-        """Bullets under '## Open questions' in GAME_DESIGN.md."""
+    async def design_section(self, heading: str) -> str:
+        """The text under '## <heading>' in GAME_DESIGN.md, without HTML comments."""
         text = await self.request(
             "GET",
             f"{API}/contents/GAME_DESIGN.md",
             headers={"Accept": "application/vnd.github.raw+json"},
         )
-        section = re.search(r"## Open questions\n(.*?)(?:\n## |\Z)", str(text), re.S)
+        section = re.search(rf"## {re.escape(heading)}\n(.*?)(?:\n## |\Z)", str(text), re.S)
         if not section:
-            return []
+            return ""
+        return re.sub(r"<!--.*?-->", "", section.group(1), flags=re.S).strip()
+
+    async def open_questions(self) -> list[str]:
+        """Bullets under '## Open questions' in GAME_DESIGN.md."""
         return [
             line[2:].strip()
-            for line in section.group(1).splitlines()
+            for line in (await self.design_section("Open questions")).splitlines()
             if line.startswith("- ")
         ]
 
+    async def gameplay_loop(self) -> str:
+        """The '## Gameplay loop' section Claude keeps current, joined into paragraphs."""
+        paragraphs = re.split(r"\n\s*\n", await self.design_section("Gameplay loop"))
+        return "\n\n".join(" ".join(p.split()) for p in paragraphs if p.strip())
+
 
 gh = GitHub()
+
+
+def chunks(text: str, limit: int = DISCORD_LIMIT) -> list[str]:
+    """Split text into Discord-sized messages, at paragraph breaks where possible."""
+    out: list[str] = []
+    current = ""
+    for para in text.split("\n\n"):
+        while len(para) > limit:
+            out += [current] if current else []
+            current = ""
+            cut = para.rfind(" ", 0, limit)
+            cut = cut if cut > 0 else limit
+            out.append(para[:cut])
+            para = para[cut:].lstrip()
+        joined = f"{current}\n\n{para}" if current else para
+        if len(joined) > limit:
+            out.append(current)
+            current = para
+        else:
+            current = joined
+    if current:
+        out.append(current)
+    return out
 
 
 def credit(user: discord.abc.User) -> str:
@@ -213,12 +248,43 @@ async def status(interaction: discord.Interaction) -> None:
     await interaction.followup.send("\n".join(lines) + f"\n\nLatest build: {RELEASE_URL}")
 
 
+@tree.command(name="loop", description="The current gameplay loop, start to finish")
+async def loop(interaction: discord.Interaction) -> None:
+    await interaction.response.defer()
+    try:
+        text = await gh.gameplay_loop()
+    except Exception as e:  # noqa: BLE001
+        await interaction.followup.send(f"Couldn't check: {e}")
+        return
+    for part in chunks(f"🔁 **The gameplay loop right now**\n\n{text or '_Not written yet._'}"):
+        await interaction.followup.send(part)
+
+
 async def send(channel_id: int, text: str) -> None:
     if not channel_id:
         return
     channel = client.get_channel(channel_id) or await client.fetch_channel(channel_id)
     if isinstance(channel, discord.abc.Messageable):
-        await channel.send(text)
+        for part in chunks(text):
+            await channel.send(part)
+
+
+async def post_loop_if_due() -> None:
+    """Every LOOP_EVERY landed ideas, share the current gameplay loop (#153)."""
+    if LOOP_EVERY <= 0 or state.get("done_since_loop", 0) < LOOP_EVERY:
+        return
+    try:
+        text = await gh.gameplay_loop()
+    except Exception:  # noqa: BLE001
+        log.exception("fetching the gameplay loop failed")
+        return
+    if text:
+        landed = state["done_since_loop"]
+        await send(
+            ANNOUNCE_CHANNEL_ID,
+            f"🔁 **Where the game is at** ({landed} new ideas since last time)\n\n{text}",
+        )
+    state["done_since_loop"] = 0
 
 
 @tasks.loop(minutes=2)
@@ -234,6 +300,7 @@ async def announce() -> None:
         if n in state["announced_done"]:
             continue
         state["announced_done"].append(n)
+        state["done_since_loop"] = state.get("done_since_loop", 0) + 1
         channel = state["issue_channels"].get(str(n), ANNOUNCE_CHANNEL_ID)
         await send(
             channel,
@@ -250,6 +317,7 @@ async def announce() -> None:
             f"❓ **Claude asks:** {q['title']}\n{q.get('body') or ''}\n"
             f"Reply with `/answer {n} <your answer>`",
         )
+    await post_loop_if_due()
     save_state(state)
 
 

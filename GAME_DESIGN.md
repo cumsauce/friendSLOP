@@ -122,7 +122,17 @@ asked for, and what nobody has decided yet.
   burning beside the burnt parliament (stone ring, glowing embers, four log seats), a pond with
   ripples, lily pads, reeds and cattails, rocks, a little jetty with a lantern and two ducks
   paddling round, lantern posts strung with bulbs along the paths to the campfire and the pond
-  (`landmarks.rs`), and a looping tune ("Catsong"). Plus real sound effects
+  (`landmarks.rs`), and a generated, adaptive 90s jazz-fusion soundtrack (`features/fusion`,
+  asked for in chat: "change the music ... jazz fusion ... 90s/FM synth vibe ... adapts to the
+  game state"; it replaced the looping "Catsong"). Live FM voices (DX7-style EP, slap bass,
+  lead/brass with portamento, bell pad) plus foley-synth note-block drums/bells/flute/harp/
+  guitar. A director picks the next bars at every bar line from a mood: menu (signature hook
+  over "Just the Two of Us" changes), meadow, commune/village (city-pop), forest/valley (flute,
+  harp), maze/ruins (minor, bells), sky islands (dreamy), near Abuela (bolero), hide-and-seek
+  hiding/seeking, duel (150 bpm), landlord (chromatic, building), stillness (holds on a pad),
+  plus a victory kime when a round/duel/chapter/landlord is won. Sections (intro, A, hook, B,
+  solo, breakdown), key changes, fills, 7/8 kime bars, layers faded by intensity. Local only,
+  ~1% of a core, respects master volume. Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
   wind loop, and a spatial crackling-fire loop at the campfire that gets louder as you approach.
   Procedural sounds (bear, HALT, voice lines, farts) render at 44.1 kHz with band-limited

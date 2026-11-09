@@ -17,6 +17,9 @@ serde.workspace = true
 # so audio stays off, but the replicon protocol it registers (VoiceUp/VoiceDown)
 # must be identical to the desktop's or browser and desktop peers can't talk.
 bevy_voice_chat.workspace = true
+# Note-block instrument synthesis (drums, bells, flute, plucks) for the
+# generated music (features/fusion). MIT OR Apache-2.0, std only.
+foley-synth = { git = "https://github.com/cumsauce/foley", rev = "963d67eb2de81bd43b008b30cc0109f875c940f1" }
 
 # Native only: the iroh transport (a tokio runtime plus `block_on` every tick),
 # voice chat (cpal capture/playback threads) and the clipboard can't run on a

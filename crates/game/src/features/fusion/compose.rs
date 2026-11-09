@@ -1,0 +1,2264 @@
+//! The composer and music director: decides, one bar at a time, what the
+//! band plays next.
+//!
+//! The game only sets a target [`Mood`], an intensity and a victory
+//! counter. At every bar line the director looks at them and picks the next
+//! measures: keep the section going, plan the next one (Intro, A groove,
+//! Hook, B bridge, Solo, Breakdown) with a turnaround and maybe a key change,
+//! or play a one-bar transition (drum fill over an approach chord) into a
+//! new mood. Nothing ever changes mid-bar.
+//!
+//! The writing: rootless, voice-led EP voicings over ii-V-Is, tritone subs,
+//! modal interchange and lydian colours; slap-bass templates with octave
+//! pops, ghosts and chromatic approaches; 16th-note kits with ghost notes
+//! and fills; a lead that states a motif, answers it, varies it
+//! (sequence, displacement, inversion, fragmentation) and cadences, landing
+//! on chord tones on strong beats with chromatic approach tones between;
+//! bebop and pentatonic runs in solos; unison kimes at section ends and the
+//! odd 7/8 bar.
+
+use super::synth::{BUSES, Bus, Ev, Inst, RATE};
+use super::theory::{Chord, Quality, Quality::*, Voicing, voice_lead};
+
+/// What the game wants the music to say.
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum Mood {
+    /// The title screen: the signature theme.
+    #[default]
+    Menu,
+    /// Wandering the meadows: laid back.
+    Explore,
+    /// Commune and village: warm city-pop.
+    Village,
+    /// Forest and valley: airy, flute and harp.
+    Forest,
+    /// The maze and the ruins: mysterious minor.
+    Maze,
+    /// Up on the sky islands: dreamy bells.
+    Sky,
+    /// With Abuela in heaven: a gentle bolero.
+    Abuela,
+    /// Hide and seek, hiding: tense, muted, ticking.
+    Hiding,
+    /// Hide and seek, seeking: driving.
+    Seeking,
+    /// A duel: double-time fusion shred.
+    Duel,
+    /// The landlord and his rent: dissonant, building.
+    Landlord,
+    /// The stillness: everything holds on a pad.
+    Still,
+}
+
+impl Mood {
+    pub const ALL: [Mood; 12] = [
+        Mood::Menu,
+        Mood::Explore,
+        Mood::Village,
+        Mood::Forest,
+        Mood::Maze,
+        Mood::Sky,
+        Mood::Abuela,
+        Mood::Hiding,
+        Mood::Seeking,
+        Mood::Duel,
+        Mood::Landlord,
+        Mood::Still,
+    ];
+
+    pub fn from_index(i: u8) -> Mood {
+        Self::ALL.get(i as usize).copied().unwrap_or_default()
+    }
+
+    pub fn index(self) -> u8 {
+        Self::ALL.iter().position(|m| *m == self).unwrap_or(0) as u8
+    }
+
+    /// The intensity this mood sits at with nothing else going on.
+    pub fn base_intensity(self) -> f32 {
+        style(self).intensity
+    }
+
+    /// Moods that cut in at the very next bar line instead of after a
+    /// transition bar.
+    fn urgent(self) -> bool {
+        matches!(self, Mood::Duel | Mood::Seeking | Mood::Still | Mood::Menu)
+    }
+}
+
+/// The parts of a tune.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Section {
+    Intro,
+    A,
+    Hook,
+    B,
+    Solo,
+    Breakdown,
+    Victory,
+    Still,
+}
+
+/// A progression: (semitones above the key, quality, beats).
+type Prog = &'static [(u8, Quality, u8)];
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Groove {
+    City,
+    Laid,
+    Brush,
+    Sparse,
+    Dream,
+    Bolero,
+    Tense,
+    Drive,
+    Shred,
+    March,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Comp {
+    City,
+    Laid,
+    Long,
+    Stabs,
+    Bolero,
+    Tense,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum LeadKind {
+    Synth,
+    Brass,
+    Flute,
+    Bell,
+    Silent,
+}
+
+struct Style {
+    bpm: f32,
+    swing: f32,
+    key: u8,
+    a: Prog,
+    b: Prog,
+    hook: Prog,
+    groove: Groove,
+    bass: &'static [&'static str],
+    comp: Comp,
+    lead: LeadKind,
+    arp: Option<Inst>,
+    pad: bool,
+    intensity: f32,
+    /// Chance the last bar of a section is a 7/8 kime bar.
+    odd: f32,
+    /// Chance a new section modulates up a half or whole step.
+    modulate: f32,
+    /// Chance a section ends on a unison kime.
+    kime: f32,
+    /// Plays the written signature hook in Hook sections.
+    theme: bool,
+}
+
+// --- Progressions -------------------------------------------------------
+// "Just the Two of Us": IVmaj9 - III7#9 - vim9 - vm9 I13.
+const JTTOU: Prog = &[
+    (5, Maj9, 4),
+    (4, Dom7s9, 4),
+    (9, Min9, 4),
+    (7, Min9, 2),
+    (0, Dom13, 2),
+];
+const CHROMATIC_TWO_FIVES: Prog = &[
+    (2, Min9, 2),
+    (7, Dom13, 2),
+    (1, Min9, 2),
+    (6, Dom13, 2),
+    (0, Maj9, 4),
+    (9, Dom7alt, 4),
+];
+// The city-pop "royal road": IV - V - iii - vi, then ii - bII (tritone sub).
+const ROYAL_ROAD: Prog = &[
+    (5, Maj9, 4),
+    (7, Sus9, 2),
+    (7, Dom13, 2),
+    (4, Min9, 2),
+    (9, Min9, 2),
+    (2, Min9, 2),
+    (1, Dom13s11, 2),
+];
+const VILLAGE_B: Prog = &[
+    (0, Maj9, 4),
+    (10, Min9, 2),
+    (3, Dom13, 2),
+    (8, Maj7s11, 4),
+    (7, Dom7alt, 4),
+];
+const EXPLORE_A: Prog = &[(0, Maj9, 8), (5, Maj7s11, 8)];
+const EXPLORE_B: Prog = &[(2, Min11, 4), (7, Sus9, 4), (0, Maj69, 4), (9, Dom7alt, 4)];
+const EXPLORE_HOOK: Prog = &[(5, Maj9, 4), (4, Min9, 4), (2, Min9, 4), (1, Dom13s11, 4)];
+const FOREST_A: Prog = &[(0, Maj7s11, 8), (9, Min11, 8)];
+// Descending lydian chords, ECM-style.
+const FOREST_B: Prog = &[(5, Maj7s11, 4), (4, Min9, 4), (3, Maj7s11, 4), (2, Sus9, 4)];
+// I - iii - IV - iv (the borrowed minor iv).
+const MINOR_FOUR: Prog = &[(0, Maj9, 4), (4, Min9, 4), (5, Maj7s11, 4), (5, Min6, 4)];
+const MAZE_A: Prog = &[(0, Min11, 8), (8, Maj7s11, 8)];
+// Phrygian bII lydian, then a sus and an altered V.
+const MAZE_B: Prog = &[
+    (0, Min11, 4),
+    (1, Maj7s11, 4),
+    (10, Sus9, 4),
+    (7, Dom7alt, 4),
+];
+const MAZE_HOOK: Prog = &[
+    (5, Min9, 4),
+    (10, Dom13, 4),
+    (3, Maj9, 4),
+    (8, Maj7s11, 2),
+    (7, Dom7alt, 2),
+];
+const SKY_B: Prog = &[(9, Min11, 4), (2, Min9, 4), (7, Sus9, 4), (0, Maj69, 4)];
+const SKY_HOOK: Prog = &[(5, Maj7s11, 4), (7, Sus9, 4), (4, Min9, 4), (9, Min11, 4)];
+// A bolero cycle in minor: i - ii-V - i - V/iv - iv - bVII - bIII - ii-V.
+const BOLERO_A: Prog = &[
+    (0, Min6, 4),
+    (2, HalfDim, 2),
+    (7, Dom7b9, 2),
+    (0, Min6, 4),
+    (0, Dom7b9, 4),
+    (5, Min9, 4),
+    (10, Dom13, 4),
+    (3, Maj9, 4),
+    (2, HalfDim, 2),
+    (7, Dom7b9, 2),
+];
+const BOLERO_B: Prog = &[
+    (3, Maj9, 4),
+    (8, Maj7s11, 4),
+    (2, HalfDim, 4),
+    (7, Dom7alt, 4),
+];
+const HIDE_A: Prog = &[
+    (0, MinMaj9, 4),
+    (1, Maj7s11, 4),
+    (0, MinMaj9, 4),
+    (11, Dim7, 4),
+];
+const HIDE_B: Prog = &[
+    (8, Maj7s11, 4),
+    (7, Dom7b9, 4),
+    (0, Min11, 4),
+    (1, Dom13s11, 4),
+];
+// Dorian vamp i9 - IV9.
+const SEEK_A: Prog = &[(0, Min9, 8), (5, Dom9, 8)];
+const SEEK_B: Prog = &[
+    (8, Maj7s11, 4),
+    (10, Sus9, 4),
+    (0, Min11, 4),
+    (7, Dom7s9, 4),
+];
+// bVI - bVII - i.
+const SEEK_HOOK: Prog = &[(8, Maj7s11, 4), (10, Dom13, 4), (0, Min9, 8)];
+const DUEL_A: Prog = &[
+    (0, Min11, 4),
+    (10, Sus9, 4),
+    (8, Maj7s11, 4),
+    (7, Dom7alt, 4),
+];
+const DUEL_B: Prog = &[
+    (1, Maj7s11, 4),
+    (0, Min11, 4),
+    (1, Maj7s11, 4),
+    (7, Dom7s9, 4),
+];
+const DUEL_HOOK: Prog = &[
+    (8, Maj9, 2),
+    (10, Dom13, 2),
+    (0, Min9, 4),
+    (5, Min9, 2),
+    (7, Dom7alt, 2),
+    (0, Min11, 4),
+];
+const LANDLORD_A: Prog = &[
+    (0, MinMaj9, 4),
+    (1, Dom13s11, 4),
+    (0, MinMaj9, 4),
+    (11, Dim7, 4),
+];
+// Chromatically climbing sus chords: the rent goes up.
+const LANDLORD_B: Prog = &[(0, Sus9, 4), (1, Sus9, 4), (2, Sus9, 4), (7, Dom7alt, 4)];
+const LANDLORD_HOOK: Prog = &[
+    (8, Maj7s11, 4),
+    (7, Dom7alt, 4),
+    (0, MinMaj9, 4),
+    (2, HalfDim, 2),
+    (7, Dom7b9, 2),
+];
+// The victory cadence: bVI - bVII - I.
+const VICTORY: Prog = &[(8, Maj7s11, 2), (10, Dom13, 2), (0, Maj9, 4)];
+
+// --- Bass templates (one char per 16th) ----------------------------------
+// R root, P octave pop, G ghost (dead note), 5/3/7 chord tones,
+// A chromatic approach to the next chord, - hold, . rest.
+const SLAP1: &str = "R.GR.PGR..R.PGRA";
+const SLAP2: &str = "R..GP..RR.GP.5-A";
+const PUMP: &str = "R.R.P.R.R.R.P.RA";
+const LAID: &str = "R-----.5..R---A.";
+const PEDAL: &str = "R-------5-------";
+const SPARSE: &str = "R-----....R-....";
+const BOLERO: &str = "R-------5---3-A-";
+const TENSE: &str = "R.R.R.R.R.R.R.R.";
+const DRIVE: &str = "R.RP.RG.R.RP.RGA";
+const SHRED: &str = "RGRPRGR5RGRPRG7A";
+const MARCH: &str = "R...R...R...R.A.";
+
+fn style(m: Mood) -> &'static Style {
+    const MENU: Style = Style {
+        bpm: 102.0,
+        swing: 0.12,
+        key: 1,
+        a: JTTOU,
+        b: CHROMATIC_TWO_FIVES,
+        hook: JTTOU,
+        groove: Groove::City,
+        bass: &[SLAP1, PUMP],
+        comp: Comp::City,
+        lead: LeadKind::Synth,
+        arp: None,
+        pad: true,
+        intensity: 0.55,
+        odd: 0.15,
+        modulate: 0.5,
+        kime: 0.4,
+        theme: true,
+    };
+    const EXPLORE: Style = Style {
+        bpm: 92.0,
+        swing: 0.18,
+        key: 5,
+        a: EXPLORE_A,
+        b: EXPLORE_B,
+        hook: EXPLORE_HOOK,
+        groove: Groove::Laid,
+        bass: &[LAID],
+        comp: Comp::Laid,
+        lead: LeadKind::Synth,
+        arp: None,
+        pad: true,
+        intensity: 0.35,
+        odd: 0.0,
+        modulate: 0.25,
+        kime: 0.15,
+        theme: false,
+    };
+    const VILLAGE: Style = Style {
+        bpm: 104.0,
+        swing: 0.14,
+        key: 3,
+        a: ROYAL_ROAD,
+        b: VILLAGE_B,
+        hook: JTTOU,
+        groove: Groove::City,
+        bass: &[SLAP1, SLAP2, PUMP],
+        comp: Comp::City,
+        lead: LeadKind::Brass,
+        arp: None,
+        pad: false,
+        intensity: 0.55,
+        odd: 0.2,
+        modulate: 0.4,
+        kime: 0.45,
+        theme: true,
+    };
+    const FOREST: Style = Style {
+        bpm: 84.0,
+        swing: 0.2,
+        key: 2,
+        a: FOREST_A,
+        b: FOREST_B,
+        hook: MINOR_FOUR,
+        groove: Groove::Brush,
+        bass: &[PEDAL, LAID],
+        comp: Comp::Long,
+        lead: LeadKind::Flute,
+        arp: Some(Inst::Harp),
+        pad: true,
+        intensity: 0.3,
+        odd: 0.0,
+        modulate: 0.2,
+        kime: 0.0,
+        theme: false,
+    };
+    const MAZE: Style = Style {
+        bpm: 76.0,
+        swing: 0.1,
+        key: 0,
+        a: MAZE_A,
+        b: MAZE_B,
+        hook: MAZE_HOOK,
+        groove: Groove::Sparse,
+        bass: &[SPARSE],
+        comp: Comp::Long,
+        lead: LeadKind::Bell,
+        arp: None,
+        pad: true,
+        intensity: 0.3,
+        odd: 0.0,
+        modulate: 0.15,
+        kime: 0.0,
+        theme: false,
+    };
+    const SKY: Style = Style {
+        bpm: 70.0,
+        swing: 0.15,
+        key: 8,
+        a: MINOR_FOUR,
+        b: SKY_B,
+        hook: SKY_HOOK,
+        groove: Groove::Dream,
+        bass: &[PEDAL],
+        comp: Comp::Long,
+        lead: LeadKind::Synth,
+        arp: Some(Inst::Bell),
+        pad: true,
+        intensity: 0.25,
+        odd: 0.0,
+        modulate: 0.3,
+        kime: 0.0,
+        theme: false,
+    };
+    const ABUELA: Style = Style {
+        bpm: 84.0,
+        swing: 0.05,
+        key: 9,
+        a: BOLERO_A,
+        b: BOLERO_B,
+        hook: BOLERO_A,
+        groove: Groove::Bolero,
+        bass: &[BOLERO],
+        comp: Comp::Bolero,
+        lead: LeadKind::Flute,
+        arp: None,
+        pad: true,
+        intensity: 0.4,
+        odd: 0.0,
+        modulate: 0.1,
+        kime: 0.0,
+        theme: false,
+    };
+    const HIDING: Style = Style {
+        bpm: 96.0,
+        swing: 0.0,
+        key: 6,
+        a: HIDE_A,
+        b: HIDE_B,
+        hook: HIDE_A,
+        groove: Groove::Tense,
+        bass: &[TENSE],
+        comp: Comp::Tense,
+        lead: LeadKind::Silent,
+        arp: None,
+        pad: true,
+        intensity: 0.35,
+        odd: 0.0,
+        modulate: 0.3,
+        kime: 0.0,
+        theme: false,
+    };
+    const SEEKING: Style = Style {
+        bpm: 128.0,
+        swing: 0.06,
+        key: 4,
+        a: SEEK_A,
+        b: SEEK_B,
+        hook: SEEK_HOOK,
+        groove: Groove::Drive,
+        bass: &[DRIVE, SLAP2],
+        comp: Comp::Stabs,
+        lead: LeadKind::Synth,
+        arp: None,
+        pad: false,
+        intensity: 0.75,
+        odd: 0.25,
+        modulate: 0.3,
+        kime: 0.5,
+        theme: false,
+    };
+    const DUEL: Style = Style {
+        bpm: 150.0,
+        swing: 0.0,
+        key: 11,
+        a: DUEL_A,
+        b: DUEL_B,
+        hook: DUEL_HOOK,
+        groove: Groove::Shred,
+        bass: &[SHRED, DRIVE],
+        comp: Comp::Stabs,
+        lead: LeadKind::Synth,
+        arp: None,
+        pad: false,
+        intensity: 0.95,
+        odd: 0.35,
+        modulate: 0.35,
+        kime: 0.7,
+        theme: false,
+    };
+    const LANDLORD: Style = Style {
+        bpm: 108.0,
+        swing: 0.08,
+        key: 1,
+        a: LANDLORD_A,
+        b: LANDLORD_B,
+        hook: LANDLORD_HOOK,
+        groove: Groove::March,
+        bass: &[MARCH],
+        comp: Comp::Tense,
+        lead: LeadKind::Brass,
+        arp: None,
+        pad: true,
+        intensity: 0.5,
+        odd: 0.15,
+        modulate: 0.6,
+        kime: 0.3,
+        theme: false,
+    };
+    match m {
+        Mood::Menu | Mood::Still => &MENU,
+        Mood::Explore => &EXPLORE,
+        Mood::Village => &VILLAGE,
+        Mood::Forest => &FOREST,
+        Mood::Maze => &MAZE,
+        Mood::Sky => &SKY,
+        Mood::Abuela => &ABUELA,
+        Mood::Hiding => &HIDING,
+        Mood::Seeking => &SEEKING,
+        Mood::Duel => &DUEL,
+        Mood::Landlord => &LANDLORD,
+    }
+}
+
+/// The signature hook, written out (over "Just the Two of Us" in Db):
+/// per bar, (16th step, length in 16ths, MIDI note).
+const THEME: [&[(u8, u8, u8)]; 4] = [
+    &[(0, 2, 70), (2, 2, 73), (4, 5, 77), (10, 2, 75), (12, 4, 73)],
+    &[(2, 2, 69), (4, 2, 72), (6, 4, 75), (10, 2, 73), (12, 4, 72)],
+    &[(0, 3, 73), (3, 3, 77), (6, 2, 80), (8, 4, 77)],
+    &[
+        (0, 2, 75),
+        (2, 2, 78),
+        (4, 2, 80),
+        (6, 2, 78),
+        (8, 2, 77),
+        (10, 2, 75),
+        (12, 4, 70),
+    ],
+];
+const THEME_KEY: u8 = 1;
+
+/// Syncopated one-bar rhythm cells for motifs: (step, length).
+const CELLS: [&[(u8, u8)]; 8] = [
+    &[(0, 2), (2, 2), (4, 4), (10, 2), (12, 4)],
+    &[(2, 1), (3, 1), (4, 2), (6, 4), (12, 3)],
+    &[(0, 3), (3, 3), (6, 2), (8, 6)],
+    &[(0, 1), (1, 1), (2, 1), (3, 3), (6, 1), (7, 5)],
+    &[(4, 2), (6, 2), (8, 2), (10, 6)],
+    &[(0, 6), (6, 2), (8, 2), (10, 2), (12, 4)],
+    &[(1, 2), (3, 3), (6, 3), (9, 3), (12, 4)],
+    &[(0, 2), (3, 2), (6, 2), (8, 8)],
+];
+
+/// Unison hit rhythms (steps) for kimes, 4/4 and 7/8.
+const KIMES: [&[u8]; 3] = [&[0, 3, 6, 10, 12], &[0, 2, 5, 8, 11, 14], &[0, 3, 6, 8, 12]];
+const KIME_78: &[u8] = &[0, 2, 4, 7, 10, 12];
+
+const LEAD_LO: u8 = 62;
+const LEAD_HI: u8 = 84;
+
+#[derive(Clone, Copy, Debug, Default)]
+struct MNote {
+    step: u8,
+    len: u8,
+    /// Scale steps from the motif's anchor.
+    c: i8,
+}
+
+#[derive(Clone, Copy, Debug, Default)]
+struct Motif {
+    n: usize,
+    notes: [MNote; 10],
+}
+
+/// A line of absolute notes for one bar: (step, length, MIDI note).
+#[derive(Clone, Copy, Debug)]
+struct Line {
+    n: usize,
+    notes: [(u8, u8, u8); 20],
+}
+
+impl Line {
+    fn new() -> Self {
+        Self {
+            n: 0,
+            notes: [(0, 0, 0); 20],
+        }
+    }
+    fn push(&mut self, step: u8, len: u8, note: u8) {
+        if self.n < self.notes.len() {
+            self.notes[self.n] = (step, len, note);
+            self.n += 1;
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+struct Plan {
+    kind: Section,
+    bars: u16,
+    bar: u16,
+    key: u8,
+    prog: Prog,
+    fixed: Option<Chord>,
+    /// Approach chord over the second half of the last bar.
+    tail: Option<Chord>,
+}
+
+impl Plan {
+    fn prog_beats(&self) -> u32 {
+        self.prog.iter().map(|c| c.2 as u32).sum::<u32>().max(1)
+    }
+
+    fn chord_at(&self, bar: u16, step: u32) -> Chord {
+        if let Some(c) = self.fixed {
+            return c;
+        }
+        if bar + 1 >= self.bars
+            && step >= 8
+            && let Some(t) = self.tail
+        {
+            return t;
+        }
+        let beat = (bar as u32 * 4 + step / 4) % self.prog_beats();
+        let mut acc = 0;
+        for &(off, q, b) in self.prog {
+            if beat < acc + b as u32 {
+                return Chord::new(self.key + off, q);
+            }
+            acc += b as u32;
+        }
+        Chord::new(self.key, Maj9)
+    }
+
+    fn first(&self) -> Chord {
+        self.chord_at(0, 0)
+    }
+}
+
+/// What the director reads from the game, once per bar.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Cue {
+    pub mood: Mood,
+    pub intensity: f32,
+    /// Bumped by the game for every victory (round won, chapter done...).
+    pub victories: u32,
+}
+
+/// One planned bar: its length and what to play in it.
+pub struct Bar {
+    pub len: u32,
+    pub events: Vec<Ev>,
+    pub bus: [f32; BUSES],
+}
+
+impl Bar {
+    pub fn new() -> Self {
+        Self {
+            len: RATE,
+            events: Vec::with_capacity(EVENT_CAP),
+            bus: [0.0; BUSES],
+        }
+    }
+}
+
+impl Default for Bar {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+const EVENT_CAP: usize = 384;
+
+/// The composer and director (lives on the audio thread).
+pub struct Composer {
+    rng: u64,
+    /// The mood being played (changes only at bar lines).
+    pub mood: Mood,
+    /// The style used while still (the mood before the stillness).
+    style_mood: Mood,
+    pub section: Section,
+    intensity: f32,
+    bpm: f32,
+    plan: Plan,
+    next: Option<Plan>,
+    /// Mood the transition bar now playing leads into.
+    switching: Option<Mood>,
+    /// The keys anticipated this bar's downbeat at the end of the last one.
+    pushed: bool,
+    /// Mood to return to after a victory.
+    key_shift: u8,
+    ep: Voicing,
+    pad: Voicing,
+    motif: Motif,
+    hook: Motif,
+    last_note: u8,
+    victories: u32,
+    pub bars_played: u64,
+    // Per-bar scratch.
+    steps: u32,
+    step_len: f32,
+    swing: f32,
+    /// Every lead note written on a strong beat with its chord (tests).
+    #[cfg(test)]
+    pub strong_log: Vec<(u8, Chord)>,
+}
+
+impl Composer {
+    pub fn new(seed: u64) -> Self {
+        let mood = Mood::Menu;
+        let s = style(mood);
+        let mut c = Self {
+            rng: seed | 1,
+            mood,
+            style_mood: mood,
+            section: Section::Intro,
+            intensity: s.intensity,
+            bpm: s.bpm,
+            plan: Plan {
+                kind: Section::Intro,
+                bars: 4,
+                bar: 0,
+                key: s.key,
+                prog: s.a,
+                fixed: None,
+                tail: None,
+            },
+            next: None,
+            switching: None,
+            pushed: false,
+            key_shift: 0,
+            ep: [53, 57, 60, 64],
+            pad: [60, 64, 67, 71],
+            motif: Motif::default(),
+            hook: Motif::default(),
+            last_note: 72,
+            victories: 0,
+            bars_played: 0,
+            steps: 16,
+            step_len: 1.0,
+            swing: 0.0,
+            #[cfg(test)]
+            strong_log: Vec::new(),
+        };
+        c.motif = c.new_motif();
+        c.hook = c.new_motif();
+        c
+    }
+
+    fn rand(&mut self) -> f32 {
+        self.rng ^= self.rng << 13;
+        self.rng ^= self.rng >> 7;
+        self.rng ^= self.rng << 17;
+        (self.rng >> 40) as f32 / (1u64 << 24) as f32
+    }
+
+    fn chance(&mut self, p: f32) -> bool {
+        self.rand() < p
+    }
+
+    fn pick(&mut self, n: usize) -> usize {
+        ((self.rand() * n as f32) as usize).min(n.saturating_sub(1))
+    }
+
+    fn style(&self) -> &'static Style {
+        if self.mood == Mood::Still {
+            style(self.style_mood)
+        } else {
+            style(self.mood)
+        }
+    }
+
+    /// The chord `step` 16ths after this bar's start (may run into later
+    /// bars or the next planned section).
+    fn chord(&self, step: u32) -> Chord {
+        let bar = self.plan.bar as u32 + step / 16;
+        if bar >= self.plan.bars as u32 {
+            if let Some(n) = &self.next {
+                return n.chord_at((bar - self.plan.bars as u32) as u16, step % 16);
+            }
+            return self.plan.chord_at(self.plan.bars - 1, 15);
+        }
+        self.plan.chord_at(bar as u16, step % 16)
+    }
+
+    /// Plan the section after `prev` in mood `m`.
+    fn plan_section(&mut self, m: Mood, prev: Section, fresh: bool) -> Plan {
+        let s = style(m);
+        let i = self.intensity;
+        let kind = if m == Mood::Still {
+            Section::Still
+        } else if fresh {
+            if i < 0.6 && !m.urgent() {
+                Section::Intro
+            } else {
+                Section::A
+            }
+        } else {
+            match prev {
+                Section::Intro | Section::Breakdown | Section::Victory | Section::Still => {
+                    Section::A
+                }
+                Section::A => Section::Hook,
+                Section::Hook => {
+                    if self.chance(0.6) {
+                        Section::B
+                    } else if i > 0.45 && s.lead != LeadKind::Silent {
+                        Section::Solo
+                    } else {
+                        Section::A
+                    }
+                }
+                Section::B => {
+                    if i > 0.45 && s.lead != LeadKind::Silent {
+                        Section::Solo
+                    } else if i < 0.35 {
+                        Section::Breakdown
+                    } else {
+                        Section::Hook
+                    }
+                }
+                Section::Solo => {
+                    if self.chance(0.3) {
+                        Section::Breakdown
+                    } else {
+                        Section::Hook
+                    }
+                }
+            }
+        };
+        if fresh {
+            self.key_shift = 0;
+        } else if kind != Section::Still && self.chance(s.modulate) {
+            self.key_shift += if self.chance(0.5) { 1 } else { 2 };
+            if self.key_shift > 4 {
+                // Back down home (a fourth up is the same pitch classes).
+                self.key_shift = 0;
+            }
+        }
+        let key = (s.key + self.key_shift) % 12;
+        let (prog, bars) = match kind {
+            Section::Intro => (s.a, 4),
+            Section::A => (s.a, 8),
+            Section::Hook => (s.hook, 8),
+            Section::B => (s.b, 8),
+            Section::Solo => (if self.chance(0.5) { s.a } else { s.b }, 8),
+            Section::Breakdown => (s.a, 4),
+            Section::Victory => (VICTORY, 2),
+            Section::Still => (s.a, 2),
+        };
+        let fixed = (kind == Section::Still).then(|| self.chord(0));
+        if matches!(kind, Section::B | Section::Solo) || fresh {
+            self.motif = self.new_motif();
+        }
+        if fresh {
+            self.hook = self.new_motif();
+        }
+        Plan {
+            kind,
+            bars,
+            bar: 0,
+            key,
+            prog,
+            fixed,
+            tail: None,
+        }
+    }
+
+    /// An approach chord into `to`: its V7alt, its tritone sub, or (for
+    /// minor targets) a V7b9.
+    fn approach(&mut self, to: Chord) -> Chord {
+        if to.q.is_minor() {
+            Chord::new(to.root + 7, Dom7b9)
+        } else if self.chance(0.5) {
+            Chord::new(to.root + 1, Dom13s11)
+        } else {
+            Chord::new(to.root + 7, Dom7alt)
+        }
+    }
+
+    /// Decide and write the next bar. Called exactly at every bar line.
+    pub fn next_bar(&mut self, cue: Cue, bar: &mut Bar) {
+        bar.events.clear();
+        self.intensity += (cue.intensity.clamp(0.0, 1.0) - self.intensity) * 0.5;
+        if self.bars_played > 0 {
+            self.plan.bar += 1;
+        }
+        let mut new_mood = false;
+
+        if cue.victories != self.victories {
+            let fresh_victory = cue.victories > self.victories
+                && !matches!(self.mood, Mood::Still | Mood::Menu)
+                && self.plan.kind != Section::Victory;
+            self.victories = cue.victories;
+            if fresh_victory {
+                let s = self.style();
+                self.next = None;
+                self.plan = Plan {
+                    kind: Section::Victory,
+                    bars: 2,
+                    bar: 0,
+                    key: (s.key + self.key_shift) % 12,
+                    prog: VICTORY,
+                    fixed: None,
+                    tail: None,
+                };
+            }
+        }
+
+        if cue.mood != self.mood && self.plan.kind != Section::Victory {
+            let target = cue.mood;
+            if self.switching.is_some() || target.urgent() || self.mood == Mood::Still {
+                // Cut in at this bar line.
+                self.switching = None;
+                if target == Mood::Still {
+                    self.style_mood = self.mood;
+                }
+                let fresh = target != Mood::Still && self.mood != Mood::Still;
+                let from_still = self.mood == Mood::Still;
+                self.mood = target;
+                let prev = if from_still {
+                    Section::Still
+                } else {
+                    self.plan.kind
+                };
+                self.plan = self.plan_section(target, prev, fresh);
+                self.next = None;
+                new_mood = true;
+            } else {
+                // This bar is the transition: fill over an approach chord.
+                self.switching = Some(target);
+                let next = self.plan_section(target, self.plan.kind, true);
+                self.plan.bar = self.plan.bar.min(self.plan.bars.saturating_sub(1));
+                self.plan.bars = self.plan.bar + 1;
+                let first = next.first();
+                self.plan.tail = Some(self.approach(first));
+                self.next = Some(next);
+            }
+        } else if cue.mood == self.mood {
+            self.switching = None;
+        }
+
+        if self.plan.bar >= self.plan.bars {
+            if let Some(m) = self.switching.take() {
+                self.mood = m;
+                new_mood = true;
+            }
+            let prev = self.plan.kind;
+            let m = self.mood;
+            let next = match self.next.take() {
+                Some(n) => n,
+                None => self.plan_section(m, prev, false),
+            };
+            self.plan = next;
+        }
+        // Entering the last bar of a section: plan the next one now so the
+        // turnaround can lead into it.
+        if self.plan.bar + 1 == self.plan.bars
+            && self.next.is_none()
+            && self.switching.is_none()
+            && !matches!(self.plan.kind, Section::Victory | Section::Still)
+        {
+            let m = self.mood;
+            let kind = self.plan.kind;
+            let next = self.plan_section(m, kind, false);
+            if next.key != self.plan.key || self.chance(0.5) {
+                let first = next.first();
+                self.plan.tail = Some(self.approach(first));
+            }
+            self.next = Some(next);
+        }
+        self.section = self.plan.kind;
+
+        let s = self.style();
+        // Tempo eases towards the style's (an accelerando into a duel).
+        let target_bpm = s.bpm * if self.mood == Mood::Still { 0.9 } else { 1.0 };
+        let d = target_bpm - self.bpm;
+        self.bpm = if d.abs() < 1.5 {
+            target_bpm
+        } else {
+            self.bpm + d * 0.5
+        };
+        self.swing = s.swing;
+        self.step_len = 60.0 / self.bpm / 4.0 * RATE as f32;
+        let last = self.plan.bar + 1 == self.plan.bars;
+        let fancy = matches!(self.plan.kind, Section::Hook | Section::Solo | Section::B);
+        self.steps = if last && fancy && self.switching.is_none() && self.chance(s.odd) {
+            14
+        } else {
+            16
+        };
+        bar.len = (self.steps as f32 * self.step_len) as u32;
+        self.bars_played += 1;
+
+        self.layers(&mut bar.bus);
+        self.write(bar, new_mood);
+        bar.events.sort_unstable_by_key(|e| e.at);
+    }
+
+    /// Bus levels: which instruments are in for this bar.
+    fn layers(&self, bus: &mut [f32; BUSES]) {
+        let s = self.style();
+        let i = self.intensity;
+        let kind = self.plan.kind;
+        let on = |b: bool| if b { 1.0 } else { 0.0 };
+        *bus = [0.0; BUSES];
+        if kind == Section::Still {
+            bus[Bus::Pad as usize] = 1.0;
+            bus[Bus::Perc as usize] = 0.6;
+            return;
+        }
+        let drums = match kind {
+            Section::Intro => on(i > 0.5) * 0.6,
+            _ => on(i > 0.12) * if s.groove == Groove::Dream { 0.7 } else { 1.0 },
+        };
+        bus[Bus::Drums as usize] = drums;
+        bus[Bus::Bass as usize] = on(kind != Section::Intro || i > 0.4);
+        bus[Bus::Keys as usize] = 1.0;
+        bus[Bus::Lead as usize] = on(s.lead != LeadKind::Silent);
+        bus[Bus::Pad as usize] = if s.pad {
+            1.0
+        } else {
+            on(kind == Section::Breakdown || i < 0.3) * 0.8
+        };
+        bus[Bus::Perc as usize] = 1.0;
+    }
+
+    /// Sample offset of 16th `step`, with the off-16ths swung late.
+    fn at(&self, step: u32) -> u32 {
+        let swung = step as f32 + if step % 2 == 1 { self.swing } else { 0.0 };
+        (swung * self.step_len).max(0.0) as u32
+    }
+
+    fn len(&self, steps: f32) -> u32 {
+        (steps * self.step_len) as u32
+    }
+
+    fn push(bar: &mut Bar, ev: Ev) {
+        if bar.events.len() < EVENT_CAP {
+            let ev = Ev {
+                at: ev.at.min(bar.len.saturating_sub(1)),
+                ..ev
+            };
+            bar.events.push(ev);
+        }
+    }
+
+    fn write(&mut self, bar: &mut Bar, new_mood: bool) {
+        let kind = self.plan.kind;
+        let last = self.plan.bar + 1 == self.plan.bars;
+        let i = self.intensity;
+        let s = self.style();
+        if kind == Section::Still {
+            self.write_still(bar);
+            return;
+        }
+        let phrase_end = (self.plan.bar % 4) == 3 || last;
+        let kime = self.steps == 14
+            || (kind == Section::Victory && self.plan.bar == 0)
+            || (last && self.switching.is_none() && i > 0.5 && self.chance(s.kime * 0.6));
+        let crash = (self.plan.bar == 0 && i > 0.4 && kind != Section::Intro)
+            || new_mood && i > 0.5
+            || (kind == Section::Victory && self.plan.bar == 1);
+        if kime {
+            self.pushed = false;
+            self.write_kime(bar, crash);
+        } else {
+            let fill =
+                (phrase_end && i > 0.3 && self.plan.bar % 8 >= 3) || self.switching.is_some();
+            self.write_drums(bar, fill, crash);
+            self.write_bass(bar);
+            self.write_comp(bar);
+            self.write_lead(bar);
+        }
+        self.write_pad(bar);
+        self.write_arp(bar);
+    }
+
+    fn write_still(&mut self, bar: &mut Bar) {
+        let c = self.chord(0);
+        if self.plan.bar.is_multiple_of(2) {
+            self.pad = voice_lead(c, &self.pad, 55, 67);
+            let len = self.len(self.steps as f32 * 2.2);
+            for n in self.pad {
+                Self::push(
+                    bar,
+                    Ev {
+                        at: 0,
+                        inst: Inst::Pad,
+                        note: n,
+                        vel: 0.6,
+                        len,
+                        glide: false,
+                    },
+                );
+            }
+        }
+        if self.plan.bar % 4 == 1 {
+            // A single high bell on the 9th, very soft.
+            let n = c.root_from(84) + 2;
+            let at = self.at(4);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: Inst::Chime,
+                    note: n.min(100),
+                    vel: 0.35,
+                    len: 0,
+                    glide: false,
+                },
+            );
+        }
+    }
+
+    // --- Drums ----------------------------------------------------------
+
+    fn write_drums(&mut self, bar: &mut Bar, fill: bool, crash: bool) {
+        let s = self.style();
+        let i = self.intensity;
+        let odd_bar = self.plan.bar % 2 == 1;
+        let (kicks, snare, hat, extra): ([&str; 2], &str, &str, &[(Inst, u8, [&str; 2])]) =
+            match s.groove {
+                Groove::City => (
+                    ["x.....x...x.....", "x.....x.o.x..o.."],
+                    "....x..g.g..x..g",
+                    "xoxoxoxoxoxoxOxo",
+                    &[],
+                ),
+                Groove::Laid => (
+                    ["x.......x.x.....", "x.......x...o..."],
+                    "....x.......x..g",
+                    "x.o.x.o.x.o.x.oo",
+                    &[],
+                ),
+                Groove::Brush => (
+                    ["x.........x.....", "x.......o......."],
+                    "....g.......g...",
+                    "o.g.o.g.o.g.o.gg",
+                    &[],
+                ),
+                Groove::Sparse => (
+                    ["x.........x.....", "x..............."],
+                    "................",
+                    "..o...o...o...o.",
+                    &[(Inst::Rim, 84, ["......o.......o.", "......o....o...."])],
+                ),
+                Groove::Dream => (
+                    ["x...............", "................"],
+                    "................",
+                    "....g.......g...",
+                    &[],
+                ),
+                Groove::Bolero => (
+                    ["x.......x.......", "x.......x.....o."],
+                    "................",
+                    "ogggogggogggoggg",
+                    &[
+                        // 3-2 son clave across two bars, and bongos.
+                        (Inst::Rim, 84, ["x..x..x.........", "....x...x......."]),
+                        (Inst::Tom, 55, ["......og......og", "......og....o.og"]),
+                    ],
+                ),
+                Groove::Tense => (
+                    ["x..o............", "x..o............"],
+                    "................",
+                    "o.g.o.g.o.g.o.g.",
+                    &[(Inst::Rim, 84, ["..........o.....", "..........o..o.."])],
+                ),
+                Groove::Drive => (
+                    ["x...x...x...x.o.", "x...x...x..ox..."],
+                    "....x..g....x..g",
+                    "xoOoxoOoxoOoxoOo",
+                    &[],
+                ),
+                Groove::Shred => (
+                    ["x..x..x...x..x..", "x.xx..x.x.x..xx."],
+                    "....x.g.g...x.gx",
+                    "xoxoxoxoxoxoxoxo",
+                    &[],
+                ),
+                Groove::March => (
+                    ["x...x...x...x...", "x...x...x...x.x."],
+                    "............x...",
+                    "x.o.x.o.x.o.x.o.",
+                    &[],
+                ),
+            };
+        let soft = match s.groove {
+            Groove::Brush | Groove::Dream => 0.6,
+            Groove::Sparse | Groove::Tense => 0.75,
+            _ => 1.0,
+        };
+        let fill_from = if fill {
+            if i > 0.6 { 8 } else { 12 }
+        } else {
+            99
+        };
+        let kick = kicks[usize::from(odd_bar && i > 0.3)];
+        let steps = self.steps.min(16);
+        for st in 0..steps {
+            let k = st as usize;
+            if st >= fill_from {
+                self.fill_step(bar, st, fill_from, steps);
+                continue;
+            }
+            if let Some(v) = vel(kick, k) {
+                let at = self.at(st);
+                Self::push(bar, hit(at, Inst::Kick, 36, v * soft));
+            }
+            match snare.as_bytes().get(k) {
+                Some(b'g') if i > 0.4 => {
+                    let at = self.at(st) + 40;
+                    let v = 0.5 + 0.3 * self.rand();
+                    Self::push(bar, hit(at, Inst::Ghost, 54, v * soft));
+                }
+                Some(b'x') | Some(b'o') => {
+                    let v = vel(snare, k).unwrap_or(0.8);
+                    let at = self.at(st);
+                    Self::push(bar, hit(at, Inst::Snare, 52, v * soft));
+                }
+                _ => {}
+            }
+            match hat.as_bytes().get(k) {
+                Some(b'O') if i > 0.5 => {
+                    let at = self.at(st);
+                    Self::push(bar, hit(at, Inst::OpenHat, 96, 0.7 * soft));
+                }
+                Some(c) if *c != b'.' => {
+                    // Below mid intensity, 16th hats thin to 8ths.
+                    if st % 2 == 1 && i < 0.45 && hat.len() == 16 && hat.as_bytes()[1] != b'.' {
+                        continue;
+                    }
+                    let v = vel(hat, k).unwrap_or(0.6) * (0.85 + 0.3 * self.rand());
+                    let at = self.at(st);
+                    Self::push(bar, hit(at, Inst::Hat, 96, v * soft));
+                }
+                _ => {}
+            }
+            for (inst, note, pats) in extra {
+                if let Some(v) = vel(pats[usize::from(odd_bar)], k) {
+                    let at = self.at(st);
+                    let note = if *inst == Inst::Tom && v < 0.5 {
+                        note + 5
+                    } else {
+                        *note
+                    };
+                    Self::push(bar, hit(at, *inst, note, v * soft));
+                }
+            }
+        }
+        if crash {
+            Self::push(bar, hit(0, Inst::Crash, 60, 0.9));
+            Self::push(bar, hit(0, Inst::Kick, 36, 1.0));
+        }
+    }
+
+    /// One step of a drum fill: snare 16ths swelling, or toms rolling down.
+    fn fill_step(&mut self, bar: &mut Bar, st: u32, from: u32, steps: u32) {
+        let s = self.style();
+        let span = (steps - from).max(1) as f32;
+        let p = (st - from) as f32 / span;
+        let at = self.at(st);
+        match s.groove {
+            Groove::Brush | Groove::Dream | Groove::Sparse | Groove::Tense => {
+                if st.is_multiple_of(2) {
+                    Self::push(bar, hit(at, Inst::Ghost, 54, 0.5 + 0.4 * p));
+                }
+            }
+            _ => {
+                let kind = (self.plan.bar / 4 + self.bars_played as u16 / 8) % 3;
+                match kind {
+                    0 => Self::push(bar, hit(at, Inst::Snare, 52, 0.45 + 0.55 * p)),
+                    1 => {
+                        let note = [55u8, 55, 50, 50, 45, 45, 45, 45][((p * 8.0) as usize).min(7)];
+                        Self::push(bar, hit(at, Inst::Tom, note, 0.7 + 0.3 * p));
+                    }
+                    _ => {
+                        if st.is_multiple_of(2) {
+                            Self::push(bar, hit(at, Inst::Snare, 52, 0.8));
+                            Self::push(bar, hit(at, Inst::Kick, 36, 0.8));
+                        } else {
+                            Self::push(bar, hit(at, Inst::Tom, 50, 0.6));
+                        }
+                    }
+                }
+                if st.is_multiple_of(4) {
+                    Self::push(bar, hit(at, Inst::Kick, 36, 0.7));
+                }
+            }
+        }
+    }
+
+    // --- Bass -----------------------------------------------------------
+
+    fn write_bass(&mut self, bar: &mut Bar) {
+        let s = self.style();
+        let pick = if s.bass.len() > 1 && self.chance(0.35) {
+            self.pick(s.bass.len())
+        } else {
+            (self.plan.bar as usize / 4) % s.bass.len()
+        };
+        let pat = s.bass[pick].as_bytes();
+        let steps = self.steps.min(16) as usize;
+        for st in 0..steps {
+            let c = pat[st];
+            if matches!(c, b'.' | b'-') {
+                continue;
+            }
+            let hold = pat[st + 1..steps]
+                .iter()
+                .take_while(|&&b| b == b'-')
+                .count();
+            let ch = self.chord(st as u32);
+            let root = ch.root_from(31);
+            let (note, vel, len) = match c {
+                b'R' => (root, 0.8, if hold > 0 { hold as f32 + 0.9 } else { 0.7 }),
+                b'P' => (root + 12, 1.0, 0.6),
+                b'G' => (root, 0.25, 0.25),
+                b'5' => (root + ch.q.fifth(), 0.75, hold as f32 + 0.8),
+                b'3' => (root + ch.q.third(), 0.75, hold as f32 + 0.8),
+                b'7' => (root + ch.q.seventh(), 0.8, 0.8),
+                b'A' => {
+                    let next = self.chord(st as u32 + 1).root_from(31);
+                    let n = if self.chance(0.5) { next - 1 } else { next + 1 };
+                    (n, 0.7, hold as f32 + 0.8)
+                }
+                _ => continue,
+            };
+            let at = self.at(st as u32);
+            let len = self.len(len);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: Inst::Bass,
+                    note,
+                    vel: vel * (0.85 + 0.25 * self.intensity),
+                    len,
+                    glide: false,
+                },
+            );
+        }
+    }
+
+    // --- Keys -----------------------------------------------------------
+
+    fn write_comp(&mut self, bar: &mut Bar) {
+        let s = self.style();
+        let i = self.intensity;
+        if s.comp == Comp::Bolero {
+            self.write_guitar(bar);
+            return;
+        }
+        let pat: &[(u8, u8, bool)] = match s.comp {
+            Comp::City => &[(0, 3, false), (6, 2, false), (10, 1, false), (14, 2, true)],
+            Comp::Laid => &[(0, 6, false), (7, 1, false), (10, 6, false)],
+            Comp::Long => &[(0, 16, false)],
+            Comp::Stabs => &[
+                (0, 1, false),
+                (3, 1, false),
+                (6, 2, false),
+                (10, 1, false),
+                (12, 1, false),
+                (14, 2, true),
+            ],
+            Comp::Tense | Comp::Bolero => &[(0, 12, false), (14, 2, true)],
+        };
+        let steps = self.steps;
+        // Every chord change in the bar needs a hit at or just before it.
+        let mut hits = [(0u8, 0u8, false); 12];
+        let mut n = 0;
+        for &h in pat {
+            if (h.0 as u32) < steps && n < hits.len() {
+                hits[n] = h;
+                n += 1;
+            }
+        }
+        for change in [4u32, 8, 12] {
+            if self.chord(change) != self.chord(change - 1)
+                && !hits[..n]
+                    .iter()
+                    .any(|h| (h.0 as u32) <= change && h.0 as u32 + 2 >= change)
+                && n < hits.len()
+            {
+                hits[n] = (change as u8, 4, false);
+                n += 1;
+            }
+        }
+        // A chord anticipated on the last "and of 4" already rings.
+        let pushed = std::mem::take(&mut self.pushed);
+        for (k, &(st, ln, push)) in hits[..n].iter().enumerate() {
+            if st == 0 && pushed {
+                continue;
+            }
+            if k > 0 && i < 0.45 && st % 4 != 0 && self.chance(0.5 - i) {
+                continue; // sparser when calm
+            }
+            if push && st as u32 + 2 >= steps {
+                self.pushed = true;
+            }
+            let ch = if push {
+                self.chord(st as u32 + 2)
+            } else {
+                self.chord(st as u32)
+            };
+            self.ep = voice_lead(ch, &self.ep, 50, 62);
+            let accent = if st % 4 == 0 { 0.75 } else { 0.62 };
+            let vel = accent * (0.75 + 0.35 * i);
+            let base = self.at(st as u32);
+            let mut len = ln as f32 * 0.92;
+            if push {
+                // An anticipation rings over the bar line.
+                len += 2.0;
+            }
+            let len = self.len(len);
+            let strum = if matches!(s.comp, Comp::Laid | Comp::Long) {
+                90
+            } else {
+                12
+            };
+            for (j, &note) in self.ep.iter().enumerate() {
+                Self::push(
+                    bar,
+                    Ev {
+                        at: base + j as u32 * strum,
+                        inst: Inst::EPiano,
+                        note,
+                        vel,
+                        len,
+                        glide: false,
+                    },
+                );
+            }
+        }
+    }
+
+    /// Bolero guitar: a strum on one, then arpeggiated 8ths.
+    fn write_guitar(&mut self, bar: &mut Bar) {
+        let steps = self.steps;
+        let mut st = 0;
+        while st < steps {
+            let ch = self.chord(st);
+            self.ep = voice_lead(ch, &self.ep, 50, 62);
+            let at = self.at(st);
+            if st % 8 == 0 {
+                let len = self.len(4.0);
+                for (j, &n) in self.ep.iter().enumerate() {
+                    Self::push(
+                        bar,
+                        Ev {
+                            at: at + j as u32 * 300,
+                            inst: Inst::Guitar,
+                            note: n,
+                            vel: 0.8,
+                            len,
+                            glide: false,
+                        },
+                    );
+                }
+            } else {
+                let order = [0usize, 2, 1, 3, 2, 1, 3, 2];
+                let n = self.ep[order[(st / 2) as usize % 8]] + 12;
+                let len = self.len(2.0);
+                Self::push(
+                    bar,
+                    Ev {
+                        at,
+                        inst: Inst::Guitar,
+                        note: n,
+                        vel: 0.55,
+                        len,
+                        glide: false,
+                    },
+                );
+            }
+            st += 2;
+        }
+    }
+
+    fn write_pad(&mut self, bar: &mut Bar) {
+        let s = self.style();
+        if !s.pad && self.plan.kind != Section::Breakdown && self.intensity >= 0.3 {
+            return;
+        }
+        let steps = self.steps;
+        let mut st = 0;
+        while st < steps {
+            let ch = self.chord(st);
+            // Only re-articulate when the chord actually changes.
+            let changed = st > 0 || self.plan.bar == 0 || self.prev_chord() != ch;
+            let mut end = st + 4;
+            while end < st + 64 && self.chord(end) == ch {
+                end += 4;
+            }
+            let mut nx = st + 4;
+            while nx < steps && self.chord(nx) == ch {
+                nx += 4;
+            }
+            if changed {
+                self.pad = voice_lead(ch, &self.pad, 55, 67);
+                let at = self.at(st);
+                let len = self.len((end - st) as f32 + 1.0);
+                for &n in &{ self.pad } {
+                    Self::push(
+                        bar,
+                        Ev {
+                            at,
+                            inst: Inst::Pad,
+                            note: n + 12,
+                            vel: 0.5,
+                            len,
+                            glide: false,
+                        },
+                    );
+                }
+            }
+            st = nx;
+        }
+    }
+
+    fn prev_chord(&self) -> Chord {
+        if self.plan.bar == 0 {
+            return Chord::new(0, Maj9);
+        }
+        self.plan.chord_at(self.plan.bar - 1, 15)
+    }
+
+    /// Bells, harp or chimes arpeggiating the chord.
+    fn write_arp(&mut self, bar: &mut Bar) {
+        let s = self.style();
+        let Some(inst) = s.arp else {
+            if self.plan.kind == Section::Victory && self.plan.bar == 1 {
+                self.write_victory_bells(bar);
+            }
+            return;
+        };
+        let i = self.intensity;
+        let every = if i > 0.5 { 2 } else { 4 };
+        let steps = self.steps;
+        let mut st = 0;
+        let up = self.plan.bar.is_multiple_of(2);
+        let mut k = 0usize;
+        while st < steps {
+            if self.chance(0.25 - 0.2 * i) {
+                st += every;
+                k += 1;
+                continue;
+            }
+            let ch = self.chord(st);
+            let tones = ch.q.voicing();
+            let idx = if up { k % 4 } else { 3 - k % 4 };
+            let n = ch.root_from(60) + tones[idx] + 12 * (k as u8 / 4 % 2);
+            let at = self.at(st);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst,
+                    note: n.min(96),
+                    vel: 0.5 + 0.2 * self.rand(),
+                    len: 0,
+                    glide: false,
+                },
+            );
+            st += every;
+            k += 1;
+        }
+    }
+
+    fn write_victory_bells(&mut self, bar: &mut Bar) {
+        let ch = self.chord(0);
+        for (k, t) in ch.q.voicing().iter().enumerate() {
+            let at = self.at(k as u32 * 2);
+            let n = ch.root_from(72) + t;
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: Inst::Chime,
+                    note: n.min(96),
+                    vel: 0.6,
+                    len: 0,
+                    glide: false,
+                },
+            );
+        }
+    }
+
+    // --- Kimes ----------------------------------------------------------
+
+    /// A unison hit figure: bass, keys, lead and kit together, ending on a
+    /// held chord.
+    fn write_kime(&mut self, bar: &mut Bar, crash: bool) {
+        let rhythm = if self.steps == 14 {
+            KIME_78
+        } else {
+            KIMES[self.pick(KIMES.len())]
+        };
+        let lead = self.lead_inst();
+        // The lead line walks down the chord tones from high up.
+        let mut top = self
+            .chord(rhythm[0] as u32)
+            .nearest_strong(self.last_note.max(74));
+        let steps = self.steps;
+        for (k, &st) in rhythm.iter().enumerate() {
+            let st = st as u32;
+            if st >= steps {
+                break;
+            }
+            let lastk = k + 1 == rhythm.len() || rhythm[k + 1] as u32 >= steps;
+            let next = if lastk { steps } else { rhythm[k + 1] as u32 };
+            let ch = self.chord(st);
+            let at = self.at(st);
+            let len_steps = if lastk {
+                (steps - st) as f32 + 1.0
+            } else {
+                ((next - st) as f32 * 0.6).max(0.6)
+            };
+            let len = self.len(len_steps);
+            // Kit.
+            Self::push(bar, hit(at, Inst::Kick, 36, 1.0));
+            Self::push(bar, hit(at, Inst::Snare, 52, 0.9));
+            if k == 0 && crash || lastk {
+                Self::push(bar, hit(at, Inst::Crash, 60, 0.85));
+            }
+            // Bass in octaves with the lead's pitch class, else the root.
+            let root = ch.root_from(31);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: Inst::Bass,
+                    note: if k % 2 == 1 { root + 12 } else { root },
+                    vel: 1.0,
+                    len,
+                    glide: false,
+                },
+            );
+            // Keys stab.
+            self.ep = voice_lead(ch, &self.ep, 50, 62);
+            for &n in &{ self.ep } {
+                Self::push(
+                    bar,
+                    Ev {
+                        at,
+                        inst: Inst::EPiano,
+                        note: n,
+                        vel: 0.9,
+                        len,
+                        glide: false,
+                    },
+                );
+            }
+            // Lead.
+            top = ch.nearest_strong(top);
+            while top > LEAD_HI {
+                top -= 12;
+            }
+            #[cfg(test)]
+            if st.is_multiple_of(4) {
+                self.strong_log.push((top, ch));
+            }
+            if let Some(inst) = lead {
+                Self::push(
+                    bar,
+                    Ev {
+                        at,
+                        inst,
+                        note: top,
+                        vel: 1.0,
+                        len,
+                        glide: false,
+                    },
+                );
+            }
+            self.last_note = top;
+            // Next hit: a chord tone a step or two below.
+            let next_ch = self.chord(next.min(steps.saturating_sub(1)));
+            top = next_ch.nearest_strong(top.saturating_sub(2).max(LEAD_LO + 2));
+            if top == self.last_note {
+                top = next_ch.nearest_strong(top.saturating_sub(3));
+            }
+        }
+    }
+
+    // --- Lead -----------------------------------------------------------
+
+    fn lead_inst(&self) -> Option<Inst> {
+        match self.style().lead {
+            LeadKind::Synth => Some(Inst::Lead),
+            LeadKind::Brass => Some(Inst::Brass),
+            LeadKind::Flute => Some(Inst::Flute),
+            LeadKind::Bell => Some(Inst::Bell),
+            LeadKind::Silent => None,
+        }
+    }
+
+    fn new_motif(&mut self) -> Motif {
+        let cell = CELLS[self.pick(CELLS.len())];
+        let mut m = Motif::default();
+        let mut c: i8 = 0;
+        let n = cell.len().min(m.notes.len());
+        for (k, &(step, len)) in cell.iter().take(n).enumerate() {
+            m.notes[k] = MNote { step, len, c };
+            // Arch contour: rise through the first half, fall after.
+            let rising = k * 2 < n;
+            let leap = [1i8, 1, 2, 2, 3][self.pick(5)];
+            let dir = if self.chance(if rising { 0.75 } else { 0.25 }) {
+                1
+            } else {
+                -1
+            };
+            c = (c + dir * leap).clamp(-5, 6);
+        }
+        m.n = n;
+        m
+    }
+
+    /// Play a motif against the current chords, starting near `from`.
+    fn realize(&mut self, m: &Motif, from: u8, shift: i8, invert: bool) -> Line {
+        let mut line = Line::new();
+        if m.n == 0 {
+            return line;
+        }
+        let first = self.chord(m.notes[0].step as u32);
+        let anchor = first.nearest_strong(fold(from));
+        for k in 0..m.n {
+            let mn = m.notes[k];
+            let step = mn.step as i32 + shift as i32;
+            if !(0..self.steps as i32).contains(&step) {
+                continue;
+            }
+            let ch = self.chord(step as u32);
+            let c = if invert { -mn.c } else { mn.c };
+            let note = ch.scale_step(anchor, c as i32);
+            line.push(step as u8, mn.len, note);
+        }
+        line
+    }
+
+    fn write_lead(&mut self, bar: &mut Bar) {
+        let Some(inst) = self.lead_inst() else {
+            return;
+        };
+        let s = self.style();
+        let i = self.intensity;
+        let kind = self.plan.kind;
+        let pb = self.plan.bar;
+        let phrase = pb % 4;
+        let last = self.last_note;
+        let line = match kind {
+            Section::Intro | Section::Breakdown | Section::Still => return,
+            Section::Victory => {
+                // Hold the 9th of the tonic, swelling in.
+                let ch = self.chord(0);
+                let mut l = Line::new();
+                let nine = fold(ch.root_from(72) + 2);
+                l.push(0, 2, ch.nearest_strong(nine.saturating_sub(2)));
+                l.push(2, 14, ch.nearest_strong(nine));
+                l
+            }
+            Section::Hook if s.theme => {
+                let mut l = Line::new();
+                let shift = (self.plan.key + 12 - THEME_KEY) % 12;
+                let shift = if shift > 6 {
+                    shift as i32 - 12
+                } else {
+                    shift as i32
+                };
+                if pb == 7 && i > 0.4 {
+                    self.pent_run(&mut l, false);
+                } else {
+                    for &(st, ln, n) in THEME[pb as usize % 4] {
+                        l.push(st, ln, (n as i32 + shift).clamp(0, 127) as u8);
+                    }
+                }
+                l
+            }
+            Section::Solo => {
+                let r = self.rand();
+                let mut l = Line::new();
+                if s.groove == Groove::Shred || r < 0.25 + 0.3 * i {
+                    self.pent_run(&mut l, phrase % 2 == 1);
+                } else if r < 0.6 {
+                    self.bebop_line(&mut l);
+                } else if phrase == 3 {
+                    self.cadence(&mut l);
+                } else {
+                    let m = self.motif;
+                    let shift = if self.chance(0.5) { 2 } else { 0 };
+                    let invert = self.chance(0.3);
+                    l = self.realize(&m, last + 3, shift, invert);
+                }
+                l
+            }
+            Section::A | Section::Hook | Section::B => {
+                // Calm music breathes: whole phrases left out.
+                if kind == Section::A && i < 0.4 && (pb / 4).is_multiple_of(2) {
+                    return;
+                }
+                let m = if kind == Section::Hook {
+                    self.hook
+                } else {
+                    self.motif
+                };
+                let second_half = pb % 8 >= 4;
+                match phrase {
+                    // Call.
+                    0 => {
+                        let from = if second_half { last + 3 } else { 74 };
+                        self.realize(&m, from, 0, false)
+                    }
+                    // Response: a short answer, or rest.
+                    1 => {
+                        if self.chance(0.45 - 0.2 * i) {
+                            return;
+                        }
+                        self.response(&m)
+                    }
+                    // Development.
+                    2 => match self.pick(4) {
+                        0 => self.realize(&m, last + 4, 0, false), // sequence up
+                        1 => self.realize(&m, last, 2, false),     // displaced
+                        2 => self.realize(&m, last + 2, 0, true),  // inverted
+                        _ => {
+                            let mut half = m;
+                            half.n = m.n.div_ceil(2);
+                            let mut l = self.realize(&half, last, 0, false);
+                            self.tail_into(&mut l, 8);
+                            l
+                        }
+                    },
+                    // Cadence.
+                    _ => {
+                        let mut l = Line::new();
+                        if i > 0.65 && kind != Section::Hook && self.chance(0.4) {
+                            self.pent_run(&mut l, true);
+                        } else {
+                            self.cadence(&mut l);
+                        }
+                        l
+                    }
+                }
+            }
+        };
+        let approach = !(kind == Section::Hook && s.theme);
+        self.emit_line(bar, inst, line, approach);
+    }
+
+    /// An answer to the call: two or three notes from the motif's end,
+    /// inverted, landing on a guide tone.
+    fn response(&mut self, m: &Motif) -> Line {
+        let mut l = Line::new();
+        let start = [4u8, 6, 8][self.pick(3)];
+        let ch = self.chord(start as u32);
+        // The answer moves against the call: a rising call is answered
+        // falling, stepwise or by thirds.
+        let rose = m.n > 1 && m.notes[m.n - 1].c > m.notes[0].c;
+        let dir = if rose { -1 } else { 1 };
+        let mut n = ch.scale_step(self.last_note, dir);
+        let k = m.n.clamp(2, 3);
+        for j in 0..k {
+            let st = start + j as u8 * 2;
+            let len = if j + 1 == k { 6 } else { 2 };
+            l.push(st, len, n);
+            let by = 1 + self.pick(2) as i32;
+            n = self.chord(st as u32 + 2).scale_step(n, dir * by);
+        }
+        l
+    }
+
+    /// Finish a fragment with two notes into a long chord tone at `at`.
+    fn tail_into(&mut self, l: &mut Line, at: u8) {
+        let ch = self.chord(at as u32);
+        let target = ch.nearest_strong(self.last_note);
+        l.push(at.saturating_sub(2), 1, ch.scale_step(target, 2));
+        l.push(at.saturating_sub(1), 1, target.saturating_sub(1));
+        l.push(at, 6, target);
+    }
+
+    /// The end of a phrase: a short pickup, then a long guide tone, then rest.
+    fn cadence(&mut self, l: &mut Line) {
+        let ch = self.chord(4);
+        let g = ch.q.guide();
+        let pick = g[self.pick(2)];
+        let target = nearest_pc(self.last_note, (ch.root + pick) % 12);
+        let pre = self.chord(2);
+        l.push(0, 2, pre.scale_step(target, 2));
+        l.push(2, 2, pre.scale_step(target, 1));
+        l.push(4, 9, target);
+    }
+
+    /// A bebop line: 8ths descending through the scale, chromatic passing
+    /// tones on the off-beats so chord tones land on the beats.
+    fn bebop_line(&mut self, l: &mut Line) {
+        let start = if self.chance(0.5) { 0 } else { 2 };
+        let ch0 = self.chord(start);
+        let mut n = ch0.nearest_strong(fold(self.last_note + 7));
+        let mut st = start;
+        while st < self.steps.min(16) {
+            l.push(st as u8, 2, n);
+            let ch = self.chord(st + 2);
+            let down = ch.scale_step(n, -1);
+            // Passing tone between two scale tones a whole step apart.
+            n = if (st + 2) % 4 != 0 && n - down == 2 && self.chance(0.6) {
+                n - 1
+            } else {
+                down
+            };
+            st += 2;
+        }
+    }
+
+    /// A pentatonic run in 16ths, up or down, ending on a chord tone.
+    fn pent_run(&mut self, l: &mut Line, up: bool) {
+        let ch = self.chord(0);
+        let pent: [u8; 5] = if ch.q.is_minor() {
+            [0, 3, 5, 7, 10]
+        } else if matches!(ch.q, Dom7alt | Dom7s9) {
+            [1, 4, 6, 8, 11] // minor pentatonic a half step up: all altered tones
+        } else {
+            [0, 2, 4, 7, 9]
+        };
+        let start = if self.chance(0.5) { 0 } else { 4 };
+        let len = 8 + self.pick(5) as u32;
+        let mut n = fold(if up {
+            self.last_note.saturating_sub(5)
+        } else {
+            self.last_note + 7
+        });
+        for k in 0..len {
+            let st = start + k;
+            if st >= self.steps {
+                break;
+            }
+            let ch_here = self.chord(st);
+            let ln = if k + 1 == len { 4 } else { 1 };
+            l.push(st as u8, ln, n);
+            // Next pentatonic tone of the chord (re-rooted as chords change).
+            let r = ch_here.root;
+            let mut m = n as i32;
+            loop {
+                m += if up { 1 } else { -1 };
+                let pc = ((m - r as i32).rem_euclid(12)) as u8;
+                if pent.contains(&pc) || !(30..110).contains(&m) {
+                    break;
+                }
+            }
+            n = m.clamp(0, 127) as u8;
+        }
+    }
+
+    /// Enforce the rules and write a line out: strong beats land on chord
+    /// tones, weak notes on scale tones, chromatic approach tones before
+    /// strong targets, everything in the lead's range.
+    fn emit_line(&mut self, bar: &mut Bar, inst: Inst, mut line: Line, approach: bool) {
+        let n = line.n;
+        if n == 0 {
+            return;
+        }
+        line.notes[..n].sort_by_key(|x| x.0);
+        // One note per step (a later idea at the same step wins).
+        let mut m = 0;
+        for k in 0..n {
+            if m > 0 && line.notes[m - 1].0 == line.notes[k].0 {
+                line.notes[m - 1] = line.notes[k];
+            } else {
+                line.notes[m] = line.notes[k];
+                m += 1;
+            }
+        }
+        let n = m;
+        line.n = n;
+        // Move the whole line by octaves into range, so its shape survives.
+        let hi = line.notes[..n].iter().map(|x| x.2).max().unwrap_or(LEAD_HI);
+        let lo = line.notes[..n].iter().map(|x| x.2).min().unwrap_or(LEAD_LO);
+        let shift: i32 = if hi > LEAD_HI + 2 {
+            -12 * ((hi - LEAD_HI + 9) / 12) as i32
+        } else if lo + 2 < LEAD_LO {
+            12 * ((LEAD_LO - lo + 9) / 12) as i32
+        } else {
+            0
+        };
+        let mut prev: Option<u8> = None;
+        for k in 0..n {
+            let (st, _, raw) = line.notes[k];
+            let ch = self.chord(st as u32);
+            let note = fold((raw as i32 + shift).clamp(0, 127) as u8);
+            let mut out = if st % 4 == 0 {
+                ch.nearest_strong(note)
+            } else if approach {
+                ch.nearest_scale(note)
+            } else {
+                note
+            };
+            // Snapping mustn't stall a moving line on a repeated note: keep
+            // going the way the idea went, to the next chord tone.
+            if let Some(p) = prev
+                && out == p
+                && note != p
+                && st % 4 == 0
+            {
+                let up = note > p;
+                let mut t = out;
+                for _ in 0..12 {
+                    t = if up { t + 1 } else { t - 1 };
+                    if ch.is_strong(t) {
+                        break;
+                    }
+                }
+                if ch.is_strong(t) {
+                    out = t;
+                }
+            }
+            line.notes[k].2 = out;
+            prev = Some(out);
+        }
+        if approach {
+            for k in 0..n.saturating_sub(1) {
+                let (st, ln, _) = line.notes[k];
+                let (nst, _, target) = line.notes[k + 1];
+                if st % 4 != 0 && ln <= 2 && nst % 4 == 0 && nst - st <= 2 && self.chance(0.35) {
+                    let below = target.saturating_sub(1);
+                    let prev = if k > 0 { line.notes[k - 1].2 } else { 0 };
+                    line.notes[k].2 = if prev == below { target + 1 } else { below };
+                }
+            }
+        }
+        let i = self.intensity;
+        for k in 0..n {
+            let (st, ln, note) = line.notes[k];
+            let ch = self.chord(st as u32);
+            let note = fold(note);
+            if st % 4 == 0 {
+                debug_assert!(ch.is_strong(note));
+                #[cfg(test)]
+                self.strong_log.push((note, ch));
+            }
+            let next_st = if k + 1 < n { line.notes[k + 1].0 } else { 99 };
+            let legato = next_st as u32 <= st as u32 + ln as u32;
+            let strong = st % 4 == 0 || ln >= 4;
+            let vel = (if strong { 0.85 } else { 0.68 }) * (0.8 + 0.3 * i);
+            let jitter = (self.rand() * 120.0) as u32;
+            let at = self.at(st as u32) + jitter;
+            let len = self.len(ln as f32 * if legato { 1.02 } else { 0.85 });
+            let prev = self.last_note;
+            let glide = inst == Inst::Lead
+                && k > 0
+                && (prev as i32 - note as i32).abs() <= 5
+                && self.chance(0.3);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst,
+                    note,
+                    vel,
+                    len,
+                    glide,
+                },
+            );
+            self.last_note = note;
+        }
+    }
+}
+
+/// Fold a note into the lead's range by octaves.
+fn fold(mut n: u8) -> u8 {
+    while n > LEAD_HI {
+        n -= 12;
+    }
+    while n < LEAD_LO {
+        n += 12;
+    }
+    n
+}
+
+/// The note of pitch class `pc` nearest `near`.
+fn nearest_pc(near: u8, pc: u8) -> u8 {
+    let base = near - near % 12 + pc;
+    let cands = [base.saturating_sub(12), base, base + 12];
+    let mut best = base;
+    for c in cands {
+        if (c as i32 - near as i32).abs() < (best as i32 - near as i32).abs() {
+            best = c;
+        }
+    }
+    best
+}
+
+fn vel(pat: &str, k: usize) -> Option<f32> {
+    match pat.as_bytes().get(k) {
+        Some(b'x') => Some(1.0),
+        Some(b'o') => Some(0.72),
+        Some(b'O') => Some(0.8),
+        Some(b'g') => Some(0.38),
+        _ => None,
+    }
+}
+
+fn hit(at: u32, inst: Inst, note: u8, vel: f32) -> Ev {
+    Ev {
+        at,
+        inst,
+        note,
+        vel,
+        len: 0,
+        glide: false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn cue(mood: Mood) -> Cue {
+        Cue {
+            mood,
+            intensity: mood.base_intensity(),
+            victories: 0,
+        }
+    }
+
+    #[test]
+    fn strong_beats_land_on_chord_tones() {
+        let mut c = Composer::new(7);
+        let mut bar = Bar::new();
+        for (k, m) in Mood::ALL.iter().cycle().take(12 * 30).enumerate() {
+            let mut q = cue(*m);
+            q.intensity = (k % 7) as f32 / 6.0;
+            c.next_bar(q, &mut bar);
+            assert!(bar.events.windows(2).all(|w| w[0].at <= w[1].at));
+            assert!(bar.events.iter().all(|e| e.at < bar.len));
+        }
+        let mut c = Composer::new(99);
+        for m in Mood::ALL {
+            for _ in 0..24 {
+                c.next_bar(cue(m), &mut bar);
+            }
+        }
+        assert!(c.strong_log.len() > 100, "{}", c.strong_log.len());
+        for (n, ch) in &c.strong_log {
+            assert!(ch.is_strong(*n), "{n} over {ch:?}");
+        }
+    }
+
+    #[test]
+    fn every_mood_writes_music() {
+        let mut bar = Bar::new();
+        for m in Mood::ALL {
+            let mut c = Composer::new(3);
+            let mut notes = 0;
+            for _ in 0..16 {
+                c.next_bar(cue(m), &mut bar);
+                notes += bar.events.len();
+            }
+            assert!(notes > 10, "{m:?} wrote {notes}");
+            assert_eq!(c.mood, m);
+        }
+    }
+
+    #[test]
+    fn victories_play_a_cadence_then_resume() {
+        let mut c = Composer::new(5);
+        let mut bar = Bar::new();
+        for _ in 0..6 {
+            c.next_bar(cue(Mood::Village), &mut bar);
+        }
+        let mut q = cue(Mood::Village);
+        q.victories = 1;
+        c.next_bar(q, &mut bar);
+        assert_eq!(c.section, Section::Victory);
+        c.next_bar(q, &mut bar);
+        assert_eq!(c.section, Section::Victory);
+        c.next_bar(q, &mut bar);
+        assert_eq!(c.section, Section::A);
+    }
+
+    fn name(n: u8) -> String {
+        const N: [&str; 12] = [
+            "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B",
+        ];
+        format!("{}{}", N[n as usize % 12], (n / 12) as i32 - 1)
+    }
+
+    /// Print a score of 28 bars (`PEEK=duel|abuela|menu|village`), to read
+    /// what the composer writes.
+    #[test]
+    #[ignore = "prints a score"]
+    fn peek_score() {
+        let mood = match std::env::var("PEEK").as_deref() {
+            Ok("duel") => Mood::Duel,
+            Ok("abuela") => Mood::Abuela,
+            Ok("menu") => Mood::Menu,
+            Ok("forest") => Mood::Forest,
+            _ => Mood::Village,
+        };
+        let mut c = Composer::new(42);
+        let mut bar = Bar::new();
+        for b in 0..28 {
+            c.next_bar(
+                Cue {
+                    mood,
+                    intensity: 0.7,
+                    victories: 0,
+                },
+                &mut bar,
+            );
+            let sl = c.step_len;
+            let chords: Vec<String> = (0..4)
+                .map(|k| {
+                    let ch = c.chord(k * 4);
+                    format!("{}{:?}", N12[ch.root as usize], ch.q)
+                })
+                .collect();
+            println!(
+                "{b:2} {:?}/{:?} bar{} [{}] steps {}",
+                c.mood,
+                c.section,
+                c.plan.bar,
+                chords.join(" "),
+                c.steps
+            );
+            for inst in [
+                Inst::Lead,
+                Inst::Brass,
+                Inst::Flute,
+                Inst::Bass,
+                Inst::EPiano,
+            ] {
+                let notes: Vec<String> = bar
+                    .events
+                    .iter()
+                    .filter(|e| e.inst == inst)
+                    .map(|e| format!("{:.1}:{}", e.at as f32 / sl, name(e.note)))
+                    .collect();
+                if !notes.is_empty() {
+                    println!("   {inst:?}: {}", notes.join(" "));
+                }
+            }
+        }
+    }
+
+    const N12: [&str; 12] = [
+        "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B",
+    ];
+}

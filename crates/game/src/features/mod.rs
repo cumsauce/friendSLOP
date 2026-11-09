@@ -19,6 +19,7 @@ pub mod fart;
 pub mod fart_sound;
 pub mod fate;
 pub mod fps;
+pub mod fusion;
 pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
@@ -84,6 +85,7 @@ impl Plugin for FeaturesPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(synth_audio::plugin);
         app.add_plugins(ambience::plugin);
+        app.add_plugins(fusion::plugin);
         app.add_plugins(organ_currency::plugin);
         app.add_plugins(crows::plugin);
         app.add_plugins(bear::plugin);

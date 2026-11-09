@@ -11,7 +11,6 @@
 //! avian3d collider so it actually blocks.
 
 use avian3d::prelude::*;
-use bevy::audio::Volume;
 use bevy::gltf::GltfAssetLabel;
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
@@ -19,19 +18,15 @@ use bevy::world_serialization::WorldInstanceReady;
 
 use crate::AppState;
 use crate::art;
-use crate::assets::Sfx;
 use crate::features::dave_commune::PARLIAMENT_AT;
 use crate::features::duel::{ARENA_CENTER, ARENA_HALF};
 use crate::features::landlord::LANDLORD_AT;
 use crate::features::totems::VAULT_AT;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(
-        OnEnter(AppState::InGame),
-        (dress_floor, light_bonfire, play_music),
-    )
-    .add_systems(Update, flicker_bonfire)
-    .add_observer(no_shadows_on_small_props);
+    app.add_systems(OnEnter(AppState::InGame), (dress_floor, light_bonfire))
+        .add_systems(Update, flicker_bonfire)
+        .add_observer(no_shadows_on_small_props);
 }
 
 /// Props stay inside this half-extent (the floor is 50×50, and the outer
@@ -771,13 +766,4 @@ fn flicker_bonfire(time: Res<Time>, mut flames: Query<&mut PointLight, With<Bonf
         let flicker = (t * 7.0).sin() * 200.0 + (t * 13.7).sin() * 150.0;
         light.intensity = 1800.0 + flicker;
     }
-}
-
-fn play_music(mut commands: Commands, sfx: Option<Res<Sfx>>) {
-    let Some(sfx) = sfx else { return };
-    commands.spawn((
-        AudioPlayer(sfx.music.clone()),
-        PlaybackSettings::LOOP.with_volume(Volume::Linear(0.28)),
-        DespawnOnExit(AppState::InGame),
-    ));
 }

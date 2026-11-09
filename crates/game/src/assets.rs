@@ -17,8 +17,6 @@ pub struct Sfx {
     pub punch: Handle<AudioSource>,
     pub crow_caw: Handle<AudioSource>,
     pub eat: Handle<AudioSource>,
-    /// Ambient music, looped while in game (`assets/audio/music`).
-    pub music: Handle<AudioSource>,
 }
 
 /// The round display font for titles and banners
@@ -88,7 +86,6 @@ fn load_sfx(mut commands: Commands, assets: Option<Res<AssetServer>>) {
         punch: sfx("punch.wav"),
         crow_caw: sfx("crow_caw.wav"),
         eat: sfx("eat.ogg"),
-        music: assets.load("audio/music/catsong.ogg"),
     });
 }
 

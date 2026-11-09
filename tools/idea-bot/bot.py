@@ -13,6 +13,10 @@ group a new question, every LOOP_EVERY landed ideas the gameplay loop (#153), an
 noon (REMINDER_TZ) each question nobody has answered yet, in big text (#157). Every AVATAR_HOURS
 it redraws its own profile picture from the game's models and the current status (#170).
 
+Screenshots (#167): Claude pushes a picture of each landed idea to the `screenshots` branch as
+`issue-<N>.png`. The "in the game" post attaches it, and when a new `latest` release comes out
+the bot announces it with the pictures of the ideas that landed since the last one.
+
 Env: DISCORD_TOKEN, GITHUB_TOKEN, GITHUB_REPO (owner/name), ANNOUNCE_CHANNEL_ID (optional),
 STATE_PATH (optional, default /data/state.json), LOOP_EVERY (optional, default 3; 0 = never),
 REMINDER_TZ (optional IANA zone for the noon reminder, default UTC), AVATAR_HOURS (optional,
@@ -21,6 +25,7 @@ default 3; 0 = never touch the profile picture).
 
 import asyncio
 import datetime
+import io
 import json
 import logging
 import os
@@ -50,6 +55,9 @@ DISCORD_LIMIT = 2000
 AVATAR_HOURS = float(os.environ.get("AVATAR_HOURS", "3") or 0)
 # The game's assets live in Git LFS; GitHub serves their contents from this host (#170).
 ASSET_BASE = f"https://media.githubusercontent.com/media/{REPO}/main/crates/game/assets/"
+SCREENSHOT_BRANCH = "screenshots"
+# Discord allows 10 attachments per message; keep release posts readable.
+MAX_RELEASE_SHOTS = 6
 
 
 def reminder_zone(name: str) -> datetime.tzinfo:
@@ -150,6 +158,27 @@ class GitHub:
 
     async def get_issue(self, number: int) -> dict:
         return await self.request("GET", f"{API}/issues/{number}")
+
+    async def screenshot(self, number: int) -> bytes | None:
+        """The picture Claude took of idea #number (#167), or None if there isn't one."""
+        try:
+            return await self.raw(f"{API}/contents/issue-{number}.png", ref=SCREENSHOT_BRANCH)
+        except Exception:  # noqa: BLE001
+            return None
+
+    async def raw(self, url: str, **params) -> bytes:
+        async with self.http().get(
+            url, params=params, headers={"Accept": "application/vnd.github.raw+json"}
+        ) as resp:
+            if resp.status >= 400:
+                raise RuntimeError(f"GitHub {resp.status}")
+            return await resp.read()
+
+    async def latest_release(self) -> dict | None:
+        try:
+            return await self.request("GET", f"{API}/releases/tags/latest")
+        except Exception:  # noqa: BLE001
+            return None
 
     async def design_section(self, heading: str) -> str:
         """The text under '## <heading>' in GAME_DESIGN.md, without HTML comments."""
@@ -314,13 +343,50 @@ async def loop(interaction: discord.Interaction) -> None:
         await interaction.followup.send(part)
 
 
-async def send(channel_id: int, text: str) -> None:
+async def send(channel_id: int, text: str, images: list[tuple[str, bytes]] | None = None) -> None:
+    """Post text (split to fit), with any images attached to the last part."""
     if not channel_id:
         return
     channel = client.get_channel(channel_id) or await client.fetch_channel(channel_id)
     if isinstance(channel, discord.abc.Messageable):
-        for part in chunks(text):
-            await channel.send(part)
+        parts = chunks(text)
+        for i, part in enumerate(parts):
+            if i == len(parts) - 1 and images:
+                files = [discord.File(io.BytesIO(data), filename=name) for name, data in images]
+                await channel.send(part, files=files)
+            else:
+                await channel.send(part)
+
+
+def release_text(release: dict, landed: list[dict]) -> str:
+    """The new-build announcement (#167): what's in it since the last one."""
+    lines = [f"🚀 **New build is out!** {release.get('html_url') or RELEASE_URL}"]
+    if landed:
+        lines.append("New since last time:")
+        lines += [f"• {i['title']}" for i in landed]
+    return "\n".join(lines)
+
+
+async def announce_release_if_new() -> None:
+    """When the `latest` release is rebuilt, say so, with the new ideas' pictures (#167)."""
+    release = await gh.latest_release()
+    if not release or release.get("draft"):
+        return
+    rid = release.get("id")
+    if rid == state.get("announced_release"):
+        return
+    first = "announced_release" not in state
+    state["announced_release"] = rid
+    landed = state.get("landed_since_release", [])
+    state["landed_since_release"] = []
+    if first:
+        return  # first start with this feature: don't announce an old build
+    images = []
+    for item in landed[-MAX_RELEASE_SHOTS:]:
+        shot = await gh.screenshot(item["number"])
+        if shot:
+            images.append((f"issue-{item['number']}.png", shot))
+    await send(ANNOUNCE_CHANNEL_ID, release_text(release, landed), images)
 
 
 async def post_loop_if_due() -> None:
@@ -355,11 +421,16 @@ async def announce() -> None:
             continue
         state["announced_done"].append(n)
         state["done_since_loop"] = state.get("done_since_loop", 0) + 1
+        state.setdefault("landed_since_release", []).append(
+            {"number": n, "title": issue["title"]}
+        )
         channel = state["issue_channels"].get(str(n), ANNOUNCE_CHANNEL_ID)
+        shot = await gh.screenshot(n)
         await send(
             channel,
             f"✅ **{issue['title']}** is in the game! {issue['html_url']}\n"
             f"New build in ~15 min: {RELEASE_URL}",
+            [(f"issue-{n}.png", shot)] if shot else None,
         )
     for q in reversed(questions):
         n = q["number"]
@@ -371,6 +442,7 @@ async def announce() -> None:
             f"❓ **Claude asks:** {q['title']}\n{q.get('body') or ''}\n"
             f"Reply with `/answer {n} <your answer>`",
         )
+    await announce_release_if_new()
     await post_loop_if_due()
     save_state(state)
 

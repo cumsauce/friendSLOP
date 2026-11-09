@@ -1427,8 +1427,30 @@ impl Composer {
             let e = &mut bar.events[i];
             let bus = e.inst.bus();
             if bus == Bus::Drums {
-                e.vel *= 1.0 + 0.1 * (r1 - 0.5);
+                // A drummer leans on the kick and snare, and rides the
+                // cymbals and shakers well under them.
+                let touch = match e.inst {
+                    Inst::Hat | Inst::OpenHat | Inst::Shaker | Inst::Ride => 0.8,
+                    Inst::Kick | Inst::Snare => 0.92,
+                    _ => 1.0,
+                };
+                e.vel *= touch * (1.0 + 0.1 * (r1 - 0.5));
                 continue;
+            }
+            let r3 = self.rand();
+            // Releases don't all line up: each note lets go a little early or
+            // late (sustained pads and strings less so).
+            let hold = match bus {
+                Bus::Pad => 0.9 + 0.2 * r3,
+                _ => 0.72 + 0.36 * r3,
+            };
+            e.len = ((e.len as f32 * hold) as u32).max(1);
+            // Play inside the range rather than at the top of it: the same
+            // shape, with headroom above (0.73 -> 0.68, 1.0 -> 0.9).
+            e.vel = 0.18 + 0.72 * e.vel.clamp(0.0, 1.0).powf(1.15);
+            if e.inst == Inst::Flute {
+                // The bottle sits back, a breath behind the band.
+                e.vel *= 0.85;
             }
             let step = (e.at as f32 / step_len).round() as u32;
             let accent = match step {
@@ -2504,7 +2526,8 @@ impl Composer {
         let (lo, hi) = match inst {
             Inst::PolyBrass | Inst::EPiano => (60, 76),
             Inst::Strings => (57, 74),
-            Inst::Flute => (67, 86),
+            // Blown bottles live lower than a flute.
+            Inst::Flute => (60, 79),
             _ => (62, 86),
         };
         let k = self.frag.n.min(3);

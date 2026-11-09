@@ -44,6 +44,7 @@ pub mod totems;
 pub mod villagers;
 pub mod voice_lines;
 pub mod warehouse;
+pub mod wendys;
 
 pub struct FeaturesProtocolPlugin;
 
@@ -84,6 +85,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(punishment::protocol);
         app.add_plugins(helicopter::protocol);
         app.add_plugins(warehouse::protocol);
+        app.add_plugins(wendys::protocol);
     }
 }
 
@@ -130,5 +132,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(punishment::plugin);
         app.add_plugins(helicopter::plugin);
         app.add_plugins(warehouse::plugin);
+        app.add_plugins(wendys::plugin);
     }
 }

@@ -288,6 +288,14 @@ asked for, and what nobody has decided yet.
   carry a flashlight, the band falls silent under a generated low drone with metal groans, and
   you hear the monster breathing. It freezes in the stillness, and the helicopter (#134) can't follow you
   down there: it backs off until you come out. Being whole does nothing else yet.
+- **Wendy's** (#117, Kori.exe: "a Wendy's on the map somewhere that has human meat burgers
+  available to pick up"). A little cream burger shack on a stone base stands in the meadow just
+  north of the road to the east village (around (30, 9)), with a red-and-white striped awning, a
+  roof sign (its name floats over it), an open serving window and a glowing grill inside. Three
+  human meat burgers (bun, lettuce, a pinkish patty, cheese) sit on the counter. Click one to pick
+  it up (server-checked reach; the 5% action failure applies): your count shows bottom-right
+  ("human meat burgers: N") and a fresh burger appears in that spot 15 s later (paused in the
+  stillness). Carrying burgers does nothing else yet (`features/wendys.rs`).
 - **Sesbian lex** (#1). Press L to start a smooch pile where you stand, L near it (within 8 m) to
   pile in, L again or wander off (14 m) to peel away. Join order hands out titles: first in is
   daddy, second the he/him butch, later joiners rotate through more ("the comfortable one",
@@ -525,6 +533,7 @@ asked for, and what nobody has decided yet.
   pitch.
 - Kori.exe (#97): sometimes an NPC who catches you farting gets hearts above them and makes
   soft sounds of awe.
+- Kori.exe (#117): a Wendy's somewhere on the map with human meat burgers to pick up.
 - Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
   chase you while high-pitched string music plays and they make jingling-keys sounds.
 - just meat and cheese (#134, on what morality should change): you get chased by a helicopter
@@ -575,6 +584,7 @@ asked for, and what nobody has decided yet.
 - An NPC can fall for you now (#97). Should that lead anywhere?
 - The villagers chase you in attack mode (#123). What happens if they catch you?
 - Who is Jegg, and what happens once Jegg's soul is whole? Does the warehouse have more in it? (#130)
+- You can pick up human meat burgers at Wendy's (#117). What are they for?
 - The lex pile (#1) just heats up. Should it do anything, or cost or earn anything?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?

@@ -128,11 +128,13 @@ asked for, and what nobody has decided yet.
   (`crates/fusion`; `features/fusion` is just the game glue). Live FM voices (DX7-style EP,
   slap and fretless bass, lead/brass with portamento, bell pad, kalimba), subtractive voices (a
   CS-80 style horn section that shouts, pushes and swells around the lead, string machine,
-  Minimoog-style lead), a nylon-string guitar (a plucked-string model with a body resonance and
-  a big reverb: fingerpicking in the meadow and the sky islands' quieter sections, bossa-nova
+  Minimoog-style lead), a blown flute/bottle (odd-harmonic FM plus breath noise that blooms
+  with each note, bottle-like low and flute-like high), a mellow nylon-string guitar (a
+  plucked-string model, flesh-not-nail attack, a body resonance, a big reverb and a touch of
+  echo: fingerpicking in the meadow and the sky islands' quieter sections, bossa-nova
   comping in the forest, the bolero strum and requinto-style answers near Abuela), a
   synthesized kit with ride, clap, shaker, congas and toms, and foley-synth note-block
-  bells/flute/harp. The lead tells a story over eight bars
+  bells/harp. Keys, bells, harp, kalimba, flute and guitar ride a tempo-synced echo. The lead tells a story over eight bars
   (statement, answer, development to a peak in bar seven, restatement, cadence; chord tones on
   long notes and guide tones on changes), a second voice answers it in its gaps (flute, harp,
   kalimba, strings or horns by mood), and solos trade between two synths. The sound evolves:

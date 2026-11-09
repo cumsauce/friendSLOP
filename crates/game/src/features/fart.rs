@@ -4,7 +4,9 @@
 //! out where your bottom is: the spot on the floor under the mouse cursor
 //! (players have no bodies outside duels, so, like the mushroom, you point),
 //! or your duel body if you're duelling. The server checks whether any NPC
-//! (the bear, a crow, or Dave) is within `SHAME_RADIUS` of that spot. If one
+//! (the bear, a crow, Dave, or one of the commune's villagers, who are NPCs
+//! too since #61 and are the ones who punish you for it, #123/#135) is within
+//! `SHAME_RADIUS` of that spot. If one
 //! is, you are shamed: for `SHAME_SECS` your screen blurs and a scary,
 //! distorted, procedurally generated chiptune plays. Everyone is told who
 //! farted and whether they got caught.
@@ -22,6 +24,7 @@ use crate::features::bear::{Bear, bear_position, wav_bytes};
 use crate::features::crows::{Crow, crow_position};
 use crate::features::duel::Duelist;
 use crate::features::synth_audio::play_synth;
+use crate::features::villagers::Villager;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
@@ -104,15 +107,18 @@ fn build_pressure(
     }
 }
 
-/// Where every NPC is at time `t` (x, z on the floor).
+/// Where every NPC is at time `t` (x, z on the floor): Dave, the bear, the
+/// crows and the villagers.
 pub fn npc_spots<'a>(
     t: f32,
     bears: impl IntoIterator<Item = &'a Bear>,
     crows: impl IntoIterator<Item = &'a Crow>,
+    villagers: impl IntoIterator<Item = &'a Villager>,
 ) -> Vec<Vec2> {
     let mut spots = vec![super::dave_commune::DAVE_AT];
     spots.extend(bears.into_iter().map(|b| bear_position(b, t).xz()));
     spots.extend(crows.into_iter().map(|c| crow_position(c, t).xz()));
+    spots.extend(villagers.into_iter().map(|v| v.pos));
     spots
 }
 
@@ -131,6 +137,7 @@ fn let_rip(
     duelists: Query<&Duelist>,
     bears: Query<&Bear>,
     crows: Query<&Crow>,
+    villagers: Query<&Villager>,
 ) {
     if crate::features::stillness::is_frozen(&still) {
         return; // the world stands still: ignore requests
@@ -151,7 +158,7 @@ fn let_rip(
         .map(|d| d.pos.xz())
         .unwrap_or(fart.at);
     // The server's game time is the session time every peer animates by.
-    let npcs = npc_spots(time.elapsed_secs(), bears, crows);
+    let npcs = npc_spots(time.elapsed_secs(), bears, crows, &villagers);
     let pressure = gas.0;
     gas.0 = 0;
     commands.server_trigger(ToClients {
@@ -465,7 +472,7 @@ mod tests {
 
     #[test]
     fn dave_is_always_watching_where_he_stands() {
-        let spots = npc_spots(0.0, [], []);
+        let spots = npc_spots(0.0, [], [], []);
         assert!(is_shameful(super::super::dave_commune::DAVE_AT, &spots));
         assert!(!is_shameful(
             super::super::dave_commune::PARLIAMENT_AT,

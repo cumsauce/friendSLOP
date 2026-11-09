@@ -554,7 +554,7 @@ Dying (to the RPG) just sends you back to the start.
   everywhere, even indoors and underground (if it falls 30 m behind it just pops up behind you).
   While it's off your screen, at most every 30 s (looking at it restarts the wait, #192, corvy), it lets out a horrific synthesized meow (detuned, ring-modulated, clipped
   "mrrrEEEOOWW"), heard in 3D by everyone; the bigger it is the deeper, longer and further it
-  carries. Whenever none of it is on your screen it grows (+0.08x per second, up to 25x) and it
+  carries. Whenever none of it is on your screen it grows (+0.008x per second, ten times slower since #195, corvy; up to 25x) and it
   never shrinks back, so the only way to stop it is to keep looking at it. Only its owner's view
   counts. Your client tells the server whether it's on screen; the server grows it. Bottom-left
   shows your cat's size. It's harmless and doesn't block anything, it's just in the way visually.
@@ -825,6 +825,7 @@ Dying (to the RPG) just sends you back to the start.
 - hadalade (#145): a 3D modelled fat cat that follows you around, meows horrifically and grows
   any time it isn't in view. We read "in view" as your own screen, gave everyone one cat, and
   capped it at 25x so the world still fits around it.
+- corvy (#195): the cat grows too quickly; at least 10x slower.
 - corvy (#192): the cat meows at most every 30 s, only when you're not looking at it; looking resets the timer.
 - catherine (#170): a profile picture for the Discord bot made from the game's assets and
   current status, updating every now and then. The bot (`tools/idea-bot/avatar.py`) renders

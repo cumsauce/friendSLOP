@@ -19,6 +19,7 @@ pub mod dave_commune;
 pub mod duel;
 pub mod fart;
 pub mod fart_sound;
+pub mod fat_cat;
 pub mod fate;
 pub mod fps;
 pub mod fusion;
@@ -96,6 +97,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(caught::protocol);
         app.add_plugins(affair::protocol);
         app.add_plugins(gamble::protocol);
+        app.add_plugins(fat_cat::protocol);
     }
 }
 
@@ -148,5 +150,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(caught::plugin);
         app.add_plugins(affair::plugin);
         app.add_plugins(gamble::plugin);
+        app.add_plugins(fat_cat::plugin);
     }
 }

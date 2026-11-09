@@ -1,7 +1,8 @@
 name: Claude
 
-# Claude turns friends' ideas into merged code. Runs are serialized so ideas land
-# one after another on top of each other (chaos, but merge-conflict-free chaos).
+# Claude turns friends' ideas into merged code. Every issue gets its own run the
+# moment it's opened, all in parallel; each run merges its own PR as soon as its
+# checks pass locally (rebasing onto whatever landed meanwhile), so nobody waits.
 on:
   issues:
     types: [opened, labeled]
@@ -11,15 +12,29 @@ on:
     workflows: [CI]
     types: [completed]
   schedule:
-    - cron: "17 */3 * * *" # sweep every 3h: batch pending ideas while the prompt cache is warm
+    - cron: "17 */3 * * *" # sweep every 3h: start a run for any idea still waiting
   workflow_dispatch:
     inputs:
       task:
         description: "Optional extra instruction for this run"
         required: false
+      issue:
+        description: "Work on this issue number (the sweep starts one run per idea)"
+        required: false
 
+run-name: >-
+  Claude ${{ github.event.issue.number && format('#{0}', github.event.issue.number) ||
+  inputs.issue && format('#{0}', inputs.issue) ||
+  github.event.workflow_run && format('fix {0}', github.event.workflow_run.head_branch) ||
+  'sweep' }}
+
+# One queue per issue (or per failing branch), so different ideas run side by
+# side while follow-up comments on the same issue wait for its current run.
 concurrency:
-  group: claude
+  group: >-
+    claude-${{ github.event.issue.number || inputs.issue ||
+    (github.event.workflow_run && format('{0}-{1}', github.event.workflow_run.head_branch,
+    github.event.workflow_run.conclusion)) || 'sweep' }}
   cancel-in-progress: false
 
 permissions:
@@ -45,7 +60,8 @@ jobs:
         !endsWith(github.event.comment.user.login, '[bot]')) ||
       (github.event_name == 'workflow_run' &&
         github.event.workflow_run.conclusion == 'failure' &&
-        startsWith(github.event.workflow_run.head_branch, 'claude/'))
+        (startsWith(github.event.workflow_run.head_branch, 'claude/') ||
+          github.event.workflow_run.head_branch == 'main'))
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -86,8 +102,9 @@ jobs:
 
             Trigger for this run:
             - event: ${{ github.event_name }}
-            - issue: ${{ github.event.issue.number }} ${{ github.event.issue.title }}
+            - issue: ${{ github.event.issue.number || inputs.issue }} ${{ github.event.issue.title }}
             - comment by: ${{ github.event.comment.user.login }}
             - failed CI branch: ${{ github.event.workflow_run.head_branch }}
-            - extra instruction: ${{ github.event.inputs.task }}
+            - extra instruction: ${{ inputs.task }}
+            - max parallel runs: ${{ vars.CLAUDE_MAX_PARALLEL || '6' }}
             - repo: ${{ github.repository }}

@@ -159,3 +159,66 @@ fn everyone_must_agree_then_in_and_out() {
     assert_eq!(world.query::<&Monster>().iter(world).count(), 0);
     assert_eq!(world.query::<&SoulPiece>().iter(world).count(), 0);
 }
+
+/// #161: a warehouse with a nightmare bathroom has a fart monster in it,
+/// every peer sees it, and it gasses whoever it reaches out of the warehouse.
+#[test]
+fn the_fart_monster_gasses_you_out() {
+    use bevy::ecs::system::RunSystemOnce;
+    use friendslop::features::warehouse::bathroom::zone;
+    use friendslop::features::warehouse::{FartMonster, start_expedition};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    exchange(&mut server, &mut client, 3);
+    use friendslop::features::warehouse::wfc::Plan;
+    let Some(seed) = (1..500u32).find(|&s| {
+        let reach = Plan::generate(s).reachable();
+        zone(s).is_some_and(|z| reach.iter().any(|&c| z.contains(c)))
+    }) else {
+        panic!("no seed with a bathroom you can get to");
+    };
+    // Everyone inside first, or the warehouse shuts again straight away.
+    for id in walkers(&mut server).iter().map(|w| w.0).collect::<Vec<_>>() {
+        place(
+            &mut server,
+            id,
+            friendslop::features::warehouse::in_spot(id as usize),
+        );
+    }
+    let started = server.world_mut().run_system_once(
+        move |mut commands: Commands, mut wh: Query<&mut Warehouse>| {
+            let Ok(mut wh) = wh.single_mut() else {
+                panic!("no warehouse");
+            };
+            start_expedition(&mut commands, &mut wh, seed);
+        },
+    );
+    assert!(started.is_ok());
+    // Keep the other monster out of this.
+    let world = server.world_mut();
+    let others: Vec<Entity> = world
+        .query_filtered::<Entity, With<Monster>>()
+        .iter(world)
+        .collect();
+    for e in others {
+        world.despawn(e);
+    }
+    exchange(&mut server, &mut client, 2);
+    let at = {
+        let world = client.world_mut();
+        let fm: Vec<FartMonster> = world.query::<&FartMonster>().iter(world).copied().collect();
+        assert_eq!(fm.len(), 1, "the client sees the fart monster");
+        fm[0].pos
+    };
+    let Some(&(friend, _)) = walkers(&mut server).iter().find(|w| w.0 != 0) else {
+        panic!("no friend");
+    };
+    place(&mut server, friend, at + Vec3::X * 0.5);
+    exchange(&mut server, &mut client, 3);
+    let pos = walkers(&mut server)
+        .iter()
+        .find(|w| w.0 == friend)
+        .map(|w| w.1);
+    assert!(pos.is_some_and(|p| !inside(p)), "gassed out: {pos:?}");
+}

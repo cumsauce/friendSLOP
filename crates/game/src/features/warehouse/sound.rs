@@ -1,6 +1,6 @@
 //! The warehouse's sounds, all generated (#130): the low drone of the dark,
 //! the monster's breathing, its scream, and a soft chime when Jegg takes a
-//! soul piece.
+//! soul piece. And the nightmare bathroom's buzz and drips (#161).
 
 use std::f32::consts::TAU;
 
@@ -151,6 +151,53 @@ pub fn chime(rate: u32) -> Vec<f32> {
     out
 }
 
+/// The nightmare bathroom (#161): the still, flat buzz of fluorescent tubes
+/// (mains hum and its harmonics, a faint fizz) and, now and then, a drip
+/// echoing off the tiles. Loops.
+pub fn bathroom(rate: u32, secs: f32) -> Vec<f32> {
+    let r = rate as f32;
+    let tail = (0.5 * r) as usize;
+    let n = (secs * r) as usize + tail;
+    let mut out = vec![0.0f32; n];
+    let mut noise = Noise(0xba7b_0161);
+    let mut hp = 0.0f32;
+    for (i, s) in out.iter_mut().enumerate() {
+        let t = i as f32 / r;
+        let hum = (t * TAU * 120.0).sin() * 0.5
+            + (t * TAU * 240.0).sin() * 0.3
+            + (t * TAU * 360.0).sin() * 0.12
+            + (t * TAU * 480.0).sin() * 0.06;
+        // Fizz: noise, gated by the 120 Hz cycle like a tired ballast.
+        let w = noise.next();
+        hp += 0.2 * (w - hp);
+        let gate = (t * TAU * 120.0).sin().max(0.0).powi(4);
+        *s = hum * 0.09 + (w - hp) * gate * 0.05;
+    }
+    // Drips: a short falling plink, then two fainter echoes off the tiles.
+    let mut noise = Noise(0x0d21_9ddd);
+    let drips = (secs / 2.2).floor().max(1.0) as usize;
+    for k in 0..drips {
+        let start = secs * (k as f32 + 0.2 + 0.5 * (noise.next() * 0.5 + 0.5)) / drips as f32;
+        let pitch = 900.0 + 500.0 * (noise.next() * 0.5 + 0.5);
+        for (echo, delay, gain) in [(0, 0.0, 1.0f32), (1, 0.13, 0.35), (2, 0.29, 0.14)] {
+            let at = ((start + delay) * r) as usize;
+            let mut phase = 0.0f32;
+            for j in 0..(0.12 * r) as usize {
+                let Some(slot) = out.get_mut(at + j) else {
+                    break;
+                };
+                let t = j as f32 / r;
+                let f = pitch * (1.0 - 2.4 * t) * (1.0 - 0.04 * echo as f32);
+                phase = (phase + f / r).fract();
+                *slot += (phase * TAU).sin() * (-t * 45.0).exp() * 0.5 * gain;
+            }
+        }
+    }
+    let mut out = make_loop(out, tail);
+    normalise(&mut out, 0.5);
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -169,5 +216,8 @@ mod tests {
         sane(&breathing(RATE));
         sane(&scream(RATE, 3));
         sane(&chime(RATE));
+        let b = bathroom(RATE, 8.0);
+        assert_eq!(b.len(), 8 * RATE as usize);
+        sane(&b);
     }
 }

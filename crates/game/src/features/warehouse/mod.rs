@@ -33,10 +33,12 @@ use crate::features::fps::{WalkInput, Walker};
 use crate::features::interact::{SERVER_REACH, deny, within};
 use crate::player::{Player, PlayerOwner};
 
+pub mod bathroom;
 pub mod sound;
 mod visuals;
 pub mod wfc;
 
+pub use bathroom::{FartMonster, Gassed};
 pub use visuals::{Spooked, spooked};
 
 use wfc::{CELL, ENTRANCE, H, Plan, Rng, W, cell_centre, cell_of};
@@ -250,7 +252,13 @@ pub fn protocol(app: &mut App) {
         .add_systems(OnEnter(ServerState::Running), spawn_warehouse)
         .add_systems(
             Update,
-            (tend_votes, carry_pieces, hunt, end_when_empty)
+            (
+                tend_votes,
+                carry_pieces,
+                hunt,
+                bathroom::patrol,
+                end_when_empty,
+            )
                 .chain()
                 .run_if(in_state(ServerState::Running)),
         )
@@ -259,6 +267,7 @@ pub fn protocol(app: &mut App) {
         .add_observer(take_soul)
         .add_observer(give_to_jegg)
         .add_observer(reset_round);
+    bathroom::protocol(app);
 }
 
 pub fn plugin(app: &mut App) {
@@ -268,6 +277,9 @@ pub fn plugin(app: &mut App) {
 fn spawn_warehouse(mut commands: Commands) {
     commands.spawn((Warehouse::default(), Replicated));
 }
+
+/// Both monsters (the warehouse's and the bathroom's fart monster).
+type Monsters<'w, 's> = Query<'w, 's, Entity, Or<(With<Monster>, With<FartMonster>)>>;
 
 type Bodies<'w, 's> = Query<
     'w,
@@ -401,6 +413,7 @@ pub fn start_expedition(commands: &mut Commands, wh: &mut Warehouse, seed: u32) 
             Replicated,
         ));
     }
+    bathroom::spawn(commands, seed, &plan);
     commands.spawn((
         Monster {
             pos: cell_world(lair.0, lair.1),
@@ -495,7 +508,7 @@ fn give_to_jegg(
     mut warehouse: Query<&mut Warehouse>,
     pieces: Query<(Entity, &SoulPiece)>,
     mut bodies: Bodies,
-    monsters: Query<Entity, With<Monster>>,
+    monsters: Monsters,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
@@ -540,7 +553,7 @@ fn end_expedition(
     commands: &mut Commands,
     wh: &mut Warehouse,
     pieces: &Query<(Entity, &SoulPiece)>,
-    monsters: &Query<Entity, With<Monster>>,
+    monsters: &Monsters,
     bodies: &mut Bodies,
 ) {
     wh.seed = None;
@@ -564,7 +577,7 @@ fn reset_round(
     mut commands: Commands,
     mut warehouse: Query<&mut Warehouse>,
     pieces: Query<(Entity, &SoulPiece)>,
-    monsters: Query<Entity, With<Monster>>,
+    monsters: Monsters,
     mut bodies: Bodies,
 ) {
     let Ok(mut wh) = warehouse.single_mut() else {
@@ -616,7 +629,7 @@ fn end_when_empty(
     mut commands: Commands,
     mut warehouse: Query<&mut Warehouse>,
     pieces: Query<(Entity, &SoulPiece)>,
-    monsters: Query<Entity, With<Monster>>,
+    monsters: Monsters,
     mut bodies: Bodies,
 ) {
     let Ok(wh) = warehouse.single() else { return };
@@ -668,22 +681,27 @@ fn hunt(
             monster.yaw = (-d.x).atan2(-d.y);
         }
         let Some(victim) = step.caught else { continue };
-        // Got one: out they go, and what they carried falls where they stood.
         let at = monster.pos;
-        for mut piece in &mut pieces {
-            if piece.carrier == Some(victim) {
-                piece.carrier = None;
-                piece.pos = at + Vec3::Y * 0.8;
-            }
-        }
-        if let Some((p, _, mut w, input, kcc)) = bodies.iter_mut().find(|b| b.0.id == victim) {
-            let to = out_spot(p.id as usize);
-            put(&mut w, input, kcc, to);
-        }
+        throw_out(victim, at, &mut pieces, &mut bodies);
         commands.server_trigger(ToClients {
             targets: SendTargets::All,
             message: Caught { player: victim, at },
         });
+    }
+}
+
+/// Server: a monster got `victim` at `at`. Out they go, and what they carried
+/// falls where they stood.
+fn throw_out(victim: u64, at: Vec3, pieces: &mut Query<&mut SoulPiece>, bodies: &mut Bodies) {
+    for mut piece in pieces.iter_mut() {
+        if piece.carrier == Some(victim) {
+            piece.carrier = None;
+            piece.pos = at + Vec3::Y * 0.8;
+        }
+    }
+    if let Some((p, _, mut w, input, kcc)) = bodies.iter_mut().find(|b| b.0.id == victim) {
+        let to = out_spot(p.id as usize);
+        put(&mut w, input, kcc, to);
     }
 }
 

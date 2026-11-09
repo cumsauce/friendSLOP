@@ -1,6 +1,9 @@
 //! Every peer: the warehouse you see and hear (#130). The building and Jegg
 //! outside, the inside built from the replicated seed, the soul pieces and
 //! the monster, and the dark (lights, fog, flashlight, drone) while you're in.
+//! The nightmare bathroom's look and sound (#161) is in [`bathroom`].
+
+mod bathroom;
 
 use bevy::audio::{AudioSource, Volume};
 use bevy::light::NotShadowCaster;
@@ -16,6 +19,7 @@ use crate::player::LocalPlayer;
 use crate::world::MainCamera;
 
 pub fn plugin(app: &mut App) {
+    bathroom::plugin(app);
     app.init_resource::<Spooked>()
         .init_resource::<Built>()
         .add_observer(click)
@@ -61,6 +65,9 @@ struct Sounds {
     breath: Handle<AudioSource>,
     screams: Vec<Handle<AudioSource>>,
     chime: Handle<AudioSource>,
+    /// The fart monster's farts and the bathroom's buzz (#161).
+    farts: Vec<Handle<AudioSource>>,
+    still: Handle<AudioSource>,
 }
 
 /// Is the local player in the warehouse? (The band goes quiet; see fusion.)
@@ -84,6 +91,8 @@ fn sounds(spooked: &mut Spooked, audio: &mut Assets<AudioSource>) -> Sounds {
             .map(|i| add(sound::scream(sound::RATE, 11 + i)))
             .collect(),
         chime: add(sound::chime(sound::RATE)),
+        farts: bathroom::fart_sounds(&mut add),
+        still: add(sound::bathroom(sound::RATE, 8.0)),
     };
     spooked.sounds = Some(s.clone());
     s
@@ -382,13 +391,17 @@ fn build_outside(
 }
 
 /// Every peer: build the inside for the current seed (and take down the old one).
+#[allow(clippy::too_many_arguments)]
 fn build_inside(
     mut commands: Commands,
     mut built: ResMut<Built>,
+    mut spooked: ResMut<Spooked>,
     warehouse: Query<&Warehouse>,
     parts: Query<Entity, With<InteriorPart>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
+    images: Option<ResMut<Assets<Image>>>,
+    audio: Option<ResMut<Assets<AudioSource>>>,
 ) {
     let want = warehouse.iter().next().and_then(|w| w.seed);
     if built.0 == want {
@@ -405,6 +418,24 @@ fn build_inside(
     let plan = Plan::generate(seed);
     let mut rng = Rng::new(seed ^ 0xdec0);
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
+    // The nightmare bathroom (#161), if this warehouse has one.
+    let bath = super::bathroom::zone(seed);
+    let in_bath = |c: (usize, usize)| bath.is_some_and(|b| b.contains(c));
+    let ceiling = |c: (usize, usize)| super::bathroom::ceiling(bath, c);
+    let kit = bath.map(|_| {
+        bathroom::kit(
+            &mut meshes,
+            &mut materials,
+            images.map(|i| i.into_inner()),
+            &cube,
+        )
+    });
+    let hum = audio.map(|mut a| sounds(&mut spooked, &mut a).still);
+    let tall = if bath.is_some() {
+        super::bathroom::CEILING
+    } else {
+        INSIDE_WALL
+    };
     let floor = mat(&mut materials, Color::srgb(0.22, 0.22, 0.23), 0.95);
     let wall = mat(&mut materials, Color::srgb(0.3, 0.29, 0.27), 0.95);
     let stain = mat(&mut materials, Color::srgb(0.16, 0.14, 0.12), 1.0);
@@ -437,29 +468,46 @@ fn build_inside(
         Vec3::new(gw + 1.0, 0.5, gh + 1.0),
         true,
     );
-    part(
-        &mut commands,
-        &wall,
-        Vec3::new(0.0, top + 0.25, 0.0),
-        Vec3::new(gw + 1.0, 0.5, gh + 1.0),
-        true,
-    );
+    if let Some(kit) = &kit {
+        // A ceiling per cell: the bathroom's is far higher.
+        for z in 0..H {
+            for x in 0..W {
+                let c = cell_centre(x, z);
+                let m = if in_bath((x, z)) { &kit.wall } else { &wall };
+                part(
+                    &mut commands,
+                    m,
+                    Vec3::new(c.x, y + ceiling((x, z)) + 0.25, c.y),
+                    Vec3::new(CELL + 0.02, 0.5, CELL + 0.02),
+                    true,
+                );
+            }
+        }
+    } else {
+        part(
+            &mut commands,
+            &wall,
+            Vec3::new(0.0, top + 0.25, 0.0),
+            Vec3::new(gw + 1.0, 0.5, gh + 1.0),
+            true,
+        );
+    }
     for (at, size) in [
         (
-            Vec3::new(0.0, y + INSIDE_WALL / 2.0, -gh / 2.0 - 0.2),
-            Vec3::new(gw + 0.8, INSIDE_WALL, 0.4),
+            Vec3::new(0.0, y + tall / 2.0, -gh / 2.0 - 0.2),
+            Vec3::new(gw + 0.8, tall, 0.4),
         ),
         (
-            Vec3::new(0.0, y + INSIDE_WALL / 2.0, gh / 2.0 + 0.2),
-            Vec3::new(gw + 0.8, INSIDE_WALL, 0.4),
+            Vec3::new(0.0, y + tall / 2.0, gh / 2.0 + 0.2),
+            Vec3::new(gw + 0.8, tall, 0.4),
         ),
         (
-            Vec3::new(-gw / 2.0 - 0.2, y + INSIDE_WALL / 2.0, 0.0),
-            Vec3::new(0.4, INSIDE_WALL, gh),
+            Vec3::new(-gw / 2.0 - 0.2, y + tall / 2.0, 0.0),
+            Vec3::new(0.4, tall, gh),
         ),
         (
-            Vec3::new(gw / 2.0 + 0.2, y + INSIDE_WALL / 2.0, 0.0),
-            Vec3::new(0.4, INSIDE_WALL, gh),
+            Vec3::new(gw / 2.0 + 0.2, y + tall / 2.0, 0.0),
+            Vec3::new(0.4, tall, gh),
         ),
     ] {
         part(&mut commands, &wall, at, size, true);
@@ -501,25 +549,48 @@ fn build_inside(
         Transform::from_translation(Vec3::new(ex.x, y + 3.4, ex.z + 0.6)),
         DespawnOnExit(AppState::InGame),
     ));
-    // Walls between cells, wherever the plan says an aisle doesn't go on.
+    // Walls between cells, wherever the plan says an aisle doesn't go on
+    // (as tall as the taller ceiling), and over the way into the bathroom.
     for z in 0..H {
         for x in 0..W {
             let c = cell_centre(x, z);
-            if x + 1 < W && !plan.open(x, z, E) {
+            for (bit, n, at, size) in [
+                (
+                    E,
+                    (x + 1, z),
+                    Vec2::new(c.x + CELL / 2.0, c.y),
+                    Vec2::new(0.3, CELL + 0.3),
+                ),
+                (
+                    S,
+                    (x, z + 1),
+                    Vec2::new(c.x, c.y + CELL / 2.0),
+                    Vec2::new(CELL + 0.3, 0.3),
+                ),
+            ] {
+                if n.0 >= W || n.1 >= H {
+                    continue;
+                }
+                let m = match &kit {
+                    Some(kit) if in_bath((x, z)) || in_bath(n) => &kit.wall,
+                    _ => &wall,
+                };
+                let (lo, hi) = if plan.open(x, z, bit) {
+                    (
+                        ceiling((x, z)).min(ceiling(n)),
+                        ceiling((x, z)).max(ceiling(n)),
+                    )
+                } else {
+                    (0.0, ceiling((x, z)).max(ceiling(n)))
+                };
+                if hi - lo < 0.01 {
+                    continue;
+                }
                 part(
                     &mut commands,
-                    &wall,
-                    Vec3::new(c.x + CELL / 2.0, y + INSIDE_WALL / 2.0, c.y),
-                    Vec3::new(0.3, INSIDE_WALL, CELL + 0.3),
-                    true,
-                );
-            }
-            if z + 1 < H && !plan.open(x, z, S) {
-                part(
-                    &mut commands,
-                    &wall,
-                    Vec3::new(c.x, y + INSIDE_WALL / 2.0, c.y + CELL / 2.0),
-                    Vec3::new(CELL + 0.3, INSIDE_WALL, 0.3),
+                    m,
+                    Vec3::new(at.x, y + (lo + hi) / 2.0, at.y),
+                    Vec3::new(size.x, hi - lo, size.y),
                     true,
                 );
             }
@@ -533,6 +604,10 @@ fn build_inside(
             let c = cell_centre(x, z);
             let cw = Vec3::new(c.x, y, c.y);
             let mask = plan.cells[z][x];
+            if let Some(kit) = kit.as_ref().filter(|_| in_bath((x, z))) {
+                bathroom::furnish(&mut commands, kit, seed, (x, z), mask, hum.as_ref());
+                continue;
+            }
             if mask == 0 {
                 for k in 0..4 {
                     let s = 1.4 + rng.roll() * 0.6;
@@ -980,6 +1055,21 @@ fn animate_monsters(
     }
 }
 
+/// The ambient light left in the dark.
+const DARK_AMBIENT: f32 = 12.0;
+
+/// The black fog of the dark.
+fn dark_fog() -> DistanceFog {
+    DistanceFog {
+        color: Color::srgb(0.005, 0.005, 0.008),
+        falloff: FogFalloff::Linear {
+            start: 2.0,
+            end: 24.0,
+        },
+        ..default()
+    }
+}
+
 /// Local: going in turns the world off; coming out turns it back on.
 #[allow(clippy::too_many_arguments)]
 fn darkness(
@@ -1013,18 +1103,11 @@ fn darkness(
             suns: suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
         };
         spooked.saved = Some(saved);
-        ambient.brightness = 12.0;
+        ambient.brightness = DARK_AMBIENT;
         for (_, mut sun) in &mut suns {
             sun.illuminance = 0.0;
         }
-        commands.entity(camera).insert(DistanceFog {
-            color: Color::srgb(0.005, 0.005, 0.008),
-            falloff: FogFalloff::Linear {
-                start: 2.0,
-                end: 24.0,
-            },
-            ..default()
-        });
+        commands.entity(camera).insert(dark_fog());
         commands.spawn((
             Flashlight,
             SpotLight {
@@ -1110,9 +1193,10 @@ struct StatusText;
 #[derive(Component)]
 struct ScareText;
 
-/// A full-screen flash when it gets you, fading out.
+/// A full-screen flash when it gets you, fading out: seconds left, and its
+/// colour (red for the monster, green for the fart monster).
 #[derive(Component)]
-struct Scare(f32);
+struct Scare(f32, Vec3);
 
 fn spawn_ui(mut commands: Commands) {
     commands.spawn((
@@ -1138,7 +1222,7 @@ fn spawn_ui(mut commands: Commands) {
         },
         BackgroundColor(Color::NONE),
         GlobalZIndex(50),
-        Scare(0.0),
+        Scare(0.0, Vec3::ZERO),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -1163,7 +1247,8 @@ fn fade_scare(
         }
         s.0 = (s.0 - time.delta_secs()).max(0.0);
         let a = (s.0 / 2.5).powf(0.6);
-        bg.0 = Color::srgba(0.35 * a, 0.0, 0.0, a * 0.9);
+        let c = s.1 * a;
+        bg.0 = Color::srgba(c.x, c.y, c.z, a * 0.9);
         if s.0 <= 0.0 {
             for mut t in &mut text {
                 t.0.clear();
@@ -1182,7 +1267,7 @@ fn on_caught(
     mut spooked: ResMut<Spooked>,
     audio: Option<ResMut<Assets<AudioSource>>>,
     mut flash: Query<&mut Scare>,
-    mut text: Query<&mut Text, With<ScareText>>,
+    mut text: Query<(&mut Text, &mut TextColor), With<ScareText>>,
     toast: Option<ResMut<Toast>>,
 ) {
     let Some(mut audio) = audio else { return };
@@ -1196,10 +1281,11 @@ fn on_caught(
             DespawnOnExit(AppState::InGame),
         ));
         for mut f in &mut flash {
-            f.0 = 2.5;
+            *f = Scare(2.5, Vec3::new(0.35, 0.0, 0.0));
         }
-        for mut t in &mut text {
+        for (mut t, mut c) in &mut text {
             t.0 = "IT GOT YOU".into();
+            c.0 = Color::srgb(0.9, 0.1, 0.1);
         }
     } else {
         crate::spatial::play_at(
@@ -1272,6 +1358,9 @@ fn show_status(
             let mut s = format!("THE WAREHOUSE: find the soul pieces and carry them out. {have}.");
             if carrying {
                 s.push_str("\nYou carry a soul piece: get it out to Jegg.");
+            }
+            if let Some(line) = bathroom::status_line(wh.seed, p) {
+                s.push_str(line);
             }
             if monsters
                 .iter()

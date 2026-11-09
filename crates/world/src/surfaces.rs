@@ -415,12 +415,17 @@ impl Surfaces {
 #[derive(Component)]
 pub struct Surfaced;
 
+/// When new materials get their surface textures. Anything that repaints new
+/// materials (the cat palette) runs `.after(SurfaceSet)`.
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct SurfaceSet;
+
 pub fn plugin(app: &mut App) {
     app.init_resource::<Surfaces>()
         .add_systems(
             Update,
             texture_new_materials
-                .before(crate::features::cat_palette::paint_new_materials)
+                .in_set(SurfaceSet)
                 .run_if(on_message::<AssetEvent<StandardMaterial>>),
         )
         .add_systems(Update, forget_meshes.run_if(on_message::<AssetEvent<Mesh>>))
@@ -718,13 +723,13 @@ mod tests {
     }
 
     #[test]
-    fn materials_and_meshes_get_surfaced_before_the_cat_repaints() {
+    fn materials_and_meshes_get_surfaced() {
         let mut app = App::new();
         app.add_plugins((MinimalPlugins, AssetPlugin::default()))
             .init_asset::<StandardMaterial>()
             .init_asset::<Mesh>()
             .init_asset::<Image>()
-            .add_plugins((plugin, crate::features::cat_palette::plugin));
+            .add_plugins(plugin);
         let brown = Color::srgb(0.45, 0.32, 0.2);
         let (wood, cube) = {
             let world = app.world_mut();
@@ -756,10 +761,8 @@ mod tests {
             panic!("material missing");
         };
         assert!(m.normal_map_texture.is_some());
-        assert_eq!(
-            m.base_color,
-            crate::features::cat_palette::cat_palette(brown)
-        );
+        // The game's cat palette repaints it afterwards (`SurfaceSet`).
+        assert_eq!(m.base_color, brown);
         let Some(mesh) = app.world().get::<Mesh3d>(e) else {
             panic!("mesh missing");
         };

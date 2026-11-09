@@ -22,7 +22,6 @@
 
 use bevy::anti_alias::fxaa::Fxaa;
 use bevy::camera::Projection;
-use bevy::camera::visibility::VisibilityRange;
 use bevy::light::{DirectionalLight, ShadowFilteringMethod};
 use bevy::pbr::ScreenSpaceAmbientOcclusion;
 use bevy::post_process::bloom::Bloom;
@@ -301,9 +300,12 @@ pub fn density(q: Option<&GraphicsQuality>) -> f32 {
 }
 
 pub fn plugin(app: &mut App) {
-    app.init_resource::<GraphicsQuality>().add_systems(
+    app.init_resource::<GraphicsQuality>();
+    let d = app.world().resource::<GraphicsQuality>().density();
+    app.insert_resource(friendslop_core::Detail(d)).add_systems(
         PostUpdate,
         (
+            sync_detail,
             save_quality,
             apply_window,
             apply_camera,
@@ -313,32 +315,7 @@ pub fn plugin(app: &mut App) {
     );
 }
 
-/// Small detail (flowers, pebbles, grass tufts) that stops drawing past a
-/// distance (#151): `(near, far)` metres for the Near / Far draw distance.
-/// It's tiny, often half-hidden by fog, and there are thousands of it.
-#[derive(Component, Clone, Copy, Debug)]
-pub struct DrawRange {
-    pub near: f32,
-    pub far: f32,
-    /// Measure from the mesh's bounds centre rather than its origin (for
-    /// big chunk meshes whose origin is the world origin).
-    pub from_bounds: bool,
-}
-
-impl DrawRange {
-    /// A small prop: gone past 35 m (Near) or 60 m (Far).
-    pub const SMALL_PROP: Self = Self {
-        near: 35.0,
-        far: 60.0,
-        from_bounds: false,
-    };
-
-    pub fn range(self, q: &GraphicsQuality) -> VisibilityRange {
-        let mut r = VisibilityRange::abrupt(0.0, if q.far { self.far } else { self.near });
-        r.use_aabb = self.from_bounds;
-        r
-    }
-}
+pub use friendslop_core::DrawRange;
 
 fn apply_draw_ranges(
     mut commands: Commands,
@@ -347,12 +324,19 @@ fn apply_draw_ranges(
     new: Query<(Entity, &DrawRange), Added<DrawRange>>,
 ) {
     let mut set = |(e, d): (Entity, &DrawRange)| {
-        commands.entity(e).try_insert(d.range(&q));
+        commands.entity(e).try_insert(d.range(q.far));
     };
     if q.is_changed() {
         all.iter().for_each(&mut set);
     } else {
         new.iter().for_each(&mut set);
+    }
+}
+
+/// Grass and particle spawners (some in other crates) read `Detail`.
+fn sync_detail(q: Res<GraphicsQuality>, mut d: ResMut<friendslop_core::Detail>) {
+    if q.is_changed() {
+        d.set_if_neq(friendslop_core::Detail(q.density()));
     }
 }
 

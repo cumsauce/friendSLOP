@@ -17,9 +17,8 @@ use bevy::prelude::*;
 
 use crate::AppState;
 use crate::art;
-use crate::features::cat_palette::cat_palette;
-use crate::features::dave_commune::PARLIAMENT_AT;
-use crate::features::duel::{ARENA_CENTER, ARENA_HALF};
+use crate::places::{ARENA_CENTER, ARENA_HALF, BONFIRE_AT, PARLIAMENT_AT};
+use friendslop_art::palette::cat_palette;
 
 pub struct TerrainPlugin;
 
@@ -64,9 +63,6 @@ const LAKE_BED: f32 = -1.6;
 pub const QUARRY_AT: Vec2 = Vec2::new(-55.0, 65.0);
 const QUARRY_RADIUS: f32 = 12.0;
 const QUARRY_DEPTH: f32 = 5.0;
-
-/// Where the campfire burns (mirrors scenery.rs).
-const BONFIRE_AT: Vec2 = Vec2::new(PARLIAMENT_AT.x + 3.5, PARLIAMENT_AT.y + 8.5);
 
 /// Path segments between landmarks and out to every district.
 fn paths() -> [(Vec2, Vec2); 13] {
@@ -385,7 +381,7 @@ fn tufts_in(min: Vec2, size: f32, density: f32) -> Mesh {
 }
 
 /// Grass around the commune (the menu backdrop uses this).
-pub(crate) fn build_tufts() -> Mesh {
+pub fn build_tufts() -> Mesh {
     tufts_in(Vec2::splat(-40.0), 80.0, 1.0)
 }
 
@@ -426,7 +422,7 @@ fn ground_in(min: Vec2, size: f32, cells: u32) -> Mesh {
 }
 
 /// Ground around the commune (the menu backdrop uses this).
-pub(crate) fn build_mesh() -> Mesh {
+pub fn build_mesh() -> Mesh {
     ground_in(Vec2::splat(-70.0), 140.0, 140)
 }
 
@@ -461,7 +457,7 @@ pub struct GroundCollider;
 
 fn spawn_terrain(
     mut commands: Commands,
-    quality: Option<Res<crate::graphics::GraphicsQuality>>,
+    detail: Option<Res<friendslop_core::Detail>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
@@ -489,7 +485,7 @@ fn spawn_terrain(
             MeshMaterial3d(ground.clone()),
             DespawnOnExit(AppState::InGame),
         ));
-        let tufts = tufts_in(min, size, crate::graphics::density(quality.as_deref()));
+        let tufts = tufts_in(min, size, friendslop_core::detail(detail.as_deref()));
         if tufts.count_vertices() > 0 {
             commands.spawn((
                 Name::new("Grass tufts"),
@@ -499,7 +495,7 @@ fn spawn_terrain(
                 // Tufts are thousands of blades: far chunks aren't drawn
                 // (#151). Measured from the chunk's centre, so the margin
                 // covers its half-diagonal.
-                crate::graphics::DrawRange {
+                friendslop_core::DrawRange {
                     near: 45.0 + size * std::f32::consts::FRAC_1_SQRT_2,
                     far: 75.0 + size * std::f32::consts::FRAC_1_SQRT_2,
                     from_bounds: true,

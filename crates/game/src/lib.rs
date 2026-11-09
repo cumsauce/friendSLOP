@@ -8,7 +8,7 @@ pub mod ambience;
 pub use friendslop_art::art;
 pub mod assets;
 pub mod atmosphere;
-pub mod buildings;
+pub use friendslop_world::buildings;
 pub mod camera;
 pub mod controls;
 pub mod creator;
@@ -18,7 +18,7 @@ pub mod footsteps;
 pub mod graphics;
 pub mod hud;
 pub use friendslop_kcc as kcc;
-pub mod landmarks;
+pub use friendslop_world::landmarks;
 pub mod loading;
 pub mod menu;
 // The browser has its own iroh transport (relay-only, async), same API (#106).
@@ -33,9 +33,9 @@ pub mod scenery;
 pub mod screenshot;
 pub mod settings;
 pub mod spatial;
-pub mod surfaces;
-pub mod terrain;
 pub use friendslop_art::theme;
+pub use friendslop_world::surfaces;
+pub use friendslop_world::terrain;
 pub mod voice;
 #[cfg(target_arch = "wasm32")]
 pub mod web;
@@ -49,13 +49,8 @@ pub mod voice_chat {
     pub use bevy_voice_chat::prelude::*;
 }
 
-/// Top-level flow. Add states here only if a feature truly needs a new screen.
-#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum AppState {
-    #[default]
-    Menu,
-    InGame,
-}
+/// Top-level flow (in `friendslop-core` so every crate can use it).
+pub use friendslop_core::AppState;
 
 /// Everything that must be registered **identically on every peer**: replicated
 /// components, network messages and events. Order matters (protocol hash).

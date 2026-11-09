@@ -23,32 +23,13 @@ pub fn plugin(app: &mut App) {
         .init_resource::<ExactColors>()
         .add_systems(
             Update,
-            paint_new_materials.run_if(on_message::<AssetEvent<StandardMaterial>>),
+            paint_new_materials
+                .after(friendslop_world::surfaces::SurfaceSet)
+                .run_if(on_message::<AssetEvent<StandardMaterial>>),
         );
 }
 
-/// Viénot et al. (1999) dichromat (deuteranope) simulation in linear RGB. Rows 1 and 2
-/// are equal, so red and green become indistinguishable, like for a cat.
-fn cat_vision(c: LinearRgba) -> LinearRgba {
-    let r = 0.290_31 * c.red + 0.709_69 * c.green;
-    let b = -0.021_97 * c.red + 0.021_97 * c.green + c.blue;
-    LinearRgba::new(r, r, b.clamp(0.0, 1.0), c.alpha)
-}
-
-/// Cat vision plus a bright, saturated cartoon look: shadows lifted, colours pushed.
-pub fn cat_palette(color: Color) -> Color {
-    let seen = cat_vision(color.to_linear());
-    let mut lch = Oklcha::from(seen);
-    lch.lightness = 0.25 + 0.75 * lch.lightness;
-    lch.chroma = (lch.chroma * 1.5).min(0.25);
-    let s = Srgba::from(lch);
-    Color::Srgba(Srgba::new(
-        s.red.clamp(0.0, 1.0),
-        s.green.clamp(0.0, 1.0),
-        s.blue.clamp(0.0, 1.0),
-        s.alpha,
-    ))
-}
+pub use friendslop_art::palette::cat_palette;
 
 /// Materials whose `base_color` must be kept exactly (not cat-filtered).
 #[derive(Resource, Default, Debug)]
@@ -114,6 +95,35 @@ mod tests {
         assert!(blue.blue > blue.red + 0.3, "{blue:?}");
         let black = cat_palette(Color::BLACK).to_srgba();
         assert!(black.red > 0.05, "shadows should be lifted: {black:?}");
+    }
+
+    /// The map's surfaces pick a texture from a material's own colour, so
+    /// they must see it before the cat repaints it.
+    #[test]
+    fn surfaces_go_first_then_the_cat_repaints() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .init_asset::<StandardMaterial>()
+            .init_asset::<Mesh>()
+            .init_asset::<Image>()
+            .add_plugins((friendslop_world::surfaces::plugin, plugin));
+        let brown = Color::srgb(0.45, 0.32, 0.2);
+        let wood = app
+            .world_mut()
+            .resource_mut::<Assets<StandardMaterial>>()
+            .add(StandardMaterial {
+                base_color: brown,
+                ..default()
+            });
+        for _ in 0..4 {
+            app.update();
+        }
+        let mats = app.world().resource::<Assets<StandardMaterial>>();
+        let Some(m) = mats.get(&wood) else {
+            panic!("material missing");
+        };
+        assert!(m.normal_map_texture.is_some(), "surfaced as wood");
+        assert_eq!(m.base_color, cat_palette(brown));
     }
 
     #[test]

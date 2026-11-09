@@ -3632,8 +3632,10 @@ dependencies = [
  "bevy_voice_chat",
  "bytes",
  "friendslop-art",
+ "friendslop-core",
  "friendslop-kcc",
  "friendslop-wire",
+ "friendslop-world",
  "fusion",
  "getrandom 0.3.4",
  "iroh",
@@ -3655,6 +3657,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "friendslop-core"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "friendslop-kcc"
 version = "0.1.0"
 dependencies = [
@@ -3667,6 +3676,16 @@ name = "friendslop-wire"
 version = "0.1.0"
 dependencies = [
  "bevy_replicon_iroh",
+]
+
+[[package]]
+name = "friendslop-world"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "bevy",
+ "friendslop-art",
+ "friendslop-core",
 ]
 
 [[package]]

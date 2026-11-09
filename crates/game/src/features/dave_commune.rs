@@ -21,7 +21,7 @@ pub fn plugin(app: &mut App) {
 }
 
 /// Where the burnt-out parliament stands (x, z).
-pub const PARLIAMENT_AT: Vec2 = Vec2::new(-12.0, -10.0);
+pub use friendslop_world::places::PARLIAMENT_AT;
 
 /// Where Dave himself stands, 7 m from the parliament; the fart-shame check
 /// looks for him here.

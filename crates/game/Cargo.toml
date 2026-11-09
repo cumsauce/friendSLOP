@@ -21,8 +21,10 @@ bevy_voice_chat.workspace = true
 fusion = { path = "../fusion" }
 # The foundation crates (see "Crates" in AGENTS.md): no game code in them.
 friendslop-art = { path = "../art" }
+friendslop-core = { path = "../core" }
 friendslop-kcc = { path = "../kcc" }
 friendslop-wire = { path = "../wire" }
+friendslop-world = { path = "../world" }
 
 # Native only: the iroh transport (a tokio runtime plus `block_on` every tick),
 # voice chat (cpal capture/playback threads) and the clipboard can't run on a

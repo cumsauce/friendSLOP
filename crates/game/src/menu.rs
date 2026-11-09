@@ -310,6 +310,12 @@ fn spawn_menu(mut commands: Commands) {
                             toggle_settings(&mut panel);
                         },
                     );
+                    button(r, "Whose fault", LILAC, 150.0).observe(
+                        |_: On<PointerClick>,
+                         mut panel: Query<&mut Node, With<crate::fault::FaultPanel>>| {
+                            crate::fault::toggle(&mut panel);
+                        },
+                    );
                     button(r, "Quit", GREY, 100.0).observe(
                         |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
                             exit.write(AppExit::Success);

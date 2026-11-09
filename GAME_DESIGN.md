@@ -18,27 +18,27 @@ asked for, and what nobody has decided yet.
 posts this section every few landed ideas (#153). Keep it under ~1800 characters. -->
 **The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
 
-**Each chapter:** a checklist (top-left) of jobs: leash the pets into
-one pack, eat the mushroom, open a vault door, carry out the Fire totem, use gods tears, play hide
-and seek, win duels, break out of HALT. The landlord keeps raising the rent: pay him in
-organs (Act 1), then pickpocket him (Act 2), then beat him in a boss fight (Act 3). Jobs done plus
-landlord down = next chapter. Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
+**Each chapter:** a checklist (top-left) of jobs, and each one sends you somewhere new:
+1 *Moving In*: leash the pets, eat the mushroom, climb the sky islands to Abuela in heaven.
+2 *Rent Day*: open a vault door, break out of HALT, hide and seek, grab burgers at Wendy's.
+3 *The Heist*: carry out the Fire totem, use gods tears, a duel, trade a crow egg to Sewer
+Paul in the tunnels. 4 *General Strike*: all of it at once, plus 2 soul pieces from the
+warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, one last time.
+Every chapter ends with the landlord: pay rent in organs (Act 1), pickpocket him (Act 2), beat
+him in a boss fight (Act 3). Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
 
 **Always going on:** the Stillness freezes everything for 20 s every minute. Farting near an NPC
-shames you; get caught 4 times and the villagers chase you and float you with an accomplice. Low morality brings a helicopter that shoots at you. 5% of actions fail with a silly result.
-Marmalade, a wizard cat by the bonfire, spins a wheel that makes a rule (fail odds, fart range,
-rent, the helicopter...) fairer or crueller for everyone, and mocks your luck.
-Your fat cat follows you, meows horribly and grows while you don't look at it.
+shames you; get caught 4 times and the villagers chase you and float you with an accomplice.
+Villagers fart and blame you. Low morality brings a helicopter that shoots at you. 5% of
+actions fail with a silly result. Marmalade, a wizard cat by the bonfire, spins a wheel that
+makes a rule fairer or crueller for everyone. Your fat cat grows while you don't look at it.
 
-**Side trips (no reward yet):** the warehouse (everyone agrees, a monster, soul pieces for Jegg;
-often a nightmare bathroom inside with a fart monster on patrol), the tunnels and Sewer Paul
-(crow eggs for cigs), an affair with Officer Mei (costs morality), Wendy's burgers, climbing
-to Abuela in heaven, the lex pile, music boxes, bear, goat, crows.
+**Just for fun:** the affair with Officer Mei, smoking, the lex pile, music boxes, bear, goat.
 
-**Where it's thin:** organs only come from the start-of-chapter refill and the landlord. Burgers,
-cigs, secrets, soul pieces, spells, stats, being shot and being an Abduction don't change play
-yet, so side trips don't feed the goal. Gambling is free, so you can spin until it's kind. Six players paying together beat the landlord
-fast. Perfect bots finish in ~11 minutes.
+**Where it's thin:** the side trips now count for the checklist, but what you carry back
+(burgers, cigs, secrets, soul pieces) still doesn't do anything else, and organs only come from
+the start-of-chapter refill and the landlord. Spells, stats, being shot and being an Abduction
+don't change play. Gambling is free. Six players paying together beat the landlord fast.
 
 ## What exists
 
@@ -552,7 +552,17 @@ fast. Perfect bots finish in ~11 minutes.
   "Free the Commune from your landlord and get into heaven" and the ending opens the pearly
   gates. "It can be like fortnite": we read that as a season-pass ladder (no copied names or
   looks). Every ticked task is one tier on the **Heaven Pass** (24 tiers over the five
-  chapters), shown under the goal line, with a "tier unlocked" toast; the top tier is heaven.
+  chapters; 29 since #165), shown under the goal line, with a "tier unlocked" toast; the top tier is heaven.
+- **One map, one story** (#165, WeiYa: "unify gameplay elements into one coherent game where
+  all ideas currently implemented on their own make sense from a birdseye view"). The side
+  trips were places you could go but nothing sent you there, so each chapter now sends the group
+  to one more of them, and its title card tells the story of why: chapter 1 climbs the sky
+  islands to get Abuela's blessing, 2 grabs 3 burgers at Wendy's, 3 trades a crow egg to Sewer
+  Paul in the tunnels (a joint from flirting counts too), 4 brings 2 soul pieces out of the
+  warehouse to Jegg, and 5 makes Jegg whole (all 5) before the final eviction. Checklist lines
+  say roughly where to go. The Heaven Pass is 29 tiers now. Burgers and Paul's gifts count when
+  they're picked up this chapter; Jegg counts what Jegg holds (reset each chapter). The playthrough
+  test plays all of it, the warehouse monster included (`campaign.rs`).
 - **Simulated 6-player playthrough** (#135, just meat and cheese: "simulate a full 6-player
   playthrough ... fix game design and make the rules cohesive. Keep every idea").
   `tests/playthrough.rs` has a host and five friends play all five chapters through the real
@@ -564,7 +574,7 @@ fast. Perfect bots finish in ~11 minutes.
   landed the last hit); the tears no longer fall again every chapter (that contradicted #43), so
   tear jobs count the whole campaign; transformations, morality and stats last the whole
   campaign; and the villagers count as NPCs who can catch you farting (#123 has them punish you
-  for it, but they couldn't see you). Perfect bots finish in ~11 game minutes, so the real length
+  for it, but they couldn't see you). Perfect bots finish in ~11 game minutes (~12 since #165), so the real length
   is down to people, not the rules.
 - **East village district** (feedback: "higher buildings or stuff u can go inside and like
   walls", more scale, places to run around and hide). East of the meadow (x 35..80, z -35..35,
@@ -767,6 +777,9 @@ fast. Perfect bots finish in ~11 minutes.
   its idea in the game (`scripts/screenshot.sh`: screenshot mode, software rendering, no GPU
   needed) and pushes it to the `screenshots` branch; the bot attaches it to the "in the game"
   post, and announces each new `latest` build with the pictures of the ideas since the last one.
+- WeiYa (#165): is there a story line, or is every idea its own separate place? Unify every
+  idea into one coherent, fun, silly game seen from a bird's-eye view, with polish. We read it as:
+  put the side trips on the chapter checklists and give the chapters one storyline.
 - catherine (#173): gamble with the game's balance, fair and unfair settings at random,
   including how features interact, hosted and commentated by a wizard-cat version of a famous
   comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
@@ -808,6 +821,8 @@ fast. Perfect bots finish in ~11 minutes.
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being
   good get you anything? And which other actions count as good or bad?
 - Heaven is now a little garden with Abuela on the top island. What else is up there, and what happens once the campaign lets you in? Should Heaven Pass tiers give rewards?
+- Chapters send you to Wendy's, Sewer Paul and Jegg now (#165). Should what you bring back
+  (burgers, cigs, soul pieces) pay the rent or help some other way?
 - Is the campaign the right length? Which chapters drag, and which fly by? (Six players who pay
   the rent together now beat the landlord in seconds: should he get tougher with more tenants?)
 - Can anyone ever truly escape HALT, and what would be on the other side?

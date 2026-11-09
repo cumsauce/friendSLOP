@@ -510,6 +510,12 @@ asked for, and what nobody has decided yet.
   fog and draw distance in (140 m), and halves grass tufts and ambient particles (those two on
   the next world build). **High** is the full look. Saved locally. 60 fps on low-end phones is
   the aim, not measured.
+- **Better lighting** (#131, doomy: "surprise me"). The sun is now a lower, warmer golden-hour
+  sun, so shadows stretch long and lit faces glow, with a slightly stronger cool bounce from the
+  other side. On **High**: ambient occlusion (soft darkening where things touch the ground or
+  each other; desktop only, browsers can't), soft Gaussian-filtered sun shadows, and FXAA
+  instead of MSAA (ambient occlusion needs MSAA off). Low is unchanged (`graphics.rs`,
+  `atmosphere.rs`).
 
 ## Ideas so far
 

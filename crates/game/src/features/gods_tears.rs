@@ -7,6 +7,13 @@
 //! `Transformation`. The more you use, the further you change, until you
 //! become a fetid, ever-hungry Abduction. What happens when an Abduction
 //! succeeds is not known.
+//!
+//! When they run out (#152, Freyja Moth): "Nothing, gods tears cannot be
+//! created. Once an abducted is slain a small portion of the gods tears that
+//! they have consumed can be recovered." Slain means beaten in a duel: an
+//! Abduction who loses one gives back [`recovered`] of the tears they used,
+//! which fall in the arena, and is that much less changed. The supply can
+//! never grow past [`TOTAL_TEARS`].
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -67,6 +74,7 @@ pub fn protocol(app: &mut App) {
         .init_resource::<TearSky>()
         .add_observer(give_transformation)
         .add_observer(use_tear)
+        .add_observer(slay_abduction)
         .add_systems(OnEnter(ServerState::Running), the_one_rain);
 }
 
@@ -103,6 +111,46 @@ fn the_one_rain(mut commands: Commands, mut sky: ResMut<TearSky>) {
     for _ in 0..TOTAL_TEARS {
         let tear = sky.tear();
         commands.spawn((tear, Replicated));
+    }
+}
+
+/// How many tears a slain Abduction gives back: a quarter of what they
+/// consumed, at least one. Nothing from anyone who isn't an Abduction.
+pub fn recovered(used: u32) -> u32 {
+    if used < ABDUCTION_AT {
+        0
+    } else {
+        (used / 4).max(1)
+    }
+}
+
+/// Server: an Abduction beaten in a duel spills some of their tears into the
+/// arena.
+fn slay_abduction(
+    ev: On<super::duel::DuelFought>,
+    mut commands: Commands,
+    mut sky: ResMut<TearSky>,
+    mut players: Query<(&Player, &mut Transformation)>,
+) {
+    let Some((_, mut t)) = players.iter_mut().find(|(p, _)| p.id == ev.loser) else {
+        return;
+    };
+    let back = recovered(t.0);
+    if back == 0 {
+        return;
+    }
+    t.0 -= back;
+    let arena = super::duel::ARENA_CENTER.xz();
+    for i in 0..back {
+        sky.next_id += 1;
+        let spot = Vec2::from_angle(i as f32 * 2.4) * (1.0 + i as f32 * 0.6);
+        commands.spawn((
+            GodsTear {
+                id: sky.next_id,
+                at: arena + spot,
+            },
+            Replicated,
+        ));
     }
 }
 
@@ -336,6 +384,14 @@ fn reset_tears(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_a_slain_abduction_gives_tears_back() {
+        assert_eq!(recovered(ABDUCTION_AT - 1), 0);
+        assert_eq!(recovered(ABDUCTION_AT), 1);
+        assert_eq!(recovered(12), 3);
+        assert!(recovered(TOTAL_TEARS) < TOTAL_TEARS);
+    }
 
     #[test]
     fn enough_tears_make_an_abduction() {

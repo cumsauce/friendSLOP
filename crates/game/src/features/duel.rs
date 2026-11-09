@@ -101,10 +101,13 @@ pub struct DuelNews {
     pub text: String,
 }
 
-/// Server only: a duel was fought to the end (someone won). Abandoned duels
-/// don't fire it.
+/// Server only: a duel was fought to the end: `winner` slew `loser`.
+/// Abandoned duels don't fire it.
 #[derive(Event, Clone, Copy, Debug)]
-pub struct DuelFought;
+pub struct DuelFought {
+    pub winner: u64,
+    pub loser: u64,
+}
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Duelist>()
@@ -417,7 +420,10 @@ fn on_shoot(
         }
         invites.active = false;
         // A real fight, as opposed to a duel that was called off.
-        commands.trigger(DuelFought);
+        commands.trigger(DuelFought {
+            winner: me,
+            loser: target.player,
+        });
         return;
     }
     // Respawn at whichever corner is further from the shooter, with one bullet.

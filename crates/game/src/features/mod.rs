@@ -24,6 +24,7 @@ pub mod fate;
 pub mod fps;
 pub mod fusion;
 pub mod gamble;
+pub mod gaslighting;
 pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
@@ -98,6 +99,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(affair::protocol);
         app.add_plugins(gamble::protocol);
         app.add_plugins(fat_cat::protocol);
+        app.add_plugins(gaslighting::protocol);
     }
 }
 
@@ -151,5 +153,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(affair::plugin);
         app.add_plugins(gamble::plugin);
         app.add_plugins(fat_cat::plugin);
+        app.add_plugins(gaslighting::plugin);
     }
 }

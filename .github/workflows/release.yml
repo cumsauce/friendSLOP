@@ -49,13 +49,59 @@ jobs:
           name: ${{ matrix.asset }}
           path: ${{ matrix.asset }}
 
+  # Browser build (#106): a static site zip (index.html + wasm + assets).
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          lfs: true # the web bundle serves the real asset files
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-web
+      - name: wasm-bindgen-cli + binaryen
+        run: |
+          version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
+          cargo install wasm-bindgen-cli --version "$version" --locked
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends binaryen
+      - run: scripts/build-web.sh dist/web
+      - name: package
+        run: cd dist/web && zip -qr ../../friendslop-web.zip .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: friendslop-web.zip
+          path: friendslop-web.zip
+      # Optional: also host it on GitHub Pages when the repo has Pages set to
+      # "GitHub Actions". Skipped (not failed) otherwise.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/web
+
+  pages:
+    needs: web
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
   publish:
-    needs: build
+    needs: [build, web]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
           path: dist
+          pattern: friendslop-* # not the github-pages artifact
           merge-multiple: true
       - name: update "latest" release
         env:
@@ -64,5 +110,5 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest dist/* --title "Latest build" \
-            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
+            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. friendslop-web.zip is the browser version (solo for now: unzip and serve the folder with any static web server). Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
             --target ${{ github.sha }} --prerelease

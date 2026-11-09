@@ -1,7 +1,7 @@
 //! Character creator (#100 by doomy): the main menu's "Character" button opens
 //! a card of cyclers and sliders for your [`CharacterLook`] next to a live,
 //! slowly turning 3D preview. The look is saved to `character.txt` in the
-//! config folder (see [`crate::settings::config_path`]) and sent to the server
+//! config folder (see [`crate::settings::load_local`]; `localStorage` on the web) and sent to the server
 //! whenever you're in a game, which clamps it and replicates it to everyone.
 
 use bevy::camera::Viewport;
@@ -25,8 +25,7 @@ pub struct MyLook(pub CharacterLook);
 
 impl FromWorld for MyLook {
     fn from_world(_: &mut World) -> Self {
-        let path = crate::settings::config_path(FILE);
-        if let Some(text) = path.as_ref().and_then(|p| std::fs::read_to_string(p).ok()) {
+        if let Some(text) = crate::settings::load_local(FILE) {
             return Self(CharacterLook::from_text(&text));
         }
         // First launch: roll one from the shared pool and keep it.
@@ -70,24 +69,11 @@ pub fn plugin(app: &mut App) {
 }
 
 fn clock_seed() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map_or(1, |d| d.as_nanos() as u64)
+    crate::settings::since_epoch().as_nanos().max(1) as u64
 }
 
 fn save(look: &CharacterLook) {
-    let Some(path) = crate::settings::config_path(FILE) else {
-        return;
-    };
-    if let Some(dir) = path.parent()
-        && let Err(e) = std::fs::create_dir_all(dir)
-    {
-        warn!("can't create {}: {e}", dir.display());
-        return;
-    }
-    if let Err(e) = std::fs::write(&path, look.to_text()) {
-        warn!("can't save {}: {e}", path.display());
-    }
+    crate::settings::save_local(FILE, &look.to_text());
 }
 
 fn save_on_edit(look: Res<MyLook>) {

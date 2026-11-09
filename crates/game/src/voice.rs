@@ -2,9 +2,9 @@
 //! Global hearing for now. Proximity voice is one `positional = true` away,
 //! once players have positions.
 
+use crate::voice_chat::*;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
-use bevy_voice_chat::prelude::*;
 
 use crate::player::Player;
 
@@ -16,9 +16,16 @@ pub struct VoicePlugin;
 
 impl Plugin for VoicePlugin {
     fn build(&self, app: &mut App) {
+        // Voice needs cpal's capture/playback threads, which a browser tab
+        // doesn't have: the web build (#106) keeps the M toggle but no audio.
+        #[cfg(not(target_arch = "wasm32"))]
         app.add_plugins(VoiceChatPlugin::default())
-            .add_plugins(VoiceRepliconPlugin::default())
-            .init_resource::<VoiceMuted>()
+            .add_plugins(VoiceRepliconPlugin::default());
+        #[cfg(target_arch = "wasm32")]
+        app.init_resource::<VoiceInput>().add_systems(Startup, || {
+            info!("voice chat is not available in the browser yet");
+        });
+        app.init_resource::<VoiceMuted>()
             .add_observer(tag_speaker)
             .add_systems(Update, drive_voice.before(VoiceChatSystems::Devices));
     }

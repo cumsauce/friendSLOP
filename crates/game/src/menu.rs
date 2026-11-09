@@ -7,9 +7,9 @@ use bevy::input::ButtonState;
 use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::*;
 
+use crate::net::IrohClient;
 use bevy::picking::hover::Hovered;
 use bevy_replicon::prelude::*;
-use bevy_replicon_iroh::IrohClient;
 
 use crate::AppState;
 use crate::hud::Toast;
@@ -123,6 +123,7 @@ enum Label {
     Voice,
     Mic,
     HaltName,
+    Graphics,
     JoinButton,
 }
 
@@ -347,6 +348,14 @@ fn spawn_menu(mut commands: Commands) {
                     button(r, "", MINT, 110.0).insert(Label::HaltName).observe(
                         |_: On<PointerClick>, mut s: ResMut<Settings>| {
                             s.halt_real_name = !s.halt_real_name;
+                        },
+                    );
+                });
+                row(ui, |r| {
+                    text(r, "Graphics (Low = smoother)", 17.0, INK);
+                    button(r, "", MINT, 110.0).insert(Label::Graphics).observe(
+                        |_: On<PointerClick>, mut q: ResMut<crate::graphics::GraphicsQuality>| {
+                            *q = q.toggled();
                         },
                     );
                 });
@@ -1007,6 +1016,7 @@ fn refresh_labels(
     connecting: Res<Connecting>,
     client: Option<Res<IrohClient>>,
     time: Res<Time>,
+    quality: Res<crate::graphics::GraphicsQuality>,
     mut texts: Query<(&mut Text, &Label)>,
     buttons: Query<(&Label, &Children), Without<Text>>,
     mut child_texts: Query<&mut Text, Without<Label>>,
@@ -1018,7 +1028,7 @@ fn refresh_labels(
             Label::Code => code.0.clone(),
             Label::Master => pct(settings.master_volume),
             Label::Voice => pct(settings.voice_volume),
-            Label::Mic | Label::HaltName | Label::JoinButton => continue,
+            Label::Mic | Label::HaltName | Label::Graphics | Label::JoinButton => continue,
         };
         if t.0 != new {
             t.0 = new;
@@ -1036,6 +1046,7 @@ fn refresh_labels(
         let mic = match label {
             Label::Mic => mic,
             Label::HaltName => halt,
+            Label::Graphics => quality.label(),
             Label::JoinButton => join.as_str(),
             _ => continue,
         };

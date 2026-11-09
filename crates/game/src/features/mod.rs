@@ -35,6 +35,7 @@ pub mod interact;
 pub mod landlord;
 pub mod morality;
 pub mod mushroom;
+pub mod mute_spell;
 pub mod objective;
 pub mod organ_currency;
 pub mod pets;
@@ -104,6 +105,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(gaslighting::protocol);
         app.add_plugins(skills::protocol);
         app.add_plugins(shipwreck::protocol);
+        app.add_plugins(mute_spell::protocol);
     }
 }
 
@@ -160,5 +162,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(gaslighting::plugin);
         app.add_plugins(skills::plugin);
         app.add_plugins(shipwreck::plugin);
+        app.add_plugins(mute_spell::plugin);
     }
 }

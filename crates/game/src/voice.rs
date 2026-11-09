@@ -97,7 +97,7 @@ fn keep_everyone_audible(
     }
 }
 
-fn drive_voice(
+pub(crate) fn drive_voice(
     keys: Res<ButtonInput<KeyCode>>,
     server: Res<State<ServerState>>,
     client: Res<State<ClientState>>,

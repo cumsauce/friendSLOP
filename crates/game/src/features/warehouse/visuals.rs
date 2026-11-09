@@ -1033,7 +1033,7 @@ fn darkness(
                 range: 22.0,
                 outer_angle: 0.42,
                 inner_angle: 0.22,
-                shadow_maps_enabled: quality.is_some_and(|q| !q.is_low()),
+                shadow_maps_enabled: quality.is_some_and(|q| q.shadows),
                 ..default()
             },
             Transform::from_xyz(0.25, -0.2, 0.0),

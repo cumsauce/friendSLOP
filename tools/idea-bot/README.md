@@ -1,8 +1,9 @@
 # idea-bot
 
 Discord bot that lets friends without GitHub accounts file ideas (`/idea`), answer Claude's
-questions (`/answer`), and see what's needed (`/whatsneeded`) or pending (`/status`). It posts back
-when an idea lands in the game.
+questions (`/answer`), and see what's needed (`/whatsneeded`), pending (`/status`) or how the game
+plays right now (`/loop`). It posts back when an idea lands in the game, and after every few landed ideas
+(`LOOP_EVERY`, default 3) it posts the gameplay loop that Claude keeps in `GAME_DESIGN.md` (#153).
 
 Issues and comments are created with the repo owner's token, so they count as trusted (`OWNER`) and
 trigger Claude. The friend's Discord name is credited in the body.
@@ -16,7 +17,8 @@ trigger Claude. The friend's Discord name is credited in the body.
    Contents: read.
 3. Run it. Env vars: `DISCORD_TOKEN`, `GITHUB_TOKEN`, `GITHUB_REPO=cumsauce/friendSLOP`,
    `ANNOUNCE_CHANNEL_ID` (right-click channel → Copy ID, with developer mode on), and `STATE_PATH`
-   (defaults to `/data/state.json`, so mount a volume at `/data`).
+   (defaults to `/data/state.json`, so mount a volume at `/data`). Optional `LOOP_EVERY`: landed
+   ideas between gameplay-loop posts (`0` turns them off).
 
 Image: `ghcr.io/cumsauce/friendslop-idea-bot:latest`, built by `.github/workflows/idea-bot.yml`
 from `nix build .#idea-bot-image`.

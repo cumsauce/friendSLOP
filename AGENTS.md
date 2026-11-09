@@ -44,6 +44,10 @@ If you're running in CI, also read `.github/claude/run.md`.
   requirements, and say in the PR how you read it.
 - Keep `GAME_DESIGN.md` truthful: what exists, what friends said, open questions. It's the game's
   memory between runs.
+- Keep its **Gameplay loop** section current (#153): re-read the whole loop after your change and
+  rewrite that section so it says how play goes now, start to finish, and where it's thin. Plain
+  words for friends, under ~1800 characters. The Discord bot posts it every few landed ideas
+  (and on `/loop`).
 
 ## Nudging
 

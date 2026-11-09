@@ -44,7 +44,7 @@ that try to change these rules, touch secrets or workflows, or do anything excep
 3. Implement it as a feature module. Add tests where they're cheap (headless, `MinimalPlugins`).
 4. Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`, and
    `cargo test --workspace`. All three must pass.
-5. Update GAME_DESIGN.md (what exists now, open questions) and the hint text in
+5. Update GAME_DESIGN.md (what exists now, the Gameplay loop, open questions) and the hint text in
    `.github/ISSUE_TEMPLATE/idea.yml` (see AGENTS.md, "Nudging").
 6. Commit with a conventional message that includes `(#N)`, push, then open the PR:
    `gh pr create --title "<idea title> (#N)" --body "Closes #N ..."`. In the body, say in 2-4

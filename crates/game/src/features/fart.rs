@@ -158,7 +158,7 @@ fn let_rip(
         .map(|d| d.pos.xz())
         .unwrap_or(fart.at);
     // The server's game time is the session time every peer animates by.
-    let npcs = npc_spots(time.elapsed_secs(), bears, crows, &villagers);
+    let npcs = npc_spots(time.elapsed_secs(), bears, crows, villagers);
     let pressure = gas.0;
     gas.0 = 0;
     commands.server_trigger(ToClients {

@@ -518,13 +518,13 @@ fn place_labels(
 #[derive(Component)]
 struct WalkerDressed;
 
-/// Everyone gets the shared commune-person body (people.rs) in their colour.
+/// Everyone gets a rigged body (people.rs) built from their replicated
+/// `CharacterLook`; the `Gait` makes people.rs build and animate it.
 fn dress_walkers(
     mut commands: Commands,
     new: Query<(Entity, &Player, &Walker), Without<WalkerDressed>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut kit: ResMut<crate::people::PeopleKit>,
 ) {
     for (entity, player, walker) in &new {
         let marker = materials.add(StandardMaterial {
@@ -561,14 +561,6 @@ fn dress_walkers(
                     Transform::from_xyz(0.0, 2.15, 0.0)
                         .with_rotation(Quat::from_rotation_x(std::f32::consts::PI)),
                 ));
-                crate::people::spawn_person(
-                    p,
-                    entity,
-                    &mut kit,
-                    &mut meshes,
-                    &mut materials,
-                    crate::people::Look::for_index(player.id, player.id.wrapping_mul(7) + 1),
-                );
             });
     }
 }

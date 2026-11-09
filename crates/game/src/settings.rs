@@ -104,7 +104,12 @@ fn apply_settings(
     mut global: ResMut<GlobalVolume>,
     mut input: ResMut<VoiceInput>,
 ) {
-    global.volume = Volume::Linear(settings.master_volume);
+    // Benchmarks and test runs (`FRIENDSLOP_BENCH`, `FRIENDSLOP_MUTE`) stay
+    // silent, so a run in the background never blasts music.
+    let muted = ["FRIENDSLOP_MUTE", "FRIENDSLOP_BENCH"]
+        .iter()
+        .any(|k| std::env::var_os(k).is_some_and(|v| v != "0"));
+    global.volume = Volume::Linear(if muted { 0.0 } else { settings.master_volume });
     input.volume = settings.voice_output();
 }
 

@@ -131,7 +131,7 @@ impl Plugin for NetPlugin {
         app.init_resource::<NetStatus>()
             .init_resource::<Clipboard>()
             .add_message::<NetCommand>()
-            .add_systems(Startup, listen_for_paste)
+            .add_systems(Startup, (listen_for_paste, join_from_url))
             .add_systems(Update, (handle_net_commands, deliver_paste))
             .add_systems(OnEnter(ClientState::Connected), enter_game)
             .add_systems(OnExit(ClientState::Connected), back_to_menu)
@@ -177,6 +177,33 @@ pub fn teardown_transport(world: &mut World) {
     world.remove_resource::<IrohServer>();
 }
 
+/// `index.html?join=<code>` joins straight away (the link a host shares);
+/// `?host` starts hosting.
+fn join_from_url(mut commands: MessageWriter<NetCommand>) {
+    let Some(search) = web_sys::window().and_then(|w| w.location().search().ok()) else {
+        return;
+    };
+    let Ok(params) = web_sys::UrlSearchParams::new_with_str(&search) else {
+        return;
+    };
+    if let Some(code) = params.get("join").filter(|c| !c.trim().is_empty()) {
+        commands.write(NetCommand::Join(code));
+    } else if params.has("host") {
+        commands.write(NetCommand::Host);
+    }
+}
+
+/// What the host hands friends: this page's address with `?join=<code>`.
+pub fn share_text(code: &str) -> String {
+    let base = web_sys::window()
+        .and_then(|w| {
+            let loc = w.location();
+            Some(format!("{}{}", loc.origin().ok()?, loc.pathname().ok()?))
+        })
+        .unwrap_or_default();
+    format!("{base}?join={code}")
+}
+
 fn handle_net_commands(
     mut commands: Commands,
     mut requests: MessageReader<NetCommand>,
@@ -191,15 +218,15 @@ fn handle_net_commands(
                 let key = SecretKey::generate();
                 let code = key.public().to_string();
                 info!("hosting from the browser, join code: {code}");
-                clipboard.set(&code);
+                clipboard.set(&share_text(&code));
                 status.message =
-                    "Hosting! Join code copied (friends join through iroh's relays).".into();
+                    "Hosting! Share link copied: friends open it to join (desktop players can paste it too).".into();
                 status.join_code = Some(code);
                 commands.insert_resource(host(key));
                 next.set(AppState::InGame);
             }
             NetCommand::Join(code) => {
-                let id = match EndpointId::from_str(code.trim()) {
+                let id = match EndpointId::from_str(crate::menu::code_in(code).trim()) {
                     Ok(id) => id,
                     Err(e) => {
                         status.message = format!("That join code doesn't look right: {e}");

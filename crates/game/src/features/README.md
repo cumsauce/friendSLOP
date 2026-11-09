@@ -15,3 +15,9 @@ pub fn plugin(app: &mut App) { /* app.add_systems(...); */ }
 
 Then add it to `FeaturesProtocolPlugin` and `FeaturesPlugin` in `mod.rs`. Put it in the protocol list
 **at the end**, so features stay in the same order on every peer.
+
+**Loading assets.** Keep a strong handle to anything you're waiting on (in a resource or
+component). Calling `assets.load(..)` each frame and dropping the result throws the half-finished
+load away, so it restarts every frame and never finishes. The duel's cowboy models did this,
+re-parsing two glTFs every frame (~5 ms). `FRIENDSLOP_BENCH=1 cargo run -- host` prints frame times plus
+mesh/material churn per second; steady churn there means something rebuilds GPU buffers each frame.

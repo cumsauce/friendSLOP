@@ -949,7 +949,15 @@ struct DuelRigs {
     male: RigState,
     female: RigState,
     gun: GunState,
+    /// Strong handles to the files while they load. Without these the
+    /// per-frame `load` handle drops at the end of the frame, the half-done
+    /// load is thrown away and the next frame starts it again, forever.
+    loading: Vec<UntypedHandle>,
 }
+
+const MALE: &str = "models/characters/Cowboy_Male.glb";
+const FEMALE: &str = "models/characters/Cowboy_Female.glb";
+const GUN: &str = "models/props/revolver.glb";
 
 /// The first-person revolver is a plain static model: a scene, no rig.
 #[derive(Default)]
@@ -971,24 +979,23 @@ fn build_rigs(
     mut graphs: ResMut<Assets<AnimationGraph>>,
     mut rigs: ResMut<DuelRigs>,
 ) {
+    if rigs.loading.is_empty() {
+        rigs.loading = vec![
+            assets.load::<Gltf>(MALE).untyped(),
+            assets.load::<Gltf>(FEMALE).untyped(),
+            assets
+                .load::<WorldAsset>(GltfAssetLabel::Scene(0).from_asset(GUN))
+                .untyped(),
+        ];
+    }
     if matches!(rigs.male, RigState::Pending) {
-        rigs.male = character_rig(
-            &assets,
-            &gltfs,
-            &mut graphs,
-            "models/characters/Cowboy_Male.glb",
-        );
+        rigs.male = character_rig(&assets, &gltfs, &mut graphs, MALE);
     }
     if matches!(rigs.female, RigState::Pending) {
-        rigs.female = character_rig(
-            &assets,
-            &gltfs,
-            &mut graphs,
-            "models/characters/Cowboy_Female.glb",
-        );
+        rigs.female = character_rig(&assets, &gltfs, &mut graphs, FEMALE);
     }
     if matches!(rigs.gun, GunState::Pending) {
-        rigs.gun = gun_scene(&assets, "models/props/revolver.glb");
+        rigs.gun = gun_scene(&assets, GUN);
     }
 }
 

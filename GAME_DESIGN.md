@@ -353,7 +353,10 @@ asked for, and what nobody has decided yet.
   browser iroh can't use UDP, so its connections always go through iroh's free public relays
   (a bit more lag than a direct desktop link); `net_web.rs` runs iroh in browser async tasks and
   speaks exactly `bevy_replicon_iroh`'s wire format (`net_wire.rs`). Paste works with Ctrl/Cmd+V
-  or the Paste button (the browser may ask for clipboard permission). **No voice in the browser
+  or the Paste button (the browser may ask for clipboard permission). **Share links:** a
+  browser host copies `<page>?join=<code>` (C copies it again in game); opening it joins
+  straight away, `?host` hosts, and pasting a link into any join box (desktop too) uses its
+  code. **No voice in the browser
   yet:** the voice plugin is built and its messages registered (so the protocol matches desktop
   peers), but cpal has no microphone or speakers there, so browser players can't talk or hear;
   desktop players still talk to each other. Character and graphics settings are

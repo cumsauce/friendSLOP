@@ -48,3 +48,20 @@ codegen-units = 1
 # in upstream PR #60 but unmerged).
 [patch.crates-io]
 rerecast = { path = "vendor/rerecast" }
+
+# The browser build (scripts/build-web.sh, #191). Phones download and compile
+# the whole .wasm before the first frame, so it's built for size: optimise
+# for size, whole-program LTO, one codegen unit. The soundtrack synth and the
+# physics stay at full speed (they run every frame).
+[profile.web]
+inherits = "release"
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+
+[profile.web.package.fusion]
+opt-level = 3
+
+[profile.web.package.avian3d]
+opt-level = 3

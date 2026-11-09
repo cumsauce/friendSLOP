@@ -636,6 +636,22 @@ don't change play. Gambling is free. Six players paying together beat the landlo
   peers), but cpal has no microphone or speakers there, so browser players can't talk or hear;
   desktop players still talk to each other. Character and graphics settings are
   saved in localStorage.
+- **Phone web performance pass** (#191, WeiYa: "blank screen on iphone ... 1-2 mins to load ...
+  has to be phone web performant ... UI too small ... fullscreen button"). The page now shows
+  a real download progress bar and only offers "Tap to play" once the game is running (it used
+  to say Ready at once and leave a blank screen while ~66 MB downloaded). The .wasm is built
+  with a size-first `web` cargo profile (opt-level s, fat LTO; the soundtrack and physics stay
+  at full speed), and `build-web.sh` shrinks the bundled textures to 512 px
+  (`tools/web-textures`, ~20 MB to ~2.5 MB, far less GPU memory). Whole bundle 94 MB to 56 MB (the
+  .wasm 66 MB to 47 MB, ~15 MB gzipped); the wasm is still the bulk (Bevy, wgpu's shader
+  translator, iroh's crypto). The browser draws at 1x pixel
+  density unless Resolution is Sharp (then up to 2x): on a 3x iPhone that's 9x fewer pixels.
+  The old "Fast" setting only shrank the UI (a scale override never lowers the pixel count),
+  which is why the UI looked tiny on phones; now the UI keeps its normal size and only scales
+  down to fit screens under 960x600 (a sideways phone), touch controls included. Touch screens
+  get a Fullscreen button at the top where the browser can do it; iPhone Safari can't
+  fullscreen a page, so the start screen says to use Add to Home Screen. Not measured on a real
+  phone yet.
 - **Touch and gamepad controls** (#106). Touch (overlay appears on first touch): thumb anywhere
   on the left third is a joystick, drag on the right to look, round buttons for Jump, Use (click
   at the crosshair), Run (toggle), Fart, Help, Score, View and Leave. Climbing is still "hold
@@ -647,7 +663,7 @@ don't change play. Gambling is free. Six players paying together beat the landlo
   (Low / Medium / High; reads Custom once you change anything) and each option on its own:
   Shadows, Ambient occlusion (desktop only), Bloom, Anti-aliasing (MSAA, or FXAA while ambient
   occlusion is on), Draw distance (Near 140 m / Far), Resolution (Sharp = native pixel density,
-  Fast = 1x), Grass & particles (Half / Full, applies on the next world build), VSync and
+  Fast = 1x; browser only, applies on reload, #191), Grass & particles (Half / Full, applies on the next world build), VSync and
   Fullscreen. Low is everything off (default in the browser, or `FRIENDSLOP_LOW=1`), Medium is
   everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
   Fullscreen alone. Saved locally (old Low/High saves still load). 60 fps on low-end phones is
@@ -779,6 +795,9 @@ don't change play. Gambling is free. Six players paying together beat the landlo
 - WeiYa (#106): a WebGL web build released on GitHub, phone optimised, landscape, fullscreen,
   iOS Safari quirks in mind, intuitive touch controls (and controller support), locked 60 fps on
   low settings.
+- WeiYa (#191): the iPhone web build showed a blank screen, took 1-2 minutes to load, wasn't
+  fullscreen and had tiny UI: "optimize this as much as physically possible", phone web
+  performant. Smaller download, progress bar, 1x rendering, UI fixed (see What exists).
 - catherine (#151): optimisation passes, aim high, make the game run really well so there's
   room for more stuff; clean things up.
 - doomy (#100): make your own character so others can see you; rigged but procedural, and a
@@ -826,6 +845,8 @@ don't change play. Gambling is free. Six players paying together beat the landlo
 - Organs are money, but how do you get them, and what are they for?
 - You can be a person or a creature now. Does what you are change anything in play?
 - Browser players can join and host now but not talk: does browser voice matter to you?
+- Phones (#191): how long does the browser build take to load on your phone now, and what still
+  feels slow or fiddly (touch controls, menus)?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?

@@ -753,9 +753,9 @@ fast. Perfect bots finish in ~11 minutes.
   replies yet, in heading-sized text, at 12:00 (`REMINDER_TZ`, UTC by default); any reply
   (including `/answer`) stops it.
 - hadalade (#145): a 3D modelled fat cat that follows you around, meows horrifically and grows
-- corvy (#192): the cat meows at most every 30 s, only when you're not looking at it; looking resets the timer.
   any time it isn't in view. We read "in view" as your own screen, gave everyone one cat, and
   capped it at 25x so the world still fits around it.
+- corvy (#192): the cat meows at most every 30 s, only when you're not looking at it; looking resets the timer.
 - catherine (#170): a profile picture for the Discord bot made from the game's assets and
   current status, updating every now and then. The bot (`tools/idea-bot/avatar.py`) renders
   the game's own campfire and cowboy models at night with a tiny software renderer: the big

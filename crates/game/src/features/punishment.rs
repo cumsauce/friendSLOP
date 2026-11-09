@@ -85,9 +85,14 @@ fn count_catch(
         return;
     }
     strikes.0 = 0;
+    start_attack(&mut commands, farted.player);
+}
+
+/// Server: set the commune on `target` for a full attack.
+pub fn start_attack(commands: &mut Commands, target: u64) {
     commands.spawn((
         AttackMode {
-            target: farted.player,
+            target,
             secs_left: ATTACK_SECS as u8,
         },
         AttackClock(ATTACK_SECS),

@@ -274,8 +274,15 @@ asked for, and what nobody has decided yet.
   quiet under frantic, high-pitched string music (bouncing chromatic 16ths, shrieking stabs,
   a trembling cluster, generated in code) and every chasing villager jingles like a pocket full
   of keys. Catches don't count while you're already being chased; the clock pauses in the
-  stillness. Only the villagers chase (the bear, crows and Dave keep to their routes), and being
-  reached does nothing yet.
+  stillness. Only the villagers chase (the bear, crows and Dave keep to their routes).
+- **Getting caught** (#140, just meat and cheese, answering "what happens when the villagers
+  catch you?"). The first chasing villager to get within 1.4 m grabs you and holds you up over its
+  head. Your chase ends, and the server picks another random player as your **accomplice**. They
+  see "your friend farted and some got on you. The poop police is hunting you too as an
+  accomplice", and attack mode switches to them. The catcher runs at them with you in its arms
+  (4.5 m/s). Once it reaches them it grabs them too, levitates 7 m up with both of you and
+  announces you're locked in the air with it for 20 s, then lets go and you drop. If you're alone
+  (or the accomplice escapes for a whole attack) it floats with just you (`features/caught.rs`).
 - **The abandoned warehouse** (#130, doomy). Just south of the commune square (a dirt path runs
   past the pond to it) stands a dark, rusting warehouse with a rolling loading door, boarded
   windows and one buzzing lamp, and **Jegg** waits beside the door with a lantern. Click the door
@@ -581,6 +588,9 @@ asked for, and what nobody has decided yet.
 - Kori.exe (#117): a Wendy's somewhere on the map with human meat burgers to pick up.
 - Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
   chase you while high-pitched string music plays and they make jingling-keys sounds.
+- just meat and cheese (#140, on what happens when the villagers catch you): it carries you to
+  a random other player (an "accomplice"), catches them too, then levitates and locks you both in
+  the air with it for a while.
 - just meat and cheese (#134, on what morality should change): you get chased by a helicopter
   that shoots at you. (Read as: bad morality summons it.)
 - doomy (#127): underground passages: sewers, basements, secret passageways, connected, with
@@ -632,7 +642,6 @@ asked for, and what nobody has decided yet.
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - What's up on the lower floating islands? (The top one is heaven, with Abuela.) (#99)
 - An NPC can fall for you now (#97). Should that lead anywhere?
-- The villagers chase you in attack mode (#123). What happens if they catch you?
 - Who is Jegg, and what happens once Jegg's soul is whole? Does the warehouse have more in it? (#130)
 - You can pick up human meat burgers at Wendy's (#117). What are they for?
 - You can smoke cigs and joints from Sewer Paul (#129). Should smoking do anything to you?

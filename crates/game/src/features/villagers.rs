@@ -223,6 +223,7 @@ fn think(
     nav: Option<Res<VillageNav>>,
     still: Query<&super::stillness::Stillness>,
     hunted: super::punishment::Hunted,
+    caught: Query<&super::caught::Caught>,
     mut villagers: Query<(
         &mut Villager,
         &mut Brain,
@@ -242,6 +243,12 @@ fn think(
     }
     let prey = hunted.spots();
     for (mut v, mut brain, agent_target, desired, state) in &mut villagers {
+        // Holding someone it caught (#140): `caught.rs` moves it.
+        if super::caught::is_catcher(&caught, v.id) {
+            brain.target = v.pos;
+            brain.wait = 1.5;
+            continue;
+        }
         // Attack mode (#123): drop everything and chase the farter.
         if let Some((pos, dir)) = super::punishment::chase_step(v.pos, &prey, dt) {
             v.pos = outside_arena(pos);
@@ -695,13 +702,14 @@ fn move_villagers(
     time: Res<Time>,
     mut villagers: Query<(&Villager, &mut Transform, &Children), With<Dressed>>,
     mut bodies: Query<&mut Transform, (With<crate::people::RigRoot>, Without<Dressed>)>,
+    caught: Query<&super::caught::Caught>,
 ) {
     let t = 1.0 - (-6.0 * time.delta_secs()).exp();
     let now = time.elapsed_secs();
     for (v, mut tf, children) in &mut villagers {
         let target = Vec3::new(
             v.pos.x,
-            crate::terrain::height_at(v.pos.x, v.pos.y),
+            crate::terrain::height_at(v.pos.x, v.pos.y) + super::caught::lift_of(&caught, v.id),
             v.pos.y,
         );
         let moving = tf.translation.xz().distance(v.pos) > 0.05;

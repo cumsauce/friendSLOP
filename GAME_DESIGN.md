@@ -18,27 +18,27 @@ asked for, and what nobody has decided yet.
 posts this section every few landed ideas (#153). Keep it under ~1800 characters. -->
 **The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
 
-**Each chapter:** a checklist (top-left) of jobs that use the other mechanics: leash the pets into
+**Each chapter:** a checklist (top-left) of jobs: leash the pets into
 one pack, eat the mushroom, open a vault door, carry out the Fire totem, use gods tears, play hide
-and seek, win duels, break out of HALT. Meanwhile the landlord keeps raising the rent: pay him in
+and seek, win duels, break out of HALT. The landlord keeps raising the rent: pay him in
 organs (Act 1), then pickpocket him (Act 2), then beat him in a boss fight (Act 3). Jobs done plus
 landlord down = next chapter. Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
 
 **Always going on:** the Stillness freezes everything for 20 s every minute. Farting near an NPC
-shames you; get caught 4 times and the villagers chase you, carry you to an accomplice and float you
-both. Low morality brings a helicopter that shoots at you. 5% of actions fail with a silly result.
+shames you; get caught 4 times and the villagers chase you and float you with an accomplice. Low morality brings a helicopter that shoots at you. 5% of actions fail with a silly result.
 Marmalade, a wizard cat by the bonfire, spins a wheel that makes a rule (fail odds, fart range,
-rent, the helicopter...) fairer or crueller for everyone all campaign, and mocks your luck.
+rent, the helicopter...) fairer or crueller for everyone, and mocks your luck.
+Your fat cat follows you, meows horribly and grows while you don't look at it.
 
 **Side trips (no reward yet):** the warehouse (everyone agrees, a monster, soul pieces for Jegg;
 often a nightmare bathroom inside with a fart monster on patrol), the tunnels and Sewer Paul
 (crow eggs for cigs), an affair with Officer Mei (costs morality), Wendy's burgers, climbing
-to Abuela in heaven, the lex pile, the music boxes, the bear, the goat, the crows.
+to Abuela in heaven, the lex pile, music boxes, bear, goat, crows.
 
 **Where it's thin:** organs only come from the start-of-chapter refill and the landlord. Burgers,
 cigs, secrets, soul pieces, spells, stats, being shot and being an Abduction don't change play
-yet, so side trips don't feed the goal. Gambling is free, so you can spin until it's kind. Six players paying together beat the landlord fast.
-Perfect bots finish in ~11 minutes; the 4-6 hours is down to people.
+yet, so side trips don't feed the goal. Gambling is free, so you can spin until it's kind. Six players paying together beat the landlord
+fast. Perfect bots finish in ~11 minutes.
 
 ## What exists
 
@@ -503,6 +503,15 @@ Perfect bots finish in ~11 minutes; the 4-6 hours is down to people.
   right) counts how many are connected. When every adopted pet is linked into one pack, everyone
   sees "ALL PETS CONNECTED!". That's a first stab at "connecting them is a core loop": nothing
   is rewarded for it yet. A leaving player's pet goes stray again.
+- **Fat cat companion** (#145). Everyone gets their own enormous orange tabby (built from
+  primitives: a huge body, sagging belly, stripes, stubby legs, whiskers) that waddles after you
+  everywhere, even indoors and underground (if it falls 30 m behind it just pops up behind you).
+  Every 5-14 s it lets out a horrific synthesized meow (detuned, ring-modulated, clipped
+  "mrrrEEEOOWW"), heard in 3D by everyone; the bigger it is the deeper, longer and further it
+  carries. Whenever none of it is on your screen it grows (+0.08x per second, up to 25x) and it
+  never shrinks back, so the only way to stop it is to keep looking at it. Only its owner's view
+  counts. Your client tells the server whether it's on screen; the server grows it. Bottom-left
+  shows your cat's size. It's harmless and doesn't block anything, it's just in the way visually.
 - **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
   game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
   Press G to pry at the seams; every pry fills the shared escape bar (top right) but angers HALT.
@@ -732,6 +741,9 @@ Perfect bots finish in ~11 minutes; the 4-6 hours is down to people.
   message until it's answered. The Discord bot re-posts every open `question` issue with no
   replies yet, in heading-sized text, at 12:00 (`REMINDER_TZ`, UTC by default); any reply
   (including `/answer`) stops it.
+- hadalade (#145): a 3D modelled fat cat that follows you around, meows horrifically and grows
+  any time it isn't in view. We read "in view" as your own screen, gave everyone one cat, and
+  capped it at 25x so the world still fits around it.
 - catherine (#170): a profile picture for the Discord bot made from the game's assets and
   current status, updating every now and then. The bot (`tools/idea-bot/avatar.py`) renders
   the game's own campfire and cowboy models at night with a tiny software renderer: the big
@@ -780,6 +792,7 @@ Perfect bots finish in ~11 minutes; the 4-6 hours is down to people.
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
+- Your fat cat (#145) only ever gets bigger. Should anything shrink it, and should a huge cat matter?
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being
   good get you anything? And which other actions count as good or bad?
 - Heaven is now a little garden with Abuela on the top island. What else is up there, and what happens once the campaign lets you in? Should Heaven Pass tiers give rewards?

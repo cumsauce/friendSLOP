@@ -60,6 +60,8 @@ impl Victim {
 pub enum Act {
     EatMushroom,
     Harm(Victim),
+    /// Flirting with Officer Mei behind your wife's back (#160).
+    Cheat,
 }
 
 impl Act {
@@ -67,6 +69,7 @@ impl Act {
     pub fn range(self) -> (i32, i32) {
         match self {
             Act::EatMushroom => (-2, 2),
+            Act::Cheat => (-4, -1),
             Act::Harm(v) if v.is_elite() => (6, 10),
             Act::Harm(_) => (-5, 3),
         }

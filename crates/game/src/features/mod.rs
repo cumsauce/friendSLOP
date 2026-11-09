@@ -7,6 +7,7 @@
 use bevy::prelude::*;
 
 pub mod abuela;
+pub mod affair;
 pub mod ambience;
 pub mod bear;
 pub mod campaign;
@@ -92,6 +93,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(underground::protocol);
         app.add_plugins(smoking::protocol);
         app.add_plugins(caught::protocol);
+        app.add_plugins(affair::protocol);
     }
 }
 
@@ -142,5 +144,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(underground::plugin);
         app.add_plugins(smoking::plugin);
         app.add_plugins(caught::plugin);
+        app.add_plugins(affair::plugin);
     }
 }

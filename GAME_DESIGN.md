@@ -29,11 +29,12 @@ shames you; get caught 4 times and the villagers chase you, carry you to an acco
 both. Low morality brings a helicopter that shoots at you. 5% of actions fail with a silly result.
 
 **Side trips (no reward yet):** the warehouse (everyone agrees, a monster, soul pieces for Jegg),
-the tunnels and Sewer Paul (crow eggs for cigs), Wendy's burgers, climbing to Abuela in heaven,
+the tunnels and Sewer Paul (crow eggs for cigs), an affair with Officer Mei behind your wife's
+back (costs morality), Wendy's burgers, climbing to Abuela in heaven,
 the lex pile, the music boxes, the bear, the goat, the crows.
 
 **Where it's thin:** organs only come from the start-of-chapter refill and the landlord. Burgers,
-cigs, soul pieces, spells, stats, being shot and being an Abduction don't change play yet, so the
+cigs, spilled secrets, soul pieces, spells, stats, being shot and being an Abduction don't change play yet, so the
 side trips don't feed back into the goal. Six players who pay together beat the landlord fast.
 Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down to people.
 
@@ -362,6 +363,17 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
   greener for a joint, seen by everyone. Pockets show bottom-right (`features/smoking.rs`).
   Smoking does nothing else yet. (Read "romance" as flirting by clicking him, separate from the
   fart-smitten romance of #97.)
+- **The affair** (#160, doomy: "allow me to cheat on my wife with a beautiful chinese
+  intelligence officer", details left to us). Your wife (a commune person in an apron; it's a
+  commune, so she's married to all of you) walks back and forth between the bonfire and the east
+  side, about 40 s a round trip, and stands still in the Stillness. Officer Mei, an intelligence
+  officer in a uniform and cap, waits at the east edge (15.5, -3.5). Click her to flirt: if your
+  wife is within 10 m she catches you (everyone is told, the affair resets). Three flirts unseen and
+  you're having an affair: pink hearts float up from you and Mei, seen by everyone. After that each
+  flirt she "debriefs" you and you spill one of the commune's secrets (toast). Mid-affair, if your
+  wife ever gets within 2.5 m she smells the perfume and catches you. Every flirt costs 1-4
+  morality (so cheat enough and the helicopter comes). Clicking your wife gets a line, a suspicious
+  one if you're cheating (`features/affair.rs`). Secrets don't do anything yet.
 - **Sesbian lex** (#1). Press L to start a smooch pile where you stand, L near it (within 8 m) to
   pile in, L again or wander off (14 m) to peel away. Join order hands out titles: first in is
   daddy, second the he/him butch, later joiners rotate through more ("the comfortable one",
@@ -648,6 +660,9 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
   low settings.
 - doomy (#100): make your own character so others can see you; rigged but procedural, and a
   reusable system that NPCs can use too.
+- doomy (#160): cheat on your wife with a beautiful Chinese intelligence officer (no details:
+  "surprise me"). We chose a wife who patrols, flirting while she's not looking, an affair with
+  hearts, spilled secrets, and morality loss. We kept it flirty, not explicit.
 - catherine (#157): if a question stays unanswered, ask it again every day at noon in a big
   message until it's answered. The Discord bot re-posts every open `question` issue with no
   replies yet, in heading-sized text, at 12:00 (`REMINDER_TZ`, UTC by default); any reply
@@ -671,6 +686,8 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - What's up on the lower floating islands? (The top one is heaven, with Abuela.) (#99)
 - An NPC can fall for you now (#97). Should that lead anywhere?
+- You can have an affair with Officer Mei (#160) and spill the commune's secrets. Who is she
+  spying for, and what happens with what you tell her? What does getting caught by your wife cost?
 - Who is Jegg, and what happens once Jegg's soul is whole? Does the warehouse have more in it? (#130)
 - You can pick up human meat burgers at Wendy's (#117). What are they for?
 - You can smoke cigs and joints from Sewer Paul (#129). Should smoking do anything to you?

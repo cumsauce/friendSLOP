@@ -505,14 +505,19 @@ asked for, and what nobody has decided yet.
   forward". Gamepad: left stick move, right stick look, A jump, B/RB/RT use, LB or left-stick
   click run, X fart, Y help, Back scoreboard, D-pad up view, Start = Esc; in the menu A/Start
   hosts. Both press the same keys/mouse buttons features already listen to (`controls.rs`).
-- **Graphics quality** (#106). Settings → Graphics: **Low** (default in the browser, or
-  `FRIENDSLOP_LOW=1`) turns off sun shadows, bloom and MSAA, draws at 1x pixel density, pulls
-  fog and draw distance in (140 m), and halves grass tufts and ambient particles (those two on
-  the next world build). **High** is the full look. Saved locally. 60 fps on low-end phones is
-  the aim, not measured.
+- **Video settings** (#106, #132, doomy: "cyberpunk 2077 ... does this ux well ... include
+  what's important and maybe have presets"). Settings → Video opens a card with a **Preset**
+  (Low / Medium / High; reads Custom once you change anything) and each option on its own:
+  Shadows, Ambient occlusion (desktop only), Bloom, Anti-aliasing (MSAA, or FXAA while ambient
+  occlusion is on), Draw distance (Near 140 m / Far), Resolution (Sharp = native pixel density,
+  Fast = 1x), Grass & particles (Half / Full, applies on the next world build), VSync and
+  Fullscreen. Low is everything off (default in the browser, or `FRIENDSLOP_LOW=1`), Medium is
+  everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
+  Fullscreen alone. Saved locally (old Low/High saves still load). 60 fps on low-end phones is
+  the aim for Low, not measured.
 - **Better lighting** (#131, doomy: "surprise me"). The sun is now a lower, warmer golden-hour
   sun, so shadows stretch long and lit faces glow, with a slightly stronger cool bounce from the
-  other side. On **High**: ambient occlusion (soft darkening where things touch the ground or
+  other side. With the video options on (High): ambient occlusion (soft darkening where things touch the ground or
   each other; desktop only, browsers can't), soft Gaussian-filtered sun shadows, and FXAA
   instead of MSAA (ambient occlusion needs MSAA off). Low is unchanged (`graphics.rs`,
   `atmosphere.rs`).

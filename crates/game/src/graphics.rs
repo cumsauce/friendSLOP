@@ -1,83 +1,295 @@
-//! Graphics quality (#106): a "Low" preset for phones, browsers and weak
-//! laptops so the game can hold 60 fps, and "High" (the look everyone had so
-//! far). Low is picked automatically in the browser and can be flipped in
-//! Settings; the choice is saved locally. Purely local, nothing replicated.
+//! Video settings (#106, #131, #132). Purely local, nothing replicated.
 //!
-//! Low: no sun shadows, no bloom, no MSAA, closer fog and draw distance,
-//! rendering at 1x pixel density (phones are 2-3x), half the grass tufts and
-//! ambient particles. Shadows/bloom/fog/MSAA/pixel density apply live; grass
-//! and particle counts apply the next time a world is built.
+//! A preset (Low / Medium / High) sets every option at once, and each option
+//! can then be changed on its own, which makes the preset read "Custom"
+//! (#132, doomy: "include what's important and maybe have presets").
+//! Low is picked automatically in the browser (and with `FRIENDSLOP_LOW=1`)
+//! so phones can hold 60 fps. The choice is saved locally.
 //!
-//! High also gets the better lighting of #131: screen-space ambient occlusion
-//! (soft contact shadows where things meet the ground; not in the browser,
-//! WebGL2 can't), Gaussian-filtered soft sun shadows, and FXAA standing in for
-//! MSAA (SSAO needs MSAA off).
+//! - Shadows: the sun's shadow maps.
+//! - Ambient occlusion (#131): soft contact shadows where things meet. Not in
+//!   the browser (WebGL2 can't); it needs MSAA off, so anti-aliasing is FXAA
+//!   while it's on and MSAA otherwise.
+//! - Bloom: the glow around the bonfire and emissives.
+//! - Anti-aliasing: smooth edges.
+//! - Draw distance: how far the fog starts and the camera draws.
+//! - Resolution: "Sharp" renders at the screen's pixel density, "Fast" at 1x
+//!   (phones are 2-3x).
+//! - Grass & particles: half or full (applies the next time a world is built).
+//! - VSync and Fullscreen: the window.
+//!
+//! Everything else applies live.
 
 use bevy::anti_alias::fxaa::Fxaa;
 use bevy::camera::Projection;
-use bevy::light::DirectionalLight;
-use bevy::light::ShadowFilteringMethod;
+use bevy::light::{DirectionalLight, ShadowFilteringMethod};
 use bevy::pbr::ScreenSpaceAmbientOcclusion;
 use bevy::post_process::bloom::Bloom;
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
+use bevy::window::{MonitorSelection, PresentMode, PrimaryWindow, WindowMode};
 
 use crate::world::MainCamera;
 
 const FILE: &str = "graphics.txt";
 
+/// Can this platform do ambient occlusion?
+pub const SSAO_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
+
+/// Every video option. (The name stays from when it was just Low/High.)
 #[derive(Resource, Clone, Copy, Debug, PartialEq, Eq)]
-pub enum GraphicsQuality {
+pub struct GraphicsQuality {
+    pub shadows: bool,
+    pub ssao: bool,
+    pub bloom: bool,
+    pub antialias: bool,
+    pub far: bool,
+    pub sharp: bool,
+    pub dense: bool,
+    pub vsync: bool,
+    pub fullscreen: bool,
+}
+
+/// The presets, from fastest to prettiest.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Preset {
     Low,
+    Medium,
     High,
 }
 
-impl GraphicsQuality {
-    pub fn is_low(self) -> bool {
-        self == Self::Low
-    }
-
-    /// How much grass and ambient particles to spawn, `0..=1`.
-    pub fn density(self) -> f32 {
-        match self {
-            Self::Low => 0.5,
-            Self::High => 1.0,
-        }
-    }
+impl Preset {
+    pub const ALL: [Preset; 3] = [Preset::Low, Preset::Medium, Preset::High];
 
     pub fn label(self) -> &'static str {
         match self {
             Self::Low => "Low",
+            Self::Medium => "Medium",
             Self::High => "High",
         }
     }
 
-    pub fn toggled(self) -> Self {
+    /// The options this preset picks. VSync and fullscreen are the window's
+    /// business, so presets keep whatever they were.
+    pub fn apply(self, q: GraphicsQuality) -> GraphicsQuality {
+        let (low, high) = (self == Self::Low, self == Self::High);
+        GraphicsQuality {
+            shadows: !low,
+            ssao: high && SSAO_SUPPORTED,
+            bloom: !low,
+            antialias: !low,
+            far: !low,
+            sharp: high,
+            dense: !low,
+            ..q
+        }
+    }
+}
+
+/// One row of the video settings menu.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum VideoOption {
+    Preset,
+    Shadows,
+    AmbientOcclusion,
+    Bloom,
+    AntiAlias,
+    DrawDistance,
+    Resolution,
+    Grass,
+    VSync,
+    Fullscreen,
+}
+
+impl VideoOption {
+    pub const ALL: [VideoOption; 10] = [
+        VideoOption::Preset,
+        VideoOption::Shadows,
+        VideoOption::AmbientOcclusion,
+        VideoOption::Bloom,
+        VideoOption::AntiAlias,
+        VideoOption::DrawDistance,
+        VideoOption::Resolution,
+        VideoOption::Grass,
+        VideoOption::VSync,
+        VideoOption::Fullscreen,
+    ];
+
+    pub fn name(self) -> &'static str {
         match self {
-            Self::Low => Self::High,
-            Self::High => Self::Low,
+            Self::Preset => "Preset",
+            Self::Shadows => "Shadows",
+            Self::AmbientOcclusion => "Ambient occlusion",
+            Self::Bloom => "Bloom (glow)",
+            Self::AntiAlias => "Anti-aliasing",
+            Self::DrawDistance => "Draw distance",
+            Self::Resolution => "Resolution",
+            Self::Grass => "Grass & particles",
+            Self::VSync => "VSync",
+            Self::Fullscreen => "Fullscreen",
+        }
+    }
+}
+
+fn on_off(b: bool) -> &'static str {
+    if b { "On" } else { "Off" }
+}
+
+impl GraphicsQuality {
+    pub fn preset(self) -> Option<Preset> {
+        Preset::ALL.into_iter().find(|p| p.apply(self) == self)
+    }
+
+    /// Low draws less (fog, grass): true for the Low preset or anything with
+    /// a near draw distance.
+    pub fn is_low(self) -> bool {
+        !self.far
+    }
+
+    /// How much grass and ambient particles to spawn, `0..=1`.
+    pub fn density(self) -> f32 {
+        if self.dense { 1.0 } else { 0.5 }
+    }
+
+    /// The text on an option's button.
+    pub fn value(self, o: VideoOption) -> &'static str {
+        match o {
+            VideoOption::Preset => self.preset().map_or("Custom", Preset::label),
+            VideoOption::Shadows => on_off(self.shadows),
+            VideoOption::AmbientOcclusion if !SSAO_SUPPORTED => "N/A",
+            VideoOption::AmbientOcclusion => on_off(self.ssao),
+            VideoOption::Bloom => on_off(self.bloom),
+            VideoOption::AntiAlias if !self.antialias => "Off",
+            VideoOption::AntiAlias if self.ssao => "FXAA",
+            VideoOption::AntiAlias => "MSAA",
+            VideoOption::DrawDistance => {
+                if self.far {
+                    "Far"
+                } else {
+                    "Near"
+                }
+            }
+            VideoOption::Resolution => {
+                if self.sharp {
+                    "Sharp"
+                } else {
+                    "Fast"
+                }
+            }
+            VideoOption::Grass => {
+                if self.dense {
+                    "Full"
+                } else {
+                    "Half"
+                }
+            }
+            VideoOption::VSync => on_off(self.vsync),
+            VideoOption::Fullscreen => on_off(self.fullscreen),
         }
     }
 
-    /// Browser builds (and `FRIENDSLOP_LOW=1`) start on Low.
+    /// Click an option's button: flip it, or step to the next preset.
+    pub fn cycle(&mut self, o: VideoOption) {
+        match o {
+            VideoOption::Preset => {
+                let next = match self.preset() {
+                    Some(Preset::Low) => Preset::Medium,
+                    Some(Preset::Medium) => Preset::High,
+                    Some(Preset::High) | None => Preset::Low,
+                };
+                *self = next.apply(*self);
+            }
+            VideoOption::Shadows => self.shadows = !self.shadows,
+            VideoOption::AmbientOcclusion => self.ssao = !self.ssao && SSAO_SUPPORTED,
+            VideoOption::Bloom => self.bloom = !self.bloom,
+            VideoOption::AntiAlias => self.antialias = !self.antialias,
+            VideoOption::DrawDistance => self.far = !self.far,
+            VideoOption::Resolution => self.sharp = !self.sharp,
+            VideoOption::Grass => self.dense = !self.dense,
+            VideoOption::VSync => self.vsync = !self.vsync,
+            VideoOption::Fullscreen => self.fullscreen = !self.fullscreen,
+        }
+    }
+
+    /// Saved as `key=0/1` lines.
+    pub fn to_text(self) -> String {
+        [
+            ("shadows", self.shadows),
+            ("ssao", self.ssao),
+            ("bloom", self.bloom),
+            ("antialias", self.antialias),
+            ("far", self.far),
+            ("sharp", self.sharp),
+            ("dense", self.dense),
+            ("vsync", self.vsync),
+            ("fullscreen", self.fullscreen),
+        ]
+        .iter()
+        .map(|(k, v)| format!("{k}={}\n", u8::from(*v)))
+        .collect()
+    }
+
+    /// Reads [`to_text`](Self::to_text), or the old "low"/"high" files.
+    pub fn from_text(text: &str) -> Option<Self> {
+        let base = Self::platform_default();
+        match text.trim() {
+            "low" => return Some(Preset::Low.apply(base)),
+            "high" => return Some(Preset::High.apply(base)),
+            _ => {}
+        }
+        let mut q = base;
+        let mut any = false;
+        for line in text.lines() {
+            let Some((k, v)) = line.split_once('=') else {
+                continue;
+            };
+            let v = v.trim() == "1";
+            let field = match k.trim() {
+                "shadows" => &mut q.shadows,
+                "ssao" => &mut q.ssao,
+                "bloom" => &mut q.bloom,
+                "antialias" => &mut q.antialias,
+                "far" => &mut q.far,
+                "sharp" => &mut q.sharp,
+                "dense" => &mut q.dense,
+                "vsync" => &mut q.vsync,
+                "fullscreen" => &mut q.fullscreen,
+                _ => continue,
+            };
+            *field = v;
+            any = true;
+        }
+        q.ssao &= SSAO_SUPPORTED;
+        any.then_some(q)
+    }
+
+    /// Browser builds (and `FRIENDSLOP_LOW=1`) start on Low, others on High.
     fn platform_default() -> Self {
+        let windowed = Self {
+            shadows: false,
+            ssao: false,
+            bloom: false,
+            antialias: false,
+            far: false,
+            sharp: false,
+            dense: false,
+            vsync: true,
+            fullscreen: false,
+        };
         if cfg!(target_arch = "wasm32")
             || std::env::var_os("FRIENDSLOP_LOW").is_some_and(|v| v != "0")
         {
-            Self::Low
+            Preset::Low.apply(windowed)
         } else {
-            Self::High
+            Preset::High.apply(windowed)
         }
     }
 }
 
 impl Default for GraphicsQuality {
     fn default() -> Self {
-        match crate::settings::load_local(FILE).as_deref().map(str::trim) {
-            Some("low") => Self::Low,
-            Some("high") => Self::High,
-            _ => Self::platform_default(),
-        }
+        crate::settings::load_local(FILE)
+            .and_then(|t| Self::from_text(&t))
+            .unwrap_or_else(Self::platform_default)
     }
 }
 
@@ -96,25 +308,45 @@ pub fn plugin(app: &mut App) {
 
 fn save_quality(q: Res<GraphicsQuality>) {
     if q.is_changed() && !q.is_added() {
-        let text = if q.is_low() { "low" } else { "high" };
-        crate::settings::save_local(FILE, text);
+        crate::settings::save_local(FILE, &q.to_text());
     }
 }
 
-/// Phones report 2-3 device pixels per CSS pixel: rendering at 1x is the
-/// single biggest win for fill rate. UI keeps its logical size.
+/// Pixel density, vsync and fullscreen. Phones report 2-3 device pixels per
+/// CSS pixel: rendering at 1x is the single biggest win for fill rate. UI
+/// keeps its logical size.
 fn apply_window(q: Res<GraphicsQuality>, mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let Ok(mut window) = window.single_mut() else {
         return;
     };
-    let want = q.is_low().then_some(1.0);
+    let want = (!q.sharp).then_some(1.0);
     if window.resolution.scale_factor_override() != want {
         window.resolution.set_scale_factor_override(want);
     }
+    if !q.is_changed() {
+        return;
+    }
+    // At startup, VSync on keeps main.rs's choice (the benchmark runs uncapped).
+    if !(q.is_added() && q.vsync) {
+        window.present_mode = if q.vsync {
+            PresentMode::AutoVsync
+        } else {
+            PresentMode::AutoNoVsync
+        };
+    }
+    let mode = if q.fullscreen {
+        WindowMode::BorderlessFullscreen(MonitorSelection::Current)
+    } else {
+        WindowMode::Windowed
+    };
+    if window.mode != mode {
+        window.mode = mode;
+    }
 }
 
-/// Bloom, MSAA, fog and far plane on the main camera, whenever the quality
-/// changes or a camera appears (the atmosphere dresses it on spawn).
+/// Bloom, anti-aliasing, ambient occlusion, shadow filtering, fog and far
+/// plane on the main camera, whenever settings change or a camera appears
+/// (the atmosphere dresses it on spawn).
 fn apply_camera(
     mut commands: Commands,
     q: Res<GraphicsQuality>,
@@ -132,37 +364,38 @@ fn apply_camera(
         if !q.is_changed() && !cam.is_added() {
             continue;
         }
-        if q.is_low() {
-            commands
-                .entity(e)
-                .remove::<(Bloom, Fxaa, ScreenSpaceAmbientOcclusion)>()
-                .insert((Msaa::Off, ShadowFilteringMethod::Hardware2x2));
+        let mut c = commands.entity(e);
+        if q.bloom {
+            c.insert(Bloom {
+                intensity: 0.08,
+                ..Bloom::NATURAL
+            });
         } else {
-            let mut cam = commands.entity(e);
-            cam.insert((
-                Msaa::Off,
-                Fxaa::default(),
-                ShadowFilteringMethod::Gaussian,
-                Bloom {
-                    intensity: 0.08,
-                    ..Bloom::NATURAL
-                },
-            ));
-            if !cfg!(target_arch = "wasm32") {
-                cam.insert(ScreenSpaceAmbientOcclusion::default());
-            }
+            c.remove::<Bloom>();
         }
-        let (start, end) = if q.is_low() {
-            (40.0, 140.0)
+        if q.ssao {
+            c.insert(ScreenSpaceAmbientOcclusion::default());
         } else {
-            (60.0, 230.0)
+            c.remove::<ScreenSpaceAmbientOcclusion>();
+        }
+        // Ambient occlusion needs MSAA off, so it smooths edges with FXAA.
+        match (q.antialias, q.ssao) {
+            (true, true) => c.insert((Msaa::Off, Fxaa::default())),
+            (true, false) => c.remove::<Fxaa>().insert(Msaa::default()),
+            (false, _) => c.remove::<Fxaa>().insert(Msaa::Off),
         };
+        c.insert(if q.shadows {
+            ShadowFilteringMethod::Gaussian
+        } else {
+            ShadowFilteringMethod::Hardware2x2
+        });
+        let (start, end) = if q.far { (60.0, 230.0) } else { (40.0, 140.0) };
         if let Some(mut fog) = fog {
             fog.falloff = FogFalloff::Linear { start, end };
         }
         if let Projection::Perspective(p) = projection.as_mut() {
             // Nothing past the fog is visible anyway: don't draw it.
-            p.far = if q.is_low() { end + 20.0 } else { 1000.0 };
+            p.far = if q.far { 1000.0 } else { end + 20.0 };
         }
     }
 }
@@ -171,14 +404,42 @@ fn apply_camera(
 #[derive(Component)]
 pub struct SunShadows;
 
-/// Only the sun casts shadows; Low turns them off.
+/// Only the sun casts shadows.
 fn apply_shadows(
     q: Res<GraphicsQuality>,
     mut lights: Query<(&mut DirectionalLight, Ref<SunShadows>)>,
 ) {
     for (mut light, sun) in &mut lights {
-        if (q.is_changed() || sun.is_added()) && light.shadow_maps_enabled == q.is_low() {
-            light.shadow_maps_enabled = !q.is_low();
+        if (q.is_changed() || sun.is_added()) && light.shadow_maps_enabled != q.shadows {
+            light.shadow_maps_enabled = q.shadows;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn presets_round_trip_and_tweaks_read_custom() {
+        let base = GraphicsQuality::platform_default();
+        for p in Preset::ALL {
+            assert_eq!(p.apply(base).preset(), Some(p));
+        }
+        let mut q = Preset::High.apply(base);
+        q.cycle(VideoOption::Bloom);
+        assert_eq!(q.value(VideoOption::Preset), "Custom");
+        q.cycle(VideoOption::Preset);
+        assert_eq!(q.preset(), Some(Preset::Low));
+    }
+
+    #[test]
+    fn settings_save_and_load_including_old_files() {
+        let mut q = Preset::Medium.apply(GraphicsQuality::platform_default());
+        q.fullscreen = true;
+        assert_eq!(GraphicsQuality::from_text(&q.to_text()), Some(q));
+        let low = GraphicsQuality::from_text("low");
+        assert_eq!(low.and_then(|q| q.preset()), Some(Preset::Low));
+        assert_eq!(GraphicsQuality::from_text("garbage"), None);
     }
 }

@@ -7,8 +7,9 @@
 //! FRIENDSLOP_SCREENSHOT=shot.png cargo run -- host
 //! # optional framing: eye x,y,z then look-at x,y,z (world metres)
 //! FRIENDSLOP_SCREENSHOT_CAMERA="0,12,30,0,0,0" FRIENDSLOP_SCREENSHOT=shot.png cargo run -- host
-//! # optional: seconds to wait after the loading curtain lifts (default 3)
-//! FRIENDSLOP_SCREENSHOT_WAIT=6
+//! # optional: seconds to wait after the loading curtain lifts (default 10, so
+//! # the 9 s "CHAPTER 1" card is gone)
+//! FRIENDSLOP_SCREENSHOT_WAIT=12
 //! ```
 //!
 //! On a machine without a GPU, run it under `xvfb-run` with Mesa's software
@@ -20,6 +21,9 @@ use bevy::render::view::screenshot::{Screenshot, ScreenshotCaptured, save_to_dis
 use crate::AppState;
 use crate::loading::WorldReady;
 use crate::world::MainCamera;
+
+/// Seconds after loading before the picture: the chapter card (9 s) has gone.
+const DEFAULT_WAIT: f32 = 10.0;
 
 /// What screenshot mode was asked to do. Present only when it's on.
 #[derive(Resource, Debug, Clone, PartialEq)]
@@ -41,7 +45,7 @@ impl ScreenshotJob {
             wait: wait
                 .and_then(|w| w.trim().parse::<f32>().ok())
                 .filter(|w| w.is_finite() && *w >= 0.0)
-                .unwrap_or(3.0),
+                .unwrap_or(DEFAULT_WAIT),
         })
     }
 
@@ -168,7 +172,7 @@ mod tests {
             panic!("job")
         };
         assert_eq!(job.camera, None);
-        assert_eq!(job.wait, 3.0);
+        assert_eq!(job.wait, DEFAULT_WAIT);
         assert_eq!(parse_camera("1,1,1,1,1,1"), None);
         assert_eq!(parse_camera("x,1,1,0,0,0"), None);
     }

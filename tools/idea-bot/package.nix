@@ -8,6 +8,7 @@ python3Packages.buildPythonApplication {
   dependencies = with python3Packages; [
     discordpy
     aiohttp
+    tzdata
   ];
   installPhase = ''
     install -Dm755 bot.py $out/bin/friendslop-idea-bot

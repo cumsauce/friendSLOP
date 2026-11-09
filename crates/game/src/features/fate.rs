@@ -140,12 +140,15 @@ pub struct Fate<'w, 's> {
     dice: ResMut<'w, FateDice>,
     boards: Query<'w, 's, &'static mut FateBoard>,
     players: Query<'w, 's, (&'static Player, &'static PlayerOwner)>,
+    /// Marmalade's wheel (#173) scales the chance.
+    odds: Query<'w, 's, &'static crate::features::gamble::HouseOdds>,
 }
 
 impl Fate<'_, '_> {
     /// True if the action fails (and a random result has been applied).
     pub fn fails(&mut self, client: ClientId) -> bool {
-        if self.dice.roll() >= self.dice.chance {
+        let scale = crate::features::gamble::odds(&self.odds).fail_chance() / FAIL_CHANCE;
+        if self.dice.roll() >= self.dice.chance * scale {
             return false;
         }
         let owner = match client {

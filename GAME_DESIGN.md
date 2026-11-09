@@ -27,17 +27,18 @@ landlord down = next chapter. Each ticked job is a Heaven Pass tier; chapter 5 o
 **Always going on:** the Stillness freezes everything for 20 s every minute. Farting near an NPC
 shames you; get caught 4 times and the villagers chase you, carry you to an accomplice and float you
 both. Low morality brings a helicopter that shoots at you. 5% of actions fail with a silly result.
+Marmalade, a wizard cat by the bonfire, spins a wheel that makes a rule (fail odds, fart range,
+rent, the helicopter...) fairer or crueller for everyone all campaign, and mocks your luck.
 
 **Side trips (no reward yet):** the warehouse (everyone agrees, a monster, soul pieces for Jegg;
 often a nightmare bathroom inside with a fart monster on patrol), the tunnels and Sewer Paul
-(crow eggs for cigs), an affair with Officer Mei behind your wife's back (costs morality),
-Wendy's burgers, climbing to Abuela in heaven,
-the lex pile, the music boxes, the bear, the goat, the crows.
+(crow eggs for cigs), an affair with Officer Mei (costs morality), Wendy's burgers, climbing
+to Abuela in heaven, the lex pile, the music boxes, the bear, the goat, the crows.
 
 **Where it's thin:** organs only come from the start-of-chapter refill and the landlord. Burgers,
-cigs, spilled secrets, soul pieces, spells, stats, being shot and being an Abduction don't change play yet, so the
-side trips don't feed back into the goal. Six players who pay together beat the landlord fast.
-Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down to people.
+cigs, secrets, soul pieces, spells, stats, being shot and being an Abduction don't change play
+yet, so side trips don't feed the goal. Gambling is free, so you can spin until it's kind. Six players paying together beat the landlord fast.
+Perfect bots finish in ~11 minutes; the 4-6 hours is down to people.
 
 ## What exists
 
@@ -394,6 +395,26 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
   wife ever gets within 2.5 m she smells the perfume and catches you. Every flirt costs 1-4
   morality (so cheat enough and the helicopter comes). Clicking your wife gets a line, a suspicious
   one if you're cheating (`features/affair.rs`). Secrets don't do anything yet.
+- **Gambling with the game's balance** (#173, catherine: "gamble to adjust the settings for
+  certain features ... more unfair or more fair ... random ... the interactions of different
+  features ... [a cat] dressed as a wizard host the gambling minigame and commentate"). We made
+  an original host instead of the cat from the comics: **Marmalade the Magnificent**, a round
+  orange tabby with forehead stripes, a starry wizard hat and a blue-violet robe, at a purple
+  table south of the bonfire (-10, 9) with a wheel of fortune on a post (`features/gamble.rs`).
+  Click him or the wheel to spin (free; 4 s between your spins; refused in the Stillness; the 5%
+  action failure applies). The wheel has ten wedges: nine settings and a blank. A setting wedge
+  moves that setting one step fairer or crueller (50/50); each has five steps, the middle is the
+  normal game: action failure chance (1/3/**5**/10/20%), how far NPCs see a fart (2/3/**4**/5.5/7.5 m),
+  fart romance (1 shameful fart in 1/2/**3**/5/9 makes the NPC fall for you), catches before
+  attack mode (7/5/**4**/3/2), the helicopter's morality line (-15/-10/**-6**/-4/-2), the morality
+  reward for harming the landlord (200/150/**100**/60/30%, still always a reward), each rent raise
+  (+5/10/**15**/22/33), the warehouse monster's hunt speed (4.8/5.5/**6.2**/7.2/8.4 m/s) and Wendy's
+  restock (5/10/**15**/30/60 s). The blank puts every setting back to normal. Settings are shared
+  by everyone and last the whole campaign; a new campaign resets them. The wheel spins for 2.6 s
+  with slowing clicks and lands with a chime (kind) or a sour buzz (cruel); then Marmalade's
+  line shows for everyone: what changed, a quip, streaks ("3 kind spins in a row! the house is
+  getting nervous"), and how the spinner stands overall ("up 2 after 5 spins"). Tab shows the
+  changed house rules and everyone's record.
 - **Sesbian lex** (#1). Press L to start a smooch pile where you stand, L near it (within 8 m) to
   pile in, L again or wander off (14 m) to peel away. Join order hands out titles: first in is
   daddy, second the he/him butch, later joiners rotate through more ("the comfortable one",
@@ -703,6 +724,10 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
   its idea in the game (`scripts/screenshot.sh`: screenshot mode, software rendering, no GPU
   needed) and pushes it to the `screenshots` branch; the bot attaches it to the "in the game"
   post, and announces each new `latest` build with the pictures of the ideas since the last one.
+- catherine (#173): gamble with the game's balance, fair and unfair settings at random,
+  including how features interact, hosted and commentated by a wizard-cat version of a famous
+  comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
+  settings that other features read (several where two features meet), and made spinning free.
 
 ## Open questions
 
@@ -730,6 +755,8 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
 - You can smoke cigs and joints from Sewer Paul (#129). Should smoking do anything to you?
 - The tunnels under the map (#127) connect four places. What lives down there, or what's hidden?
 - The lex pile (#1) just heats up. Should it do anything, or cost or earn anything?
+- Marmalade's wheel (#173) is free to spin. Should gambling cost something (organs?), and should
+  some rules be off the table, or should more be on it (the Stillness, duels, the landlord's boss fight)?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?

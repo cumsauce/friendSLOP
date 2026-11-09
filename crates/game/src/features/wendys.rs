@@ -143,6 +143,7 @@ fn take_burger(
     walkers: Query<(&PlayerOwner, &Walker)>,
     still: Query<&super::stillness::Stillness>,
     mut fate: super::fate::Fate,
+    odds: Query<&super::gamble::HouseOdds>,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
@@ -174,7 +175,7 @@ fn take_burger(
     };
     bag.0 += 1;
     commands.entity(burger).despawn();
-    *timer = Some(RESTOCK_SECS);
+    *timer = Some(crate::features::gamble::odds(&odds).restock_secs());
 }
 
 pub fn plugin(app: &mut App) {

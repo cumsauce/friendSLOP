@@ -93,7 +93,12 @@ pub fn protocol(app: &mut App) {
 
 /// Is a player with this morality wicked enough to be hunted?
 pub fn hunted(morality: Morality) -> bool {
-    morality.0 <= HUNTED_AT
+    hunted_below(morality, HUNTED_AT)
+}
+
+/// Like [`hunted`], with the line Marmalade's wheel drew (#173).
+pub fn hunted_below(morality: Morality, at: i32) -> bool {
+    morality.0 <= at
 }
 
 /// Server: send a helicopter after every wicked player, and send it home
@@ -102,7 +107,10 @@ fn summon(
     mut commands: Commands,
     players: Query<(&Player, &Morality)>,
     mut helis: Query<(&Helicopter, &mut Gunner)>,
+    odds: Query<&crate::features::gamble::HouseOdds>,
 ) {
+    let line = crate::features::gamble::odds(&odds).hunted_at();
+    let hunted = |m: Morality| hunted_below(m, line);
     for (heli, mut gunner) in &mut helis {
         let still_wicked = players
             .iter()

@@ -237,6 +237,8 @@ struct MonsterBrain {
     timer: f32,
     /// Seconds since it last saw its prey.
     lost: f32,
+    /// How fast it hunts (Marmalade's wheel moves it, #173).
+    hunt_speed: f32,
 }
 
 pub fn protocol(app: &mut App) {
@@ -426,6 +428,7 @@ pub fn start_expedition(commands: &mut Commands, wh: &mut Warehouse, seed: u32) 
             goal: lair,
             timer: 0.0,
             lost: 0.0,
+            hunt_speed: HUNT_SPEED,
         },
         Replicated,
     ));
@@ -659,10 +662,12 @@ fn hunt(
     mut monsters: Query<(&mut Monster, &mut MonsterBrain)>,
     mut pieces: Query<&mut SoulPiece>,
     mut bodies: Bodies,
+    odds: Query<&super::gamble::HouseOdds>,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
     }
+    let hunt_speed = super::gamble::odds(&odds).hunt_speed();
     let dt = time.delta_secs().min(0.1);
     let prey: Vec<(u64, Vec2)> = bodies
         .iter()
@@ -671,6 +676,7 @@ fn hunt(
         .collect();
     for (mut monster, mut brain) in &mut monsters {
         let here = local(monster.pos);
+        brain.hunt_speed = hunt_speed;
         let step = think(&mut brain, monster.mode, here, &prey, dt);
         if monster.mode != step.mode {
             monster.mode = step.mode;
@@ -816,7 +822,7 @@ fn think(
             } else {
                 next_waypoint(&brain.plan, here, target)
             };
-            let pos = move_to(here, towards, HUNT_SPEED * dt);
+            let pos = move_to(here, towards, brain.hunt_speed * dt);
             if pos.distance(target) < CATCH {
                 brain.timer = 6.0;
                 brain.goal = far_cell(brain, pos);
@@ -902,6 +908,7 @@ mod tests {
             goal: (0, 0),
             timer: 0.0,
             lost: 0.0,
+            hunt_speed: HUNT_SPEED,
         }
     }
 

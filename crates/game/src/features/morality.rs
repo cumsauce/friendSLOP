@@ -140,11 +140,23 @@ fn give_morality(add: On<Add<Player>>, server: Res<State<ServerState>>, mut comm
     commands.entity(add.entity).insert(Morality::default());
 }
 
-fn judge(act: On<MoralAct>, mut dice: ResMut<MoralDice>, mut players: Query<&mut Morality>) {
+fn judge(
+    act: On<MoralAct>,
+    mut dice: ResMut<MoralDice>,
+    mut players: Query<&mut Morality>,
+    odds: Query<&crate::features::gamble::HouseOdds>,
+) {
     let Ok(mut morality) = players.get_mut(act.player) else {
         return;
     };
-    morality.0 += act.act.value(dice.roll());
+    let mut value = act.act.value(dice.roll());
+    // Marmalade's wheel (#173) scales the reward for harming the landlord,
+    // but it's always a reward (#43).
+    if act.act == Act::Harm(Victim::Landlord) {
+        let scale = crate::features::gamble::odds(&odds).landlord_bonus();
+        value = ((value as f32 * scale).round() as i32).max(1);
+    }
+    morality.0 += value;
 }
 
 pub fn plugin(app: &mut App) {

@@ -12,6 +12,7 @@ pub mod buildings;
 pub mod camera;
 pub mod controls;
 pub mod creator;
+pub mod fault;
 pub mod features;
 pub mod footsteps;
 pub mod graphics;
@@ -100,6 +101,11 @@ impl Plugin for GamePlugin {
                 spatial::plugin,
                 theme::plugin,
             ));
-        app.add_plugins((controls::plugin, graphics::plugin, surfaces::plugin));
+        app.add_plugins((
+            controls::plugin,
+            graphics::plugin,
+            surfaces::plugin,
+            fault::plugin,
+        ));
     }
 }

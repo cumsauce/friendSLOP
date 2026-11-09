@@ -87,13 +87,15 @@ fn give_gas(add: On<Add<Player>>, server: Res<State<ServerState>>, mut commands:
 fn build_pressure(
     time: Res<Time>,
     still: Query<&crate::features::stillness::Stillness>,
-    mut players: Query<(&mut Gas, &mut GasBuildup)>,
+    mut players: Query<(&mut Gas, &mut GasBuildup, Option<&super::skills::Skills>)>,
 ) {
     if crate::features::stillness::is_frozen(&still) {
         return;
     }
     let per_sec = 100.0 / GAS_FILL_SECS;
-    for (mut gas, mut buildup) in &mut players {
+    for (mut gas, mut buildup, skills) in &mut players {
+        // Farting skill fills you faster (#176).
+        let per_sec = per_sec * skills.map_or(1.0, |s| s.gas_rate());
         if gas.0 >= 100 {
             buildup.0 = 0.0;
             continue;

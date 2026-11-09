@@ -2,11 +2,9 @@
 //! some jazz fusion music, in the 90s/FM synth vibe ... that adapts to the
 //! game state smoothly"). Replaces the old looping "Catsong" track.
 //!
-//! - [`theory`]: chords, chord-scales, voice-led rootless voicings.
-//! - [`compose`]: the music director and composer, one bar at a time.
-//! - [`synth`]: FM voices (DX7-style EP, slap bass, lead, brass, bell pad),
-//!   a sample bank of `foley-synth` note-block instruments, reverb, limiter.
-//! - [`engine`]: runs the composer at bar lines and mixes the band.
+//! The music itself (composer, synths, mixer) lives in the `fusion` crate,
+//! which has no Bevy dependency so it builds and auditions in seconds:
+//! `cargo run -p fusion --bin fusion-render -- help`.
 //!
 //! The game side (this file) only picks a [`Mood`], an intensity and counts
 //! victories each frame and stores them in atomics; the audio thread reads
@@ -15,10 +13,7 @@
 //! hundred floats of work per sample, no allocation), so the main thread
 //! never waits on it. Music is local: every peer hears its own take.
 
-pub mod compose;
-pub mod engine;
-pub mod synth;
-pub mod theory;
+pub use fusion::{compose, drums, dsp, engine, synth, theory};
 
 use std::num::NonZero;
 use std::sync::Arc;

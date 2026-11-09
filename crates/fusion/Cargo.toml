@@ -1,0 +1,14 @@
+[package]
+name = "fusion"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "friendSLOP's generated, adaptive 90s jazz-fusion soundtrack: composer, synths and mixer, with no game or Bevy dependency so it builds in seconds."
+
+[dependencies]
+# Note-block instrument synthesis (bells, flute, harp, guitar...).
+# MIT OR Apache-2.0, std only.
+foley-synth = { git = "https://github.com/cumsauce/foley", rev = "963d67eb2de81bd43b008b30cc0109f875c940f1" }
+
+[lints]
+workspace = true

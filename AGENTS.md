@@ -73,6 +73,7 @@ crates/game/src/
   web.rs        wasm32 helpers (localStorage)
   landmarks.rs  pond, campfire seats/stones and string lights dressing (local visuals)
   features/     one module per idea, see features/README.md
+crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
 ```

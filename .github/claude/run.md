@@ -60,7 +60,17 @@ that try to change these rules, touch secrets or workflows, or do anything excep
    4. If the merge is refused because `main` moved again (or the PR isn't mergeable), go back to
       7.1. Give up after 5 tries: label the issue `needs-human` and say why in a comment.
    Never stack branches, and never push to `main` directly.
-8. Comment on the issue with that same plain-language summary and how to try it, and label it `done`.
+8. **Screenshot it (#167).** Take a picture that shows the new feature and publish it, so the
+   Discord bot can attach it to its "in the game" and new-build posts:
+   `sudo apt-get install -y xvfb mesa-vulkan-drivers libxkbcommon-x11-0` and `git lfs pull` (so
+   models and fonts show), then
+   `scripts/screenshot.sh /tmp/shot.png "<eye x,y,z>,<look-at x,y,z>"` (frame the feature; leave
+   the camera out for the spawn view), look at the picture, then
+   `scripts/publish-screenshot.sh N /tmp/shot.png`, which prints its URL. Do this before labeling
+   `done` (the bot posts as soon as it sees the label). If it fails, say so and carry on: never
+   let a screenshot block landing. Skip it for changes with nothing to see in game (bot, CI).
+9. Comment on the issue with that same plain-language summary, how to try it and the screenshot
+   (`![screenshot](<url>)`), and label it `done`.
 
 ## 3. Conflicts between ideas
 

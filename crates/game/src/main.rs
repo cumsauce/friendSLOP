@@ -38,6 +38,7 @@ fn main() -> AppExit {
             PhysicsPlugins::default(),
         ))
         .add_plugins(friendslop::GamePlugin)
+        .add_plugins(friendslop::screenshot::ScreenshotPlugin)
         .add_systems(Startup, cli_args)
         .init_resource::<Churn>()
         .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))

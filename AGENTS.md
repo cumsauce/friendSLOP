@@ -78,6 +78,7 @@ crates/game/src/
   web.rs        wasm32 helpers (localStorage)
   landmarks.rs  pond, campfire seats/stones and string lights dressing (local visuals)
   surfaces.rs   procedural PBR surfaces (albedo/normal/roughness) for plain materials, metre UVs
+  screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167)
   features/     one module per idea, see features/README.md
 crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)

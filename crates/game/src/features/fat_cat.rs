@@ -40,7 +40,7 @@ pub struct CatInView {
 pub struct Watched(pub bool);
 
 /// How much bigger (in scale units) an unwatched cat gets per second.
-pub const GROW_PER_SEC: f32 = 0.08;
+pub const GROW_PER_SEC: f32 = 0.008;
 /// It stops at this size, so the world still fits around it.
 pub const MAX_SIZE: f32 = 25.0;
 /// How fast the cat waddles after you (faster than you run, it's motivated).

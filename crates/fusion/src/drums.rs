@@ -193,6 +193,21 @@ pub fn membrane(f: f32, decay: f32, drop: f32, slap: f32) -> Vec<f32> {
     out
 }
 
+/// A reversed cymbal: wash and shimmer rising over 1.5 s to a peak at the
+/// very end (it's placed to land on the next downbeat).
+pub fn swell() -> Vec<f32> {
+    let mut c = metal(SWELL_SECS, 10.0, 1500.0, 1.0, 1800.0, 0x5E11);
+    let n = c.len();
+    for (i, x) in c.iter_mut().enumerate() {
+        let p = i as f32 / n as f32;
+        *x *= p * p * p;
+    }
+    c
+}
+
+/// How long [`swell`] runs.
+pub const SWELL_SECS: f32 = 1.5;
+
 /// Rimshot (cross-stick): a hollow woody click.
 pub fn rim() -> Vec<f32> {
     let n = n_for(0.08);

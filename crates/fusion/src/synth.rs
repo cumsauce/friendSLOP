@@ -57,6 +57,8 @@ pub enum Inst {
     Tom,
     Rim,
     Cowbell,
+    /// A reversed-cymbal riser that peaks on the next downbeat.
+    Swell,
     // ...and foley note blocks.
     Bell,
     Chime,
@@ -67,7 +69,7 @@ pub enum Inst {
 }
 
 impl Inst {
-    pub const ALL: [Inst; 29] = [
+    pub const ALL: [Inst; 30] = [
         Inst::EPiano,
         Inst::Bass,
         Inst::Fretless,
@@ -91,6 +93,7 @@ impl Inst {
         Inst::Tom,
         Inst::Rim,
         Inst::Cowbell,
+        Inst::Swell,
         Inst::Bell,
         Inst::Chime,
         Inst::Xylo,
@@ -118,7 +121,7 @@ impl Inst {
         use Inst::*;
         match self {
             Kick | Snare | Ghost | Hat | OpenHat | Crash | Ride | Clap | Shaker | Conga | Tom
-            | Rim | Cowbell => Bus::Drums,
+            | Rim | Cowbell | Swell => Bus::Drums,
             Bass | Fretless => Bus::Bass,
             EPiano | Guitar => Bus::Keys,
             Lead | Brass | Flute | Mini => Bus::Lead,
@@ -158,6 +161,7 @@ impl Inst {
             Clap => 0.28,
             Hat | OpenHat | Cowbell | Shaker | Ride => 0.07,
             Crash => 0.18,
+            Swell => 0.45,
             Bell | Chime | Xylo | Harp | Kalimba => 0.38,
             Guitar => 0.25,
         }
@@ -190,6 +194,7 @@ impl Inst {
             Conga => -0.4,
             Rim | Cowbell => -0.3,
             Crash => -0.25,
+            Swell => 0.2,
             Bell | Chime | Xylo => 0.4,
             Harp => -0.3,
             Guitar => -0.3,
@@ -267,6 +272,8 @@ struct Patch {
     /// Key scaling: how much the indices fall per octave above middle C,
     /// as on a DX7 (high notes mellower, and no aliasing).
     ks: f32,
+    /// Slow drift of the brightness (fraction of the index) on held notes.
+    i_lfo: f32,
 }
 
 const EP: Patch = Patch {
@@ -289,6 +296,7 @@ const EP: Patch = Patch {
     swell: false,
     sub: 0.0,
     ks: 0.5,
+    i_lfo: 0.0,
 };
 
 const BASS: Patch = Patch {
@@ -312,6 +320,7 @@ const BASS: Patch = Patch {
     swell: false,
     sub: 0.55,
     ks: 0.3,
+    i_lfo: 0.0,
 };
 
 const FRETLESS: Patch = Patch {
@@ -335,6 +344,7 @@ const FRETLESS: Patch = Patch {
     swell: true,
     sub: 0.6,
     ks: 0.2,
+    i_lfo: 0.0,
 };
 
 const LEAD: Patch = Patch {
@@ -357,6 +367,7 @@ const LEAD: Patch = Patch {
     swell: false,
     sub: 0.0,
     ks: 0.35,
+    i_lfo: 0.15,
 };
 
 const BRASS: Patch = Patch {
@@ -380,6 +391,7 @@ const BRASS: Patch = Patch {
     swell: true,
     sub: 0.0,
     ks: 0.35,
+    i_lfo: 0.12,
 };
 
 const PAD: Patch = Patch {
@@ -402,6 +414,7 @@ const PAD: Patch = Patch {
     swell: false,
     sub: 0.0,
     ks: 0.4,
+    i_lfo: 0.45,
 };
 
 const KALIMBA: Patch = Patch {
@@ -425,6 +438,7 @@ const KALIMBA: Patch = Patch {
     swell: false,
     sub: 0.0,
     ks: 0.6,
+    i_lfo: 0.0,
 };
 
 fn patch(inst: Inst) -> &'static Patch {
@@ -456,8 +470,10 @@ struct FmVoice {
     amp: f32,
     i1: f32,
     i2: f32,
-    /// Index scale from key scaling and the alias guard.
+    /// Index scale from key scaling, the alias guard and the band's
+    /// current brightness.
     iscale: f32,
+    drift: f32,
     k_dec: f32,
     k_rel: f32,
     k_i1: f32,
@@ -493,6 +509,7 @@ impl FmVoice {
             i1: 0.0,
             i2: 0.0,
             iscale: 1.0,
+            drift: 0.0,
             k_dec: 0.0,
             k_rel: 0.0,
             k_i1: 0.0,
@@ -558,8 +575,10 @@ impl FmVoice {
             ..Self::idle()
         };
         self.att_step = 1.0 / self.att_left as f32;
-        // Random-ish phases so stacked chord tones don't all start in phase.
+        // Random-ish phases so stacked chord tones don't all start in phase
+        // (and don't drift in step).
         self.pc2 = (note as f32 * 0.137).fract();
+        self.drift = (note as f32 * 0.311).fract();
     }
 
     /// Legato into a new pitch (portamento), without re-attacking.
@@ -586,7 +605,11 @@ impl FmVoice {
             0.0
         };
         let swell_target = p.i1_peak * (0.6 + 0.5 * self.vel);
-        let isc = self.iscale * (1.0 / TAU);
+        // Slow brightness drift: evaluated once per block, it's ~0.15 Hz.
+        if p.i_lfo > 0.0 {
+            self.drift += 0.15 * n as f32 * INV_RATE;
+        }
+        let isc = self.iscale * (1.0 / TAU) * (1.0 + p.i_lfo * sin_cyc(self.drift));
         for i in 0..n {
             // Envelopes.
             if self.att_left > 0 {
@@ -691,6 +714,8 @@ struct SubPatch {
     vib_rate: f32,
     vib_delay: f32,
     gain: f32,
+    /// Slow filter drift, octaves.
+    f_lfo: f32,
 }
 
 const POLY_BRASS: SubPatch = SubPatch {
@@ -717,6 +742,7 @@ const POLY_BRASS: SubPatch = SubPatch {
     vib_rate: 5.2,
     vib_delay: 0.4,
     gain: 0.055,
+    f_lfo: 0.25,
 };
 
 const STRINGS: SubPatch = SubPatch {
@@ -742,6 +768,7 @@ const STRINGS: SubPatch = SubPatch {
     vib_rate: 4.6,
     vib_delay: 0.0,
     gain: 0.032,
+    f_lfo: 0.5,
 };
 
 const MINI: SubPatch = SubPatch {
@@ -768,6 +795,7 @@ const MINI: SubPatch = SubPatch {
     vib_rate: 5.5,
     vib_delay: 0.32,
     gain: 0.13,
+    f_lfo: 0.15,
 };
 
 fn sub_patch(inst: Inst) -> &'static SubPatch {
@@ -795,6 +823,9 @@ struct SubVoice {
     fenv: f32,
     scoop: f32,
     lfo: f32,
+    drift: f32,
+    /// Cutoff scale from the band's brightness at note-on.
+    cut_mul: f32,
     k_dec: f32,
     k_rel: f32,
     k_fdec: f32,
@@ -831,6 +862,8 @@ impl SubVoice {
             fenv: 0.0,
             scoop: 0.0,
             lfo: 0.0,
+            drift: 0.0,
+            cut_mul: 1.0,
             k_dec: 0.0,
             k_rel: 0.0,
             k_fdec: 0.0,
@@ -875,6 +908,7 @@ impl SubVoice {
             k_fdec: per_sample(p.f_decay),
             k_scoop: per_sample(p.scoop_tau),
             scoop: p.scoop,
+            drift: (seed * 7.0).fract(),
             hold: len.max(1),
             vel,
             gl: pl * g,
@@ -909,6 +943,8 @@ impl SubVoice {
         let saw_g = 1.0 / (nsaw as f32).sqrt();
         let env_oct = p.env_oct * (0.55 + 0.45 * self.vel);
         let vib_delay = (p.vib_delay * RATE as f32) as u32;
+        self.drift += 0.11 * n as f32 * INV_RATE;
+        let cut_mul = self.cut_mul * exp2_fast(p.f_lfo * sin_cyc(self.drift));
         for i in 0..n {
             // Amp envelope.
             if self.releasing {
@@ -980,7 +1016,7 @@ impl SubVoice {
                 }
                 x += p.sub_osc * square(self.ph_sub, ds);
             }
-            let cut = (f * p.cut_key + p.cut_base) * exp2_fast(env_oct * self.fenv);
+            let cut = (f * p.cut_key + p.cut_base) * cut_mul * exp2_fast(env_oct * self.fenv);
             let mut y = self.f1.lp(x, cut, p.k);
             if p.four_pole {
                 y = self.f2.lp(y, cut, 1.4);
@@ -1147,6 +1183,7 @@ const KIT: &[(Inst, u8, DrumGen, f32)] = &[
     ),
     (Inst::Rim, 37, drums::rim, 0.28),
     (Inst::Cowbell, 56, drums::cowbell, 0.16),
+    (Inst::Swell, 57, drums::swell, 0.2),
 ];
 
 /// How many [`Bank::build_step`] calls finish the bank.
@@ -1266,7 +1303,7 @@ fn bus_eq(b: usize) -> StereoEq {
         0 => StereoEq::new(&[
             Eq::Hp(32.0, 0.7),
             Eq::Peak(420.0, 1.0, -2.0),
-            Eq::HighShelf(9000.0, -1.5),
+            Eq::HighShelf(9000.0, -0.5),
         ]),
         1 => StereoEq::new(&[
             Eq::Hp(30.0, 0.7),
@@ -1288,7 +1325,7 @@ fn bus_eq(b: usize) -> StereoEq {
         ]),
         4 => StereoEq::new(&[
             Eq::Hp(220.0, 0.7),
-            Eq::Peak(600.0, 0.8, -4.0),
+            Eq::Peak(600.0, 0.8, -5.0),
             Eq::HighShelf(5000.0, 2.0),
         ]),
         5 => StereoEq::new(&[Eq::Hp(300.0, 0.7), Eq::Lp(12000.0, 0.7)]),
@@ -1327,6 +1364,14 @@ pub struct Band {
     verb: Reverb,
     limiter: f32,
     rng: u32,
+    /// How bright the band plays (0..1), set per bar by the composer:
+    /// FM indices and filter cutoffs open with it at each note-on.
+    pub bright: f32,
+    /// Reverb and echo send scales, eased towards their targets.
+    wet: f32,
+    pub wet_target: f32,
+    echo_amt: f32,
+    pub echo_target: f32,
     /// Master gain, eased towards `master_target`.
     master: f32,
     pub master_target: f32,
@@ -1375,6 +1420,11 @@ impl Band {
             mute: 0,
             master: 1.0,
             master_target: 1.0,
+            bright: 0.5,
+            wet: 1.0,
+            wet_target: 1.0,
+            echo_amt: 1.0,
+            echo_target: 1.0,
         }
     }
 
@@ -1416,6 +1466,7 @@ impl Band {
                     self.lead.glide_to(ev.note, ev.vel, ev.len, 0.05);
                 } else {
                     self.lead.start(ev.inst, ev.note, ev.vel, ev.len, 0.08);
+                    self.lead.iscale *= 0.75 + 0.5 * self.bright;
                 }
             }
             Inst::Mini => {
@@ -1423,6 +1474,7 @@ impl Band {
                     self.mini.glide_to(ev.note, ev.vel, ev.len, 0.045);
                 } else {
                     self.mini.start(ev.inst, ev.note, ev.vel, ev.len, 0.06);
+                    self.mini.cut_mul = exp2_fast(self.bright - 0.5);
                 }
             }
             Inst::PolyBrass | Inst::Strings => {
@@ -1431,6 +1483,7 @@ impl Band {
                 let pan = ((ev.note as f32 - 68.0) / 14.0).clamp(-1.0, 1.0) * spread;
                 let slot = self.free_sub();
                 self.sub[slot].start(ev.inst, ev.note, ev.vel, ev.len, pan);
+                self.sub[slot].cut_mul = exp2_fast(1.3 * (self.bright - 0.5));
             }
             inst => {
                 let slot = self.free_fm(inst);
@@ -1448,6 +1501,8 @@ impl Band {
                     _ => 0.0,
                 };
                 self.fm[slot].start(inst, ev.note, ev.vel, ev.len, pan.clamp(-0.6, 0.6));
+                let b = if inst == Inst::Bass { 0.4 } else { 0.8 };
+                self.fm[slot].iscale *= 1.0 + b * (self.bright - 0.5);
             }
         }
     }
@@ -1518,6 +1573,7 @@ impl Band {
                 | Inst::Shaker
                 | Inst::Rim
                 | Inst::Cowbell
+                | Inst::Swell
         );
         let rate = if pitched {
             2f32.powf((ev.note as f32 - root as f32) / 12.0)
@@ -1664,6 +1720,15 @@ impl Band {
             for (x, y) in first[0][..n].iter_mut().zip(&rest[0][..n]) {
                 *x += *y;
             }
+        }
+        // Effect sends, scaled by how wet this part of the tune is.
+        let (w0, e0) = (self.wet, self.echo_amt);
+        self.wet += (self.wet_target - self.wet) * k;
+        self.echo_amt += (self.echo_target - self.echo_amt) * k;
+        let (dw, de) = ((self.wet - w0) / n as f32, (self.echo_amt - e0) / n as f32);
+        for (j, (s, e)) in send.iter_mut().zip(echo.iter_mut()).enumerate() {
+            *s *= w0 + dw * j as f32;
+            *e *= e0 + de * j as f32;
         }
         let (l, r) = (&mut bl[0][..n], &mut br[0][..n]);
         self.echo.process(echo, l, r);

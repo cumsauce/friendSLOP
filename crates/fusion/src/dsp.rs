@@ -425,7 +425,7 @@ impl Comb {
     fn tick(&mut self, x: f32) -> f32 {
         let y = self.buf[self.i];
         self.store = y * 0.62 + self.store * 0.38;
-        self.buf[self.i] = x + self.store * 0.82;
+        self.buf[self.i] = x + self.store * 0.86;
         self.i += 1;
         if self.i == self.buf.len() {
             self.i = 0;
@@ -475,7 +475,7 @@ impl Reverb {
                 Allpass::new(441 + s),
             ],
             pre: Line::new(2048),
-            hp: Biquad::new(Eq::Hp(320.0, 0.7)),
+            hp: Biquad::new(Eq::Hp(520.0, 0.7)),
             lp: Biquad::new(Eq::Lp(7500.0, 0.7)),
         }
     }

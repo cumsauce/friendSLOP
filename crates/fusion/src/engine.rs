@@ -65,6 +65,9 @@ impl Engine {
                 self.band.bus_target = self.bar.bus;
                 self.band.set_tempo(self.composer.bpm());
                 self.band.master_target = self.bar.gain;
+                self.band.bright = self.bar.bright;
+                self.band.wet_target = self.bar.wet;
+                self.band.echo_target = self.bar.echo;
             }
             while let Some(ev) = self.bar.events.get(self.next_ev) {
                 if ev.at > self.pos {

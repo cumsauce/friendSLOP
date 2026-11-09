@@ -35,11 +35,10 @@ pub mod web;
 pub mod world;
 pub mod zones;
 
-/// `bevy_voice_chat`'s prelude natively; inert stand-ins in the browser (#106).
+/// `bevy_voice_chat`'s prelude. The browser build uses the same crate (so the
+/// network protocol matches desktop peers) without Opus, and its audio
+/// threads can't start there, so voice is silent in the browser (#106).
 pub mod voice_chat {
-    #[cfg(target_arch = "wasm32")]
-    pub use crate::web::voice_chat::*;
-    #[cfg(not(target_arch = "wasm32"))]
     pub use bevy_voice_chat::prelude::*;
 }
 

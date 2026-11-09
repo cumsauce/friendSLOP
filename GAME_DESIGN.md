@@ -328,14 +328,18 @@ asked for, and what nobody has decided yet.
   no zoom/scroll/bounce, 100dvh, "Tap to play" goes fullscreen and locks landscape where the
   browser allows (Android Chrome); iOS Safari can do neither for a page, so a "turn your phone
   sideways" card covers portrait and "Add to Home Screen" gives the fullscreen look; audio
-  unlocks on the first tap. **Limits (honest):** the browser build is **solo** for now (Host
-  starts a session with nobody else; Join says to use the desktop game) and has **no voice
-  chat**: `bevy_replicon_iroh` runs iroh on a tokio runtime and blocks on it every tick, and
-  voice uses cpal capture threads; neither works on a browser's single main thread. iroh 1.3
-  itself does build for browsers (relay-only), so a browser transport is possible later; until
-  then the replicated protocol differs in the browser (voice messages aren't registered), so a
-  browser peer couldn't talk to a desktop peer anyway. Character and graphics settings are
-  saved in localStorage.
+  unlocks on the first tap. Character and graphics settings are saved in localStorage.
+- **Browser multiplayer** (#106). The browser can host and join, and plays with desktop players
+  in the same session. `net_web.rs` drives iroh 1.3 directly (async tasks on the page instead
+  of tokio) and speaks `bevy_replicon_iroh`'s exact wire format (`tests/web_wire_format.rs`
+  pins it). Browsers can't send UDP, so browser connections always go through iroh's free
+  public relays (a bit more lag than desktop-to-desktop). Hosting starts the game straight
+  away; a moment later the join code appears and a **share link** (`<page>?join=<code>`) is
+  copied, which friends on phones just open (no typing a long code on a touch screen).
+  `?host` on the URL hosts right away. **Limit (honest): voice is silent in the browser.** The
+  browser registers the same voice messages (so the protocol matches) but `bevy_voice_chat`
+  opens the mic and speakers on cpal threads, which a page can't start, so a browser player
+  neither talks nor hears. Desktop players still hear each other in a mixed session.
 - **Touch and gamepad controls** (#106). Touch (overlay appears on first touch): thumb anywhere
   on the left third is a joystick, drag on the right to look, round buttons for Jump, Use (click
   at the crosshair), Run (toggle), Fart, Help, Score, View and Leave. Climbing is still "hold
@@ -434,7 +438,7 @@ asked for, and what nobody has decided yet.
 - Who lives in the east village, and is it part of the Commune or somewhere else?
 - Organs are money, but how do you get them, and what are they for?
 - You can be a person or a creature now. Does what you are change anything in play?
-- Should the browser version be able to join friends (and talk)? It needs its own transport first.
+- Browser players can join friends now but stay silent. Do they need voice chat too?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?

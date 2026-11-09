@@ -142,7 +142,8 @@ asked for, and what nobody has decided yet.
   reversed cymbal rises into big sections. Per-bus EQ, chorus, a tempo-synced echo, a wet room
   and per-mood make-up gain keep the mix balanced (checked against a typical jazz/pop octave-band
   balance with `cargo run -p fusion --release --bin fusion-render -- stems`). A director picks the next bars at every bar line from a mood: menu (signature hook
-  over "Just the Two of Us" changes), meadow, commune/village (city-pop), forest/valley (flute,
+  over "Just the Two of Us" changes), meadow (or the sunny, kalimba-and-flute "Kite Day"), commune/village (city-pop, or one of two upbeat songs: the bouncy "Sunny Side" or the driving
+  "Night Market"; each visit picks one, and the band may move on after a breakdown), forest/valley (flute,
   harp), maze/ruins (minor, bells), sky islands (dreamy), near Abuela (bolero), hide-and-seek
   hiding/seeking, duel (150 bpm), landlord (chromatic, building), stillness (holds on a pad),
   plus a victory kime when a round/duel/chapter/landlord is won. Sections (intro, A, hook, B,

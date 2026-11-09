@@ -29,6 +29,18 @@ asked for, and what nobody has decided yet.
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the
   overview). Esc first frees the mouse (click to grab it again); a second Esc leaves.
+- **Abuela in heaven** (#105, just meat and cheese: "a character similar to my grandma ... she
+  only spoke spanish so please have her make old sounding spanish sounds"). Heaven had no place,
+  so the highest floating island is now a small heaven: clouds on the rim, flowers, a golden halo
+  arch and warm light. Abuela sits there in a rocking chair, knitting: small and round, silver hair
+  in a bun, round glasses, cream shawl over a rose cardigan (built with `CharacterLook`, extras on
+  the new `HeadAnchor`). She greets whoever climbs up to her, and you can click her to talk
+  (server-authoritative: `VisitAbuela` -> `AbuelaSays` to everyone, replicated `Abuela { visits }`).
+  She says short loving Spanish phrases ("¡Ay, mi niño!", "¿Ya comiste?", "Te quiero mucho",
+  "Dios te bendiga"...) shown as a subtitle with an English gloss, hearts rise above her, and the
+  one she spoke to is told "you feel loved". Her voice is synthesised from the phrase's own Spanish
+  syllables (open vowels, rolled r, soft s, nasal ñ) as a quiet, breathy, gently trembling older
+  woman's voice, played spatially at her chair (`features/abuela.rs`).
 - **Climbing and floating islands** (#99). Walk into anything steep (a wall, a rock, a tree
   trunk, a house, a spire) and hold W and Space to climb it at 2.5 m/s; A/D shuffle sideways on
   the face, and at the top you haul yourself over the edge. Let go of Space to drop. Above the
@@ -357,6 +369,7 @@ asked for, and what nobody has decided yet.
   wants to keep them in forever; players try to break out; meta tricks on the PC; a hate monologue.
 
 - doomy (#99): climb on stuff; maybe some floating islands and stuff above.
+- just meat and cheese (#105): a grandma like theirs in heaven, who speaks old-sounding Spanish.
 - doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
   pitch.
 - Kori.exe (#97): sometimes an NPC who catches you farting gets hearts above them and makes
@@ -395,14 +408,14 @@ asked for, and what nobody has decided yet.
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
-- What's up on the floating islands, and why would anyone climb there? (#99)
+- What's up on the lower floating islands? (The top one is heaven, with Abuela.) (#99)
 - An NPC can fall for you now (#97). Should that lead anywhere?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
-- What is heaven like, and what happens once you're in? Should Heaven Pass tiers give rewards?
+- Heaven is now a little garden with Abuela on the top island. What else is up there, and what happens once the campaign lets you in? Should Heaven Pass tiers give rewards?
 - Is the campaign the right length? Which chapters drag, and which fly by?
 - Can anyone ever truly escape HALT, and what would be on the other side?
 - The cat-vision filter only recolours flat colours — the new textured models (trees, cowboys)

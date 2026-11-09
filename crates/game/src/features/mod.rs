@@ -6,6 +6,7 @@
 
 use bevy::prelude::*;
 
+pub mod abuela;
 pub mod ambience;
 pub mod bear;
 pub mod campaign;
@@ -73,6 +74,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(romance::protocol);
         app.add_plugins(climb::protocol);
         app.add_plugins(crate::people::protocol);
+        app.add_plugins(abuela::protocol);
     }
 }
 
@@ -113,5 +115,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(campaign::plugin);
         app.add_plugins(romance::plugin);
         app.add_plugins(climb::plugin);
+        app.add_plugins(abuela::plugin);
     }
 }

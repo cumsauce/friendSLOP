@@ -214,8 +214,10 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_fate_hud)
         .add_systems(
             Update,
-            update_fate_hud
-                .run_if(crate::world::hud_tick())
+            (
+                update_fate_hud.run_if(crate::world::hud_tick()),
+                email_the_developer,
+            )
                 .run_if(in_state(AppState::InGame)),
         );
 }
@@ -252,9 +254,44 @@ fn update_fate_hud(boards: Query<&FateBoard>, mut hud: Query<&mut Text, With<Fat
     }
 }
 
+/// What a failure sends the developer (#190, bben: "email the developer a
+/// sobbing emoji"). Pretend: nothing actually leaves the game.
+pub const SOB_MAIL: &str = "📧 emailing the developer a 😭 ... sent";
+
+/// How many new failures appeared since the board last had `before`.
+pub fn new_failures(before: usize, now: usize) -> usize {
+    now.saturating_sub(before)
+}
+
+/// Every new failure emails the developer a sobbing emoji (in a toast).
+fn email_the_developer(
+    boards: Query<&FateBoard, Changed<FateBoard>>,
+    mut seen: Local<usize>,
+    toast: Option<ResMut<crate::hud::Toast>>,
+) {
+    let Some(board) = boards.iter().next() else {
+        return;
+    };
+    let now = board.mishaps.len();
+    let fresh = new_failures(*seen, now);
+    *seen = now;
+    if fresh > 0
+        && let Some(mut toast) = toast
+    {
+        toast.show(SOB_MAIL);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_new_failures_send_mail() {
+        assert_eq!(new_failures(0, 1), 1);
+        assert_eq!(new_failures(2, 1), 0, "wearing off isn't a failure");
+        assert_eq!(new_failures(1, 1), 0);
+    }
 
     #[test]
     fn every_outcome_can_happen() {

@@ -489,7 +489,9 @@ fast. Perfect bots finish in ~11 minutes.
   about its citizens, everyone speaks their own language, your gender is transed, hampter, or you
   turn into potted petunias. More failures (#49): the moon publicly apologises, everyone is bees,
   everyone's taxes file themselves, gravity forgets your name, you're legally a goose, time goes
-  sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are only on-screen text for now; they don't change play.
+  sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are only on-screen text for now; they don't change play. Every failure also
+  "emails the developer a sobbing emoji" (#190, bben): a toast says "📧 emailing the developer a
+  😭 ... sent" (pretend: nothing leaves the game).
 - **Nonsensical stats** (#7, reworked by #48). Every player rolls six stats (1-10) on joining,
   shown on the left, and keeps them all campaign (#135; they used to reroll every chapter). #7's Wombility, Rumpet and John were only examples and were replaced (#48):
   **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you can read it from

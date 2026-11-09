@@ -72,6 +72,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(campaign::protocol);
         app.add_plugins(romance::protocol);
         app.add_plugins(climb::protocol);
+        app.add_plugins(crate::people::protocol);
     }
 }
 

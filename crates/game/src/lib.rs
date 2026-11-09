@@ -10,6 +10,7 @@ pub mod assets;
 pub mod atmosphere;
 pub mod buildings;
 pub mod camera;
+pub mod creator;
 pub mod features;
 pub mod hud;
 pub mod kcc;
@@ -69,6 +70,11 @@ impl Plugin for GamePlugin {
                 ambience::plugin,
                 loading::plugin,
             ))
-            .add_plugins((landmarks::plugin, zones::plugin, buildings::plugin));
+            .add_plugins((
+                landmarks::plugin,
+                zones::plugin,
+                buildings::plugin,
+                creator::plugin,
+            ));
     }
 }

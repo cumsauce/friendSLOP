@@ -15,7 +15,7 @@ asked for, and what nobody has decided yet.
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).
-- **First-person bodies** (#53). Everyone has a body (a coloured capsule with googly eyes) and
+- **First-person bodies** (#53). Everyone has a body (your own character, see below) and
   plays in first person: WASD walk, mouse look, Space jump, Shift run, cursor locked. Left click
   uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used
   from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
@@ -35,6 +35,16 @@ asked for, and what nobody has decided yet.
   south-east meadow (around x 55..63, z 55..67) three grassy islands float in the sky, at 10 m,
   16 m and 22 m. A rock spire rises to each one's rim, standing on the ground or on the island
   below, so the way up is climbing. Nothing is up there yet but the view.
+- **Make your own character** (#100, doomy). The main menu's Character button opens a creator
+  with a live, turning 3D preview: body type (person, round critter, tall noodle, four-legged
+  beast), height / girth / head size / limb length, skin or fur, clothes and accent colours, eyes
+  (googly, beady, sleepy, cyclops), ears, horns, tail, snout, an accessory, and Randomize. It's
+  saved to `friendslop/character.txt` in your config folder and sent to the host when you play;
+  the host clamps silly values and everyone sees you. Under the hood (`people.rs`) every body is
+  a little procedural rig (hips, spine, head, arms, legs, tail bones with primitive meshes) that
+  walks from its speed, breathes, glances around when idle and wags its tail. Villagers and the
+  menu's campfire crowd use the same system with seeded random looks. Looks are visual only: the
+  collision capsule never changes, bodies are shrunk to fit it.
 - **Hide and seek** (#61). Anyone presses K to start (needs 2+ players; solo it just says so).
   The server picks a random Seeker, everyone else hides. For 30 s the seeker is frozen in place
   behind a black blindfold screen; then they have 3 min to find people. Seekers tag a hider by
@@ -58,7 +68,8 @@ asked for, and what nobody has decided yet.
   (~1.2 m, crouch cover), haystacks and a windmill with turning sails at (-8, -31). The east
   village block (x 35..80, z -35..35) is left for houses. Everything sits on `terrain::height_at`.
 - **Commune villagers** (#61, the "NPCs" part). Ten villagers (Kevin, Brenda, Old Tom, Moss, ...)
-  with the same capsule body, player-style colours and googly eyes, so hiders can blend in. The
+  built by the same character system as players, rolled from the same option pool, so hiders
+  can blend in. The
   server moves them at 5 Hz: wander between the bonfire, ruins, pond and cover spots, pause or sit,
   never enter the duel arena, stop during the stillness. Clicking one says hello; a seeker who
   clicks one while seeking gets "that's just Kevin from the commune" and is frozen for 3 s
@@ -366,6 +377,9 @@ asked for, and what nobody has decided yet.
   it can be like fortnite; it can be like getting into heaven.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
+- doomy (#100): make your own character so others can see you; rigged but procedural, and a
+  reusable system that NPCs can use too.
+
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
@@ -376,7 +390,7 @@ asked for, and what nobody has decided yet.
 - Does the commune do anything, or is it just where we are?
 - Who lives in the east village, and is it part of the Commune or somewhere else?
 - Organs are money, but how do you get them, and what are they for?
-- You have a body now, but what are you? A person, a tenant, a creature?
+- You can be a person or a creature now. Does what you are change anything in play?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?

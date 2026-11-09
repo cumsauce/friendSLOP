@@ -87,10 +87,13 @@ pub struct DuelControl {
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct DuelShoot;
 
-/// Server -> the challenged player.
+/// Server -> the challenged player. `cancel` retracts a previous challenge
+/// from the same player (they challenged someone else instead): the target
+/// should drop any prompt for it.
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub struct DuelChallenged {
     pub from: u64,
+    pub cancel: bool,
 }
 
 /// Server -> everyone: something happened in the duel.
@@ -98,6 +101,11 @@ pub struct DuelChallenged {
 pub struct DuelNews {
     pub text: String,
 }
+
+/// Server only: a duel was fought to the end (someone won). Abandoned duels
+/// don't fire it.
+#[derive(Event, Clone, Copy, Debug)]
+pub struct DuelFought;
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Duelist>()
@@ -118,9 +126,15 @@ pub fn protocol(app: &mut App) {
         );
 }
 
-/// Server only: open challenges as (from, to).
+/// Server only: open challenges as (from, to), plus whether a duel is live.
+/// `active` is set the moment an answer spawns duelists: the `Duelist`
+/// entities themselves only exist after deferred commands apply, so reading
+/// them alone lets two answers in one frame start overlapping duels.
 #[derive(Resource, Default)]
-struct DuelInvites(Vec<(u64, u64)>);
+struct DuelInvites {
+    open: Vec<(u64, u64)>,
+    active: bool,
+}
 
 /// The two corners duelists start from.
 pub fn spawn_points() -> [Vec3; 2] {
@@ -192,7 +206,7 @@ fn on_challenge(
         return;
     };
     let to = ev.target;
-    if from == to || !duelists.is_empty() {
+    if from == to || invites.active || !duelists.is_empty() {
         return;
     }
     if fate.fails(ev.client_id) {
@@ -201,11 +215,24 @@ fn on_challenge(
     let Some(target) = client_of(to, &players) else {
         return;
     };
-    invites.0.retain(|&(f, _)| f != from);
-    invites.0.push((from, to));
+    // If this replaces an earlier challenge of ours, void the old target's
+    // prompt so they don't answer a challenge that no longer exists.
+    if let Some(&(_, old_to)) = invites.open.iter().find(|&&(f, _)| f == from)
+        && let Some(old_target) = client_of(old_to, &players)
+    {
+        commands.server_trigger(ToClients {
+            targets: SendTargets::Single(old_target),
+            message: DuelChallenged { from, cancel: true },
+        });
+    }
+    invites.open.retain(|&(f, _)| f != from);
+    invites.open.push((from, to));
     commands.server_trigger(ToClients {
         targets: SendTargets::Single(target),
-        message: DuelChallenged { from },
+        message: DuelChallenged {
+            from,
+            cancel: false,
+        },
     });
     news(
         &mut commands,
@@ -227,10 +254,14 @@ fn on_answer(
     let Some(me) = player_of(ev.client_id, &players) else {
         return;
     };
-    let Some(i) = invites.0.iter().position(|&(f, t)| f == ev.from && t == me) else {
+    let Some(i) = invites
+        .open
+        .iter()
+        .position(|&(f, t)| f == ev.from && t == me)
+    else {
         return;
     };
-    invites.0.remove(i);
+    invites.open.remove(i);
     if !ev.accept {
         news(
             &mut commands,
@@ -238,11 +269,15 @@ fn on_answer(
         );
         return;
     }
-    if !duelists.is_empty() || client_of(ev.from, &players).is_none() {
+    // `active` is the synchronous guard: the `Duelist` spawns below are
+    // deferred, so a second accept in this same batch would otherwise still
+    // see an empty `duelists` query and start an overlapping duel.
+    if invites.active || !duelists.is_empty() || client_of(ev.from, &players).is_none() {
         return;
     }
+    invites.active = true;
     invites
-        .0
+        .open
         .retain(|&(f, t)| ![f, t].contains(&me) && ![f, t].contains(&ev.from));
     let [a, b] = spawn_points();
     for (player, pos, other) in [(ev.from, a, b), (me, b, a)] {
@@ -280,7 +315,12 @@ fn on_control(
     let Some((mut d, mut stick)) = duelists.iter_mut().find(|(d, _)| d.player == me) else {
         return;
     };
-    stick.0 = ev.stick.clamp_length_max(1.0);
+    // Non-finite sticks would NaN the duelist's replicated position forever.
+    stick.0 = if ev.stick.is_finite() {
+        ev.stick.clamp_length_max(1.0)
+    } else {
+        Vec2::ZERO
+    };
     if ev.yaw.is_finite() && ev.pitch.is_finite() {
         d.yaw = ev.yaw;
         d.pitch = ev.pitch.clamp(-1.5, 1.5);
@@ -332,6 +372,7 @@ fn on_shoot(
     mut duelists: Query<(Entity, &mut Duelist)>,
     still: Query<&super::stillness::Stillness>,
     mut fate: super::fate::Fate,
+    mut invites: ResMut<DuelInvites>,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
@@ -370,6 +411,9 @@ fn on_shoot(
         for (e, _) in &both {
             commands.entity(*e).despawn();
         }
+        invites.active = false;
+        // A real fight, as opposed to a duel that was called off.
+        commands.trigger(DuelFought);
         return;
     }
     // Respawn at whichever corner is further from the shooter, with one bullet.
@@ -397,8 +441,11 @@ fn end_abandoned_duel(
     mut commands: Commands,
     players: Query<&Player>,
     duelists: Query<(Entity, &Duelist)>,
+    mut invites: ResMut<DuelInvites>,
 ) {
     if duelists.is_empty() {
+        // The duel is over (or its spawn never happened): free the guard.
+        invites.active = false;
         return;
     }
     let gone = duelists
@@ -408,6 +455,7 @@ fn end_abandoned_duel(
         for (e, _) in &duelists {
             commands.entity(e).despawn();
         }
+        invites.active = false;
         news(&mut commands, "the duel is off: someone left".into());
     }
 }
@@ -456,7 +504,14 @@ struct DuelView {
 }
 
 fn on_challenged(ev: On<DuelChallenged>, mut view: ResMut<DuelView>) {
-    view.challenged_by = Some(ev.from);
+    if ev.cancel {
+        // The challenger moved on: only drop the prompt if it's for theirs.
+        if view.challenged_by == Some(ev.from) {
+            view.challenged_by = None;
+        }
+    } else {
+        view.challenged_by = Some(ev.from);
+    }
 }
 
 /// Everyone hears a duel they're watching: a shot or a punch lands.
@@ -996,13 +1051,19 @@ fn setup_body_animations(
     ready: On<WorldInstanceReady>,
     mut commands: Commands,
     bodies: Query<&DuelBody>,
+    parents: Query<&ChildOf>,
     children: Query<&Children>,
     mut players: Query<&mut AnimationPlayer>,
 ) {
-    let Ok(body) = bodies.get(ready.entity) else {
+    // The scene instance is a child of the duelist: `DuelBody` lives on the
+    // duelist, not on the scene root this event fires for.
+    let Some((duelist, body)) = std::iter::once(ready.entity)
+        .chain(parents.iter_ancestors(ready.entity))
+        .find_map(|e| bodies.get(e).ok().map(|b| (e, b)))
+    else {
         return;
     };
-    for child in children.iter_descendants(ready.entity) {
+    for child in children.iter_descendants(duelist) {
         let Ok(mut player) = players.get_mut(child) else {
             continue;
         };
@@ -1096,6 +1157,11 @@ fn animate_duelists(
     sfx: Option<Res<Sfx>>,
 ) {
     let dt = time.delta_secs().max(1e-3);
+    // A hit already announces itself with a "shot" news line (and its sound),
+    // so the shooter only adds their own bang on a miss.
+    let any_hit = duelists
+        .iter()
+        .any(|(e, d, _)| prev.get(&e).is_some_and(|p| d.lives < p.2));
     for (entity, d, body) in &duelists {
         let (last_pos, last_bullets, last_lives) = prev
             .insert(entity, (d.pos, d.bullets, d.lives))
@@ -1103,7 +1169,7 @@ fn animate_duelists(
         let moving = last_pos.distance_squared(d.pos) > (SPEED * dt * 0.25).powi(2);
         let fired = d.bullets < last_bullets;
         let hit = d.lives < last_lives;
-        if fired && d.player == me.as_deref().map(|m| m.0).unwrap_or(u64::MAX) {
+        if fired && !any_hit && d.player == me.as_deref().map(|m| m.0).unwrap_or(u64::MAX) {
             // My own bang: everyone hears the shot.
             if let Some(sfx) = &sfx {
                 play_sfx(&mut commands, &sfx.gunshot, 0.6);

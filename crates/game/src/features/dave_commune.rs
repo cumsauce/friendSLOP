@@ -23,6 +23,10 @@ pub fn plugin(app: &mut App) {
 /// Where the burnt-out parliament stands (x, z).
 pub const PARLIAMENT_AT: Vec2 = Vec2::new(-12.0, -10.0);
 
+/// Where Dave himself stands, 7 m from the parliament; the fart-shame check
+/// looks for him here.
+pub const DAVE_AT: Vec2 = Vec2::new(PARLIAMENT_AT.x - 1.0, PARLIAMENT_AT.y + 7.0);
+
 /// Flag size (width, height), in metres.
 const FLAG_W: f32 = 2.4;
 const FLAG_H: f32 = 1.2;
@@ -585,12 +589,19 @@ fn spawn_commune(
                         MeshMaterial3d(cream.clone()),
                         Transform::from_xyz(0.0, 0.1, 0.03),
                     ));
+                    // Pivot on the beanie so the bobble swings, not just spins.
                     h.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.09))),
-                        MeshMaterial3d(cream.clone()),
-                        Transform::from_xyz(0.0, 0.36, 0.03),
+                        Transform::from_xyz(0.0, 0.24, 0.03),
+                        Visibility::default(),
                         crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Z, 0.3, 2.2, 0.0),
-                    ));
+                    ))
+                    .with_children(|pivot| {
+                        pivot.spawn((
+                            Mesh3d(meshes.add(Sphere::new(0.09))),
+                            MeshMaterial3d(cream.clone()),
+                            Transform::from_xyz(0.0, 0.12, 0.0),
+                        ));
+                    });
                 });
             });
         });

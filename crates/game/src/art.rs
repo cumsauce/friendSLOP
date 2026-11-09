@@ -272,10 +272,13 @@ pub fn plugin(app: &mut App) {
     app.add_systems(Update, (blink, breathe, wiggle));
 }
 
-fn blink(time: Res<Time>, mut q: Query<(&Blink, &mut Transform)>) {
+fn blink(time: Res<Time>, mut q: Query<(Entity, &Blink, &mut Transform)>) {
     let t = time.elapsed_secs();
-    for (b, mut tr) in &mut q {
-        tr.scale.y = blink_openness(t, b.phase);
+    for (e, b, mut tr) in &mut q {
+        // Everyone is built with the same eye constants: spread the phase by
+        // entity so a crowd doesn't blink in unison.
+        let spread = (e.to_bits() % 997) as f32 * 0.37;
+        tr.scale.y = blink_openness(t, b.phase + spread);
     }
 }
 

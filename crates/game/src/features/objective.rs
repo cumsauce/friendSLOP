@@ -100,10 +100,19 @@ fn track_objective(
 
 fn request_restart(
     _ev: On<FromClient<RequestRestart>>,
-    objective: Query<&Objective>,
+    mut objective: Query<&mut Objective>,
+    still: Query<&super::stillness::Stillness>,
     mut commands: Commands,
 ) {
+    if super::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     if objective.iter().any(|o| o.over) {
+        // Consume the gate now (commands are deferred), or a second request
+        // in the same tick would fire another RoundReset.
+        for mut o in &mut objective {
+            o.over = false;
+        }
         commands.trigger(RoundReset);
     }
 }

@@ -299,6 +299,9 @@ impl Plugin for HudPlugin {
         }
         app.init_resource::<Toast>()
             .add_systems(OnEnter(AppState::InGame), spawn_slots)
+            .add_systems(OnExit(AppState::InGame), |mut t: ResMut<Toast>| {
+                *t = Toast::default()
+            })
             .add_systems(
                 Update,
                 (

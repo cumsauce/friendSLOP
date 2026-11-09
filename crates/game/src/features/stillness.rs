@@ -27,6 +27,24 @@ pub struct Stillness {
     pub secs_left: u32,
 }
 
+/// The server's game-time clock, replicated on the `Stillness` entity (and
+/// refreshed whenever the phase flips) so every peer can line its local NPC
+/// animations up with what the server judges (fart shame). Local `Time`
+/// starts at process start, so raw elapsed time differs per peer.
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq)]
+pub struct SessionClock {
+    pub elapsed: f32,
+}
+
+/// Client only: server game time minus our own, from the last `SessionClock`.
+#[derive(Resource, Default, Debug)]
+pub struct SessionOffset(pub f32);
+
+/// Game time shared by every peer, for animations the server must agree with.
+pub fn session_secs(time: &Time, offset: &SessionOffset) -> f32 {
+    time.elapsed_secs() + offset.0
+}
+
 /// Server only: the precise clock behind `Stillness`.
 #[derive(Resource, Default)]
 pub struct StillClock {
@@ -58,7 +76,14 @@ pub fn is_frozen(still: &Query<&Stillness>) -> bool {
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Stillness>()
+        .replicate::<SessionClock>()
         .init_resource::<StillClock>()
+        .init_resource::<SessionOffset>()
+        .add_systems(OnEnter(ServerState::Running), reset_offset)
+        .add_systems(
+            Update,
+            sync_offset.run_if(not(in_state(ServerState::Running))),
+        )
         .add_systems(OnEnter(ServerState::Running), start_clock)
         .add_systems(Update, tick_clock.run_if(in_state(ServerState::Running)))
         .add_systems(Update, apply_freeze.run_if(any_with_component::<Stillness>))
@@ -67,7 +92,7 @@ pub fn protocol(app: &mut App) {
 
 fn start_clock(mut commands: Commands, mut clock: ResMut<StillClock>) {
     clock.elapsed = 0.0;
-    commands.spawn((phase_at(0.0), Replicated));
+    commands.spawn((phase_at(0.0), SessionClock::default(), Replicated));
 }
 
 fn stop_clock(
@@ -84,14 +109,32 @@ fn stop_clock(
 /// Server: advance on real time (virtual time is paused while frozen).
 fn tick_clock(
     real: Res<Time<Real>>,
+    time: Res<Time>,
     mut clock: ResMut<StillClock>,
-    mut still: Query<&mut Stillness>,
+    mut still: Query<(&mut Stillness, &mut SessionClock)>,
 ) {
     clock.elapsed += real.delta_secs();
     let now = phase_at(clock.elapsed);
-    for mut s in &mut still {
+    for (mut s, mut session) in &mut still {
         // Only touch it when it changes, to avoid replicating every frame.
-        s.set_if_neq(now);
+        if s.set_if_neq(now) {
+            session.elapsed = time.elapsed_secs();
+        }
+    }
+}
+
+fn reset_offset(mut offset: ResMut<SessionOffset>) {
+    offset.0 = 0.0;
+}
+
+/// Client: line our game time up with the server's whenever it sends its clock.
+fn sync_offset(
+    time: Res<Time>,
+    clocks: Query<&SessionClock, Changed<SessionClock>>,
+    mut offset: ResMut<SessionOffset>,
+) {
+    if let Some(clock) = clocks.iter().next() {
+        offset.0 = clock.elapsed - time.elapsed_secs();
     }
 }
 

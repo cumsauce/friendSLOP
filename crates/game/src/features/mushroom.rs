@@ -48,6 +48,7 @@ pub fn protocol(app: &mut App) {
         .init_resource::<MushroomPatch>()
         .add_observer(eat_mushroom)
         .add_systems(OnEnter(ServerState::Running), sprout_first)
+        .add_systems(OnExit(ServerState::Running), clear_patch)
         .add_systems(Update, regrow.run_if(in_state(ServerState::Running)));
 }
 
@@ -56,6 +57,8 @@ pub fn protocol(app: &mut App) {
 struct MushroomPatch {
     seed: u32,
     regrow_in: Option<f32>,
+    /// The mushroom eaten this tick (its despawn is still queued).
+    eaten: Option<Entity>,
 }
 
 impl MushroomPatch {
@@ -83,8 +86,23 @@ pub fn pick_pitch(coin: f32, amount: f32) -> f32 {
     }
 }
 
+/// Session over: no mushroom (even one sprouted in the very last frame) or
+/// half-run regrow timer may carry into the next one.
+fn clear_patch(
+    mut commands: Commands,
+    mut patch: ResMut<MushroomPatch>,
+    mushrooms: Query<Entity, With<Mushroom>>,
+) {
+    for e in &mushrooms {
+        commands.entity(e).despawn();
+    }
+    patch.regrow_in = None;
+    patch.eaten = None;
+}
+
 fn sprout_first(mut commands: Commands, mut patch: ResMut<MushroomPatch>) {
     let at = patch.spot();
+    patch.eaten = None;
     commands.spawn((Mushroom { at }, Replicated));
 }
 
@@ -103,6 +121,7 @@ fn regrow(
     patch.regrow_in = None;
     if mushrooms.is_empty() {
         let at = patch.spot();
+        patch.eaten = None;
         commands.spawn((Mushroom { at }, Replicated));
     }
 }
@@ -124,6 +143,11 @@ fn eat_mushroom(
     let Some((mushroom, m)) = mushrooms.iter().next() else {
         return;
     };
+    // The despawn below is deferred: remember the eaten one now so a second
+    // click in the same tick can't eat (and score) it again.
+    if patch.eaten == Some(mushroom) {
+        return;
+    }
     if !in_reach(
         &mut commands,
         eat.client_id,
@@ -136,6 +160,7 @@ fn eat_mushroom(
         return;
     }
     commands.entity(mushroom).despawn();
+    patch.eaten = Some(mushroom);
     MoralAct::report(&mut commands, &players, eat.client_id, Act::EatMushroom);
     let (coin, amount) = (patch.next(), patch.next());
     commands.server_trigger(ToClients {

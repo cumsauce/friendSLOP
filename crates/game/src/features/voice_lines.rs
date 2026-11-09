@@ -202,8 +202,13 @@ fn dress_music_boxes(
     }
 }
 
-fn bob_music_boxes(time: Res<Time>, mut boxes: Query<(&MusicBox, &mut Transform)>) {
-    let t = time.elapsed_secs();
+fn bob_music_boxes(
+    time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
+    mut boxes: Query<(&MusicBox, &mut Transform)>,
+) {
+    // The server's clock, not our process uptime: peers must agree on lines.
+    let t = super::stillness::session_secs(&time, &offset);
     let singing = showing(t).is_some_and(|n| line(n).0 == Speaker::MusicBox);
     for (b, mut transform) in &mut boxes {
         let hop = if singing {
@@ -217,12 +222,13 @@ fn bob_music_boxes(time: Res<Time>, mut boxes: Query<(&MusicBox, &mut Transform)
 
 fn speak(
     time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
     mut commands: Commands,
     audio: Option<Res<Assets<AudioSource>>>,
     mut last: Local<Option<u32>>,
     mut text: Query<&mut Text, With<Subtitle>>,
 ) {
-    let now = showing(time.elapsed_secs());
+    let now = showing(super::stillness::session_secs(&time, &offset));
     let want = now.map_or(String::new(), |n| {
         let (who, said) = line(n);
         format!("{}: \"{}\"", who.name(), random_dialogue::say(said))

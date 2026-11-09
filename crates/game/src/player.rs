@@ -45,7 +45,9 @@ impl Plugin for PlayerPlugin {
             .add_observer(|w: On<Welcome>, mut commands: Commands| {
                 commands.insert_resource(LocalPlayer(w.id));
             })
-            .add_systems(OnEnter(ServerState::Running), spawn_host_player);
+            .add_systems(OnEnter(ServerState::Running), spawn_host_player)
+            .add_systems(OnExit(ClientState::Connected), despawn_all_players)
+            .add_systems(OnExit(ServerState::Running), despawn_all_players);
     }
 }
 
@@ -81,5 +83,13 @@ fn despawn_client_player(
         if owner.0 == Some(remove.entity) {
             commands.entity(entity).despawn();
         }
+    }
+}
+
+/// Session over (however it ended): no `Player` may outlive it, or the next
+/// session counts and tags ghosts.
+fn despawn_all_players(mut commands: Commands, players: Query<Entity, With<Player>>) {
+    for e in &players {
+        commands.entity(e).despawn();
     }
 }

@@ -20,7 +20,6 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::bear::{Bear, bear_position, wav_bytes};
 use crate::features::crows::{Crow, crow_position};
-use crate::features::dave_commune::PARLIAMENT_AT;
 use crate::features::duel::Duelist;
 use crate::features::synth_audio::play_synth;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -111,7 +110,7 @@ pub fn npc_spots<'a>(
     bears: impl IntoIterator<Item = &'a Bear>,
     crows: impl IntoIterator<Item = &'a Crow>,
 ) -> Vec<Vec2> {
-    let mut spots = vec![PARLIAMENT_AT]; // Dave
+    let mut spots = vec![super::dave_commune::DAVE_AT];
     spots.extend(bears.into_iter().map(|b| bear_position(b, t).xz()));
     spots.extend(crows.into_iter().map(|c| crow_position(c, t).xz()));
     spots
@@ -151,6 +150,7 @@ fn let_rip(
         .find(|d| d.player == player.id)
         .map(|d| d.pos.xz())
         .unwrap_or(fart.at);
+    // The server's game time is the session time every peer animates by.
     let npcs = npc_spots(time.elapsed_secs(), bears, crows);
     let pressure = gas.0;
     gas.0 = 0;
@@ -261,14 +261,20 @@ fn press_to_fart(
         commands.client_trigger(Fart { at: w.pos.xz() });
         return;
     }
-    let at = (|| {
+    if view.first_person {
+        return; // no body yet: nothing to fart from
+    }
+    let Some(at) = (|| {
         let cursor = window.single().ok()?.cursor_position()?;
         let (camera, cam_tf) = camera.single().ok()?;
         let ray = camera.viewport_to_world(cam_tf, cursor).ok()?;
         let d = ray.intersect_plane(Vec3::ZERO, InfinitePlane3d::new(Vec3::Y))?;
         Some(ray.get_point(d).xz())
-    })()
-    .unwrap_or(Vec2::ZERO);
+    })() else {
+        // Cursor off the window (or no floor under it): no fart rather than
+        // one at the origin, where the crows circle.
+        return;
+    };
     commands.client_trigger(Fart { at });
 }
 
@@ -453,9 +459,13 @@ mod tests {
     }
 
     #[test]
-    fn dave_is_always_watching_parliament() {
+    fn dave_is_always_watching_where_he_stands() {
         let spots = npc_spots(0.0, [], []);
-        assert!(is_shameful(PARLIAMENT_AT, &spots));
+        assert!(is_shameful(super::super::dave_commune::DAVE_AT, &spots));
+        assert!(!is_shameful(
+            super::super::dave_commune::PARLIAMENT_AT,
+            &spots
+        ));
         assert!(!is_shameful(Vec2::new(15.0, 15.0), &spots));
     }
 

@@ -173,7 +173,7 @@ fn dress_crows(
                     p.spawn((
                         Mesh3d(leg.clone()),
                         MeshMaterial3d(beak.clone()),
-                        Transform::from_xyz(x, -0.3, 0.0),
+                        Transform::from_xyz(x, -0.19, 0.0),
                     ))
                     .with_children(|l| {
                         let toe = meshes.add(Capsule3d::new(0.014, 0.08));
@@ -194,8 +194,12 @@ fn dress_crows(
 }
 
 /// Hop around, face where we're going, and puff up when cawing.
-fn animate_crows(time: Res<Time>, mut crows: Query<(&Crow, &mut Transform)>) {
-    let t = time.elapsed_secs();
+fn animate_crows(
+    time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
+    mut crows: Query<(&Crow, &mut Transform)>,
+) {
+    let t = super::stillness::session_secs(&time, &offset);
     for (crow, mut transform) in &mut crows {
         let here = crow_position(crow, t);
         let ahead = crow_position(crow, t + 0.1);
@@ -222,10 +226,11 @@ fn spawn_caw_text(mut commands: Commands) {
 
 fn update_caw_text(
     time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
     crows: Query<&Crow>,
     mut text: Query<&mut Text, With<CawText>>,
 ) {
-    let t = time.elapsed_secs();
+    let t = super::stillness::session_secs(&time, &offset);
     let cawing = crows.iter().any(|c| is_cawing(c.id, t));
     let want = if cawing { "caw!" } else { "" };
     for mut text in &mut text {
@@ -239,19 +244,22 @@ fn update_caw_text(
 fn caw_sound(
     mut commands: Commands,
     time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
     crows: Query<&Crow>,
     sfx: Option<Res<Sfx>>,
-    mut was_cawing: Local<[bool; CROW_COUNT as usize]>,
+    mut last_caw: Local<[u64; CROW_COUNT as usize]>,
 ) {
     let Some(sfx) = sfx else { return };
-    let t = time.elapsed_secs();
+    let t = super::stillness::session_secs(&time, &offset);
     for crow in &crows {
-        let cawing = is_cawing(crow.id, t);
-        let slot = crow.id as usize % was_cawing.len();
-        if cawing && !was_cawing[slot] {
+        // Key the edge on which caw window this is, not on a bool that goes
+        // stale when we leave and re-enter the game mid-caw.
+        let slot = crow.id as usize % last_caw.len();
+        let window = ((t + crow.id as f32 * 2.3) / caw_period(crow.id)) as u64 + 1;
+        if is_cawing(crow.id, t) && last_caw[slot] != window {
             play_sfx(&mut commands, &sfx.crow_caw, 0.7);
+            last_caw[slot] = window;
         }
-        was_cawing[slot] = cawing;
     }
 }
 

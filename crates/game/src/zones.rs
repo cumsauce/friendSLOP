@@ -414,7 +414,7 @@ fn castle(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
     while z < 80.0 {
         let len = rng.range(2.5, 5.0);
         // The archway gap at z≈58.
-        if (z..z + len).contains(&58.0) || (55.0..61.0).contains(&z) {
+        if z < 61.0 && z + len > 55.0 {
             z += len;
             continue;
         }
@@ -504,6 +504,11 @@ fn quarry(d: &mut Dresser, rng: &mut Rng) {
         let a = i as f32 / 10.0 * TAU + rng.range(-0.2, 0.2);
         let p = c + Vec2::from_angle(a) * rng.range(10.0, 12.0);
         let s = rng.range(1.4, 2.4);
+        // Big rocks must not bury the hedge maze's outer walls.
+        let half = MAZE_CELLS as f32 * MAZE_CELL / 2.0 + 2.0 + 3.0;
+        if (p.x - MAZE_AT.x).abs() < half && (p.y - MAZE_AT.y).abs() < half {
+            continue;
+        }
         d.rock(rng, p, s);
     }
     // Crate stacks and a wooden crane on the east rim.
@@ -513,6 +518,10 @@ fn quarry(d: &mut Dresser, rng: &mut Rng) {
     }
     let wood = d.kit.wood.clone();
     let base = c + Vec2::new(9.0, -3.0);
+    // `block` snaps each part to its own ground; on the rim slope that tears
+    // the crane apart. Lift every part by the difference to the base's ground.
+    let g0 = ground(base);
+    let v3 = |p: Vec2, y: f32| Vec3::new(p.x, y + g0 - ground(p), p.y);
     for dz in [-1.2, 1.2] {
         d.block(
             v3(base + Vec2::new(0.0, dz), 3.5),
@@ -662,7 +671,7 @@ fn windmill(d: &mut Dresser, x: &Extra, cone: Handle<Mesh>) {
     }
     d.blocker(
         Transform::from_xyz(c.x, 5.0, c.y),
-        Collider::cylinder(2.2, 10.0),
+        Collider::cylinder(2.6, 10.0),
     );
     // Door.
     let wood = d.kit.wood.clone();

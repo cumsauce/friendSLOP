@@ -278,6 +278,8 @@ fn spawn_goat_text(mut commands: Commands) {
 /// What the goat last saw, to spot new choices.
 #[derive(Default)]
 struct Seen {
+    /// The goat this memory belongs to: a new session spawns a new goat.
+    goat: Option<Entity>,
     started: bool,
     players: usize,
     mushrooms: usize,
@@ -290,7 +292,7 @@ struct Seen {
 /// Spot choices and remark on them.
 fn judge(
     time: Res<Time>,
-    goats: Query<(), With<Goat>>,
+    goats: Query<Entity, With<Goat>>,
     players: Query<(), With<Player>>,
     mushrooms: Query<(), With<Mushroom>>,
     muted: Option<Res<VoiceMuted>>,
@@ -301,11 +303,13 @@ fn judge(
     let players = players.iter().count();
     let mushrooms = mushrooms.iter().count();
     let muted = muted.is_some_and(|m| m.0);
-    if goats.is_empty() {
+    let Some(goat) = goats.iter().next() else {
         return;
-    }
-    if !seen.started {
+    };
+    // A different goat means a new session: forget the last one's judgments.
+    if !seen.started || seen.goat != Some(goat) {
         *seen = Seen {
+            goat: Some(goat),
             started: true,
             players,
             mushrooms,

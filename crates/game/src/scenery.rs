@@ -112,10 +112,17 @@ fn is_clear(p: Vec2, margin: f32) -> bool {
         return false;
     }
     // Keep the pond and dirt paths (terrain.rs) open.
-    if crate::terrain::is_pond(p.x, p.y)
-        || crate::terrain::is_pond(p.x + margin, p.y)
-        || crate::terrain::is_path(p.x, p.y)
-    {
+    let around = [
+        Vec2::ZERO,
+        Vec2::X * margin,
+        -Vec2::X * margin,
+        Vec2::Y * margin,
+        -Vec2::Y * margin,
+    ];
+    if around.iter().any(|o| {
+        let q = p + *o;
+        crate::terrain::is_pond(q.x, q.y) || crate::terrain::is_path(q.x, q.y)
+    }) {
         return false;
     }
     keep_clear()
@@ -568,23 +575,34 @@ impl Dresser<'_, '_, '_> {
                         }
                     }
                 }
-                let len = posts as f32 * 1.4;
-                self.blocker(
-                    Transform::from_xyz(c.x, 0.55, c.y).with_rotation(yaw),
-                    Collider::cuboid(len, 1.1, 0.2),
-                );
+                // One blocker per rail span, so the collider matches the visible
+                // fence and follows the terrain like the posts and rails do.
+                for i in 0..posts - 1 {
+                    let mid = local((i as f32 - posts as f32 / 2.0) * 1.4 + 0.7, 0.0);
+                    self.blocker(
+                        Transform::from_xyz(mid.x, 0.55, mid.y).with_rotation(yaw),
+                        Collider::cuboid(1.54, 1.1, 0.2),
+                    );
+                }
                 self.undergrowth(rng, c, 3.0, 4);
             }
             Cluster::Crates => {
                 let n = 3 + (rng.f() * 3.0) as i32;
+                // (x, z, size) of the bottom row, for the top row to sit on.
+                let mut bottom: Vec<(f32, f32, f32)> = Vec::new();
                 for i in 0..n {
                     let s = rng.range(0.7, 1.0);
-                    let (x, y) = if i >= 3 {
-                        ((i - 3) as f32 * 0.9 - 0.4, 0.85 + s / 2.0)
+                    let jitter = rng.range(-0.15, 0.15);
+                    let (x, z, y) = if i >= 3 {
+                        // Stack on a real crate: its position, its top.
+                        let (bx, bz, bs) = bottom[(i - 3) as usize];
+                        (bx, bz, bs + s / 2.0)
                     } else {
-                        (i as f32 * 0.95 - 0.95, s / 2.0)
+                        let x = i as f32 * 0.95 - 0.95;
+                        bottom.push((x, jitter, s));
+                        (x, jitter, s / 2.0)
                     };
-                    let p = local(x, rng.range(-0.15, 0.15));
+                    let p = local(x, z);
                     let rot = yaw * Quat::from_rotation_y(rng.range(-0.3, 0.3));
                     self.block(v3(p, y), Vec3::splat(s), rot, &crate_wood, true);
                 }

@@ -323,13 +323,19 @@ fn restore_title(mut window: Query<&mut Window, With<PrimaryWindow>>) {
 }
 
 fn speak_rant(
-    halt: Query<&Halt>,
-    mut last: Local<Option<u8>>,
+    halt: Query<(Entity, &Halt)>,
+    mut last: Local<Option<(Entity, Option<u8>)>>,
     mut commands: Commands,
     audio: Option<Res<Assets<AudioSource>>>,
 ) {
-    let now = halt.iter().next().and_then(|h| h.rant);
-    if now != *last
+    let Some((entity, h)) = halt.iter().next() else {
+        *last = None;
+        return;
+    };
+    let now = h.rant;
+    // Keyed on the HALT entity too: a new session's HALT is a new entity, so
+    // a line left playing when the last session ended doesn't mute its twin.
+    if *last != Some((entity, now))
         && let Some(i) = now
         && audio.is_some()
     {
@@ -338,7 +344,7 @@ fn speak_rant(
             wav_bytes(&drone(said, u32::from(i), RATE), RATE)
         });
     }
-    *last = now;
+    *last = Some((entity, now));
 }
 
 use crate::features::synth_audio::RATE;

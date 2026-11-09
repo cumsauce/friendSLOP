@@ -169,7 +169,12 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), stop_all)
         .add_systems(
             Update,
-            (attack_music, jingle_keys, show_attack).run_if(in_state(AppState::InGame)),
+            (
+                attack_music,
+                jingle_keys,
+                show_attack.run_if(crate::world::hud_tick()),
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

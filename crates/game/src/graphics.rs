@@ -22,6 +22,7 @@
 
 use bevy::anti_alias::fxaa::Fxaa;
 use bevy::camera::Projection;
+use bevy::camera::visibility::VisibilityRange;
 use bevy::light::{DirectionalLight, ShadowFilteringMethod};
 use bevy::pbr::ScreenSpaceAmbientOcclusion;
 use bevy::post_process::bloom::Bloom;
@@ -302,8 +303,57 @@ pub fn density(q: Option<&GraphicsQuality>) -> f32 {
 pub fn plugin(app: &mut App) {
     app.init_resource::<GraphicsQuality>().add_systems(
         PostUpdate,
-        (save_quality, apply_window, apply_camera, apply_shadows),
+        (
+            save_quality,
+            apply_window,
+            apply_camera,
+            apply_shadows,
+            apply_draw_ranges,
+        ),
     );
+}
+
+/// Small detail (flowers, pebbles, grass tufts) that stops drawing past a
+/// distance (#151): `(near, far)` metres for the Near / Far draw distance.
+/// It's tiny, often half-hidden by fog, and there are thousands of it.
+#[derive(Component, Clone, Copy, Debug)]
+pub struct DrawRange {
+    pub near: f32,
+    pub far: f32,
+    /// Measure from the mesh's bounds centre rather than its origin (for
+    /// big chunk meshes whose origin is the world origin).
+    pub from_bounds: bool,
+}
+
+impl DrawRange {
+    /// A small prop: gone past 35 m (Near) or 60 m (Far).
+    pub const SMALL_PROP: Self = Self {
+        near: 35.0,
+        far: 60.0,
+        from_bounds: false,
+    };
+
+    pub fn range(self, q: &GraphicsQuality) -> VisibilityRange {
+        let mut r = VisibilityRange::abrupt(0.0, if q.far { self.far } else { self.near });
+        r.use_aabb = self.from_bounds;
+        r
+    }
+}
+
+fn apply_draw_ranges(
+    mut commands: Commands,
+    q: Res<GraphicsQuality>,
+    all: Query<(Entity, &DrawRange)>,
+    new: Query<(Entity, &DrawRange), Added<DrawRange>>,
+) {
+    let mut set = |(e, d): (Entity, &DrawRange)| {
+        commands.entity(e).try_insert(d.range(&q));
+    };
+    if q.is_changed() {
+        all.iter().for_each(&mut set);
+    } else {
+        new.iter().for_each(&mut set);
+    }
 }
 
 fn save_quality(q: Res<GraphicsQuality>) {

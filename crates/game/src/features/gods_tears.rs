@@ -171,26 +171,54 @@ pub fn plugin(app: &mut App) {
         );
 }
 
+/// The shared look of a tear.
+#[derive(Clone)]
+struct TearKit {
+    gem: Handle<StandardMaterial>,
+    halo: Handle<StandardMaterial>,
+    ball: Handle<Mesh>,
+    tip: Handle<Mesh>,
+    ring: Handle<Mesh>,
+}
+
 /// Give every tear (on every peer) a glowing blue teardrop body.
 fn dress_tears(
     mut commands: Commands,
     new: Query<(Entity, &GodsTear), Added<GodsTear>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut kit: Local<Option<TearKit>>,
 ) {
-    for (entity, tear) in &new {
-        let gem = materials.add(StandardMaterial {
+    if new.is_empty() {
+        return;
+    }
+    // Every tear shares one set of meshes and materials, so they draw in a
+    // batch (#151).
+    let kit = kit.get_or_insert_with(|| TearKit {
+        gem: materials.add(StandardMaterial {
             base_color: Color::srgb(0.45, 0.75, 1.0),
             emissive: LinearRgba::rgb(0.6, 1.2, 2.4),
             ..default()
-        });
-        let halo = materials.add(StandardMaterial {
+        }),
+        halo: materials.add(StandardMaterial {
             base_color: Color::srgba(0.6, 0.85, 1.0, 0.55),
             emissive: LinearRgba::rgb(0.3, 0.6, 1.2),
             alpha_mode: AlphaMode::Blend,
             unlit: true,
             ..default()
-        });
+        }),
+        ball: meshes.add(Sphere::new(0.11)),
+        tip: meshes.add(Cone::new(0.1, 0.22)),
+        ring: meshes.add(Annulus::new(0.18, 0.26)),
+    });
+    for (entity, tear) in &new {
+        let TearKit {
+            gem,
+            halo,
+            ball,
+            tip,
+            ring,
+        } = kit.clone();
         commands
             .entity(entity)
             .insert((
@@ -203,18 +231,18 @@ fn dress_tears(
                 // A small gem, not a beach ball: it sits in a faint glowing
                 // ring on the grass so it reads as treasure, not clutter.
                 p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.11))),
+                    Mesh3d(ball),
                     MeshMaterial3d(gem.clone()),
                     Transform::from_xyz(0.0, 0.11, 0.0),
                 ));
                 p.spawn((
-                    Mesh3d(meshes.add(Cone::new(0.1, 0.22))),
+                    Mesh3d(tip),
                     MeshMaterial3d(gem),
                     Transform::from_xyz(0.0, 0.26, 0.0),
                 ));
                 p.spawn((
-                    Mesh3d(meshes.add(Annulus::new(0.18, 0.26))),
-                    MeshMaterial3d(halo.clone()),
+                    Mesh3d(ring),
+                    MeshMaterial3d(halo),
                     // The tear bobs between 0.08 and 0.16, so this stays 4-12 cm
                     // above the flat ground: never dips into it (z-fighting).
                     Transform::from_xyz(0.0, -0.04, 0.0)

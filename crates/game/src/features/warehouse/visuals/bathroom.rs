@@ -29,22 +29,18 @@ pub fn plugin(app: &mut App) {
 }
 
 /// The fart monster's farts: deep, long and wet.
-pub(super) fn fart_sounds(
-    add: &mut impl FnMut(Vec<f32>) -> Handle<AudioSource>,
-) -> Vec<Handle<AudioSource>> {
-    (0..3u32)
+/// Pure samples, so they can be synthesised off the main thread (#151).
+pub(super) const FARTS: usize = 3;
+
+pub(super) fn fart_samples() -> Vec<Vec<f32>> {
+    (0..FARTS as u32)
         .map(|i| {
             let tone = crate::features::fart_sound::FartTone {
                 pitch: 48.0 + i as f32 * 14.0,
                 length: 1.8 + i as f32 * 0.5,
                 timbre: 0.85,
             };
-            add(crate::features::fart_sound::fart_samples(
-                &tone,
-                1.0,
-                0x0161 + i,
-                sound::RATE,
-            ))
+            crate::features::fart_sound::fart_samples(&tone, 1.0, 0x0161 + i, sound::RATE)
         })
         .collect()
 }
@@ -783,7 +779,7 @@ fn animate_fart_monsters(
         dressed.puffs = m.puffs;
         let butt = tf.translation + tf.rotation * Vec3::new(0.0, 0.8, 0.8);
         if let Some(audio) = audio.as_deref_mut() {
-            let s = sounds(&mut spooked, audio);
+            let s = sounds(&mut spooked, audio, &mut commands);
             let i = (m.puffs as usize) % s.farts.len();
             crate::spatial::play_at(
                 &mut commands,
@@ -856,7 +852,7 @@ fn on_gassed(
 ) {
     let mine = me.is_some_and(|m| m.0 == ev.player);
     let fart = audio.map(|mut a| {
-        let s = sounds(&mut spooked, &mut a);
+        let s = sounds(&mut spooked, &mut a, &mut commands);
         s.farts[(ev.player as usize) % s.farts.len()].clone()
     });
     if mine {

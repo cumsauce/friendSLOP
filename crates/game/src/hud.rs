@@ -353,7 +353,8 @@ impl Plugin for HudPlugin {
                 Update,
                 (
                     adopt_slotted,
-                    mirror_own_lines,
+                    // The scoreboards it copies change at HUD rate too (#151).
+                    mirror_own_lines.run_if(crate::world::hud_tick()),
                     tick_toast,
                     toggle_overlays,
                     show_fps,

@@ -321,9 +321,11 @@ fn on_control(
     } else {
         Vec2::ZERO
     };
-    if ev.yaw.is_finite() && ev.pitch.is_finite() {
+    // Only touch the replicated duelist when the aim moved (#151).
+    let pitch = ev.pitch.clamp(-1.5, 1.5);
+    if ev.yaw.is_finite() && ev.pitch.is_finite() && (d.yaw != ev.yaw || d.pitch != pitch) {
         d.yaw = ev.yaw;
-        d.pitch = ev.pitch.clamp(-1.5, 1.5);
+        d.pitch = pitch;
     }
 }
 
@@ -347,7 +349,10 @@ fn move_duelists(
         let lim = ARENA_HALF - BODY_RADIUS;
         let rel = (d.pos + step - ARENA_CENTER)
             .clamp(Vec3::new(-lim, 0.0, -lim), Vec3::new(lim, 0.0, lim));
-        d.pos = ARENA_CENTER + rel;
+        let pos = ARENA_CENTER + rel;
+        if d.pos != pos {
+            d.pos = pos; // pressed against the wall: nothing to replicate
+        }
     }
 }
 

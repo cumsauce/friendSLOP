@@ -430,7 +430,12 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(
             Update,
-            (show_checklist, chapter_banner, tier_toast).run_if(in_state(AppState::InGame)),
+            (
+                show_checklist.run_if(crate::world::hud_tick()),
+                chapter_banner,
+                tier_toast,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

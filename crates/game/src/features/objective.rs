@@ -141,7 +141,8 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_objective_ui)
         .add_systems(
             Update,
-            (show_objective, restart_key).run_if(in_state(AppState::InGame)),
+            (show_objective.run_if(crate::world::hud_tick()), restart_key)
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

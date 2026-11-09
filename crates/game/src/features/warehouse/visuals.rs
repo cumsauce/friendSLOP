@@ -41,6 +41,10 @@ pub fn plugin(app: &mut App) {
                 show_status.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(
+            Update,
+            finish_sound_bake.run_if(any_with_component::<SoundBake>),
         );
 }
 
@@ -75,27 +79,76 @@ pub fn spooked(s: &Option<Res<Spooked>>) -> bool {
     s.as_ref().is_some_and(|s| s.inside)
 }
 
-fn sounds(spooked: &mut Spooked, audio: &mut Assets<AudioSource>) -> Sounds {
+/// The warehouse's generated sounds, synthesised off the main thread the
+/// first time they're wanted (#151: ~0.5 M samples used to hitch every peer's
+/// frame as the expedition started). The handles are reserved up front; a
+/// sound asked for before its samples are ready just starts a moment late.
+fn sounds(
+    spooked: &mut Spooked,
+    audio: &mut Assets<AudioSource>,
+    commands: &mut Commands,
+) -> Sounds {
     if let Some(s) = &spooked.sounds {
         return s.clone();
     }
-    let mut add = |v: Vec<f32>| {
-        audio.add(AudioSource {
-            bytes: wav_bytes(&v, sound::RATE).into(),
-        })
-    };
     let s = Sounds {
-        drone: add(sound::drone(sound::RATE, 12.0)),
-        breath: add(sound::breathing(sound::RATE)),
-        screams: (0..3)
-            .map(|i| add(sound::scream(sound::RATE, 11 + i)))
+        drone: audio.reserve_handle(),
+        breath: audio.reserve_handle(),
+        screams: (0..3).map(|_| audio.reserve_handle()).collect(),
+        chime: audio.reserve_handle(),
+        farts: (0..bathroom::FARTS)
+            .map(|_| audio.reserve_handle())
             .collect(),
-        chime: add(sound::chime(sound::RATE)),
-        farts: bathroom::fart_sounds(&mut add),
-        still: add(sound::bathroom(sound::RATE, 8.0)),
+        still: audio.reserve_handle(),
     };
+    let mut handles = vec![s.drone.clone(), s.breath.clone()];
+    handles.extend(s.screams.iter().cloned());
+    handles.push(s.chime.clone());
+    handles.extend(s.farts.iter().cloned());
+    handles.push(s.still.clone());
+    let pool = bevy::tasks::AsyncComputeTaskPool::get_or_init(bevy::tasks::TaskPool::default);
+    let task = pool.spawn(async move {
+        let mut wavs = vec![
+            sound::drone(sound::RATE, 12.0),
+            sound::breathing(sound::RATE),
+        ];
+        wavs.extend((0..3).map(|i| sound::scream(sound::RATE, 11 + i)));
+        wavs.push(sound::chime(sound::RATE));
+        wavs.extend(bathroom::fart_samples());
+        wavs.push(sound::bathroom(sound::RATE, 8.0));
+        wavs.iter()
+            .map(|v| wav_bytes(v, sound::RATE))
+            .collect::<Vec<_>>()
+    });
+    commands.spawn(SoundBake(task, handles));
     spooked.sounds = Some(s.clone());
     s
+}
+
+/// Warehouse sounds being synthesised, and the handles they fill.
+#[derive(Component)]
+struct SoundBake(bevy::tasks::Task<Vec<Vec<u8>>>, Vec<Handle<AudioSource>>);
+
+fn finish_sound_bake(
+    mut commands: Commands,
+    mut bakes: Query<(Entity, &mut SoundBake)>,
+    audio: Option<ResMut<Assets<AudioSource>>>,
+) {
+    let Some(mut audio) = audio else { return };
+    for (e, mut bake) in &mut bakes {
+        let Some(wavs) = bevy::tasks::futures::check_ready(&mut bake.0) else {
+            continue;
+        };
+        for (handle, bytes) in bake.1.iter().zip(wavs) {
+            let _ = audio.insert(
+                handle,
+                AudioSource {
+                    bytes: bytes.into(),
+                },
+            );
+        }
+        commands.entity(e).despawn();
+    }
 }
 
 /// Which floor plan is built (and its parts).
@@ -430,7 +483,7 @@ fn build_inside(
             &cube,
         )
     });
-    let hum = audio.map(|mut a| sounds(&mut spooked, &mut a).still);
+    let hum = audio.map(|mut a| sounds(&mut spooked, &mut a, &mut commands).still);
     let tall = if bath.is_some() {
         super::bathroom::CEILING
     } else {
@@ -949,7 +1002,7 @@ fn dress_monsters(
         let Some(audio) = audio.as_deref_mut() else {
             continue;
         };
-        let s = sounds(&mut spooked, audio);
+        let s = sounds(&mut spooked, audio, &mut commands);
         let breath = crate::spatial::loop_at(
             &mut commands,
             &s.breath,
@@ -1011,7 +1064,7 @@ fn animate_monsters(
         if dressed.last != m.mode {
             // It springs: a scream where it is.
             if hunting && let Some(audio) = audio.as_deref_mut() {
-                let s = sounds(&mut spooked, audio);
+                let s = sounds(&mut spooked, audio, &mut commands);
                 let i = (t as usize) % s.screams.len();
                 crate::spatial::play_at(
                     &mut commands,
@@ -1123,7 +1176,7 @@ fn darkness(
             ChildOf(camera),
         ));
         if let Some(mut audio) = audio {
-            let s = sounds(&mut spooked, &mut audio);
+            let s = sounds(&mut spooked, &mut audio, &mut commands);
             let master = settings.map_or(0.8, |s| s.master_volume);
             let drone = commands
                 .spawn((
@@ -1271,7 +1324,7 @@ fn on_caught(
     toast: Option<ResMut<Toast>>,
 ) {
     let Some(mut audio) = audio else { return };
-    let s = sounds(&mut spooked, &mut audio);
+    let s = sounds(&mut spooked, &mut audio, &mut commands);
     let mine = me.is_some_and(|m| m.0 == ev.player);
     let scream = s.screams[(ev.player as usize) % s.screams.len()].clone();
     if mine {
@@ -1312,7 +1365,7 @@ fn on_delivered(
     toast: Option<ResMut<Toast>>,
 ) {
     if let Some(mut audio) = audio {
-        let s = sounds(&mut spooked, &mut audio);
+        let s = sounds(&mut spooked, &mut audio, &mut commands);
         crate::spatial::play_at(
             &mut commands,
             &s.chime,

@@ -308,6 +308,10 @@ fast. Perfect bots finish in ~11 minutes.
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
   them!"), shown to everyone. The blame is just talk: it doesn't count as being caught
   (`features/gaslighting.rs`).
+- **Whose fault is it** (#149, catherine). A menu button opens a scrollable screen listing every
+  idea in "Ideas so far" below, newest first, as "#N: name's fault" with what they asked for.
+  It's built from this file, so it keeps itself current. No in-game hover tooltips yet
+  (`fault.rs`).
 - **Getting caught** (#140, just meat and cheese, answering "what happens when the villagers
   catch you?"). The first chasing villager to get within 1.4 m grabs you and holds you up over its
   head. Your chase ends, and the server picks another random player as your **accomplice**. They
@@ -698,6 +702,7 @@ fast. Perfect bots finish in ~11 minutes.
 - Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
   chase you while high-pitched string music plays and they make jingling-keys sounds.
 - Kori.exe (#168): NPCs fart too, then quickly blame someone else.
+- catherine (#149): a "whose fault is it" screen crediting each feature to who asked for it.
 - just meat and cheese (#140, on what happens when the villagers catch you): it carries you to
   a random other player (an "accomplice"), catches them too, then levitates and locks you both in
   the air with it for a while.

@@ -457,7 +457,10 @@ don't change play. Gambling is free. Six players paying together beat the landlo
   new world with new tears. The HUD shows how many are left. Click one to use it. Each use transforms you a little further
   (untouched, tear-touched, changing, barely human), and after 7 you become an **Abduction**: a
   fetid creature that hungers for tears. Everyone's state is shown on the right of the screen.
-  Tears don't grant any other power yet, and being an Abduction changes nothing else yet.
+  When they run out, nothing makes more (#152, Freyja Moth: "gods tears cannot be created"). But
+  an Abduction slain in a duel (beaten to the last life) gives back a quarter of the tears it used
+  (at least one), which fall in the duel arena, and it's that much less changed. The supply never
+  grows past 12. Tears don't grant any other power yet.
 - **The great storm of '21** (#13). World history: in 1921 a great storm (to the British, "the
   storm of it's a bit windy innit") did untold damage and toppled several governments, and the
   world is still recovering. The floor is strewn with its wreckage: two fallen trees, a toppled
@@ -678,6 +681,8 @@ don't change play. Gambling is free. Six players paying together beat the landlo
   They hold great power; using them transforms you, eventually into a fetid, always-hungry
   Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
   Correction (#43): they rained only once; the supply is limited.
+  When they're gone (#152): nothing; tears can't be created, but slaying an abducted recovers a
+  small portion of the tears they consumed.
 - Freyja Moth (#13): the great storm of '21 caused untold damage and toppled several governments;
   the world is still recovering.
 - Freyja Moth (#11): the inciting incident is your landlord raising your rent. You start with legal

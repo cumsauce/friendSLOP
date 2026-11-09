@@ -29,6 +29,7 @@ pub mod people;
 pub mod player;
 pub mod scenery;
 pub mod settings;
+pub mod spatial;
 pub mod terrain;
 pub mod theme;
 pub mod voice;
@@ -93,6 +94,7 @@ impl Plugin for GamePlugin {
                 buildings::plugin,
                 creator::plugin,
                 footsteps::plugin,
+                spatial::plugin,
                 theme::plugin,
             ));
         app.add_plugins((controls::plugin, graphics::plugin));

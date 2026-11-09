@@ -64,6 +64,7 @@ crates/game/src/
   menu.rs       placeholder keyboard menu
   world.rs      camera, light, floor, HUD
   assets.rs     handles for the files in assets/ (sound effects; missing files degrade quietly)
+  spatial.rs    3D sound mixer (play_at / play_on / loop_at / play_wav_at) and the listener
   loading.rs    "Loading" curtain on entering the game until models load and frames settle
   people.rs     shared commune-person body (players + villagers), walk animation
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)

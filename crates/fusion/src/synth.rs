@@ -161,7 +161,7 @@ impl Inst {
             EPiano => 0.2,
             Bass | Kick | Fretless => 0.0,
             Lead | Brass | Mini => 0.26,
-            Flute => 0.45,
+            Flute => 0.6,
             Pad | Strings => 0.42,
             PolyBrass => 0.3,
             Snare | Ghost | Tom | Rim | Conga => 0.14,
@@ -564,9 +564,9 @@ impl FmVoice {
                 p.i1_sus * 0.3
             } else {
                 // Harder hits bark: velocity drives the index.
-                p.i1_peak * (0.4 + 0.85 * vel)
+                p.i1_peak * (0.4 + 0.7 * vel)
             },
-            i2: p.i2_peak * (0.35 + 0.9 * vel),
+            i2: p.i2_peak * (0.35 + 0.75 * vel),
             iscale,
             k_dec: per_sample(p.decay * pitch_k),
             k_rel: per_sample(p.release),
@@ -1354,7 +1354,7 @@ impl BlowVoice {
         // 0 = bottle (low), 1 = flute (high).
         let reg = ((note as f32 - 62.0) / 20.0).clamp(0.0, 1.0);
         let (pl, pr) = pan_gains(0.12);
-        let g = 0.2 * dyn_gain(vel);
+        let g = 0.12 * dyn_gain(vel);
         *self = Self {
             active: true,
             freq: f,
@@ -1362,12 +1362,12 @@ impl BlowVoice {
             ph: 0.0,
             mph: 0.25,
             // Soft notes take longer to speak.
-            att: INV_RATE / (0.025 + 0.06 * (1.0 - vel)),
+            att: INV_RATE / (0.05 + 0.09 * (1.0 - vel)),
             k_rel: per_sample(0.09),
             hold: len.max(RATE / 25),
-            chiff: 1.0,
+            chiff: 0.6,
             noise: seed | 1,
-            air: 0.45 - 0.25 * reg - 0.15 * vel,
+            air: 0.7 - 0.15 * reg - 0.1 * vel,
             vel,
             gl: pl * g,
             gr: pr * g,
@@ -1393,7 +1393,8 @@ impl BlowVoice {
         let mut g = g0;
         let k_chiff = per_sample(0.035);
         let k_flutter = 1.0 - per_sample(0.05);
-        let peak = 0.55 + 1.1 * self.vel;
+        // A bottle is nearly pure: just a little edge when blown hard.
+        let peak = 0.2 + 0.4 * self.vel;
         for i in 0..n {
             if self.glide > 0.0 {
                 self.freq = self.target + (self.freq - self.target) * self.glide;
@@ -1418,10 +1419,10 @@ impl BlowVoice {
             self.flutter += (white - self.flutter) * k_flutter;
             self.breath = self.amp * (1.0 + 0.6 * self.flutter);
             // The tone blooms with the breath and spikes at the onset.
-            let want_index = self.breath * peak + 1.2 * self.chiff;
+            let want_index = self.breath * peak + 0.5 * self.chiff;
             self.index += (want_index - self.index) * 0.002;
             let t = self.age as f32 * INV_RATE;
-            let vib_depth = 0.004 * ((t - 0.35) / 0.4).clamp(0.0, 1.0);
+            let vib_depth = 0.0025 * ((t - 0.35) / 0.4).clamp(0.0, 1.0);
             self.vib = (self.vib + 5.2 * INV_RATE).fract();
             let f = self.freq * (1.0 + vib_depth * (TAU * self.vib).sin());
             self.ph = (self.ph + f * INV_RATE).fract();
@@ -1430,13 +1431,13 @@ impl BlowVoice {
             // Breath noise resonating at the note, and a little open hiss.
             let fc = (f * 1.0).min(RATE as f32 / 8.0);
             let k = 2.0 * (std::f32::consts::PI * fc * INV_RATE).sin();
-            let q = 0.12;
+            let q = 0.07;
             let hp = white - self.bp[1] - q * self.bp[0];
             self.bp[0] += k * hp;
             self.bp[1] += k * self.bp[0];
             self.hiss += (white - self.hiss) * 0.35;
             let air = self.air * (1.0 + 2.0 * self.chiff);
-            let x = tone * (1.0 - 0.5 * air) + air * (0.35 * self.bp[0] + 0.12 * self.hiss);
+            let x = tone * (1.0 - 0.45 * air) + air * (0.5 * self.bp[0] + 0.07 * self.hiss);
             let s = x * self.breath * g;
             out.l[i] += s * self.gl;
             out.r[i] += s * self.gr;

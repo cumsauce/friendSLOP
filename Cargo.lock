@@ -3536,6 +3536,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 
 [[package]]
+name = "foley-dsp"
+version = "0.1.0-beta.64"
+source = "git+https://github.com/cumsauce/foley?rev=963d67eb2de81bd43b008b30cc0109f875c940f1#963d67eb2de81bd43b008b30cc0109f875c940f1"
+dependencies = [
+ "foley-math",
+]
+
+[[package]]
+name = "foley-math"
+version = "0.1.0-beta.64"
+source = "git+https://github.com/cumsauce/foley?rev=963d67eb2de81bd43b008b30cc0109f875c940f1#963d67eb2de81bd43b008b30cc0109f875c940f1"
+
+[[package]]
+name = "foley-synth"
+version = "0.1.0-beta.64"
+source = "git+https://github.com/cumsauce/foley?rev=963d67eb2de81bd43b008b30cc0109f875c940f1#963d67eb2de81bd43b008b30cc0109f875c940f1"
+dependencies = [
+ "foley-dsp",
+ "foley-math",
+]
+
+[[package]]
 name = "font-types"
 version = "0.12.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3609,6 +3631,7 @@ dependencies = [
  "bevy_rerecast",
  "bevy_voice_chat",
  "bytes",
+ "foley-synth",
  "getrandom 0.3.4",
  "iroh",
  "js-sys",

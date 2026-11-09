@@ -504,6 +504,14 @@ pub struct Gait {
 #[derive(Component)]
 pub struct CharacterRig(pub Entity);
 
+/// An empty spot at the centre of a rig's head (head-local: facing -Z, the
+/// head ball has radius `radius`). Rebuilt with the rig.
+#[derive(Component)]
+pub struct HeadAnchor {
+    pub root: Entity,
+    pub radius: f32,
+}
+
 /// The rig's top entity, a direct child of the root. Its transform is free for
 /// the owner to use (villagers squash it when they sit).
 #[derive(Component)]
@@ -976,6 +984,16 @@ fn tail(t: &mut ChildSpawnerCommands, ctx: &Ctx) {
 fn head(h: &mut ChildSpawnerCommands, ctx: &Ctx, r: f32) {
     let kit = ctx.kit;
     let look = ctx.look;
+    // Something for special characters to hang extra bits on (Abuela's
+    // glasses and bun), so they turn with the head.
+    h.spawn((
+        Transform::IDENTITY,
+        Visibility::default(),
+        HeadAnchor {
+            root: ctx.root,
+            radius: r,
+        },
+    ));
     ctx.part(
         h,
         &kit.ball,

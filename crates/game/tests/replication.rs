@@ -1197,3 +1197,50 @@ fn the_server_clamps_silly_looks() {
     assert_eq!(l.body, 3);
     assert_eq!(l, l.clamped());
 }
+
+#[test]
+fn visiting_abuela_in_heaven_is_shared() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::abuela::{Abuela, AbuelaSays, LINES, VisitAbuela, chair_at};
+
+    #[derive(Resource, Default)]
+    struct Heard(Vec<AbuelaSays>);
+
+    let (mut server, mut client) = (peer(), peer());
+    client.init_resource::<Heard>();
+    client
+        .world_mut()
+        .add_observer(|s: On<AbuelaSays>, mut heard: ResMut<Heard>| heard.0.push(*s));
+    server.connect_client(&mut client);
+    step_all(&mut server, &mut [&mut client]);
+    let visits = |app: &mut App| {
+        let world = app.world_mut();
+        world
+            .query::<&Abuela>()
+            .iter(world)
+            .next()
+            .map(|a| a.visits)
+    };
+    assert_eq!(visits(&mut client), Some(0), "Abuela replicates");
+
+    // From the ground below heaven she can't hear you.
+    place(&mut server, 1, chair_at().with_y(0.0));
+    client.world_mut().client_trigger(VisitAbuela);
+    step_all(&mut server, &mut [&mut client]);
+    assert_eq!(visits(&mut client), Some(0));
+
+    // Up in heaven, next to her chair: she greets you, once.
+    place(&mut server, 1, chair_at() + Vec3::new(0.0, 0.0, -1.0));
+    step_all(&mut server, &mut [&mut client]);
+    assert_eq!(visits(&mut client), Some(1), "greeted on arrival");
+    let heard = &client.world().resource::<Heard>().0;
+    assert_eq!(heard.len(), 1);
+    assert_eq!(heard[0].player, 1);
+    assert!((heard[0].line as usize) < LINES.len());
+    step_all(&mut server, &mut [&mut client]);
+    assert_eq!(
+        visits(&mut client),
+        Some(1),
+        "staying put doesn't repeat it"
+    );
+}

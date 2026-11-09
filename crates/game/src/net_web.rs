@@ -1,39 +1,39 @@
-//! Browser stand-in for `net.rs` (#106). Same public API, same wire protocol.
+//! Browser version of `net.rs` (#106): the same public API over iroh's
+//! browser build, so browser and desktop players share games and join codes.
 //!
 //! `bevy_replicon_iroh` drives iroh through a tokio runtime and `block_on`s
-//! every tick, which a browser's single main thread can't do. This module
-//! talks to iroh directly instead, with `wasm_bindgen_futures::spawn_local`
-//! tasks feeding channels that the Bevy systems drain each frame. It speaks
-//! `bevy_replicon_iroh`'s exact format (ALPN, stream marker, frames and
-//! datagrams), so a browser can join a desktop host and vice versa.
+//! every tick, which a browser's single thread can't do. Here iroh runs in
+//! `spawn_local` tasks instead and talks to Bevy through channels that the
+//! systems below drain without ever blocking. The bytes on the wire are
+//! exactly `bevy_replicon_iroh`'s (see `net_wire.rs`), so a desktop host can't
+//! tell a browser client apart, and the other way round.
 //!
-//! Browsers can't send UDP, so every browser connection goes through iroh's
-//! free public relays (the `N0` preset): a bit more latency, nothing to run.
-//!
-//! Hosting starts the session straight away (this peer is the server, like a
-//! desktop host before friends join); the endpoint comes online a moment
-//! later and the join code appears then. If it can't, you just play solo.
+//! In the browser iroh can't send UDP: every connection goes through iroh's
+//! public relays (the `N0` preset), and the join code is found via iroh's
+//! pkarr/DNS lookup, just like on desktop. That works both ways, so a browser
+//! can host too.
 
 use std::str::FromStr;
+use std::sync::{Arc, Mutex};
 
+use async_channel::{Receiver, Sender, TryRecvError, unbounded};
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use bevy_replicon::shared::backend::channels::Channel;
-use bevy_replicon::shared::backend::connected_client::{NetworkId, NetworkIdMap};
+use bevy_replicon::shared::backend::connected_client::NetworkId;
 use bytes::Bytes;
-use iroh::endpoint::{Connection, Endpoint, RecvStream, SendStream, presets};
-use iroh::{EndpointAddr, EndpointId, SecretKey};
+use iroh::endpoint::{Connection, RecvStream, SendStream, presets};
+use iroh::{Endpoint, EndpointAddr, EndpointId, SecretKey};
+use n0_future::time::{Duration, timeout};
+use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::Closure;
+use wasm_bindgen_futures::{JsFuture, spawn_local};
 
 use crate::AppState;
-
-/// `bevy_replicon_iroh::ALPN`: must match the desktop build byte for byte.
-const ALPN: &[u8] = b"bevy-replicon-iroh/0";
-/// `bevy_replicon_iroh::frame::STREAM_MARKER`.
-const STREAM_MARKER: u8 = 0xB7;
-/// `bevy_replicon_iroh::REPLICON_STREAM_PRIORITY`.
-const STREAM_PRIORITY: i32 = 100;
-/// How long a join may take before we give up (relay lookup + handshake).
-const JOIN_TIMEOUT_SECS: f32 = 25.0;
+use crate::menu::JoinCode;
+use crate::net_wire::{
+    ALPN, STREAM_MARKER, STREAM_PRIORITY, encode_datagram, frame_header, parse_header,
+};
 
 /// Ask the network layer to host or join.
 #[derive(Message, Clone, Debug)]
@@ -45,99 +45,84 @@ pub enum NetCommand {
 /// What the UI shows about the connection.
 #[derive(Resource, Default, Debug)]
 pub struct NetStatus {
+    /// Set while hosting: friends paste this to join.
     pub join_code: Option<String>,
+    /// Last human-readable status or error.
     pub message: String,
 }
 
-/// Copying uses the browser's async clipboard (works on https/localhost).
-/// Reading it needs a permission prompt per paste, so paste does nothing:
-/// phones join by opening the host's link (`?join=<code>`) instead.
+/// The browser clipboard is async and needs a user gesture: `get` starts a
+/// read and the text lands in the join box a frame or two later. Ctrl/Cmd+V
+/// also arrives as a page `paste` event, which needs no permission at all.
 #[derive(Resource, Default)]
-pub struct Clipboard;
+pub struct Clipboard {
+    pasted: Arc<Mutex<Option<String>>>,
+}
 
 impl Clipboard {
     pub fn set(&self, text: &str) {
         let Some(window) = web_sys::window() else {
             return;
         };
-        // The returned promise is ignored: a refusal just means no copy.
-        let _ = window.navigator().clipboard().write_text(text);
+        let promise = window.navigator().clipboard().write_text(text);
+        spawn_local(async move {
+            if JsFuture::from(promise).await.is_err() {
+                warn!("the browser didn't let us copy the join code");
+            }
+        });
     }
+
+    /// Always `None` right away; the text is delivered into the join box.
     pub fn get(&self) -> Option<String> {
+        let window = web_sys::window()?;
+        let promise = window.navigator().clipboard().read_text();
+        let slot = self.pasted.clone();
+        spawn_local(async move {
+            match JsFuture::from(promise).await {
+                Ok(text) => {
+                    if let (Some(text), Ok(mut slot)) = (text.as_string(), slot.lock()) {
+                        *slot = Some(text);
+                    }
+                }
+                Err(_) => warn!("the browser didn't let us read the clipboard: use Ctrl/Cmd+V"),
+            }
+        });
         None
     }
 }
 
-/// A live connection to a host (inserted once the handshake is done).
+/// One established replicon connection, seen from Bevy: what arrived, a queue
+/// to send on, and a signal when it closes. Dropping it closes the connection.
+struct Link {
+    incoming: Receiver<(u8, Bytes)>,
+    outgoing: Sender<(u8, Bytes, bool)>,
+    closed: Receiver<String>,
+    max_datagram: usize,
+}
+
+/// A client connection to a host (connecting or connected). Same name as the
+/// desktop's transport resource, so the menu can tell a join is under way.
 #[derive(Resource)]
 pub struct IrohClient {
-    endpoint: Endpoint,
-    connection: Connection,
-    out: async_channel::Sender<(u8, Bytes)>,
-    incoming: async_channel::Receiver<(u8, Bytes)>,
-    closed: async_channel::Receiver<()>,
+    pending: Receiver<Result<Link, String>>,
+    link: Option<Link>,
+    /// Dropped with the resource: tells a still-running connect to give up.
+    _cancel: Sender<()>,
 }
 
-impl IrohClient {
-    fn close(self) {
-        self.connection.close(0u32.into(), b"disconnecting");
-        let endpoint = self.endpoint;
-        wasm_bindgen_futures::spawn_local(async move { endpoint.close().await });
-    }
-}
-
-/// This browser is hosting and its endpoint is online.
+/// Hosting from the browser: new client links arrive here.
 #[derive(Resource)]
-struct WebServer {
-    endpoint: Endpoint,
-    accepted: async_channel::Receiver<Peer>,
-    disconnected: async_channel::Receiver<NetworkId>,
+pub struct IrohServer {
+    accepted: Receiver<Link>,
+    failed: Receiver<String>,
+    next_id: u64,
+    /// Dropped with the resource: stops the accept loop and the endpoint.
+    _stop: Sender<()>,
 }
 
-/// Results of the async work, delivered to the Bevy side.
-enum Outcome {
-    Hosted(Endpoint),
-    HostFailed(String),
-    Joined(IrohClient),
-    JoinFailed(String),
-}
-
-/// Async work in flight. `generation` lets a teardown (Esc, a new host/join,
-/// a timeout) disown whatever is still connecting.
-#[derive(Resource)]
-struct Pending {
-    tx: async_channel::Sender<(u32, Outcome)>,
-    rx: async_channel::Receiver<(u32, Outcome)>,
-    generation: u32,
-    joining_for: Option<f32>,
-}
-
-impl Default for Pending {
-    fn default() -> Self {
-        let (tx, rx) = async_channel::unbounded();
-        Self {
-            tx,
-            rx,
-            generation: 0,
-            joining_for: None,
-        }
-    }
-}
-
-/// A client that finished the handshake with this host.
-struct Peer {
-    network_id: NetworkId,
-    connection: Connection,
-    out: async_channel::Sender<(u8, Bytes)>,
-    incoming: async_channel::Receiver<(u8, Bytes)>,
-}
-
+/// A browser host's connection to one client (on the `ConnectedClient` entity).
 #[derive(Component)]
-struct PeerLink {
-    connection: Connection,
-    out: async_channel::Sender<(u8, Bytes)>,
-    incoming: async_channel::Receiver<(u8, Bytes)>,
-}
+struct WebLink(Link);
 
 pub struct NetPlugin;
 
@@ -145,27 +130,29 @@ impl Plugin for NetPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<NetStatus>()
             .init_resource::<Clipboard>()
-            .init_resource::<Pending>()
             .add_message::<NetCommand>()
-            .add_observer(close_departed_peer)
-            .add_systems(Startup, join_from_url)
-            .add_systems(Update, (handle_net_commands, finish_pending).chain())
+            .add_systems(Startup, listen_for_paste)
+            .add_systems(Update, (handle_net_commands, deliver_paste))
+            .add_systems(OnEnter(ClientState::Connected), enter_game)
+            .add_systems(OnExit(ClientState::Connected), back_to_menu)
             .add_systems(
                 PreUpdate,
                 (
-                    client_connected.run_if(resource_added::<IrohClient>),
-                    client_disconnected.run_if(resource_removed::<IrohClient>),
-                    (client_check_closed, client_receive)
-                        .chain()
-                        .run_if(resource_exists::<IrohClient>),
+                    client_started.run_if(resource_added::<IrohClient>),
+                    client_stopped.run_if(resource_removed::<IrohClient>),
+                    client_receive.run_if(resource_exists::<IrohClient>),
                 )
+                    .chain()
                     .in_set(ClientSystems::ReceivePackets),
             )
             .add_systems(
                 PreUpdate,
-                (server_accept, server_check_disconnects, server_receive)
+                (
+                    server_started.run_if(resource_added::<IrohServer>),
+                    server_stopped.run_if(resource_removed::<IrohServer>),
+                    server_receive.run_if(resource_exists::<IrohServer>),
+                )
                     .chain()
-                    .run_if(resource_exists::<WebServer>)
                     .in_set(ServerSystems::ReceivePackets),
             )
             .add_systems(
@@ -176,416 +163,313 @@ impl Plugin for NetPlugin {
                         .run_if(resource_exists::<IrohClient>),
                     server_send
                         .in_set(ServerSystems::SendPackets)
-                        .run_if(resource_exists::<WebServer>),
+                        .run_if(resource_exists::<IrohServer>),
                     disconnect_by_request,
                 ),
-            )
-            .add_systems(OnEnter(ClientState::Connected), enter_game)
-            .add_systems(OnExit(ClientState::Connected), back_to_menu);
+            );
     }
 }
 
-/// Stop hosting or leave the host, and disown anything still connecting.
-/// No-op when nothing is running.
+/// Close the transports: dropping them ends their tasks, which close the
+/// connection and endpoint cleanly. No-op without either.
 pub fn teardown_transport(world: &mut World) {
-    if let Some(mut pending) = world.get_resource_mut::<Pending>() {
-        pending.generation = pending.generation.wrapping_add(1);
-        pending.joining_for = None;
-    }
-    if let Some(client) = world.remove_resource::<IrohClient>() {
-        client.close();
-    }
-    if let Some(server) = world.remove_resource::<WebServer>() {
-        wasm_bindgen_futures::spawn_local(async move { server.endpoint.close().await });
-    }
-    let peers: Vec<Entity> = world
-        .query_filtered::<Entity, With<PeerLink>>()
-        .iter(world)
-        .collect();
-    for peer in peers {
-        world.despawn(peer);
-    }
-    if let Some(mut next) = world.get_resource_mut::<NextState<ServerState>>() {
-        next.set(ServerState::Stopped);
-    }
+    world.remove_resource::<IrohClient>();
+    world.remove_resource::<IrohServer>();
 }
 
-/// `index.html?join=<code>` joins straight away: the link a browser host shares.
-fn join_from_url(mut commands: MessageWriter<NetCommand>) {
-    let Some(search) = web_sys::window().and_then(|w| w.location().search().ok()) else {
-        return;
-    };
-    let Ok(params) = web_sys::UrlSearchParams::new_with_str(&search) else {
-        return;
-    };
-    if let Some(code) = params.get("join").filter(|c| !c.trim().is_empty()) {
-        commands.write(NetCommand::Join(code));
-    } else if params.has("host") {
-        commands.write(NetCommand::Host);
-    }
-}
-
-/// The page's own address with `?join=<code>`, for friends to open.
-fn share_link(code: &str) -> String {
-    let base = web_sys::window()
-        .and_then(|w| {
-            let loc = w.location();
-            Some(format!("{}{}", loc.origin().ok()?, loc.pathname().ok()?))
-        })
-        .unwrap_or_default();
-    format!("{base}?join={code}")
-}
-
-fn handle_net_commands(mut commands: Commands, mut requests: MessageReader<NetCommand>) {
+fn handle_net_commands(
+    mut commands: Commands,
+    mut requests: MessageReader<NetCommand>,
+    clipboard: Res<Clipboard>,
+    mut status: ResMut<NetStatus>,
+    mut next: ResMut<NextState<AppState>>,
+) {
     for request in requests.read() {
-        // Same as the desktop: a new host/join replaces whatever was running.
-        commands.queue(teardown_transport);
-        let request = request.clone();
-        commands.queue(move |world: &mut World| begin(world, request));
-    }
-}
-
-/// Start hosting or joining (after the teardown, so its generation is current).
-fn begin(world: &mut World, request: NetCommand) {
-    let Some(pending) = world.get_resource::<Pending>() else {
-        return;
-    };
-    let generation = pending.generation;
-    let tx = pending.tx.clone();
-    match request {
-        NetCommand::Host => {
-            if let Some(mut next) = world.get_resource_mut::<NextState<ServerState>>() {
-                next.set(ServerState::Running);
-            }
-            if let Some(mut next) = world.get_resource_mut::<NextState<AppState>>() {
+        match request {
+            NetCommand::Host => {
+                commands.queue(teardown_transport);
+                let key = SecretKey::generate();
+                let code = key.public().to_string();
+                info!("hosting from the browser, join code: {code}");
+                clipboard.set(&code);
+                status.message =
+                    "Hosting! Join code copied (friends join through iroh's relays).".into();
+                status.join_code = Some(code);
+                commands.insert_resource(host(key));
                 next.set(AppState::InGame);
             }
-            if let Some(mut status) = world.get_resource_mut::<NetStatus>() {
-                status.join_code = None;
-                status.message = "Hosting! Getting a join code from the relay...".into();
-            }
-            wasm_bindgen_futures::spawn_local(async move {
-                let outcome = match bind().await {
-                    Ok(endpoint) => {
-                        endpoint.online().await;
-                        Outcome::Hosted(endpoint)
+            NetCommand::Join(code) => {
+                let id = match EndpointId::from_str(code.trim()) {
+                    Ok(id) => id,
+                    Err(e) => {
+                        status.message = format!("That join code doesn't look right: {e}");
+                        continue;
                     }
-                    Err(e) => Outcome::HostFailed(e),
                 };
-                let _ = tx.send((generation, outcome)).await;
-            });
-        }
-        NetCommand::Join(code) => {
-            let id = match EndpointId::from_str(code.trim()) {
-                Ok(id) => id,
-                Err(e) => {
-                    say(world, format!("That join code doesn't look right: {e}"));
-                    return;
-                }
-            };
-            say(world, "Connecting through the relay...".into());
-            if let Some(mut pending) = world.get_resource_mut::<Pending>() {
-                pending.joining_for = Some(0.0);
-            }
-            wasm_bindgen_futures::spawn_local(async move {
-                let outcome = match connect(id).await {
-                    Ok(client) => Outcome::Joined(client),
-                    Err(e) => Outcome::JoinFailed(e),
-                };
-                let _ = tx.send((generation, outcome)).await;
-            });
-        }
-    }
-}
-
-fn say(world: &mut World, message: String) {
-    if let Some(mut status) = world.get_resource_mut::<NetStatus>() {
-        status.message = message;
-    }
-}
-
-/// Pick up finished async work, and give up on a join that takes too long.
-fn finish_pending(
-    mut commands: Commands,
-    time: Res<Time>,
-    server_state: Res<State<ServerState>>,
-    clipboard: Res<Clipboard>,
-    mut pending: ResMut<Pending>,
-    mut status: ResMut<NetStatus>,
-) {
-    while let Ok((generation, outcome)) = pending.rx.try_recv() {
-        if generation != pending.generation {
-            // Disowned: close whatever it produced.
-            match outcome {
-                Outcome::Hosted(endpoint) => {
-                    wasm_bindgen_futures::spawn_local(async move { endpoint.close().await });
-                }
-                Outcome::Joined(client) => client.close(),
-                _ => {}
-            }
-            continue;
-        }
-        match outcome {
-            Outcome::Hosted(endpoint) if *server_state.get() == ServerState::Running => {
-                let code = endpoint.id().to_string();
-                let link = share_link(&code);
-                info!("hosting, join code: {code}, link: {link}");
-                clipboard.set(&link);
-                status.message = format!("Hosting! Friends can open {link}");
-                status.join_code = Some(code);
-                commands.insert_resource(start_accepting(endpoint));
-            }
-            Outcome::Hosted(endpoint) => {
-                wasm_bindgen_futures::spawn_local(async move { endpoint.close().await });
-            }
-            Outcome::HostFailed(e) => {
-                status.message = format!("Could not reach the relay ({e}). Playing solo.");
-            }
-            Outcome::Joined(client) => {
-                pending.joining_for = None;
-                status.message = "Connected!".into();
-                commands.insert_resource(client);
-            }
-            Outcome::JoinFailed(e) => {
-                pending.joining_for = None;
-                status.message = format!("Could not join: {e}");
+                status.message = "Connecting through iroh's relay...".into();
+                commands.queue(teardown_transport);
+                commands.insert_resource(join(id));
             }
         }
     }
-    if let Some(waited) = pending.joining_for.as_mut() {
-        *waited += time.delta_secs();
-        if *waited >= JOIN_TIMEOUT_SECS {
-            pending.generation = pending.generation.wrapping_add(1);
-            pending.joining_for = None;
-            status.message =
-                "Could not reach that host (timed out). Check the code and try again.".into();
-        }
-    }
 }
 
-async fn bind() -> Result<Endpoint, String> {
-    Endpoint::builder(presets::N0)
-        .secret_key(SecretKey::generate())
-        .alpns(vec![ALPN.to_vec()])
-        .bind()
-        .await
-        .map_err(|e| e.to_string())
-}
+// ---------------------------------------------------------------- async side
 
-async fn connect(id: EndpointId) -> Result<IrohClient, String> {
-    let endpoint = bind().await?;
-    let result = handshake_with_host(&endpoint, id).await;
-    match result {
-        Ok((connection, out, incoming, closed)) => Ok(IrohClient {
-            endpoint,
-            connection,
-            out,
-            incoming,
-            closed,
-        }),
-        Err(e) => {
-            endpoint.close().await;
-            Err(e)
-        }
-    }
-}
-
-type Links = (
-    Connection,
-    async_channel::Sender<(u8, Bytes)>,
-    async_channel::Receiver<(u8, Bytes)>,
-    async_channel::Receiver<()>,
-);
-
-/// Client side of `bevy_replicon_iroh`'s handshake: we open our stream first.
-async fn handshake_with_host(endpoint: &Endpoint, id: EndpointId) -> Result<Links, String> {
-    let connection = endpoint
-        .connect(EndpointAddr::new(id), ALPN)
-        .await
-        .map_err(|e| e.to_string())?;
-    let send = open_marked(&connection).await?;
-    let recv = accept_marked(&connection).await?;
-    let (out, incoming) = spawn_pumps(&connection, send, recv);
-    let (closed_tx, closed) = async_channel::bounded(1);
-    let watch = connection.clone();
-    wasm_bindgen_futures::spawn_local(async move {
-        let reason = watch.closed().await;
-        debug!("host connection closed: {reason}");
-        let _ = closed_tx.send(()).await;
-    });
-    Ok((connection, out, incoming, closed))
-}
-
-async fn open_marked(connection: &Connection) -> Result<SendStream, String> {
-    let mut send = connection.open_uni().await.map_err(|e| e.to_string())?;
-    let _ = send.set_priority(STREAM_PRIORITY);
-    send.write_all(&[STREAM_MARKER])
-        .await
-        .map_err(|e| e.to_string())?;
-    Ok(send)
-}
-
-async fn accept_marked(connection: &Connection) -> Result<RecvStream, String> {
-    let mut recv = connection.accept_uni().await.map_err(|e| e.to_string())?;
-    let mut marker = [0u8; 1];
-    recv.read_exact(&mut marker)
-        .await
-        .map_err(|e| e.to_string())?;
-    if marker[0] != STREAM_MARKER {
-        return Err("the other side runs an incompatible version".into());
-    }
-    Ok(recv)
-}
-
-/// Background tasks for one connection: a writer draining `out` onto the
-/// stream, a reader for the stream and one for datagrams, both into `incoming`.
-fn spawn_pumps(
-    connection: &Connection,
-    mut send: SendStream,
-    mut recv: RecvStream,
-) -> (
-    async_channel::Sender<(u8, Bytes)>,
-    async_channel::Receiver<(u8, Bytes)>,
-) {
-    let (out, out_rx) = async_channel::unbounded::<(u8, Bytes)>();
-    let (in_tx, incoming) = async_channel::unbounded();
-    wasm_bindgen_futures::spawn_local(async move {
-        while let Ok((channel, payload)) = out_rx.recv().await {
-            if send
-                .write_all(&encode_frame(channel, &payload))
+fn join(host: EndpointId) -> IrohClient {
+    let (result_tx, pending) = unbounded();
+    let (cancel, cancelled) = unbounded::<()>();
+    spawn_local(async move {
+        let attempt = async {
+            let endpoint = Endpoint::builder(presets::N0)
+                .alpns(vec![ALPN.to_vec()])
+                .bind()
                 .await
-                .is_err()
-            {
-                break;
+                .map_err(|e| format!("could not start networking: {e}"))?;
+            let connecting = async {
+                let connection = endpoint
+                    .connect(EndpointAddr::new(host), ALPN)
+                    .await
+                    .map_err(|e| format!("{e}"))?;
+                handshake(connection).await
+            };
+            match timeout(Duration::from_secs(25), connecting).await {
+                Ok(Ok(link)) => Ok((endpoint, link)),
+                Ok(Err(e)) => {
+                    endpoint.close().await;
+                    Err(e)
+                }
+                Err(_) => {
+                    endpoint.close().await;
+                    Err("timed out".to_string())
+                }
             }
+        };
+        // The menu may give up (Esc, timeout) before we finish.
+        let outcome = n0_future::future::or(async { Some(attempt.await) }, async {
+            let _ = cancelled.recv().await;
+            None
+        })
+        .await;
+        match outcome {
+            Some(Ok((endpoint, (link, done)))) => {
+                if result_tx.send(Ok(link)).await.is_err() {
+                    // Cancelled right as we connected: the link is dropped,
+                    // which closes the connection.
+                }
+                done.await;
+                endpoint.close().await;
+            }
+            Some(Err(e)) => {
+                let _ = result_tx.send(Err(e)).await;
+            }
+            None => {}
         }
     });
-    let tx = in_tx.clone();
-    wasm_bindgen_futures::spawn_local(async move {
-        while let Some(frame) = read_frame(&mut recv).await {
-            if tx.send(frame).await.is_err() {
-                break;
-            }
-        }
-    });
-    let datagrams = connection.clone();
-    wasm_bindgen_futures::spawn_local(async move {
-        while let Ok(datagram) = datagrams.read_datagram().await {
-            if let Some(frame) = decode_datagram(&datagram)
-                && in_tx.send(frame).await.is_err()
-            {
-                break;
-            }
-        }
-    });
-    (out, incoming)
-}
-
-/// `[channel_id: u8][len: u32 le][payload]`, as `bevy_replicon_iroh::frame`.
-fn encode_frame(channel: u8, payload: &[u8]) -> Vec<u8> {
-    let mut buf = Vec::with_capacity(5 + payload.len());
-    buf.push(channel);
-    buf.extend_from_slice(&(payload.len() as u32).to_le_bytes());
-    buf.extend_from_slice(payload);
-    buf
-}
-
-async fn read_frame(recv: &mut RecvStream) -> Option<(u8, Bytes)> {
-    let mut header = [0u8; 5];
-    recv.read_exact(&mut header).await.ok()?;
-    let len = u32::from_le_bytes([header[1], header[2], header[3], header[4]]) as usize;
-    let mut payload = vec![0u8; len];
-    if len > 0 {
-        recv.read_exact(&mut payload).await.ok()?;
+    IrohClient {
+        pending,
+        link: None,
+        _cancel: cancel,
     }
-    Some((header[0], Bytes::from(payload)))
 }
 
-/// `[channel_id: u8][payload]`.
-fn encode_datagram(channel: u8, payload: &[u8]) -> Bytes {
-    let mut buf = Vec::with_capacity(1 + payload.len());
-    buf.push(channel);
-    buf.extend_from_slice(payload);
-    Bytes::from(buf)
-}
-
-fn decode_datagram(datagram: &Bytes) -> Option<(u8, Bytes)> {
-    let channel = *datagram.first()?;
-    Some((channel, datagram.slice(1..)))
-}
-
-/// Accept friends on a hosting endpoint (server side of the handshake: the
-/// host opens its stream first, then accepts the client's).
-fn start_accepting(endpoint: Endpoint) -> WebServer {
-    let (accepted_tx, accepted) = async_channel::unbounded();
-    let (gone_tx, disconnected) = async_channel::unbounded();
-    let listener = endpoint.clone();
-    wasm_bindgen_futures::spawn_local(async move {
-        let mut next_id = 0u64;
-        while let Some(incoming) = listener.accept().await {
-            let network_id = NetworkId::new(next_id);
-            next_id += 1;
+fn host(key: SecretKey) -> IrohServer {
+    let (accepted_tx, accepted) = unbounded();
+    let (failed_tx, failed) = unbounded();
+    let (stop, stopped) = unbounded::<()>();
+    spawn_local(async move {
+        let endpoint = match Endpoint::builder(presets::N0)
+            .secret_key(key)
+            .alpns(vec![ALPN.to_vec()])
+            .bind()
+            .await
+        {
+            Ok(endpoint) => endpoint,
+            Err(e) => {
+                let _ = failed_tx.send(format!("{e}")).await;
+                return;
+            }
+        };
+        loop {
+            let incoming = n0_future::future::or(endpoint.accept(), async {
+                let _ = stopped.recv().await;
+                None
+            })
+            .await;
+            let Some(incoming) = incoming else { break };
             let accepted_tx = accepted_tx.clone();
-            let gone_tx = gone_tx.clone();
-            wasm_bindgen_futures::spawn_local(async move {
-                let Ok(connection) = incoming.await else {
-                    return;
+            spawn_local(async move {
+                let connection = match incoming.await {
+                    Ok(c) => c,
+                    Err(e) => return debug!("incoming connection failed: {e}"),
                 };
                 if connection.alpn() != ALPN {
-                    connection.close(0u32.into(), b"unknown protocol");
+                    connection.close(0u32.into(), b"unexpected ALPN");
                     return;
                 }
-                let handshake = async {
-                    let send = open_marked(&connection).await?;
-                    let recv = accept_marked(&connection).await?;
-                    Ok::<_, String>((send, recv))
-                };
-                let (send, recv) = match handshake.await {
-                    Ok(streams) => streams,
-                    Err(e) => {
-                        warn!("a friend's handshake failed: {e}");
-                        return;
+                match handshake(connection).await {
+                    Ok((link, done)) => {
+                        if accepted_tx.send(link).await.is_ok() {
+                            done.await;
+                        }
                     }
-                };
-                let (out, incoming) = spawn_pumps(&connection, send, recv);
-                let watch = connection.clone();
-                let peer = Peer {
-                    network_id,
-                    connection,
-                    out,
-                    incoming,
-                };
-                if accepted_tx.send(peer).await.is_err() {
-                    return;
+                    Err(e) => debug!("client handshake failed: {e}"),
                 }
-                watch.closed().await;
-                let _ = gone_tx.send(network_id).await;
             });
         }
+        endpoint.close().await;
     });
-    WebServer {
-        endpoint,
+    IrohServer {
         accepted,
-        disconnected,
+        failed,
+        next_id: 0,
+        _stop: stop,
     }
 }
 
-fn client_connected(mut state: ResMut<NextState<ClientState>>) {
-    state.set(ClientState::Connected);
+/// `bevy_replicon_iroh`'s handshake (the same on both sides): open a uni
+/// stream and mark it, then accept the peer's and check its marker. Returns
+/// the link plus a future that ends once the connection has closed.
+async fn handshake(
+    connection: Connection,
+) -> Result<(Link, impl Future<Output = ()> + 'static), String> {
+    let err = |e: &dyn std::fmt::Display| format!("{e}");
+    let mut send = connection.open_uni().await.map_err(|e| err(&e))?;
+    send.set_priority(STREAM_PRIORITY).map_err(|e| err(&e))?;
+    send.write_all(&[STREAM_MARKER])
+        .await
+        .map_err(|e| err(&e))?;
+    let mut recv = connection.accept_uni().await.map_err(|e| err(&e))?;
+    let mut marker = [0u8; 1];
+    recv.read_exact(&mut marker).await.map_err(|e| err(&e))?;
+    if marker[0] != STREAM_MARKER {
+        connection.close(0u32.into(), b"bad stream marker");
+        return Err("the other side runs an incompatible version".into());
+    }
+
+    let (in_tx, incoming) = unbounded();
+    let (outgoing, out_rx) = unbounded::<(u8, Bytes, bool)>();
+    let (closed_tx, closed) = unbounded();
+
+    spawn_local(read_frames(recv, in_tx.clone()));
+    {
+        let connection = connection.clone();
+        spawn_local(async move {
+            while let Ok(datagram) = connection.read_datagram().await {
+                if let Some((&channel, payload)) = datagram.split_first()
+                    && in_tx
+                        .send((channel, Bytes::copy_from_slice(payload)))
+                        .await
+                        .is_err()
+                {
+                    break;
+                }
+            }
+        });
+    }
+    spawn_local(write_frames(connection.clone(), send, out_rx));
+
+    let max_datagram = connection.max_datagram_size().unwrap_or(1200);
+    let done = async move {
+        let reason = connection.closed().await;
+        let _ = closed_tx.send(format!("{reason}")).await;
+    };
+    Ok((
+        Link {
+            incoming,
+            outgoing,
+            closed,
+            max_datagram,
+        },
+        done,
+    ))
 }
 
-fn client_disconnected(mut state: ResMut<NextState<ClientState>>) {
+async fn read_frames(mut recv: RecvStream, tx: Sender<(u8, Bytes)>) {
+    loop {
+        let mut header = [0u8; 5];
+        if recv.read_exact(&mut header).await.is_err() {
+            return;
+        }
+        let (channel, len) = parse_header(header);
+        let mut payload = vec![0u8; len];
+        if len > 0 && recv.read_exact(&mut payload).await.is_err() {
+            return;
+        }
+        if tx.send((channel, Bytes::from(payload))).await.is_err() {
+            return;
+        }
+    }
+}
+
+/// Sends everything Bevy queues. When Bevy drops the link (leaving, or the
+/// host kicking this client) the queue closes and so does the connection.
+async fn write_frames(
+    connection: Connection,
+    mut send: SendStream,
+    rx: Receiver<(u8, Bytes, bool)>,
+) {
+    while let Ok((channel, bytes, unreliable)) = rx.recv().await {
+        if unreliable {
+            let datagram = Bytes::from(encode_datagram(channel, &bytes));
+            if let Err(e) = connection.send_datagram(datagram) {
+                debug!("failed to send datagram: {e}");
+            }
+        } else {
+            let header = frame_header(channel, bytes.len());
+            if send.write_all(&header).await.is_err()
+                || (!bytes.is_empty() && send.write_all(&bytes).await.is_err())
+            {
+                break;
+            }
+        }
+    }
+    connection.close(0u32.into(), b"disconnecting");
+}
+
+// --------------------------------------------------------------- Bevy side
+
+fn client_started(mut state: ResMut<NextState<ClientState>>) {
+    state.set(ClientState::Connecting);
+}
+
+fn client_stopped(mut state: ResMut<NextState<ClientState>>) {
     state.set(ClientState::Disconnected);
 }
 
-fn client_check_closed(mut commands: Commands, client: Res<IrohClient>) {
-    if client.closed.try_recv().is_ok() {
-        commands.queue(teardown_transport);
+fn client_receive(
+    mut commands: Commands,
+    mut client: ResMut<IrohClient>,
+    mut messages: ResMut<ClientMessages>,
+    mut state: ResMut<NextState<ClientState>>,
+    mut status: ResMut<NetStatus>,
+) {
+    if client.link.is_none() {
+        match client.pending.try_recv() {
+            Ok(Ok(link)) => {
+                info!("connected to the host through iroh");
+                client.link = Some(link);
+                state.set(ClientState::Connected);
+                status.message = "Connected!".into();
+            }
+            Ok(Err(e)) => {
+                status.message = format!("Could not join: {e}");
+                commands.remove_resource::<IrohClient>();
+                return;
+            }
+            Err(TryRecvError::Empty) => return,
+            Err(TryRecvError::Closed) => {
+                commands.remove_resource::<IrohClient>();
+                return;
+            }
+        }
     }
-}
-
-fn client_receive(client: Res<IrohClient>, mut messages: ResMut<ClientMessages>) {
-    while let Ok((channel, bytes)) = client.incoming.try_recv() {
+    let Some(link) = &client.link else { return };
+    if let Ok(reason) = link.closed.try_recv() {
+        debug!("host connection closed: {reason}");
+        commands.remove_resource::<IrohClient>();
+    }
+    while let Ok((channel, bytes)) = link.incoming.try_recv() {
         messages.insert_received(channel as usize, bytes);
     }
 }
@@ -597,61 +481,52 @@ fn client_send(
 ) {
     let kinds = channels.client_channels();
     for (channel, bytes) in messages.drain_sent() {
-        send_one(
-            &client.connection,
-            &client.out,
-            kinds.get(channel),
-            channel,
-            &bytes,
-        );
+        let Some(link) = &client.link else { continue };
+        let unreliable = matches!(kinds.get(channel), Some(Channel::Unreliable));
+        let _ = link.outgoing.try_send((channel as u8, bytes, unreliable));
     }
 }
 
-fn send_one(
-    connection: &Connection,
-    out: &async_channel::Sender<(u8, Bytes)>,
-    kind: Option<&Channel>,
-    channel: usize,
-    bytes: &Bytes,
-) {
-    if matches!(kind, Some(Channel::Unreliable)) {
-        let _ = connection.send_datagram(encode_datagram(channel as u8, bytes));
-    } else {
-        let _ = out.try_send((channel as u8, bytes.clone()));
-    }
+fn server_started(mut state: ResMut<NextState<ServerState>>) {
+    state.set(ServerState::Running);
 }
 
-fn server_accept(mut commands: Commands, server: Res<WebServer>) {
-    while let Ok(peer) = server.accepted.try_recv() {
-        let max_size = peer.connection.max_datagram_size().unwrap_or(1200);
-        commands.spawn((
-            ConnectedClient { max_size },
-            peer.network_id,
-            PeerLink {
-                connection: peer.connection,
-                out: peer.out,
-                incoming: peer.incoming,
-            },
-        ));
-    }
+fn server_stopped(mut state: ResMut<NextState<ServerState>>) {
+    state.set(ServerState::Stopped);
 }
 
-fn server_check_disconnects(
+fn server_receive(
     mut commands: Commands,
-    server: Res<WebServer>,
-    network_map: Res<NetworkIdMap>,
+    mut server: ResMut<IrohServer>,
+    mut messages: ResMut<ServerMessages>,
+    mut status: ResMut<NetStatus>,
+    clients: Query<(Entity, &WebLink)>,
 ) {
-    while let Ok(network_id) = server.disconnected.try_recv() {
-        if let Some(&client) = network_map.get(&network_id) {
-            commands.entity(client).try_despawn();
-        }
+    if let Ok(e) = server.failed.try_recv() {
+        // The world keeps running (solo), friends just can't reach it.
+        status.message = format!("Could not host: {e}. Playing solo.");
+        status.join_code = None;
     }
-}
-
-fn server_receive(mut messages: ResMut<ServerMessages>, peers: Query<(Entity, &PeerLink)>) {
-    for (client, link) in &peers {
+    while let Ok(link) = server.accepted.try_recv() {
+        server.next_id += 1;
+        let client = commands
+            .spawn((
+                ConnectedClient {
+                    max_size: link.max_datagram,
+                },
+                NetworkId::new(server.next_id),
+                WebLink(link),
+            ))
+            .id();
+        info!("a friend connected (client {client})");
+    }
+    for (entity, WebLink(link)) in &clients {
+        if link.closed.try_recv().is_ok() {
+            commands.entity(entity).despawn();
+            continue;
+        }
         while let Ok((channel, bytes)) = link.incoming.try_recv() {
-            messages.insert_received(client, channel as usize, bytes);
+            messages.insert_received(entity, channel as usize, bytes);
         }
     }
 }
@@ -659,32 +534,23 @@ fn server_receive(mut messages: ResMut<ServerMessages>, peers: Query<(Entity, &P
 fn server_send(
     channels: Res<RepliconChannels>,
     mut messages: ResMut<ServerMessages>,
-    peers: Query<&PeerLink>,
+    clients: Query<&WebLink>,
 ) {
     let kinds = channels.server_channels();
-    for (client, channel, bytes) in messages.drain_sent() {
-        let Ok(link) = peers.get(client) else {
+    for (entity, channel, bytes) in messages.drain_sent() {
+        let Ok(WebLink(link)) = clients.get(entity) else {
             continue;
         };
-        send_one(
-            &link.connection,
-            &link.out,
-            kinds.get(channel),
-            channel,
-            &bytes,
-        );
+        let unreliable = matches!(kinds.get(channel), Some(Channel::Unreliable));
+        let _ = link.outgoing.try_send((channel as u8, bytes, unreliable));
     }
 }
 
 fn disconnect_by_request(mut commands: Commands, mut requests: MessageReader<DisconnectRequest>) {
     for request in requests.read() {
-        commands.entity(request.client).try_despawn();
-    }
-}
-
-fn close_departed_peer(remove: On<Remove<ConnectedClient>>, peers: Query<&PeerLink>) {
-    if let Ok(link) = peers.get(remove.entity) {
-        link.connection.close(0u32.into(), b"disconnected");
+        if let Ok(mut e) = commands.get_entity(request.client) {
+            e.despawn();
+        }
     }
 }
 
@@ -698,7 +564,7 @@ fn back_to_menu(
     mut next: ResMut<NextState<AppState>>,
     mut status: ResMut<NetStatus>,
 ) {
-    // Passive disconnects (host quit, connection dropped) land here too.
+    // Passive disconnects (host quit, connection dropped) land here.
     commands.queue(teardown_transport);
     commands.remove_resource::<crate::player::LocalPlayer>();
     for e in &replicated {
@@ -708,15 +574,36 @@ fn back_to_menu(
     next.set(AppState::Menu);
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// ---------------------------------------------------------------- clipboard
 
-    #[test]
-    fn frames_match_the_desktop_format() {
-        assert_eq!(encode_frame(3, b"hi"), vec![3, 2, 0, 0, 0, b'h', b'i']);
-        let d = encode_datagram(7, b"yo");
-        assert_eq!(decode_datagram(&d), Some((7, Bytes::from_static(b"yo"))));
-        assert_eq!(decode_datagram(&Bytes::new()), None);
+/// Ctrl/Cmd+V on the page: the browser hands us the text in a `paste` event.
+fn listen_for_paste(clipboard: Res<Clipboard>) {
+    let Some(document) = web_sys::window().and_then(|w| w.document()) else {
+        return;
+    };
+    let slot = clipboard.pasted.clone();
+    let on_paste = Closure::<dyn FnMut(web_sys::ClipboardEvent)>::new(
+        move |event: web_sys::ClipboardEvent| {
+            let text = event.clipboard_data().and_then(|d| d.get_data("text").ok());
+            if let (Some(text), Ok(mut slot)) = (text, slot.lock()) {
+                *slot = Some(text);
+            }
+        },
+    );
+    if document
+        .add_event_listener_with_callback("paste", on_paste.as_ref().unchecked_ref())
+        .is_err()
+    {
+        warn!("could not listen for paste events");
     }
+    // Lives as long as the page.
+    on_paste.forget();
+}
+
+fn deliver_paste(clipboard: Res<Clipboard>, code: Option<ResMut<JoinCode>>) {
+    let Some(mut code) = code else { return };
+    let Some(text) = clipboard.pasted.lock().ok().and_then(|mut s| s.take()) else {
+        return;
+    };
+    code.paste(&text);
 }

@@ -1,6 +1,7 @@
 //! Browser build glue (#106). Only compiled for `wasm32`.
 //!
-//! `localStorage` saves. The network side lives in `net_web.rs`.
+//! Small browser helpers (saved files in `localStorage`). The browser network
+//! transport lives in `net_web.rs`.
 
 use bevy::prelude::*;
 

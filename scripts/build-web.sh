@@ -19,6 +19,14 @@ if [[ "$have" != "$want" ]]; then
   exit 1
 fi
 
+# iroh's TLS (ring) compiles a little C for wasm32. Apple's ar can't archive
+# wasm objects (the link then fails with undefined ring_core_* symbols), so on
+# macOS use Homebrew's LLVM if it's there. Linux clang + llvm-ar just work.
+if [[ "$(uname)" == Darwin && -z "${AR_wasm32_unknown_unknown:-}" && -x /opt/homebrew/opt/llvm/bin/llvm-ar ]]; then
+  export CC_wasm32_unknown_unknown=/opt/homebrew/opt/llvm/bin/clang
+  export AR_wasm32_unknown_unknown=/opt/homebrew/opt/llvm/bin/llvm-ar
+fi
+
 # getrandom's browser backend (also in .cargo/config.toml, but a RUSTFLAGS
 # env var would replace that, so pass it here too).
 export RUSTFLAGS="${RUSTFLAGS:-} --cfg getrandom_backend=\"wasm_js\""

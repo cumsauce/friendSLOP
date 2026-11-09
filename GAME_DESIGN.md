@@ -692,6 +692,12 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
   message until it's answered. The Discord bot re-posts every open `question` issue with no
   replies yet, in heading-sized text, at 12:00 (`REMINDER_TZ`, UTC by default); any reply
   (including `/answer`) stops it.
+- catherine (#170): a profile picture for the Discord bot made from the game's assets and
+  current status, updating every now and then. The bot (`tools/idea-bot/avatar.py`) renders
+  the game's own campfire and cowboy models at night with a tiny software renderer: the big
+  number is ideas landed, one cowboy per idea being built (at least one), the fire grows with
+  the waiting queue, and a red ring means something needs a human. It checks every 3 hours
+  (`AVATAR_HOURS`) and only changes the picture when the status changed.
 
 ## Open questions
 

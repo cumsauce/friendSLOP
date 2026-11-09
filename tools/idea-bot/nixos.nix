@@ -11,6 +11,7 @@
       ANNOUNCE_CHANNEL_ID = "000000000000000000"; # your #friendslop channel id
       STATE_PATH = "/data/state.json";
       REMINDER_TZ = "UTC"; # noon in this zone re-asks unanswered questions (#157)
+      AVATAR_HOURS = "3"; # redraw the bot's profile picture from the game status (#170)
     };
     volumes = [ "friendslop-idea-bot:/data" ];
   };

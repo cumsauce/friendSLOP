@@ -12,6 +12,31 @@ asked for, and what nobody has decided yet.
   chapters that use every mechanic, ending in the landlord's eviction (#11) and the gates of
   heaven opening.
 
+## Gameplay loop
+
+<!-- The current loop in plain words, for friends. Refreshed on every change; the Discord bot
+posts this section every few landed ideas (#153). Keep it under ~1800 characters. -->
+**The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
+
+**Each chapter:** a checklist (top-left) of jobs that use the other mechanics: leash the pets into
+one pack, eat the mushroom, open a vault door, carry out the Fire totem, use gods tears, play hide
+and seek, win duels, break out of HALT. Meanwhile the landlord keeps raising the rent: pay him in
+organs (Act 1), then pickpocket him (Act 2), then beat him in a boss fight (Act 3). Jobs done plus
+landlord down = next chapter. Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
+
+**Always going on:** the Stillness freezes everything for 20 s every minute. Farting near an NPC
+shames you; get caught 4 times and the villagers chase you, carry you to an accomplice and float you
+both. Low morality brings a helicopter that shoots at you. 5% of actions fail with a silly result.
+
+**Side trips (no reward yet):** the warehouse (everyone agrees, a monster, soul pieces for Jegg),
+the tunnels and Sewer Paul (crow eggs for cigs), Wendy's burgers, climbing to Abuela in heaven,
+the lex pile, the music boxes, the bear, the goat, the crows.
+
+**Where it's thin:** organs only come from the start-of-chapter refill and the landlord. Burgers,
+cigs, soul pieces, spells, stats, being shot and being an Abduction don't change play yet, so the
+side trips don't feed back into the goal. Six players who pay together beat the landlord fast.
+Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down to people.
+
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).

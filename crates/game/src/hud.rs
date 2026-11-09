@@ -12,6 +12,7 @@ use bevy::prelude::*;
 
 use crate::AppState;
 use crate::player::LocalPlayer;
+use crate::theme::{self, Pop};
 
 /// Where a piece of HUD text lives.
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -64,7 +65,7 @@ impl HudSlot {
         let mut n = Node {
             position_type: PositionType::Absolute,
             flex_direction: FlexDirection::Column,
-            row_gap: px(5),
+            row_gap: px(theme::S1 + 2.0),
             max_width: percent(30),
             ..default()
         };
@@ -86,7 +87,7 @@ impl HudSlot {
                 n.align_items = AlignItems::Center;
             }
             HudSlot::Toasts => {
-                n.top = px(130);
+                n.top = px(150);
                 (n.left, n.right) = (percent(30), percent(30));
                 n.max_width = Val::Auto;
                 n.align_items = AlignItems::Center;
@@ -95,9 +96,10 @@ impl HudSlot {
                 n.top = percent(10);
                 (n.left, n.right) = (percent(28), percent(28));
                 n.max_width = Val::Auto;
-                n.padding = UiRect::all(px(18));
-                n.row_gap = px(8);
-                n.border_radius = BorderRadius::all(px(14));
+                n.padding = UiRect::all(px(theme::S4 + 4.0));
+                n.row_gap = px(theme::S2);
+                n.border = UiRect::all(px(2));
+                n.border_radius = BorderRadius::all(px(theme::R_PANEL));
             }
             HudSlot::Subtitle => {
                 n.bottom = px(72);
@@ -115,9 +117,10 @@ impl HudSlot {
                 n.top = percent(15);
                 (n.left, n.right) = (percent(20), percent(20));
                 n.max_width = Val::Auto;
-                n.padding = UiRect::all(px(16));
-                n.row_gap = px(8);
-                n.border_radius = BorderRadius::all(px(14));
+                n.padding = UiRect::all(px(theme::S4));
+                n.row_gap = px(theme::S2);
+                n.border = UiRect::all(px(2));
+                n.border_radius = BorderRadius::all(px(theme::R_PANEL));
             }
         }
         n
@@ -140,12 +143,15 @@ pub struct First;
 /// Longest a mirrored own-stats line gets before it's cut short (full text: Tab).
 const OWN_LINE_CHARS: usize = 44;
 
-pub const TEXT: Color = Color::srgb(0.97, 0.96, 0.99);
-pub const DIM: Color = Color::srgb(0.75, 0.74, 0.8);
-pub const WARN: Color = Color::srgb(1.0, 0.45, 0.4);
-pub const ACCENT: Color = Color::srgb(1.0, 0.86, 0.5);
-const PANEL: Color = Color::srgba(0.06, 0.05, 0.1, 0.55);
-const BIG_PANEL: Color = Color::srgba(0.05, 0.04, 0.08, 0.88);
+// HUD lines sit on cream chips, so text is plum ink with berry accents.
+pub const TEXT: Color = theme::INK;
+pub const DIM: Color = theme::SOFT_INK;
+pub const WARN: Color = theme::ROSE_RED;
+pub const ACCENT: Color = theme::BERRY;
+/// Light text for labels floating over the world (no chip behind them).
+pub const LABEL: Color = theme::CREAM;
+const PANEL: Color = theme::CREAM_GLASS;
+const BIG_PANEL: Color = theme::CARD;
 /// How long a fading line stays fully visible, then how long it takes to go.
 const FADE_HOLD: f32 = 5.0;
 const FADE_OUT: f32 = 1.2;
@@ -162,22 +168,62 @@ pub fn warning() -> (TextFont, TextColor) {
 pub fn banner() -> (TextFont, TextColor) {
     (TextFont::from_font_size(26.0), TextColor(TEXT))
 }
+/// A cute rounded display-font heading (falls back to the HUD font).
+pub fn heading(size: f32) -> impl Bundle {
+    (
+        TextFont::from_font_size(size),
+        TextColor(ACCENT),
+        crate::assets::DisplayText,
+    )
+}
 /// Section title (the "Commune of Dave" banner, overlay headings).
 pub fn title() -> (TextFont, TextColor) {
     (TextFont::from_font_size(13.0), TextColor(ACCENT))
 }
 
-/// The rounded chip behind one line of slotted HUD text.
-fn chip() -> (Node, BackgroundColor) {
+/// The rounded chip behind one line of slotted HUD text: cream paper, a thin
+/// rosy outline and a soft shadow. Banners and the objective get a bit more air.
+fn chip(slot: HudSlot) -> impl Bundle {
+    let (pad, radius, line) = match slot {
+        HudSlot::CenterBanner => (UiRect::axes(px(26), px(16)), theme::R_PANEL, theme::PINK),
+        HudSlot::TopCenter => (
+            UiRect::axes(px(theme::S4), px(theme::S2)),
+            theme::R_PANEL,
+            theme::BUTTER,
+        ),
+        HudSlot::Toasts => (
+            UiRect::axes(px(theme::S3 + 2.0), px(theme::S1 + 2.0)),
+            theme::R_PILL,
+            theme::LILAC,
+        ),
+        _ => (
+            UiRect::axes(px(theme::S3 - 1.0), px(theme::S1 + 2.0)),
+            theme::R_CHIP,
+            theme::LINE,
+        ),
+    };
+    let border = if matches!(slot, HudSlot::TopCenter | HudSlot::CenterBanner) {
+        2.0
+    } else {
+        1.5
+    };
     (
         Node {
-            padding: UiRect::axes(px(9), px(5)),
-            border_radius: BorderRadius::all(px(8)),
+            padding: pad,
+            border: UiRect::all(px(border)),
+            border_radius: BorderRadius::all(px(radius)),
             ..default()
         },
         BackgroundColor(PANEL),
+        BorderColor::all(line),
+        theme::shadow(3.0, 10.0),
+        ChipLine(line),
     )
 }
+
+/// The outline colour a chip was given (fading lines fade it too).
+#[derive(Component, Clone, Copy)]
+struct ChipLine(Color);
 
 /// One line of client-local feedback ("copied!", "can't do that").
 #[derive(Resource, Default, Debug)]
@@ -323,27 +369,27 @@ impl Plugin for HudPlugin {
 fn spawn_slots(mut commands: Commands) {
     for s in HudSlot::ALL {
         let mut e = commands.spawn((s.node(), SlotRoot(s), DespawnOnExit(AppState::InGame)));
+        let panel = (
+            BackgroundColor(BIG_PANEL),
+            BorderColor::all(theme::LINE),
+            theme::shadow(8.0, 28.0),
+            UiTransform::default(),
+        );
+        // Every root carries a Pop so overlays can bounce in when shown.
+        e.insert(Pop::default());
         match s {
             HudSlot::Scoreboard => {
-                e.insert((
-                    BackgroundColor(BIG_PANEL),
-                    GlobalZIndex(10),
-                    Visibility::Hidden,
-                ));
+                e.insert((panel, GlobalZIndex(10), Visibility::Hidden));
                 e.with_children(|c| {
-                    c.spawn((Text::new("scoreboard"), title()));
+                    header(c, "scoreboard", theme::MINT);
                 });
             }
             HudSlot::Help => {
-                e.insert((
-                    BackgroundColor(BIG_PANEL),
-                    GlobalZIndex(20),
-                    Visibility::Hidden,
-                ));
+                e.insert((panel, GlobalZIndex(20), Visibility::Hidden));
                 e.with_children(|c| {
-                    c.spawn((Text::new("controls  (H to close)"), title()));
+                    header(c, "controls  (H to close)", theme::PINK);
                     c.spawn((Text::new(help_text()), small()));
-                    c.spawn((Text::new("what's going on"), title()));
+                    header(c, "what's going on", theme::LILAC);
                 });
             }
             _ => {}
@@ -360,7 +406,7 @@ fn spawn_slots(mut commands: Commands) {
         Text::new(""),
         ToastText,
         slot(HudSlot::Toasts),
-        TextFont::from_font_size(14.0),
+        TextFont::from_font_size(15.0),
         TextColor(ACCENT),
         DespawnOnExit(AppState::InGame),
     ));
@@ -368,13 +414,16 @@ fn spawn_slots(mut commands: Commands) {
         Text::new(""),
         FpsText,
         TextFont::from_font_size(12.0),
-        TextColor(Color::srgb(0.5, 1.0, 0.5)),
+        TextColor(theme::INK),
         Node {
             position_type: PositionType::Absolute,
-            bottom: px(2),
+            bottom: px(4),
             left: percent(50),
+            padding: UiRect::axes(px(8), px(2)),
+            border_radius: BorderRadius::all(px(theme::R_PILL)),
             ..default()
         },
+        BackgroundColor(theme::MINT.with_alpha(0.85)),
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));
@@ -410,13 +459,43 @@ fn apply_font(
     }
 }
 
+/// An overlay heading: three little pastel dots, then a display-font title.
+fn header(c: &mut ChildSpawnerCommands, label: &str, dot: Color) {
+    c.spawn(Node {
+        column_gap: px(theme::S1 + 1.0),
+        align_items: AlignItems::Center,
+        ..default()
+    })
+    .with_children(|r| {
+        for col in [dot, theme::BUTTER, theme::PINK.mix(&dot, 0.5)] {
+            r.spawn((
+                Node {
+                    width: px(9),
+                    height: px(9),
+                    border_radius: BorderRadius::all(px(5)),
+                    ..default()
+                },
+                BackgroundColor(col),
+            ));
+        }
+        r.spawn((
+            Text::new(label),
+            heading(17.0),
+            Node {
+                margin: UiRect::left(px(theme::S1)),
+                ..default()
+            },
+        ));
+    });
+}
+
 /// Move newly slotted text into its slot column and give it the default style.
 fn adopt_slotted(
     mut commands: Commands,
-    new: Query<(Entity, &InSlot, Has<First>), Without<ChildOf>>,
+    new: Query<(Entity, &InSlot, Has<First>, Option<&TextColor>), Without<ChildOf>>,
     roots: Query<(Entity, &SlotRoot)>,
 ) {
-    for (e, InSlot(s), first) in &new {
+    for (e, InSlot(s), first, color) in &new {
         let Some((root, _)) = roots.iter().find(|(_, r)| r.0 == *s) else {
             continue;
         };
@@ -424,10 +503,24 @@ fn adopt_slotted(
         if s.one_panel() {
             ec.insert_if_new(small());
         } else {
-            ec.insert_if_new(normal()).insert(chip());
+            ec.insert_if_new(normal()).insert(chip(*s));
+        }
+        // Text is required to have a colour, so unstyled lines arrive white
+        // (Bevy's default); give them the readable ink for the cream chips.
+        if color.is_none_or(|c| c.0 == Color::WHITE) {
+            ec.insert(TextColor(if s.one_panel() { DIM } else { TEXT }));
         }
         if s.fades() {
             ec.insert(Fade::default());
+        }
+        if matches!(
+            s,
+            HudSlot::Toasts | HudSlot::CenterBanner | HudSlot::Subtitle
+        ) {
+            ec.insert((Pop::now(0.7), UiTransform::default()));
+        }
+        if *s == HudSlot::CenterBanner {
+            ec.insert(crate::assets::DisplayText);
         }
         if first {
             commands.entity(root).insert_children(0, &[e]);
@@ -477,7 +570,7 @@ fn tick_toast(
 
 fn toggle_overlays(
     keys: Res<ButtonInput<KeyCode>>,
-    mut roots: Query<(&SlotRoot, &mut Visibility)>,
+    mut roots: Query<(&SlotRoot, &mut Visibility, &mut Pop)>,
     mut fps: Query<&mut Visibility, (With<FpsText>, Without<SlotRoot>)>,
 ) {
     let flip = |v: &mut Visibility| {
@@ -488,7 +581,8 @@ fn toggle_overlays(
         };
     };
     let tab = keys.pressed(KeyCode::Tab);
-    for (r, mut v) in &mut roots {
+    for (r, mut v, mut pop) in &mut roots {
+        let was = *v;
         match r.0 {
             HudSlot::Scoreboard => {
                 v.set_if_neq(if tab {
@@ -499,6 +593,9 @@ fn toggle_overlays(
             }
             HudSlot::Help if keys.just_pressed(KeyCode::KeyH) => flip(&mut v),
             _ => {}
+        }
+        if was == Visibility::Hidden && *v != Visibility::Hidden {
+            *pop = Pop::now(0.9);
         }
     }
     if keys.just_pressed(KeyCode::F3) {
@@ -551,12 +648,19 @@ fn fade_lines(
         &mut Node,
         &mut TextColor,
         &mut BackgroundColor,
+        Option<(&mut BorderColor, &ChipLine, &mut BoxShadow)>,
+        Option<&mut Pop>,
     )>,
 ) {
-    for (t, mut f, mut n, mut color, mut bg) in &mut texts {
+    for (t, mut f, mut n, mut color, mut bg, mut chip, pop) in &mut texts {
         if f.last != t.0 {
             f.last.clone_from(&t.0);
             f.age = 0.0;
+            if let Some(mut pop) = pop
+                && !t.0.trim().is_empty()
+            {
+                *pop = Pop::now(0.7);
+            }
         } else {
             f.age += time.delta_secs();
         }
@@ -572,6 +676,12 @@ fn fade_lines(
         if (color.0.alpha() - a).abs() > 0.01 {
             color.0.set_alpha(a);
             bg.0 = PANEL.with_alpha(PANEL.alpha() * a);
+            if let Some((border, line, shadow)) = chip.as_mut() {
+                **border = BorderColor::all(line.0.with_alpha(line.0.alpha() * a));
+                for s in shadow.0.iter_mut() {
+                    s.color = theme::SHADOW.with_alpha(theme::SHADOW.alpha() * a);
+                }
+            }
         }
     }
 }

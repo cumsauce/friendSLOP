@@ -17,6 +17,7 @@ use crate::net::{Clipboard, NetCommand, NetStatus};
 use crate::player::LocalPlayer;
 use crate::scenery;
 use crate::settings::Settings;
+use crate::theme::{self, Pop, Squishy};
 use crate::voice::VoiceMuted;
 
 pub struct MenuPlugin;
@@ -103,14 +104,14 @@ impl JoinCode {
     }
 }
 
-pub(crate) const CARD: Color = Color::srgba(1.0, 0.98, 1.0, 0.88);
-const FIELD: Color = Color::srgb(1.0, 0.92, 0.96);
-pub(crate) const PINK: Color = Color::srgb(1.0, 0.55, 0.76);
-pub(crate) const LILAC: Color = Color::srgb(0.7, 0.6, 0.98);
-pub(crate) const MINT: Color = Color::srgb(0.42, 0.8, 0.68);
-pub(crate) const GREY: Color = Color::srgb(0.6, 0.55, 0.62);
-pub(crate) const INK: Color = Color::srgb(0.42, 0.24, 0.4);
-pub(crate) const SOFT_INK: Color = Color::srgb(0.6, 0.45, 0.58);
+pub(crate) const CARD: Color = theme::CARD;
+const FIELD: Color = theme::FIELD;
+pub(crate) const PINK: Color = theme::PINK;
+pub(crate) const LILAC: Color = theme::LILAC;
+pub(crate) const MINT: Color = theme::MINT;
+pub(crate) const GREY: Color = theme::GREY;
+pub(crate) const INK: Color = theme::INK;
+pub(crate) const SOFT_INK: Color = theme::SOFT_INK;
 const OK: Color = Color::srgb(0.3, 0.62, 0.45);
 const ERR: Color = Color::srgb(0.85, 0.3, 0.38);
 
@@ -162,23 +163,22 @@ fn spawn_menu(mut commands: Commands) {
                     padding: UiRect::axes(px(36), px(28)),
                     row_gap: px(12),
                     border_radius: BorderRadius::all(px(32)),
+                    border: UiRect::all(px(2)),
                     width: px(440),
                     ..default()
                 },
                 BackgroundColor(CARD),
-                BoxShadow::new(
-                    Color::srgba(0.4, 0.2, 0.4, 0.25),
-                    px(0),
-                    px(8),
-                    px(0),
-                    px(28),
-                ),
+                BorderColor::all(theme::LINE),
+                theme::shadow(10.0, 32.0),
+                Pop::now(0.85),
+                UiTransform::default(),
             ))
             .with_children(|ui| {
                 ui.spawn((
                     Text::new("friendSLOP"),
-                    TextFont::from_font_size(72.0),
+                    TextFont::from_font_size(62.0),
                     TextColor(PINK),
+                    crate::assets::DisplayText,
                     TextShadow {
                         offset: Vec2::new(3.0, 4.0),
                         color: Color::srgba(0.45, 0.25, 0.5, 0.35),
@@ -208,7 +208,12 @@ fn spawn_menu(mut commands: Commands) {
                 );
                 spacer(ui, 6.0);
 
-                text(ui, "Join a friend", 20.0, INK);
+                ui.spawn((
+                    Text::new("Join a friend"),
+                    TextFont::from_font_size(22.0),
+                    TextColor(INK),
+                    crate::assets::DisplayText,
+                ));
                 ui.spawn((
                     Node {
                         width: px(360),
@@ -308,14 +313,25 @@ fn spawn_menu(mut commands: Commands) {
                     padding: UiRect::axes(px(28), px(22)),
                     row_gap: px(10),
                     border_radius: BorderRadius::all(px(28)),
+                    border: UiRect::all(px(2)),
                     display: Display::None,
                     ..default()
                 },
                 BackgroundColor(CARD),
+                BorderColor::all(theme::LINE),
+                theme::shadow(10.0, 32.0),
+                Pop::default(),
+                theme::PopOnShow::default(),
+                UiTransform::default(),
                 SettingsPanel,
             ))
             .with_children(|ui| {
-                text(ui, "Settings", 26.0, INK);
+                ui.spawn((
+                    Text::new("Settings"),
+                    TextFont::from_font_size(28.0),
+                    TextColor(INK),
+                    crate::assets::DisplayText,
+                ));
                 volume_row(ui, "Master volume", Label::Master, |s| &mut s.master_volume);
                 volume_row(ui, "Voice volume", Label::Voice, |s| &mut s.voice_volume);
                 row(ui, |r| {
@@ -866,7 +882,7 @@ fn hover_buttons(
 ) {
     for (hovered, base, mut bg) in &mut buttons {
         bg.0 = if hovered.get() {
-            base.0.mix(&Color::WHITE, 0.25)
+            base.0.mix(&Color::WHITE, 0.2)
         } else {
             base.0
         };
@@ -907,20 +923,30 @@ fn button<'a>(
     let mut e = ui.spawn((
         Node {
             width: px(width),
-            padding: UiRect::axes(px(16), px(11)),
+            padding: UiRect::new(px(16), px(16), px(10), px(9)),
             justify_content: JustifyContent::Center,
             border_radius: BorderRadius::all(px(999)),
+            // A chunkier darker lip along the bottom makes buttons look squishy.
+            border: UiRect::new(px(1.5), px(1.5), px(1.5), px(4.0)),
             ..default()
         },
         BackgroundColor(color),
+        BorderColor::all(theme::shade(color, 0.28)),
+        theme::shadow(3.0, 8.0),
         BaseColor(color),
         Hovered::default(),
+        Squishy::default(),
+        UiTransform::default(),
     ));
     e.with_children(|b| {
         b.spawn((
             Text::new(label),
             TextFont::from_font_size(20.0),
             TextColor(Color::WHITE),
+            TextShadow {
+                offset: Vec2::new(0.0, 1.5),
+                color: theme::shade(color, 0.45).with_alpha(0.6),
+            },
         ));
     });
     e

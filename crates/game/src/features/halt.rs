@@ -175,7 +175,7 @@ struct HaltQuote;
 fn spawn_halt_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
-        TextColor(Color::srgb(1.0, 0.35, 0.3)),
+        TextColor(crate::theme::ROSE_RED),
         TextFont::from_font_size(13.0),
         HaltText,
         crate::hud::slot(crate::hud::HudSlot::TopRight),
@@ -183,7 +183,7 @@ fn spawn_halt_ui(mut commands: Commands) {
     ));
     commands.spawn((
         Text::new(""),
-        TextColor(Color::srgb(1.0, 0.45, 0.4)),
+        TextColor(crate::theme::ROSE_RED),
         HaltQuote,
         crate::hud::slot(crate::hud::HudSlot::Toasts),
         DespawnOnExit(AppState::InGame),
@@ -224,7 +224,7 @@ fn clock_hhmm() -> String {
 
 fn bar(v: u8) -> String {
     let n = usize::from(v / 10);
-    format!("[{}{}]", "#".repeat(n), ".".repeat(10 - n))
+    format!("{}{}", "•".repeat(n), "·".repeat(10 - n))
 }
 
 /// HALT's compact status line: wrath and escape bars.

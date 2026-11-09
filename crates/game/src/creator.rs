@@ -132,14 +132,19 @@ fn small_button<'a>(
     let mut e = ui.spawn((
         Node {
             width: px(width),
-            padding: UiRect::axes(px(8), px(3)),
+            padding: UiRect::new(px(8), px(8), px(3), px(2)),
             justify_content: JustifyContent::Center,
             border_radius: BorderRadius::all(px(999)),
+            border: UiRect::new(px(1.0), px(1.0), px(1.0), px(3.0)),
             ..default()
         },
         BackgroundColor(color),
+        BorderColor::all(crate::theme::shade(color, 0.28)),
+        crate::theme::shadow(2.0, 6.0),
         BaseColor(color),
         Hovered::default(),
+        crate::theme::Squishy::default(),
+        UiTransform::default(),
     ));
     e.with_children(|b| {
         b.spawn((
@@ -202,16 +207,27 @@ fn spawn_creator(
                 padding: UiRect::axes(px(20), px(16)),
                 row_gap: px(5),
                 border_radius: BorderRadius::all(px(28)),
+                border: UiRect::all(px(2)),
                 display: Display::None,
                 overflow: Overflow::clip_y(),
                 ..default()
             },
             BackgroundColor(menu::CARD),
+            BorderColor::all(crate::theme::LINE),
+            crate::theme::shadow(10.0, 32.0),
+            crate::theme::Pop::default(),
+            crate::theme::PopOnShow::default(),
+            UiTransform::default(),
             CreatorPanel,
             out,
         ))
         .with_children(|ui| {
-            menu::text(ui, "Your character", 26.0, menu::INK);
+            ui.spawn((
+                Text::new("Your character"),
+                TextFont::from_font_size(28.0),
+                TextColor(menu::INK),
+                crate::assets::DisplayText,
+            ));
             menu::text(
                 ui,
                 "everyone sees this; villagers roll from the same pool",

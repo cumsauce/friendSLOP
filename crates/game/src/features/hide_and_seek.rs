@@ -553,7 +553,7 @@ fn spawn_ui(mut commands: Commands) {
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(Color::BLACK),
+            BackgroundColor(Color::srgb(0.13, 0.07, 0.15)),
             GlobalZIndex(5),
             Visibility::Hidden,
             DespawnOnExit(AppState::InGame),
@@ -561,7 +561,9 @@ fn spawn_ui(mut commands: Commands) {
         .with_children(|p| {
             p.spawn((
                 Text::new("You're the seeker. Eyes shut, count..."),
-                crate::hud::banner(),
+                TextFont::from_font_size(26.0),
+                TextColor(crate::hud::LABEL),
+                crate::assets::DisplayText,
             ));
         });
 }

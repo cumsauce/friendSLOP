@@ -13,6 +13,8 @@ use bevy::asset::RecursiveDependencyLoadState;
 use bevy::prelude::*;
 
 use crate::AppState;
+use crate::assets::DisplayText;
+use crate::theme::{self, Bob};
 
 /// Frames this long or shorter count as "smooth".
 const SMOOTH_MS: f32 = 50.0;
@@ -44,7 +46,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), spawn_curtain)
         .add_systems(
             Update,
-            lift_curtain
+            (lift_curtain, walk_critter)
                 .run_if(in_state(AppState::InGame))
                 .run_if(resource_exists::<WorldReadyPending>),
         );
@@ -77,15 +79,191 @@ fn spawn_curtain(
                 align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(Color::srgb(0.12, 0.16, 0.22)),
+            BackgroundColor(Color::srgb(0.99, 0.9, 0.93)),
             GlobalZIndex(1000),
             DespawnOnExit(AppState::InGame),
         ))
-        .with_child((
-            Text::new("Loading the commune..."),
-            TextFont::from_font_size(28.0),
-            TextColor(Color::srgb(0.9, 0.92, 1.0)),
-        ));
+        .with_children(|bg| {
+            // Soft pastel blobs drifting in the background.
+            for (i, (x, y, size, col)) in [
+                (8.0, 12.0, 260.0, theme::LILAC),
+                (70.0, 58.0, 340.0, theme::MINT),
+                (40.0, -10.0, 200.0, theme::BUTTER),
+                (-6.0, 64.0, 220.0, theme::PEACH),
+                (82.0, 6.0, 160.0, theme::PINK),
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                bg.spawn((
+                    Node {
+                        position_type: PositionType::Absolute,
+                        left: percent(x),
+                        top: percent(y),
+                        width: px(size),
+                        height: px(size),
+                        border_radius: BorderRadius::all(px(size)),
+                        ..default()
+                    },
+                    BackgroundColor(col.with_alpha(0.35)),
+                    UiTransform::default(),
+                    Bob {
+                        phase: i as f32 * 1.3,
+                        height: 18.0,
+                        speed: 0.6,
+                    },
+                ));
+            }
+            bg.spawn((
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::Center,
+                    padding: UiRect::axes(px(48), px(30)),
+                    row_gap: px(theme::S3),
+                    border: UiRect::all(px(2)),
+                    border_radius: BorderRadius::all(px(32)),
+                    ..default()
+                },
+                BackgroundColor(theme::CARD),
+                BorderColor::all(theme::LINE),
+                theme::shadow(10.0, 36.0),
+            ))
+            .with_children(|card| {
+                critter(card);
+                card.spawn(Node {
+                    align_items: AlignItems::FlexEnd,
+                    column_gap: px(3),
+                    ..default()
+                })
+                .with_children(|row| {
+                    row.spawn((
+                        Text::new("Loading the commune"),
+                        TextFont::from_font_size(30.0),
+                        TextColor(theme::PINK.mix(&theme::INK, 0.15)),
+                        TextShadow {
+                            offset: Vec2::new(2.0, 3.0),
+                            color: theme::SHADOW,
+                        },
+                        DisplayText,
+                    ));
+                    for (i, col) in [theme::PINK, theme::LILAC, theme::MINT]
+                        .into_iter()
+                        .enumerate()
+                    {
+                        row.spawn((
+                            Node {
+                                width: px(8),
+                                height: px(8),
+                                margin: UiRect::bottom(px(8)),
+                                border_radius: BorderRadius::all(px(4)),
+                                ..default()
+                            },
+                            BackgroundColor(col),
+                            UiTransform::default(),
+                            Bob {
+                                phase: -(i as f32) * 0.9,
+                                height: 9.0,
+                                speed: 6.0,
+                            },
+                        ));
+                    }
+                });
+                card.spawn((
+                    Text::new("warming up the campfire, fluffing the grass"),
+                    TextFont::from_font_size(15.0),
+                    TextColor(theme::SOFT_INK),
+                    DisplayText,
+                ));
+            });
+        });
+}
+
+/// The little walking critter on the loading card.
+#[derive(Component)]
+struct Critter;
+
+/// A round pink blob with eyes, blush and feet, built from UI nodes.
+fn critter(card: &mut ChildSpawnerCommands) {
+    let dot = |size: f32, col: Color| {
+        (
+            Node {
+                width: px(size),
+                height: px(size),
+                border_radius: BorderRadius::all(px(size)),
+                ..default()
+            },
+            BackgroundColor(col),
+        )
+    };
+    card.spawn((
+        Critter,
+        Node {
+            width: px(240),
+            height: px(64),
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::FlexEnd,
+            ..default()
+        },
+    ))
+    .with_children(|lane| {
+        lane.spawn((
+            Node {
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            UiTransform::default(),
+            CritterWalk,
+        ))
+        .with_children(|c| {
+            c.spawn((
+                Node {
+                    width: px(50),
+                    height: px(42),
+                    border: UiRect::all(px(2)),
+                    border_radius: BorderRadius::new(px(26), px(26), px(16), px(16)),
+                    padding: UiRect::top(px(13)),
+                    column_gap: px(12),
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
+                BackgroundColor(theme::PINK),
+                BorderColor::all(theme::shade(theme::PINK, 0.35)),
+                UiTransform::default(),
+                Bob {
+                    phase: 0.0,
+                    height: 7.0,
+                    speed: 9.0,
+                },
+            ))
+            .with_children(|face| {
+                face.spawn(dot(7.0, theme::INK));
+                face.spawn(dot(7.0, theme::INK));
+            });
+            c.spawn(Node {
+                column_gap: px(14),
+                ..default()
+            })
+            .with_children(|feet| {
+                feet.spawn(dot(10.0, theme::shade(theme::PINK, 0.35)));
+                feet.spawn(dot(10.0, theme::shade(theme::PINK, 0.35)));
+            });
+        });
+    });
+}
+
+#[derive(Component)]
+struct CritterWalk;
+
+/// Pace the critter back and forth along its lane, facing where it walks.
+fn walk_critter(time: Res<Time<Real>>, mut q: Query<&mut UiTransform, With<CritterWalk>>) {
+    let t = time.elapsed_secs() * 0.9;
+    let x = t.sin() * 80.0;
+    let facing = if t.cos() >= 0.0 { 1.0 } else { -1.0 };
+    for mut tf in &mut q {
+        tf.translation = Val2::px(x, 0.0);
+        tf.scale = Vec2::new(facing, 1.0);
+    }
 }
 
 fn lift_curtain(

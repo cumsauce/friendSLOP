@@ -202,6 +202,8 @@ struct Style {
     pad_inst: Inst,
     horns: Horns,
     kit: Kit,
+    /// Who answers the lead in its gaps (call and response).
+    answer: Option<Inst>,
 }
 
 // --- Progressions -------------------------------------------------------
@@ -384,6 +386,7 @@ fn style(m: Mood) -> &'static Style {
             ride: true,
             ..KIT_NONE
         },
+        answer: Some(Inst::PolyBrass),
     };
     const EXPLORE: Style = Style {
         bpm: 92.0,
@@ -411,6 +414,7 @@ fn style(m: Mood) -> &'static Style {
             conga: true,
             ..KIT_NONE
         },
+        answer: Some(Inst::Flute),
     };
     const VILLAGE: Style = Style {
         bpm: 104.0,
@@ -439,6 +443,7 @@ fn style(m: Mood) -> &'static Style {
             conga: true,
             ..KIT_NONE
         },
+        answer: None,
     };
     const FOREST: Style = Style {
         bpm: 84.0,
@@ -465,6 +470,7 @@ fn style(m: Mood) -> &'static Style {
             shaker: true,
             ..KIT_NONE
         },
+        answer: Some(Inst::Harp),
     };
     const MAZE: Style = Style {
         bpm: 76.0,
@@ -488,6 +494,7 @@ fn style(m: Mood) -> &'static Style {
         pad_inst: Inst::Pad,
         horns: Horns::Swells,
         kit: KIT_NONE,
+        answer: Some(Inst::Strings),
     };
     const SKY: Style = Style {
         bpm: 70.0,
@@ -514,6 +521,7 @@ fn style(m: Mood) -> &'static Style {
             shaker: true,
             ..KIT_NONE
         },
+        answer: Some(Inst::Kalimba),
     };
     const ABUELA: Style = Style {
         bpm: 84.0,
@@ -540,6 +548,7 @@ fn style(m: Mood) -> &'static Style {
             shaker: true,
             ..KIT_NONE
         },
+        answer: Some(Inst::Strings),
     };
     const HIDING: Style = Style {
         bpm: 96.0,
@@ -563,6 +572,7 @@ fn style(m: Mood) -> &'static Style {
         pad_inst: Inst::Pad,
         horns: Horns::None,
         kit: KIT_NONE,
+        answer: None,
     };
     const SEEKING: Style = Style {
         bpm: 128.0,
@@ -590,6 +600,7 @@ fn style(m: Mood) -> &'static Style {
             conga: true,
             ..KIT_NONE
         },
+        answer: Some(Inst::EPiano),
     };
     const DUEL: Style = Style {
         bpm: 150.0,
@@ -617,6 +628,7 @@ fn style(m: Mood) -> &'static Style {
             ride: true,
             ..KIT_NONE
         },
+        answer: None,
     };
     const LANDLORD: Style = Style {
         bpm: 108.0,
@@ -640,6 +652,7 @@ fn style(m: Mood) -> &'static Style {
         pad_inst: Inst::Strings,
         horns: Horns::Both,
         kit: KIT_NONE,
+        answer: Some(Inst::Strings),
     };
     match m {
         Mood::Menu | Mood::Still => &MENU,
@@ -788,6 +801,12 @@ pub struct Bar {
     pub bus: [f32; BUSES],
     /// Master gain for the bar (linear), see [`Mood::level_db`].
     pub gain: f32,
+    /// How bright the band plays (0..1): rises through a tune's sections
+    /// and across each one, so the sounds open up and settle back.
+    pub bright: f32,
+    /// Reverb and echo send scales for the bar.
+    pub wet: f32,
+    pub echo: f32,
 }
 
 impl Bar {
@@ -797,6 +816,9 @@ impl Bar {
             events: Vec::with_capacity(EVENT_CAP),
             bus: [0.0; BUSES],
             gain: 1.0,
+            bright: 0.5,
+            wet: 1.0,
+            echo: 1.0,
         }
     }
 }
@@ -837,6 +859,13 @@ pub struct Composer {
     motif: Motif,
     hook: Motif,
     last_note: u8,
+    /// Where this phrase's motif started (restated later).
+    anchor: u8,
+    /// The lead's last notes (for the answering instrument) and where its
+    /// notes in this bar end.
+    frag: Line,
+    lead_end: u32,
+    lead_this_bar: bool,
     victories: u32,
     pub bars_played: u64,
     // Per-bar scratch.
@@ -880,6 +909,10 @@ impl Composer {
             motif: Motif::default(),
             hook: Motif::default(),
             last_note: 72,
+            anchor: 72,
+            frag: Line::new(),
+            lead_end: 0,
+            lead_this_bar: false,
             victories: 0,
             bars_played: 0,
             steps: 16,
@@ -1146,8 +1179,30 @@ impl Composer {
 
         self.layers(&mut bar.bus);
         bar.gain = 10f32.powf(self.mood.level_db() / 20.0);
+        self.colour(bar);
         self.write(bar, new_mood);
         bar.events.sort_unstable_by_key(|e| e.at);
+    }
+
+    /// How the band's sound moves through the tune: brightness climbs from
+    /// the intro to the hooks and solos and across each section, and the
+    /// room gets wetter in intros, bridges and breakdowns.
+    fn colour(&self, bar: &mut Bar) {
+        let (base, wet, echo) = match self.plan.kind {
+            Section::Intro => (0.25, 1.35, 1.2),
+            Section::A => (0.4, 1.0, 1.0),
+            Section::Hook => (0.62, 0.95, 1.0),
+            Section::B => (0.5, 1.2, 1.15),
+            Section::Solo => (0.75, 1.05, 1.45),
+            Section::Breakdown => (0.2, 1.5, 1.4),
+            Section::Victory => (0.9, 1.2, 1.0),
+            Section::Still => (0.15, 1.6, 1.3),
+        };
+        let through = self.plan.bar as f32 / self.plan.bars.max(1) as f32;
+        let calm = 1.0 - self.intensity;
+        bar.bright = (base + 0.18 * through + 0.25 * (self.intensity - 0.5)).clamp(0.05, 1.0);
+        bar.wet = 1.3 * wet * (1.0 + 0.3 * calm);
+        bar.echo = 1.2 * echo;
     }
 
     /// Bus levels: which instruments are in for this bar.
@@ -1216,6 +1271,18 @@ impl Composer {
             || new_mood && i > 0.5
             || (kind == Section::Victory && self.plan.bar == 1);
         self.swelled = false;
+        // A reversed cymbal rising into a bigger section or a new mood.
+        let into_big = self.switching.is_some()
+            || (last
+                && self
+                    .next
+                    .is_some_and(|n| matches!(n.kind, Section::Hook | Section::Solo)));
+        if into_big && i > 0.35 {
+            let swell = (super::drums::SWELL_SECS * RATE as f32) as u32;
+            if bar.len > swell {
+                Self::push(bar, hit(bar.len - swell, Inst::Swell, 57, 0.8 + 0.3 * i));
+            }
+        }
         if kime {
             self.pushed = false;
             self.write_kime(bar, crash);
@@ -1225,7 +1292,11 @@ impl Composer {
             self.write_drums(bar, fill, crash);
             self.write_bass(bar);
             self.write_comp(bar);
+            // A note held over the bar line still counts as the lead playing.
+            self.lead_this_bar = false;
+            self.lead_end = self.lead_end.saturating_sub(16);
             self.write_lead(bar);
+            self.write_answer(bar);
             self.write_horns(bar);
         }
         self.write_pad(bar);
@@ -1945,6 +2016,77 @@ impl Composer {
         }
     }
 
+    // --- Answers ----------------------------------------------------------
+
+    /// Call and response: when the lead leaves a gap, a second voice echoes
+    /// its last few notes in the same rhythm, a third or a sixth lower and
+    /// fitted to the chords now sounding.
+    fn write_answer(&mut self, bar: &mut Bar) {
+        let s = self.style();
+        let Some(inst) = s.answer else {
+            return;
+        };
+        let kind = self.plan.kind;
+        if !matches!(kind, Section::A | Section::Hook | Section::B) || self.frag.n < 2 {
+            return;
+        }
+        let steps = self.steps;
+        let from = if self.lead_end > 0 {
+            self.lead_end + 1
+        } else {
+            0
+        };
+        let from = from.next_multiple_of(2);
+        if from + 5 > steps || !self.chance(0.45 + 0.35 * self.intensity) {
+            return;
+        }
+        let (lo, hi) = match inst {
+            Inst::PolyBrass | Inst::EPiano => (60, 76),
+            Inst::Strings => (57, 74),
+            Inst::Flute => (67, 86),
+            _ => (62, 86),
+        };
+        let k = self.frag.n.min(3);
+        let notes = self.frag.notes;
+        let first = notes[self.frag.n - k];
+        let down = if self.chance(0.6) { -2 } else { -5 };
+        let mut prev = 0u8;
+        for &(st, ln, n) in &notes[self.frag.n - k..self.frag.n] {
+            let at_step = from + (st - first.0) as u32;
+            if at_step >= steps {
+                break;
+            }
+            let ch = self.chord(at_step);
+            let mut note = ch.scale_step(n, down);
+            while note > hi {
+                note -= 12;
+            }
+            while note < lo {
+                note += 12;
+            }
+            if at_step.is_multiple_of(4) || ln >= 3 {
+                note = ch.nearest_strong(note);
+            }
+            if note == prev {
+                note = ch.scale_step(note, -1);
+            }
+            prev = note;
+            let at = self.at(at_step);
+            let len = self.len((ln as f32).min((steps - at_step) as f32) * 0.95);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst,
+                    note,
+                    vel: 0.62 + 0.15 * self.intensity,
+                    len,
+                    glide: false,
+                },
+            );
+        }
+    }
+
     // --- Horns ------------------------------------------------------------
 
     /// The horn section: shout figures and pushes in hooks and hot solos,
@@ -2252,7 +2394,11 @@ impl Composer {
     // --- Lead -----------------------------------------------------------
 
     fn lead_inst(&self) -> Option<Inst> {
+        // In solos the band's two synth players trade every two bars.
+        let trade = self.plan.kind == Section::Solo && (self.plan.bar / 2) % 2 == 1;
         match self.style().lead {
+            LeadKind::Synth if trade => Some(Inst::Mini),
+            LeadKind::Mini | LeadKind::Brass if trade => Some(Inst::Lead),
             LeadKind::Synth => Some(Inst::Lead),
             LeadKind::Brass => Some(Inst::Brass),
             LeadKind::Flute => Some(Inst::Flute),
@@ -2263,6 +2409,20 @@ impl Composer {
     }
 
     fn new_motif(&mut self) -> Motif {
+        // A motif needs a shape you can hear: retry flat ones.
+        let mut m = self.motif_try();
+        for _ in 0..4 {
+            let cs = m.notes[..m.n].iter().map(|x| x.c);
+            let range = cs.clone().max().unwrap_or(0) - cs.min().unwrap_or(0);
+            if range >= 3 {
+                break;
+            }
+            m = self.motif_try();
+        }
+        m
+    }
+
+    fn motif_try(&mut self) -> Motif {
         let cell = CELLS[self.pick(CELLS.len())];
         let mut m = Motif::default();
         let mut c: i8 = 0;
@@ -2371,10 +2531,21 @@ impl Composer {
                     self.motif
                 };
                 let second_half = pb % 8 >= 4;
+                // The story of eight bars: state an idea, answer it, develop
+                // it, come home; then state it again a step higher, climb to
+                // a peak in bar seven and resolve.
+                const ARC: [u8; 8] = [71, 72, 74, 72, 73, 76, 79, 72];
+                let height = ARC[pb as usize % 8] + (i * 2.0) as u8;
                 match phrase {
-                    // Call.
+                    // Call: the motif, restated (sequenced up) in the second
+                    // half so the listener recognises it.
                     0 => {
-                        let from = if second_half { last + 3 } else { 74 };
+                        let from = if second_half {
+                            self.anchor + if self.chance(0.6) { 2 } else { 0 }
+                        } else {
+                            self.anchor = height;
+                            height
+                        };
                         self.realize(&m, from, 0, false)
                     }
                     // Response: a short answer, or rest.
@@ -2384,15 +2555,20 @@ impl Composer {
                         }
                         self.response(&m)
                     }
-                    // Development.
+                    // Development, heading for the phrase's peak.
+                    2 if second_half && i > 0.5 && self.chance(0.4) => {
+                        let mut l = Line::new();
+                        self.pent_run(&mut l, true);
+                        l
+                    }
                     2 => match self.pick(4) {
-                        0 => self.realize(&m, last + 4, 0, false), // sequence up
-                        1 => self.realize(&m, last, 2, false),     // displaced
-                        2 => self.realize(&m, last + 2, 0, true),  // inverted
+                        0 => self.realize(&m, height.max(last + 2), 0, false), // sequence up
+                        1 => self.realize(&m, height, 2, false),               // displaced
+                        2 => self.realize(&m, height, 0, true),                // inverted
                         _ => {
                             let mut half = m;
                             half.n = m.n.div_ceil(2);
-                            let mut l = self.realize(&half, last, 0, false);
+                            let mut l = self.realize(&half, height, 0, false);
                             self.tail_into(&mut l, 8);
                             l
                         }
@@ -2468,8 +2644,11 @@ impl Composer {
             l.push(st as u8, 2, n);
             let ch = self.chord(st + 2);
             let down = ch.scale_step(n, -1);
-            // Passing tone between two scale tones a whole step apart.
-            n = if (st + 2) % 4 != 0 && n - down == 2 && self.chance(0.6) {
+            // Passing tone between two scale tones a whole step apart; at the
+            // bottom of the range, turn back up by a chord tone.
+            n = if down < LEAD_LO + 1 {
+                ch.nearest_strong(n + 4)
+            } else if (st + 2) % 4 != 0 && n - down == 2 && self.chance(0.6) {
                 n - 1
             } else {
                 down
@@ -2480,13 +2659,15 @@ impl Composer {
 
     /// A pentatonic run in 16ths, up or down, ending on a chord tone.
     fn pent_run(&mut self, l: &mut Line, up: bool) {
-        let ch = self.chord(0);
-        let pent: [u8; 5] = if ch.q.is_minor() {
-            [0, 3, 5, 7, 10]
-        } else if matches!(ch.q, Dom7alt | Dom7s9) {
-            [1, 4, 6, 8, 11] // minor pentatonic a half step up: all altered tones
-        } else {
-            [0, 2, 4, 7, 9]
+        let mut up = up;
+        let pent_of = |ch: Chord| -> [u8; 5] {
+            if ch.q.is_minor() {
+                [0, 3, 5, 7, 10]
+            } else if matches!(ch.q, Dom7alt | Dom7s9) {
+                [1, 4, 6, 8, 11] // minor pentatonic a half step up: all altered tones
+            } else {
+                [0, 2, 4, 7, 9]
+            }
         };
         let start = if self.chance(0.5) { 0 } else { 4 };
         let len = 8 + self.pick(5) as u32;
@@ -2503,8 +2684,14 @@ impl Composer {
             let ch_here = self.chord(st);
             let ln = if k + 1 == len { 4 } else { 1 };
             l.push(st as u8, ln, n);
-            // Next pentatonic tone of the chord (re-rooted as chords change).
+            // Next pentatonic tone of the chord (re-rooted as chords change);
+            // a run that reaches the edge of the range turns around rather
+            // than jumping an octave.
             let r = ch_here.root;
+            let pent = pent_of(ch_here);
+            if (up && n + 2 > LEAD_HI) || (!up && n < LEAD_LO + 2) {
+                up = !up;
+            }
             let mut m = n as i32;
             loop {
                 m += if up { 1 } else { -1 };
@@ -2552,7 +2739,7 @@ impl Composer {
         for k in 0..n {
             let (st, _, raw) = line.notes[k];
             let ch = self.chord(st as u32);
-            let note = fold((raw as i32 + shift).clamp(0, 127) as u8);
+            let note = soft_fold((raw as i32 + shift).clamp(0, 127) as u8);
             let mut out = if st % 4 == 0 {
                 ch.nearest_strong(note)
             } else if approach {
@@ -2560,6 +2747,18 @@ impl Composer {
             } else {
                 note
             };
+            // What the ear takes as the harmony is the long notes and the
+            // first note on a new chord: make those chord tones, and on a
+            // change prefer a nearby third or seventh (the guide tones).
+            if approach {
+                let ln = line.notes[k].1;
+                let new_chord = k == 0 || self.chord(line.notes[k - 1].0 as u32) != ch;
+                if new_chord && let Some(g) = nearest_guide(ch, out, 2) {
+                    out = g;
+                } else if ln >= 3 && !ch.is_strong(out) {
+                    out = ch.nearest_strong(out);
+                }
+            }
             // Snapping mustn't stall a moving line on a repeated note: keep
             // going the way the idea went, to the next chord tone.
             if let Some(p) = prev
@@ -2583,10 +2782,19 @@ impl Composer {
             prev = Some(out);
         }
         if approach {
+            // One chromatic approach per bar is spice; more is a trill.
+            let mut approached = false;
             for k in 0..n.saturating_sub(1) {
                 let (st, ln, _) = line.notes[k];
                 let (nst, _, target) = line.notes[k + 1];
-                if st % 4 != 0 && ln <= 2 && nst % 4 == 0 && nst - st <= 2 && self.chance(0.35) {
+                if !approached
+                    && st % 4 != 0
+                    && ln <= 2
+                    && nst % 4 == 0
+                    && nst - st <= 2
+                    && self.chance(0.35)
+                {
+                    approached = true;
                     let below = target.saturating_sub(1);
                     let prev = if k > 0 { line.notes[k - 1].2 } else { 0 };
                     line.notes[k].2 = if prev == below { target + 1 } else { below };
@@ -2594,10 +2802,18 @@ impl Composer {
             }
         }
         let i = self.intensity;
+        // Dynamics follow the phrase's arc: swell into the peak, ease off
+        // into the cadence.
+        const SHAPE: [f32; 8] = [0.9, 0.92, 0.97, 0.9, 0.95, 1.0, 1.1, 0.9];
+        let shape = SHAPE[self.plan.bar as usize % 8];
+        self.frag = Line::new();
+        self.lead_this_bar = true;
         for k in 0..n {
             let (st, ln, note) = line.notes[k];
             let ch = self.chord(st as u32);
-            let note = fold(note);
+            let note = soft_fold(note);
+            self.frag.push(st, ln, note);
+            self.lead_end = self.lead_end.max(st as u32 + ln as u32);
             if st % 4 == 0 {
                 debug_assert!(ch.is_strong(note));
                 #[cfg(test)]
@@ -2606,7 +2822,7 @@ impl Composer {
             let next_st = if k + 1 < n { line.notes[k + 1].0 } else { 99 };
             let legato = next_st as u32 <= st as u32 + ln as u32;
             let strong = st % 4 == 0 || ln >= 4;
-            let vel = (if strong { 0.85 } else { 0.68 }) * (0.8 + 0.3 * i);
+            let vel = (if strong { 0.85 } else { 0.68 }) * (0.8 + 0.3 * i) * shape;
             let jitter = (self.rand() * 120.0) as u32;
             let at = self.at(st as u32) + jitter;
             let len = self.len(ln as f32 * if legato { 1.02 } else { 0.85 });
@@ -2642,6 +2858,18 @@ fn fold(mut n: u8) -> u8 {
     n
 }
 
+/// Fold only notes well outside the lead's range, so a line that pokes a
+/// little over the edge keeps its shape instead of jumping an octave.
+fn soft_fold(mut n: u8) -> u8 {
+    while n > LEAD_HI + 3 {
+        n -= 12;
+    }
+    while n + 2 < LEAD_LO {
+        n += 12;
+    }
+    n
+}
+
 /// The note of pitch class `pc` nearest `near`.
 fn nearest_pc(near: u8, pc: u8) -> u8 {
     let base = near - near % 12 + pc;
@@ -2653,6 +2881,22 @@ fn nearest_pc(near: u8, pc: u8) -> u8 {
         }
     }
     best
+}
+
+/// The guide tone (third or seventh) of `ch` within `max` semitones of
+/// `note`, nearest first.
+fn nearest_guide(ch: Chord, note: u8, max: u8) -> Option<u8> {
+    let g = ch.q.guide();
+    let is_guide = |n: u8| g.contains(&((n + 12 - ch.root % 12) % 12));
+    for d in 0..=max {
+        if is_guide(note.saturating_sub(d)) {
+            return Some(note.saturating_sub(d));
+        }
+        if is_guide(note + d) {
+            return Some(note + d);
+        }
+    }
+    None
 }
 
 /// Move `steps` chord tones up or down from `note`.

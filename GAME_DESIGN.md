@@ -129,8 +129,13 @@ asked for, and what nobody has decided yet.
   slap and fretless bass, lead/brass with portamento, bell pad, kalimba), subtractive voices (a
   CS-80 style horn section that shouts, pushes and swells around the lead, string machine,
   Minimoog-style lead), a synthesized kit with ride, clap, shaker, congas and toms, and
-  foley-synth note-block bells/flute/harp/guitar. Per-bus EQ, chorus, a tempo-synced echo and
-  per-mood make-up gain keep the mix balanced (checked against a typical jazz/pop octave-band
+  foley-synth note-block bells/flute/harp/guitar. The lead tells a story over eight bars
+  (statement, answer, development to a peak in bar seven, restatement, cadence; chord tones on
+  long notes and guide tones on changes), a second voice answers it in its gaps (flute, harp,
+  kalimba, strings or horns by mood), and solos trade between two synths. The sound evolves:
+  brightness and reverb/echo amounts follow the sections, pads and horns drift slowly, and a
+  reversed cymbal rises into big sections. Per-bus EQ, chorus, a tempo-synced echo, a wet room
+  and per-mood make-up gain keep the mix balanced (checked against a typical jazz/pop octave-band
   balance with `cargo run -p fusion --release --bin fusion-render -- stems`). A director picks the next bars at every bar line from a mood: menu (signature hook
   over "Just the Two of Us" changes), meadow, commune/village (city-pop), forest/valley (flute,
   harp), maze/ruins (minor, bells), sky islands (dreamy), near Abuela (bolero), hide-and-seek

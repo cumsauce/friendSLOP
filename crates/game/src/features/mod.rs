@@ -10,6 +10,7 @@ pub mod ambience;
 pub mod bear;
 pub mod campaign;
 pub mod cat_palette;
+pub mod climb;
 pub mod crows;
 pub mod dave_commune;
 pub mod duel;
@@ -70,6 +71,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(villagers::protocol);
         app.add_plugins(campaign::protocol);
         app.add_plugins(romance::protocol);
+        app.add_plugins(climb::protocol);
     }
 }
 
@@ -109,5 +111,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(villagers::plugin);
         app.add_plugins(campaign::plugin);
         app.add_plugins(romance::plugin);
+        app.add_plugins(climb::plugin);
     }
 }

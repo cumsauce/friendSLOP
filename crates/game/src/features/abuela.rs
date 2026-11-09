@@ -534,7 +534,8 @@ fn hear_abuela(
     };
     if audio.is_some() {
         let seed = says.line as u32 * 31 + says.player as u32;
-        play_synth_at(&mut commands, chair_at() + Vec3::Y, 0.25, 0.6, move || {
+        let carry = crate::spatial::Carry::NEARBY;
+        play_synth_at(&mut commands, chair_at() + Vec3::Y, carry, 0.6, move || {
             wav_bytes(&voice(spanish, seed, RATE), RATE)
         });
     }

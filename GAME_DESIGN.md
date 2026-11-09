@@ -155,9 +155,19 @@ asked for, and what nobody has decided yet.
   music ducks under voice chat. `fusion-render climb <mood>` renders a climb and back. Local only,
   ~2.5% of a core, respects master volume. Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
-  wind loop, and a spatial crackling-fire loop at the campfire that gets louder as you approach.
+  wind loop, and a crackling-fire loop heard at the campfire.
   Procedural sounds (bear, HALT, voice lines, farts) render at 44.1 kHz with band-limited
-  oscillators, a gentle low-pass, click-free fades, normalised levels and dithered output. All of it comes from CC0 asset packs stored in Git LFS
+  oscillators, a gentle low-pass, click-free fades, normalised levels and dithered output.
+  **3D sound** (`spatial.rs`, polish): world sounds are heard where they are, through our own
+  little mixer (1/distance falloff past a near radius, equal-power level and arrival-time
+  differences between the ears, head shadow, darker behind you, air absorption with distance,
+  muffling when a collider is between you and the sound, and a small diffuse tail so far things
+  sound far). Spatial: crow caws (from the crow), the bear's growl (following the bear), other
+  people's farts (from where they farted; yours stay in your head), other players' footsteps,
+  the "aww" of a smitten NPC, Abuela's voice and the campfire. You hear from your head, facing
+  where the camera looks. **Voice chat is proximity in the world**: full within 3 m, fading out
+  and panned to where friends stand, but never below a faint floor (0.15), so everyone can still
+  talk from anywhere. Menus stay a party call. All of it comes from CC0 asset packs stored in Git LFS
   (`crates/game/assets`, credits in `crates/game/assets/CREDITS.md`); every peer renders the
   same scene from a fixed seed, and if the files are missing the game quietly falls back to its
   procedural-primitive look.

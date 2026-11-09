@@ -119,6 +119,7 @@ use crate::features::synth_audio::RATE;
 fn play_fart(
     farted: On<Farted>,
     mut commands: Commands,
+    me: Option<Res<LocalPlayer>>,
     players: Query<(&Player, &FartTone)>,
     audio: Option<Res<Assets<AudioSource>>>,
 ) {
@@ -132,9 +133,19 @@ fn play_fart(
         .unwrap_or_default();
     let fullness = farted.pressure as f32 / 100.0;
     let seed = farted.player as u32;
-    play_synth(&mut commands, move || {
-        wav_bytes(&fart_samples(&tone, fullness, seed, RATE), RATE)
-    });
+    let make = move || wav_bytes(&fart_samples(&tone, fullness, seed, RATE), RATE);
+    if me.is_some_and(|m| m.0 == farted.player) {
+        // Your own, right where you are.
+        play_synth(&mut commands, make);
+    } else {
+        // Someone else's: heard from where they let it go.
+        let at = Vec3::new(
+            farted.at.x,
+            crate::terrain::height_at(farted.at.x, farted.at.y) + 0.9,
+            farted.at.y,
+        );
+        crate::spatial::play_wav_at(&mut commands, at, 1.0, crate::spatial::Carry::LOUD, make);
+    }
 }
 
 /// Tuning keys: [ ] pitch, - = length, ; ' timbre.

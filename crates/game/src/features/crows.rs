@@ -10,7 +10,8 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::assets::{Sfx, play_sfx};
+use crate::assets::Sfx;
+use crate::spatial::{Carry, play_on};
 
 /// How many crows the server spawns.
 pub const CROW_COUNT: u32 = 3;
@@ -245,19 +246,21 @@ fn caw_sound(
     mut commands: Commands,
     time: Res<Time>,
     offset: Res<super::stillness::SessionOffset>,
-    crows: Query<&Crow>,
+    crows: Query<(Entity, &Crow)>,
     sfx: Option<Res<Sfx>>,
     mut last_caw: Local<[u64; CROW_COUNT as usize]>,
 ) {
     let Some(sfx) = sfx else { return };
     let t = super::stillness::session_secs(&time, &offset);
-    for crow in &crows {
+    for (entity, crow) in &crows {
         // Key the edge on which caw window this is, not on a bool that goes
         // stale when we leave and re-enter the game mid-caw.
         let slot = crow.id as usize % last_caw.len();
         let window = ((t + crow.id as f32 * 2.3) / caw_period(crow.id)) as u64 + 1;
         if is_cawing(crow.id, t) && last_caw[slot] != window {
-            play_sfx(&mut commands, &sfx.crow_caw, 0.7);
+            // From the crow's beak, wherever it flies.
+            let beak = Vec3::new(0.0, 0.3, -0.3);
+            play_on(&mut commands, &sfx.crow_caw, entity, beak, 0.8, Carry::CALL);
             last_caw[slot] = window;
         }
     }

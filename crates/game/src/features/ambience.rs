@@ -11,7 +11,7 @@
 
 use std::sync::Arc;
 
-use bevy::audio::{AudioSource, SpatialScale, Volume};
+use bevy::audio::{AudioSource, Volume};
 use bevy::prelude::*;
 
 use crate::AppState;
@@ -27,8 +27,7 @@ struct AmbientSounds {
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, load_ambience)
         .add_systems(OnEnter(AppState::InGame), start_ambience)
-        .add_systems(Update, district_mix.run_if(in_state(AppState::InGame)))
-        .add_observer(ears_on_camera);
+        .add_systems(Update, district_mix.run_if(in_state(AppState::InGame)));
 }
 
 fn load_ambience(
@@ -49,13 +48,6 @@ fn load_ambience(
     });
 }
 
-/// Spatial audio needs a listener: the 3D camera is our ears.
-fn ears_on_camera(add: On<Add<Camera3d>>, mut commands: Commands) {
-    commands
-        .entity(add.entity)
-        .insert(SpatialListener::new(0.4));
-}
-
 fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
     let Some(sounds) = sounds else { return };
     let bed = |handle: &Handle<AudioSource>, volume: f32| {
@@ -67,17 +59,14 @@ fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
     };
     commands.spawn((bed(&sounds.birds, 0.18), Bed::Birds));
     commands.spawn((bed(&sounds.wind, 0.22), Bed::Wind));
-    commands.spawn((
-        AudioPlayer(sounds.fire.clone()),
-        PlaybackSettings::LOOP
-            .with_volume(Volume::Linear(0.9))
-            .with_spatial(true)
-            // World units are metres; shrink them so the fire carries a
-            // few metres before fading.
-            .with_spatial_scale(SpatialScale::new(0.15)),
-        Transform::from_translation(crate::scenery::BONFIRE_AT + Vec3::Y * 0.5),
-        DespawnOnExit(AppState::InGame),
-    ));
+    // Heard where it burns (see `crate::spatial`).
+    crate::spatial::loop_at(
+        &mut commands,
+        &sounds.fire,
+        crate::scenery::BONFIRE_AT + Vec3::Y * 0.5,
+        0.9,
+        crate::spatial::Carry::NEARBY,
+    );
 }
 
 /// Which looping bed an ambient player is, so the district mix can steer it.

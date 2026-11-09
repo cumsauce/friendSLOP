@@ -16,7 +16,6 @@ use crate::AppState;
 use crate::features::bear::{Bear, wav_bytes};
 use crate::features::crows::Crow;
 use crate::features::fart::{Farted, SHAME_RADIUS, npc_spots};
-use crate::features::synth_audio::play_synth;
 
 /// One shameful fart in this many makes the witness fall for you.
 pub const SMITTEN_ONE_IN: u32 = 3;
@@ -118,7 +117,16 @@ fn swoon(
         return;
     }
     if audio.is_some() {
-        play_synth(&mut commands, || wav_bytes(&aww(AWW_RATE), AWW_RATE));
+        // From the smitten one.
+        let at = Vec3::new(
+            smitten.at.x,
+            crate::terrain::height_at(smitten.at.x, smitten.at.y) + 1.5,
+            smitten.at.y,
+        );
+        let carry = crate::spatial::Carry::CALL;
+        crate::spatial::play_wav_at(&mut commands, at, 1.0, carry, || {
+            wav_bytes(&aww(AWW_RATE), AWW_RATE)
+        });
     }
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
         return;

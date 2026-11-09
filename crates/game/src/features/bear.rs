@@ -289,7 +289,7 @@ fn growl(
     time: Res<Time>,
     offset: Res<super::stillness::SessionOffset>,
     mut commands: Commands,
-    bears: Query<(), With<Bear>>,
+    bears: Query<Entity, With<Bear>>,
     sound: Option<Res<GrowlSound>>,
     mut played: Local<u64>,
     mut text: Query<&mut Text, With<GrowlText>>,
@@ -301,13 +301,13 @@ fn growl(
     if growling
         && *played != window
         && let Some(sound) = &sound
+        && let Some(bear) = bears.iter().next()
     {
         *played = window;
-        commands.spawn((
-            AudioPlayer(sound.0.clone()),
-            PlaybackSettings::DESPAWN,
-            DespawnOnExit(AppState::InGame),
-        ));
+        // From the bear's mouth, following it as it ambles.
+        let mouth = Vec3::new(0.0, 1.8, -0.5);
+        let carry = crate::spatial::Carry::CALL;
+        crate::spatial::play_on(&mut commands, &sound.0, bear, mouth, 1.0, carry);
     }
     let want = if growling {
         "grrr~ (the bear, cutely)"

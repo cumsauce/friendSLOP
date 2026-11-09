@@ -165,6 +165,10 @@ asked for, and what nobody has decided yet.
   by a "cheek" filter. Each player tunes their own fart: `[` `]` pitch (30-400 Hz), `-` `=`
   length (0.15-4 s for a full tank; emptier tanks are shorter), `;` `'` timbre (tight and dry
   to loose and wet, with sputtering). The settings are shown bottom-right.
+- **Romance** (#97). Sometimes (one shameful fart in three) the NPC who caught you farting
+  falls for you instead of just judging: pink hearts float up above them and everyone hears a
+  soft, generated chorus of "aww". You are still shamed. It's only a moment so far; the NPC
+  doesn't remember you afterwards.
 
 - **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
   Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
@@ -337,6 +341,8 @@ asked for, and what nobody has decided yet.
 
 - doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
   pitch.
+- Kori.exe (#97): sometimes an NPC who catches you farting gets hearts above them and makes
+  soft sounds of awe.
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave. Freyja Moth (#43): its flag is themed on the UK flag, with the Welsh
@@ -368,6 +374,7 @@ asked for, and what nobody has decided yet.
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
+- An NPC can fall for you now (#97). Should that lead anywhere?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?

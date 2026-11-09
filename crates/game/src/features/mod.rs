@@ -30,6 +30,7 @@ pub mod objective;
 pub mod organ_currency;
 pub mod pets;
 pub mod random_dialogue;
+pub mod romance;
 pub mod stats;
 pub mod stillness;
 pub mod synth_audio;
@@ -68,6 +69,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(hide_and_seek::protocol);
         app.add_plugins(villagers::protocol);
         app.add_plugins(campaign::protocol);
+        app.add_plugins(romance::protocol);
     }
 }
 
@@ -106,5 +108,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(hide_and_seek::plugin);
         app.add_plugins(villagers::plugin);
         app.add_plugins(campaign::plugin);
+        app.add_plugins(romance::plugin);
     }
 }

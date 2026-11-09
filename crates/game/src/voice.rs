@@ -16,14 +16,15 @@ pub struct VoicePlugin;
 
 impl Plugin for VoicePlugin {
     fn build(&self, app: &mut App) {
-        // Voice needs cpal's capture/playback threads, which a browser tab
-        // doesn't have: the web build (#106) keeps the M toggle but no audio.
-        #[cfg(not(target_arch = "wasm32"))]
+        // Added in the browser too (#106): cpal can't start its capture and
+        // playback threads there, so a browser peer has no audio, but
+        // `VoiceRepliconPlugin` must register the same messages on every peer
+        // or browser and desktop protocols wouldn't match.
         app.add_plugins(VoiceChatPlugin::default())
             .add_plugins(VoiceRepliconPlugin::default());
         #[cfg(target_arch = "wasm32")]
-        app.init_resource::<VoiceInput>().add_systems(Startup, || {
-            info!("voice chat is not available in the browser yet");
+        app.add_systems(Startup, || {
+            info!("voice chat has no audio in the browser yet (you can play, not talk)");
         });
         app.init_resource::<VoiceMuted>()
             .add_observer(tag_speaker)

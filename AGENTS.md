@@ -69,7 +69,8 @@ crates/game/src/
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)
   controls.rs   touch overlay + gamepad, fed into the same keys / WalkInput as keyboard+mouse
   graphics.rs   Low/High graphics preset (Low by default in the browser)
-  net_web.rs, web.rs  wasm32 stand-ins: no iroh transport (solo), no voice, localStorage
+  net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (net_wire.rs)
+  web.rs        wasm32 helpers (localStorage)
   landmarks.rs  pond, campfire seats/stones and string lights dressing (local visuals)
   features/     one module per idea, see features/README.md
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
@@ -115,7 +116,10 @@ cargo clippy -p friendslop --target wasm32-unknown-unknown   # the web build mus
 scripts/build-web.sh && python3 -m http.server -d dist/web   # browser build (needs wasm-bindgen-cli)
 ```
 
-Web (#106): native-only deps (iroh transport, voice, clipboard, tokio) are target-gated in
-`crates/game/Cargo.toml`. In game code avoid `std::time::SystemTime`/`std::time::Instant` (they
+Web (#106): native-only deps (bevy_replicon_iroh, tokio, clipboard) are target-gated in
+`crates/game/Cargo.toml`; the browser has its own iroh transport (`net_web.rs`) that must stay
+byte-compatible with bevy_replicon_iroh (`net_wire.rs`, checked by its tests). Every replicon
+registration (voice included) must be the same in the browser, or browser and desktop peers
+can't connect: never `cfg`-gate a `replicate`/`add_*_message`/`add_*_event`. In game code avoid `std::time::SystemTime`/`std::time::Instant` (they
 panic in the browser: use `settings::since_epoch` / `bevy::platform::time::Instant`), `std::fs`
 (use `settings::load_local`/`save_local`) and threads.

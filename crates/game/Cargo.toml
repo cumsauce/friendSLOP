@@ -13,6 +13,10 @@ avian_rerecast.workspace = true
 bevy_landmass.workspace = true
 landmass_rerecast.workspace = true
 serde.workspace = true
+# Voice chat on every peer. In the browser cpal has no capture/playback device,
+# so audio stays off, but the replicon protocol it registers (VoiceUp/VoiceDown)
+# must be identical to the desktop's or browser and desktop peers can't talk.
+bevy_voice_chat.workspace = true
 
 # Native only: the iroh transport (a tokio runtime plus `block_on` every tick),
 # voice chat (cpal capture/playback threads) and the clipboard can't run on a
@@ -20,15 +24,25 @@ serde.workspace = true
 # see "Web build" in GAME_DESIGN.md.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 bevy_replicon_iroh.workspace = true
-bevy_voice_chat.workspace = true
 tokio.workspace = true
 arboard.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-web-sys = { version = "0.3", features = ["Window", "Storage"] }
+web-sys = { version = "0.3", features = [
+  "Window", "Storage", "Navigator", "Clipboard", "ClipboardEvent", "DataTransfer",
+  "Document", "Event", "EventTarget",
+] }
+wasm-bindgen = "0.2"
 # getrandom 0.3 also needs `--cfg getrandom_backend="wasm_js"` (.cargo/config.toml).
 getrandom = { version = "0.3", features = ["wasm_js"] }
 js-sys = "0.3"
+# Browser transport (net_web.rs): iroh runs relay-only in the browser and
+# speaks bevy_replicon_iroh's wire protocol to desktop peers.
+iroh = "1.3"
+n0-future = "0.3"
+wasm-bindgen-futures = "0.4"
+async-channel = "2"
+bytes = "1"
 
 [lints]
 workspace = true

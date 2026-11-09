@@ -20,9 +20,11 @@ pub mod kcc;
 pub mod landmarks;
 pub mod loading;
 pub mod menu;
-// The browser build has no iroh transport yet: same API, solo play (#106).
+// The browser has its own iroh transport (relay-only, async), same API (#106).
 #[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
 pub mod net;
+/// `bevy_replicon_iroh`'s wire format, shared by the browser transport.
+pub mod net_wire;
 pub mod people;
 pub mod player;
 pub mod scenery;
@@ -35,11 +37,10 @@ pub mod web;
 pub mod world;
 pub mod zones;
 
-/// `bevy_voice_chat`'s prelude natively; inert stand-ins in the browser (#106).
+/// `bevy_voice_chat`'s prelude. It is built for the browser too (#106): there
+/// it finds no audio devices, but its replicon messages keep the protocol
+/// identical to desktop peers.
 pub mod voice_chat {
-    #[cfg(target_arch = "wasm32")]
-    pub use crate::web::voice_chat::*;
-    #[cfg(not(target_arch = "wasm32"))]
     pub use bevy_voice_chat::prelude::*;
 }
 

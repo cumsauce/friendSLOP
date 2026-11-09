@@ -661,46 +661,19 @@ fn avoid_cover(
 #[derive(Component)]
 struct Dressed;
 
-/// The body part that squashes when sitting and bobs when walking.
-#[derive(Component)]
-struct VillagerBody;
-
-/// Same body as a player (people.rs), coloured like player ids so hiders blend in.
-fn dress_villagers(
-    mut commands: Commands,
-    new: Query<(Entity, &Villager), Without<Dressed>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut kit: ResMut<crate::people::PeopleKit>,
-) {
+/// The same rigged character system as players (people.rs).
+fn dress_villagers(mut commands: Commands, new: Query<(Entity, &Villager), Without<Dressed>>) {
     for (entity, v) in &new {
-        commands
-            .entity(entity)
-            .insert((
-                Dressed,
-                crate::people::Gait::default(),
-                Transform::from_xyz(v.pos.x, 0.0, v.pos.y)
-                    .with_rotation(Quat::from_rotation_y(v.yaw)),
-                Visibility::default(),
-                Clickable::at_height(1.0).radius(60.0),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                p.spawn((VillagerBody, Transform::default(), Visibility::default()))
-                    .with_children(|b| {
-                        crate::people::spawn_person(
-                            b,
-                            entity,
-                            &mut kit,
-                            &mut meshes,
-                            &mut materials,
-                            crate::people::Look::for_index(
-                                (v.id as u64 * 3) % 8,
-                                1000 + v.id as u64 * 13,
-                            ),
-                        );
-                    });
-            });
+        commands.entity(entity).insert((
+            Dressed,
+            crate::people::Gait::default(),
+            Transform::from_xyz(v.pos.x, 0.0, v.pos.y).with_rotation(Quat::from_rotation_y(v.yaw)),
+            Visibility::default(),
+            Clickable::at_height(1.0).radius(60.0),
+            // Drawn from the same pool as players' looks, so hiders blend in.
+            crate::people::CharacterLook::random(1000 + v.id as u64 * 13),
+            DespawnOnExit(AppState::InGame),
+        ));
     }
 }
 
@@ -708,7 +681,7 @@ fn dress_villagers(
 fn move_villagers(
     time: Res<Time>,
     mut villagers: Query<(&Villager, &mut Transform, &Children), With<Dressed>>,
-    mut bodies: Query<&mut Transform, (With<VillagerBody>, Without<Dressed>)>,
+    mut bodies: Query<&mut Transform, (With<crate::people::RigRoot>, Without<Dressed>)>,
 ) {
     let t = 1.0 - (-6.0 * time.delta_secs()).exp();
     let now = time.elapsed_secs();

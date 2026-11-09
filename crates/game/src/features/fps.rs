@@ -46,10 +46,13 @@ pub struct Walker {
 /// Server only: the latest input of a walker, plus the fallback's fall speed.
 #[derive(Component, Default, Debug)]
 pub struct WalkInput {
-    stick: Vec2,
-    jump: bool,
+    pub(crate) stick: Vec2,
+    pub(crate) jump: bool,
     run: bool,
     vy: f32,
+    /// Host: climbing this tick (#99), so `climb` moves the body, not the
+    /// controller.
+    pub(crate) climbing: bool,
 }
 
 /// Client -> server, every frame while walking (local x = right, y = forward).
@@ -217,7 +220,7 @@ fn move_walkers(
 /// from bevy_ahoy) against the real physics world — terrain, village and
 /// scenery colliders all alike, no special cases.
 #[allow(clippy::type_complexity)]
-fn kcc_move_walkers(
+pub(crate) fn kcc_move_walkers(
     time: Res<Time>,
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
@@ -230,8 +233,8 @@ fn kcc_move_walkers(
     // The old movement ticked per frame with a clamped dt; keep that.
     let dt = time.delta_secs().min(0.1);
     for (player, mut walker, input, mut kcc) in &mut walkers {
-        if duelists.iter().any(|d| d.player == player.id) {
-            continue; // your duel body is the one moving
+        if input.climbing || duelists.iter().any(|d| d.player == player.id) {
+            continue; // climbing (see `climb.rs`), or your duel body is moving
         }
         let speed = if input.run {
             crate::kcc::RUN_SPEED
@@ -531,13 +534,13 @@ fn place_labels(
 #[derive(Component)]
 struct WalkerDressed;
 
-/// Everyone gets the shared commune-person body (people.rs) in their colour.
+/// Everyone gets a rigged body (people.rs) built from their replicated
+/// `CharacterLook`; the `Gait` makes people.rs build and animate it.
 fn dress_walkers(
     mut commands: Commands,
     new: Query<(Entity, &Player, &Walker), Without<WalkerDressed>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut kit: ResMut<crate::people::PeopleKit>,
 ) {
     for (entity, player, walker) in &new {
         let marker = materials.add(StandardMaterial {
@@ -574,14 +577,6 @@ fn dress_walkers(
                     Transform::from_xyz(0.0, 2.15, 0.0)
                         .with_rotation(Quat::from_rotation_x(std::f32::consts::PI)),
                 ));
-                crate::people::spawn_person(
-                    p,
-                    entity,
-                    &mut kit,
-                    &mut meshes,
-                    &mut materials,
-                    crate::people::Look::for_index(player.id, player.id.wrapping_mul(7) + 1),
-                );
             });
     }
 }

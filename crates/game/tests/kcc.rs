@@ -198,3 +198,106 @@ fn jumps_and_comes_back_down() {
     }
     assert!(landed, "never landed after a jump, at {feet}");
 }
+
+#[derive(Resource)]
+struct Climber {
+    kcc: friendslop::kcc::Kcc,
+    feet: Vec3,
+    climbed: bool,
+}
+
+/// One host tick with W held. With `space` down, climb if there's a face and
+/// jump otherwise (Space is both keys, as in the game); with `space` up, walk.
+fn climb_tick(app: &mut App, c: Climber, space: bool) -> Climber {
+    app.insert_resource(c);
+    app.world_mut()
+        .run_system_once(
+            move |move_and_slide: MoveAndSlide, mut c: ResMut<Climber>| {
+                let dt = 1.0 / 60.0;
+                let feet = c.feet;
+                if let Some((feet, v)) = space
+                    .then(|| {
+                        friendslop::features::climb::climb_step(
+                            &move_and_slide,
+                            feet,
+                            0.0,
+                            Vec2::Y,
+                            dt,
+                        )
+                    })
+                    .flatten()
+                {
+                    c.feet = feet;
+                    c.kcc.velocity = v;
+                    c.kcc.grounded = None;
+                    c.climbed = true;
+                } else {
+                    let mut kcc = c.kcc;
+                    c.feet = friendslop::kcc::step(
+                        &mut kcc,
+                        feet,
+                        0.0,
+                        Vec2::Y,
+                        space,
+                        friendslop::kcc::WALK_SPEED,
+                        dt,
+                        &move_and_slide,
+                    );
+                    c.kcc = kcc;
+                }
+            },
+        )
+        .expect("climb tick");
+    app.world_mut()
+        .remove_resource::<Climber>()
+        .expect("climber")
+}
+
+#[test]
+fn climbs_a_tall_block_and_hauls_over_the_top() {
+    let mut app = world();
+    // A 4 m block, 30 m east of the others: far too tall to jump or step.
+    app.world_mut().spawn((
+        RigidBody::Static,
+        Collider::cuboid(4.0, 4.0, 4.0),
+        Transform::from_xyz(12.0, 2.0, -4.0),
+    ));
+    for _ in 0..3 {
+        app.update();
+    }
+    let mut c = Climber {
+        kcc: friendslop::kcc::Kcc::default(),
+        feet: Vec3::new(12.0, 0.0, 1.0),
+        climbed: false,
+    };
+    // Walk up to it, climb, haul over, and stand on top.
+    let mut on_top = None;
+    for tick in 0..600 {
+        c = climb_tick(&mut app, c, true);
+        if c.climbed && c.kcc.grounded.is_some() {
+            on_top = Some((tick, c.feet));
+            break;
+        }
+    }
+    let Some((tick, feet)) = on_top else {
+        panic!("never landed after climbing, ended at {}", c.feet);
+    };
+    assert!(
+        feet.y > 3.9 && feet.y < 4.2,
+        "lands on top of the block, got {feet}"
+    );
+    assert!(
+        tick < 300,
+        "climbing 4 m takes a few seconds, took {tick} ticks"
+    );
+    // Let go of Space and walk on across the top rather than slipping back
+    // down. (Still holding Space just bunnies, since Space is jump too.)
+    for _ in 0..20 {
+        c = climb_tick(&mut app, c, false);
+    }
+    assert!(
+        c.feet.y > 3.9 && c.feet.z < -2.5,
+        "walking on top, got {}",
+        c.feet
+    );
+}

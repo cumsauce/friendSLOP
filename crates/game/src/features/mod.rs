@@ -10,6 +10,7 @@ pub mod ambience;
 pub mod bear;
 pub mod campaign;
 pub mod cat_palette;
+pub mod climb;
 pub mod crows;
 pub mod dave_commune;
 pub mod duel;
@@ -30,6 +31,7 @@ pub mod objective;
 pub mod organ_currency;
 pub mod pets;
 pub mod random_dialogue;
+pub mod romance;
 pub mod stats;
 pub mod stillness;
 pub mod synth_audio;
@@ -68,6 +70,9 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(hide_and_seek::protocol);
         app.add_plugins(villagers::protocol);
         app.add_plugins(campaign::protocol);
+        app.add_plugins(romance::protocol);
+        app.add_plugins(climb::protocol);
+        app.add_plugins(crate::people::protocol);
     }
 }
 
@@ -106,5 +111,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(hide_and_seek::plugin);
         app.add_plugins(villagers::plugin);
         app.add_plugins(campaign::plugin);
+        app.add_plugins(romance::plugin);
+        app.add_plugins(climb::plugin);
     }
 }

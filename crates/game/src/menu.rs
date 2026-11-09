@@ -103,14 +103,14 @@ impl JoinCode {
     }
 }
 
-const CARD: Color = Color::srgba(1.0, 0.98, 1.0, 0.88);
+pub(crate) const CARD: Color = Color::srgba(1.0, 0.98, 1.0, 0.88);
 const FIELD: Color = Color::srgb(1.0, 0.92, 0.96);
-const PINK: Color = Color::srgb(1.0, 0.55, 0.76);
-const LILAC: Color = Color::srgb(0.7, 0.6, 0.98);
-const MINT: Color = Color::srgb(0.42, 0.8, 0.68);
-const GREY: Color = Color::srgb(0.6, 0.55, 0.62);
-const INK: Color = Color::srgb(0.42, 0.24, 0.4);
-const SOFT_INK: Color = Color::srgb(0.6, 0.45, 0.58);
+pub(crate) const PINK: Color = Color::srgb(1.0, 0.55, 0.76);
+pub(crate) const LILAC: Color = Color::srgb(0.7, 0.6, 0.98);
+pub(crate) const MINT: Color = Color::srgb(0.42, 0.8, 0.68);
+pub(crate) const GREY: Color = Color::srgb(0.6, 0.55, 0.62);
+pub(crate) const INK: Color = Color::srgb(0.42, 0.24, 0.4);
+pub(crate) const SOFT_INK: Color = Color::srgb(0.6, 0.45, 0.58);
 const OK: Color = Color::srgb(0.3, 0.62, 0.45);
 const ERR: Color = Color::srgb(0.85, 0.3, 0.38);
 
@@ -127,11 +127,11 @@ enum Label {
 
 /// A button's resting color, brightened while hovered.
 #[derive(Component, Clone, Copy)]
-struct BaseColor(Color);
+pub(crate) struct BaseColor(pub(crate) Color);
 
 /// The settings card, toggled by the Settings button (or Tab).
 #[derive(Component)]
-struct SettingsPanel;
+pub(crate) struct SettingsPanel;
 
 /// The pill behind the status line (tinted by what the message says).
 #[derive(Component)]
@@ -283,12 +283,17 @@ fn spawn_menu(mut commands: Commands) {
                 spacer(ui, 4.0);
 
                 row(ui, |r| {
-                    button(r, "Settings", MINT, 160.0).observe(
+                    button(r, "Character", LILAC, 120.0).observe(
+                        |_: On<PointerClick>, mut open: ResMut<crate::creator::CreatorOpen>| {
+                            open.0 = !open.0;
+                        },
+                    );
+                    button(r, "Settings", MINT, 120.0).observe(
                         |_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>| {
                             toggle_settings(&mut panel);
                         },
                     );
-                    button(r, "Quit", GREY, 160.0).observe(
+                    button(r, "Quit", GREY, 100.0).observe(
                         |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
                             exit.write(AppExit::Success);
                         },
@@ -354,7 +359,6 @@ fn spawn_backdrop(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
     assets: Res<AssetServer>,
-    mut kit: ResMut<crate::people::PeopleKit>,
 ) {
     let out = DespawnOnExit(AppState::Menu);
     let horizon = crate::atmosphere::horizon_colour();
@@ -375,6 +379,8 @@ fn spawn_backdrop(
         },
         orbit(0.0),
         MenuCamera,
+        // The character preview camera draws on top; the menu UI stays here.
+        IsDefaultUiCamera,
         out.clone(),
     ));
     commands.insert_resource(GlobalAmbientLight {
@@ -497,24 +503,13 @@ fn spawn_backdrop(
         let p = Vec2::from_angle(ang) * 2.6;
         // Face the fire (bodies look along -Z).
         let facing = Transform::from_xyz(p.x, 0.0, p.y).looking_at(Vec3::ZERO, Vec3::Y);
-        let root = commands
-            .spawn((
-                crate::people::Gait::default(),
-                facing,
-                Visibility::default(),
-                out.clone(),
-            ))
-            .id();
-        commands.entity(root).with_children(|b| {
-            crate::people::spawn_person(
-                b,
-                root,
-                &mut kit,
-                &mut meshes,
-                &mut materials,
-                crate::people::Look::for_index(i as u64 * 2 + 1, 4242 + i as u64 * 7),
-            );
-        });
+        commands.spawn((
+            crate::people::Gait::default(),
+            crate::people::CharacterLook::random(4242 + i as u64 * 7),
+            facing,
+            Visibility::default(),
+            out.clone(),
+        ));
     }
 
     // Bunting between two poles behind the fire.
@@ -878,7 +873,7 @@ fn hover_buttons(
     }
 }
 
-fn text(ui: &mut ChildSpawnerCommands, s: &str, size: f32, color: Color) {
+pub(crate) fn text(ui: &mut ChildSpawnerCommands, s: &str, size: f32, color: Color) {
     ui.spawn((
         Text::new(s),
         TextFont::from_font_size(size),
@@ -893,7 +888,7 @@ fn spacer(ui: &mut ChildSpawnerCommands, h: f32) {
     });
 }
 
-fn row(ui: &mut ChildSpawnerCommands, f: impl FnOnce(&mut ChildSpawnerCommands)) {
+pub(crate) fn row(ui: &mut ChildSpawnerCommands, f: impl FnOnce(&mut ChildSpawnerCommands)) {
     ui.spawn(Node {
         column_gap: px(12),
         align_items: AlignItems::Center,

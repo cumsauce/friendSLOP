@@ -38,6 +38,17 @@ impl Settings {
     }
 }
 
+/// Where a small local file (like the saved character) lives: the OS config
+/// folder, under `friendslop/`. `None` if the platform tells us nothing.
+pub fn config_path(file: &str) -> Option<std::path::PathBuf> {
+    use std::path::PathBuf;
+    let base = std::env::var_os("APPDATA")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from))
+        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))?;
+    Some(base.join("friendslop").join(file))
+}
+
 pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {

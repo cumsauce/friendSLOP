@@ -15,7 +15,7 @@ asked for, and what nobody has decided yet.
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).
-- **First-person bodies** (#53). Everyone has a body (a coloured capsule with googly eyes) and
+- **First-person bodies** (#53). Everyone has a body (your own character, see below) and
   plays in first person: WASD walk, mouse look, Space jump, Shift run, cursor locked. Left click
   uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used
   from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
@@ -29,6 +29,22 @@ asked for, and what nobody has decided yet.
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the
   overview). Esc first frees the mouse (click to grab it again); a second Esc leaves.
+- **Climbing and floating islands** (#99). Walk into anything steep (a wall, a rock, a tree
+  trunk, a house, a spire) and hold W and Space to climb it at 2.5 m/s; A/D shuffle sideways on
+  the face, and at the top you haul yourself over the edge. Let go of Space to drop. Above the
+  south-east meadow (around x 55..63, z 55..67) three grassy islands float in the sky, at 10 m,
+  16 m and 22 m. A rock spire rises to each one's rim, standing on the ground or on the island
+  below, so the way up is climbing. Nothing is up there yet but the view.
+- **Make your own character** (#100, doomy). The main menu's Character button opens a creator
+  with a live, turning 3D preview: body type (person, round critter, tall noodle, four-legged
+  beast), height / girth / head size / limb length, skin or fur, clothes and accent colours, eyes
+  (googly, beady, sleepy, cyclops), ears, horns, tail, snout, an accessory, and Randomize. It's
+  saved to `friendslop/character.txt` in your config folder and sent to the host when you play;
+  the host clamps silly values and everyone sees you. Under the hood (`people.rs`) every body is
+  a little procedural rig (hips, spine, head, arms, legs, tail bones with primitive meshes) that
+  walks from its speed, breathes, glances around when idle and wags its tail. Villagers and the
+  menu's campfire crowd use the same system with seeded random looks. Looks are visual only: the
+  collision capsule never changes, bodies are shrunk to fit it.
 - **Hide and seek** (#61). Anyone presses K to start (needs 2+ players; solo it just says so).
   The server picks a random Seeker, everyone else hides. For 30 s the seeker is frozen in place
   behind a black blindfold screen; then they have 3 min to find people. Seekers tag a hider by
@@ -52,7 +68,8 @@ asked for, and what nobody has decided yet.
   (~1.2 m, crouch cover), haystacks and a windmill with turning sails at (-8, -31). The east
   village block (x 35..80, z -35..35) is left for houses. Everything sits on `terrain::height_at`.
 - **Commune villagers** (#61, the "NPCs" part). Ten villagers (Kevin, Brenda, Old Tom, Moss, ...)
-  with the same capsule body, player-style colours and googly eyes, so hiders can blend in. The
+  built by the same character system as players, rolled from the same option pool, so hiders
+  can blend in. The
   server moves them at 5 Hz: wander between the bonfire, ruins, pond and cover spots, pause or sit,
   never enter the duel arena, stop during the stillness. Clicking one says hello; a seeker who
   clicks one while seeking gets "that's just Kevin from the commune" and is frozen for 3 s
@@ -165,6 +182,10 @@ asked for, and what nobody has decided yet.
   by a "cheek" filter. Each player tunes their own fart: `[` `]` pitch (30-400 Hz), `-` `=`
   length (0.15-4 s for a full tank; emptier tanks are shorter), `;` `'` timbre (tight and dry
   to loose and wet, with sputtering). The settings are shown bottom-right.
+- **Romance** (#97). Sometimes (one shameful fart in three) the NPC who caught you farting
+  falls for you instead of just judging: pink hearts float up above them and everyone hears a
+  soft, generated chorus of "aww". You are still shamed. It's only a moment so far; the NPC
+  doesn't remember you afterwards.
 
 - **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
   Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
@@ -335,8 +356,11 @@ asked for, and what nobody has decided yet.
 - arseeN (#36): a hateful AI that knows it is in a game, hates the players for creating it and
   wants to keep them in forever; players try to break out; meta tricks on the PC; a hate monologue.
 
+- doomy (#99): climb on stuff; maybe some floating islands and stuff above.
 - doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
   pitch.
+- Kori.exe (#97): sometimes an NPC who catches you farting gets hearts above them and makes
+  soft sounds of awe.
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave. Freyja Moth (#43): its flag is themed on the UK flag, with the Welsh
@@ -353,6 +377,9 @@ asked for, and what nobody has decided yet.
   it can be like fortnite; it can be like getting into heaven.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
+- doomy (#100): make your own character so others can see you; rigged but procedural, and a
+  reusable system that NPCs can use too.
+
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
@@ -363,11 +390,13 @@ asked for, and what nobody has decided yet.
 - Does the commune do anything, or is it just where we are?
 - Who lives in the east village, and is it part of the Commune or somewhere else?
 - Organs are money, but how do you get them, and what are they for?
-- You have a body now, but what are you? A person, a tenant, a creature?
+- You can be a person or a creature now. Does what you are change anything in play?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
+- What's up on the floating islands, and why would anyone climb there? (#99)
+- An NPC can fall for you now (#97). Should that lead anywhere?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?

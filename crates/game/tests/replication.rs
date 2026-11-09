@@ -1078,3 +1078,122 @@ fn finishing_a_chapter_moves_everyone_to_the_next() {
     assert_eq!(c.chapter, 1, "on to chapter 2");
     assert!(!c.complete());
 }
+
+#[test]
+fn some_shameful_farts_are_romantic() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::fart::{Fart, Gas, npc_spots};
+    use friendslop::features::romance::Smitten;
+
+    #[derive(Resource, Default)]
+    struct Swoons(Vec<Smitten>);
+
+    let (mut server, mut client) = (peer(), peer());
+    client.init_resource::<Swoons>();
+    client
+        .world_mut()
+        .add_observer(|s: On<Smitten>, mut swoons: ResMut<Swoons>| swoons.0.push(*s));
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    // Dave never moves: fart right in front of him, again and again.
+    let dave = npc_spots(0.0, [], [])[0];
+    for _ in 0..12 {
+        let world = server.world_mut();
+        for mut gas in world.query::<&mut Gas>().iter_mut(world) {
+            gas.0 = 100;
+        }
+        step(&mut server, &mut client);
+        client.world_mut().client_trigger(Fart { at: dave });
+        step(&mut server, &mut client);
+    }
+    let swoons = &client.world().resource::<Swoons>().0;
+    assert!(
+        !swoons.is_empty() && swoons.len() < 12,
+        "sometimes, not always: {}",
+        swoons.len()
+    );
+    assert!(swoons.iter().all(|s| s.player == 1));
+}
+
+/// Run the server and every client a few ticks.
+fn step_all(server: &mut App, clients: &mut [&mut App]) {
+    for _ in 0..3 {
+        server.update();
+        for c in clients.iter_mut() {
+            server.exchange_with_client(c);
+            c.update();
+        }
+    }
+}
+
+fn look_of(app: &mut App, id: u64) -> Option<friendslop::people::CharacterLook> {
+    use friendslop::people::CharacterLook;
+    let world = app.world_mut();
+    world
+        .query::<(&Player, &CharacterLook)>()
+        .iter(world)
+        .find(|(p, _)| p.id == id)
+        .map(|(_, l)| *l)
+}
+
+#[test]
+fn a_clients_character_look_replicates_to_everyone() {
+    use friendslop::people::{CharacterLook, SetLook};
+    let (mut server, mut a, mut b) = (peer(), peer(), peer());
+    server.connect_client(&mut a);
+    server.connect_client(&mut b);
+    step_all(&mut server, &mut [&mut a, &mut b]);
+    assert!(look_of(&mut b, 1).is_some(), "everyone starts with a look");
+
+    let mine = CharacterLook {
+        body: 3,
+        height: 0.9,
+        horns: 2,
+        tail: 3,
+        accessory: 6,
+        ..CharacterLook::random(99)
+    };
+    a.world_mut().client_trigger(SetLook(mine));
+    step_all(&mut server, &mut [&mut a, &mut b]);
+    assert_eq!(look_of(&mut server, 1), Some(mine));
+    assert_eq!(look_of(&mut b, 1), Some(mine), "the other client sees it");
+    assert_ne!(look_of(&mut b, 2), Some(mine), "nobody else changed");
+
+    // The host (no client entity) sets its own look the same way.
+    server
+        .world_mut()
+        .client_trigger(SetLook(CharacterLook::default()));
+    step_all(&mut server, &mut [&mut a, &mut b]);
+    assert_eq!(look_of(&mut a, 0), Some(CharacterLook::default()));
+}
+
+#[test]
+fn the_server_clamps_silly_looks() {
+    use friendslop::people::{CharacterLook, EYES, SetLook};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    step_all(&mut server, &mut [&mut client]);
+    client.world_mut().client_trigger(SetLook(CharacterLook {
+        height: 40.0,
+        girth: -3.0,
+        head: f32::NAN,
+        eyes: 250,
+        body: 77,
+        ..CharacterLook::default()
+    }));
+    step_all(&mut server, &mut [&mut client]);
+    let Some(l) = look_of(&mut client, 1) else {
+        panic!("look replicates");
+    };
+    assert_eq!((l.height, l.girth, l.head), (1.0, 0.0, 0.5));
+    assert_eq!(l.eyes as usize, EYES.len() - 1);
+    assert_eq!(l.body, 3);
+    assert_eq!(l, l.clamped());
+}

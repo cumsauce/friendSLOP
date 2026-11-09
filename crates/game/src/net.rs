@@ -87,11 +87,46 @@ impl Plugin for NetPlugin {
             .init_resource::<NetStatus>()
             .init_resource::<Clipboard>()
             .add_message::<NetCommand>()
+            .init_resource::<DropReason>()
+            .add_systems(
+                PreUpdate,
+                close_dead_client.before(ClientSystems::ReceivePackets),
+            )
             .add_systems(Update, handle_net_commands)
             .add_systems(Last, close_on_exit)
             .add_systems(OnEnter(ClientState::Connected), enter_game)
             .add_systems(OnExit(ClientState::Connected), back_to_menu);
     }
+}
+
+/// Why the host connection went away, kept for the menu's status line.
+#[derive(Resource, Default)]
+struct DropReason(Option<String>);
+
+/// What the menu says after losing the host (pure, for tests).
+pub fn drop_message(reason: Option<&str>) -> String {
+    match reason {
+        Some(reason) => format!("Lost the connection to the host: {reason}"),
+        None => "Disconnected.".into(),
+    }
+}
+
+/// #194: when the host connection closes, bevy_replicon_iroh's
+/// `check_disconnected` removes `IrohClient` through a command, the chain's
+/// sync point applies it, and its `receive_packets` then runs without the
+/// resource and panics the client. Notice the closed connection first and tear
+/// the client down here, before that set (and its `resource_exists` check)
+/// runs, so the library only sees the clean removal.
+fn close_dead_client(world: &mut World) {
+    let Some(reason) = world
+        .get_resource::<IrohClient>()
+        .and_then(|client| client.connection().close_reason())
+    else {
+        return;
+    };
+    warn!("host connection closed: {reason}");
+    world.insert_resource(DropReason(Some(reason.to_string())));
+    teardown_transport(world);
 }
 
 /// Close the iroh transports cleanly. Dropping `IrohClient`/`IrohServer`
@@ -129,8 +164,10 @@ fn handle_net_commands(
     clipboard: Res<Clipboard>,
     mut status: ResMut<NetStatus>,
     mut next: ResMut<NextState<AppState>>,
+    mut reason: ResMut<DropReason>,
 ) {
     for request in requests.read() {
+        reason.0 = None;
         match request {
             NetCommand::Host => {
                 commands.queue(teardown_transport);
@@ -197,6 +234,7 @@ fn back_to_menu(
     replicated: Query<Entity, With<Replicated>>,
     mut next: ResMut<NextState<AppState>>,
     mut status: ResMut<NetStatus>,
+    mut reason: ResMut<DropReason>,
 ) {
     // Passive disconnects (host quit, connection dropped) land here without
     // going through the Esc path: replicon doesn't despawn mirrors itself.
@@ -205,6 +243,17 @@ fn back_to_menu(
     for e in &replicated {
         commands.entity(e).despawn();
     }
-    status.message = "Disconnected.".into();
+    status.message = drop_message(reason.0.take().as_deref());
     next.set(AppState::Menu);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::drop_message;
+
+    #[test]
+    fn drop_message_names_the_reason() {
+        assert_eq!(drop_message(None), "Disconnected.");
+        assert!(drop_message(Some("timed out")).ends_with("host: timed out"));
+    }
 }

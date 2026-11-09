@@ -67,7 +67,7 @@ pub fn exact_material(
 
 /// Repaint each material once, right after it is added. Our own edit fires
 /// `Modified`, which we ignore, so nothing is filtered twice.
-fn paint_new_materials(
+pub(crate) fn paint_new_materials(
     mut events: MessageReader<AssetEvent<StandardMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     exact: Option<Res<ExactColors>>,

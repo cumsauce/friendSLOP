@@ -7,9 +7,17 @@
 //! rendering at 1x pixel density (phones are 2-3x), half the grass tufts and
 //! ambient particles. Shadows/bloom/fog/MSAA/pixel density apply live; grass
 //! and particle counts apply the next time a world is built.
+//!
+//! High also gets the better lighting of #131: screen-space ambient occlusion
+//! (soft contact shadows where things meet the ground; not in the browser,
+//! WebGL2 can't), Gaussian-filtered soft sun shadows, and FXAA standing in for
+//! MSAA (SSAO needs MSAA off).
 
+use bevy::anti_alias::fxaa::Fxaa;
 use bevy::camera::Projection;
 use bevy::light::DirectionalLight;
+use bevy::light::ShadowFilteringMethod;
+use bevy::pbr::ScreenSpaceAmbientOcclusion;
 use bevy::post_process::bloom::Bloom;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -121,20 +129,28 @@ fn apply_camera(
     >,
 ) {
     for (e, mut projection, fog, cam) in &mut cameras {
-        // A fresh camera already has the High look (atmosphere.rs).
-        if !q.is_changed() && !(cam.is_added() && q.is_low()) {
+        if !q.is_changed() && !cam.is_added() {
             continue;
         }
         if q.is_low() {
-            commands.entity(e).remove::<Bloom>().insert(Msaa::Off);
+            commands
+                .entity(e)
+                .remove::<(Bloom, Fxaa, ScreenSpaceAmbientOcclusion)>()
+                .insert((Msaa::Off, ShadowFilteringMethod::Hardware2x2));
         } else {
-            commands.entity(e).insert((
-                Msaa::default(),
+            let mut cam = commands.entity(e);
+            cam.insert((
+                Msaa::Off,
+                Fxaa::default(),
+                ShadowFilteringMethod::Gaussian,
                 Bloom {
                     intensity: 0.08,
                     ..Bloom::NATURAL
                 },
             ));
+            if !cfg!(target_arch = "wasm32") {
+                cam.insert(ScreenSpaceAmbientOcclusion::default());
+            }
         }
         let (start, end) = if q.is_low() {
             (40.0, 140.0)

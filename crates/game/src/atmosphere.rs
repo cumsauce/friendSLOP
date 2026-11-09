@@ -4,7 +4,7 @@
 //! - A big unlit sky dome with a vertex-colour gradient (horizon haze to deep blue),
 //!   hand-picked to stay a cat-visible (#12) bright blue.
 //! - Puffy code-made clouds (clusters of squashed spheres) drifting very slowly.
-//! - One warm shadow-casting sun tuned for the ~60 m play area, a cool shadowless
+//! - One low, golden shadow-casting sun (#131) tuned for the ~60 m play area, a cool shadowless
 //!   bounce light and a sky-tinted ambient.
 //! - Fog in the exact horizon colour, so the edge of the world melts into the sky.
 //! - TonyMcMapface tonemapping and mild bloom so the bonfire and emissives glow.
@@ -96,12 +96,13 @@ fn spawn_atmosphere(
         brightness: 1_100.0,
         ..default()
     });
-    // Warm late-afternoon sun. Four cascades over 100 m keep shadows crisp up close
+    // Golden-hour sun (#131): lower and warmer, so shadows stretch long across
+    // the meadow and faces facing it glow. Four cascades over 100 m keep shadows crisp up close
     // and cheap (1 shadow-casting light only).
     commands.spawn((
         DirectionalLight {
-            color: Color::srgb(1.0, 0.95, 0.84),
-            illuminance: 14_000.0,
+            color: Color::srgb(1.0, 0.88, 0.7),
+            illuminance: 15_000.0,
             shadow_maps_enabled: true,
             ..default()
         },
@@ -114,14 +115,14 @@ fn spawn_atmosphere(
         }
         .build(),
         crate::graphics::SunShadows,
-        Transform::from_xyz(8.0, 10.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        Transform::from_xyz(9.0, 6.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         DespawnOnExit(AppState::InGame),
     ));
     // Cool shadowless bounce from the opposite side.
     commands.spawn((
         DirectionalLight {
-            color: Color::srgb(0.65, 0.78, 1.0),
-            illuminance: 2_200.0,
+            color: Color::srgb(0.6, 0.74, 1.0),
+            illuminance: 2_600.0,
             shadow_maps_enabled: false,
             ..default()
         },

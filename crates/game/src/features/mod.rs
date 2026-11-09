@@ -41,6 +41,7 @@ pub mod stats;
 pub mod stillness;
 pub mod synth_audio;
 pub mod totems;
+pub mod underground;
 pub mod villagers;
 pub mod voice_lines;
 pub mod warehouse;
@@ -86,6 +87,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(helicopter::protocol);
         app.add_plugins(warehouse::protocol);
         app.add_plugins(wendys::protocol);
+        app.add_plugins(underground::protocol);
     }
 }
 
@@ -133,5 +135,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(helicopter::plugin);
         app.add_plugins(warehouse::plugin);
         app.add_plugins(wendys::plugin);
+        app.add_plugins(underground::plugin);
     }
 }

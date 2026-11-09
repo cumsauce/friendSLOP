@@ -303,6 +303,14 @@ don't change play. Gambling is free. Six players paying together beat the landlo
   a trembling cluster, generated in code) and every chasing villager jingles like a pocket full
   of keys. Catches don't count while you're already being chased; the clock pauses in the
   stillness. Only the villagers chase (the bear, crows and Dave keep to their routes).
+- **Skills** (#176, catherine: "everything, even walking and sleeping and pissing and farting
+  should have a skill that improves it over time like rune factory"). Everyone levels six skills
+  1-100 by doing them (each level needs more XP): Walking (per metre; up to +20% walk and run
+  speed), Farting (per fart; gas fills up to 50% faster), Sleeping (Z lies you down and gets you
+  up; per second asleep, and you can't move while asleep), Pissing (X; a yellow puddle at your
+  feet everyone sees, bigger with level, drying over 20 s), Smoking and Dueling (tracked and
+  levelled; no bonus yet). Levels show bottom-right, with a toast on each level-up
+  (`features/skills.rs`).
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
@@ -718,6 +726,7 @@ don't change play. Gambling is free. Six players paying together beat the landlo
 - Kori.exe (#117): a Wendy's somewhere on the map with human meat burgers to pick up.
 - Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
   chase you while high-pitched string music plays and they make jingling-keys sounds.
+- catherine (#176, on what stats should do): everything (walking, sleeping, pissing, farting) has a skill that improves with use, like Rune Factory.
 - Kori.exe (#168): NPCs fart too, then quickly blame someone else.
 - catherine (#149): a "whose fault is it" screen crediting each feature to who asked for it.
 - just meat and cheese (#140, on what happens when the villagers catch you): it carries you to

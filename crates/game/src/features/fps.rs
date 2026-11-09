@@ -226,14 +226,20 @@ pub(crate) fn kcc_move_walkers(
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
     move_and_slide: avian3d::character_controller::move_and_slide::MoveAndSlide,
-    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput, &mut crate::kcc::Kcc)>,
+    mut walkers: Query<(
+        &Player,
+        &mut Walker,
+        &mut WalkInput,
+        &mut crate::kcc::Kcc,
+        Option<&super::skills::Skills>,
+    )>,
 ) {
     if super::stillness::is_frozen(&still) {
         return; // the world stands still, and so do you
     }
     // The old movement ticked per frame with a clamped dt; keep that.
     let dt = time.delta_secs().min(0.1);
-    for (player, mut walker, input, mut kcc) in &mut walkers {
+    for (player, mut walker, input, mut kcc, skills) in &mut walkers {
         if input.climbing || duelists.iter().any(|d| d.player == player.id) {
             continue; // climbing (see `climb.rs`), or your duel body is moving
         }
@@ -241,7 +247,7 @@ pub(crate) fn kcc_move_walkers(
             crate::kcc::RUN_SPEED
         } else {
             crate::kcc::WALK_SPEED
-        };
+        } * skills.map_or(1.0, |s| s.walk_speed()); // Walking skill (#176)
         let mut pos = crate::kcc::step(
             &mut kcc,
             walker.pos,

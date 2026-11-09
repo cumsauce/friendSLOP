@@ -184,9 +184,10 @@ fn update_morality_hud(
     }
 }
 
-/// New round: everyone starts morally neutral again.
+/// A new campaign: everyone starts morally neutral again. (Your conscience
+/// carries over from chapter to chapter.)
 fn reset_morality(
-    _reset: On<crate::features::objective::RoundReset>,
+    _reset: On<crate::features::campaign::NewCampaign>,
     mut players: Query<&mut Morality>,
 ) {
     for mut m in &mut players {

@@ -177,8 +177,9 @@ asked for, and what nobody has decided yet.
 - **Currency: organs** (#22). Each organ's value = creature worth (human 10, cow 5, pig 4,
   chicken 2, rat 1) × organ importance (brain 10, heart 9, lungs 7, liver 6, kidney 4,
   stomach 3, appendix 1). Every player has an organ purse, shown top-right. Everyone starts with
-  a rat appendix, a chicken kidney and a pig stomach (worth 21) so there's something to see.
-  Nothing yet earns or spends organs.
+  a rat appendix, a chicken kidney and a pig stomach (worth 21), refilled at the start of every
+  chapter. Organs pay the landlord's rent; pickpocketing him takes one back, and beating him
+  shares his whole stash out between every tenant (#135). Nothing else earns or spends them yet.
 - **Crows** (#2). Three cute black crows hang around the floor, hopping and wandering about. Every
   so often one puffs up, caws (shown as "caw!" text) and you hear a crow sound. The server spawns
   them; every peer animates them locally.
@@ -222,13 +223,15 @@ asked for, and what nobody has decided yet.
   label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
   within a sensible range: eating the mushroom is -2..+2. Harming anyone is -5..+3, except harming
   (in any way) the nobility, capitalists, landlords or billionaires, which is **always rewarded**
-  with +6..+10 (corrected by Freyja Moth in #43). Only the
-  mushroom is wired up so far (nothing can be harmed yet), and morality doesn't change anything
-  else in play yet.
+  with +6..+10 (corrected by Freyja Moth in #43). Wired up so far: eating the mushroom, and
+  every pickpocket or punch on the landlord (always rewarded). Your score carries over from
+  chapter to chapter and only resets when a new campaign starts (#135). Morality doesn't
+  change anything else in play yet.
 - **Farting** (#18). Every player's gas pressure builds from 0 to 100% over 40 s (shown
   bottom-right). Press F (with at least 20%) to fart where your body stands (in the overview
   camera: wherever the mouse cursor points on the floor; your duel body when duelling).
-  If any NPC (the bear, a crow, or Dave at parliament) is within 4 m, you are **shamed**: for
+  If any NPC (the bear, a crow, Dave at parliament, or one of the ten commune villagers, #135)
+  is within 4 m, you are **shamed**: for
   20 s your screen blurs, "SHAME" flashes in red and a scary, distorted chiptune (generated in
   code) plays. Everyone sees a line saying who farted and whether they were caught. So the trick
   is waiting for the wandering crows and bear to be elsewhere.
@@ -280,7 +283,9 @@ asked for, and what nobody has decided yet.
 - **FPS overlay** (dev tool, not a friend idea): F3 toggles frame rate and frame time, top-right.
 - **Gods tears** (#16, corrected in #43). The tears rained down only once, when humans came into
   existence: 12 glowing blue teardrop gems fall onto the floor when the world begins, and no more
-  ever fall. The HUD shows how many are left. Click one to use it. Each use transforms you a little further
+  ever fall: used tears stay used for the whole campaign, and what they did to you stays too
+  (#135; they used to fall again every chapter). Only a brand-new campaign, after heaven, is a
+  new world with new tears. The HUD shows how many are left. Click one to use it. Each use transforms you a little further
   (untouched, tear-touched, changing, barely human), and after 7 you become an **Abduction**: a
   fetid creature that hungers for tears. Everyone's state is shown on the right of the screen.
   Tears don't grant any other power yet, and being an Abduction changes nothing else yet.
@@ -293,11 +298,12 @@ asked for, and what nobody has decided yet.
   parliament of the Commune of Dave fits as one of the toppled governments.)
 - **Landlords** (#11). The game's story. A landlord in a top hat stands on the floor, and as the
   game starts he has just raised your rent (the inciting incident; shown top-right). Act 1, legal:
-  click him to pay with every organ you carry; he raises the rent again every 60 s (and whenever
-  you pay it off). Act 2, less than legal: after 3 raises, clicking him pickpockets an organ back
+  click him to pay with every organ you carry; he raises the rent again every 60 s and whenever
+  you pay it off, and either kind of raise counts, so a group that pays together reaches Act 2
+  sooner (#135: paying used to change nothing). Act 2, less than legal: after 3 raises, clicking him pickpockets an organ back
   from his stash, which counts as harming a landlord (always raises your morality, #21/#43). Act 3: after 3
   heists he grows huge for a **boss fight**; 12 clicks knock him down, everyone gets the stash
-  back and the game says THE END. The whole group shares one landlord and one story, so this is
+  back (shared out, an organ each in turn) and the game says THE END. The whole group shares one landlord and one story, so this is
   the first shared goal. He doesn't fight back yet, and nothing restarts after the end.
 - **Random dialogue** (#10). All written dialogue (goat remarks and voice lines) is one script.
   After a random 1..1,000,000 words, the next word is swapped for a completely random word
@@ -316,7 +322,7 @@ asked for, and what nobody has decided yet.
   everyone's taxes file themselves, gravity forgets your name, you're legally a goose, time goes
   sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are only on-screen text for now; they don't change play.
 - **Nonsensical stats** (#7, reworked by #48). Every player rolls six stats (1-10) on joining,
-  shown on the left. #7's Wombility, Rumpet and John were only examples and were replaced (#48):
+  shown on the left, and keeps them all campaign (#135; they used to reroll every chapter). #7's Wombility, Rumpet and John were only examples and were replaced (#48):
   **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you can read it from
   further away; **Glimbo** at 9+ makes a lone teacup orbit the middle of the world; **Frumbly**
   increases bread affinity in bakeries, but there's no bread and no bakeries; **Hrumph** makes you
@@ -355,7 +361,10 @@ asked for, and what nobody has decided yet.
   1 *Moving In* (pets leashed into one pack, eat the mushroom), 2 *Rent Day* (open a vault door,
   break out of HALT, a game of hide and seek), 3 *The Heist* (carry out the Fire totem, use 3 gods
   tears, a duel, HALT), 4 *General Strike* (pack, 3 mushrooms, 2 hide and seek, 2 duels, HALT x2),
-  5 *The Eviction* (Fire totem, 6 tears, 3 hide and seek, 3 duels, HALT x3). Ticks never untick.
+  5 *The Eviction* (Fire totem, 9 tears used in all, 3 hide and seek, 3 duels, HALT x3). Ticks
+  never untick. The tear jobs count every tear used this campaign, since there are only 12 ever
+  (#135). Each new chapter resets the landlord, HALT, organ purses, pets, totems and doors, and
+  stops hide and seek; tears, transformations, morality and stats last the whole campaign.
   Hide and seek and duels are waived when you play alone. When a chapter's list is done, a
   summary appears and anyone presses Enter for the next chapter (the round resets; features
   observe the server-side `RoundReset`). After chapter 5 the Commune is free, there's an ending
@@ -366,6 +375,19 @@ asked for, and what nobody has decided yet.
   gates. "It can be like fortnite": we read that as a season-pass ladder (no copied names or
   looks). Every ticked task is one tier on the **Heaven Pass** (24 tiers over the five
   chapters), shown under the goal line, with a "tier unlocked" toast; the top tier is heaven.
+- **Simulated 6-player playthrough** (#135, just meat and cheese: "simulate a full 6-player
+  playthrough ... fix game design and make the rules cohesive. Keep every idea").
+  `tests/playthrough.rs` has a host and five friends play all five chapters through the real
+  network requests (walking, clicking, keys), Stillness, failed actions and the landlord's clock
+  included, plus the off-checklist stuff (farting by Dave, the lex pile, Abuela, spells), then
+  start a new campaign. `cargo test -p friendslop --test playthrough -- --nocapture` prints the
+  play log. What it changed: paying rent now moves Act I along (it used to be a 3-minute wait
+  whatever you paid); the beaten landlord's stash is shared by everyone (it all went to whoever
+  landed the last hit); the tears no longer fall again every chapter (that contradicted #43), so
+  tear jobs count the whole campaign; transformations, morality and stats last the whole
+  campaign; and the villagers count as NPCs who can catch you farting (#123 has them punish you
+  for it, but they couldn't see you). Perfect bots finish in ~11 game minutes, so the real length
+  is down to people, not the rules.
 - **East village district** (feedback: "higher buildings or stuff u can go inside and like
   walls", more scale, places to run around and hide). East of the meadow (x 35..80, z -35..35,
   reached by a path arriving at (35, 0)), built from code in `buildings.rs`: seven enterable
@@ -520,7 +542,8 @@ asked for, and what nobody has decided yet.
 - What does connecting all the pets achieve, and what else do pets do?
 - What does your morality actually change? And which actions count as good or bad?
 - Heaven is now a little garden with Abuela on the top island. What else is up there, and what happens once the campaign lets you in? Should Heaven Pass tiers give rewards?
-- Is the campaign the right length? Which chapters drag, and which fly by?
+- Is the campaign the right length? Which chapters drag, and which fly by? (Six players who pay
+  the rent together now beat the landlord in seconds: should he get tougher with more tenants?)
 - Can anyone ever truly escape HALT, and what would be on the other side?
 - The cat-vision filter only recolours flat colours — the new textured models (trees, cowboys)
   keep their natural greens and reds. Should the filter learn to shift textures too? (#12)

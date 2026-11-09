@@ -232,9 +232,10 @@ fn orbit_teacup(time: Res<Time>, mut cups: Query<&mut Transform, With<Teacup>>) 
     }
 }
 
-/// New round: everyone's stats are rolled again.
+/// A new campaign: everyone's stats are rolled again. (They're rolled when
+/// you join, #7, and stay yours from chapter to chapter.)
 fn reroll_stats(
-    _reset: On<crate::features::objective::RoundReset>,
+    _reset: On<crate::features::campaign::NewCampaign>,
     mut dice: ResMut<StatDice>,
     mut players: Query<&mut Stats>,
 ) {

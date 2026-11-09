@@ -286,9 +286,10 @@ fn update_tears_hud(
     }
 }
 
-/// New round: the one rain falls again, and nobody has been transformed yet.
+/// A new campaign is a new world: the one rain falls again, and nobody has
+/// been transformed yet. (New chapters don't: the tears rained once, #43.)
 fn reset_tears(
-    _reset: On<crate::features::objective::RoundReset>,
+    _reset: On<crate::features::campaign::NewCampaign>,
     mut commands: Commands,
     mut sky: ResMut<TearSky>,
     tears: Query<Entity, With<GodsTear>>,

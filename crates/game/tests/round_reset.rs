@@ -112,8 +112,11 @@ fn defeating_the_landlord_then_restarting_resets_the_round() {
     let halt: Vec<Halt> = world.query::<&Halt>().iter(world).copied().collect();
     assert_eq!(halt.len(), 1);
     assert_eq!((halt[0].escape, halt[0].escapes), (0, 0));
+    // The tears rained only once (#43): a new chapter doesn't bring them back,
+    // and what they did to you (and your conscience) carries over. Only a new
+    // campaign, after the finale, is a new world (#135).
     let tears = world.query::<&GodsTear>().iter(world).count();
-    assert_eq!(tears, TOTAL_TEARS as usize, "the tears fall again");
+    assert_eq!(tears, TOTAL_TEARS as usize - 5, "used tears stay used");
     let players = world.query::<&Player>().iter(world).count();
     assert_eq!(players, 2);
     assert!(
@@ -122,12 +125,12 @@ fn defeating_the_landlord_then_restarting_resets_the_round() {
             .iter(world)
             .all(|p| *p == starting_purse())
     );
-    assert!(world.query::<&Morality>().iter(world).all(|m| m.0 == 0));
+    assert!(world.query::<&Morality>().iter(world).all(|m| m.0 == 42));
     assert!(
         world
             .query::<&Transformation>()
             .iter(world)
-            .all(|t| t.0 == 0)
+            .all(|t| t.0 == 4)
     );
 }
 

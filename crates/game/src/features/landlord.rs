@@ -5,13 +5,17 @@
 //!
 //! 1. **Legal**: click the landlord to pay rent with every organ you carry
 //!    (organs are legal tender, #22). He raises the rent again every
-//!    `RAISE_SECS`, so you can never quite keep up.
+//!    `RAISE_SECS`, and the moment it's paid off, so you can never quite keep
+//!    up. Every raise, paid off or timed out, brings the tenants closer to
+//!    giving up on the law: a group that pays together gets there sooner
+//!    (#135: paying used to change nothing).
 //! 2. **Less than legal**: after `RAISES_BEFORE_CRIME` raises you give up on the
 //!    law. Clicking him now pickpockets an organ back from his stash, which
 //!    counts as harming a landlord for morality (#21, corrected in #43): always virtuous.
 //! 3. **Boss fight**: after `HEISTS_BEFORE_BOSS` heists he grows huge and
 //!    fights back with eviction notices. Clicking hits him; at 0 health the
-//!    game is over and you've won.
+//!    game is over and you've won, and his stash is shared out between every
+//!    tenant.
 //!
 //! Everything pauses during the Stillness (#17).
 
@@ -95,6 +99,12 @@ impl Tenancy {
         if self.next_raise > 0.0 {
             return;
         }
+        self.raise();
+    }
+
+    /// He raises the rent (and resets his clock). Enough raises and the law
+    /// has failed you.
+    fn raise(&mut self) {
         self.next_raise = RAISE_SECS;
         self.raises += 1;
         self.rent += RAISE_BY;
@@ -103,8 +113,8 @@ impl Tenancy {
         }
     }
 
-    /// A tenant bothers the landlord. Returns organs they get back and whether
-    /// it harmed him.
+    /// A tenant bothers the landlord: pay (legal), pickpocket an organ back
+    /// (crime) or hit him (boss). Returns whether it harmed him.
     pub fn bother(&mut self, purse: &mut OrganPurse) -> bool {
         match self.act {
             Act3::Legal => {
@@ -112,10 +122,10 @@ impl Tenancy {
                     self.paid += organ.value();
                     self.stash.push(organ);
                 }
-                if self.paid >= self.rent {
+                while self.act == Act3::Legal && self.paid >= self.rent {
                     // Paid up, so naturally he raises it.
                     self.paid -= self.rent;
-                    self.rent += RAISE_BY;
+                    self.raise();
                 }
                 false
             }
@@ -132,8 +142,8 @@ impl Tenancy {
             Act3::Boss => {
                 self.hp = self.hp.saturating_sub(1);
                 if self.hp == 0 {
+                    // The stash is shared out by `share_stash`.
                     self.act = Act3::Won;
-                    purse.0.append(&mut self.stash);
                 }
                 true
             }
@@ -215,6 +225,24 @@ fn bother_landlord(
             player,
             act: Act::Harm(Victim::Landlord),
         });
+    }
+    if t.act == Act3::Won && !t.stash.is_empty() {
+        let stash = &mut t.stash;
+        share_stash(stash, purses.iter_mut().map(|p| &mut p.into_inner().0));
+    }
+}
+
+/// The landlord is beaten: his stash goes back to every tenant, an organ each
+/// in turn, starting with the most valuable.
+pub fn share_stash<'a>(stash: &mut Vec<Organ>, purses: impl Iterator<Item = &'a mut Vec<Organ>>) {
+    let mut purses: Vec<_> = purses.collect();
+    if purses.is_empty() {
+        return;
+    }
+    stash.sort_by_key(|o| std::cmp::Reverse(o.value()));
+    for (i, organ) in stash.drain(..).enumerate() {
+        let n = purses.len();
+        purses[i % n].push(organ);
     }
 }
 
@@ -450,5 +478,30 @@ mod tests {
         assert_eq!(t.act, Act3::Won);
         t.tick(RAISE_SECS * 10.0);
         assert_eq!(t.act, Act3::Won);
+    }
+
+    #[test]
+    fn paying_off_the_rent_moves_the_story_on() {
+        // Six tenants pay with everything they've got (#135).
+        let mut t = Tenancy::default();
+        for _ in 0..6 {
+            t.bother(&mut starting_purse());
+        }
+        assert_eq!(t.act, Act3::Crime, "they paid off three raises");
+        assert!(t.next_raise >= RAISE_SECS - 1.0);
+        // One tenant can't keep up: they just pay towards it.
+        let mut t = Tenancy::default();
+        t.bother(&mut starting_purse());
+        assert_eq!((t.act, t.raises), (Act3::Legal, 0));
+    }
+
+    #[test]
+    fn the_stash_is_shared_by_everyone() {
+        let mut stash: Vec<Organ> = (0..3).flat_map(|_| starting_purse().0).collect();
+        let mut purses = vec![Vec::new(); 4];
+        share_stash(&mut stash, purses.iter_mut());
+        assert!(stash.is_empty());
+        assert!(purses.iter().all(|p| p.len() >= 2));
+        assert_eq!(purses.iter().map(Vec::len).sum::<usize>(), 9);
     }
 }

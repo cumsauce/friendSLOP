@@ -18,6 +18,13 @@
 //! Tasks that need two players (hide and seek, duels) are waived while you're
 //! playing alone.
 //!
+//! What lasts (#135, after simulating a six-player playthrough): a chapter
+//! resets the landlord, HALT, organs, pets, totems and hide and seek, but the
+//! gods tears rained only once (#43), so used tears, what they did to you, your
+//! morality and your stats last the whole campaign. They reset on
+//! [`NewCampaign`], when the finale wraps back to chapter one. The tear jobs
+//! count every tear used this campaign.
+//!
 //! Heaven is where the campaign ends: freeing the Commune opens the gates.
 //! The "like fortnite" part is a season-pass style ladder: every ticked task
 //! is one tier on the Heaven Pass, shown in the goal line, with a toast each
@@ -28,7 +35,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::gods_tears::Transformation;
+use crate::features::gods_tears::{GodsTear, TOTAL_TEARS};
 use crate::features::halt::Halt;
 use crate::features::hide_and_seek::{HideSeek, Phase};
 use crate::features::landlord::{Act3, Tenancy};
@@ -81,7 +88,7 @@ impl Task {
             Task::VaultDoor => "Open a vault door (bring it the matching totem)",
             Task::FireTotem => "Take the Fire totem out of the vault",
             Task::Halt(_) => "Break out of HALT (G to pry)",
-            Task::Tears(_) => "Use gods tears",
+            Task::Tears(_) => "Use gods tears (counted all campaign: no more ever fall)",
             Task::HideSeek(_) => "Play a round of hide and seek (K)",
             Task::Duel(_) => "Fight a duel (1-9 to challenge)",
             Task::Landlord => "Beat the landlord",
@@ -139,7 +146,9 @@ pub const CHAPTERS: [Chapter; 5] = [
         intro: "One last time. Beat him now and the Commune is free for good.",
         tasks: &[
             Task::FireTotem,
-            Task::Tears(6),
+            // Counted over the whole campaign (the tears rained only once, #43):
+            // 3 in chapter three, then 6 more.
+            Task::Tears(9),
             Task::HideSeek(3),
             Task::Duel(3),
             Task::Halt(3),
@@ -223,6 +232,13 @@ pub fn heaven_tiers() -> usize {
     CHAPTERS.iter().map(|ch| ch.tasks.len()).sum()
 }
 
+/// Server only: the campaign starts over from chapter one (after the finale).
+/// Things that last the whole campaign reset on this instead of every
+/// [`RoundReset`]: the gods tears (they rained only once, #43), what they did
+/// to you, your morality and your stats. Triggered after the `RoundReset`.
+#[derive(Event, Clone, Copy, Debug)]
+pub struct NewCampaign;
+
 /// Server only: counts of things that happened this chapter (the rest is read
 /// straight from the other features' state).
 #[derive(Resource, Default, Debug)]
@@ -267,6 +283,7 @@ fn count_duel(_ev: On<super::duel::DuelFought>, tally: Option<ResMut<Tally>>) {
 /// A new round is a new chapter (if this one was finished).
 fn next_chapter(
     _reset: On<RoundReset>,
+    mut commands: Commands,
     tally: Option<ResMut<Tally>>,
     mut campaign: Query<&mut Campaign>,
 ) {
@@ -279,6 +296,9 @@ fn next_chapter(
         } else {
             c.chapter
         };
+        if c.finale() {
+            commands.trigger(NewCampaign);
+        }
         *c = Campaign {
             chapter,
             progress: Vec::new(),
@@ -297,7 +317,7 @@ fn watch_the_world(
     totems: Query<&Totem>,
     tenancy: Query<&Tenancy>,
     halt: Query<&Halt>,
-    tears: Query<&Transformation>,
+    tears: Query<&GodsTear>,
     hide_seek: Query<&HideSeek>,
     mut campaign: Query<&mut Campaign>,
 ) {
@@ -323,7 +343,9 @@ fn watch_the_world(
         .any(|t| t.magic == Magic::Fire && t.holder.is_some());
     let landlord = tenancy.iter().any(|t| t.act == Act3::Won);
     let escapes = halt.iter().map(|h| h.escapes).max().unwrap_or(0);
-    let used: u32 = tears.iter().map(|t| t.0).sum();
+    // Every tear that isn't lying on the ground any more has been used, this
+    // campaign (they don't fall again until it starts over).
+    let used = TOTAL_TEARS.saturating_sub(tears.iter().count() as u32);
     let flag = |b: bool| u32::from(b);
 
     let Ok(mut c) = campaign.single_mut() else {

@@ -1103,7 +1103,7 @@ fn some_shameful_farts_are_romantic() {
     };
     step(&mut server, &mut client);
     // Dave never moves: fart right in front of him, again and again.
-    let dave = npc_spots(0.0, [], [])[0];
+    let dave = npc_spots(0.0, [], [], [])[0];
     for _ in 0..12 {
         let world = server.world_mut();
         for mut gas in world.query::<&mut Gas>().iter_mut(world) {
@@ -1340,7 +1340,7 @@ fn four_catches_set_the_villagers_on_you() {
             .copied()
             .collect::<Vec<_>>()
     };
-    let dave = npc_spots(0.0, [], [])[0];
+    let dave = npc_spots(0.0, [], [], [])[0];
     for n in 1..=STRIKES_TO_ATTACK + 2 {
         let world = server.world_mut();
         for mut gas in world.query::<&mut Gas>().iter_mut(world) {

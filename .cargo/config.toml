@@ -1,0 +1,4 @@
+# getrandom 0.3 picks its browser backend from a cfg flag (only for the web build).
+# Note: a RUSTFLAGS env var replaces this; CI/scripts pass the flag themselves.
+[target.wasm32-unknown-unknown]
+rustflags = ["--cfg", "getrandom_backend=\"wasm_js\""]

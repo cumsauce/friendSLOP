@@ -7,16 +7,28 @@ license.workspace = true
 [dependencies]
 bevy.workspace = true
 bevy_replicon.workspace = true
-bevy_replicon_iroh.workspace = true
-bevy_voice_chat.workspace = true
 avian3d.workspace = true
 bevy_rerecast.workspace = true
 avian_rerecast.workspace = true
 bevy_landmass.workspace = true
 landmass_rerecast.workspace = true
 serde.workspace = true
+
+# Native only: the iroh transport (a tokio runtime plus `block_on` every tick),
+# voice chat (cpal capture/playback threads) and the clipboard can't run on a
+# browser's main thread. The web build (scripts/build-web.sh) leaves them out;
+# see "Web build" in GAME_DESIGN.md.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+bevy_replicon_iroh.workspace = true
+bevy_voice_chat.workspace = true
 tokio.workspace = true
 arboard.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { version = "0.3", features = ["Window", "Storage"] }
+# getrandom 0.3 also needs `--cfg getrandom_backend="wasm_js"` (.cargo/config.toml).
+getrandom = { version = "0.3", features = ["wasm_js"] }
+js-sys = "0.3"
 
 [lints]
 workspace = true

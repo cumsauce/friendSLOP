@@ -19,12 +19,19 @@ fn main() -> AppExit {
                         } else {
                             bevy::window::PresentMode::AutoVsync
                         },
+                        // Web (#106): draw into index.html's canvas, fill the
+                        // page, and keep the browser from scrolling/zooming.
+                        canvas: Some("#bevy".into()),
+                        fit_canvas_to_parent: true,
+                        prevent_default_event_handling: true,
                         ..default()
                     }),
                     ..default()
                 })
                 .set(AssetPlugin {
                     file_path: asset_root().display().to_string(),
+                    // No .meta files ship; on the web each check is a 404 round trip.
+                    meta_check: bevy::asset::AssetMetaCheck::Never,
                     ..default()
                 }),
             RepliconPlugins,
@@ -130,6 +137,10 @@ fn bench(
 /// `target/` if we have to; the game runs fine without assets (procedural
 /// fallbacks), so a miss just falls back to Bevy's default.
 fn asset_root() -> PathBuf {
+    // In the browser assets are fetched over HTTP from `./assets/`.
+    if cfg!(target_arch = "wasm32") {
+        return PathBuf::from("assets");
+    }
     let found = |dir: &Path| dir.join("audio/music/catsong.ogg").is_file();
     let mut candidates: Vec<PathBuf> = Vec::new();
     if let Ok(manifest) = std::env::var("CARGO_MANIFEST_DIR") {

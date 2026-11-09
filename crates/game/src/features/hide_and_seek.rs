@@ -157,10 +157,7 @@ fn begin_round(
     }
     let mut sorted = players.to_vec();
     sorted.sort_by_key(|p| p.1);
-    let salt = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.subsec_nanos() as u64)
-        .unwrap_or(0);
+    let salt = crate::settings::since_epoch().subsec_nanos() as u64;
     let pick = seeker_index(state.round + 1, salt, sorted.len());
     for (i, (e, _, pos)) in sorted.iter().enumerate() {
         if i == pick {

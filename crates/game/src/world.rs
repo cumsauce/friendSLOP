@@ -1,7 +1,7 @@
 //! The 3D space everyone shares: camera, grassy floor, meadow detail, HUD.
 
+use crate::voice_chat::VoiceListener;
 use bevy::prelude::*;
-use bevy_voice_chat::prelude::VoiceListener;
 
 use crate::AppState;
 use crate::art;

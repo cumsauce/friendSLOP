@@ -300,7 +300,7 @@ const PETALS: [Vec3; 4] = [
 /// vertex-coloured mesh, built once. Each tuft is two soft, leaf-shaped
 /// blades; flowers are tiny diamonds on a stem. Tufts thin out away from the
 /// centre (and stop at the edge of the play area) to keep the vertex count sane.
-fn tufts_in(min: Vec2, size: f32) -> Mesh {
+fn tufts_in(min: Vec2, size: f32, density: f32) -> Mesh {
     const STEP: f32 = 0.55;
     let mut pos: Vec<[f32; 3]> = Vec::new();
     let mut col: Vec<[f32; 4]> = Vec::new();
@@ -322,7 +322,11 @@ fn tufts_in(min: Vec2, size: f32) -> Mesh {
             let near_spawn = (Vec2::new(x, z).distance(Vec2::new(0.0, 11.0)) / 7.0).min(1.0);
             // And thinner far out, where you only see it from a distance.
             let far = 1.0 - 0.72 * smoothstep(28.0, 55.0, edge);
-            let keep = (dense * 1.1 + clover * 0.3 - 0.1) * (0.35 + 0.65 * near_spawn) * 0.55 * far;
+            let keep = (dense * 1.1 + clover * 0.3 - 0.1)
+                * (0.35 + 0.65 * near_spawn)
+                * 0.55
+                * far
+                * density;
             if r(3) > keep {
                 continue;
             }
@@ -380,7 +384,7 @@ fn tufts_in(min: Vec2, size: f32) -> Mesh {
 
 /// Grass around the commune (the menu backdrop uses this).
 pub(crate) fn build_tufts() -> Mesh {
-    tufts_in(Vec2::splat(-40.0), 80.0)
+    tufts_in(Vec2::splat(-40.0), 80.0, 1.0)
 }
 
 /// A vertex-coloured ground mesh over a square region, `cells` per side.
@@ -455,6 +459,7 @@ pub struct GroundCollider;
 
 fn spawn_terrain(
     mut commands: Commands,
+    quality: Option<Res<crate::graphics::GraphicsQuality>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
@@ -482,7 +487,7 @@ fn spawn_terrain(
             MeshMaterial3d(ground.clone()),
             DespawnOnExit(AppState::InGame),
         ));
-        let tufts = tufts_in(min, size);
+        let tufts = tufts_in(min, size, crate::graphics::density(quality.as_deref()));
         if tufts.count_vertices() > 0 {
             commands.spawn((
                 Name::new("Grass tufts"),
@@ -602,7 +607,9 @@ mod tests {
 
     #[test]
     fn tufts_stay_modest() {
-        let verts: usize = chunks().map(|(m, s)| tufts_in(m, s).count_vertices()).sum();
+        let verts: usize = chunks()
+            .map(|(m, s)| tufts_in(m, s, 1.0).count_vertices())
+            .sum();
         assert!(verts > 50_000 && verts < 600_000, "{verts}");
         let menu = build_tufts().count_vertices();
         assert!(menu > 10_000 && menu < 200_000, "{menu}");

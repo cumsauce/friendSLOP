@@ -21,7 +21,7 @@
 //! commune" and is frozen for [`PENALTY_SECS`]. Now and then a villager near
 //! you mutters something (HUD toast).
 
-use std::time::Instant;
+use bevy::platform::time::Instant;
 
 use avian_rerecast::AvianBackendPlugin;
 use avian3d::prelude::{Collider, RigidBody};

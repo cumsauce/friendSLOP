@@ -26,7 +26,7 @@ cargo build --release --locked --target wasm32-unknown-unknown -p friendslop --b
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
-wasm-bindgen --no-typescript --target web --out-dir "$OUT" --out-name friendslop \
+wasm-bindgen --no-typescript --remove-name-section --remove-producers-section --target web --out-dir "$OUT" --out-name friendslop \
   "$TARGET_DIR/wasm32-unknown-unknown/release/friendslop.wasm"
 if command -v wasm-opt >/dev/null; then
   wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int \

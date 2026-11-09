@@ -39,6 +39,7 @@ impl Plugin for MenuPlugin {
                     backdrop_fallbacks,
                     menu_font,
                     menu_shortcuts,
+                    close_video_with_settings,
                     style_status,
                 )
                     .run_if(in_state(AppState::Menu)),
@@ -133,7 +134,7 @@ enum Label {
     Voice,
     Mic,
     HaltName,
-    Graphics,
+    Video(crate::graphics::VideoOption),
     JoinButton,
 }
 
@@ -362,15 +363,91 @@ fn spawn_menu(mut commands: Commands) {
                     );
                 });
                 row(ui, |r| {
-                    text(r, "Graphics (Low = smoother)", 17.0, INK);
-                    button(r, "", MINT, 110.0).insert(Label::Graphics).observe(
-                        |_: On<PointerClick>, mut q: ResMut<crate::graphics::GraphicsQuality>| {
-                            *q = q.toggled();
+                    text(r, "Video (presets, shadows...)", 17.0, INK);
+                    button(r, "Video", MINT, 110.0).observe(
+                        |_: On<PointerClick>, mut panel: Query<&mut Node, With<VideoPanel>>| {
+                            for mut node in &mut panel {
+                                node.display = if node.display == Display::None {
+                                    Display::Flex
+                                } else {
+                                    Display::None
+                                };
+                            }
                         },
                     );
                 });
             });
+
+            // Video settings (#132): a preset on top, then every option.
+            root.spawn((
+                Node {
+                    flex_direction: FlexDirection::Column,
+                    align_items: AlignItems::FlexStart,
+                    padding: UiRect::axes(px(24), px(18)),
+                    row_gap: px(6),
+                    border_radius: BorderRadius::all(px(28)),
+                    border: UiRect::all(px(2)),
+                    display: Display::None,
+                    ..default()
+                },
+                BackgroundColor(CARD),
+                BorderColor::all(theme::LINE),
+                theme::shadow(10.0, 32.0),
+                VideoPanel,
+            ))
+            .with_children(|ui| {
+                ui.spawn((
+                    Text::new("Video"),
+                    TextFont::from_font_size(24.0),
+                    TextColor(INK),
+                    crate::assets::DisplayText,
+                ));
+                for option in crate::graphics::VideoOption::ALL {
+                    row(ui, |r| {
+                        r.spawn((
+                            Text::new(option.name()),
+                            TextFont::from_font_size(15.0),
+                            TextColor(INK),
+                            Node {
+                                width: px(150),
+                                ..default()
+                            },
+                        ));
+                        let color = if option == crate::graphics::VideoOption::Preset {
+                            LILAC
+                        } else {
+                            MINT
+                        };
+                        button(r, "", color, 110.0)
+                            .insert(Label::Video(option))
+                            .observe(
+                                move |_: On<PointerClick>,
+                                      mut q: ResMut<crate::graphics::GraphicsQuality>| {
+                                    q.cycle(option);
+                                },
+                            );
+                    });
+                }
+            });
         });
+}
+
+/// The video settings card, opened from Settings.
+#[derive(Component)]
+pub(crate) struct VideoPanel;
+
+/// Closing Settings closes Video too.
+fn close_video_with_settings(
+    settings: Query<&Node, (With<SettingsPanel>, Without<VideoPanel>)>,
+    mut video: Query<&mut Node, With<VideoPanel>>,
+) {
+    if settings.iter().all(|n| n.display == Display::None) {
+        for mut node in &mut video {
+            if node.display != Display::None {
+                node.display = Display::None;
+            }
+        }
+    }
 }
 
 fn toggle_settings(panel: &mut Query<&mut Node, With<SettingsPanel>>) {
@@ -1043,7 +1120,7 @@ fn refresh_labels(
             Label::Code => code.0.clone(),
             Label::Master => pct(settings.master_volume),
             Label::Voice => pct(settings.voice_volume),
-            Label::Mic | Label::HaltName | Label::Graphics | Label::JoinButton => continue,
+            Label::Mic | Label::HaltName | Label::Video(_) | Label::JoinButton => continue,
         };
         if t.0 != new {
             t.0 = new;
@@ -1061,7 +1138,7 @@ fn refresh_labels(
         let mic = match label {
             Label::Mic => mic,
             Label::HaltName => halt,
-            Label::Graphics => quality.label(),
+            Label::Video(o) => quality.value(*o),
             Label::JoinButton => join.as_str(),
             _ => continue,
         };

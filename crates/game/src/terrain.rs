@@ -69,7 +69,7 @@ const QUARRY_DEPTH: f32 = 5.0;
 const BONFIRE_AT: Vec2 = Vec2::new(PARLIAMENT_AT.x + 3.5, PARLIAMENT_AT.y + 8.5);
 
 /// Path segments between landmarks and out to every district.
-fn paths() -> [(Vec2, Vec2); 12] {
+fn paths() -> [(Vec2, Vec2); 13] {
     let arena = ARENA_CENTER.xz();
     let v = Vec2::new;
     [
@@ -89,6 +89,8 @@ fn paths() -> [(Vec2, Vec2); 12] {
         // South-west, to the ruins and quarry.
         (v(-3.0, 5.0), v(-32.0, 34.0)),
         (v(-32.0, 34.0), v(-44.0, 52.0)),
+        // South, past the pond to the abandoned warehouse's door (#130).
+        (v(16.0, 14.5), v(14.0, 33.0)),
     ]
 }
 fn smoothstep(e0: f32, e1: f32, x: f32) -> f32 {

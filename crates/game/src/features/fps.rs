@@ -159,10 +159,10 @@ pub fn step(
     let mut next = pos + flat;
     next.x = next.x.clamp(-EDGE, EDGE);
     next.z = next.z.clamp(-EDGE, EDGE);
-    let ground = crate::terrain::height_at(next.x, next.z);
+    let ground = super::warehouse::ground_at(next.x, next.z, pos.y);
     // Standing on the ground where we were: follow it up and down slopes
     // (no little falls walking downhill) unless we jump.
-    let here = crate::terrain::height_at(pos.x, pos.z);
+    let here = super::warehouse::ground_at(pos.x, pos.z, pos.y);
     let on_ground = vy <= 0.0 && pos.y <= here + 1e-3;
     if on_ground && !jump {
         return (next.with_y(ground), 0.0);
@@ -195,7 +195,8 @@ fn move_walkers(
             continue; // your duel body is the one moving
         }
         let idle = input.stick == Vec2::ZERO && !input.jump && input.vy == 0.0;
-        if idle && walker.pos.y <= crate::terrain::height_at(walker.pos.x, walker.pos.z) {
+        let floor = super::warehouse::ground_at(walker.pos.x, walker.pos.z, walker.pos.y);
+        if idle && walker.pos.y <= floor {
             continue; // don't touch it, so nothing is re-sent
         }
         let (pos, vy) = step(

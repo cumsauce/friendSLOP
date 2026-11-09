@@ -43,6 +43,7 @@ pub mod synth_audio;
 pub mod totems;
 pub mod villagers;
 pub mod voice_lines;
+pub mod warehouse;
 
 pub struct FeaturesProtocolPlugin;
 
@@ -82,6 +83,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(sesbian_lex::protocol);
         app.add_plugins(punishment::protocol);
         app.add_plugins(helicopter::protocol);
+        app.add_plugins(warehouse::protocol);
     }
 }
 
@@ -127,5 +129,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(sesbian_lex::plugin);
         app.add_plugins(punishment::plugin);
         app.add_plugins(helicopter::plugin);
+        app.add_plugins(warehouse::plugin);
     }
 }

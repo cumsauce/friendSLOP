@@ -83,6 +83,7 @@ fn wet_or_taken(p: Vec2, margin: f32) -> bool {
         || crate::terrain::is_lake(p.x + margin, p.y)
         || crate::terrain::is_pond(p.x + margin, p.y)
         || p.distance(WINDMILL_AT) < 6.0 + margin
+        || crate::features::warehouse::covers(p, margin)
 }
 
 /// Is `p` free for a prop of `zone` (with `margin` of footprint)?

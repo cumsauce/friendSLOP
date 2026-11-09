@@ -119,6 +119,9 @@ pub fn inside(feet: Vec3) -> bool {
 pub fn ground_at(x: f32, z: f32, feet_y: f32) -> f32 {
     if feet_y < INSIDE_Y + 20.0 {
         INSIDE_Y
+    } else if crate::features::underground::below_y(feet_y) {
+        // Down in the tunnels (#127).
+        crate::features::underground::TUNNEL_Y
     } else {
         crate::terrain::height_at(x, z)
     }

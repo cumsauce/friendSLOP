@@ -413,6 +413,10 @@ pub fn place_mood(at: Vec3) -> (Mood, f32) {
     use crate::features::abuela::{chair_at, heaven};
     use crate::features::climb::ISLANDS;
     let chair = chair_at();
+    // Down in the sewers and passages (#127): their own tune.
+    if crate::features::underground::below(at - Vec3::Y * 1.6) {
+        return (Mood::Underground, Mood::Underground.base_intensity());
+    }
     if at.y > heaven().top - 4.0 && at.xz().distance(chair.xz()) < 14.0 {
         return (Mood::Abuela, Mood::Abuela.base_intensity());
     }
@@ -527,7 +531,13 @@ fn direct(
     };
     let wandering = matches!(
         mood,
-        Mood::Explore | Mood::Village | Mood::Forest | Mood::Maze | Mood::Sky | Mood::Abuela
+        Mood::Explore
+            | Mood::Village
+            | Mood::Forest
+            | Mood::Maze
+            | Mood::Sky
+            | Mood::Abuela
+            | Mood::Underground
     );
     let intensity = if in_game && wandering {
         (intensity + movement_nudge(&motion)).clamp(0.05, 0.9)

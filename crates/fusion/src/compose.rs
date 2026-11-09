@@ -48,10 +48,13 @@ pub enum Mood {
     Landlord,
     /// The stillness: everything holds on a pad.
     Still,
+    /// Under the commune, in the sewers and passages (#127): dub-wet minor,
+    /// a bottle-flute lead and kalimba drips echoing down the tunnels.
+    Underground,
 }
 
 impl Mood {
-    pub const ALL: [Mood; 12] = [
+    pub const ALL: [Mood; 13] = [
         Mood::Menu,
         Mood::Explore,
         Mood::Village,
@@ -64,6 +67,7 @@ impl Mood {
         Mood::Duel,
         Mood::Landlord,
         Mood::Still,
+        Mood::Underground,
     ];
 
     pub fn from_index(i: u8) -> Mood {
@@ -86,6 +90,7 @@ impl Mood {
             Mood::Forest | Mood::Abuela => 0.5,
             Mood::Sky => 2.0,
             Mood::Maze => 2.5,
+            Mood::Underground => 2.0,
             Mood::Hiding | Mood::Still => 3.5,
             _ => 0.0,
         }
@@ -276,6 +281,21 @@ const MAZE_HOOK: Prog = &[
     (8, Maj7s11, 2),
     (7, Dom7alt, 2),
 ];
+// The sewers (#127): a dorian i - iv vamp, then borrowed lydian chords
+// dripping down to the minor V.
+const SEWER_A: Prog = &[(0, Min9, 8), (5, Min11, 8)];
+const SEWER_B: Prog = &[
+    (8, Maj7s11, 4),
+    (3, Maj9, 4),
+    (1, Maj7s11, 4),
+    (7, Dom7b9, 4),
+];
+const SEWER_HOOK: Prog = &[
+    (0, Min11, 4),
+    (10, Sus9, 4),
+    (8, Maj7s11, 4),
+    (7, Dom7alt, 4),
+];
 const SKY_B: Prog = &[(9, Min11, 4), (2, Min9, 4), (7, Sus9, 4), (0, Maj69, 4)];
 const SKY_HOOK: Prog = &[(5, Maj7s11, 4), (7, Sus9, 4), (4, Min9, 4), (9, Min11, 4)];
 // A bolero cycle in minor: i - ii-V - i - V/iv - iv - bVII - bIII - ii-V.
@@ -366,6 +386,8 @@ const PUMP: &str = "R.R.P.R.R.R.P.RA";
 const LAID: &str = "R-----.5..R---A.";
 const PEDAL: &str = "R-------5-------";
 const SPARSE: &str = "R-----....R-....";
+// Dub: a held root, space, and a late push back to it.
+const DUB: &str = "R---..R-..5-.RA.";
 const BOLERO: &str = "R-------5---3-A-";
 const TENSE: &str = "R.R.R.R.R.R.R.R.";
 const DRIVE: &str = "R.RP.RG.R.RP.RGA";
@@ -653,6 +675,34 @@ fn style_song(m: Mood, song: u8) -> &'static Style {
         answer: Some(Inst::Strings),
         nylon: Nylon::None,
     };
+    const UNDERGROUND: Style = Style {
+        bpm: 84.0,
+        swing: 0.16,
+        key: 2,
+        a: SEWER_A,
+        b: SEWER_B,
+        hook: SEWER_HOOK,
+        groove: Groove::Laid,
+        bass: &[DUB],
+        comp: Comp::Stabs,
+        lead: LeadKind::Flute,
+        arp: Some(Inst::Kalimba),
+        pad: true,
+        intensity: 0.35,
+        odd: 0.0,
+        modulate: 0.15,
+        kime: 0.0,
+        theme: false,
+        bass_inst: Inst::Fretless,
+        pad_inst: Inst::Strings,
+        horns: Horns::None,
+        kit: Kit {
+            conga: true,
+            ..KIT_NONE
+        },
+        answer: Some(Inst::EPiano),
+        nylon: Nylon::None,
+    };
     const SKY: Style = Style {
         bpm: 70.0,
         swing: 0.15,
@@ -829,6 +879,7 @@ fn style_song(m: Mood, song: u8) -> &'static Style {
         Mood::Seeking => &SEEKING,
         Mood::Duel => &DUEL,
         Mood::Landlord => &LANDLORD,
+        Mood::Underground => &UNDERGROUND,
     }
 }
 
@@ -1543,6 +1594,11 @@ impl Composer {
         let up = self.lift as f32;
         bar.bright = (bar.bright + 0.05 * up).min(1.0);
         bar.wet *= 1.0 + 0.07 * up;
+        // Down in the tunnels everything rings off wet brick (#127).
+        if self.mood == Mood::Underground {
+            bar.wet *= 1.6;
+            bar.echo *= 1.6;
+        }
     }
 
     /// Bus levels: which instruments are in for this bar.
@@ -3489,7 +3545,12 @@ mod tests {
     fn strong_beats_land_on_chord_tones() {
         let mut c = Composer::new(7);
         let mut bar = Bar::new();
-        for (k, m) in Mood::ALL.iter().cycle().take(12 * 30).enumerate() {
+        for (k, m) in Mood::ALL
+            .iter()
+            .cycle()
+            .take(Mood::ALL.len() * 30)
+            .enumerate()
+        {
             let mut q = cue(*m);
             q.intensity = (k % 7) as f32 / 6.0;
             c.next_bar(q, &mut bar);

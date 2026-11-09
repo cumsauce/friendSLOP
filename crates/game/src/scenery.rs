@@ -125,6 +125,10 @@ fn is_clear(p: Vec2, margin: f32) -> bool {
     }) {
         return false;
     }
+    // The ways down into the tunnels (#127).
+    if crate::features::underground::covers(p, margin) {
+        return false;
+    }
     keep_clear()
         .iter()
         .all(|(c, r)| p.distance(*c) >= r + margin)

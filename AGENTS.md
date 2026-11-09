@@ -133,12 +133,13 @@ Rules for growing it:
   feature imports it from there. Ordering hooks are system sets the world exposes (the cat
   palette runs `.after(SurfaceSet)`). Settings reach it as `core` resources (`Detail`,
   `DrawRange`), not the game's video settings.
-- **Next split (not done yet): scenery and zones.** `scenery.rs` and `zones.rs` still keep
-  trees out of features' spots by importing them (`warehouse::covers`, `WENDYS_AT`,
-  `underground::covers`, `totems::VAULT_AT`, ...) and lean on the camera and ambience. The way
-  forward is a footprint list in `world`: features add the areas they occupy at startup, and
-  scenery and zones read the list. Then they can join `friendslop-world`. New features that need
-  clear ground should add a footprint rather than be imported.
+- **Claim ground, don't get imported.** A feature that needs clear ground calls
+  `friendslop_world::footprints::claim(at, radius)` in its protocol function, and scenery and
+  zones keep their trees, bushes and rocks off it (the shipwreck does this).
+- **Next split (not done yet): scenery and zones.** `scenery.rs` and `zones.rs` still import
+  older features' spots (`warehouse::covers`, `WENDYS_AT`, `underground::covers`,
+  `totems::VAULT_AT`, ...) and lean on the camera and ambience. Move those features over to
+  `claim`, then scenery and zones can join `friendslop-world`.
 
 ### Networking rules (bevy_replicon 0.45)
 

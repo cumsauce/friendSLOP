@@ -2,9 +2,9 @@
 //! replicated to everyone. Deliberately empty: what a player *is* (body,
 //! controls, stats...) is up to the issues.
 
+use crate::voice_chat::{HostVoiceSpeaker, SpeakerId, VoiceSenderId};
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
-use bevy_voice_chat::prelude::{HostVoiceSpeaker, SpeakerId, VoiceSenderId};
 use serde::{Deserialize, Serialize};
 
 /// A person in the session. `id` 0 is the host; it doubles as the voice speaker id.

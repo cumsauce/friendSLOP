@@ -1,9 +1,9 @@
 //! Player settings (#25): master volume and voice volume. Mic mute lives in
 //! [`crate::voice::VoiceMuted`]. Local to each player; nothing is replicated.
 
+use crate::voice_chat::*;
 use bevy::audio::Volume;
 use bevy::prelude::*;
-use bevy_voice_chat::prelude::*;
 
 /// Volumes are `0..=1`, changed in steps of [`Settings::STEP`] from the menu.
 #[derive(Resource, Debug, Clone, Copy, PartialEq)]
@@ -40,6 +40,7 @@ impl Settings {
 
 /// Where a small local file (like the saved character) lives: the OS config
 /// folder, under `friendslop/`. `None` if the platform tells us nothing.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn config_path(file: &str) -> Option<std::path::PathBuf> {
     use std::path::PathBuf;
     let base = std::env::var_os("APPDATA")
@@ -47,6 +48,46 @@ pub fn config_path(file: &str) -> Option<std::path::PathBuf> {
         .or_else(|| std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from))
         .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))?;
     Some(base.join("friendslop").join(file))
+}
+
+/// Read a small saved file: the config folder natively, `localStorage` on the web.
+pub fn load_local(file: &str) -> Option<String> {
+    #[cfg(target_arch = "wasm32")]
+    return crate::web::load(file);
+    #[cfg(not(target_arch = "wasm32"))]
+    std::fs::read_to_string(config_path(file)?).ok()
+}
+
+/// Save a small file next to [`load_local`]'s. Failures only warn.
+pub fn save_local(file: &str, text: &str) {
+    #[cfg(target_arch = "wasm32")]
+    crate::web::save(file, text);
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let Some(path) = config_path(file) else {
+            return;
+        };
+        if let Some(dir) = path.parent()
+            && let Err(e) = std::fs::create_dir_all(dir)
+        {
+            warn!("can't create {}: {e}", dir.display());
+            return;
+        }
+        if let Err(e) = std::fs::write(&path, text) {
+            warn!("can't save {}: {e}", path.display());
+        }
+    }
+}
+
+/// Wall-clock time since the Unix epoch. `SystemTime::now` panics in the
+/// browser, so the web build asks JavaScript's `Date.now()` instead.
+pub fn since_epoch() -> std::time::Duration {
+    #[cfg(target_arch = "wasm32")]
+    return std::time::Duration::from_secs_f64(js_sys::Date::now().max(0.0) / 1000.0);
+    #[cfg(not(target_arch = "wasm32"))]
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
 }
 
 pub struct SettingsPlugin;

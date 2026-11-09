@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- No pinch zoom, fill the notch area (iOS), behave like an app. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2b1d2e">
+<link rel="manifest" href="manifest.webmanifest">
+<title>friendSLOP</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    /* 100dvh tracks iOS Safari's collapsing toolbars; 100vh is the fallback. */
+    height: 100vh; height: 100dvh;
+    overflow: hidden; overscroll-behavior: none; position: fixed; inset: 0;
+    background: #2b1d2e; color: #fff; font-family: system-ui, sans-serif;
+    touch-action: none; -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+  }
+  #bevy { display: block; width: 100%; height: 100%; outline: none; touch-action: none; }
+  .overlay {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; gap: 12px;
+    background: #2b1d2e; z-index: 10; padding: 24px; box-sizing: border-box;
+  }
+  .overlay h1 { margin: 0; font-size: 34px; letter-spacing: 1px; }
+  .overlay p { margin: 0; opacity: .8; max-width: 32em; }
+  #start button {
+    font-size: 22px; padding: 14px 36px; border: 0; border-radius: 999px;
+    background: #6bccad; color: #2b1d2e; font-weight: 700;
+  }
+  #rotate { display: none; z-index: 20; }
+  /* Phones held upright: the game wants landscape. */
+  @media (orientation: portrait) and (max-width: 900px) and (pointer: coarse) {
+    #rotate { display: flex; }
+  }
+  #rotate .phone { font-size: 64px; animation: turn 1.6s ease-in-out infinite; }
+  @keyframes turn { 0%,30% { transform: rotate(0) } 60%,100% { transform: rotate(-90deg) } }
+</style>
+</head>
+<body>
+<canvas id="bevy" tabindex="0"></canvas>
+
+<div id="start" class="overlay">
+  <h1>friendSLOP</h1>
+  <p id="status">Loading…</p>
+  <button id="go" hidden>Tap to play</button>
+  <p style="font-size:13px">Browser build: you can explore solo. Multiplayer and voice chat need the desktop game for now.</p>
+</div>
+
+<div id="rotate" class="overlay">
+  <div class="phone">📱</div>
+  <p>Turn your phone sideways to play.</p>
+</div>
+
+<script type="module">
+  const $ = (id) => document.getElementById(id);
+
+  // iOS Safari: stop double-tap zoom, pinch (gesture*) and rubber-band scroll.
+  for (const ev of ["gesturestart", "gesturechange", "gestureend", "dblclick"]) {
+    document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
+  }
+  document.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+  document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  // Browsers keep audio suspended until a user gesture: resume every
+  // AudioContext the game creates on the first touch/click/key.
+  const contexts = [];
+  for (const name of ["AudioContext", "webkitAudioContext"]) {
+    const Real = window[name];
+    if (!Real) continue;
+    window[name] = class extends Real {
+      constructor(...a) { super(...a); contexts.push(this); }
+    };
+  }
+  const unlock = () => contexts.forEach((c) => c.state !== "running" && c.resume());
+  for (const ev of ["touchend", "pointerdown", "keydown"]) {
+    document.addEventListener(ev, unlock, { capture: true });
+  }
+
+  // Fullscreen + landscape lock where the browser allows it (Android Chrome).
+  // iOS Safari has neither for a canvas: there the page itself fills the
+  // screen (100dvh, "Add to Home Screen" hides the toolbars) and the rotate
+  // overlay covers portrait.
+  async function goFullscreen() {
+    const el = document.documentElement;
+    try {
+      if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: "hide" });
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    } catch (_) {}
+    try { await screen.orientation?.lock?.("landscape"); } catch (_) {}
+  }
+
+  $("go").addEventListener("click", async () => {
+    unlock();
+    if (matchMedia("(pointer: coarse)").matches) await goFullscreen();
+    $("start").remove();
+    $("bevy").focus();
+  });
+
+  const gl2 = !!document.createElement("canvas").getContext("webgl2");
+  if (!gl2) {
+    $("status").textContent = "Your browser doesn't support WebGL2, which the game needs (iOS 15+, any recent Chrome/Firefox/Safari).";
+  } else {
+    try {
+      const { default: init } = await import("./friendslop.js");
+      // Bevy's winit loop throws a control-flow "exception" on purpose: ignore it.
+      init().catch((e) => {
+        if (!String(e).includes("Using exceptions for control flow")) throw e;
+      });
+      $("status").textContent = "Ready!";
+      $("go").hidden = false;
+    } catch (e) {
+      $("status").textContent = "Couldn't start the game: " + e;
+      console.error(e);
+    }
+  }
+</script>
+</body>
+</html>

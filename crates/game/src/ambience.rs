@@ -150,7 +150,11 @@ fn spawn_ambience(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    quality: Option<Res<crate::graphics::GraphicsQuality>>,
 ) {
+    // Low graphics (#106) thins the drifting particles out.
+    let density = crate::graphics::density(quality.as_deref());
+    let n = |count: usize| (count as f32 * density).round() as usize;
     let mut rng = Rng(0xA1B1_E5CE);
     let wing_mesh = meshes.add(Cuboid::new(0.22, 0.01, 0.16));
     let dot = meshes.add(Sphere::new(0.035).mesh().uv(6, 4));
@@ -217,7 +221,7 @@ fn spawn_ambience(
             }
         });
     }
-    for _ in 0..MOTES {
+    for _ in 0..n(MOTES) {
         let y = rng.range(0.3, 3.0);
         let anchor = rng.ring(y);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Mote, anchor, 1.0);
@@ -225,14 +229,14 @@ fn spawn_ambience(
             .entity(e)
             .insert((Mesh3d(dot.clone()), MeshMaterial3d(mote_mat.clone())));
     }
-    for _ in 0..FIREFLIES {
+    for _ in 0..n(FIREFLIES) {
         let anchor = rng.ring(0.8);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Firefly, anchor, 1.0);
         commands
             .entity(e)
             .insert((Mesh3d(dot.clone()), MeshMaterial3d(firefly_mat.clone())));
     }
-    for i in 0..LEAVES {
+    for i in 0..n(LEAVES) {
         let anchor = rng.ring(4.0);
         let life = rng.range(5.0, 9.0);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Leaf, anchor, life);
@@ -241,14 +245,14 @@ fn spawn_ambience(
             MeshMaterial3d(leaf_mats[i % leaf_mats.len()].clone()),
         ));
     }
-    for _ in 0..SMOKE {
+    for _ in 0..n(SMOKE) {
         let life = rng.range(3.5, 5.5);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Smoke, BONFIRE_AT, life);
         commands
             .entity(e)
             .insert((Mesh3d(puff.clone()), MeshMaterial3d(smoke_mat.clone())));
     }
-    for _ in 0..SPARKS {
+    for _ in 0..n(SPARKS) {
         let life = rng.range(0.8, 1.6);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Spark, BONFIRE_AT, life);
         commands

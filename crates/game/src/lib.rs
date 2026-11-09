@@ -10,14 +10,18 @@ pub mod assets;
 pub mod atmosphere;
 pub mod buildings;
 pub mod camera;
+pub mod controls;
 pub mod creator;
 pub mod features;
 pub mod footsteps;
+pub mod graphics;
 pub mod hud;
 pub mod kcc;
 pub mod landmarks;
 pub mod loading;
 pub mod menu;
+// The browser build has no iroh transport yet: same API, solo play (#106).
+#[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
 pub mod net;
 pub mod people;
 pub mod player;
@@ -26,8 +30,18 @@ pub mod settings;
 pub mod terrain;
 pub mod theme;
 pub mod voice;
+#[cfg(target_arch = "wasm32")]
+pub mod web;
 pub mod world;
 pub mod zones;
+
+/// `bevy_voice_chat`'s prelude natively; inert stand-ins in the browser (#106).
+pub mod voice_chat {
+    #[cfg(target_arch = "wasm32")]
+    pub use crate::web::voice_chat::*;
+    #[cfg(not(target_arch = "wasm32"))]
+    pub use bevy_voice_chat::prelude::*;
+}
 
 /// Top-level flow. Add states here only if a feature truly needs a new screen.
 #[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -80,5 +94,6 @@ impl Plugin for GamePlugin {
                 footsteps::plugin,
                 theme::plugin,
             ));
+        app.add_plugins((controls::plugin, graphics::plugin));
     }
 }

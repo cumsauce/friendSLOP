@@ -6,9 +6,9 @@
 //! small pitch shifter (so everyone hears the squeaky or deep version) for a
 //! while. A new mushroom sprouts somewhere else a little later.
 
+use crate::voice_chat::*;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
-use bevy_voice_chat::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;

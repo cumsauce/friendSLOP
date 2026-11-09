@@ -321,6 +321,33 @@ asked for, and what nobody has decided yet.
 - **Overview camera** (polish). Press V to leave your body: pan with WASD / arrow keys and zoom
   with the scroll wheel, clamped to the floor. V again returns to first person.
 
+- **Browser / phone build** (#106). `scripts/build-web.sh` builds a WebGL2 page (index.html +
+  wasm + assets) into `dist/web`; the Release workflow attaches it as `friendslop-web.zip` and,
+  if the repo has Pages enabled, hosts it there. WebGL **1.0** isn't possible: Bevy 0.20's
+  renderer (wgpu) needs WebGL2 at minimum (every current browser, iOS 15+). Phone-friendly:
+  no zoom/scroll/bounce, 100dvh, "Tap to play" goes fullscreen and locks landscape where the
+  browser allows (Android Chrome); iOS Safari can do neither for a page, so a "turn your phone
+  sideways" card covers portrait and "Add to Home Screen" gives the fullscreen look; audio
+  unlocks on the first tap. **Limits (honest):** the browser build is **solo** for now (Host
+  starts a session with nobody else; Join says to use the desktop game) and has **no voice
+  chat**: `bevy_replicon_iroh` runs iroh on a tokio runtime and blocks on it every tick, and
+  voice uses cpal capture threads; neither works on a browser's single main thread. iroh 1.3
+  itself does build for browsers (relay-only), so a browser transport is possible later; until
+  then the replicated protocol differs in the browser (voice messages aren't registered), so a
+  browser peer couldn't talk to a desktop peer anyway. Character and graphics settings are
+  saved in localStorage.
+- **Touch and gamepad controls** (#106). Touch (overlay appears on first touch): thumb anywhere
+  on the left third is a joystick, drag on the right to look, round buttons for Jump, Use (click
+  at the crosshair), Run (toggle), Fart, Help, Score, View and Leave. Climbing is still "hold
+  forward". Gamepad: left stick move, right stick look, A jump, B/RB/RT use, LB or left-stick
+  click run, X fart, Y help, Back scoreboard, D-pad up view, Start = Esc; in the menu A/Start
+  hosts. Both press the same keys/mouse buttons features already listen to (`controls.rs`).
+- **Graphics quality** (#106). Settings → Graphics: **Low** (default in the browser, or
+  `FRIENDSLOP_LOW=1`) turns off sun shadows, bloom and MSAA, draws at 1x pixel density, pulls
+  fog and draw distance in (140 m), and halves grass tufts and ambient particles (those two on
+  the next world build). **High** is the full look. Saved locally. 60 fps on low-end phones is
+  the aim, not measured.
+
 ## Ideas so far
 
 - Freyja Moth (#51): list keywords (strict) / (expand, x..y) / (replace, x..y) say how literally to take a list of examples (rules in AGENTS.md).
@@ -390,6 +417,9 @@ asked for, and what nobody has decided yet.
   it can be like fortnite; it can be like getting into heaven.
 - doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
 
+- WeiYa (#106): a WebGL web build released on GitHub, phone optimised, landscape, fullscreen,
+  iOS Safari quirks in mind, intuitive touch controls (and controller support), locked 60 fps on
+  low settings.
 - doomy (#100): make your own character so others can see you; rigged but procedural, and a
   reusable system that NPCs can use too.
 
@@ -404,6 +434,7 @@ asked for, and what nobody has decided yet.
 - Who lives in the east village, and is it part of the Commune or somewhere else?
 - Organs are money, but how do you get them, and what are they for?
 - You can be a person or a creature now. Does what you are change anything in play?
+- Should the browser version be able to join friends (and talk)? It needs its own transport first.
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?

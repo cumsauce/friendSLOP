@@ -39,12 +39,31 @@ jobs:
       - name: test
         run: cargo test --workspace --locked
 
+  # The browser build (#106) must keep compiling. Linux only, no wasm-bindgen.
+  web:
+    name: web (wasm32 check)
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings --cfg getrandom_backend="wasm_js"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: wasm
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: clippy (wasm32)
+        run: cargo clippy -p friendslop --target wasm32-unknown-unknown --locked
 
   # Single required check for branch protection / auto-merge.
   ci-ok:
     if: always()
-    needs: [cargo]
+    needs: [cargo, web]
     runs-on: ubuntu-latest
     steps:
       - run: |
           [[ "${{ needs.cargo.result }}" == success ]]
+          [[ "${{ needs.web.result }}" == success ]]

@@ -215,10 +215,7 @@ pub fn os_name() -> &'static str {
 }
 
 fn clock_hhmm() -> String {
-    let secs = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
+    let secs = crate::settings::since_epoch().as_secs();
     format!("{:02}:{:02} UTC", (secs / 3600) % 24, (secs / 60) % 60)
 }
 

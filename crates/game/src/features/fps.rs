@@ -396,6 +396,7 @@ fn walk_controls(
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
     motion: Res<AccumulatedMouseMotion>,
+    virt: Option<Res<crate::controls::VirtualInput>>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
     duelists: Query<&Duelist>,
@@ -452,6 +453,10 @@ fn walk_controls(
         view.yaw -= motion.delta.x * LOOK_SENSITIVITY;
         view.pitch = (view.pitch - motion.delta.y * LOOK_SENSITIVITY).clamp(-1.5, 1.5);
     }
+    let virt = virt.map(|v| *v).unwrap_or_default();
+    // Touch drag / right stick (#106) look whether or not a cursor is grabbed.
+    view.yaw -= virt.look.x;
+    view.pitch = (view.pitch - virt.look.y).clamp(-1.5, 1.5);
     let mut stick = Vec2::ZERO;
     for (a, b, dir) in [
         (KeyCode::KeyW, KeyCode::ArrowUp, Vec2::Y),
@@ -463,11 +468,17 @@ fn walk_controls(
             stick += dir;
         }
     }
+    // Keys win; otherwise the analog touch / gamepad stick (#106).
+    let stick = if stick == Vec2::ZERO {
+        virt.stick.clamp_length_max(1.0)
+    } else {
+        stick.normalize_or_zero()
+    };
     commands.client_trigger(WalkControl {
-        stick: stick.normalize_or_zero(),
+        stick,
         yaw: view.yaw,
-        jump: keys.pressed(KeyCode::Space),
-        run: keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]),
+        jump: keys.pressed(KeyCode::Space) || virt.jump,
+        run: keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) || virt.run,
     });
     *was_walking = true;
 }

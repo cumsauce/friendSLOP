@@ -10,11 +10,11 @@ use std::sync::Mutex;
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+pub use bevy_replicon_iroh::IrohClient;
 use bevy_replicon_iroh::iroh::endpoint::{EndpointHooks, presets};
 use bevy_replicon_iroh::iroh::{EndpointAddr, EndpointId, SecretKey};
 use bevy_replicon_iroh::{
-    IrohClient, IrohClientConfig, IrohServer, IrohServerConfig, IrohTokioHandle,
-    RepliconIrohPlugins,
+    IrohClientConfig, IrohServer, IrohServerConfig, IrohTokioHandle, RepliconIrohPlugins,
 };
 
 use crate::AppState;

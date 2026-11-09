@@ -549,7 +549,7 @@ impl FmVoice {
         let top = f * (p.r1.max(p.r2) + 1.0 + p.i1_peak.max(p.i2_peak) * 1.5);
         let iscale = ks * (15_000.0 / top).min(1.0);
         let (pl, pr) = pan_gains(pan);
-        let g = p.gain * (0.35 + 0.65 * vel);
+        let g = p.gain * dyn_gain(vel);
         *self = Self {
             active: true,
             inst,
@@ -570,7 +570,8 @@ impl FmVoice {
             k_rel: per_sample(p.release),
             k_i1: per_sample(p.i1_tau),
             k_i2: per_sample(p.i2_tau),
-            att_left: ((p.attack * RATE as f32) as u32).max(1),
+            // A soft touch speaks a hair slower.
+            att_left: ((p.attack * (1.4 - 0.5 * vel) * RATE as f32) as u32).max(1),
             att_step: 0.0,
             hold: len.max(1),
             age: 0,
@@ -895,7 +896,7 @@ impl SubVoice {
         let vel = vel.clamp(0.0, 1.0);
         let f = hz(note as f32);
         let (pl, pr) = pan_gains(pan);
-        let g = p.gain * (0.4 + 0.6 * vel);
+        let g = p.gain * dyn_gain(vel);
         // Softer notes open more slowly (a horn section easing in).
         let f_att = p.f_attack * (1.5 - 0.7 * vel);
         let seed = (note as f32 * 0.618).fract();
@@ -1213,7 +1214,7 @@ impl PluckVoice {
         // Lower strings sit a little left, higher ones right (a stereo mic).
         let pan = ((note as f32 - 60.0) / 24.0).clamp(-0.4, 0.4);
         let (pl, pr) = pan_gains(pan);
-        let g = 0.3 * (0.35 + 0.65 * vel);
+        let g = 0.3 * dyn_gain(vel);
         self.gl = pl * g;
         self.gr = pr * g;
         self.send = Inst::Guitar.send();
@@ -1280,6 +1281,13 @@ pub struct Sample {
     pub inst: Inst,
     pub root: u8,
     pub data: Vec<f32>,
+}
+
+/// Loudness for a velocity: about 20 dB from a whisper to a full hit (a real
+/// player's range), matching the old level at a typical 0.7.
+fn dyn_gain(vel: f32) -> f32 {
+    let f = |v: f32| 0.1 + 0.9 * v.clamp(0.0, 1.0).powf(1.5);
+    f(vel) / f(0.7)
 }
 
 /// Every sampled instrument, multi-sampled every few semitones.
@@ -1495,6 +1503,9 @@ struct SampleVoice {
     echo: f32,
     bus: Bus,
     choke: bool,
+    /// Velocity tone: a one-pole low-pass (state, coefficient).
+    lp: f32,
+    lp_a: f32,
 }
 
 /// A note for the engine to play.
@@ -1637,6 +1648,8 @@ impl Band {
                 echo: 0.0,
                 bus: Bus::Drums,
                 choke: false,
+                lp: 0.0,
+                lp_a: 1.0,
             }; SAMPLE_VOICES],
             bus_gain: [0.0; BUSES],
             bus_target: [0.0; BUSES],
@@ -1851,6 +1864,17 @@ impl Band {
             i => i.pan(),
         };
         let vel = ev.vel.clamp(0.0, 1.2);
+        // Hit harder, louder (a little more than linear) and brighter: soft
+        // hits lose the top end the way a real stick or mallet does.
+        let tone = vel.min(1.0).powf(1.5);
+        let floor = match ev.inst {
+            Inst::Kick => 2500.0,
+            Inst::Hat | Inst::OpenHat | Inst::Crash | Inst::Ride | Inst::Shaker => 5000.0,
+            _ => 1500.0,
+        };
+        let fc = (floor + (20_000.0 - floor) * tone).min(0.45 * RATE as f32);
+        let lp_a = 1.0 - (-std::f32::consts::TAU * fc / RATE as f32).exp();
+        let vel = vel * (vel / 0.7).powf(0.3);
         // An open hat is choked by the next closed one, like a real kit.
         if ev.inst == Inst::Hat {
             for v in self.smp.iter_mut().filter(|v| v.active && v.choke) {
@@ -1882,6 +1906,8 @@ impl Band {
             echo: ev.inst.echo(),
             bus: ev.inst.bus(),
             choke: ev.inst == Inst::OpenHat,
+            lp: 0.0,
+            lp_a,
         };
     }
 
@@ -1952,7 +1978,8 @@ impl Band {
                     break;
                 }
                 let fr = v.pos - p as f32;
-                let s = (data[p] + (data[p + 1] - data[p]) * fr) * g;
+                v.lp += v.lp_a * (data[p] + (data[p + 1] - data[p]) * fr - v.lp);
+                let s = v.lp * g;
                 l[i] += s * v.gl;
                 r[i] += s * v.gr;
                 send[i] += s * v.send;

@@ -237,8 +237,12 @@ fn dress_bear(
 }
 
 /// Amble along, face where we're going, and rear up a bit while growling.
-fn animate_bear(time: Res<Time>, mut bears: Query<(&Bear, &mut Transform)>) {
-    let t = time.elapsed_secs();
+fn animate_bear(
+    time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
+    mut bears: Query<(&Bear, &mut Transform)>,
+) {
+    let t = super::stillness::session_secs(&time, &offset);
     for (bear, mut transform) in &mut bears {
         let here = bear_position(bear, t);
         let ahead = bear_position(bear, t + 0.1);
@@ -283,24 +287,28 @@ fn load_growl_sound(mut commands: Commands, audio: Option<ResMut<Assets<AudioSou
 /// Show the growl text and play the sound once at the start of every growl.
 fn growl(
     time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
     mut commands: Commands,
     bears: Query<(), With<Bear>>,
     sound: Option<Res<GrowlSound>>,
-    mut was_growling: Local<bool>,
+    mut played: Local<u64>,
     mut text: Query<&mut Text, With<GrowlText>>,
 ) {
-    let growling = !bears.is_empty() && is_growling(time.elapsed_secs());
+    let t = super::stillness::session_secs(&time, &offset);
+    let growling = !bears.is_empty() && is_growling(t);
+    // Which growl window this is: robust to leaving and re-entering mid-growl.
+    let window = ((t + 4.0) / GROWL_PERIOD) as u64 + 1;
     if growling
-        && !*was_growling
+        && *played != window
         && let Some(sound) = &sound
     {
+        *played = window;
         commands.spawn((
             AudioPlayer(sound.0.clone()),
             PlaybackSettings::DESPAWN,
             DespawnOnExit(AppState::InGame),
         ));
     }
-    *was_growling = growling;
     let want = if growling {
         "grrr~ (the bear, cutely)"
     } else {

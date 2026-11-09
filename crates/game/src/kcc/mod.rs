@@ -38,8 +38,10 @@ const MIN_WALK_COS: f32 = std::f32::consts::FRAC_1_SQRT_2;
 const GROUND_DISTANCE: f32 = 0.05;
 /// Space kept between the body and whatever it touches.
 const SKIN_WIDTH: f32 = 0.015;
-/// Falling faster than this counts as jumping, not standing.
-const UNGROUND_SPEED: f32 = 10.0;
+/// Rising faster than this counts as jumping, not standing. Must stay below
+/// the jump speed (`sqrt(2 * GRAVITY * JUMP_HEIGHT)` ~ 5.0), or a jumper is
+/// re-grounded next to a slope or on a fast tick and the jump is cancelled.
+const UNGROUND_SPEED: f32 = 4.0;
 /// Room needed in front of a step before we climb it.
 const MIN_STEP_LEDGE_SPACE: f32 = 0.2;
 /// Free-fall acceleration (matches the old hand-written movement).
@@ -49,6 +51,8 @@ const JUMP_HEIGHT: f32 = 0.9;
 /// Reaches full speed in ~50 ms; the old hand-written movement was instant.
 const ACCELERATION_HZ: f32 = 20.0;
 const AIR_ACCELERATION_HZ: f32 = 10.0;
+/// Upstream's `max_air_wish_speed`: the classic Quake air-control limit.
+const MAX_AIR_WISH_SPEED: f32 = 0.76;
 const FRICTION_HZ: f32 = 12.0;
 const STOP_SPEED: f32 = 2.54;
 const MAX_SPEED: f32 = 30.0;
@@ -104,7 +108,6 @@ pub fn step(
     };
 
     let mut translation = feet + Vec3::Y * FEET_TO_CENTRE;
-    let was_grounded = kcc.grounded.is_some();
 
     // Wish velocity: stick relative to where we're looking (flat).
     let flat = Quat::from_rotation_y(yaw);
@@ -115,7 +118,9 @@ pub fn step(
     kcc.velocity.y -= GRAVITY * 0.5 * dt;
 
     // Jumping (upstream `handle_jump`, minus coyote time and tic tacs).
+    let mut jumped = false;
     if kcc.grounded.is_some() && jump {
+        jumped = true;
         kcc.grounded = None;
         // v = sqrt(2 g h): reach `JUMP_HEIGHT` against linear deceleration.
         kcc.velocity.y += (2.0 * GRAVITY * JUMP_HEIGHT).sqrt();
@@ -134,9 +139,10 @@ pub fn step(
     kcc.velocity = kcc.velocity.clamp_length_max(MAX_SPEED);
 
     // Walk or fly (upstream `ground_move` / `air_move`, minus platforms).
-    if kcc.grounded.is_some() {
+    let ground_move = kcc.grounded.is_some();
+    if ground_move {
         kcc.velocity.y = 0.0;
-        accelerate(&mut kcc.velocity, wish_velocity, ACCELERATION_HZ, dt);
+        accelerate(&mut kcc.velocity, wish_velocity, ACCELERATION_HZ, None, dt);
         kcc.velocity.y = 0.0;
 
         let mut movement = kcc.velocity * dt;
@@ -154,29 +160,37 @@ pub fn step(
                 kcc,
                 translation,
                 dt,
+                false,
             );
         }
     } else {
-        accelerate(&mut kcc.velocity, wish_velocity, AIR_ACCELERATION_HZ, dt);
-        let out = move_and_slide.move_and_slide(
+        accelerate(
+            &mut kcc.velocity,
+            wish_velocity,
+            AIR_ACCELERATION_HZ,
+            Some(MAX_AIR_WISH_SPEED),
+            dt,
+        );
+        // Like upstream's `air_move`, step up ledges while airborne too.
+        translation = step_move(
+            move_and_slide,
             &shape,
-            translation,
-            rotation,
-            kcc.velocity,
-            std::time::Duration::from_secs_f32(dt),
             &config,
             &filter,
-            |_| MoveAndSlideHitResponse::Accept,
+            kcc,
+            translation,
+            dt,
+            true,
         );
-        translation = out.position;
-        kcc.velocity = out.projected_velocity;
     }
 
-    // Re-ground, and snap down slopes and stairs when we were walking.
-    update_grounded(move_and_slide, &shape, rotation, &filter, kcc, translation);
-    if was_grounded && kcc.grounded.is_some() {
+    // Snap down slopes and stairs after a ground move (before re-grounding,
+    // as upstream does: afterwards the ground is already out of snap range),
+    // then work out whether we are standing.
+    if ground_move && !jumped {
         translation = snap_to_ground(move_and_slide, &shape, rotation, &filter, translation);
     }
+    update_grounded(move_and_slide, &shape, rotation, &filter, kcc, translation);
     kcc.velocity.y -= GRAVITY * 0.5 * dt;
     if kcc.grounded.is_some() {
         kcc.velocity.y = 0.0;
@@ -187,11 +201,19 @@ pub fn step(
 }
 
 /// Reach `wish` velocity at `acceleration_hz` (upstream `ground_accelerate`).
-fn accelerate(velocity: &mut Vec3, wish: Vec3, acceleration_hz: f32, dt: f32) {
+/// `max_wish_speed` caps the speed we may *add* towards (air control).
+fn accelerate(
+    velocity: &mut Vec3,
+    wish: Vec3,
+    acceleration_hz: f32,
+    max_wish_speed: Option<f32>,
+    dt: f32,
+) {
     let Ok((wish_dir, wish_speed)) = Dir3::new_and_length(wish) else {
         return;
     };
-    let add_speed = wish_speed - velocity.dot(*wish_dir);
+    let target = max_wish_speed.map_or(wish_speed, |m| wish_speed.min(m));
+    let add_speed = target - velocity.dot(*wish_dir);
     if add_speed <= 0.0 {
         return;
     }
@@ -210,6 +232,7 @@ fn step_move(
     kcc: &mut Kcc,
     translation: Vec3,
     dt: f32,
+    airborne: bool,
 ) -> Vec3 {
     let rotation = Quat::IDENTITY;
     let original_position = translation;
@@ -277,9 +300,15 @@ fn step_move(
     // If we would slide down from up there, this wasn't a step. If there is
     // simply no floor within a step below, we stepped into clear air (say,
     // over a small gap): commit to it and let gravity bring us down.
+    // (Deliberate divergence from upstream, which reverts to the blocked
+    // slide here: committing is what makes kerb crossing work at 60 Hz, see
+    // #98. Don't "fix" it without re-running tests/kcc.rs.)
     let hit = hit.filter(|hit| hit.normal1.y >= MIN_WALK_COS);
     let up_position = match hit {
         Some(hit) => translation - Vec3::Y * hit.distance,
+        // Airborne there is no floor to commit to: never hover on a ledge
+        // lift (it would climb half a metre per tick).
+        None if airborne => return finish_down(kcc, &down),
         None => translation,
     };
 
@@ -293,6 +322,11 @@ fn step_move(
         kcc.velocity.y = down.projected_velocity.y;
         up_position
     }
+}
+
+fn finish_down(kcc: &mut Kcc, down: &MoveAndSlideOutput) -> Vec3 {
+    kcc.velocity = down.projected_velocity;
+    down.position
 }
 
 /// `MoveAndSlide::move_and_slide` with the ground plane pinned, returning the

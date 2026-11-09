@@ -60,6 +60,8 @@ fn hdr(c: Color) -> LinearRgba {
 /// Give the main camera tonemapping, bloom and horizon-matched fog.
 fn dress_camera(add: On<Add<MainCamera>>, mut commands: Commands) {
     commands.entity(add.entity).insert((
+        // Without `Hdr`, bloom and tonemapping are silent no-ops.
+        bevy::camera::Hdr,
         Tonemapping::TonyMcMapface,
         Bloom {
             intensity: 0.08,

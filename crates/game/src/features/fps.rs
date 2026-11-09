@@ -80,14 +80,16 @@ pub fn protocol(app: &mut App) {
         .add_observer(on_walk_control)
         .add_systems(
             Update,
-            (give_bodies, move_walkers)
-                .chain()
-                .in_set(WalkSet)
-                .run_if(in_state(ServerState::Running))
+            (
+                give_bodies,
                 // The real movement runs on the host, where the physics world
                 // exists (see `kcc_move_walkers` in `plugin`). Headless tests
                 // have no avian at all, so they walk by terrain height only.
-                .run_if(no_physics_world),
+                move_walkers.run_if(no_physics_world),
+            )
+                .chain()
+                .in_set(WalkSet)
+                .run_if(in_state(ServerState::Running)),
         );
 }
 
@@ -330,7 +332,9 @@ pub fn plugin(app: &mut App) {
         .add_systems(
             Update,
             kcc_move_walkers
-                .after(WalkSet)
+                .in_set(WalkSet)
+                .after(give_bodies)
+                .after(move_walkers)
                 .run_if(in_state(ServerState::Running))
                 .run_if(in_state(AppState::InGame))
                 .run_if(
@@ -376,6 +380,8 @@ fn toggle_view(
         return;
     }
     view.first_person = !view.first_person;
+    // The overview always has a free cursor; coming back starts locked again.
+    view.released = false;
     if !view.first_person
         && let Some(w) = my_walker(me.as_deref(), &walkers, &duelists)
     {
@@ -400,6 +406,16 @@ fn walk_controls(
     let Some(w) = my_walker(me.as_deref(), &walkers, &duelists) else {
         // Duelling (the duel drives the cursor) or not spawned yet.
         view.synced = false;
+        if *was_walking {
+            // Stop the body now: otherwise the server keeps the last stick and
+            // the body drifts off by itself once the duel ends.
+            commands.client_trigger(WalkControl {
+                stick: Vec2::ZERO,
+                yaw: view.yaw,
+                jump: false,
+                run: false,
+            });
+        }
         *was_walking = false;
         return;
     };

@@ -420,7 +420,9 @@ impl Kit {
         // Gable ends, filling the wall up to the ridge.
         for side in [-1.0f32, 1.0] {
             let at = Vec3::new(c.x + side * (w / 2.0), eave, c.y);
-            let size = Vec3::new(d + T, rise, T);
+            // Wider than the roof run by `T`, so keep the rake slightly
+            // steeper than the roof plane or it pokes up through the tiles.
+            let size = Vec3::new(d + T, rise * (d + T) / d + 0.02, T);
             let rot = Quat::from_rotation_y(FRAC_PI_2);
             self.put(Shape::Gable, at, size, rot, wall, Solid::None, false);
         }
@@ -979,6 +981,16 @@ fn barn(k: &mut Kit) {
         Vec3::new(1.4, 0.8, 2.2),
         Mat::Wood,
     );
+    // A tie beam across the barn for the lamp's cord to hang from.
+    k.bar(
+        Vec2::new(-hx, 1.5),
+        Vec2::new(hx, 1.5),
+        5.1,
+        0.25,
+        0.25,
+        Mat::Timber,
+        Solid::None,
+    );
     k.lights.push(k.world(Vec3::new(0.0, 4.2, 1.5)));
     k.lamp(Vec3::new(0.0, 4.2, 1.5));
     k.roof(
@@ -1221,7 +1233,7 @@ fn village_grounds(k: &mut Kit) {
         for y in [0.45, 0.9] {
             k.bar(a, b, y, 0.1, 0.08, Mat::Wood, Solid::None);
         }
-        let n = (a.distance(b) / 2.0).ceil() as usize;
+        let n = ((a.distance(b) / 2.0).ceil() as usize).max(1);
         for i in 0..=n {
             let p = a.lerp(b, i as f32 / n as f32);
             k.prop(

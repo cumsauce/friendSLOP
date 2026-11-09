@@ -94,11 +94,32 @@ pub fn protocol(app: &mut App) {
         .init_resource::<HideSeekClock>()
         .add_observer(on_start)
         .add_observer(on_tag)
+        .add_observer(reset_hide_seek)
         .add_systems(OnEnter(ServerState::Running), spawn_state)
         .add_systems(
             Update,
             (tick, hold_seekers.after(WalkSet)).run_if(in_state(ServerState::Running)),
         );
+}
+
+/// A new round of the campaign: stop any game, drop roles and holds.
+fn reset_hide_seek(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut commands: Commands,
+    mut state: Query<&mut HideSeek>,
+    mut clock: ResMut<HideSeekClock>,
+    roled: Query<Entity, Or<(With<Role>, With<HoldAt>)>>,
+) {
+    for mut s in &mut state {
+        *s = HideSeek {
+            round: s.round,
+            ..default()
+        };
+    }
+    clock.0 = 0.0;
+    for e in &roled {
+        commands.entity(e).remove::<(Role, HoldAt)>();
+    }
 }
 
 fn spawn_state(mut commands: Commands) {
@@ -171,7 +192,11 @@ fn on_start(
     mut state: Query<&mut HideSeek>,
     mut clock: ResMut<HideSeekClock>,
     players: Query<(Entity, &Player, &Walker)>,
+    still: Query<&super::stillness::Stillness>,
 ) {
+    if super::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Ok(mut state) = state.single_mut() else {
         return;
     };
@@ -195,7 +220,11 @@ fn on_tag(
     state: Query<&HideSeek>,
     walkers: Query<(&PlayerOwner, &Walker)>,
     mut players: Query<(&Player, &PlayerOwner, &Walker, &mut Role)>,
+    still: Query<&super::stillness::Stillness>,
 ) {
+    if super::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Ok(state) = state.single() else { return };
     if state.phase != Phase::Seeking {
         return;

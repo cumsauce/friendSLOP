@@ -33,6 +33,33 @@ pub fn play_synth(
         .id()
 }
 
+/// Marks a synth that plays as a spatial sound at its `Transform`, with this
+/// spatial scale (smaller carries further).
+#[derive(Component, Clone, Copy)]
+pub struct SynthSpatial(pub f32);
+
+/// Playback volume for a synth (linear).
+#[derive(Component, Clone, Copy)]
+pub struct SynthVolume(pub f32);
+
+/// Like [`play_synth`], but heard at `at` in the world (louder and panned as
+/// you walk up), at `volume`.
+pub fn play_synth_at(
+    commands: &mut Commands,
+    at: Vec3,
+    scale: f32,
+    volume: f32,
+    make_wav: impl FnOnce() -> Vec<u8> + Send + 'static,
+) -> Entity {
+    let e = play_synth(commands, make_wav);
+    commands.entity(e).insert((
+        Transform::from_translation(at),
+        SynthSpatial(scale),
+        SynthVolume(volume),
+    ));
+    e
+}
+
 pub fn plugin(app: &mut App) {
     app.add_systems(
         Update,
@@ -42,21 +69,35 @@ pub fn plugin(app: &mut App) {
 
 fn start_finished_sounds(
     mut commands: Commands,
-    mut tasks: Query<(Entity, &mut SynthTask)>,
+    mut tasks: Query<(
+        Entity,
+        &mut SynthTask,
+        Option<&SynthSpatial>,
+        Option<&SynthVolume>,
+    )>,
     audio: Option<ResMut<Assets<AudioSource>>>,
 ) {
     let Some(mut audio) = audio else { return };
-    for (entity, mut task) in &mut tasks {
+    for (entity, mut task, spatial, volume) in &mut tasks {
         let Some(wav) = check_ready(&mut task.0) else {
             continue;
         };
         let handle = audio.add(AudioSource {
             bytes: Arc::from(wav),
         });
+        let mut settings = PlaybackSettings::DESPAWN;
+        if let Some(v) = volume {
+            settings = settings.with_volume(bevy::audio::Volume::Linear(v.0));
+        }
+        if let Some(s) = spatial {
+            settings = settings
+                .with_spatial(true)
+                .with_spatial_scale(bevy::audio::SpatialScale::new(s.0));
+        }
         commands
             .entity(entity)
             .remove::<SynthTask>()
-            .insert((AudioPlayer(handle), PlaybackSettings::DESPAWN));
+            .insert((AudioPlayer(handle), settings));
     }
 }
 

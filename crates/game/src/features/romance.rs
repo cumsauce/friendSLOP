@@ -123,6 +123,23 @@ fn swoon(
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
         return;
     };
+    let ground = crate::terrain::height_at(smitten.at.x, smitten.at.y);
+    spawn_hearts(
+        &mut commands,
+        &mut meshes,
+        &mut materials,
+        Vec3::new(smitten.at.x, ground + 1.8, smitten.at.y),
+    );
+}
+
+/// Pink hearts that rise one after another from `above` (also used by
+/// Abuela, see abuela.rs).
+pub fn spawn_hearts(
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    above: Vec3,
+) {
     let lobe = meshes.add(Sphere::new(0.1));
     let point = meshes.add(Cuboid::new(0.2, 0.2, 0.08));
     let pink = materials.add(StandardMaterial {
@@ -131,13 +148,12 @@ fn swoon(
         unlit: true,
         ..default()
     });
-    let ground = crate::terrain::height_at(smitten.at.x, smitten.at.y);
     for i in 0..HEARTS {
         let f = i as f32;
         let base = Vec3::new(
-            smitten.at.x + (f * 2.4).sin() * 0.4,
-            ground + 1.8 + f * 0.15,
-            smitten.at.y + (f * 1.7).cos() * 0.4,
+            above.x + (f * 2.4).sin() * 0.4,
+            above.y + f * 0.15,
+            above.z + (f * 1.7).cos() * 0.4,
         );
         commands
             .spawn((

@@ -94,13 +94,23 @@ impl JoinCode {
 
     /// Replace the box with pasted text, trimmed.
     pub fn paste(&mut self, text: &str) {
-        // Same rule as typing: codes are hex, drop anything else.
-        self.0 = text
+        // Same rule as typing: codes are hex, drop anything else (a pasted
+        // share link counts as its code).
+        self.0 = code_in(text)
             .trim()
             .chars()
             .filter(char::is_ascii_hexdigit)
             .take(Self::MAX_LEN)
             .collect();
+    }
+}
+
+/// The join code in `text`: the text itself, or the `join=` part of a share
+/// link (`https://.../?join=<code>`).
+pub fn code_in(text: &str) -> &str {
+    match text.split_once("join=") {
+        Some((_, rest)) => rest.split(['&', '#']).next().unwrap_or(rest),
+        None => text,
     }
 }
 
@@ -879,8 +889,13 @@ fn copy_code_again(
     }
     match &status.join_code {
         Some(code) => {
-            clip.set(code);
-            toast.show("join code copied");
+            let share = crate::net::share_text(code);
+            clip.set(&share);
+            toast.show(if share == *code {
+                "join code copied"
+            } else {
+                "join link copied"
+            });
         }
         None => toast.show("only the host has a join code"),
     }
@@ -1078,5 +1093,10 @@ mod tests {
         assert!(c.type_key(&Key::Enter));
         c.paste("  deadbeef\n");
         assert_eq!(c.0, "deadbeef");
+        // A share link pastes as its code, not every hex letter in the URL.
+        c.paste("https://cafe.example/friendSLOP/?join=0123abcd&x=1");
+        assert_eq!(c.0, "0123abcd");
+        assert_eq!(code_in("https://a.b/?join=beef#top"), "beef");
+        assert_eq!(code_in("beef"), "beef");
     }
 }

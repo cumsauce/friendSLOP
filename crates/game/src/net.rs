@@ -42,6 +42,11 @@ struct TokioRuntime(#[allow(dead_code)] tokio::runtime::Runtime);
 #[derive(Resource, Default)]
 pub struct Clipboard(Mutex<Option<arboard::Clipboard>>);
 
+/// What the host hands friends: on the desktop, the bare join code.
+pub fn share_text(code: &str) -> String {
+    code.to_string()
+}
+
 impl Clipboard {
     pub fn set(&self, text: &str) {
         let Ok(mut guard) = self.0.lock() else { return };
@@ -83,6 +88,7 @@ impl Plugin for NetPlugin {
             .init_resource::<Clipboard>()
             .add_message::<NetCommand>()
             .add_systems(Update, handle_net_commands)
+            .add_systems(Last, close_on_exit)
             .add_systems(OnEnter(ClientState::Connected), enter_game)
             .add_systems(OnExit(ClientState::Connected), back_to_menu);
     }
@@ -100,6 +106,15 @@ pub fn teardown_transport(world: &mut World) {
     }
     if let Some(server) = world.remove_resource::<IrohServer>() {
         server.shutdown(&handle);
+    }
+}
+
+/// Quitting the app (closing the window) skips the Esc path. Close the
+/// transport anyway, so friends see the host leave straight away instead of
+/// freezing until their connection times out.
+fn close_on_exit(mut exits: MessageReader<AppExit>, mut commands: Commands) {
+    if exits.read().next().is_some() {
+        commands.queue(teardown_transport);
     }
 }
 
@@ -141,7 +156,7 @@ fn handle_net_commands(
                 }
             }
             NetCommand::Join(code) => {
-                let id = match EndpointId::from_str(code.trim()) {
+                let id = match EndpointId::from_str(crate::menu::code_in(code).trim()) {
                     Ok(id) => id,
                     Err(e) => {
                         status.message = format!("That join code doesn't look right: {e}");

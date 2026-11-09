@@ -303,6 +303,17 @@ don't change play. Gambling is free. Six players paying together beat the landlo
   a trembling cluster, generated in code) and every chasing villager jingles like a pocket full
   of keys. Catches don't count while you're already being chased; the clock pauses in the
   stillness. Only the villagers chase (the bear, crows and Dave keep to their routes).
+- **The shipwreck** (#185, Freyja Moth: "a ship that crashed on the shore in the storm of '21...
+  gay pirate aboard guarding a treasure that you have to battle with. Also one of the pirates is a
+  trans man"). The *Rainbow Reckoning* lies beached and listing on the east shore of the valley
+  lake (around (-34, 21)), mast snapped, rainbow flag flying. Three pirates guard a treasure chest
+  on the sand: Captain Rosa Gaybeard, Jack Hartley (a trans man, the best blade aboard) and Bosun
+  Fennel, each with a line when you first take him on. Click a pirate to battle: three hits and he
+  yields and sits for 90 s; he swings back, sometimes knocking you 3 m away (the 5% action failure
+  applies). While all three are down the chest is open: click it for 25 doubloons, once each until
+  the crew gets up. Doubloons show bottom-right and buy nothing yet (`features/shipwreck.rs`).
+  It's the first feature to keep trees off its ground by claiming a footprint
+  (`world::footprints`) instead of being imported by the map.
 - **Skills** (#176, catherine: "everything, even walking and sleeping and pissing and farting
   should have a skill that improves it over time like rune factory"). Everyone levels six skills
   1-100 by doing them (each level needs more XP): Walking (per metre; up to +20% walk and run
@@ -726,6 +737,7 @@ don't change play. Gambling is free. Six players paying together beat the landlo
 - Kori.exe (#117): a Wendy's somewhere on the map with human meat burgers to pick up.
 - Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
   chase you while high-pitched string music plays and they make jingling-keys sounds.
+- Freyja Moth (#185): a ship wrecked on the shore in the storm of '21, with gay pirates (one a trans man) guarding a treasure you battle for.
 - catherine (#176, on what stats should do): everything (walking, sleeping, pissing, farting) has a skill that improves with use, like Rune Factory.
 - Kori.exe (#168): NPCs fart too, then quickly blame someone else.
 - catherine (#149): a "whose fault is it" screen crediting each feature to who asked for it.
@@ -804,6 +816,7 @@ don't change play. Gambling is free. Six players paying together beat the landlo
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
+- The shipwreck's pirates hand out doubloons (#185). What should they buy?
 - Hide and seek: should found hiders seek, or just watch? Should the world change each round?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
 - Everything: what are we, and where are we? (The goal: free the Commune from the landlord.)

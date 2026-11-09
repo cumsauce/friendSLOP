@@ -134,6 +134,9 @@ fn is_clear(p: Vec2, margin: f32) -> bool {
     if crate::features::underground::covers(p, margin) {
         return false;
     }
+    if friendslop_world::footprints::claimed(p, margin) {
+        return false;
+    }
     keep_clear()
         .iter()
         .all(|(c, r)| p.distance(*c) >= r + margin)

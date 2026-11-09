@@ -37,6 +37,7 @@ pub mod punishment;
 pub mod random_dialogue;
 pub mod romance;
 pub mod sesbian_lex;
+pub mod smoking;
 pub mod stats;
 pub mod stillness;
 pub mod synth_audio;
@@ -88,6 +89,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(warehouse::protocol);
         app.add_plugins(wendys::protocol);
         app.add_plugins(underground::protocol);
+        app.add_plugins(smoking::protocol);
     }
 }
 
@@ -136,5 +138,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(warehouse::plugin);
         app.add_plugins(wendys::plugin);
         app.add_plugins(underground::plugin);
+        app.add_plugins(smoking::plugin);
     }
 }

@@ -10,14 +10,20 @@ Every few hours it redraws its own profile picture from the game's campfire and 
 and the current status: ideas landed, being built, waiting, and stuck (#170). Preview it with
 `python3 avatar.py out.png 54 3 2 0` (needs `numpy` and `pillow`).
 
+Screenshots (#167): each Claude run pushes a picture of its idea to the `screenshots` branch as
+`issue-<N>.png` (`scripts/screenshot.sh` + `scripts/publish-screenshot.sh`). The "in the game"
+post attaches it, and when the `latest` release is rebuilt the bot posts "New build is out" with
+the ideas (and pictures) that landed since the previous build. The bot needs "Attach Files" in
+the channel; without a picture it just posts text.
+
 Issues and comments are created with the repo owner's token, so they count as trusted (`OWNER`) and
 trigger Claude. The friend's Discord name is credited in the body.
 
 ## Setup
 
 1. https://discord.com/developers/applications → New Application → Bot → copy the token.
-   Then OAuth2 → URL generator → scopes `bot` + `applications.commands`, permission
-   "Send Messages" → open the URL and add the bot to your server.
+   Then OAuth2 → URL generator → scopes `bot` + `applications.commands`, permissions
+   "Send Messages" + "Attach Files" → open the URL and add the bot to your server.
 2. Create a fine-grained GitHub PAT for **only** `cumsauce/friendSLOP` with Issues: read & write and
    Contents: read.
 3. Run it. Env vars: `DISCORD_TOKEN`, `GITHUB_TOKEN`, `GITHUB_REPO=cumsauce/friendSLOP`,

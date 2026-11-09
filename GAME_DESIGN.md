@@ -698,6 +698,11 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
   number is ideas landed, one cowboy per idea being built (at least one), the fire grows with
   the waiting queue, and a red ring means something needs a human. It checks every 3 hours
   (`AVATAR_HOURS`) and only changes the picture when the status changed.
+- catherine (#167): post screenshots of each new feature to Discord, on every "feature is
+  finished" message and when a new release comes out. Each Claude run now takes a picture of
+  its idea in the game (`scripts/screenshot.sh`: screenshot mode, software rendering, no GPU
+  needed) and pushes it to the `screenshots` branch; the bot attaches it to the "in the game"
+  post, and announces each new `latest` build with the pictures of the ideas since the last one.
 
 ## Open questions
 

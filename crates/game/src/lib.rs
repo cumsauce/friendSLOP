@@ -28,6 +28,8 @@ pub mod net_wire;
 pub mod people;
 pub mod player;
 pub mod scenery;
+/// Screenshot mode for Discord posts (#167); off unless `FRIENDSLOP_SCREENSHOT` is set.
+pub mod screenshot;
 pub mod settings;
 pub mod spatial;
 pub mod surfaces;

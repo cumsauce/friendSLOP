@@ -55,6 +55,8 @@ jobs:
         with:
           key: wasm
           save-if: ${{ github.ref == 'refs/heads/main' }}
+      # iroh's TLS (ring) compiles C for wasm32: needs clang + llvm-ar.
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang llvm
       - name: clippy (wasm32)
         run: cargo clippy -p friendslop --target wasm32-unknown-unknown --locked
 

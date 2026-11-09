@@ -16,11 +16,16 @@ pub struct VoicePlugin;
 
 impl Plugin for VoicePlugin {
     fn build(&self, app: &mut App) {
-        // Every peer registers the same voice messages, browser included, so a
-        // browser can join a desktop session (#106). In the browser cpal's
-        // capture/playback threads can't start, so voice just stays silent there.
+        // Added in the browser too (#106): cpal can't start its capture and
+        // playback threads there, so a browser peer has no audio, but
+        // `VoiceRepliconPlugin` must register the same messages on every peer
+        // or browser and desktop protocols wouldn't match.
         app.add_plugins(VoiceChatPlugin::default())
             .add_plugins(VoiceRepliconPlugin::default());
+        #[cfg(target_arch = "wasm32")]
+        app.add_systems(Startup, || {
+            info!("voice chat has no audio in the browser yet (you can play, not talk)");
+        });
         app.init_resource::<VoiceMuted>()
             .add_observer(tag_speaker)
             .add_systems(Update, drive_voice.before(VoiceChatSystems::Devices));

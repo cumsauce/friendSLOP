@@ -2302,7 +2302,13 @@ impl Composer {
             } else {
                 12
             };
+            // Under a melody the keys leave its register to it: the top
+            // note goes if it reaches into the lead's range.
+            let under = bar.bus[Bus::Lead as usize] > 0.0;
             for (j, &note) in self.ep.iter().enumerate() {
+                if under && j == 3 && note >= LEAD_LO + 5 {
+                    continue;
+                }
                 Self::push(
                     bar,
                     Ev {
@@ -2501,14 +2507,24 @@ impl Composer {
                 self.pad = voice_lead(ch, &self.pad, 55, 67);
                 let at = self.at(st);
                 let len = self.len((end - st) as f32 + 1.0);
-                for &n in &{ self.pad } {
+                // Under a melody the pad thins to its two lowest voices (an
+                // octave down, under the lead rather than in it) and sits back;
+                // on its own it spreads out up high.
+                let under = bar.bus[Bus::Lead as usize] > 0.0;
+                let pad = self.pad;
+                let (notes, lift, vel) = if under {
+                    (&pad[..2], 0, 0.42)
+                } else {
+                    (&pad[..], 12, 0.5)
+                };
+                for &n in notes {
                     Self::push(
                         bar,
                         Ev {
                             at,
                             inst: s.pad_inst,
-                            note: n + 12,
-                            vel: 0.5,
+                            note: n + lift,
+                            vel,
                             len,
                             glide: false,
                         },
@@ -2779,11 +2795,14 @@ impl Composer {
         };
         self.horn = match top {
             Some(t) => block_voicing(ch, t),
-            None => no_top_rub(voice_lead(ch, &self.horn, 58, 67)),
+            None => no_top_rub(voice_lead(ch, &self.horn, 60, 69)),
         };
         let at = self.at(st);
         let len = self.len(len);
-        for &n in &{ self.horn } {
+        // The section's top three voices: the keys already have the bottom.
+        let skip = usize::from(top.is_none());
+        let horn = self.horn;
+        for &n in &horn[skip..] {
             Self::push(
                 bar,
                 Ev {
@@ -2976,8 +2995,9 @@ impl Composer {
             }
             // Horns hit with the band.
             if self.style().horns != Horns::None {
-                self.horn = no_top_rub(voice_lead(ch, &self.horn, 58, 67));
-                for &n in &{ self.horn } {
+                self.horn = no_top_rub(voice_lead(ch, &self.horn, 60, 69));
+                let horn = self.horn;
+                for &n in &horn[1..] {
                     Self::push(
                         bar,
                         Ev {

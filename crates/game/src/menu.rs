@@ -9,7 +9,7 @@ use bevy::prelude::*;
 
 use bevy::picking::hover::Hovered;
 use bevy_replicon::prelude::*;
-use bevy_replicon_iroh::{IrohClient, IrohServer};
+use bevy_replicon_iroh::IrohClient;
 
 use crate::AppState;
 use crate::hud::Toast;
@@ -74,7 +74,9 @@ impl JoinCode {
     pub fn type_key(&mut self, key: &Key) -> bool {
         match key {
             Key::Character(c) => {
-                for ch in c.chars().filter(|c| !c.is_control() && !c.is_whitespace()) {
+                // Codes are hex: anything else (a stray 'm' from the mute
+                // key, say) would only make the code invalid.
+                for ch in c.chars().filter(char::is_ascii_hexdigit) {
                     if self.0.len() < Self::MAX_LEN {
                         self.0.push(ch);
                     }
@@ -91,7 +93,13 @@ impl JoinCode {
 
     /// Replace the box with pasted text, trimmed.
     pub fn paste(&mut self, text: &str) {
-        self.0 = text.trim().chars().take(Self::MAX_LEN).collect();
+        // Same rule as typing: codes are hex, drop anything else.
+        self.0 = text
+            .trim()
+            .chars()
+            .filter(char::is_ascii_hexdigit)
+            .take(Self::MAX_LEN)
+            .collect();
     }
 }
 
@@ -185,7 +193,10 @@ fn spawn_menu(mut commands: Commands) {
                 spacer(ui, 6.0);
 
                 button(ui, "Host a game", PINK, 320.0).observe(
-                    |_: On<PointerClick>, mut net: MessageWriter<NetCommand>| {
+                    |_: On<PointerClick>,
+                     mut net: MessageWriter<NetCommand>,
+                     mut connecting: ResMut<Connecting>| {
+                        connecting.pending = None;
                         net.write(NetCommand::Host);
                     },
                 );
@@ -236,9 +247,10 @@ fn spawn_menu(mut commands: Commands) {
                         .observe(
                             |_: On<PointerClick>,
                              code: Res<JoinCode>,
-                             connecting: ResMut<Connecting>,
-                             status: ResMut<NetStatus>| {
-                                join(&code, connecting, status)
+                             mut connecting: ResMut<Connecting>,
+                             mut status: ResMut<NetStatus>,
+                             client: Option<Res<IrohClient>>| {
+                                join(&code, &mut connecting, &mut status, client.is_some())
                             },
                         );
                 });
@@ -755,7 +767,10 @@ fn style_status(
     }
 }
 
-fn join(code: &JoinCode, mut connecting: ResMut<Connecting>, mut status: ResMut<NetStatus>) {
+fn join(code: &JoinCode, connecting: &mut Connecting, status: &mut NetStatus, busy: bool) {
+    if busy {
+        return;
+    }
     if code.0.is_empty() {
         status.message = "Type or paste a join code first.".into();
     } else if connecting.pending.is_none() {
@@ -794,7 +809,7 @@ fn connect_timeout(
     }
     connecting.waited += time.delta_secs();
     if connecting.waited >= Connecting::TIMEOUT_SECS {
-        commands.remove_resource::<IrohClient>();
+        commands.queue(crate::net::teardown_transport);
         connecting.waited = 0.0;
         status.message =
             "Could not reach that host (timed out). Check the code and try again.".into();
@@ -809,17 +824,21 @@ fn leave_on_esc(
     mut status: ResMut<NetStatus>,
     mut next: ResMut<NextState<AppState>>,
     mut view: ResMut<crate::features::fps::FpsView>,
+    me: Option<Res<LocalPlayer>>,
+    duelists: Query<&crate::features::duel::Duelist>,
 ) {
     if !keys.just_pressed(KeyCode::Escape) {
         return;
     }
+    // Duelists have their cursor locked regardless of `released`, so there is
+    // nothing for a first Esc to free: leave straight away.
+    let duelling = me.is_some_and(|m| duelists.iter().any(|d| d.player == m.0));
     // First Esc in first person just frees the mouse; the next one leaves.
-    if view.first_person && !view.released {
+    if view.first_person && !view.released && !duelling {
         view.released = true;
         return;
     }
-    commands.remove_resource::<IrohClient>();
-    commands.remove_resource::<IrohServer>();
+    commands.queue(crate::net::teardown_transport);
     commands.remove_resource::<LocalPlayer>();
     for e in &replicated {
         commands.entity(e).despawn();
@@ -944,8 +963,9 @@ fn volume_row(
 fn type_join_code(
     mut keys: MessageReader<KeyboardInput>,
     mut code: ResMut<JoinCode>,
-    connecting: ResMut<Connecting>,
-    status: ResMut<NetStatus>,
+    mut connecting: ResMut<Connecting>,
+    mut status: ResMut<NetStatus>,
+    client: Option<Res<IrohClient>>,
 ) {
     let mut enter = false;
     for key in keys.read() {
@@ -954,7 +974,7 @@ fn type_join_code(
         }
     }
     if enter {
-        join(&code, connecting, status);
+        join(&code, &mut connecting, &mut status, client.is_some());
     }
 }
 

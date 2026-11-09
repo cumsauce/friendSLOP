@@ -17,6 +17,7 @@ use crate::AppState;
 use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, deny, in_reach, refuse};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
+use crate::terrain::PLAY_HALF;
 use crate::world::MainCamera;
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -78,11 +79,12 @@ const HEEL: f32 = 0.8;
 pub fn protocol(app: &mut App) {
     app.replicate::<Pet>()
         .add_client_event::<AdoptPet>(Channel::Ordered)
-        .add_client_event::<PetLure>(Channel::Unreliable)
+        .add_client_event::<PetLure>(Channel::Ordered)
         .init_resource::<Lures>()
         .add_observer(adopt)
         .add_observer(lure)
         .add_observer(release_on_leave)
+        .add_observer(release_all)
         .add_systems(OnEnter(ServerState::Running), place_strays)
         .add_systems(Update, follow.run_if(in_state(ServerState::Running)));
 }
@@ -165,9 +167,22 @@ fn lure(
         return;
     };
     if ev.at.is_finite() {
-        lures
-            .0
-            .insert(me, ev.at.clamp(Vec2::splat(-24.0), Vec2::splat(24.0)));
+        lures.0.insert(
+            me,
+            ev.at.clamp(Vec2::splat(-PLAY_HALF), Vec2::splat(PLAY_HALF)),
+        );
+    }
+}
+
+/// A new round: every pet is a stray again (where it stands).
+fn release_all(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut lures: ResMut<Lures>,
+    mut pets: Query<&mut Pet>,
+) {
+    lures.0.clear();
+    for mut pet in &mut pets {
+        pet.owner = None;
     }
 }
 

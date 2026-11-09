@@ -88,6 +88,21 @@ impl Plugin for NetPlugin {
     }
 }
 
+/// Close the iroh transports cleanly. Dropping `IrohClient`/`IrohServer`
+/// abandons the connection (peers never see us leave, and the endpoint and
+/// socket leak), so every teardown goes through here. No-op without either.
+pub fn teardown_transport(world: &mut World) {
+    let Some(handle) = world.get_resource::<IrohTokioHandle>().cloned() else {
+        return;
+    };
+    if let Some(client) = world.remove_resource::<IrohClient>() {
+        client.disconnect(&handle);
+    }
+    if let Some(server) = world.remove_resource::<IrohServer>() {
+        server.shutdown(&handle);
+    }
+}
+
 fn any_addr() -> SocketAddr {
     SocketAddr::from(([0, 0, 0, 0], 0))
 }
@@ -103,6 +118,7 @@ fn handle_net_commands(
     for request in requests.read() {
         match request {
             NetCommand::Host => {
+                commands.queue(teardown_transport);
                 match IrohServer::bind_with(
                     &handle,
                     presets::N0,
@@ -133,6 +149,7 @@ fn handle_net_commands(
                     }
                 };
                 status.message = "Connecting...".into();
+                commands.queue(teardown_transport);
                 // Blocks up to `connect_timeout` (15s). Fine for now; a feature
                 // can move this to a background task if it gets annoying.
                 match IrohClient::connect_with(
@@ -160,7 +177,19 @@ fn enter_game(mut next: ResMut<NextState<AppState>>) {
     next.set(AppState::InGame);
 }
 
-fn back_to_menu(mut next: ResMut<NextState<AppState>>, mut status: ResMut<NetStatus>) {
+fn back_to_menu(
+    mut commands: Commands,
+    replicated: Query<Entity, With<Replicated>>,
+    mut next: ResMut<NextState<AppState>>,
+    mut status: ResMut<NetStatus>,
+) {
+    // Passive disconnects (host quit, connection dropped) land here without
+    // going through the Esc path: replicon doesn't despawn mirrors itself.
+    commands.queue(teardown_transport);
+    commands.remove_resource::<crate::player::LocalPlayer>();
+    for e in &replicated {
+        commands.entity(e).despawn();
+    }
     status.message = "Disconnected.".into();
     next.set(AppState::Menu);
 }

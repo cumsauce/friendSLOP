@@ -449,7 +449,7 @@ fn swing_limbs(gaits: Query<&Gait>, mut limbs: Query<(&Limb, &mut Transform)>) {
         match limb.kind {
             LimbKind::Arm => {
                 // Arms swing opposite to the foot on the same side.
-                tf.rotation = limb.base.rotation * Quat::from_rotation_x(s * 0.8 * amt);
+                tf.rotation = limb.base.rotation * Quat::from_rotation_x(-s * 0.8 * amt);
             }
             LimbKind::Foot => {
                 tf.translation = limb.base.translation

@@ -161,12 +161,24 @@ fn raise_the_rent(mut commands: Commands) {
     commands.spawn((Tenancy::default(), Replicated));
 }
 
-fn tick_tenancy(time: Res<Time>, still: Query<&Stillness>, mut tenancy: Query<&mut Tenancy>) {
+fn tick_tenancy(
+    time: Res<Time>,
+    still: Query<&Stillness>,
+    mut tenancy: Query<&mut Tenancy>,
+    mut pending: Local<f32>,
+) {
     if is_frozen(&still) {
         return;
     }
+    // Tick in whole seconds: touching `next_raise` every frame would resend
+    // the whole replicated `Tenancy` (stash and all) every frame.
+    *pending += time.delta_secs();
+    if *pending < 1.0 {
+        return;
+    }
+    let dt = std::mem::take(&mut *pending);
     for mut t in &mut tenancy {
-        t.tick(time.delta_secs());
+        t.tick(dt);
     }
 }
 
@@ -365,9 +377,11 @@ fn show_tenancy(
     for mut tf in &mut body {
         tf.scale = Vec3::splat(scale);
         tf.translation = LANDLORD_AT + Vec3::Y * bob;
-        if t.act == Act3::Won {
-            tf.rotation = Quat::from_rotation_z(std::f32::consts::FRAC_PI_2);
-        }
+        tf.rotation = if t.act == Act3::Won {
+            Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)
+        } else {
+            Quat::IDENTITY
+        };
     }
 }
 

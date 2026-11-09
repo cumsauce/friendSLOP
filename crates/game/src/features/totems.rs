@@ -9,6 +9,7 @@
 //! you click on, and "getting into" the vault means being allowed to pick up
 //! the totem inside it, which only works while one of its doors is open.
 
+use avian3d::prelude::{Collider, RigidBody};
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -122,10 +123,27 @@ pub fn protocol(app: &mut App) {
         .add_observer(use_door)
         .add_observer(cast_spells)
         .add_observer(drop_on_leave)
+        .add_observer(reset_totems)
         .add_systems(OnEnter(ServerState::Running), place_totems_and_doors);
 }
 
 fn place_totems_and_doors(mut commands: Commands) {
+    spawn_totems_and_doors(&mut commands);
+}
+
+/// A new round: every totem back where it started, every door empty.
+fn reset_totems(
+    _reset: On<crate::features::objective::RoundReset>,
+    mut commands: Commands,
+    old: Query<Entity, Or<(With<Totem>, With<Door>)>>,
+) {
+    for e in &old {
+        commands.entity(e).despawn();
+    }
+    spawn_totems_and_doors(&mut commands);
+}
+
+fn spawn_totems_and_doors(commands: &mut Commands) {
     let totem = |id, magic, at, in_vault| Totem {
         id,
         magic,
@@ -255,6 +273,8 @@ fn use_door(
                 t.holder = None;
                 t.slotted = Some(door.id);
                 door.key_side = Some(side);
+            } else {
+                deny(&mut commands, ev.client_id, "you aren't holding that totem");
             }
         }
     }
@@ -345,7 +365,11 @@ fn build_vault(
     let cap_stone = crate::art::soft(&mut materials, Color::srgb(0.7, 0.66, 0.75));
     for (shape, off) in pieces {
         let cap = Cuboid::new(shape.size().x + 0.12, 0.14, shape.size().z + 0.12);
+        let size = shape.size();
         commands.spawn((
+            // Walls are solid: the vault is more than a picture of one.
+            RigidBody::Static,
+            Collider::cuboid(size.x, 1.6, size.z),
             Mesh3d(meshes.add(shape)),
             MeshMaterial3d(stone.clone()),
             Transform::from_xyz(VAULT_AT.x + off.x, 0.8, VAULT_AT.y + off.y),
@@ -429,6 +453,10 @@ fn dress_doors(
             ..default()
         });
         commands.entity(entity).insert((
+            // The collider rides the transform, so the door sinking open
+            // clears the gap and a closed one blocks it.
+            RigidBody::Static,
+            Collider::cuboid(0.15, 1.4, 1.2),
             Mesh3d(meshes.add(Cuboid::new(0.15, 1.4, 1.2))),
             MeshMaterial3d(mat),
             Transform::from_xyz(door.at.x, 0.7, door.at.y),

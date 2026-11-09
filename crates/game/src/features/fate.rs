@@ -214,7 +214,7 @@ fn spawn_fate_hud(mut commands: Commands) {
         Text::new(""),
         TextColor(Color::srgb(1.0, 0.55, 0.85)),
         FateHud,
-        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
+        crate::hud::slot(crate::hud::HudSlot::TopRight),
         DespawnOnExit(AppState::InGame),
     ));
 }

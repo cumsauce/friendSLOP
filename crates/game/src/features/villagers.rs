@@ -149,6 +149,9 @@ struct VillageNav {
     mesh: Handle<bevy_rerecast::Navmesh>,
     /// When the build was queued, for the ready log line.
     started: Instant,
+    /// The mesh is built and hung on an island: only now can agents path
+    /// across the map (before that, long trips would straight-line through walls).
+    ready: bool,
 }
 
 impl VillageRng {
@@ -217,6 +220,7 @@ fn think(
     time: Res<Time>,
     mut acc: Local<f32>,
     mut rng: ResMut<VillageRng>,
+    nav: Option<Res<VillageNav>>,
     still: Query<&super::stillness::Stillness>,
     mut villagers: Query<(
         &mut Villager,
@@ -241,7 +245,10 @@ fn think(
             if brain.wait <= 0.0 {
                 // Up and off somewhere new. With the navmesh, most trips are
                 // overland to another district; the rest stay local.
-                let spots: &[Vec2] = if agent_target.is_some() && rng.f() < 0.55 {
+                let spots: &[Vec2] = if agent_target.is_some()
+                    && nav.as_ref().is_some_and(|n| n.ready)
+                    && rng.f() < 0.55
+                {
                     &DISTRICTS
                 } else {
                     &POINTS
@@ -312,7 +319,11 @@ fn on_poke(
         Option<&Role>,
         Has<Fooled>,
     )>,
+    still: Query<&super::stillness::Stillness>,
 ) {
+    if super::stillness::is_frozen(&still) {
+        return; // the world stands still: ignore requests
+    }
     let Some(v) = villagers.iter().find(|v| v.id == ev.id) else {
         return;
     };
@@ -385,6 +396,8 @@ pub fn plugin(app: &mut App) {
         LandmassRerecastPlugin::default(),
     ))
     .add_observer(on_navmesh_ready)
+    .init_resource::<NavBuild>()
+    .add_systems(OnExit(ServerState::Running), forget_navmesh)
     .add_observer(click_villager)
     .add_systems(
         Update,
@@ -413,7 +426,7 @@ pub fn plugin(app: &mut App) {
 /// the excluded props exactly like players do: the host-side `avoid_cover`
 /// sweep veers them around whatever the mesh doesn't know about.
 fn tag_navmesh_exclusions(
-    mut done: Local<bool>,
+    mut build: ResMut<NavBuild>,
     mut commands: Commands,
     colliders: Query<(Entity, &RigidBody), With<Collider>>,
     keep: Query<
@@ -424,10 +437,10 @@ fn tag_navmesh_exclusions(
         )>,
     >,
 ) {
-    if *done {
+    if build.tagged {
         return;
     }
-    *done = true;
+    build.tagged = true;
     let mut tagged = 0;
     for (entity, body) in &colliders {
         if !body.is_static() || keep.contains(entity) {
@@ -458,11 +471,37 @@ pub fn navmesh_settings() -> NavmeshSettings {
     settings
 }
 
+/// Server: how far this session's navmesh build got. A resource (not
+/// `Local`s) so a new session tags its own fresh colliders and rebuilds.
+#[derive(Resource, Default)]
+struct NavBuild {
+    tagged: bool,
+    built: bool,
+}
+
+/// Session over: drop the mesh, archipelago and islands so the next session
+/// builds its own (and gets a retry if this build failed).
+fn forget_navmesh(
+    mut commands: Commands,
+    mut build: ResMut<NavBuild>,
+    nav: Option<Res<VillageNav>>,
+    islands: Query<Entity, With<bevy_landmass::Island>>,
+) {
+    *build = NavBuild::default();
+    if let Some(nav) = nav {
+        commands.entity(nav.archipelago).try_despawn();
+    }
+    for e in &islands {
+        commands.entity(e).try_despawn();
+    }
+    commands.remove_resource::<VillageNav>();
+}
+
 /// Server, once the whole world is in and every collider that stays out of the
 /// mesh is tagged: queue the navmesh build and set up the landmass archipelago
 /// it will hang off. rerecast builds off the main thread.
 fn build_navmesh(
-    mut done: Local<bool>,
+    mut build: ResMut<NavBuild>,
     mut commands: Commands,
     mut generator: NavmeshGenerator,
     pending: Query<
@@ -480,7 +519,7 @@ fn build_navmesh(
         )>,
     >,
 ) {
-    if *done {
+    if build.built {
         return;
     }
     // The tagging from last frame's `tag_navmesh_exclusions` must be applied
@@ -492,7 +531,7 @@ fn build_navmesh(
     {
         return;
     }
-    *done = true;
+    build.built = true;
     let archipelago = commands
         .spawn(Archipelago3d::new(ArchipelagoOptions::from_agent_radius(
             AGENT_RADIUS,
@@ -503,6 +542,7 @@ fn build_navmesh(
         archipelago,
         mesh,
         started: Instant::now(),
+        ready: false,
     });
     info!("building the villagers' navmesh…");
 }
@@ -511,7 +551,7 @@ fn build_navmesh(
 /// so landmass can path over it.
 fn on_navmesh_ready(
     ready: On<NavmeshReady>,
-    nav: Res<VillageNav>,
+    mut nav: ResMut<VillageNav>,
     navmeshes: Res<Assets<bevy_rerecast::Navmesh>>,
     mut commands: Commands,
 ) {
@@ -525,6 +565,7 @@ fn on_navmesh_ready(
         nav.started.elapsed().as_secs_f32(),
     );
     info!("villager navmesh ready: {verts} vertices, built in {secs:.1}s");
+    nav.ready = true;
     commands.spawn(Island3dBundle {
         island: bevy_landmass::Island,
         archipelago_ref: ArchipelagoRef3d::new(nav.archipelago),
@@ -764,12 +805,26 @@ fn mutter(
     else {
         return;
     };
-    let near = villagers
+    // The nearest of the four mutterers in earshot gets to speak.
+    let Some(speaker) = villagers
         .iter()
-        .any(|v| v.id < 4 && v.pos.distance(here.xz()) < 8.0);
-    if near && let Some(mut toast) = toast {
-        let n = (now as usize / 25) % MUTTERS.len();
-        toast.show(MUTTERS[n]);
+        .filter(|v| v.id < 4)
+        .map(|v| (v.id, v.pos.distance(here.xz())))
+        .filter(|(_, d)| *d < 8.0)
+        .min_by(|a, b| a.1.total_cmp(&b.1))
+        .map(|(id, _)| NAMES[id as usize % COUNT])
+    else {
+        return;
+    };
+    let lines: Vec<&str> = MUTTERS
+        .iter()
+        .copied()
+        .filter(|l| l.split(':').next() == Some(speaker))
+        .collect();
+    if !lines.is_empty()
+        && let Some(mut toast) = toast
+    {
+        toast.show(lines[(now as usize / 25) % lines.len()]);
     }
 }
 

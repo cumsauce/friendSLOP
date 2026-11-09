@@ -28,7 +28,6 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::duel::Duelist;
 use crate::features::gods_tears::Transformation;
 use crate::features::halt::Halt;
 use crate::features::hide_and_seek::{HideSeek, Phase};
@@ -237,6 +236,7 @@ pub fn protocol(app: &mut App) {
     app.replicate::<Campaign>()
         .add_observer(next_chapter)
         .add_observer(count_mushroom)
+        .add_observer(count_duel)
         .add_systems(OnEnter(ServerState::Running), spawn_campaign)
         .add_systems(
             Update,
@@ -245,7 +245,8 @@ pub fn protocol(app: &mut App) {
 }
 
 fn spawn_campaign(mut commands: Commands) {
-    commands.init_resource::<Tally>();
+    // Fresh counters every session (teardown despawns bump the old ones).
+    commands.insert_resource(Tally::default());
     commands.spawn((Campaign::default(), Replicated));
 }
 
@@ -253,6 +254,13 @@ fn spawn_campaign(mut commands: Commands) {
 fn count_mushroom(_ev: On<Remove<Mushroom>>, tally: Option<ResMut<Tally>>) {
     if let Some(mut t) = tally {
         t.mushrooms += 1;
+    }
+}
+
+/// Only duels fought to a winner count, not ones called off.
+fn count_duel(_ev: On<super::duel::DuelFought>, tally: Option<ResMut<Tally>>) {
+    if let Some(mut t) = tally {
+        t.duels += 1;
     }
 }
 
@@ -283,7 +291,6 @@ fn next_chapter(
 fn watch_the_world(
     mut tally: ResMut<Tally>,
     mut was_results: Local<bool>,
-    mut was_dueling: Local<bool>,
     players: Query<&Player>,
     pets: Query<&Pet>,
     doors: Query<&Door>,
@@ -292,7 +299,6 @@ fn watch_the_world(
     halt: Query<&Halt>,
     tears: Query<&Transformation>,
     hide_seek: Query<&HideSeek>,
-    duelists: Query<(), With<Duelist>>,
     mut campaign: Query<&mut Campaign>,
 ) {
     // Games that just ended.
@@ -302,11 +308,6 @@ fn watch_the_world(
         tally.hide_seek += 1;
     }
     *was_results = results;
-    let dueling = !duelists.is_empty();
-    if *was_dueling && !dueling {
-        tally.duels += 1;
-    }
-    *was_dueling = dueling;
 
     let player_count = players.iter().count();
     let adopted: Vec<Vec2> = pets

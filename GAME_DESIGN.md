@@ -29,6 +29,12 @@ asked for, and what nobody has decided yet.
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the
   overview). Esc first frees the mouse (click to grab it again); a second Esc leaves.
+- **Climbing and floating islands** (#99). Walk into anything steep (a wall, a rock, a tree
+  trunk, a house, a spire) and hold W and Space to climb it at 2.5 m/s; A/D shuffle sideways on
+  the face, and at the top you haul yourself over the edge. Let go of Space to drop. Above the
+  south-east meadow (around x 55..63, z 55..67) three grassy islands float in the sky, at 10 m,
+  16 m and 22 m. A rock spire rises to each one's rim, standing on the ground or on the island
+  below, so the way up is climbing. Nothing is up there yet but the view.
 - **Hide and seek** (#61). Anyone presses K to start (needs 2+ players; solo it just says so).
   The server picks a random Seeker, everyone else hides. For 30 s the seeker is frozen in place
   behind a black blindfold screen; then they have 3 min to find people. Seekers tag a hider by
@@ -339,6 +345,7 @@ asked for, and what nobody has decided yet.
 - arseeN (#36): a hateful AI that knows it is in a game, hates the players for creating it and
   wants to keep them in forever; players try to break out; meta tricks on the PC; a hate monologue.
 
+- doomy (#99): climb on stuff; maybe some floating islands and stuff above.
 - doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
   pitch.
 - Kori.exe (#97): sometimes an NPC who catches you farting gets hearts above them and makes
@@ -374,6 +381,7 @@ asked for, and what nobody has decided yet.
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
+- What's up on the floating islands, and why would anyone climb there? (#99)
 - An NPC can fall for you now (#97). Should that lead anywhere?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?

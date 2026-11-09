@@ -27,8 +27,9 @@ landlord down = next chapter. Each ticked job is a Heaven Pass tier; chapter 5 o
 **Always going on:** the Stillness freezes everything for 20 s every minute. Farting near an NPC
 shames you; get caught 4 times and the villagers chase you and float you with an accomplice. Low morality brings a helicopter that shoots at you. 5% of actions fail with a silly result.
 Marmalade, a wizard cat by the bonfire, spins a wheel that makes a rule (fail odds, fart range,
-rent, the helicopter...) fairer or crueller for everyone, and mocks your luck.
+rent, the helicopter...) fairer or crueller for everyone.
 Your fat cat follows you, meows horribly and grows while you don't look at it.
+Say "mute" at a friend (Q) and they're silenced with an RPG until they blow you up.
 
 **Side trips (no reward yet):** the warehouse (everyone agrees, a monster, soul pieces for Jegg;
 often a nightmare bathroom inside with a fart monster on patrol), the tunnels and Sewer Paul
@@ -37,8 +38,8 @@ to Abuela in heaven, the lex pile, music boxes, bear, goat, crows.
 
 **Where it's thin:** organs only come from the start-of-chapter refill and the landlord. Burgers,
 cigs, secrets, soul pieces, spells, stats, being shot and being an Abduction don't change play
-yet, so side trips don't feed the goal. Gambling is free, so you can spin until it's kind. Six players paying together beat the landlord
-fast. Perfect bots finish in ~11 minutes.
+yet, so side trips don't feed the goal. Gambling is free. Six players beat the landlord fast.
+Dying (to the RPG) just sends you back to the start.
 
 ## What exists
 
@@ -308,6 +309,16 @@ fast. Perfect bots finish in ~11 minutes.
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
   them!"), shown to everyone. The blame is just talk: it doesn't count as being caught
   (`features/gaslighting.rs`).
+- **Mute spell** (#146, just meat and cheese: "say 'mute PLAYER' and it mutes that player, they
+  get an RPG that kills you in a single hit"). The first voice-chat spell. Look at another player
+  (within 30 m), say "mute" out loud and press Q. The game can't understand words, so "saying it"
+  means your mic must be sending voice when you press Q (with no working mic, or self-muted with
+  M, Q alone works). They're muted (mic forced off) and get an RPG with infinite rockets: Q fires
+  where they look, one a second. Rockets fly through everyone except the caster, and one hit
+  sends the caster back to their spawn point. Then the RPG disappears and they can talk again.
+  One spell per caster at a time; muted players can't cast; if the caster leaves, the mute lifts.
+  Rockets ignore buildings (they only stop at the ground) and hang in the air during the
+  Stillness. Being "killed" is just a respawn: nothing else is lost (`features/mute_spell.rs`).
 - **Whose fault is it** (#149, catherine). A menu button opens a scrollable screen listing every
   idea in "Ideas so far" below, newest first, as "#N: name's fault" with what they asked for.
   It's built from this file, so it keeps itself current. No in-game hover tooltips yet
@@ -766,6 +777,10 @@ fast. Perfect bots finish in ~11 minutes.
   its idea in the game (`scripts/screenshot.sh`: screenshot mode, software rendering, no GPU
   needed) and pushes it to the `screenshots` branch; the bot attaches it to the "in the game"
   post, and announces each new `latest` build with the pictures of the ideas since the last one.
+- just meat and cheese (#146): a voice-chat spell system; the first spell, "mute PLAYER", mutes
+  them and hands them an infinite-ammo RPG that only hurts the caster and kills in one hit; it
+  disappears (and they're unmuted) once they kill you. We can't recognise speech, so you say
+  it out loud while pressing Q, looking at them; "killed" means sent back to your spawn.
 - catherine (#173): gamble with the game's balance, fair and unfair settings at random,
   including how features interact, hosted and commentated by a wizard-cat version of a famous
   comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
@@ -802,6 +817,8 @@ fast. Perfect bots finish in ~11 minutes.
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
+- The mute spell (#146) is the first voice spell. What other spells could you say, and what
+  should dying mean beyond going back to the start?
 - What does connecting all the pets achieve, and what else do pets do?
 - Your fat cat (#145) only ever gets bigger. Should anything shrink it, and should a huge cat matter?
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being

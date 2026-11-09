@@ -9,6 +9,12 @@
 //! The game side (this file) only picks a [`Mood`], an intensity and counts
 //! victories each frame and stores them in atomics; the audio thread reads
 //! them at the next bar line, so changes are always quantized to the bar.
+//!
+//! It also follows the local player: each storey climbed above the ground
+//! moves the key up a step of the scale (prepared by a dominant, so it
+//! sounds like a gear change, not a glitch), melodies lean the way you're
+//! heading, running lifts the band, standing about lets it lay back, friends
+//! nearby fill it out, and it ducks under voice chat.
 //! The music is synthesized live inside a custom Bevy audio source (a few
 //! hundred floats of work per sample, no allocation), so the main thread
 //! never waits on it. Music is local: every peer hears its own take.
@@ -25,14 +31,15 @@ use bevy::prelude::*;
 use crate::AppState;
 use crate::features::campaign::Campaign;
 use crate::features::duel::Duelist;
+use crate::features::fps::Walker;
 use crate::features::hide_and_seek::{HideSeek, Phase, SEEK_SECS};
 use crate::features::landlord::{Act3, LANDLORD_AT, Tenancy};
 use crate::features::stillness::Stillness;
-use crate::player::LocalPlayer;
+use crate::player::{LocalPlayer, Player};
 use crate::settings::Settings;
 use crate::zones::Zone;
 
-pub use compose::{Cue, Mood};
+pub use compose::{Cue, LIFT_MAX, Mood};
 use engine::Engine;
 use synth::{Bank, RATE};
 
@@ -46,6 +53,10 @@ pub struct MusicControl {
     mood: AtomicU8,
     intensity: AtomicU32,
     victories: AtomicU32,
+    lift: AtomicU8,
+    climb: AtomicU32,
+    /// Ducking level (f32 bits); 0 bits reads as "no ducking".
+    duck: AtomicU32,
 }
 
 impl MusicControl {
@@ -59,11 +70,34 @@ impl MusicControl {
         self.victories.fetch_add(1, Ordering::Relaxed);
     }
 
+    /// Where the player is heading: the storey they're on and which way
+    /// they're moving vertically (-1..1).
+    pub fn set_motion(&self, lift: u8, climb: f32) {
+        self.lift.store(lift.min(LIFT_MAX), Ordering::Relaxed);
+        self.climb
+            .store(climb.clamp(-1.0, 1.0).to_bits(), Ordering::Relaxed);
+    }
+
+    /// Music level under voice chat (1 = full).
+    pub fn set_duck(&self, level: f32) {
+        self.duck
+            .store(level.clamp(0.0, 1.0).to_bits(), Ordering::Relaxed);
+    }
+
+    pub fn duck(&self) -> f32 {
+        match self.duck.load(Ordering::Relaxed) {
+            0 => 1.0,
+            bits => f32::from_bits(bits),
+        }
+    }
+
     pub fn cue(&self) -> Cue {
         Cue {
             mood: Mood::from_index(self.mood.load(Ordering::Relaxed)),
             intensity: f32::from_bits(self.intensity.load(Ordering::Relaxed)),
             victories: self.victories.load(Ordering::Relaxed),
+            lift: self.lift.load(Ordering::Relaxed),
+            climb: f32::from_bits(self.climb.load(Ordering::Relaxed)),
         }
     }
 }
@@ -117,6 +151,7 @@ impl Iterator for FusionSource {
     fn next(&mut self) -> Option<Sample> {
         if self.i >= CHUNK {
             let control = &self.control;
+            self.engine.set_duck(control.duck());
             self.engine.render(&mut self.buf, &mut || control.cue());
             self.i = 0;
         }
@@ -153,7 +188,11 @@ pub fn plugin(app: &mut App) {
     control.set(Mood::Menu, Mood::Menu.base_intensity());
     app.insert_resource(MusicLink(control))
         .init_resource::<Director>()
-        .add_systems(Update, (direct, music_volume));
+        .init_resource::<Motion>()
+        .add_systems(
+            Update,
+            (follow_player, direct, duck_for_voice, music_volume).chain(),
+        );
     // Headless apps (tests) have no audio: just keep the director.
     if !app.is_plugin_added::<AudioPlugin>() {
         return;
@@ -239,6 +278,113 @@ fn music_volume(
     }
 }
 
+/// Storeys: metres above the ground under your feet where the key steps
+/// up (a floor of a building, the next floor, a tall spire, the islands).
+const STOREYS: [f32; LIFT_MAX as usize] = [2.4, 5.4, 9.0, 15.0];
+/// Going back down needs this much below a threshold (no flapping on a
+/// landing).
+const STOREY_SLACK: f32 = 0.8;
+
+/// The storey for height `h` above the ground, from storey `now`.
+pub fn storey(h: f32, now: u8) -> u8 {
+    let mut s = now.min(LIFT_MAX) as usize;
+    while s < STOREYS.len() && h > STOREYS[s] {
+        s += 1;
+    }
+    while s > 0 && h < STOREYS[s - 1] - STOREY_SLACK {
+        s -= 1;
+    }
+    s as u8
+}
+
+/// How the local player is moving, smoothed.
+#[derive(Resource, Debug, Default)]
+struct Motion {
+    last: Option<Vec3>,
+    /// Height above the ground (smoothed), its storey and vertical speed.
+    height: f32,
+    storey: u8,
+    vy: f32,
+    /// Horizontal speed (m/s, smoothed) and how long you've stood still.
+    speed: f32,
+    idle: f32,
+    /// Other players within earshot.
+    friends: usize,
+}
+
+/// Players this close count as being together.
+const FRIEND_RANGE: f32 = 15.0;
+
+fn follow_player(
+    time: Res<Time>,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &Walker)>,
+    mut motion: ResMut<Motion>,
+    link: Res<MusicLink>,
+) {
+    let dt = time.delta_secs().max(1e-4);
+    let my_id = me.map(|me| me.0);
+    let mine = walkers
+        .iter()
+        .find(|(p, _)| Some(p.id) == my_id)
+        .map(|(_, w)| w.pos);
+    let Some(at) = mine else {
+        *motion = Motion::default();
+        link.0.set_motion(0, 0.0);
+        return;
+    };
+    let ease = |tau: f32| 1.0 - (-dt / tau).exp();
+    let ground = crate::terrain::height_at(at.x, at.z);
+    let h = (at.y - ground).max(0.0);
+    let (vy, speed) = match motion.last {
+        // A teleport (respawn, a new round) isn't movement.
+        Some(last) if last.distance(at) < 20.0 * dt + 1.0 => {
+            let d = (at - last) / dt;
+            (d.y, d.xz().length())
+        }
+        _ => {
+            motion.height = h;
+            (0.0, 0.0)
+        }
+    };
+    motion.last = Some(at);
+    // A jump is up and down within a second: it barely moves these.
+    motion.height += (h - motion.height) * ease(0.6);
+    motion.vy += (vy - motion.vy) * ease(0.9);
+    motion.speed += (speed - motion.speed) * ease(0.5);
+    motion.storey = storey(motion.height, motion.storey);
+    motion.idle = if motion.speed < 0.4 {
+        motion.idle + dt
+    } else {
+        0.0
+    };
+    motion.friends = walkers
+        .iter()
+        .filter(|(p, w)| Some(p.id) != my_id && w.pos.distance(at) < FRIEND_RANGE)
+        .count();
+    link.0.set_motion(motion.storey, motion.vy / 1.5);
+}
+
+/// The band backs off while someone's talking (a little for your own
+/// voice, so speakers don't feed the music into your mic).
+fn duck_for_voice(activity: Option<Res<crate::voice_chat::VoiceActivity>>, link: Res<MusicLink>) {
+    let level = match activity {
+        Some(a) if !a.heard.is_empty() => 0.6,
+        Some(a) if a.transmitting => 0.8,
+        _ => 1.0,
+    };
+    link.0.set_duck(level);
+}
+
+/// How the player's own movement and company nudge the band in the open
+/// world: running lifts it, standing about lets it lay back, friends
+/// nearby fill it out.
+fn movement_nudge(m: &Motion) -> f32 {
+    let pace = (m.speed / crate::kcc::RUN_SPEED).clamp(0.0, 1.0);
+    let settle = ((m.idle - 8.0) / 10.0).clamp(0.0, 1.0);
+    0.18 * (pace - 0.35) - 0.12 * settle + 0.05 * m.friends.min(3) as f32
+}
+
 /// The director's view of the game, from the main thread.
 #[derive(Resource, Debug, Default)]
 struct Director {
@@ -287,6 +433,7 @@ fn direct(
     hide: Query<&HideSeek>,
     tenancy: Query<&Tenancy>,
     campaign: Query<&Campaign>,
+    motion: Res<Motion>,
 ) {
     let in_game = state.is_some_and(|s| *s.get() == AppState::InGame);
     let cam = camera.iter().next().map(|g| g.translation());
@@ -368,6 +515,15 @@ fn direct(
     } else {
         mood.base_intensity()
     };
+    let wandering = matches!(
+        mood,
+        Mood::Explore | Mood::Village | Mood::Forest | Mood::Maze | Mood::Sky | Mood::Abuela
+    );
+    let intensity = if in_game && wandering {
+        (intensity + movement_nudge(&motion)).clamp(0.05, 0.9)
+    } else {
+        intensity
+    };
     link.0.set(mood, intensity);
 }
 
@@ -384,6 +540,41 @@ mod tests {
         assert_eq!(cue.mood, Mood::Duel);
         assert!((cue.intensity - 0.7).abs() < 1e-6);
         assert_eq!(cue.victories, 1);
+    }
+
+    #[test]
+    fn storeys_have_slack() {
+        assert_eq!(storey(0.0, 0), 0);
+        assert_eq!(storey(3.0, 0), 1);
+        assert_eq!(storey(20.0, 0), LIFT_MAX);
+        // Just under the first floor's threshold stays on it...
+        assert_eq!(storey(2.0, 1), 1);
+        // ...but back on the ground drops down.
+        assert_eq!(storey(0.5, 1), 0);
+        assert_eq!(storey(0.0, LIFT_MAX), 0);
+    }
+
+    #[test]
+    fn motion_reaches_the_music() {
+        let c = MusicControl::default();
+        assert_eq!(c.duck(), 1.0);
+        c.set_motion(9, 3.0);
+        c.set_duck(0.6);
+        let cue = c.cue();
+        assert_eq!(cue.lift, LIFT_MAX);
+        assert_eq!(cue.climb, 1.0);
+        assert!((c.duck() - 0.6).abs() < 1e-6);
+        let idle = Motion {
+            idle: 30.0,
+            ..Motion::default()
+        };
+        let running = Motion {
+            speed: crate::kcc::RUN_SPEED,
+            friends: 2,
+            ..Motion::default()
+        };
+        assert!(movement_nudge(&idle) < -0.1);
+        assert!(movement_nudge(&running) > 0.15);
     }
 
     #[test]

@@ -4,10 +4,10 @@
 //! cargo run -p fusion --bin fusion-render -- help
 //! ```
 
-use fusion::compose::Mood;
+use fusion::compose::{Cue, Mood};
 use fusion::render::{
-    BANDS, BUS_NAMES, TARGET, TOUR_SECS, audition, bus_by_name, inst_by_name, mood_by_name,
-    octave_bands, peak_rms_db, render_score, tour_plan, wav,
+    BANDS, BUS_NAMES, TARGET, TOUR_SECS, audition, bus_by_name, climb_plan, climb_secs,
+    inst_by_name, mood_by_name, octave_bands, peak_rms_db, render_score, tour_plan, wav,
 };
 use fusion::synth::{BUSES, Inst};
 
@@ -15,6 +15,7 @@ const HELP: &str = "fusion-render: audition friendSLOP's music without building 
 
   fusion-render tour  [out.wav]             the ~100 s tour of every mood
   fusion-render mood  <mood> [secs] [out.wav] [--intensity 0..1] [--victory <sec>]
+  fusion-render climb <mood> [out.wav] [--per <secs>]  walk up the storeys and back
   fusion-render inst  <instrument> [out.wav]  one instrument alone
   fusion-render stems                       tour spectrum per bus vs a reference mix
   fusion-render list                        moods, instruments and buses
@@ -29,6 +30,7 @@ fn main() {
     let mut mute = 0u8;
     let mut intensity: Option<f32> = None;
     let mut victory: Option<f32> = None;
+    let mut per = 8.0f32;
     let mut it = args.iter();
     while let Some(a) = it.next() {
         let mut val = || it.next().map(String::as_str).unwrap_or("");
@@ -36,6 +38,7 @@ fn main() {
             "--seed" => seed = val().parse().unwrap_or(seed),
             "--intensity" => intensity = val().parse().ok(),
             "--victory" => victory = val().parse().ok(),
+            "--per" => per = val().parse().unwrap_or(per),
             "--solo" => match bus_by_name(val()) {
                 Some(b) => mute = !(1u8 << b),
                 None => return fail("unknown bus"),
@@ -63,9 +66,23 @@ fn main() {
             let secs: f32 = pos.get(2).and_then(|s| s.parse().ok()).unwrap_or(30.0);
             let out = pos.get(3).copied().unwrap_or("fusion_mood.wav");
             let i = intensity.unwrap_or(mood.base_intensity());
-            let (audio, log) = render_score(seed, secs, mute, |s| {
-                (mood, i, u32::from(victory.is_some_and(|v| s >= v)))
+            let (audio, log) = render_score(seed, secs, mute, |s| Cue {
+                mood,
+                intensity: i,
+                victories: u32::from(victory.is_some_and(|v| s >= v)),
+                ..Cue::default()
             });
+            for (s, what) in log {
+                println!("{s:7.2} s  {what}");
+            }
+            finish(out, &audio);
+        }
+        "climb" => {
+            let Some(mood) = pos.get(1).and_then(|m| mood_by_name(m)) else {
+                return fail("which mood? (fusion-render list)");
+            };
+            let out = pos.get(2).copied().unwrap_or("fusion_climb.wav");
+            let (audio, log) = render_score(seed, climb_secs(per), mute, climb_plan(mood, per));
             for (s, what) in log {
                 println!("{s:7.2} s  {what}");
             }

@@ -5,9 +5,11 @@
 //! - Subtractive voices (band-limited saws through a swept state-variable
 //!   filter): a CS-80/GS-1 style brass section that swells in, Juno-ish
 //!   strings, and a Minimoog-style mono lead with glide.
+//! - A nylon-string guitar: plucked strings (Karplus-Strong) with a soft
+//!   thumb-and-nail pluck, two string polarisations and a body resonance.
 //! - A sample bank: a synthesized kit and hand percussion (see `drums`),
 //!   plus `foley-synth` note-block instruments (bells, chimes, xylophone,
-//!   flute, harp, guitar) rendered once and replayed at pitch.
+//!   flute, harp) rendered once and replayed at pitch.
 //! - A mixer with per-bus EQ (to keep the low mids clear), chorus on the
 //!   keys, pads and horns, a tempo-synced ping-pong echo, a room reverb and
 //!   a limiter.
@@ -65,6 +67,7 @@ pub enum Inst {
     Xylo,
     Flute,
     Harp,
+    /// Live: a nylon-string guitar (plucked-string model).
     Guitar,
 }
 
@@ -113,8 +116,9 @@ pub enum Bus {
     Pad = 4,
     Perc = 5,
     Brass = 6,
+    Guitar = 7,
 }
-pub const BUSES: usize = 7;
+pub const BUSES: usize = 8;
 
 impl Inst {
     pub fn bus(self) -> Bus {
@@ -123,7 +127,8 @@ impl Inst {
             Kick | Snare | Ghost | Hat | OpenHat | Crash | Ride | Clap | Shaker | Conga | Tom
             | Rim | Cowbell | Swell => Bus::Drums,
             Bass | Fretless => Bus::Bass,
-            EPiano | Guitar => Bus::Keys,
+            EPiano => Bus::Keys,
+            Guitar => Bus::Guitar,
             Lead | Brass | Flute | Mini => Bus::Lead,
             Pad | Strings => Bus::Pad,
             Bell | Chime | Xylo | Harp | Kalimba => Bus::Perc,
@@ -144,6 +149,7 @@ impl Inst {
                 | Inst::Mini
                 | Inst::PolyBrass
                 | Inst::Strings
+                | Inst::Guitar
         )
     }
 
@@ -163,7 +169,8 @@ impl Inst {
             Crash => 0.18,
             Swell => 0.45,
             Bell | Chime | Xylo | Harp | Kalimba => 0.38,
-            Guitar => 0.25,
+            // A classical guitar in a big room.
+            Guitar => 0.5,
         }
     }
 
@@ -179,6 +186,7 @@ impl Inst {
             Bell | Harp => 0.16,
             PolyBrass => 0.05,
             Clap => 0.06,
+            Guitar => 0.07,
             _ => 0.0,
         }
     }
@@ -197,7 +205,6 @@ impl Inst {
             Swell => 0.2,
             Bell | Chime | Xylo => 0.4,
             Harp => -0.3,
-            Guitar => -0.3,
             Flute => 0.15,
             _ => 0.0,
         }
@@ -1035,6 +1042,228 @@ impl SubVoice {
     }
 }
 
+// --- Plucked strings ------------------------------------------------------
+
+/// Longest string period in samples (E2 is ~535; this reaches ~43 Hz).
+const STRING_LEN: usize = 1024;
+
+/// One string polarisation: a delay line closed through a one-pole loss
+/// filter and a fractional-delay allpass that keeps it in tune.
+#[derive(Clone, Copy, Debug, Default)]
+struct StringLoop {
+    delay: usize,
+    /// Allpass coefficient for the fractional part of the period.
+    eta: f32,
+    ap_x: f32,
+    ap_y: f32,
+    /// Loss filter: pole and per-trip gain.
+    c: f32,
+    g: f32,
+    lp: f32,
+}
+
+impl StringLoop {
+    /// Tune to `f` Hz with loss-filter pole `c`, ringing for `t60` seconds.
+    fn tune(f: f32, c: f32, t60: f32) -> Self {
+        const MAX_G: f32 = 0.99995;
+        let period = RATE as f32 / f;
+        let w = TAU * f * INV_RATE;
+        let mag = |c: f32| (1.0 - c) / (1.0 - 2.0 * c * w.cos() + c * c).sqrt();
+        // The loss filter alone mustn't lose more per trip than the ring
+        // time allows (high notes go round the loop a thousand times a
+        // second): open it up until the gain can make up the rest.
+        let trip = 10f32.powf(-3.0 / (t60 * f));
+        let mut c = c;
+        while c > 0.02 && mag(c) * MAX_G < trip {
+            c *= 0.85;
+        }
+        let mag = mag(c);
+        // The loss filter's own delay at the fundamental.
+        let fd = (c * w.sin()).atan2(1.0 - c * w.cos()) / w;
+        let rem = (period - fd).clamp(2.2, STRING_LEN as f32 - 2.0);
+        let delay = (rem - 0.1).floor() as usize;
+        let frac = rem - delay as f32;
+        let g = (trip / mag).min(MAX_G);
+        Self {
+            delay,
+            eta: (1.0 - frac) / (1.0 + frac),
+            c,
+            g,
+            ..Self::default()
+        }
+    }
+
+    #[inline]
+    fn tick(&mut self, buf: &mut [f32], w: usize) -> f32 {
+        let r = (w + STRING_LEN - self.delay) % STRING_LEN;
+        let x = buf[r];
+        self.lp = (1.0 - self.c) * x + self.c * self.lp;
+        let y = self.g * self.lp;
+        let out = self.eta * y + self.ap_x - self.eta * self.ap_y;
+        self.ap_x = y;
+        self.ap_y = out;
+        buf[w] = out;
+        x
+    }
+}
+
+/// A nylon-string guitar note: two polarisations of one string (the second
+/// a hair sharp and duller, so the tone blooms and then settles), excited
+/// by a mostly triangular pluck (the flesh of the thumb, a little nail).
+#[derive(Clone, Debug)]
+struct PluckVoice {
+    active: bool,
+    note: u8,
+    a: StringLoop,
+    b: StringLoop,
+    /// Both delay lines, `STRING_LEN` each.
+    buf: Vec<f32>,
+    w: usize,
+    amp: f32,
+    k_rel: f32,
+    hold: u32,
+    age: u32,
+    releasing: bool,
+    /// Recent loudness, to free the voice once it has rung out.
+    level: f32,
+    gl: f32,
+    gr: f32,
+    send: f32,
+    echo: f32,
+}
+
+const PLUCK_VOICES: usize = 10;
+
+impl PluckVoice {
+    fn idle() -> Self {
+        Self {
+            active: false,
+            note: 0,
+            a: StringLoop::default(),
+            b: StringLoop::default(),
+            buf: vec![0.0; 2 * STRING_LEN],
+            w: 0,
+            amp: 0.0,
+            k_rel: 0.0,
+            hold: 0,
+            age: 0,
+            releasing: false,
+            level: 0.0,
+            gl: 0.0,
+            gr: 0.0,
+            send: 0.0,
+            echo: 0.0,
+        }
+    }
+
+    fn start(&mut self, note: u8, vel: f32, len: u32, bright: f32, noise: &mut u32) {
+        let vel = vel.clamp(0.05, 1.0);
+        let f = hz(note as f32);
+        // Low strings ring for seconds, the top of the neck much less.
+        let t60 = (7.0 * (110.0 / f).powf(0.4)).clamp(1.8, 8.0);
+        // Nylon is mellow: a well-damped loss filter, a touch brighter for
+        // harder plucks and brighter sections.
+        let c = (0.5 - 0.16 * vel - 0.1 * bright).clamp(0.2, 0.55);
+        self.a = StringLoop::tune(f, c, t60);
+        self.b = StringLoop::tune(f * 1.0007, (c + 0.12).min(0.7), t60 * 0.55);
+        // The pluck: a triangle peaking where the thumb meets the string,
+        // a little noise for the nail, smoothed more for soft notes.
+        let n = self.a.delay.max(2);
+        let at = 0.18 + 0.04 * (note as f32 * 0.37).fract();
+        let peak = ((n as f32 * at) as usize).clamp(1, n - 1);
+        let nail = 0.12 + 0.25 * vel;
+        self.buf.fill(0.0);
+        let mut mean = 0.0;
+        for k in 0..n {
+            let tri = if k < peak {
+                k as f32 / peak as f32
+            } else {
+                (n - k) as f32 / (n - peak) as f32
+            };
+            *noise ^= *noise << 13;
+            *noise ^= *noise >> 17;
+            *noise ^= *noise << 5;
+            let r = *noise as f32 / u32::MAX as f32 * 2.0 - 1.0;
+            let x = tri + nail * r;
+            self.buf[k] = x;
+            mean += x;
+        }
+        mean /= n as f32;
+        let passes = if vel > 0.7 { 1 } else { 2 };
+        for _ in 0..passes {
+            let mut prev = self.buf[n - 1] - mean;
+            for k in 0..n {
+                let x = self.buf[k] - mean;
+                self.buf[k] = 0.5 * x + 0.5 * prev;
+                prev = x;
+            }
+            mean = 0.0;
+        }
+        // The second polarisation starts from the same pluck, softer. The
+        // lines are read backwards from the write head, so the excitation
+        // sits just behind it.
+        let (la, lb) = self.buf.split_at_mut(STRING_LEN);
+        for k in 0..n {
+            let x = la[k];
+            lb[k] = 0.45 * x;
+        }
+        la.rotate_right(STRING_LEN - n);
+        lb.rotate_right(STRING_LEN - n);
+        self.w = 0;
+        // Lower strings sit a little left, higher ones right (a stereo mic).
+        let pan = ((note as f32 - 60.0) / 24.0).clamp(-0.4, 0.4);
+        let (pl, pr) = pan_gains(pan);
+        let g = 0.3 * (0.35 + 0.65 * vel);
+        self.gl = pl * g;
+        self.gr = pr * g;
+        self.send = Inst::Guitar.send();
+        self.echo = Inst::Guitar.echo();
+        self.note = note;
+        self.amp = 1.0;
+        self.k_rel = per_sample(0.12);
+        self.hold = len.max(RATE / 20);
+        self.age = 0;
+        self.releasing = false;
+        self.level = 1.0;
+        self.active = true;
+    }
+
+    #[inline]
+    fn render(&mut self, out: Out, g0: f32, g1: f32) {
+        let n = out.l.len();
+        let dg = (g1 - g0) / n.max(1) as f32;
+        let mut g = g0;
+        let (la, lb) = self.buf.split_at_mut(STRING_LEN);
+        let mut loud = 0.0f32;
+        for i in 0..n {
+            let x = self.a.tick(la, self.w) + self.b.tick(lb, self.w);
+            self.w = (self.w + 1) % STRING_LEN;
+            if self.hold > 0 {
+                self.hold -= 1;
+                if self.hold == 0 {
+                    self.releasing = true;
+                }
+            }
+            if self.releasing {
+                self.amp *= self.k_rel;
+            }
+            let s = x * self.amp * g;
+            loud = loud.max(s.abs());
+            out.l[i] += s * self.gl;
+            out.r[i] += s * self.gr;
+            let m = s * (self.gl + self.gr);
+            out.send[i] += m * self.send;
+            out.echo[i] += m * self.echo;
+            g += dg;
+        }
+        self.age = self.age.saturating_add(n as u32);
+        self.level = loud.max(self.level * 0.5);
+        if (self.releasing && self.amp < 1e-4) || (self.age > RATE / 4 && self.level < 2e-5) {
+            self.active = false;
+        }
+    }
+}
+
 /// Where a voice mixes to: its bus and the effect sends.
 struct Out<'a> {
     l: &'a mut [f32],
@@ -1116,14 +1345,6 @@ const RECIPES: &[Recipe] = &[
         character: 0.55,
         secs: 1.4,
         gain: 0.2,
-    },
-    Recipe {
-        inst: Inst::Guitar,
-        foley: 7,
-        notes: &[48, 54, 60, 66, 72],
-        character: 0.45,
-        secs: 1.0,
-        gain: 0.18,
     },
 ];
 
@@ -1293,7 +1514,7 @@ pub struct Ev {
 // --- Mixer -----------------------------------------------------------------
 
 /// Bus trims: the kit is synthesized hot, the band sits up with it.
-const BUS_TRIM: [f32; BUSES] = [1.0, 1.55, 1.6, 1.5, 1.6, 1.45, 1.6];
+const BUS_TRIM: [f32; BUSES] = [1.0, 1.55, 1.6, 1.5, 1.6, 1.45, 1.6, 1.7];
 
 /// Per-bus EQ: carve each part its own space so the low mids (where EP,
 /// pads and brass all pile up) stay clear, the bass has weight and the
@@ -1329,10 +1550,20 @@ fn bus_eq(b: usize) -> StereoEq {
             Eq::HighShelf(5000.0, 2.0),
         ]),
         5 => StereoEq::new(&[Eq::Hp(300.0, 0.7), Eq::Lp(12000.0, 0.7)]),
-        _ => StereoEq::new(&[
+        6 => StereoEq::new(&[
             Eq::Hp(160.0, 0.7),
             Eq::Peak(500.0, 0.9, -3.0),
             Eq::Peak(2400.0, 0.9, 2.5),
+        ]),
+        // The nylon guitar's body: the air resonance and the top plate,
+        // the boxy low mids pulled out, a little clarity up top.
+        _ => StereoEq::new(&[
+            Eq::Hp(75.0, 0.7),
+            Eq::Peak(105.0, 1.4, 2.0),
+            Eq::Peak(220.0, 1.2, 0.5),
+            Eq::Peak(420.0, 0.9, -3.5),
+            Eq::Peak(3000.0, 0.8, 3.5),
+            Eq::HighShelf(9000.0, -2.0),
         ]),
     }
 }
@@ -1348,6 +1579,7 @@ pub struct Band {
     lead: FmVoice,
     mini: SubVoice,
     sub: [SubVoice; SUB_VOICES],
+    pluck: Vec<PluckVoice>,
     smp: [SampleVoice; SAMPLE_VOICES],
     pub bus_gain: [f32; BUSES],
     pub bus_target: [f32; BUSES],
@@ -1377,6 +1609,9 @@ pub struct Band {
     pub master_target: f32,
     /// Buses left out of the mix (bit per bus; for analysing stems).
     pub mute: u8,
+    /// Ducking under voice chat (1 = none), eased: quick down, slow up.
+    duck: f32,
+    pub duck_target: f32,
 }
 
 /// Longest block rendered at once.
@@ -1390,6 +1625,7 @@ impl Band {
             lead: FmVoice::idle(),
             mini: SubVoice::idle(),
             sub: [SubVoice::idle(); SUB_VOICES],
+            pluck: (0..PLUCK_VOICES).map(|_| PluckVoice::idle()).collect(),
             smp: [SampleVoice {
                 active: false,
                 idx: 0,
@@ -1425,6 +1661,8 @@ impl Band {
             wet_target: 1.0,
             echo_amt: 1.0,
             echo_target: 1.0,
+            duck: 1.0,
+            duck_target: 1.0,
         }
     }
 
@@ -1445,6 +1683,7 @@ impl Band {
         self.fm.iter().filter(|v| v.active).count()
             + self.sub.iter().filter(|v| v.active).count()
             + self.smp.iter().filter(|v| v.active).count()
+            + self.pluck.iter().filter(|v| v.active).count()
             + usize::from(self.lead.active)
             + usize::from(self.mini.active)
     }
@@ -1476,6 +1715,31 @@ impl Band {
                     self.mini.start(ev.inst, ev.note, ev.vel, ev.len, 0.06);
                     self.mini.cut_mul = exp2_fast(self.bright - 0.5);
                 }
+            }
+            Inst::Guitar => {
+                // The same note again re-plucks its string.
+                let slot = self
+                    .pluck
+                    .iter()
+                    .position(|v| v.active && v.note == ev.note)
+                    .or_else(|| self.pluck.iter().position(|v| !v.active))
+                    .unwrap_or_else(|| {
+                        // Steal the quietest.
+                        let mut best = 0;
+                        let mut q = f32::MAX;
+                        for (i, v) in self.pluck.iter().enumerate() {
+                            let l = v.level * v.amp;
+                            if l < q {
+                                q = l;
+                                best = i;
+                            }
+                        }
+                        best
+                    });
+                let bright = self.bright;
+                let mut noise = self.rng;
+                self.pluck[slot].start(ev.note, ev.vel, ev.len, bright, &mut noise);
+                self.rng = noise | 1;
             }
             Inst::PolyBrass | Inst::Strings => {
                 // Horns spread across the section, strings wide.
@@ -1671,6 +1935,10 @@ impl Band {
             let b = v.inst.bus() as usize;
             v.render(out!(b), g0[b], g1[b]);
         }
+        for v in self.pluck.iter_mut().filter(|v| v.active) {
+            let b = Bus::Guitar as usize;
+            v.render(out!(b), g0[b], g1[b]);
+        }
         for v in self.smp.iter_mut().filter(|v| v.active) {
             let data = &self.bank.samples[v.idx].data;
             let b = v.bus as usize;
@@ -1734,9 +2002,16 @@ impl Band {
         self.echo.process(echo, l, r);
         // Reverb, then a gentle limiter, then a soft safety clip.
         let rel = 1.0 - (-INV_RATE / 0.15).exp();
-        let m0 = self.master;
+        let d0 = self.duck;
+        let kd = if self.duck_target < self.duck {
+            1.0 - (-(n as f32) * INV_RATE / 0.25).exp()
+        } else {
+            1.0 - (-(n as f32) * INV_RATE / 1.2).exp()
+        };
+        self.duck += (self.duck_target - self.duck) * kd;
+        let m0 = self.master * d0;
         self.master += (self.master_target - self.master) * k;
-        let dm = (self.master - m0) / n as f32;
+        let dm = (self.master * self.duck - m0) / n as f32;
         for i in 0..n {
             let (wl, wr) = self.verb.process(send[i]);
             let m = m0 + dm * i as f32;
@@ -1805,6 +2080,7 @@ mod tests {
             Inst::Mini,
             Inst::PolyBrass,
             Inst::Strings,
+            Inst::Guitar,
         ] {
             let mut band = Band::new(bank.clone());
             band.bus_target = [1.0; BUSES];
@@ -1828,6 +2104,74 @@ mod tests {
                 }
             }
             assert!(peak > 0.02 && peak < 1.0, "{inst:?}: {peak}");
+        }
+    }
+
+    /// One guitar note, mono, `secs` long.
+    fn pluck(note: u8, vel: f32, secs: f32) -> Vec<f32> {
+        let mut band = Band::new(Arc::new(Bank::default()));
+        band.bus_target = [1.0; BUSES];
+        band.bus_gain = [1.0; BUSES];
+        band.wet_target = 0.0;
+        band.wet = 0.0;
+        band.echo_target = 0.0;
+        band.echo_amt = 0.0;
+        band.play(&Ev {
+            at: 0,
+            inst: Inst::Guitar,
+            note,
+            vel,
+            len: RATE * 8,
+            glide: false,
+        });
+        let frames = (secs * RATE as f32) as usize;
+        let mut out = vec![0.0f32; frames * 2];
+        for c in out.chunks_mut(2 * BLOCK) {
+            band.render(c);
+        }
+        out.as_chunks::<2>().0.iter().map(|f| f[0] + f[1]).collect()
+    }
+
+    /// The fundamental of `x` by autocorrelation (with parabolic peak
+    /// interpolation), in Hz.
+    fn pitch(x: &[f32], lo: f32, hi: f32) -> f32 {
+        let (min_lag, max_lag) = ((RATE as f32 / hi) as usize, (RATE as f32 / lo) as usize);
+        let ac = |lag: usize| -> f32 { x.iter().zip(&x[lag..]).map(|(a, b)| a * b).sum() };
+        let mut best = min_lag;
+        let mut bv = f32::MIN;
+        for lag in min_lag..=max_lag {
+            let v = ac(lag);
+            if v > bv {
+                bv = v;
+                best = lag;
+            }
+        }
+        let (a, b, c) = (ac(best - 1), bv, ac(best + 1));
+        let off = 0.5 * (a - c) / (a - 2.0 * b + c);
+        RATE as f32 / (best as f32 + off)
+    }
+
+    /// The nylon guitar is in tune across the neck and rings, then decays.
+    #[test]
+    fn nylon_is_in_tune_and_rings() {
+        for note in [40u8, 45, 52, 57, 64, 69, 76, 83] {
+            let x = pluck(note, 0.7, 1.2);
+            let f = hz(note as f32);
+            let seg = &x[RATE as usize / 5..RATE as usize / 5 + 8192];
+            let got = pitch(seg, f * 0.8, f * 1.25);
+            let cents = 1200.0 * (got / f).log2();
+            assert!(
+                cents.abs() < 4.0,
+                "note {note}: {got:.2} Hz vs {f:.2} ({cents:+.1} c)"
+            );
+            let rms = |s: &[f32]| (s.iter().map(|v| v * v).sum::<f32>() / s.len() as f32).sqrt();
+            let early = rms(&x[..4410]);
+            let late = rms(&x[x.len() - 4410..]);
+            assert!(early > 0.01, "note {note} too quiet: {early}");
+            assert!(
+                late < early && late > early * 0.01,
+                "note {note}: {early} -> {late}"
+            );
         }
     }
 }

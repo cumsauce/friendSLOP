@@ -11,6 +11,7 @@ pub mod ambience;
 pub mod bear;
 pub mod campaign;
 pub mod cat_palette;
+pub mod caught;
 pub mod climb;
 pub mod crows;
 pub mod dave_commune;
@@ -90,6 +91,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(wendys::protocol);
         app.add_plugins(underground::protocol);
         app.add_plugins(smoking::protocol);
+        app.add_plugins(caught::protocol);
     }
 }
 
@@ -139,5 +141,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(wendys::plugin);
         app.add_plugins(underground::plugin);
         app.add_plugins(smoking::plugin);
+        app.add_plugins(caught::plugin);
     }
 }

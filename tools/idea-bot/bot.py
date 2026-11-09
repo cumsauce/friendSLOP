@@ -20,7 +20,9 @@ the bot announces it with the pictures of the ideas that landed since the last o
 Env: DISCORD_TOKEN, GITHUB_TOKEN, GITHUB_REPO (owner/name), ANNOUNCE_CHANNEL_ID (optional),
 STATE_PATH (optional, default /data/state.json), LOOP_EVERY (optional, default 3; 0 = never),
 REMINDER_TZ (optional IANA zone for the noon reminder, default UTC), AVATAR_HOURS (optional,
-default 3; 0 = never touch the profile picture).
+default 3; 0 = never touch the profile picture), BLOCKED_USERS (optional, comma-separated Discord
+user IDs to shadowban on top of BLOCKED below), BATCH_MINUTES (optional, default 30; 0 = post
+right away): announcements are collected and posted together at most this often.
 """
 
 import asyncio
@@ -30,6 +32,7 @@ import json
 import logging
 import os
 import re
+import time
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -58,6 +61,20 @@ ASSET_BASE = f"https://media.githubusercontent.com/media/{REPO}/main/crates/game
 SCREENSHOT_BRANCH = "screenshots"
 # Discord allows 10 attachments per message; keep release posts readable.
 MAX_RELEASE_SHOTS = 6
+BATCH_MINUTES = int(os.environ.get("BATCH_MINUTES", "30") or 0)
+
+# Shadowbanned Discord user IDs: /idea and /answer look like they worked, but nothing reaches
+# GitHub. Remove an ID here (or from BLOCKED_USERS) to lift it.
+BLOCKED = {
+    241786240863698944,
+}
+BLOCKED |= {
+    int(x) for x in os.environ.get("BLOCKED_USERS", "").replace(" ", "").split(",") if x.isdigit()
+}
+
+
+def is_blocked(user: discord.abc.User) -> bool:
+    return user.id in BLOCKED
 
 
 def reminder_zone(name: str) -> datetime.tzinfo:
@@ -252,6 +269,13 @@ class IdeaModal(discord.ui.Modal, title="Add an idea to the game"):
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(thinking=True)
+        if is_blocked(interaction.user):
+            log.info("shadowbanned idea from %s dropped", interaction.user.id)
+            await interaction.followup.send(
+                f"💡 **{self.idea_title.value}** → https://github.com/{REPO}/issues\n"
+                "Claude will pick it up shortly. I'll post here when it's in the game."
+            )
+            return
         body = f"From {credit(interaction.user)}:\n\n{self.details.value or '_(no details: surprise me)_'}"
         try:
             issue = await gh.create_issue(str(self.idea_title.value), body, ["idea"])
@@ -289,7 +313,10 @@ async def answer(interaction: discord.Interaction, number: int, answer: str) -> 
     await interaction.response.defer(thinking=True)
     try:
         issue = await gh.get_issue(number)
-        await gh.comment(number, f"From {credit(interaction.user)}:\n\n{answer}")
+        if is_blocked(interaction.user):
+            log.info("shadowbanned answer from %s dropped", interaction.user.id)
+        else:
+            await gh.comment(number, f"From {credit(interaction.user)}:\n\n{answer}")
     except Exception as e:  # noqa: BLE001
         await interaction.followup.send(f"Couldn't post that: {e}", ephemeral=True)
         return
@@ -389,6 +416,45 @@ async def announce_release_if_new() -> None:
     await send(ANNOUNCE_CHANNEL_ID, release_text(release, landed), images)
 
 
+def queue(channel_id: int, text: str, shot: int | None = None) -> None:
+    """Hold an announcement for the next batch (sent by flush_batch). `shot` is an idea whose
+    screenshot (#167) goes with it."""
+    if channel_id:
+        state.setdefault("pending", []).append(
+            {"channel": channel_id, "text": text, "shot": shot}
+        )
+
+
+async def flush_batch(force: bool = False) -> None:
+    """Post everything queued, one message per channel, at most every BATCH_MINUTES."""
+    pending = state.get("pending") or []
+    if not pending:
+        return
+    now = time.time()
+    if not force and now - state.get("last_flush", 0) < BATCH_MINUTES * 60:
+        return
+    by_channel: dict[int, list[dict]] = {}
+    for item in pending:
+        by_channel.setdefault(item["channel"], []).append(item)
+    state["pending"] = []
+    state["last_flush"] = now
+    save_state(state)
+    for channel, items in by_channel.items():
+        texts = [i["text"] for i in items]
+        if any(t.startswith("✅") for t in texts):
+            texts.append(f"New build in ~15 min: {RELEASE_URL}")
+        images = []
+        # Discord allows 10 attachments per message.
+        for n in [i["shot"] for i in items if i.get("shot") is not None][:10]:
+            picture = await gh.screenshot(n)
+            if picture:
+                images.append((f"issue-{n}.png", picture))
+        try:
+            await send(channel, "\n\n".join(texts), images or None)
+        except Exception:  # noqa: BLE001
+            log.exception("posting a batch to %s failed", channel)
+
+
 async def post_loop_if_due() -> None:
     """Every LOOP_EVERY landed ideas, share the current gameplay loop (#153)."""
     if LOOP_EVERY <= 0 or state.get("done_since_loop", 0) < LOOP_EVERY:
@@ -400,7 +466,7 @@ async def post_loop_if_due() -> None:
         return
     if text:
         landed = state["done_since_loop"]
-        await send(
+        queue(
             ANNOUNCE_CHANNEL_ID,
             f"🔁 **Where the game is at** ({landed} new ideas since last time)\n\n{text}",
         )
@@ -425,19 +491,17 @@ async def announce() -> None:
             {"number": n, "title": issue["title"]}
         )
         channel = state["issue_channels"].get(str(n), ANNOUNCE_CHANNEL_ID)
-        shot = await gh.screenshot(n)
-        await send(
+        queue(
             channel,
-            f"✅ **{issue['title']}** is in the game! {issue['html_url']}\n"
-            f"New build in ~15 min: {RELEASE_URL}",
-            [(f"issue-{n}.png", shot)] if shot else None,
+            f"✅ **{issue['title']}** is in the game! {issue['html_url']}",
+            shot=n,
         )
     for q in reversed(questions):
         n = q["number"]
         if n in state["announced_questions"]:
             continue
         state["announced_questions"].append(n)
-        await send(
+        queue(
             ANNOUNCE_CHANNEL_ID,
             f"❓ **Claude asks:** {q['title']}\n{q.get('body') or ''}\n"
             f"Reply with `/answer {n} <your answer>`",
@@ -445,6 +509,7 @@ async def announce() -> None:
     await announce_release_if_new()
     await post_loop_if_due()
     save_state(state)
+    await flush_batch()
 
 
 def unanswered(questions: list[dict]) -> list[dict]:
@@ -471,8 +536,9 @@ async def remind_questions() -> None:
     except Exception:  # noqa: BLE001
         log.exception("fetching questions for the reminder failed")
         return
-    for q in reversed(unanswered(questions)):
-        await send(ANNOUNCE_CHANNEL_ID, reminder_text(q))
+    texts = [reminder_text(q) for q in reversed(unanswered(questions))]
+    if texts:
+        await send(ANNOUNCE_CHANNEL_ID, "\n\n".join(texts))
 
 
 avatar_assets: dict[str, bytes] = {}

@@ -28,16 +28,18 @@ pub const TOUR: &[(f32, Mood, f32)] = &[
 pub const TOUR_SECS: f32 = 106.0;
 const TOUR_VICTORY: f32 = 25.0;
 
-pub const BUS_NAMES: [&str; BUSES] = ["drums", "bass", "keys", "lead", "pad", "perc", "brass"];
+pub const BUS_NAMES: [&str; BUSES] = [
+    "drums", "bass", "keys", "lead", "pad", "perc", "brass", "guitar",
+];
 
-/// Render `secs` of the score, asking `plan` for the mood and intensity at
-/// each second and whether a victory has happened yet. `mute` leaves buses
-/// out (bit per bus). Also returns where each mood/section change fell.
+/// Render `secs` of the score, asking `plan` what the game wants at each
+/// second. `mute` leaves buses out (bit per bus). Also returns where each
+/// mood/section change fell.
 pub fn render_score(
     seed: u64,
     secs: f32,
     mute: u8,
-    plan: impl Fn(f32) -> (Mood, f32, u32),
+    plan: impl Fn(f32) -> Cue,
 ) -> (Vec<f32>, Vec<(f32, String)>) {
     let bank = Arc::new(Bank::build());
     let mut engine = Engine::new(bank, seed);
@@ -50,15 +52,19 @@ pub fn render_score(
     let mut log = Vec::new();
     while t < total {
         let s = t as f32 / RATE as f32;
-        let (mood, intensity, victories) = plan(s);
-        engine.render(&mut buf, &mut || Cue {
-            mood,
-            intensity,
-            victories,
-        });
-        let now = Some((engine.mood(), engine.section()));
+        let cue = plan(s);
+        engine.render(&mut buf, &mut || cue);
+        let now = Some((engine.mood(), engine.section(), cue.lift));
         if now != last {
-            log.push((s, format!("{:?} / {:?}", engine.mood(), engine.section())));
+            let lift = if cue.lift > 0 {
+                format!("  (storey {})", cue.lift)
+            } else {
+                String::new()
+            };
+            log.push((
+                s,
+                format!("{:?} / {:?}{lift}", engine.mood(), engine.section()),
+            ));
             last = now;
         }
         out.extend_from_slice(&buf);
@@ -68,13 +74,51 @@ pub fn render_score(
 }
 
 /// The tour's plan at second `s`.
-pub fn tour_plan(s: f32) -> (Mood, f32, u32) {
-    let (m, i) = TOUR
+pub fn tour_plan(s: f32) -> Cue {
+    let (mood, intensity) = TOUR
         .iter()
         .rev()
         .find(|(at, _, _)| s >= *at)
         .map_or((Mood::Menu, 0.5), |(_, m, i)| (*m, *i));
-    (m, i, u32::from(s >= TOUR_VICTORY))
+    Cue {
+        mood,
+        intensity,
+        victories: u32::from(s >= TOUR_VICTORY),
+        ..Cue::default()
+    }
+}
+
+/// A climb in `mood`: on the ground for a while, up a storey every
+/// `per` seconds to the top, a rest up there, then back down.
+pub fn climb_plan(mood: Mood, per: f32) -> impl Fn(f32) -> Cue {
+    let top = crate::compose::LIFT_MAX as f32;
+    move |s: f32| {
+        let up_from = 2.0 * per;
+        let down_from = up_from + top * per + 2.0 * per;
+        let (lift, climb) = if s < up_from {
+            (0.0, 0.0)
+        } else if s < up_from + top * per {
+            ((s - up_from) / per + 1.0, 1.0)
+        } else if s < down_from {
+            (top, 0.0)
+        } else {
+            (top - (s - down_from) / per, -1.0)
+        };
+        let lift = lift.clamp(0.0, top) as u8;
+        Cue {
+            mood,
+            intensity: mood.base_intensity(),
+            lift,
+            climb: if lift == 0 && climb < 0.0 { 0.0 } else { climb },
+            ..Cue::default()
+        }
+    }
+}
+
+/// How long [`climb_plan`] takes, there and back.
+pub fn climb_secs(per: f32) -> f32 {
+    let top = crate::compose::LIFT_MAX as f32;
+    2.0 * per + top * per + 2.0 * per + top * per + 2.0 * per
 }
 
 /// A short phrase on one instrument alone, to judge its sound: hits at a
@@ -132,6 +176,33 @@ pub fn audition(inst: Inst) -> Vec<f32> {
                     beat * 0.95
                 };
                 evs.push(ev(k as f32 * beat, note, vel, len, k % 4 == 2));
+            }
+        }
+        Bus::Guitar => {
+            // Fingerpicking through the changes (thumb on the beat, fingers
+            // in between), then a slow strum to let the body ring.
+            let mut shape = [52u8, 57, 60, 64];
+            for (c, ch) in prog.iter().enumerate() {
+                shape = voice_lead(*ch, &shape, 52, 60);
+                let thumb = ch.root_from(40);
+                for k in 0..8 {
+                    let at = (c * 8 + k) as f32 * beat * 0.5;
+                    let note = if k % 4 == 0 {
+                        thumb + if k == 4 { 7 } else { 0 }
+                    } else {
+                        shape[[1, 2, 3, 2][k % 4]]
+                    };
+                    let vel = if k % 4 == 0 { 0.8 } else { 0.55 };
+                    evs.push(ev(at, note, vel, beat * 2.0, false));
+                }
+            }
+            let end = prog.len() as f32 * beat * 4.0;
+            let last = voice_lead(prog[0], &shape, 52, 60);
+            for (j, n) in std::iter::once(prog[0].root_from(40))
+                .chain(last)
+                .enumerate()
+            {
+                evs.push(ev(end + j as f32 * 2200.0, n, 0.7, beat * 6.0, false));
             }
         }
         Bus::Perc => {

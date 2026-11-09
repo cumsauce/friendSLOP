@@ -5,7 +5,7 @@
 #   scripts/screenshot.sh out.png                    # the normal spawn view
 #   scripts/screenshot.sh out.png "0,12,30,0,0,0"     # eye x,y,z then look-at x,y,z
 #
-# Extra env: FRIENDSLOP_SCREENSHOT_WAIT (seconds after loading, default 3),
+# Extra env: FRIENDSLOP_SCREENSHOT_WAIT (seconds after loading, default 10),
 # BIN (a prebuilt binary; default builds with cargo), TIMEOUT (default 300 s).
 # Needs (Ubuntu): sudo apt-get install -y xvfb mesa-vulkan-drivers libxkbcommon-x11-0
 # and `git lfs pull` first, or models and HUD text are missing from the picture.

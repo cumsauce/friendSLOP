@@ -128,8 +128,11 @@ asked for, and what nobody has decided yet.
   (`crates/fusion`; `features/fusion` is just the game glue). Live FM voices (DX7-style EP,
   slap and fretless bass, lead/brass with portamento, bell pad, kalimba), subtractive voices (a
   CS-80 style horn section that shouts, pushes and swells around the lead, string machine,
-  Minimoog-style lead), a synthesized kit with ride, clap, shaker, congas and toms, and
-  foley-synth note-block bells/flute/harp/guitar. The lead tells a story over eight bars
+  Minimoog-style lead), a nylon-string guitar (a plucked-string model with a body resonance and
+  a big reverb: fingerpicking in the meadow and the sky islands' quieter sections, bossa-nova
+  comping in the forest, the bolero strum and requinto-style answers near Abuela), a
+  synthesized kit with ride, clap, shaker, congas and toms, and foley-synth note-block
+  bells/flute/harp. The lead tells a story over eight bars
   (statement, answer, development to a peak in bar seven, restatement, cadence; chord tones on
   long notes and guide tones on changes), a second voice answers it in its gaps (flute, harp,
   kalimba, strings or horns by mood), and solos trade between two synths. The sound evolves:
@@ -141,7 +144,15 @@ asked for, and what nobody has decided yet.
   harp), maze/ruins (minor, bells), sky islands (dreamy), near Abuela (bolero), hide-and-seek
   hiding/seeking, duel (150 bpm), landlord (chromatic, building), stillness (holds on a pad),
   plus a victory kime when a round/duel/chapter/landlord is won. Sections (intro, A, hook, B,
-  solo, breakdown), key changes, fills, 7/8 kime bars, layers faded by intensity. Local only,
+  solo, breakdown), key changes, fills, 7/8 kime bars, layers faded by intensity. It follows
+  you (asked for in chat: "if they're going upstairs maybe it starts shifting scales upwards"):
+  every storey above the ground (2.4 / 5.4 / 9 / 15 m: a floor, the next floor, a spire, the
+  islands) moves the key up a step of the major scale, up to a fifth, each step prepared over
+  half a bar by the new key's dominant with a riser and landing on a cymbal; coming down walks
+  it back. While you climb or fall, melodies, runs and arpeggios lean that way, and higher up
+  the band plays brighter in a bigger room. Out in the world running lifts the intensity,
+  standing about for a while lets the band lay back, friends within 15 m fill it out, and the
+  music ducks under voice chat. `fusion-render climb <mood>` renders a climb and back. Local only,
   ~2.5% of a core, respects master volume. Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
   wind loop, and a spatial crackling-fire loop at the campfire that gets louder as you approach.

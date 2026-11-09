@@ -47,6 +47,12 @@ impl Engine {
         self.band.mute = mask;
     }
 
+    /// Duck the music (1 = full level), e.g. under voice chat. Eased: down
+    /// in a quarter second, back up over a second or so.
+    pub fn set_duck(&mut self, level: f32) {
+        self.band.duck_target = level.clamp(0.0, 1.0);
+    }
+
     pub fn active_voices(&self) -> usize {
         self.band.active_voices()
     }
@@ -107,7 +113,7 @@ mod tests {
         Cue {
             mood,
             intensity: mood.base_intensity(),
-            victories: 0,
+            ..Cue::default()
         }
     }
 
@@ -168,6 +174,7 @@ mod tests {
                 mood: target,
                 intensity: 0.6,
                 victories,
+                ..Cue::default()
             });
             t += 97;
             if e.mood() != mood || e.section() != section {

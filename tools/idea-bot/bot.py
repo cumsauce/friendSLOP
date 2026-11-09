@@ -10,11 +10,13 @@ Commands:
 
 It also posts in ANNOUNCE_CHANNEL_ID when an idea lands in the game, when Claude asks the
 group a new question, every LOOP_EVERY landed ideas the gameplay loop (#153), and every day at
-noon (REMINDER_TZ) each question nobody has answered yet, in big text (#157).
+noon (REMINDER_TZ) each question nobody has answered yet, in big text (#157). Every AVATAR_HOURS
+it redraws its own profile picture from the game's models and the current status (#170).
 
 Env: DISCORD_TOKEN, GITHUB_TOKEN, GITHUB_REPO (owner/name), ANNOUNCE_CHANNEL_ID (optional),
 STATE_PATH (optional, default /data/state.json), LOOP_EVERY (optional, default 3; 0 = never),
-REMINDER_TZ (optional IANA zone for the noon reminder, default UTC).
+REMINDER_TZ (optional IANA zone for the noon reminder, default UTC), AVATAR_HOURS (optional,
+default 3; 0 = never touch the profile picture).
 """
 
 import asyncio
@@ -31,6 +33,8 @@ import discord
 from discord import app_commands
 from discord.ext import tasks
 
+import avatar
+
 log = logging.getLogger("idea-bot")
 logging.basicConfig(level=logging.INFO)
 
@@ -43,6 +47,9 @@ API = f"https://api.github.com/repos/{REPO}"
 RELEASE_URL = f"https://github.com/{REPO}/releases/tag/latest"
 LOOP_EVERY = int(os.environ.get("LOOP_EVERY", "3") or 0)
 DISCORD_LIMIT = 2000
+AVATAR_HOURS = float(os.environ.get("AVATAR_HOURS", "3") or 0)
+# The game's assets live in Git LFS; GitHub serves their contents from this host (#170).
+ASSET_BASE = f"https://media.githubusercontent.com/media/{REPO}/main/crates/game/assets/"
 
 
 def reminder_zone(name: str) -> datetime.tzinfo:
@@ -79,7 +86,7 @@ class GitHub:
     def __init__(self) -> None:
         self.session: aiohttp.ClientSession | None = None
 
-    async def request(self, method: str, url: str, **kwargs):
+    def http(self) -> aiohttp.ClientSession:
         if self.session is None:
             self.session = aiohttp.ClientSession(
                 headers={
@@ -88,7 +95,10 @@ class GitHub:
                     "User-Agent": "friendslop-idea-bot",
                 }
             )
-        async with self.session.request(method, url, **kwargs) as resp:
+        return self.session
+
+    async def request(self, method: str, url: str, **kwargs):
+        async with self.http().request(method, url, **kwargs) as resp:
             if resp.status >= 400:
                 raise RuntimeError(f"GitHub {resp.status}: {await resp.text()}")
             if "json" in resp.headers.get("Content-Type", ""):
@@ -109,6 +119,34 @@ class GitHub:
             f"{API}/issues",
             params={"labels": labels, "state": state_, "per_page": per_page, "sort": "updated"},
         )
+
+    async def count(self, query: str) -> int:
+        """How many issues in the repo match a search `query`."""
+        found = await self.request(
+            "GET",
+            "https://api.github.com/search/issues",
+            params={"q": f"repo:{REPO} is:issue {query}", "per_page": 1},
+        )
+        return int(found.get("total_count", 0)) if isinstance(found, dict) else 0
+
+    async def status(self) -> avatar.Status:
+        """Ideas landed, being built, waiting and stuck, for the profile picture (#170)."""
+        return avatar.Status(
+            landed=await self.count("label:done"),
+            building=await self.count("is:open label:in-progress"),
+            waiting=await self.count(
+                "is:open label:idea -label:in-progress -label:done -label:needs-human -label:wontfix"
+            ),
+            stuck=await self.count("is:open label:needs-human"),
+        )
+
+    async def asset(self, path: str) -> bytes | None:
+        """A file from crates/game/assets/, or None if it can't be fetched right now."""
+        try:
+            async with self.http().get(ASSET_BASE + path) as resp:
+                return await resp.read() if resp.status == 200 else None
+        except aiohttp.ClientError:
+            return None
 
     async def get_issue(self, number: int) -> dict:
         return await self.request("GET", f"{API}/issues/{number}")
@@ -365,6 +403,36 @@ async def remind_questions() -> None:
         await send(ANNOUNCE_CHANNEL_ID, reminder_text(q))
 
 
+avatar_assets: dict[str, bytes] = {}
+
+
+@tasks.loop(hours=AVATAR_HOURS if AVATAR_HOURS > 0 else 3)
+async def refresh_avatar() -> None:
+    """Redraw the bot's profile picture from the game's models when the status changed (#170)."""
+    if AVATAR_HOURS <= 0 or client.user is None:
+        return
+    try:
+        status = await gh.status()
+    except Exception:  # noqa: BLE001
+        log.exception("fetching the status for the avatar failed")
+        return
+    key = [status.landed, status.building, status.waiting, status.stuck]
+    if state.get("avatar_status") == key:
+        return
+    for name, path in avatar.ASSETS.items():
+        if name not in avatar_assets and (data := await gh.asset(path)):
+            avatar_assets[name] = data
+    png = await asyncio.to_thread(avatar.render, avatar_assets, status)
+    try:
+        await client.user.edit(avatar=png)
+    except discord.HTTPException as e:
+        log.warning("could not change the avatar (rate limited?): %s", e)
+        return
+    log.info("new avatar for %s", key)
+    state["avatar_status"] = key
+    save_state(state)
+
+
 @announce.before_loop
 async def seed_announced() -> None:
     """On first ever start, don't spam announcements for old issues."""
@@ -389,6 +457,8 @@ async def on_ready() -> None:
         announce.start()
     if not remind_questions.is_running():
         remind_questions.start()
+    if not refresh_avatar.is_running():
+        refresh_avatar.start()
     log.info("logged in as %s", client.user)
 
 

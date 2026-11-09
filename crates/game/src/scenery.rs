@@ -85,7 +85,7 @@ fn keep_clear() -> Vec<(Vec2, f32)> {
         (Vec2::new(-9.0, 2.0), 2.0),
         (Vec2::new(7.0, -2.0), 2.0),
         // Marmalade's wheel (#173).
-        (crate::features::gamble::GAMBLE_AT, 3.0),
+        (crate::features::gamble::GAMBLE_AT, 5.0),
     ]
 }
 

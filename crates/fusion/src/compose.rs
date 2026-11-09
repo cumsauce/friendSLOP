@@ -79,6 +79,18 @@ impl Mood {
         style(self).intensity
     }
 
+    /// Make-up gain (dB) so calm, sparse moods aren't a cliff quieter
+    /// than busy ones when you walk between areas.
+    pub fn level_db(self) -> f32 {
+        match self {
+            Mood::Forest | Mood::Abuela => 0.5,
+            Mood::Sky => 2.0,
+            Mood::Maze => 2.5,
+            Mood::Hiding | Mood::Still => 3.5,
+            _ => 0.0,
+        }
+    }
+
     /// Moods that cut in at the very next bar line instead of after a
     /// transition bar.
     fn urgent(self) -> bool {
@@ -132,8 +144,37 @@ enum LeadKind {
     Brass,
     Flute,
     Bell,
+    /// Minimoog-style subtractive lead.
+    Mini,
     Silent,
 }
+
+/// What the horn section does in a style.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Horns {
+    None,
+    /// Tight section stabs and shout figures answering the lead.
+    Stabs,
+    /// Long chords blooming in on the changes.
+    Swells,
+    Both,
+}
+
+/// Extra percussion layered over a groove.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+struct Kit {
+    shaker: bool,
+    conga: bool,
+    clap: bool,
+    ride: bool,
+}
+
+const KIT_NONE: Kit = Kit {
+    shaker: false,
+    conga: false,
+    clap: false,
+    ride: false,
+};
 
 struct Style {
     bpm: f32,
@@ -157,6 +198,10 @@ struct Style {
     kime: f32,
     /// Plays the written signature hook in Hook sections.
     theme: bool,
+    bass_inst: Inst,
+    pad_inst: Inst,
+    horns: Horns,
+    kit: Kit,
 }
 
 // --- Progressions -------------------------------------------------------
@@ -331,6 +376,14 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.5,
         kime: 0.4,
         theme: true,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Pad,
+        horns: Horns::Both,
+        kit: Kit {
+            clap: true,
+            ride: true,
+            ..KIT_NONE
+        },
     };
     const EXPLORE: Style = Style {
         bpm: 92.0,
@@ -342,14 +395,22 @@ fn style(m: Mood) -> &'static Style {
         groove: Groove::Laid,
         bass: &[LAID],
         comp: Comp::Laid,
-        lead: LeadKind::Synth,
-        arp: None,
+        lead: LeadKind::Mini,
+        arp: Some(Inst::Kalimba),
         pad: true,
         intensity: 0.35,
         odd: 0.0,
         modulate: 0.25,
         kime: 0.15,
         theme: false,
+        bass_inst: Inst::Fretless,
+        pad_inst: Inst::Strings,
+        horns: Horns::Swells,
+        kit: Kit {
+            shaker: true,
+            conga: true,
+            ..KIT_NONE
+        },
     };
     const VILLAGE: Style = Style {
         bpm: 104.0,
@@ -369,6 +430,15 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.4,
         kime: 0.45,
         theme: true,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Pad,
+        horns: Horns::Both,
+        kit: Kit {
+            clap: true,
+            shaker: true,
+            conga: true,
+            ..KIT_NONE
+        },
     };
     const FOREST: Style = Style {
         bpm: 84.0,
@@ -388,6 +458,13 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.2,
         kime: 0.0,
         theme: false,
+        bass_inst: Inst::Fretless,
+        pad_inst: Inst::Strings,
+        horns: Horns::None,
+        kit: Kit {
+            shaker: true,
+            ..KIT_NONE
+        },
     };
     const MAZE: Style = Style {
         bpm: 76.0,
@@ -407,6 +484,10 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.15,
         kime: 0.0,
         theme: false,
+        bass_inst: Inst::Fretless,
+        pad_inst: Inst::Pad,
+        horns: Horns::Swells,
+        kit: KIT_NONE,
     };
     const SKY: Style = Style {
         bpm: 70.0,
@@ -418,7 +499,7 @@ fn style(m: Mood) -> &'static Style {
         groove: Groove::Dream,
         bass: &[PEDAL],
         comp: Comp::Long,
-        lead: LeadKind::Synth,
+        lead: LeadKind::Mini,
         arp: Some(Inst::Bell),
         pad: true,
         intensity: 0.25,
@@ -426,6 +507,13 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.3,
         kime: 0.0,
         theme: false,
+        bass_inst: Inst::Fretless,
+        pad_inst: Inst::Strings,
+        horns: Horns::Swells,
+        kit: Kit {
+            shaker: true,
+            ..KIT_NONE
+        },
     };
     const ABUELA: Style = Style {
         bpm: 84.0,
@@ -445,6 +533,13 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.1,
         kime: 0.0,
         theme: false,
+        bass_inst: Inst::Fretless,
+        pad_inst: Inst::Strings,
+        horns: Horns::Swells,
+        kit: Kit {
+            shaker: true,
+            ..KIT_NONE
+        },
     };
     const HIDING: Style = Style {
         bpm: 96.0,
@@ -464,6 +559,10 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.3,
         kime: 0.0,
         theme: false,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Pad,
+        horns: Horns::None,
+        kit: KIT_NONE,
     };
     const SEEKING: Style = Style {
         bpm: 128.0,
@@ -475,7 +574,7 @@ fn style(m: Mood) -> &'static Style {
         groove: Groove::Drive,
         bass: &[DRIVE, SLAP2],
         comp: Comp::Stabs,
-        lead: LeadKind::Synth,
+        lead: LeadKind::Mini,
         arp: None,
         pad: false,
         intensity: 0.75,
@@ -483,6 +582,14 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.3,
         kime: 0.5,
         theme: false,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Pad,
+        horns: Horns::Stabs,
+        kit: Kit {
+            clap: true,
+            conga: true,
+            ..KIT_NONE
+        },
     };
     const DUEL: Style = Style {
         bpm: 150.0,
@@ -494,7 +601,7 @@ fn style(m: Mood) -> &'static Style {
         groove: Groove::Shred,
         bass: &[SHRED, DRIVE],
         comp: Comp::Stabs,
-        lead: LeadKind::Synth,
+        lead: LeadKind::Mini,
         arp: None,
         pad: false,
         intensity: 0.95,
@@ -502,6 +609,14 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.35,
         kime: 0.7,
         theme: false,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Pad,
+        horns: Horns::Stabs,
+        kit: Kit {
+            clap: true,
+            ride: true,
+            ..KIT_NONE
+        },
     };
     const LANDLORD: Style = Style {
         bpm: 108.0,
@@ -521,6 +636,10 @@ fn style(m: Mood) -> &'static Style {
         modulate: 0.6,
         kime: 0.3,
         theme: false,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Strings,
+        horns: Horns::Both,
+        kit: KIT_NONE,
     };
     match m {
         Mood::Menu | Mood::Still => &MENU,
@@ -667,6 +786,8 @@ pub struct Bar {
     pub len: u32,
     pub events: Vec<Ev>,
     pub bus: [f32; BUSES],
+    /// Master gain for the bar (linear), see [`Mood::level_db`].
+    pub gain: f32,
 }
 
 impl Bar {
@@ -675,6 +796,7 @@ impl Bar {
             len: RATE,
             events: Vec::with_capacity(EVENT_CAP),
             bus: [0.0; BUSES],
+            gain: 1.0,
         }
     }
 }
@@ -707,6 +829,11 @@ pub struct Composer {
     key_shift: u8,
     ep: Voicing,
     pad: Voicing,
+    horn: Voicing,
+    /// Which comping/ostinato variant this section uses.
+    comp_var: usize,
+    /// The horns held a swell this bar (the pad sits out).
+    swelled: bool,
     motif: Motif,
     hook: Motif,
     last_note: u8,
@@ -747,6 +874,9 @@ impl Composer {
             key_shift: 0,
             ep: [53, 57, 60, 64],
             pad: [60, 64, 67, 71],
+            horn: [62, 65, 69, 72],
+            comp_var: 0,
+            swelled: false,
             motif: Motif::default(),
             hook: Motif::default(),
             last_note: 72,
@@ -761,6 +891,11 @@ impl Composer {
         c.motif = c.new_motif();
         c.hook = c.new_motif();
         c
+    }
+
+    /// The tempo of the bar just written.
+    pub fn bpm(&self) -> f32 {
+        self.bpm
     }
 
     fn rand(&mut self) -> f32 {
@@ -868,6 +1003,7 @@ impl Composer {
         if matches!(kind, Section::B | Section::Solo) || fresh {
             self.motif = self.new_motif();
         }
+        self.comp_var = self.pick(4);
         if fresh {
             self.hook = self.new_motif();
         }
@@ -1009,6 +1145,7 @@ impl Composer {
         self.bars_played += 1;
 
         self.layers(&mut bar.bus);
+        bar.gain = 10f32.powf(self.mood.level_db() / 20.0);
         self.write(bar, new_mood);
         bar.events.sort_unstable_by_key(|e| e.at);
     }
@@ -1039,6 +1176,7 @@ impl Composer {
             on(kind == Section::Breakdown || i < 0.3) * 0.8
         };
         bus[Bus::Perc as usize] = 1.0;
+        bus[Bus::Brass as usize] = on(s.horns != Horns::None);
     }
 
     /// Sample offset of 16th `step`, with the off-16ths swung late.
@@ -1077,6 +1215,7 @@ impl Composer {
         let crash = (self.plan.bar == 0 && i > 0.4 && kind != Section::Intro)
             || new_mood && i > 0.5
             || (kind == Section::Victory && self.plan.bar == 1);
+        self.swelled = false;
         if kime {
             self.pushed = false;
             self.write_kime(bar, crash);
@@ -1087,6 +1226,7 @@ impl Composer {
             self.write_bass(bar);
             self.write_comp(bar);
             self.write_lead(bar);
+            self.write_horns(bar);
         }
         self.write_pad(bar);
         self.write_arp(bar);
@@ -1094,6 +1234,7 @@ impl Composer {
 
     fn write_still(&mut self, bar: &mut Bar) {
         let c = self.chord(0);
+        let pad_inst = self.style().pad_inst;
         if self.plan.bar.is_multiple_of(2) {
             self.pad = voice_lead(c, &self.pad, 55, 67);
             let len = self.len(self.steps as f32 * 2.2);
@@ -1102,7 +1243,7 @@ impl Composer {
                     bar,
                     Ev {
                         at: 0,
-                        inst: Inst::Pad,
+                        inst: pad_inst,
                         note: n,
                         vel: 0.6,
                         len,
@@ -1134,6 +1275,7 @@ impl Composer {
     fn write_drums(&mut self, bar: &mut Bar, fill: bool, crash: bool) {
         let s = self.style();
         let i = self.intensity;
+        let kind = self.plan.kind;
         let odd_bar = self.plan.bar % 2 == 1;
         let (kicks, snare, hat, extra): ([&str; 2], &str, &str, &[(Inst, u8, [&str; 2])]) =
             match s.groove {
@@ -1159,7 +1301,7 @@ impl Composer {
                     ["x.........x.....", "x..............."],
                     "................",
                     "..o...o...o...o.",
-                    &[(Inst::Rim, 84, ["......o.......o.", "......o....o...."])],
+                    &[(Inst::Rim, 37, ["......o.......o.", "......o....o...."])],
                 ),
                 Groove::Dream => (
                     ["x...............", "................"],
@@ -1173,15 +1315,15 @@ impl Composer {
                     "ogggogggogggoggg",
                     &[
                         // 3-2 son clave across two bars, and bongos.
-                        (Inst::Rim, 84, ["x..x..x.........", "....x...x......."]),
-                        (Inst::Tom, 55, ["......og......og", "......og....o.og"]),
+                        (Inst::Rim, 37, ["x..x..x.........", "....x...x......."]),
+                        (Inst::Conga, 64, ["......og......og", "......og....o.og"]),
                     ],
                 ),
                 Groove::Tense => (
                     ["x..o............", "x..o............"],
                     "................",
                     "o.g.o.g.o.g.o.g.",
-                    &[(Inst::Rim, 84, ["..........o.....", "..........o..o.."])],
+                    &[(Inst::Rim, 37, ["..........o.....", "..........o..o.."])],
                 ),
                 Groove::Drive => (
                     ["x...x...x...x.o.", "x...x...x..ox..."],
@@ -1199,13 +1341,19 @@ impl Composer {
                     ["x...x...x...x...", "x...x...x...x.x."],
                     "............x...",
                     "x.o.x.o.x.o.x.o.",
-                    &[],
+                    &[(Inst::Snare, 38, ["..g.......g.g.g.", "..g...g...g.ggg."])],
                 ),
             };
         let soft = match s.groove {
             Groove::Brush | Groove::Dream => 0.6,
             Groove::Sparse | Groove::Tense => 0.75,
             _ => 1.0,
+        };
+        // Where the backbeat sits: laid-back grooves drag it a hair.
+        let lay = match s.groove {
+            Groove::Laid | Groove::Brush | Groove::Bolero => 110,
+            Groove::Drive | Groove::Shred => 0,
+            _ => 50,
         };
         let fill_from = if fill {
             if i > 0.6 { 8 } else { 12 }
@@ -1214,59 +1362,101 @@ impl Composer {
         };
         let kick = kicks[usize::from(odd_bar && i > 0.3)];
         let steps = self.steps.min(16);
+        // The ride takes over from the hats in solos and flat-out duels.
+        let ride = s.kit.ride && (kind == Section::Solo || (s.groove == Groove::Shred && i > 0.85));
+        let clap = s.kit.clap && (kind == Section::Hook || i > 0.75);
+        let shaker = s.kit.shaker && i > 0.2 && kind != Section::Intro;
+        let conga = s.kit.conga && i > 0.3 && kind != Section::Intro;
+        // Tumbao: heel-toe, a slap on two, open tones on four and its "and".
+        const TUMBAO: [&str; 2] = ["h.t.S.t.h.t.o.o.", "h.t.S.t.h.tSl.l."];
         for st in 0..steps {
             let k = st as usize;
+            let at = self.at(st);
             if st >= fill_from {
                 self.fill_step(bar, st, fill_from, steps);
                 continue;
             }
             if let Some(v) = vel(kick, k) {
-                let at = self.at(st);
                 Self::push(bar, hit(at, Inst::Kick, 36, v * soft));
             }
             match snare.as_bytes().get(k) {
                 Some(b'g') if i > 0.4 => {
-                    let at = self.at(st) + 40;
                     let v = 0.5 + 0.3 * self.rand();
-                    Self::push(bar, hit(at, Inst::Ghost, 54, v * soft));
+                    Self::push(bar, hit(at + 40, Inst::Ghost, 38, v * soft));
                 }
                 Some(b'x') | Some(b'o') => {
                     let v = vel(snare, k).unwrap_or(0.8);
-                    let at = self.at(st);
-                    Self::push(bar, hit(at, Inst::Snare, 52, v * soft));
+                    Self::push(bar, hit(at + lay, Inst::Snare, 38, v * soft));
+                    if clap && st % 8 == 4 {
+                        Self::push(bar, hit(at + lay + 25, Inst::Clap, 39, 0.75));
+                    }
                 }
                 _ => {}
             }
+            let jitter = (self.rand() * 80.0) as u32;
             match hat.as_bytes().get(k) {
+                Some(_) if ride => {
+                    // Ride: quarters and the "and"s, bell-ish accents on the
+                    // beat, foot hat on two and four.
+                    if st % 2 == 0 {
+                        let v = if st % 4 == 0 { 0.9 } else { 0.62 } * (0.9 + 0.2 * self.rand());
+                        Self::push(bar, hit(at + jitter, Inst::Ride, 51, v));
+                    }
+                    if st % 8 == 4 {
+                        Self::push(bar, hit(at, Inst::Hat, 42, 0.35));
+                    }
+                }
                 Some(b'O') if i > 0.5 => {
-                    let at = self.at(st);
-                    Self::push(bar, hit(at, Inst::OpenHat, 96, 0.7 * soft));
+                    Self::push(bar, hit(at, Inst::OpenHat, 46, 0.7 * soft));
                 }
                 Some(c) if *c != b'.' => {
                     // Below mid intensity, 16th hats thin to 8ths.
-                    if st % 2 == 1 && i < 0.45 && hat.len() == 16 && hat.as_bytes()[1] != b'.' {
-                        continue;
+                    let thin =
+                        st % 2 == 1 && i < 0.45 && hat.len() == 16 && hat.as_bytes()[1] != b'.';
+                    if !thin {
+                        let v = vel(hat, k).unwrap_or(0.6) * (0.85 + 0.3 * self.rand());
+                        Self::push(bar, hit(at + jitter, Inst::Hat, 42, v * soft));
                     }
-                    let v = vel(hat, k).unwrap_or(0.6) * (0.85 + 0.3 * self.rand());
-                    let at = self.at(st);
-                    Self::push(bar, hit(at, Inst::Hat, 96, v * soft));
                 }
                 _ => {}
             }
             for (inst, note, pats) in extra {
                 if let Some(v) = vel(pats[usize::from(odd_bar)], k) {
-                    let at = self.at(st);
-                    let note = if *inst == Inst::Tom && v < 0.5 {
-                        note + 5
-                    } else {
-                        *note
+                    let note = match inst {
+                        Inst::Conga if v < 0.5 => 71,
+                        _ => *note,
                     };
                     Self::push(bar, hit(at, *inst, note, v * soft));
                 }
             }
+            if shaker && (i > 0.5 || st % 2 == 0) {
+                // Accent the "and"s; the beads lean a touch ahead.
+                let v = match st % 4 {
+                    2 => 0.85,
+                    0 => 0.55,
+                    _ => 0.38,
+                } * (0.85 + 0.3 * self.rand());
+                Self::push(
+                    bar,
+                    hit(at.saturating_sub(60) + jitter, Inst::Shaker, 70, v),
+                );
+            }
+            if conga && let Some(c) = TUMBAO[usize::from(odd_bar)].as_bytes().get(k) {
+                let (note, v) = match c {
+                    b'h' => (58, 0.22),
+                    b't' => (58, 0.3),
+                    b'S' => (64, 0.85),
+                    b'o' => (58, 0.75),
+                    b'l' => (53, 0.8),
+                    _ => (0, 0.0),
+                };
+                if note > 0 {
+                    Self::push(bar, hit(at + jitter / 2, Inst::Conga, note, v * soft));
+                }
+            }
         }
         if crash {
-            Self::push(bar, hit(0, Inst::Crash, 60, 0.9));
+            Self::push(bar, hit(0, Inst::Crash, 49, 0.9));
             Self::push(bar, hit(0, Inst::Kick, 36, 1.0));
         }
     }
@@ -1280,20 +1470,20 @@ impl Composer {
         match s.groove {
             Groove::Brush | Groove::Dream | Groove::Sparse | Groove::Tense => {
                 if st.is_multiple_of(2) {
-                    Self::push(bar, hit(at, Inst::Ghost, 54, 0.5 + 0.4 * p));
+                    Self::push(bar, hit(at, Inst::Ghost, 38, 0.5 + 0.4 * p));
                 }
             }
             _ => {
                 let kind = (self.plan.bar / 4 + self.bars_played as u16 / 8) % 3;
                 match kind {
-                    0 => Self::push(bar, hit(at, Inst::Snare, 52, 0.45 + 0.55 * p)),
+                    0 => Self::push(bar, hit(at, Inst::Snare, 38, 0.45 + 0.55 * p)),
                     1 => {
                         let note = [55u8, 55, 50, 50, 45, 45, 45, 45][((p * 8.0) as usize).min(7)];
                         Self::push(bar, hit(at, Inst::Tom, note, 0.7 + 0.3 * p));
                     }
                     _ => {
                         if st.is_multiple_of(2) {
-                            Self::push(bar, hit(at, Inst::Snare, 52, 0.8));
+                            Self::push(bar, hit(at, Inst::Snare, 38, 0.8));
                             Self::push(bar, hit(at, Inst::Kick, 36, 0.8));
                         } else {
                             Self::push(bar, hit(at, Inst::Tom, 50, 0.6));
@@ -1311,6 +1501,8 @@ impl Composer {
 
     fn write_bass(&mut self, bar: &mut Bar) {
         let s = self.style();
+        let inst = s.bass_inst;
+        let i = self.intensity;
         let pick = if s.bass.len() > 1 && self.chance(0.35) {
             self.pick(s.bass.len())
         } else {
@@ -1318,9 +1510,20 @@ impl Composer {
         };
         let pat = s.bass[pick].as_bytes();
         let steps = self.steps.min(16) as usize;
-        for st in 0..steps {
+        // At the end of a phrase the bass sometimes fills the last beat.
+        let fill = steps == 16
+            && self.plan.bar % 4 == 3
+            && i > 0.45
+            && self.switching.is_none()
+            && self.chance(0.45);
+        let fill_at = if fill { 12 } else { steps };
+        let mut prev: Option<u8> = None;
+        for st in 0..fill_at {
             let c = pat[st];
             if matches!(c, b'.' | b'-') {
+                if c == b'.' {
+                    prev = None;
+                }
                 continue;
             }
             let hold = pat[st + 1..steps]
@@ -1343,19 +1546,62 @@ impl Composer {
                 }
                 _ => continue,
             };
+            // A fretless slides into nearby notes instead of re-plucking.
+            let glide = inst == Inst::Fretless
+                && prev.is_some_and(|p| (p as i32 - note as i32).abs() <= 5 && p != note)
+                && self.chance(0.35);
+            prev = Some(note);
             let at = self.at(st as u32);
             let len = self.len(len);
             Self::push(
                 bar,
                 Ev {
                     at,
-                    inst: Inst::Bass,
+                    inst,
                     note,
-                    vel: vel * (0.85 + 0.25 * self.intensity),
+                    vel: vel * (0.85 + 0.25 * i),
                     len,
-                    glide: false,
+                    glide,
                 },
             );
+        }
+        if fill {
+            // Four 16ths: up the chord to the octave, or down from it, with
+            // the last a half step from the next root.
+            let ch = self.chord(12);
+            let root = ch.root_from(31);
+            let next = self.chord(16).root_from(31);
+            let line = if self.chance(0.5) {
+                [
+                    root + ch.q.fifth(),
+                    root + ch.q.seventh(),
+                    root + 12,
+                    next + 11,
+                ]
+            } else {
+                [
+                    root + 12,
+                    root + ch.q.seventh(),
+                    root + ch.q.fifth(),
+                    next + 1,
+                ]
+            };
+            for (k, n) in line.into_iter().enumerate() {
+                let st = 12 + k as u32;
+                let at = self.at(st);
+                let len = self.len(0.85);
+                Self::push(
+                    bar,
+                    Ev {
+                        at,
+                        inst,
+                        note: n,
+                        vel: if k == 0 { 0.85 } else { 0.7 },
+                        len,
+                        glide: inst == Inst::Fretless && k == 3,
+                    },
+                );
+            }
         }
     }
 
@@ -1368,20 +1614,62 @@ impl Composer {
             self.write_guitar(bar);
             return;
         }
-        let pat: &[(u8, u8, bool)] = match s.comp {
-            Comp::City => &[(0, 3, false), (6, 2, false), (10, 1, false), (14, 2, true)],
-            Comp::Laid => &[(0, 6, false), (7, 1, false), (10, 6, false)],
-            Comp::Long => &[(0, 16, false)],
-            Comp::Stabs => &[
-                (0, 1, false),
-                (3, 1, false),
-                (6, 2, false),
-                (10, 1, false),
-                (12, 1, false),
-                (14, 2, true),
+        // A few rhythms per comping style; each phrase picks one, so the
+        // keys don't hammer the same figure for minutes.
+        type Rh = &'static [(u8, u8, bool)];
+        let pats: &[Rh] = match s.comp {
+            Comp::City => &[
+                &[(0, 3, false), (6, 2, false), (10, 1, false), (14, 2, true)],
+                &[(2, 2, false), (6, 1, false), (8, 3, false), (14, 2, true)],
+                &[
+                    (0, 1, false),
+                    (3, 2, false),
+                    (7, 1, false),
+                    (10, 2, false),
+                    (14, 2, true),
+                ],
+                &[
+                    (0, 2, false),
+                    (4, 1, false),
+                    (7, 3, false),
+                    (11, 1, false),
+                    (12, 2, false),
+                ],
             ],
-            Comp::Tense | Comp::Bolero => &[(0, 12, false), (14, 2, true)],
+            Comp::Laid => &[
+                &[(0, 6, false), (7, 1, false), (10, 6, false)],
+                &[(0, 10, false), (11, 4, false)],
+                &[(2, 4, false), (8, 6, false), (14, 2, true)],
+            ],
+            Comp::Long => &[&[(0, 16, false)], &[(0, 10, false), (10, 6, false)]],
+            Comp::Stabs => &[
+                &[
+                    (0, 1, false),
+                    (3, 1, false),
+                    (6, 2, false),
+                    (10, 1, false),
+                    (12, 1, false),
+                    (14, 2, true),
+                ],
+                &[
+                    (0, 1, false),
+                    (2, 1, false),
+                    (6, 1, false),
+                    (8, 1, false),
+                    (11, 2, false),
+                    (14, 2, true),
+                ],
+                &[
+                    (0, 2, false),
+                    (3, 1, false),
+                    (7, 1, false),
+                    (10, 2, false),
+                    (13, 1, false),
+                ],
+            ],
+            Comp::Tense | Comp::Bolero => &[&[(0, 12, false), (14, 2, true)]],
         };
+        let pat = pats[(self.plan.bar as usize / 4 + self.comp_var) % pats.len()];
         let steps = self.steps;
         // Every chord change in the bar needs a hit at or just before it.
         let mut hits = [(0u8, 0u8, false); 12];
@@ -1496,7 +1784,8 @@ impl Composer {
 
     fn write_pad(&mut self, bar: &mut Bar) {
         let s = self.style();
-        if !s.pad && self.plan.kind != Section::Breakdown && self.intensity >= 0.3 {
+        if self.swelled || (!s.pad && self.plan.kind != Section::Breakdown && self.intensity >= 0.3)
+        {
             return;
         }
         let steps = self.steps;
@@ -1522,7 +1811,7 @@ impl Composer {
                         bar,
                         Ev {
                             at,
-                            inst: Inst::Pad,
+                            inst: s.pad_inst,
                             note: n + 12,
                             vel: 0.5,
                             len,
@@ -1551,6 +1840,10 @@ impl Composer {
             }
             return;
         };
+        if inst == Inst::Kalimba {
+            self.write_ostinato(bar);
+            return;
+        }
         let i = self.intensity;
         let every = if i > 0.5 { 2 } else { 4 };
         let steps = self.steps;
@@ -1603,6 +1896,245 @@ impl Composer {
         }
     }
 
+    /// An interlocking kalimba/marimba ostinato: a two-bar syncopated
+    /// figure through the chord's tones that keeps its shape while the
+    /// chords move under it.
+    fn write_ostinato(&mut self, bar: &mut Bar) {
+        // (16th step, tone: 0 = root, 1..=4 = the voicing's tones).
+        type Fig = &'static [(u8, u8)];
+        const FIGS: [[Fig; 2]; 3] = [
+            [
+                &[(0, 0), (3, 2), (6, 1), (8, 3), (10, 2), (13, 4), (14, 1)],
+                &[(0, 0), (3, 2), (6, 3), (8, 4), (11, 2), (14, 3)],
+            ],
+            [
+                &[(0, 1), (2, 3), (4, 0), (7, 2), (10, 4), (12, 3)],
+                &[(0, 1), (2, 3), (4, 2), (7, 4), (9, 3), (12, 1), (14, 0)],
+            ],
+            [
+                &[(0, 2), (2, 0), (5, 3), (8, 2), (10, 4), (13, 1)],
+                &[(0, 2), (2, 0), (5, 3), (8, 4), (11, 3), (14, 1)],
+            ],
+        ];
+        let fig = FIGS[self.comp_var % 3][usize::from(self.plan.bar % 2 == 1)];
+        let i = self.intensity;
+        for &(st, t) in fig {
+            if st as u32 >= self.steps || (i < 0.3 && st % 4 != 0 && self.chance(0.3)) {
+                continue;
+            }
+            let ch = self.chord(st as u32);
+            let v = ch.q.voicing();
+            let tones = [0, v[0], v[1], v[2], v[3]];
+            let mut n = ch.root_from(65) + tones[t as usize];
+            while n > 86 {
+                n -= 12;
+            }
+            let at = self.at(st as u32);
+            let vel = if st % 4 == 0 { 0.8 } else { 0.6 } * (0.85 + 0.3 * self.rand());
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: Inst::Kalimba,
+                    note: n,
+                    vel,
+                    len: self.len(1.5),
+                    glide: false,
+                },
+            );
+        }
+    }
+
+    // --- Horns ------------------------------------------------------------
+
+    /// The horn section: shout figures and pushes in hooks and hot solos,
+    /// long blooming chords on the changes in bridges and calm sections.
+    fn write_horns(&mut self, bar: &mut Bar) {
+        let s = self.style();
+        if s.horns == Horns::None {
+            return;
+        }
+        let i = self.intensity;
+        let kind = self.plan.kind;
+        let pb = self.plan.bar;
+        let stabs = matches!(s.horns, Horns::Stabs | Horns::Both);
+        let swells = matches!(s.horns, Horns::Swells | Horns::Both);
+        let stab_now = stabs
+            && match kind {
+                Section::Hook | Section::Victory => true,
+                Section::Solo => i > 0.55 && pb % 2 == 1,
+                Section::A => i > 0.7 && pb % 8 >= 4,
+                _ => false,
+            };
+        let swell_now = swells
+            && !stab_now
+            && match kind {
+                Section::B | Section::Breakdown | Section::Hook => true,
+                Section::Intro => pb >= 2,
+                Section::A => i < 0.5 && pb % 8 >= 4,
+                _ => false,
+            };
+        if kind == Section::Victory {
+            self.horn_chord(bar, 0, 15.0, 1.0, false);
+        } else if stab_now {
+            self.horn_stabs(bar);
+        } else if swell_now {
+            self.horn_swells(bar);
+        }
+    }
+
+    /// One section chord at `st`, `len` 16ths long, voice-led from the
+    /// last (`top`: block-voice under this melody note instead).
+    fn horn_chord(&mut self, bar: &mut Bar, st: u32, len: f32, vel: f32, push: bool) {
+        self.horn_hit(bar, st, len, vel, push, None);
+    }
+
+    fn horn_hit(
+        &mut self,
+        bar: &mut Bar,
+        st: u32,
+        len: f32,
+        vel: f32,
+        push: bool,
+        top: Option<u8>,
+    ) {
+        let ch = if push {
+            self.chord(st + 2)
+        } else {
+            self.chord(st)
+        };
+        self.horn = match top {
+            Some(t) => block_voicing(ch, t),
+            None => no_top_rub(voice_lead(ch, &self.horn, 58, 67)),
+        };
+        let at = self.at(st);
+        let len = self.len(len);
+        for &n in &{ self.horn } {
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: Inst::PolyBrass,
+                    note: n,
+                    vel,
+                    len,
+                    glide: false,
+                },
+            );
+        }
+    }
+
+    /// 16th steps where the lead starts a note this bar (horns answer
+    /// around them rather than on top of them).
+    fn lead_onsets(&self, bar: &Bar) -> u32 {
+        let mut mask = 0u32;
+        for e in &bar.events {
+            if matches!(
+                e.inst,
+                Inst::Lead | Inst::Brass | Inst::Mini | Inst::Flute | Inst::Bell
+            ) {
+                let st = (e.at as f32 / self.step_len).round() as u32;
+                mask |= 1 << st.min(31);
+            }
+        }
+        mask
+    }
+
+    fn horn_stabs(&mut self, bar: &mut Bar) {
+        // Shouts answer the lead in the bars where it holds or rests;
+        // pushes just kick the off-beats elsewhere.
+        type Fig = &'static [(u8, u8)];
+        const SHOUTS: [Fig; 4] = [
+            &[(4, 1), (6, 1), (8, 2), (11, 1), (14, 2)],
+            &[(2, 1), (3, 1), (6, 2), (10, 1), (12, 3)],
+            &[(0, 2), (3, 1), (6, 1), (8, 1), (10, 4)],
+            &[(6, 1), (7, 1), (10, 2), (14, 2)],
+        ];
+        // The shout's top line, in chord-tone steps from where it starts.
+        const CONTOURS: [&[i8]; 3] = [&[0, 1, 2, 1, 3], &[2, 1, 0, 1, -1], &[0, 2, 1, 3, 2]];
+        const PUSHES: [Fig; 3] = [&[(14, 2)], &[(6, 1), (14, 2)], &[(10, 1), (11, 3)]];
+        let phrase = self.plan.bar % 4;
+        let busy = self.lead_onsets(bar);
+        let free = |st: u8| busy & (1 << st) == 0 && (st == 0 || busy & (1 << (st - 1)) == 0);
+        let mut hits = [(0u8, 0u8); 6];
+        let mut n = 0;
+        let mut shout = false;
+        if phrase % 2 == 1 {
+            let fig = SHOUTS[(self.comp_var + phrase as usize / 2) % SHOUTS.len()];
+            for &h in fig.iter().filter(|h| free(h.0)) {
+                hits[n] = h;
+                n += 1;
+            }
+            shout = n >= 3;
+        }
+        if !shout {
+            n = 0;
+            for &h in PUSHES[self.comp_var % PUSHES.len()]
+                .iter()
+                .filter(|h| free(h.0))
+            {
+                hits[n] = h;
+                n += 1;
+            }
+        }
+        let i = self.intensity;
+        let contour = CONTOURS[(self.comp_var + self.plan.bar as usize) % CONTOURS.len()];
+        let mut top = self.chord(hits[0].0 as u32).nearest_strong(70);
+        for (k, &(st, ln)) in hits[..n].iter().enumerate() {
+            let st = st as u32;
+            if st >= self.steps {
+                continue;
+            }
+            let push = st + ln as u32 >= 16 && st >= 14;
+            let last = k + 1 == n;
+            let vel = (if last { 0.95 } else { 0.78 }) * (0.8 + 0.25 * i);
+            // Short notes are clipped tight, the last one rings.
+            let len = if last {
+                ln as f32 + 0.5
+            } else {
+                ln as f32 * 0.6
+            };
+            if shout {
+                let ch = self.chord(if push { st + 2 } else { st });
+                let step = contour[k % contour.len()] as i32
+                    - if k > 0 {
+                        contour[(k - 1) % contour.len()] as i32
+                    } else {
+                        0
+                    };
+                top = chord_tone_step(ch, top, step).clamp(65, 80);
+                let t = Some(ch.nearest_strong(top));
+                self.horn_hit(bar, st, len, vel, push, t);
+            } else {
+                self.horn_chord(bar, st, len, vel, push);
+            }
+        }
+    }
+
+    fn horn_swells(&mut self, bar: &mut Bar) {
+        let steps = self.steps;
+        let mut st = 0;
+        let i = self.intensity;
+        while st < steps {
+            let ch = self.chord(st);
+            let mut end = st + 4;
+            while end < st + 32 && self.chord(end) == ch {
+                end += 4;
+            }
+            let changed = st > 0 || self.plan.bar.is_multiple_of(2) || self.prev_chord() != ch;
+            if changed {
+                let len = (end - st) as f32 - 0.5;
+                self.horn_chord(bar, st, len, 0.5 + 0.25 * i, false);
+                self.swelled = true;
+            }
+            let mut nx = st + 4;
+            while nx < steps && self.chord(nx) == ch {
+                nx += 4;
+            }
+            st = nx;
+        }
+    }
+
     // --- Kimes ----------------------------------------------------------
 
     /// A unison hit figure: bass, keys, lead and kit together, ending on a
@@ -1636,9 +2168,9 @@ impl Composer {
             let len = self.len(len_steps);
             // Kit.
             Self::push(bar, hit(at, Inst::Kick, 36, 1.0));
-            Self::push(bar, hit(at, Inst::Snare, 52, 0.9));
+            Self::push(bar, hit(at, Inst::Snare, 38, 0.9));
             if k == 0 && crash || lastk {
-                Self::push(bar, hit(at, Inst::Crash, 60, 0.85));
+                Self::push(bar, hit(at, Inst::Crash, 49, 0.85));
             }
             // Bass in octaves with the lead's pitch class, else the root.
             let root = ch.root_from(31);
@@ -1667,6 +2199,23 @@ impl Composer {
                         glide: false,
                     },
                 );
+            }
+            // Horns hit with the band.
+            if self.style().horns != Horns::None {
+                self.horn = no_top_rub(voice_lead(ch, &self.horn, 58, 67));
+                for &n in &{ self.horn } {
+                    Self::push(
+                        bar,
+                        Ev {
+                            at,
+                            inst: Inst::PolyBrass,
+                            note: n,
+                            vel: 0.95,
+                            len,
+                            glide: false,
+                        },
+                    );
+                }
             }
             // Lead.
             top = ch.nearest_strong(top);
@@ -1708,6 +2257,7 @@ impl Composer {
             LeadKind::Brass => Some(Inst::Brass),
             LeadKind::Flute => Some(Inst::Flute),
             LeadKind::Bell => Some(Inst::Bell),
+            LeadKind::Mini => Some(Inst::Mini),
             LeadKind::Silent => None,
         }
     }
@@ -2061,7 +2611,7 @@ impl Composer {
             let at = self.at(st as u32) + jitter;
             let len = self.len(ln as f32 * if legato { 1.02 } else { 0.85 });
             let prev = self.last_note;
-            let glide = inst == Inst::Lead
+            let glide = matches!(inst, Inst::Lead | Inst::Mini)
                 && k > 0
                 && (prev as i32 - note as i32).abs() <= 5
                 && self.chance(0.3);
@@ -2103,6 +2653,51 @@ fn nearest_pc(near: u8, pc: u8) -> u8 {
         }
     }
     best
+}
+
+/// Move `steps` chord tones up or down from `note`.
+fn chord_tone_step(ch: Chord, note: u8, steps: i32) -> u8 {
+    let mut n = ch.nearest_strong(note) as i32;
+    for _ in 0..steps.abs() {
+        loop {
+            n += steps.signum();
+            if !(24..108).contains(&n) || ch.is_strong(n as u8) {
+                break;
+            }
+        }
+    }
+    n.clamp(24, 107) as u8
+}
+
+/// Four-way close "block" voicing under a melody note: the next chord tones
+/// down from `top`, never a semitone just under the melody (it rubs).
+fn block_voicing(ch: Chord, top: u8) -> Voicing {
+    let pcs = ch.q.voicing().map(|t| (ch.root + t) % 12);
+    let ok = |n: u8| pcs.contains(&(n % 12)) || n % 12 == ch.root;
+    let mut v = [top; 4];
+    let mut n = top;
+    for k in (0..3).rev() {
+        n -= 1;
+        while !ok(n) || (k == 2 && top - n == 1) || n == v[k + 1] {
+            n -= 1;
+        }
+        v[k] = n;
+    }
+    v
+}
+
+/// Horns don't like semitone rubs at the edges of a voicing: lift a
+/// bottom-note rub an octave, drop a top-note rub an octave.
+fn no_top_rub(mut v: Voicing) -> Voicing {
+    if v[1] - v[0] == 1 {
+        v[0] += 12;
+        v.sort_unstable();
+    }
+    if v[3] - v[2] == 1 {
+        v[2] -= 12;
+        v.sort_unstable();
+    }
+    v
 }
 
 fn vel(pat: &str, k: usize) -> Option<f32> {
@@ -2200,8 +2795,9 @@ mod tests {
         format!("{}{}", N[n as usize % 12], (n / 12) as i32 - 1)
     }
 
-    /// Print a score of 28 bars (`PEEK=duel|abuela|menu|village`), to read
-    /// what the composer writes.
+    /// Print a score of 28 bars, to read what the composer writes:
+    /// `PEEK=duel cargo test -p fusion peek_score -- --ignored --nocapture`
+    /// (duel, abuela, menu, forest, explore, seeking; else village).
     #[test]
     #[ignore = "prints a score"]
     fn peek_score() {
@@ -2210,6 +2806,8 @@ mod tests {
             Ok("abuela") => Mood::Abuela,
             Ok("menu") => Mood::Menu,
             Ok("forest") => Mood::Forest,
+            Ok("explore") => Mood::Explore,
+            Ok("seeking") => Mood::Seeking,
             _ => Mood::Village,
         };
         let mut c = Composer::new(42);
@@ -2240,10 +2838,14 @@ mod tests {
             );
             for inst in [
                 Inst::Lead,
+                Inst::Mini,
                 Inst::Brass,
                 Inst::Flute,
+                Inst::PolyBrass,
                 Inst::Bass,
+                Inst::Fretless,
                 Inst::EPiano,
+                Inst::Kalimba,
             ] {
                 let notes: Vec<String> = bar
                     .events

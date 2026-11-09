@@ -124,15 +124,20 @@ asked for, and what nobody has decided yet.
   paddling round, lantern posts strung with bulbs along the paths to the campfire and the pond
   (`landmarks.rs`), and a generated, adaptive 90s jazz-fusion soundtrack (`features/fusion`,
   asked for in chat: "change the music ... jazz fusion ... 90s/FM synth vibe ... adapts to the
-  game state"; it replaced the looping "Catsong"). Live FM voices (DX7-style EP, slap bass,
-  lead/brass with portamento, bell pad) plus foley-synth note-block drums/bells/flute/harp/
-  guitar. A director picks the next bars at every bar line from a mood: menu (signature hook
+  game state"; it replaced the looping "Catsong"). The music lives in its own Bevy-free crate
+  (`crates/fusion`; `features/fusion` is just the game glue). Live FM voices (DX7-style EP,
+  slap and fretless bass, lead/brass with portamento, bell pad, kalimba), subtractive voices (a
+  CS-80 style horn section that shouts, pushes and swells around the lead, string machine,
+  Minimoog-style lead), a synthesized kit with ride, clap, shaker, congas and toms, and
+  foley-synth note-block bells/flute/harp/guitar. Per-bus EQ, chorus, a tempo-synced echo and
+  per-mood make-up gain keep the mix balanced (checked against a typical jazz/pop octave-band
+  balance with `cargo run -p fusion --release --bin fusion-render -- stems`). A director picks the next bars at every bar line from a mood: menu (signature hook
   over "Just the Two of Us" changes), meadow, commune/village (city-pop), forest/valley (flute,
   harp), maze/ruins (minor, bells), sky islands (dreamy), near Abuela (bolero), hide-and-seek
   hiding/seeking, duel (150 bpm), landlord (chromatic, building), stillness (holds on a pad),
   plus a victory kime when a round/duel/chapter/landlord is won. Sections (intro, A, hook, B,
   solo, breakdown), key changes, fills, 7/8 kime bars, layers faded by intensity. Local only,
-  ~1% of a core, respects master volume. Plus real sound effects
+  ~2.5% of a core, respects master volume. Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
   wind loop, and a spatial crackling-fire loop at the campfire that gets louder as you approach.
   Procedural sounds (bear, HALT, voice lines, farts) render at 44.1 kHz with band-limited

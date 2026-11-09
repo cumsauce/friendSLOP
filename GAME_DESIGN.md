@@ -648,6 +648,10 @@ Perfect bots finish all 5 chapters in ~11 minutes; the 4-6 hour target is down t
   low settings.
 - doomy (#100): make your own character so others can see you; rigged but procedural, and a
   reusable system that NPCs can use too.
+- catherine (#157): if a question stays unanswered, ask it again every day at noon in a big
+  message until it's answered. The Discord bot re-posts every open `question` issue with no
+  replies yet, in heading-sized text, at 12:00 (`REMINDER_TZ`, UTC by default); any reply
+  (including `/answer`) stops it.
 
 ## Open questions
 

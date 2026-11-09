@@ -9,18 +9,22 @@ Commands:
   /loop          the current gameplay loop, start to finish
 
 It also posts in ANNOUNCE_CHANNEL_ID when an idea lands in the game, when Claude asks the
-group a new question, and every LOOP_EVERY landed ideas the gameplay loop (#153).
+group a new question, every LOOP_EVERY landed ideas the gameplay loop (#153), and every day at
+noon (REMINDER_TZ) each question nobody has answered yet, in big text (#157).
 
 Env: DISCORD_TOKEN, GITHUB_TOKEN, GITHUB_REPO (owner/name), ANNOUNCE_CHANNEL_ID (optional),
-STATE_PATH (optional, default /data/state.json), LOOP_EVERY (optional, default 3; 0 = never).
+STATE_PATH (optional, default /data/state.json), LOOP_EVERY (optional, default 3; 0 = never),
+REMINDER_TZ (optional IANA zone for the noon reminder, default UTC).
 """
 
 import asyncio
+import datetime
 import json
 import logging
 import os
 import re
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import aiohttp
 import discord
@@ -39,6 +43,18 @@ API = f"https://api.github.com/repos/{REPO}"
 RELEASE_URL = f"https://github.com/{REPO}/releases/tag/latest"
 LOOP_EVERY = int(os.environ.get("LOOP_EVERY", "3") or 0)
 DISCORD_LIMIT = 2000
+
+
+def reminder_zone(name: str) -> datetime.tzinfo:
+    """The zone whose noon the daily question reminder fires at; UTC if unknown (#157)."""
+    try:
+        return ZoneInfo(name)
+    except (ZoneInfoNotFoundError, ValueError):
+        log.warning("unknown REMINDER_TZ %r, using UTC", name)
+        return datetime.timezone.utc
+
+
+NOON = datetime.time(12, 0, tzinfo=reminder_zone(os.environ.get("REMINDER_TZ", "UTC") or "UTC"))
 
 
 def load_state() -> dict:
@@ -321,6 +337,34 @@ async def announce() -> None:
     save_state(state)
 
 
+def unanswered(questions: list[dict]) -> list[dict]:
+    """Open questions nobody has replied to yet (#157). Any comment counts as an answer."""
+    return [q for q in questions if not q.get("comments") and "pull_request" not in q]
+
+
+def reminder_text(q: dict) -> str:
+    """A big (Discord heading) re-ask of a question that's still unanswered (#157)."""
+    body = (q.get("body") or "").strip()
+    return (
+        f"# ❓ Still unanswered: {q['title']}\n"
+        + (f"## {' '.join(body.split())}\n" if body else "")
+        + "Nobody has answered this yet, so I'll ask again every day at noon until someone does.\n"
+        f"Reply with `/answer {q['number']} <your answer>` → {q['html_url']}"
+    )
+
+
+@tasks.loop(time=NOON)
+async def remind_questions() -> None:
+    """Every day at noon, ask each unanswered question again, loudly (#157)."""
+    try:
+        questions = await gh.issues("question", "open", 30)
+    except Exception:  # noqa: BLE001
+        log.exception("fetching questions for the reminder failed")
+        return
+    for q in reversed(unanswered(questions)):
+        await send(ANNOUNCE_CHANNEL_ID, reminder_text(q))
+
+
 @announce.before_loop
 async def seed_announced() -> None:
     """On first ever start, don't spam announcements for old issues."""
@@ -343,6 +387,8 @@ async def on_ready() -> None:
     await tree.sync()
     if not announce.is_running():
         announce.start()
+    if not remind_questions.is_running():
+        remind_questions.start()
     log.info("logged in as %s", client.user)
 
 

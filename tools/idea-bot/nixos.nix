@@ -10,6 +10,7 @@
       GITHUB_REPO = "cumsauce/friendSLOP";
       ANNOUNCE_CHANNEL_ID = "000000000000000000"; # your #friendslop channel id
       STATE_PATH = "/data/state.json";
+      REMINDER_TZ = "UTC"; # noon in this zone re-asks unanswered questions (#157)
     };
     volumes = [ "friendslop-idea-bot:/data" ];
   };

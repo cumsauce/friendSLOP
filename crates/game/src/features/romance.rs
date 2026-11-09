@@ -79,7 +79,7 @@ fn maybe_fall_in_love(
     if !dice.roll().is_multiple_of(SMITTEN_ONE_IN) {
         return;
     }
-    let npcs = npc_spots(time.elapsed_secs(), bears, crows, &villagers);
+    let npcs = npc_spots(time.elapsed_secs(), bears, crows, villagers);
     let Some(at) = witness(farted.at, &npcs) else {
         return;
     };

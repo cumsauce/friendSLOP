@@ -24,6 +24,7 @@ pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
 pub mod halt;
+pub mod helicopter;
 pub mod hide_and_seek;
 pub mod interact;
 pub mod landlord;
@@ -80,6 +81,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(abuela::protocol);
         app.add_plugins(sesbian_lex::protocol);
         app.add_plugins(punishment::protocol);
+        app.add_plugins(helicopter::protocol);
     }
 }
 
@@ -124,5 +126,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(abuela::plugin);
         app.add_plugins(sesbian_lex::plugin);
         app.add_plugins(punishment::plugin);
+        app.add_plugins(helicopter::plugin);
     }
 }

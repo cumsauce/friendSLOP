@@ -225,8 +225,16 @@ asked for, and what nobody has decided yet.
   (in any way) the nobility, capitalists, landlords or billionaires, which is **always rewarded**
   with +6..+10 (corrected by Freyja Moth in #43). Wired up so far: eating the mushroom, and
   every pickpocket or punch on the landlord (always rewarded). Your score carries over from
-  chapter to chapter and only resets when a new campaign starts (#135). Morality doesn't
-  change anything else in play yet.
+  chapter to chapter and only resets when a new campaign starts (#135). Being bad gets you hunted
+  by a helicopter (below).
+- **The helicopter** (#134). Being bad gets you hunted: while your morality is -6 or lower
+  ("dubious" or worse) a dark green helicopter flies in from the far corner of the map, hovers
+  14 m above and a little beside you, follows you faster than you can run (11 m/s) and fires
+  bursts of 5 bullets at you with a 2.6 m spread (tracers, dirt puffs, generated rotor thump and
+  gunshots everyone can hear). Everyone sees who it's hunting. Get your morality back above -6
+  (harming the landlord always helps) and it flies home; it also leaves when a new campaign
+  resets morality. It pauses in the stillness. A bullet within 0.7 m of your feet is a hit, but being
+  shot only shows "You've been shot!" so far.
 - **Farting** (#18). Every player's gas pressure builds from 0 to 100% over 40 s (shown
   bottom-right). Press F (with at least 20%) to fart where your body stands (in the overview
   camera: wherever the mouse cursor points on the floor; your duel body when duelling).
@@ -494,6 +502,8 @@ asked for, and what nobody has decided yet.
   soft sounds of awe.
 - Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
   chase you while high-pitched string music plays and they make jingling-keys sounds.
+- just meat and cheese (#134, on what morality should change): you get chased by a helicopter
+  that shoots at you. (Read as: bad morality summons it.)
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave. Freyja Moth (#43): its flag is themed on the UK flag, with the Welsh
@@ -540,7 +550,8 @@ asked for, and what nobody has decided yet.
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
 - What does connecting all the pets achieve, and what else do pets do?
-- What does your morality actually change? And which actions count as good or bad?
+- Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being
+  good get you anything? And which other actions count as good or bad?
 - Heaven is now a little garden with Abuela on the top island. What else is up there, and what happens once the campaign lets you in? Should Heaven Pass tiers give rewards?
 - Is the campaign the right length? Which chapters drag, and which fly by? (Six players who pay
   the rent together now beat the landlord in seconds: should he get tougher with more tenants?)

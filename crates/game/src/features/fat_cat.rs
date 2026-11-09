@@ -6,7 +6,8 @@
 //! that player's screen, the client tells the server ([`CatInView`]) and the
 //! server grows the cat. Looking at it stops the growth (it never shrinks).
 //! The cat is built from primitives; its meows are synthesized locally on
-//! every peer (lower and more horrible the bigger it gets), heard in 3D.
+//! every peer (lower and more horrible the bigger it gets), heard in 3D, at
+//! most every 30 s and only while it's off your screen (#192).
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -218,7 +219,7 @@ fn dress_cats(
                     .with_scale(Vec3::splat(cat.size)),
                 Visibility::default(),
                 MeowIn {
-                    secs: 2.0 + (cat.owner % 5) as f32,
+                    secs: MEOW_EVERY,
                     count: 0,
                 },
                 DespawnOnExit(AppState::InGame),
@@ -382,16 +383,47 @@ fn report_in_view(
     }
 }
 
-/// Every few seconds each cat lets out a horrible meow, deeper the bigger it is.
-fn meow(mut commands: Commands, time: Res<Time>, mut cats: Query<(&FatCat, &mut MeowIn)>) {
-    for (cat, mut next) in &mut cats {
-        next.secs -= time.delta_secs();
-        if next.secs > 0.0 {
+/// Seconds between meows, at the least (#192).
+pub const MEOW_EVERY: f32 = 30.0;
+
+/// The meow countdown after `dt` seconds: looking at the cat puts it back to
+/// the full [`MEOW_EVERY`] (#192, corvy: "only when you're not looking at it.
+/// looking should reset the timer"). Returns the new countdown and whether it
+/// meows now.
+pub fn meow_tick(left: f32, seen: bool, dt: f32) -> (f32, bool) {
+    if seen {
+        return (MEOW_EVERY, false);
+    }
+    let left = left - dt;
+    if left <= 0.0 {
+        (MEOW_EVERY, true)
+    } else {
+        (left, false)
+    }
+}
+
+/// A cat you can't see lets out a horrible meow, deeper the bigger it is, at
+/// most every [`MEOW_EVERY`] seconds. Each peer judges by its own screen.
+fn meow(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut cats: Query<(&FatCat, &Transform, &mut MeowIn)>,
+    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+) {
+    let cam = camera.single().ok();
+    for (cat, tf, mut next) in &mut cats {
+        let seen = cam.is_some_and(|(camera, cam_tf)| {
+            sample_points(tf.translation, cat.size.max(tf.scale.x))
+                .iter()
+                .any(|p| on_screen(camera, cam_tf, *p))
+        });
+        let (left, now) = meow_tick(next.secs, seen, time.delta_secs());
+        next.secs = left;
+        if !now {
             continue;
         }
         next.count += 1;
         let seed = (cat.owner as u32).wrapping_mul(2_654_435_761) ^ next.count;
-        next.secs = 5.0 + crate::art::hash(seed as i32, next.count as i32, 145) * 9.0;
         let size = cat.size;
         let mouth = cat.pos + Vec3::Y * 0.7 * size;
         let carry = if size > 3.0 {
@@ -520,6 +552,16 @@ mod tests {
         assert_eq!(grown(2.0, true, 10.0), 2.0);
         assert!(grown(2.0, false, 1.0) > 2.0);
         assert_eq!(grown(MAX_SIZE - 0.01, false, 100.0), MAX_SIZE);
+    }
+
+    #[test]
+    fn meows_wait_thirty_seconds_and_looking_resets_the_wait() {
+        let (left, now) = meow_tick(MEOW_EVERY, false, 29.0);
+        assert!(!now && (left - 1.0).abs() < 1e-4);
+        assert_eq!(meow_tick(left, true, 0.1), (MEOW_EVERY, false));
+        let (left, now) = meow_tick(0.5, false, 1.0);
+        assert!(now);
+        assert_eq!(left, MEOW_EVERY);
     }
 
     #[test]

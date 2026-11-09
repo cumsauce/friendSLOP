@@ -53,7 +53,73 @@ pub enum Mood {
     Underground,
 }
 
+/// How a mood sounds on top of what it plays: the band's overall colour
+/// and feel, so the same instruments fit each place.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Tone {
+    /// Above ~1 kHz, the mix is cut (positive, warm and woolly) or lifted
+    /// (negative, crisp): the top end's gain is `1 - 0.5 * warmth`.
+    pub warmth: f32,
+    /// Stereo width: 1 as mixed, below narrower, above wider.
+    pub width: f32,
+    /// Tape-style pitch wobble, 0..1 (1 is about 4 cents): old gear drifting.
+    pub wow: f32,
+    /// The backbeat (snare, clap, rim) sits this many ms behind the grid.
+    pub lay_back_ms: f32,
+    /// Hats and shakers wander by up to this many ms either way.
+    pub loose_ms: f32,
+}
+
+impl Tone {
+    pub const NEUTRAL: Tone = Tone {
+        warmth: 0.0,
+        width: 1.0,
+        wow: 0.0,
+        lay_back_ms: 0.0,
+        loose_ms: 0.0,
+    };
+}
+
 impl Mood {
+    /// The mood's colour and feel (see [`Tone`]).
+    pub fn tone(self) -> Tone {
+        let t = |warmth, width, wow, lay_back_ms, loose_ms| Tone {
+            warmth,
+            width,
+            wow,
+            lay_back_ms,
+            loose_ms,
+        };
+        match self {
+            // The theme: polished but friendly.
+            Mood::Menu => t(0.1, 1.15, 0.25, 5.0, 3.0),
+            // Meadows: sunny and open, a lazy backbeat.
+            Mood::Explore => t(-0.05, 1.2, 0.2, 7.0, 4.0),
+            // City-pop: crisp, wide, tight in the pocket.
+            Mood::Village => t(-0.15, 1.15, 0.1, 3.0, 2.5),
+            // Woody and warm, a little loose, very wide like the trees.
+            Mood::Forest => t(0.3, 1.3, 0.35, 8.0, 5.0),
+            // Mysterious: dry and centred, played carefully.
+            Mood::Maze => t(0.15, 0.95, 0.2, 2.0, 2.0),
+            // Airy, shimmering, as wide as the sky.
+            Mood::Sky => t(-0.2, 1.4, 0.3, 5.0, 3.5),
+            // An old bolero record: warm, narrow, wobbly, behind the beat.
+            Mood::Abuela => t(0.5, 0.85, 0.7, 10.0, 6.0),
+            // Hiding: muffled and close, holding its breath.
+            Mood::Hiding => t(0.4, 0.8, 0.15, 1.0, 1.5),
+            // Seeking: bright and urgent, on top of the beat.
+            Mood::Seeking => t(-0.25, 1.05, 0.0, 0.0, 1.0),
+            // Duel: dusty western shred.
+            Mood::Duel => t(0.1, 1.1, 0.3, 2.0, 2.5),
+            // The landlord: harsh and pressing.
+            Mood::Landlord => t(-0.2, 0.9, 0.1, 0.0, 1.0),
+            // The stillness: soft, vast and drifting.
+            Mood::Still => t(0.35, 1.15, 0.6, 0.0, 0.0),
+            // Tunnels: dark, wide echoes, a dub drag.
+            Mood::Underground => t(0.45, 1.3, 0.45, 12.0, 5.0),
+        }
+    }
+
     pub const ALL: [Mood; 13] = [
         Mood::Menu,
         Mood::Explore,
@@ -1033,6 +1099,8 @@ pub struct Bar {
     /// Reverb and echo send scales for the bar.
     pub wet: f32,
     pub echo: f32,
+    /// The mood's colour and feel.
+    pub tone: Tone,
 }
 
 impl Bar {
@@ -1045,6 +1113,7 @@ impl Bar {
             bright: 0.5,
             wet: 1.0,
             echo: 1.0,
+            tone: Tone::NEUTRAL,
         }
     }
 }
@@ -1470,6 +1539,7 @@ impl Composer {
     fn humanize(&mut self, bar: &mut Bar) {
         const BREATH: [f32; 4] = [0.97, 1.0, 1.05, 0.96];
         let breath = BREATH[usize::from(self.plan.bar) % 4];
+        let tone = self.mood.tone();
         let step_len = self.step_len.max(1.0);
         let last = bar.len.saturating_sub(1);
         for i in 0..bar.events.len() {
@@ -1477,7 +1547,7 @@ impl Composer {
             let r2 = self.rand();
             let e = &mut bar.events[i];
             let bus = e.inst.bus();
-            if bus == Bus::Drums {
+            if bus == Bus::Drums || matches!(e.inst, Inst::Shaker | Inst::Rim | Inst::Clap) {
                 // A drummer leans on the kick and snare, and rides the
                 // cymbals and shakers well under them.
                 let touch = match e.inst {
@@ -1486,6 +1556,27 @@ impl Composer {
                     _ => 1.0,
                 };
                 e.vel *= touch * (1.0 + 0.1 * (r1 - 0.5));
+                // Feel (per mood): the backbeat drags behind the grid, and
+                // the hats wander a little and lean on the beat, lighter on
+                // the off-16ths. The kick stays put: it's the anchor.
+                let ms = RATE as f32 / 1000.0;
+                let step = (e.at as f32 / step_len).round() as u32;
+                match e.inst {
+                    Inst::Snare | Inst::Clap | Inst::Rim | Inst::Ghost => {
+                        let lag = tone.lay_back_ms * (0.7 + 0.6 * r2);
+                        e.at = (e.at + (lag * ms) as u32).min(last);
+                    }
+                    Inst::Hat | Inst::OpenHat | Inst::Shaker | Inst::Ride => {
+                        let off = tone.loose_ms * (2.0 * r2 - 1.0) * ms;
+                        e.at = ((e.at as f32 + off).max(0.0) as u32).min(last);
+                        if step % 2 == 1 {
+                            e.vel *= 0.86;
+                        } else if step.is_multiple_of(4) {
+                            e.vel *= 1.06;
+                        }
+                    }
+                    _ => {}
+                }
                 continue;
             }
             let r3 = self.rand();
@@ -1575,6 +1666,7 @@ impl Composer {
     /// the intro to the hooks and solos and across each section, and the
     /// room gets wetter in intros, bridges and breakdowns.
     fn colour(&self, bar: &mut Bar) {
+        bar.tone = self.mood.tone();
         let (base, wet, echo) = match self.plan.kind {
             Section::Intro => (0.25, 1.35, 1.2),
             Section::A => (0.4, 1.0, 1.0),

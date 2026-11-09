@@ -193,24 +193,24 @@ impl Biquad {
     }
 }
 
-/// Up to four EQ bands on a stereo signal.
+/// Up to six EQ bands on a stereo signal.
 #[derive(Clone, Copy, Debug)]
 pub struct StereoEq {
-    l: [Biquad; 4],
-    r: [Biquad; 4],
+    l: [Biquad; 6],
+    r: [Biquad; 6],
     n: usize,
 }
 
 impl StereoEq {
     pub fn new(bands: &[Eq]) -> Self {
-        let mut l = [Biquad::IDENTITY; 4];
+        let mut l = [Biquad::IDENTITY; 6];
         for (slot, b) in l.iter_mut().zip(bands) {
             *slot = Biquad::new(*b);
         }
         Self {
             l,
             r: l,
-            n: bands.len().min(4),
+            n: bands.len().min(6),
         }
     }
 

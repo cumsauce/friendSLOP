@@ -46,10 +46,13 @@ pub struct Walker {
 /// Server only: the latest input of a walker, plus the fallback's fall speed.
 #[derive(Component, Default, Debug)]
 pub struct WalkInput {
-    stick: Vec2,
-    jump: bool,
+    pub(crate) stick: Vec2,
+    pub(crate) jump: bool,
     run: bool,
     vy: f32,
+    /// Host: climbing this tick (#99), so `climb` moves the body, not the
+    /// controller.
+    pub(crate) climbing: bool,
 }
 
 /// Client -> server, every frame while walking (local x = right, y = forward).
@@ -215,7 +218,7 @@ fn move_walkers(
 /// from bevy_ahoy) against the real physics world — terrain, village and
 /// scenery colliders all alike, no special cases.
 #[allow(clippy::type_complexity)]
-fn kcc_move_walkers(
+pub(crate) fn kcc_move_walkers(
     time: Res<Time>,
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
@@ -228,8 +231,8 @@ fn kcc_move_walkers(
     // The old movement ticked per frame with a clamped dt; keep that.
     let dt = time.delta_secs().min(0.1);
     for (player, mut walker, input, mut kcc) in &mut walkers {
-        if duelists.iter().any(|d| d.player == player.id) {
-            continue; // your duel body is the one moving
+        if input.climbing || duelists.iter().any(|d| d.player == player.id) {
+            continue; // climbing (see `climb.rs`), or your duel body is moving
         }
         let speed = if input.run {
             crate::kcc::RUN_SPEED

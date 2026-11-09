@@ -239,6 +239,13 @@ asked for, and what nobody has decided yet.
   falls for you instead of just judging: pink hearts float up above them and everyone hears a
   soft, generated chorus of "aww". You are still shamed. It's only a moment so far; the NPC
   doesn't remember you afterwards.
+- **Sesbian lex** (#1). Press L to start a smooch pile where you stand, L near it (within 8 m) to
+  pile in, L again or wander off (14 m) to peel away. Join order hands out titles: first in is
+  daddy, second the he/him butch, later joiners rotate through more ("the comfortable one",
+  "just here for the organs"...). While two or more are in, heat climbs a level a second up to
+  10 and collapses when anyone leaves. Everyone sees hearts swirling over the pile (more, higher
+  and faster with heat) and a pink glow, and a bottom-left line narrates who's in and how it's
+  going. Suggestive comedy, never explicit: the "no holds barred" part isn't something we build.
 
 - **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
   Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
@@ -396,6 +403,9 @@ asked for, and what nobody has decided yet.
 
 ## Ideas so far
 
+- Freyja Moth (#1): sesbian lex, "none of that fluffy shit... no holds barred", ideally more
+  than two people, one a he/him butch and one who calls themselves daddy. Built as a group pile
+  with heat and titles; the explicit part is not something the agents will build.
 - Freyja Moth (#51): list keywords (strict) / (expand, x..y) / (replace, x..y) say how literally to take a list of examples (rules in AGENTS.md).
 - Freyja Moth (#22): the only legal tender is organs, human and animal, valued by the creature
   and by how important the organ is to it (brain valuable, appendix less so).
@@ -487,6 +497,7 @@ asked for, and what nobody has decided yet.
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - What's up on the lower floating islands? (The top one is heaven, with Abuela.) (#99)
 - An NPC can fall for you now (#97). Should that lead anywhere?
+- The lex pile (#1) just heats up. Should it do anything, or cost or earn anything?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?

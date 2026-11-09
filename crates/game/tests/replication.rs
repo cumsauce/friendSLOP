@@ -1244,3 +1244,73 @@ fn visiting_abuela_in_heaven_is_shared() {
         "staying put doesn't repeat it"
     );
 }
+
+#[test]
+fn sesbian_lex_pile_forms_heats_up_and_peels_apart() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::sesbian_lex::{SesbianLex, SesbianLexToggle};
+    use std::time::Duration;
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App, n: usize| {
+        for _ in 0..n {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    let piles = |app: &mut App| -> Vec<SesbianLex> {
+        let world = app.world_mut();
+        world.query::<&SesbianLex>().iter(world).cloned().collect()
+    };
+    step(&mut server, &mut client, 3);
+    place(&mut server, 0, Vec3::new(10.0, 0.0, 10.0));
+    place(&mut server, 1, Vec3::new(60.0, 0.0, 10.0));
+    step(&mut server, &mut client, 3);
+
+    // The client starts a pile where they stand.
+    client.world_mut().client_trigger(SesbianLexToggle);
+    step(&mut server, &mut client, 3);
+    let p = piles(&mut server);
+    assert_eq!(p.len(), 1);
+    assert_eq!(p[0].participants, vec![1], "the client is player 1");
+    assert_eq!(p[0].at, Vec2::new(60.0, 10.0));
+
+    // The host is too far away to join, then walks over and does.
+    server.world_mut().client_trigger(SesbianLexToggle);
+    step(&mut server, &mut client, 3);
+    assert_eq!(piles(&mut server)[0].participants, vec![1]);
+    place(&mut server, 0, Vec3::new(62.0, 0.0, 11.0));
+    step(&mut server, &mut client, 2);
+    server.world_mut().client_trigger(SesbianLexToggle);
+    step(&mut server, &mut client, 3);
+    assert_eq!(piles(&mut server)[0].participants, vec![1, 0]);
+
+    // Three seconds together: heat 3, and everyone sees it.
+    server.insert_resource(bevy::time::TimeUpdateStrategy::ManualDuration(
+        // Under Bevy's 0.25 s cap on a frame.
+        Duration::from_millis(200),
+    ));
+    step(&mut server, &mut client, 17);
+    let p = piles(&mut server);
+    assert_eq!(p[0].heat, 3, "a level a second");
+    step(&mut server, &mut client, 2);
+    let seen = piles(&mut client);
+    assert_eq!(seen.len(), 1, "the client sees the pile");
+    assert_eq!(seen[0].participants, vec![1, 0]);
+    assert!(seen[0].heat >= 3);
+
+    // The client wanders off: the host keeps the pile, the heat collapses.
+    place(&mut server, 1, Vec3::new(120.0, 0.0, 10.0));
+    step(&mut server, &mut client, 3);
+    let p = piles(&mut server);
+    assert_eq!(p[0].participants, vec![0]);
+    assert_eq!(p[0].heat, 0);
+
+    // Last one out: the pile is gone for everyone.
+    server.world_mut().client_trigger(SesbianLexToggle);
+    step(&mut server, &mut client, 3);
+    assert!(piles(&mut server).is_empty());
+    assert!(piles(&mut client).is_empty());
+}

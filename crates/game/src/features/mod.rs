@@ -34,6 +34,7 @@ pub mod organ_currency;
 pub mod pets;
 pub mod random_dialogue;
 pub mod romance;
+pub mod sesbian_lex;
 pub mod stats;
 pub mod stillness;
 pub mod synth_audio;
@@ -76,6 +77,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(climb::protocol);
         app.add_plugins(crate::people::protocol);
         app.add_plugins(abuela::protocol);
+        app.add_plugins(sesbian_lex::protocol);
     }
 }
 
@@ -118,5 +120,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(romance::plugin);
         app.add_plugins(climb::plugin);
         app.add_plugins(abuela::plugin);
+        app.add_plugins(sesbian_lex::plugin);
     }
 }

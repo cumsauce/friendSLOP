@@ -583,7 +583,7 @@ struct RulesHud;
 fn wizard_look() -> CharacterLook {
     CharacterLook {
         body: 1, // round critter
-        height: 0.45,
+        height: 0.8,
         girth: 0.85,
         head: 0.75,
         limbs: 0.3,
@@ -627,7 +627,7 @@ fn spawn_booth(
     commands.spawn((
         Wizard,
         Gait::default(),
-        Transform::from_translation(at + rot * Vec3::new(0.0, 0.0, 0.9)).with_rotation(rot),
+        Transform::from_translation(at + rot * Vec3::new(0.0, 0.0, 0.75)).with_rotation(rot),
         Visibility::default(),
         Clickable::at_height(0.9).radius(70.0),
         wizard_look(),
@@ -645,7 +645,7 @@ fn spawn_booth(
     commands.spawn((
         Mesh3d(disc.clone()),
         MeshMaterial3d(cloth.clone()),
-        Transform::from_translation(at + Vec3::Y * 0.45).with_scale(Vec3::new(0.8, 0.9, 0.8)),
+        Transform::from_translation(at + Vec3::Y * 0.25).with_scale(Vec3::new(0.55, 0.5, 0.55)),
         DespawnOnExit(AppState::InGame),
     ));
     // The wheel on a post beside him.

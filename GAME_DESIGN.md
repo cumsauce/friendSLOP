@@ -139,7 +139,7 @@ fast. Perfect bots finish in ~11 minutes.
   stay clear, and the strip between the default camera and the centre only gets low cover.
   Everything sits within ±22.5 m on flat y=0.
 - A bigger world (feedback: "more scale ... so its not just one little area"): the walkable area
-  is ±90 m (was ±25), with a soft wall at ±88 and hills rising beyond it (`terrain.rs`). The
+  is ±90 m (was ±25), with a soft wall at ±88 and hills rising beyond it (`crates/world/src/terrain.rs`). The
   commune square (±25 m) and the east village district (x 35..80, z -35..35) are dead flat; the
   north forest (z < -35) rolls gently; the west valley has a climbable 12 m hill at (-62, -6), a
   ridge along the far edge and a lake at (-44, 20); the south-west ruins (x -80..-30, z 30..85)
@@ -150,7 +150,7 @@ fast. Perfect bots finish in ~11 minutes.
   burning beside the burnt parliament (stone ring, glowing embers, four log seats), a pond with
   ripples, lily pads, reeds and cattails, rocks, a little jetty with a lantern and two ducks
   paddling round, lantern posts strung with bulbs along the paths to the campfire and the pond
-  (`landmarks.rs`), and a generated, adaptive 90s jazz-fusion soundtrack (`features/fusion`,
+  (`crates/world/src/landmarks.rs`), and a generated, adaptive 90s jazz-fusion soundtrack (`features/fusion`,
   asked for in chat: "change the music ... jazz fusion ... 90s/FM synth vibe ... adapts to the
   game state"; it replaced the looping "Catsong"). The music lives in its own Bevy-free crate
   (`crates/fusion`; `features/fusion` is just the game glue). Live FM voices (DX7-style EP,
@@ -234,7 +234,7 @@ fast. Perfect bots finish in ~11 minutes.
   Everything still passes through the cat palette.
 - **PBR surfaces on the primitives** (#128, doomy: "rn they're just flat materials can you proc
   gen, make shaders, or use textures? or all in combination?"). Chose procedural textures, no
-  custom shader and no downloaded files (`surfaces.rs`). Every plain material (no texture of its
+  custom shader and no downloaded files (`crates/world/src/surfaces.rs`). Every plain material (no texture of its
   own, opaque, not glossy, glowing or unlit) is sorted by its colour into stone (greys), wood
   (darker browns/reds), leaves (greens), cloth (other strong colours), metal (metallic) or
   painted (skin, pale and light warm colours), and gets that surface's generated greyscale
@@ -568,7 +568,7 @@ fast. Perfect bots finish in ~11 minutes.
   is down to people, not the rules.
 - **East village district** (feedback: "higher buildings or stuff u can go inside and like
   walls", more scale, places to run around and hide). East of the meadow (x 35..80, z -35..35,
-  reached by a path arriving at (35, 0)), built from code in `buildings.rs`: seven enterable
+  reached by a path arriving at (35, 0)), built from code in `crates/world/src/buildings.rs`: seven enterable
   houses with door openings (front and back), open windows, furniture to hide behind (beds,
   tables, shelves, wardrobes, crates); two of them two-storey with stairs to bedrooms and a
   front balcony, two with a second room. A 16 m stone watchtower with four zig-zag ramp flights

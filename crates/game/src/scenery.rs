@@ -745,7 +745,11 @@ fn dress_floor(
 }
 
 /// Where the commune keeps its campfire, beside the ruins and Dave.
-pub(crate) const BONFIRE_AT: Vec3 = Vec3::new(PARLIAMENT_AT.x + 3.5, 0.0, PARLIAMENT_AT.y + 8.5);
+pub(crate) const BONFIRE_AT: Vec3 = Vec3::new(
+    friendslop_world::places::BONFIRE_AT.x,
+    0.0,
+    friendslop_world::places::BONFIRE_AT.y,
+);
 
 /// The bonfire glbs carry a ×199 node scale (centimetre export), which made the
 /// campfire a 200 m wooden dome over the whole map. This brings it back to a

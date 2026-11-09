@@ -30,8 +30,7 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
 /// Arena centre on the floor and half its width.
-pub const ARENA_CENTER: Vec3 = Vec3::new(0.0, 0.0, -12.0);
-pub const ARENA_HALF: f32 = 7.0;
+pub use friendslop_world::places::{ARENA_CENTER, ARENA_HALF};
 pub const LIVES: u8 = 3;
 const SPEED: f32 = 5.0;
 const EYE: f32 = 1.6;

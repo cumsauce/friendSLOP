@@ -76,14 +76,14 @@ crates/game/src/
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
-  landmarks.rs  pond, campfire seats/stones and string lights dressing (local visuals)
-  surfaces.rs   procedural PBR surfaces (albedo/normal/roughness) for plain materials, metre UVs
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167)
   features/     one module per idea, see features/README.md
 crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
 crates/art/          friendslop-art: procedural materials/meshes/textures (`art`) and the UI theme (`theme`)
 crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy port, own licence files)
 crates/wire/         friendslop-wire: the iroh wire format shared by the desktop and browser transports
+crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares
+crates/world/        friendslop-world: the map: terrain, buildings, landmarks, surfaces, places
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
 ```
@@ -92,13 +92,16 @@ crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
 
 The workspace has two layers, and dependencies only ever point down:
 
-1. **Foundation crates** (`fusion`, `friendslop-art`, `friendslop-kcc`, `friendslop-wire`): reusable
-   building blocks with **no game code**. They depend only on Bevy, avian and std (or nothing),
-   never on `friendslop` and never on each other unless it's written down here.
-2. **The game** (`crates/game`, package `friendslop`): app states, networking, players, the
-   world, and every idea in `features/`. It re-exports the foundation crates under their old
-   module names (`crate::art`, `crate::theme`, `crate::kcc`, `crate::net_wire`), so feature code
-   uses them like any other module.
+1. **Foundation crates**: reusable building blocks with **no game code**. They depend only on
+   Bevy, avian and std, never on `friendslop`, and on each other only as listed:
+   - `fusion`, `friendslop-wire`, `friendslop-kcc`, `friendslop-core`: nothing of ours.
+   - `friendslop-art`: nothing of ours (`art`, `theme`, and the cat `palette` maths).
+   - `friendslop-world`: `core` and `art`.
+2. **The game** (`crates/game`, package `friendslop`): networking, players, the HUD and menus,
+   scenery and zones, and every idea in `features/`. It re-exports the foundation crates under
+   their old module names (`crate::art`, `crate::theme`, `crate::kcc`, `crate::net_wire`,
+   `crate::AppState`, `crate::terrain`, `crate::buildings`, `crate::landmarks`,
+   `crate::surfaces`), so feature code uses them like any other module.
 
 Rules for growing it:
 
@@ -125,12 +128,17 @@ Rules for growing it:
   consts, functions and events, not its private components or internals. When two features
   need each other, give the shared bit to the one that owns it and keep the link one-way where
   you can.
-- **Next split (not done yet): the map.** `terrain.rs` and `zones.rs` import features
-  (`duel`, `dave_commune`, `wendys`, `warehouse`, `underground`) to know where things stand, so
-  they can't leave the game crate yet. The way forward is for features to *register* their
-  footprint (an arena, a building, a hole in the ground) and for the map to read those
-  registrations. Once that's inverted, terrain, buildings, zones and surfaces can become a
-  `friendslop-world` crate. New map-shaping features should register rather than be imported.
+- **The map is its own crate** (`friendslop-world`). It never imports features. A fixed place
+  the ground is shaped around (a flat arena, a path's end) goes in `world::places`, and the
+  feature imports it from there. Ordering hooks are system sets the world exposes (the cat
+  palette runs `.after(SurfaceSet)`). Settings reach it as `core` resources (`Detail`,
+  `DrawRange`), not the game's video settings.
+- **Next split (not done yet): scenery and zones.** `scenery.rs` and `zones.rs` still keep
+  trees out of features' spots by importing them (`warehouse::covers`, `WENDYS_AT`,
+  `underground::covers`, `totems::VAULT_AT`, ...) and lean on the camera and ambience. The way
+  forward is a footprint list in `world`: features add the areas they occupy at startup, and
+  scenery and zones read the list. Then they can join `friendslop-world`. New features that need
+  clear ground should add a footprint rather than be imported.
 
 ### Networking rules (bevy_replicon 0.45)
 

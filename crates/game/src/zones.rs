@@ -30,7 +30,8 @@ use crate::art;
 use crate::scenery::{BUSHES, Cluster, Dresser, Rng, TREES, ground, make_kit};
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), dress_zones)
+    app.init_resource::<crate::scenery::KitCache>()
+        .add_systems(OnEnter(AppState::InGame), dress_zones)
         .add_systems(Update, turn_sails.run_if(in_state(AppState::InGame)));
 }
 
@@ -160,8 +161,9 @@ fn dress_zones(
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut cache: ResMut<crate::scenery::KitCache>,
 ) {
-    let kit = make_kit(&mut meshes, &mut materials);
+    let kit = make_kit(&mut cache, &mut meshes, &mut materials);
     let x = Extra {
         hedge: art::soft(&mut materials, Color::srgb(0.24, 0.42, 0.2)),
         castle: art::soft(&mut materials, Color::srgb(0.62, 0.6, 0.57)),

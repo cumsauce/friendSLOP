@@ -24,7 +24,8 @@ use crate::features::landlord::LANDLORD_AT;
 use crate::features::totems::VAULT_AT;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), (dress_floor, light_bonfire))
+    app.init_resource::<KitCache>()
+        .add_systems(OnEnter(AppState::InGame), (dress_floor, light_bonfire))
         .add_systems(Update, flicker_bonfire)
         .add_observer(no_shadows_on_small_props);
 }
@@ -40,7 +41,7 @@ const CLUSTER_SPACING: f32 = 6.5;
 const LOOSE_FLORA: u32 = 50;
 
 /// Small scenery whose meshes shouldn't cast shadows (cheap, and tiny shadows
-/// just look noisy).
+/// just look noisy) and stop drawing in the distance (#151).
 #[derive(Component)]
 pub(crate) struct SmallProp;
 
@@ -56,7 +57,9 @@ fn no_shadows_on_small_props(
     }
     for child in children.iter_descendants(ready.entity) {
         if meshes.get(child).is_ok() {
-            commands.entity(child).insert(NotShadowCaster);
+            commands
+                .entity(child)
+                .insert((NotShadowCaster, crate::graphics::DrawRange::SMALL_PROP));
         }
     }
 }
@@ -228,6 +231,7 @@ const CLUSTER_MIX: &[(Cluster, f32)] = &[
 ];
 
 /// Shared meshes and materials for the code-built props.
+#[derive(Clone)]
 pub(crate) struct Kit {
     pub(crate) cube: Handle<Mesh>,
     pub(crate) cylinder: Handle<Mesh>,
@@ -259,6 +263,11 @@ pub(crate) fn model_size_fix(file: &str) -> f32 {
     }
 }
 
+/// Stone models: nothing to sway.
+pub(crate) fn is_rigid(file: &str) -> bool {
+    file.starts_with("Rock") || file.starts_with("Pebble")
+}
+
 /// The scene root for one `assets/models/nature` model (shared with the menu
 /// backdrop).
 pub(crate) fn nature_model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
@@ -282,9 +291,13 @@ impl Dresser<'_, '_, '_> {
             Transform::from_xyz(at.x, ground(at), at.y)
                 .with_rotation(yaw)
                 .with_scale(Vec3::splat(scale)),
-            crate::ambience::Sway::default(),
             DespawnOnExit(AppState::InGame),
         ));
+        // Rocks and pebbles don't bend in the wind (#151: every swaying prop
+        // re-propagates its whole glTF hierarchy).
+        if !is_rigid(file) {
+            e.insert(crate::ambience::Sway::default());
+        }
         if small {
             e.insert(SmallProp);
         }
@@ -634,7 +647,24 @@ pub(crate) fn ground(p: Vec2) -> f32 {
     crate::terrain::height_at(p.x, p.y)
 }
 
-pub(crate) fn make_kit(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> Kit {
+/// The one [`Kit`] the commune and the districts both dress with, so their
+/// stone, wood and hay draw in the same batches (#151: each used to make its
+/// own identical copies).
+#[derive(Resource, Default)]
+pub(crate) struct KitCache(Option<Kit>);
+
+pub(crate) fn make_kit(
+    cache: &mut KitCache,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) -> Kit {
+    cache
+        .0
+        .get_or_insert_with(|| new_kit(meshes, materials))
+        .clone()
+}
+
+fn new_kit(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> Kit {
     Kit {
         cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
         cylinder: meshes.add(Cylinder::new(0.5, 1.0)),
@@ -654,8 +684,9 @@ fn dress_floor(
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut cache: ResMut<KitCache>,
 ) {
-    let kit = make_kit(&mut meshes, &mut materials);
+    let kit = make_kit(&mut cache, &mut meshes, &mut materials);
     let mut d = Dresser {
         commands,
         assets: &assets,

@@ -606,6 +606,23 @@ Perfect bots finish in ~11 minutes; the 4-6 hours is down to people.
   each other; desktop only, browsers can't), soft Gaussian-filtered sun shadows, and FXAA
   instead of MSAA (ambient occlusion needs MSAA off). Low is unchanged (`graphics.rs`,
   `atmosphere.rs`).
+- **Performance pass** (#151, catherine: "optimization passes etc, aim high and make the game run
+  really well so we can shove more shit into it"). No gameplay changes. Small detail now stops
+  drawing in the distance (flowers, pebbles, ferns past 35 m on Near draw distance / 60 m on Far;
+  grass-tuft chunks past ~60 / 90 m), wind sway skips rocks and anything past 45 m, and identical
+  things share one mesh/material so they draw in batches (commune and district props, God's
+  tears, smoke puffs, which also no longer make new GPU assets every 0.4 s). Things that sat still
+  stopped rewriting themselves every frame (doors, totems, the landlord, storm debris, idle
+  villagers, blinking eyes, the shame overlay, floating labels, the duel's aim), the pond ripples
+  and campfire embers re-upload their materials far less often, HUD lines refresh at the HUD's
+  5 Hz, sound occlusion rays are cast every third frame, and the warehouse's generated sounds (the
+  nightmare bathroom's farts and hum too)
+  are synthesised off the main thread (that used to freeze everyone's frame as an expedition
+  started). Network: an idle client stops sending its walk input every frame (it repeats it
+  ~10x a second instead), and the fate board replicates once a second instead of every frame.
+  `FRIENDSLOP_BENCH=1 cargo run -- host` prints frame times and GPU asset churn; there's no GPU
+  in CI so the gains weren't measured on real hardware (in software rendering the frame cost is
+  almost all pixel shading, which these changes barely touch).
 
 ## Ideas so far
 
@@ -704,6 +721,8 @@ Perfect bots finish in ~11 minutes; the 4-6 hours is down to people.
 - WeiYa (#106): a WebGL web build released on GitHub, phone optimised, landscape, fullscreen,
   iOS Safari quirks in mind, intuitive touch controls (and controller support), locked 60 fps on
   low settings.
+- catherine (#151): optimisation passes, aim high, make the game run really well so there's
+  room for more stuff; clean things up.
 - doomy (#100): make your own character so others can see you; rigged but procedural, and a
   reusable system that NPCs can use too.
 - doomy (#160): cheat on your wife with a beautiful Chinese intelligence officer (no details:

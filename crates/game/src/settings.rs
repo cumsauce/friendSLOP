@@ -103,14 +103,24 @@ fn apply_settings(
     settings: Res<Settings>,
     mut global: ResMut<GlobalVolume>,
     mut input: ResMut<VoiceInput>,
+    mut muted: Local<Option<bool>>,
 ) {
     // Benchmarks and test runs (`FRIENDSLOP_BENCH`, `FRIENDSLOP_MUTE`) stay
-    // silent, so a run in the background never blasts music.
-    let muted = ["FRIENDSLOP_MUTE", "FRIENDSLOP_BENCH"]
-        .iter()
-        .any(|k| std::env::var_os(k).is_some_and(|v| v != "0"));
-    global.volume = Volume::Linear(if muted { 0.0 } else { settings.master_volume });
-    input.volume = settings.voice_output();
+    // silent, so a run in the background never blasts music. Read once:
+    // the environment doesn't change while we run (#151).
+    let muted = *muted.get_or_insert_with(|| {
+        ["FRIENDSLOP_MUTE", "FRIENDSLOP_BENCH"]
+            .iter()
+            .any(|k| std::env::var_os(k).is_some_and(|v| v != "0"))
+    });
+    let volume = Volume::Linear(if muted { 0.0 } else { settings.master_volume });
+    if global.volume != volume {
+        global.volume = volume;
+    }
+    let voice = settings.voice_output();
+    if input.volume != voice {
+        input.volume = voice;
+    }
 }
 
 #[cfg(test)]

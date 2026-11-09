@@ -408,18 +408,25 @@ fn animate_particles(time: Res<Time>, mut particles: Query<(&mut Particle, &mut 
     }
 }
 
+/// Props further than this from the camera hold still: a few hundredths of a
+/// radian of bend can't be seen past it, and each moving prop costs a glTF
+/// hierarchy re-propagation and mesh-uniform upload (#151).
+const SWAY_RANGE: f32 = 45.0;
+
 fn sway_props(
     time: Res<Time>,
     mut frame: Local<u32>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, With<crate::world::MainCamera>)>,
     mut props: Query<(Entity, &mut Sway, &mut Transform)>,
 ) {
     // Each sway re-propagates the whole glTF hierarchy below the prop and
     // re-uploads its mesh transforms, so only half the props move per frame
-    // (each at ~30 Hz). The bend is a few hundredths of a radian, so the step
-    // is invisible but the per-frame cost halves.
+    // (each at ~30 Hz), and only the ones near the camera. The bend is a few
+    // hundredths of a radian, so the step is invisible but the cost drops.
     *frame = frame.wrapping_add(1);
     let odd_frame = *frame % 2 == 1;
     let t = time.elapsed_secs();
+    let eye = camera.iter().next().map(GlobalTransform::translation);
     for (entity, mut sway, mut tf) in &mut props {
         let base = match sway.base {
             Some(b) => b,
@@ -431,6 +438,11 @@ fn sway_props(
             }
         };
         if sway.odd != odd_frame {
+            continue;
+        }
+        if let Some(eye) = eye
+            && eye.distance_squared(tf.translation) > SWAY_RANGE * SWAY_RANGE
+        {
             continue;
         }
         let k = t * 1.1 + sway.phase;

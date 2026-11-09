@@ -476,7 +476,10 @@ fn place_totems(doors: Query<&Door>, mut totems: Query<(&Totem, &mut Transform, 
             .and_then(|d| doors.iter().find(|door| door.id == d))
             .map_or(t.at, |door| door.at);
         let y = if t.slotted.is_some() { 1.5 } else { 0.0 };
-        tf.translation = Vec3::new(pos.x, y, pos.y);
+        let at = Vec3::new(pos.x, y, pos.y);
+        if tf.translation != at {
+            tf.translation = at;
+        }
         let want = if t.holder.is_some() {
             Visibility::Hidden
         } else {
@@ -493,7 +496,15 @@ fn swing_doors(time: Res<Time>, mut doors: Query<(&Door, &mut Transform)>) {
     for (door, mut tf) in &mut doors {
         let target = if door.is_open() { -0.75 } else { 0.7 };
         let y = tf.translation.y;
-        tf.translation.y = y + (target - y) * (time.delta_secs() * 4.0).min(1.0);
+        if y == target {
+            continue; // at rest: don't re-sync the door's static collider (#151)
+        }
+        let next = y + (target - y) * (time.delta_secs() * 4.0).min(1.0);
+        tf.translation.y = if (target - next).abs() < 0.002 {
+            target
+        } else {
+            next
+        };
     }
 }
 

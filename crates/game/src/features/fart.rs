@@ -394,11 +394,13 @@ fn feel_shame(
         if text.0 != want {
             text.0 = want;
         }
-        bg.0 = if shamed {
+        // set_if_neq: don't re-render the full-screen overlay every frame
+        // while nobody is shamed (#151).
+        bg.set_if_neq(BackgroundColor(if shamed {
             Color::srgba(0.4, 0.0, 0.1, 0.15 + 0.15 * pulse)
         } else {
             Color::NONE
-        };
+        }));
     }
 }
 

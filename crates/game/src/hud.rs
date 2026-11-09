@@ -255,6 +255,7 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("[ ] - = ; '", "fart tone"),
     ("G", "pry at HALT"),
     ("K", "start hide and seek (2+ players)"),
+    ("L", "start / join / leave the sesbian lex pile"),
     ("R", "cast a totem spell"),
     ("1-9", "challenge that player to a duel"),
     ("Y / N", "accept / refuse"),

@@ -442,7 +442,8 @@ fast. Perfect bots finish in ~11 minutes.
   Settings: master volume, voice volume, microphone on/muted (M still toggles it). Settings are
   per player and not saved between runs. `cargo run -- host` / `join <code>` still skip the menu.
   There is no separate lobby screen yet: hosting drops you straight into the world, and friends
-  appear on the player list as they join.
+  appear on the player list as they join. If the host connection drops, a joiner goes back to
+  the menu with the reason ("Lost the connection to the host: ...") instead of crashing (#194).
 - **The Stillness** (#17). Every 60 seconds the whole world freezes for 20 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
   in place, gas stops building, and the server ignores every player request (farting, prying,

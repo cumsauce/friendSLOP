@@ -32,6 +32,7 @@ shames you; get caught 4 times and the villagers chase you and float you with an
 Villagers fart and blame you. Low morality brings a helicopter that shoots at you. 5% of
 actions fail with a silly result. Marmalade, a wizard cat by the bonfire, spins a wheel that
 makes a rule fairer or crueller for everyone. Your fat cat grows while you don't look at it.
+Say "mute" at a friend (Q) and they're silenced with an RPG until they blow you up.
 
 **Just for fun:** the affair with Officer Mei, smoking, the lex pile, music boxes, bear, goat.
 
@@ -39,6 +40,7 @@ makes a rule fairer or crueller for everyone. Your fat cat grows while you don't
 (burgers, cigs, secrets, soul pieces) still doesn't do anything else, and organs only come from
 the start-of-chapter refill and the landlord. Spells, stats, being shot and being an Abduction
 don't change play. Gambling is free. Six players paying together beat the landlord fast.
+Dying (to the RPG) just sends you back to the start.
 
 ## What exists
 
@@ -327,6 +329,16 @@ don't change play. Gambling is free. Six players paying together beat the landlo
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
   them!"), shown to everyone. The blame is just talk: it doesn't count as being caught
   (`features/gaslighting.rs`).
+- **Mute spell** (#146, just meat and cheese: "say 'mute PLAYER' and it mutes that player, they
+  get an RPG that kills you in a single hit"). The first voice-chat spell. Look at another player
+  (within 30 m), say "mute" out loud and press Q. The game can't understand words, so "saying it"
+  means your mic must be sending voice when you press Q (with no working mic, or self-muted with
+  M, Q alone works). They're muted (mic forced off) and get an RPG with infinite rockets: Q fires
+  where they look, one a second. Rockets fly through everyone except the caster, and one hit
+  sends the caster back to their spawn point. Then the RPG disappears and they can talk again.
+  One spell per caster at a time; muted players can't cast; if the caster leaves, the mute lifts.
+  Rockets ignore buildings (they only stop at the ground) and hang in the air during the
+  Stillness. Being "killed" is just a respawn: nothing else is lost (`features/mute_spell.rs`).
 - **Whose fault is it** (#149, catherine). A menu button opens a scrollable screen listing every
   idea in "Ideas so far" below, newest first, as "#N: name's fault" with what they asked for.
   It's built from this file, so it keeps itself current. No in-game hover tooltips yet
@@ -828,6 +840,10 @@ don't change play. Gambling is free. Six players paying together beat the landlo
 - WeiYa (#165): is there a story line, or is every idea its own separate place? Unify every
   idea into one coherent, fun, silly game seen from a bird's-eye view, with polish. We read it as:
   put the side trips on the chapter checklists and give the chapters one storyline.
+- just meat and cheese (#146): a voice-chat spell system; the first spell, "mute PLAYER", mutes
+  them and hands them an infinite-ammo RPG that only hurts the caster and kills in one hit; it
+  disappears (and they're unmuted) once they kill you. We can't recognise speech, so you say
+  it out loud while pressing Q, looking at them; "killed" means sent back to your spawn.
 - catherine (#173): gamble with the game's balance, fair and unfair settings at random,
   including how features interact, hosted and commentated by a wizard-cat version of a famous
   comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
@@ -867,6 +883,8 @@ don't change play. Gambling is free. Six players paying together beat the landlo
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
+- The mute spell (#146) is the first voice spell. What other spells could you say, and what
+  should dying mean beyond going back to the start?
 - What does connecting all the pets achieve, and what else do pets do?
 - Your fat cat (#145) only ever gets bigger. Should anything shrink it, and should a huge cat matter?
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being

@@ -124,7 +124,13 @@ pub fn npc_spots<'a>(
 
 /// Would farting at `at` be seen by an NPC standing at one of `npcs`?
 pub fn is_shameful(at: Vec2, npcs: &[Vec2]) -> bool {
-    npcs.iter().any(|n| n.distance(at) < SHAME_RADIUS)
+    is_shameful_within(at, npcs, SHAME_RADIUS)
+}
+
+/// Like [`is_shameful`], with NPCs that see `radius` metres (Marmalade's
+/// wheel moves it, #173).
+pub fn is_shameful_within(at: Vec2, npcs: &[Vec2], radius: f32) -> bool {
+    npcs.iter().any(|n| n.distance(at) < radius)
 }
 
 /// Server: release the pressure, and judge.
@@ -138,6 +144,7 @@ fn let_rip(
     bears: Query<&Bear>,
     crows: Query<&Crow>,
     villagers: Query<&Villager>,
+    odds: Query<&crate::features::gamble::HouseOdds>,
 ) {
     if crate::features::stillness::is_frozen(&still) {
         return; // the world stands still: ignore requests
@@ -166,7 +173,11 @@ fn let_rip(
         message: Farted {
             player: player.id,
             at,
-            shamed: is_shameful(at, &npcs),
+            shamed: is_shameful_within(
+                at,
+                &npcs,
+                crate::features::gamble::odds(&odds).shame_radius(),
+            ),
             pressure,
         },
     });

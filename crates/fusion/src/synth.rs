@@ -1711,40 +1711,53 @@ const BUS_TRIM: [f32; BUSES] = [1.0, 1.55, 1.6, 1.5, 1.6, 1.45, 1.6, 1.7];
 /// pads and brass all pile up) stay clear, the bass has weight and the
 /// leads have presence.
 fn bus_eq(b: usize) -> StereoEq {
+    // Each part keeps some body in the 200-300 Hz low mids (the mix used to
+    // carve them all out and sound hollow and tinny); the scoops are gentle
+    // and the presence boosts small.
     match b {
         0 => StereoEq::new(&[
             Eq::Hp(32.0, 0.7),
-            Eq::Peak(420.0, 1.0, -2.0),
+            Eq::Peak(110.0, 1.0, 1.5),
+            Eq::Peak(420.0, 1.0, -1.0),
             Eq::HighShelf(9000.0, -0.5),
         ]),
         1 => StereoEq::new(&[
             Eq::Hp(30.0, 0.7),
             Eq::LowShelf(95.0, 2.5),
-            Eq::Peak(420.0, 1.0, -3.5),
-            Eq::Peak(1700.0, 1.2, 1.5),
+            Eq::Peak(240.0, 1.0, 1.5),
+            Eq::Peak(450.0, 1.0, -1.5),
+            Eq::Peak(1700.0, 1.2, 1.0),
         ]),
         2 => StereoEq::new(&[
-            Eq::Hp(120.0, 0.7),
-            Eq::Peak(520.0, 0.9, -2.5),
-            Eq::Peak(1800.0, 0.9, 2.0),
-            Eq::HighShelf(4000.0, 2.0),
+            Eq::Hp(90.0, 0.7),
+            Eq::Peak(260.0, 0.9, 2.0),
+            Eq::Peak(560.0, 0.9, -1.0),
+            Eq::Peak(1800.0, 0.9, 1.0),
+            Eq::HighShelf(4500.0, 0.5),
         ]),
         3 => StereoEq::new(&[
-            Eq::Hp(170.0, 0.7),
-            Eq::Peak(750.0, 1.0, -1.5),
-            Eq::Peak(2200.0, 0.8, 3.0),
-            Eq::Lp(13000.0, 0.7),
+            Eq::Hp(130.0, 0.7),
+            Eq::Peak(300.0, 0.9, 1.5),
+            Eq::Peak(750.0, 1.0, -0.5),
+            Eq::Peak(2200.0, 0.8, 1.5),
+            Eq::Lp(12000.0, 0.7),
         ]),
         4 => StereoEq::new(&[
-            Eq::Hp(220.0, 0.7),
-            Eq::Peak(600.0, 0.8, -5.0),
-            Eq::HighShelf(5000.0, 2.0),
+            Eq::Hp(140.0, 0.7),
+            Eq::Peak(280.0, 0.8, 2.0),
+            Eq::Peak(620.0, 0.8, -2.0),
+            Eq::HighShelf(5000.0, 0.5),
         ]),
-        5 => StereoEq::new(&[Eq::Hp(300.0, 0.7), Eq::Lp(12000.0, 0.7)]),
+        5 => StereoEq::new(&[
+            Eq::Hp(200.0, 0.7),
+            Eq::Peak(350.0, 0.9, 1.0),
+            Eq::Lp(12000.0, 0.7),
+        ]),
         6 => StereoEq::new(&[
-            Eq::Hp(160.0, 0.7),
-            Eq::Peak(500.0, 0.9, -3.0),
-            Eq::Peak(2400.0, 0.9, 2.5),
+            Eq::Hp(120.0, 0.7),
+            Eq::Peak(300.0, 0.9, 1.5),
+            Eq::Peak(520.0, 0.9, -1.0),
+            Eq::Peak(2400.0, 0.9, 1.0),
         ]),
         // The nylon guitar's body: the air resonance and the top plate,
         // the boxy low mids pulled out, a little clarity up top.
@@ -1804,7 +1817,69 @@ pub struct Band {
     /// Ducking under voice chat (1 = none), eased: quick down, slow up.
     duck: f32,
     pub duck_target: f32,
+    /// The mood's colour and feel (`compose::Tone`), eased towards the target
+    /// so moods blend over a couple of seconds.
+    colour: MasterColour,
+    pub tone_target: crate::compose::Tone,
+    /// Sidechain: how far the kick (and snare) is pushing the band down
+    /// right now, 0..1. Set on each hit, falls back over ~130 ms.
+    pump: f32,
 }
+
+/// How deep each bus ducks under a full-strength kick (drums, bass, keys,
+/// lead, pad, perc, brass, guitar): pads and bass breathe most, the lead
+/// least, the drums and percussion not at all.
+const PUMP_DEPTH: [f32; BUSES] = [0.0, 0.35, 0.22, 0.1, 0.4, 0.0, 0.22, 0.18];
+
+/// The master colour stage (see [`MasterColour::process`]).
+struct MasterColour {
+    tone: crate::compose::Tone,
+    /// Tilt filter state (left, right).
+    tilt: [f32; 2],
+    /// Tape wobble: a short delay line per channel and its LFO phases.
+    wow_buf: Vec<[f32; 2]>,
+    wow_pos: usize,
+    wow_phase: [f32; 2],
+}
+
+impl MasterColour {
+    /// Master colour for one stereo frame: tilt EQ (warmth), mid/side width
+    /// and a gentle tape wobble (wow plus a faster flutter).
+    #[inline]
+    fn process(&mut self, l: f32, r: f32) -> (f32, f32) {
+        let t = self.tone;
+        // One-pole low-pass at ~1 kHz; the rest is the top end.
+        const A: f32 = 0.125;
+        self.tilt[0] += A * (l - self.tilt[0]);
+        self.tilt[1] += A * (r - self.tilt[1]);
+        let top = 1.0 - 0.5 * t.warmth;
+        let l = self.tilt[0] + top * (l - self.tilt[0]);
+        let r = self.tilt[1] + top * (r - self.tilt[1]);
+        let (mid, side) = (0.5 * (l + r), 0.5 * (l - r) * t.width);
+        let (l, r) = (mid + side, mid - side);
+        // Wobble: read a few ms back, the delay swaying slowly (wow) and a
+        // touch faster (flutter). Both channels move together, like tape.
+        self.wow_buf[self.wow_pos] = [l, r];
+        self.wow_phase[0] = (self.wow_phase[0] + 0.5 * INV_RATE).fract();
+        self.wow_phase[1] = (self.wow_phase[1] + 5.3 * INV_RATE).fract();
+        let depth = t.wow * RATE as f32 * 0.0011;
+        // Only as much delay as the sway needs: with no wobble it's a
+        // straight pass-through.
+        let d = depth * (1.2 + sin_cyc(self.wow_phase[0]) + 0.12 * sin_cyc(self.wow_phase[1]));
+        let at = self.wow_pos as f32 - d;
+        let at = if at < 0.0 { at + WOW_LEN as f32 } else { at };
+        let i0 = at as usize % WOW_LEN;
+        let i1 = (i0 + 1) % WOW_LEN;
+        let f = at.fract();
+        let a = self.wow_buf[i0];
+        let b = self.wow_buf[i1];
+        self.wow_pos = (self.wow_pos + 1) % WOW_LEN;
+        (a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f)
+    }
+}
+
+/// Wobble delay line length (samples, a power of two).
+const WOW_LEN: usize = 2048;
 
 /// Longest block rendered at once.
 pub const BLOCK: usize = 256;
@@ -1858,6 +1933,15 @@ impl Band {
             echo_target: 1.0,
             duck: 1.0,
             duck_target: 1.0,
+            colour: MasterColour {
+                tone: crate::compose::Tone::NEUTRAL,
+                tilt: [0.0; 2],
+                wow_buf: vec![[0.0; 2]; WOW_LEN],
+                wow_pos: 0,
+                wow_phase: [0.0, 0.31],
+            },
+            tone_target: crate::compose::Tone::NEUTRAL,
+            pump: 0.0,
         }
     }
 
@@ -2066,6 +2150,14 @@ impl Band {
             i => i.pan(),
         };
         let vel = ev.vel.clamp(0.0, 1.2);
+        // Sidechain: the kick (and, less, the snare and clap) push the band
+        // aside for a moment so they punch through.
+        let push = match ev.inst {
+            Inst::Kick => vel.min(1.0),
+            Inst::Snare | Inst::Clap => 0.45 * vel.min(1.0),
+            _ => 0.0,
+        };
+        self.pump = self.pump.max(push);
         // Hit harder, louder (a little more than linear) and brighter: soft
         // hits lose the top end the way a real stick or mallet does.
         let tone = vel.min(1.0).powf(1.5);
@@ -2194,13 +2286,31 @@ impl Band {
                 g += dg;
             }
         }
+        // The sidechain envelope for this block: a hit lands at the block's
+        // start (blocks split at events), then falls away exponentially.
+        let mut pump = [0.0f32; BLOCK];
+        let fall = (-INV_RATE / 0.13).exp();
+        for p in pump[..n].iter_mut() {
+            *p = self.pump;
+            self.pump *= fall;
+        }
         // Bus processing.
         for b in 0..BUSES {
             let (l, r) = (&mut bl[b][..n], &mut br[b][..n]);
             self.eq[b].process(l, r);
             let t = BUS_TRIM[b];
-            l.iter_mut().for_each(|x| *x *= t);
-            r.iter_mut().for_each(|x| *x *= t);
+            let depth = PUMP_DEPTH[b];
+            if depth > 0.0 {
+                for ((x, y), p) in l.iter_mut().zip(r.iter_mut()).zip(&pump[..n]) {
+                    // A smooth dip (squared) so the duck doesn't click.
+                    let g = t * (1.0 - depth * p * p.sqrt());
+                    *x *= g;
+                    *y *= g;
+                }
+            } else {
+                l.iter_mut().for_each(|x| *x *= t);
+                r.iter_mut().for_each(|x| *x *= t);
+            }
             match b {
                 2 => {
                     self.suitcase.process(l, r);
@@ -2245,11 +2355,18 @@ impl Band {
         let m0 = self.master * d0;
         self.master += (self.master_target - self.master) * k;
         let dm = (self.master * self.duck - m0) / n as f32;
+        // Ease the mood's colour (about 2 s to change over).
+        let kt = 1.0 - (-(n as f32) * INV_RATE / 0.7).exp();
+        let (a, b) = (&mut self.colour.tone, self.tone_target);
+        a.warmth += (b.warmth - a.warmth) * kt;
+        a.width += (b.width - a.width) * kt;
+        a.wow += (b.wow - a.wow) * kt;
         for i in 0..n {
             let (wl, wr) = self.verb.process(send[i]);
             let m = m0 + dm * i as f32;
-            let xl = (l[i] + wl) * m;
-            let xr = (r[i] + wr) * m;
+            let (cl, cr) = self.colour.process(l[i] + wl, r[i] + wr);
+            let xl = cl * m;
+            let xr = cr * m;
             let peak = xl.abs().max(xr.abs());
             const THRESH: f32 = 0.7;
             let want = if peak > THRESH { THRESH / peak } else { 1.0 };

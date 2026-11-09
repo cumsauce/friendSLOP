@@ -372,7 +372,146 @@ const DRIVE: &str = "R.RP.RG.R.RP.RGA";
 const SHRED: &str = "RGRPRGR5RGRPRG7A";
 const MARCH: &str = "R...R...R...R.A.";
 
+// Upbeat songs (more tunes for the wandering moods).
+// "Sunny Side": I - vi - ii - V, bright and bouncy.
+const SUNNY_A: Prog = &[(0, Maj9, 4), (9, Min9, 4), (2, Min9, 4), (7, Dom13, 4)];
+// iii - VI7 - ii - V: the turnaround that keeps it moving.
+const SUNNY_B: Prog = &[
+    (4, Min9, 4),
+    (9, Dom7s9, 4),
+    (2, Min9, 4),
+    (7, Sus9, 2),
+    (7, Dom13, 2),
+];
+// "Night Market": vi - IV - V - I, driving.
+const MARKET_A: Prog = &[(9, Min9, 4), (5, Maj9, 4), (7, Dom13, 4), (0, Maj69, 4)];
+const MARKET_B: Prog = &[
+    (2, Min9, 4),
+    (7, Dom13s11, 4),
+    (0, Maj9, 4),
+    (9, Dom7alt, 4),
+];
+const MARKET_HOOK: Prog = &[
+    (5, Maj9, 4),
+    (7, Dom13, 4),
+    (4, Min9, 4),
+    (9, Min9, 2),
+    (1, Dom13s11, 2),
+];
+// "Kite Day": lydian lift between I and II, sunny and open.
+const KITE_A: Prog = &[(0, Maj9, 4), (2, Dom13, 4), (0, Maj9, 4), (2, Dom13, 4)];
+const KITE_B: Prog = &[(9, Min11, 4), (5, Maj7s11, 4), (2, Min9, 4), (7, Sus9, 4)];
+const KITE_HOOK: Prog = &[(5, Maj9, 4), (7, Dom13, 4), (9, Min9, 4), (0, Maj69, 4)];
+
+/// How many songs a mood has to choose from.
+fn songs(m: Mood) -> usize {
+    match m {
+        Mood::Village => 3,
+        Mood::Explore => 2,
+        _ => 1,
+    }
+}
+
 fn style(m: Mood) -> &'static Style {
+    style_song(m, 0)
+}
+
+/// Mood `m`'s song number `song` (0 = its original).
+fn style_song(m: Mood, song: u8) -> &'static Style {
+    const SUNNY: Style = Style {
+        bpm: 118.0,
+        swing: 0.08,
+        key: 7,
+        a: SUNNY_A,
+        b: SUNNY_B,
+        hook: ROYAL_ROAD,
+        groove: Groove::City,
+        bass: &[PUMP, SLAP2],
+        comp: Comp::City,
+        lead: LeadKind::Synth,
+        arp: None,
+        pad: false,
+        intensity: 0.62,
+        odd: 0.1,
+        modulate: 0.45,
+        kime: 0.35,
+        theme: false,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Pad,
+        horns: Horns::Both,
+        kit: Kit {
+            clap: true,
+            shaker: true,
+            ..KIT_NONE
+        },
+        answer: Some(Inst::PolyBrass),
+        nylon: Nylon::None,
+    };
+    const MARKET: Style = Style {
+        bpm: 126.0,
+        swing: 0.04,
+        key: 10,
+        a: MARKET_A,
+        b: MARKET_B,
+        hook: MARKET_HOOK,
+        groove: Groove::Drive,
+        bass: &[DRIVE, SLAP1],
+        comp: Comp::Stabs,
+        lead: LeadKind::Brass,
+        arp: None,
+        pad: true,
+        intensity: 0.68,
+        odd: 0.2,
+        modulate: 0.35,
+        kime: 0.5,
+        theme: false,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Pad,
+        horns: Horns::Stabs,
+        kit: Kit {
+            clap: true,
+            conga: true,
+            ride: true,
+            ..KIT_NONE
+        },
+        answer: Some(Inst::Kalimba),
+        nylon: Nylon::None,
+    };
+    const KITE: Style = Style {
+        bpm: 112.0,
+        swing: 0.1,
+        key: 0,
+        a: KITE_A,
+        b: KITE_B,
+        hook: KITE_HOOK,
+        groove: Groove::City,
+        bass: &[SLAP1, PUMP],
+        comp: Comp::Laid,
+        lead: LeadKind::Mini,
+        arp: Some(Inst::Kalimba),
+        pad: true,
+        intensity: 0.55,
+        odd: 0.0,
+        modulate: 0.3,
+        kime: 0.25,
+        theme: false,
+        bass_inst: Inst::Bass,
+        pad_inst: Inst::Strings,
+        horns: Horns::Swells,
+        kit: Kit {
+            shaker: true,
+            conga: true,
+            ..KIT_NONE
+        },
+        answer: Some(Inst::Flute),
+        nylon: Nylon::Pick(&[Section::Intro, Section::Breakdown]),
+    };
+    match (m, song) {
+        (Mood::Village, 1) => return &SUNNY,
+        (Mood::Village, 2) => return &MARKET,
+        (Mood::Explore, 1) => return &KITE,
+        _ => {}
+    }
     const MENU: Style = Style {
         bpm: 102.0,
         swing: 0.12,
@@ -874,6 +1013,8 @@ pub struct Composer {
     pub mood: Mood,
     /// The style used while still (the mood before the stillness).
     style_mood: Mood,
+    /// Which song each mood is playing (see [`songs`]).
+    song: [u8; 16],
     pub section: Section,
     intensity: f32,
     bpm: f32,
@@ -931,6 +1072,7 @@ impl Composer {
             rng: seed | 1,
             mood,
             style_mood: mood,
+            song: [0; 16],
             section: Section::Intro,
             intensity: s.intensity,
             bpm: s.bpm,
@@ -1000,9 +1142,9 @@ impl Composer {
 
     fn style(&self) -> &'static Style {
         if self.mood == Mood::Still {
-            style(self.style_mood)
+            style_song(self.style_mood, self.song[self.style_mood as usize % 16])
         } else {
-            style(self.mood)
+            style_song(self.mood, self.song[self.mood as usize % 16])
         }
     }
 
@@ -1037,7 +1179,16 @@ impl Composer {
 
     /// Plan the section after `prev` in mood `m`.
     fn plan_section(&mut self, m: Mood, prev: Section, fresh: bool) -> Plan {
-        let s = style(m);
+        // A new visit picks a song; after a breakdown the band may move on
+        // to another one.
+        let n = songs(m);
+        if n > 1 && fresh {
+            self.song[m as usize % 16] = self.pick(n) as u8;
+        } else if n > 1 && prev == Section::Breakdown && self.chance(0.6) {
+            let now = self.song[m as usize % 16] as usize;
+            self.song[m as usize % 16] = ((now + 1 + self.pick(n - 1)) % n) as u8;
+        }
+        let s = style_song(m, self.song[m as usize % 16]);
         let i = self.intensity;
         let kind = if m == Mood::Still {
             Section::Still
@@ -3337,6 +3488,26 @@ mod tests {
     /// Climbing storeys walks the key up the ladder a step at a time, each
     /// step prepared by a dominant in the bar before; coming down walks it
     /// back.
+    /// The village and explore moods have several songs: every one comes
+    /// up, and each plays notes at its own tempo.
+    #[test]
+    fn every_song_gets_played() {
+        for (m, n) in [(Mood::Village, 3), (Mood::Explore, 2)] {
+            let mut tempos = std::collections::BTreeSet::new();
+            for seed in 0..40 {
+                let mut c = Composer::new(seed);
+                let mut bar = Bar::new();
+                c.next_bar(cue(Mood::Menu), &mut bar);
+                for _ in 0..6 {
+                    c.next_bar(cue(m), &mut bar);
+                }
+                assert!(!bar.events.is_empty());
+                tempos.insert(c.bpm() as u32);
+            }
+            assert_eq!(tempos.len(), n, "{m:?}: {tempos:?}");
+        }
+    }
+
     #[test]
     fn climbing_lifts_the_key() {
         let mut c = Composer::new(7);

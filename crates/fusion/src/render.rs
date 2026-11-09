@@ -63,7 +63,12 @@ pub fn render_score(
             };
             log.push((
                 s,
-                format!("{:?} / {:?}{lift}", engine.mood(), engine.section()),
+                format!(
+                    "{:?} / {:?}{lift} ({:.0} bpm)",
+                    engine.mood(),
+                    engine.section(),
+                    engine.composer.bpm()
+                ),
             ));
             last = now;
         }

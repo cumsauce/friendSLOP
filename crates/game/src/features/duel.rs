@@ -1361,6 +1361,8 @@ fn spawn_duel_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         Crosshair,
+        TextColor(crate::hud::LABEL),
+        TextShadow::default(),
         Node {
             position_type: PositionType::Absolute,
             top: percent(50),

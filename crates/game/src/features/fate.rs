@@ -212,7 +212,7 @@ struct FateHud;
 fn spawn_fate_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
-        TextColor(Color::srgb(1.0, 0.55, 0.85)),
+        TextColor(crate::theme::PINK.mix(&crate::theme::INK, 0.35)),
         FateHud,
         crate::hud::slot(crate::hud::HudSlot::TopRight),
         DespawnOnExit(AppState::InGame),

@@ -552,7 +552,8 @@ fn dress_walkers(
             WalkerLabel(entity),
             Text::new(format!("player {}", player.id)),
             TextFont::from_font_size(13.0),
-            TextColor(crate::hud::TEXT),
+            TextColor(crate::hud::LABEL),
+            TextShadow::default(),
             Node {
                 position_type: PositionType::Absolute,
                 ..default()
@@ -646,13 +647,15 @@ fn spawn_crosshair(mut commands: Commands) {
             position_type: PositionType::Absolute,
             top: percent(50),
             left: percent(50),
-            width: px(6),
-            height: px(6),
-            margin: UiRect::all(px(-3)),
-            border_radius: BorderRadius::all(px(3)),
+            width: px(9),
+            height: px(9),
+            margin: UiRect::all(px(-4.5)),
+            border: UiRect::all(px(1.5)),
+            border_radius: BorderRadius::all(px(5)),
             ..default()
         },
-        BackgroundColor(Color::srgba(1.0, 1.0, 1.0, 0.85)),
+        BackgroundColor(crate::theme::CREAM.with_alpha(0.9)),
+        BorderColor::all(crate::theme::BERRY.with_alpha(0.75)),
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));

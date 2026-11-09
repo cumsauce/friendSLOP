@@ -70,6 +70,7 @@ fn count_catch(
     mut commands: Commands,
     mut players: Query<(&Player, &mut Strikes)>,
     attacks: Query<&AttackMode>,
+    odds: Query<&crate::features::gamble::HouseOdds>,
 ) {
     if *server.get() != ServerState::Running || !farted.shamed {
         return;
@@ -81,7 +82,8 @@ fn count_catch(
         return;
     };
     strikes.0 += 1;
-    if strikes.0 < STRIKES_TO_ATTACK {
+    // Marmalade's wheel (#173) sets how patient the commune is.
+    if strikes.0 < crate::features::gamble::odds(&odds).strikes_to_attack() {
         return;
     }
     strikes.0 = 0;
@@ -317,6 +319,7 @@ fn show_attack(
     players: Query<(&Player, &Strikes)>,
     mut attack_text: Query<&mut Text, (With<AttackText>, Without<StrikesText>)>,
     mut strikes_text: Query<&mut Text, (With<StrikesText>, Without<AttackText>)>,
+    odds: Query<&crate::features::gamble::HouseOdds>,
 ) {
     let me = me.map(|m| m.0);
     let want = attacks
@@ -346,7 +349,10 @@ fn show_attack(
         .find(|(p, _)| Some(p.id) == me)
         .map_or(0, |(_, s)| s.0);
     let want = if mine > 0 {
-        format!("caught farting {mine}/{STRIKES_TO_ATTACK}")
+        format!(
+            "caught farting {mine}/{}",
+            crate::features::gamble::odds(&odds).strikes_to_attack()
+        )
     } else {
         String::new()
     };

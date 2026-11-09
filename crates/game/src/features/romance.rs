@@ -56,9 +56,14 @@ impl LoveDice {
 
 /// The NPC (of `npcs`) that saw a fart at `at`: the closest within range.
 pub fn witness(at: Vec2, npcs: &[Vec2]) -> Option<Vec2> {
+    witness_within(at, npcs, SHAME_RADIUS)
+}
+
+/// Like [`witness`], with NPCs that see `radius` metres (#173).
+pub fn witness_within(at: Vec2, npcs: &[Vec2], radius: f32) -> Option<Vec2> {
     npcs.iter()
         .copied()
-        .filter(|n| n.distance(at) < SHAME_RADIUS)
+        .filter(|n| n.distance(at) < radius)
         .min_by(|a, b| a.distance(at).total_cmp(&b.distance(at)))
 }
 
@@ -72,15 +77,18 @@ fn maybe_fall_in_love(
     bears: Query<&Bear>,
     crows: Query<&Crow>,
     villagers: Query<&crate::features::villagers::Villager>,
+    odds: Query<&crate::features::gamble::HouseOdds>,
 ) {
     if *server.get() != ServerState::Running || !farted.shamed {
         return;
     }
-    if !dice.roll().is_multiple_of(SMITTEN_ONE_IN) {
+    // Marmalade's wheel (#173) makes love likelier or rarer.
+    let odds = crate::features::gamble::odds(&odds);
+    if !dice.roll().is_multiple_of(odds.romance_one_in().max(1)) {
         return;
     }
     let npcs = npc_spots(time.elapsed_secs(), bears, crows, villagers);
-    let Some(at) = witness(farted.at, &npcs) else {
+    let Some(at) = witness_within(farted.at, &npcs, odds.shame_radius()) else {
         return;
     };
     commands.server_trigger(ToClients {

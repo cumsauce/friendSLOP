@@ -22,6 +22,7 @@ pub mod fart_sound;
 pub mod fate;
 pub mod fps;
 pub mod fusion;
+pub mod gamble;
 pub mod goat;
 pub mod gods_tears;
 pub mod great_storm;
@@ -94,6 +95,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(smoking::protocol);
         app.add_plugins(caught::protocol);
         app.add_plugins(affair::protocol);
+        app.add_plugins(gamble::protocol);
     }
 }
 
@@ -145,5 +147,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(smoking::plugin);
         app.add_plugins(caught::plugin);
         app.add_plugins(affair::plugin);
+        app.add_plugins(gamble::plugin);
     }
 }

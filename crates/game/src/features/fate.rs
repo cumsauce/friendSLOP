@@ -192,10 +192,21 @@ fn wear_off(time: Res<Time>, mut boards: Query<&mut FateBoard>) {
         if board.mishaps.is_empty() {
             continue;
         }
-        for m in &mut board.mishaps {
+        // Count down without marking the board changed, so it replicates
+        // once a second (when the shown whole seconds tick), not every frame
+        // (#151).
+        let quiet = board.bypass_change_detection();
+        let before = quiet.mishaps.len();
+        let mut ticked = false;
+        for m in &mut quiet.mishaps {
+            let shown = m.secs_left.ceil();
             m.secs_left -= dt;
+            ticked |= m.secs_left.ceil() != shown;
         }
-        board.mishaps.retain(|m| m.secs_left > 0.0);
+        quiet.mishaps.retain(|m| m.secs_left > 0.0);
+        if ticked || quiet.mishaps.len() != before {
+            board.set_changed();
+        }
     }
 }
 

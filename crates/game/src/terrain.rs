@@ -496,6 +496,14 @@ fn spawn_terrain(
                 Mesh3d(meshes.add(tufts)),
                 MeshMaterial3d(grass.clone()),
                 NotShadowCaster,
+                // Tufts are thousands of blades: far chunks aren't drawn
+                // (#151). Measured from the chunk's centre, so the margin
+                // covers its half-diagonal.
+                crate::graphics::DrawRange {
+                    near: 45.0 + size * std::f32::consts::FRAC_1_SQRT_2,
+                    far: 75.0 + size * std::f32::consts::FRAC_1_SQRT_2,
+                    from_bounds: true,
+                },
                 DespawnOnExit(AppState::InGame),
             ));
         }

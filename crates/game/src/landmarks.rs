@@ -518,8 +518,15 @@ fn ripple(
         let age = ((t + r.phase) / PERIOD).fract();
         let s = 0.15 + age * 1.3;
         tr.scale = Vec3::new(s, s, 1.0);
-        if let Some(mut m) = materials.get_mut(&r.material) {
-            m.base_color.set_alpha((1.0 - age) * age * 1.6);
+        // Each material edit re-uploads it to the GPU, so only touch it when
+        // the fade has visibly moved (~8 times a second per ripple, #151).
+        let alpha = ((1.0 - age) * age * 1.6 * 64.0).round() / 64.0;
+        if materials
+            .get(&r.material)
+            .is_some_and(|m| m.base_color.alpha() != alpha)
+            && let Some(mut m) = materials.get_mut(&r.material)
+        {
+            m.base_color.set_alpha(alpha);
         }
     }
 }
@@ -548,8 +555,15 @@ fn glow_embers(
     time: Res<Time>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     q: Query<&Embers>,
+    mut last: Local<f32>,
 ) {
+    // A material edit re-uploads it to the GPU: flicker at 12 Hz, not every
+    // frame (#151).
     let t = time.elapsed_secs();
+    if (t - *last).abs() < 1.0 / 12.0 {
+        return;
+    }
+    *last = t;
     for e in &q {
         let k = 3.5 + (t * 2.3).sin() * 0.8 + (t * 5.1).sin() * 0.5;
         if let Some(mut m) = materials.get_mut(&e.0) {

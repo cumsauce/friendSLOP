@@ -343,7 +343,12 @@ fn hold_bodies(
 pub fn plugin(app: &mut App) {
     app.add_observer(show_notice)
         .add_systems(OnEnter(AppState::InGame), spawn_ui)
-        .add_systems(Update, show_caught.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            show_caught
+                .run_if(crate::world::hud_tick())
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 fn show_notice(ev: On<CaughtNotice>, toast: Option<ResMut<Toast>>) {

@@ -278,7 +278,11 @@ fn blink(time: Res<Time>, mut q: Query<(Entity, &Blink, &mut Transform)>) {
         // Everyone is built with the same eye constants: spread the phase by
         // entity so a crowd doesn't blink in unison.
         let spread = (e.to_bits() % 997) as f32 * 0.37;
-        tr.scale.y = blink_openness(t, b.phase + spread);
+        // Eyes are open ~96% of the time: don't dirty them while they are.
+        let open = blink_openness(t, b.phase + spread);
+        if tr.scale.y != open {
+            tr.scale.y = open;
+        }
     }
 }
 

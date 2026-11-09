@@ -281,7 +281,9 @@ fn place_sign(
         } else {
             Visibility::Hidden
         });
-        if let Some(p) = screen {
+        if let Some(p) = screen
+            && (node.left != Val::Px(p.x - 70.0) || node.top != Val::Px(p.y - 20.0))
+        {
             node.left = Val::Px(p.x - 70.0);
             node.top = Val::Px(p.y - 20.0);
         }

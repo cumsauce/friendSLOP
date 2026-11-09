@@ -294,7 +294,14 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), (spawn_paul, spawn_ui))
         .add_systems(
             Update,
-            (dress_eggs, press_smoke, show_stash, puff, drift).run_if(in_state(AppState::InGame)),
+            (
+                dress_eggs,
+                press_smoke,
+                show_stash.run_if(crate::world::hud_tick()),
+                puff,
+                drift,
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -424,25 +431,34 @@ fn puff(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut since: Local<f32>,
+    mut kit: Local<Option<(Handle<Mesh>, [Handle<StandardMaterial>; 2])>>,
 ) {
     *since += time.delta_secs();
     if *since < 0.4 || smokers.is_empty() {
         return;
     }
     *since = 0.0;
-    let ball = meshes.add(Sphere::new(0.12));
-    for (s, tf) in &smokers {
-        let color = if s.joint {
-            Color::srgba(0.75, 0.9, 0.7, 0.5)
-        } else {
-            Color::srgba(0.85, 0.85, 0.85, 0.5)
+    // One mesh and two materials shared by every puff, made on the first one
+    // (#151: no new GPU assets every 0.4 s).
+    let (ball, [cig, joint]) = kit.get_or_insert_with(|| {
+        let mut smoke = |color: Color| {
+            materials.add(StandardMaterial {
+                base_color: color,
+                alpha_mode: AlphaMode::Blend,
+                unlit: true,
+                ..default()
+            })
         };
-        let mat = materials.add(StandardMaterial {
-            base_color: color,
-            alpha_mode: AlphaMode::Blend,
-            unlit: true,
-            ..default()
-        });
+        (
+            meshes.add(Sphere::new(0.12)),
+            [
+                smoke(Color::srgba(0.85, 0.85, 0.85, 0.5)),
+                smoke(Color::srgba(0.75, 0.9, 0.7, 0.5)),
+            ],
+        )
+    });
+    for (s, tf) in &smokers {
+        let mat = if s.joint { joint.clone() } else { cig.clone() };
         commands.spawn((
             Puff { age: 0.0 },
             Mesh3d(ball.clone()),

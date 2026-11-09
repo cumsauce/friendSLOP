@@ -165,7 +165,8 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_visuals)
         .add_systems(
             Update,
-            (lex_key, show_pile, narrate).run_if(in_state(AppState::InGame)),
+            (lex_key, show_pile, narrate.run_if(crate::world::hud_tick()))
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

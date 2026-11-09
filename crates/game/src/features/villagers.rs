@@ -713,8 +713,23 @@ fn move_villagers(
             v.pos.y,
         );
         let moving = tf.translation.xz().distance(v.pos) > 0.05;
-        tf.translation = tf.translation.lerp(target, t);
-        tf.rotation = tf.rotation.slerp(Quat::from_rotation_y(v.yaw), t);
+        // Settle exactly onto the spot, then stop writing: an idle or seated
+        // villager's whole rig stays untouched (#151).
+        let facing = Quat::from_rotation_y(v.yaw);
+        let at = if tf.translation.distance_squared(target) < 1e-6 {
+            target
+        } else {
+            tf.translation.lerp(target, t)
+        };
+        let turn = if tf.rotation.angle_between(facing) < 1e-3 {
+            facing
+        } else {
+            tf.rotation.slerp(facing, t)
+        };
+        if tf.translation != at || tf.rotation != turn {
+            tf.translation = at;
+            tf.rotation = turn;
+        }
         for child in children.iter() {
             let Ok(mut body) = bodies.get_mut(child) else {
                 continue;
@@ -726,8 +741,18 @@ fn move_villagers(
             } else {
                 (0.0, 1.0)
             };
-            body.translation.y += (y - body.translation.y) * t;
-            body.scale.y += (sy - body.scale.y) * t;
+            let settle = |from: f32, to: f32| {
+                if (to - from).abs() < 1e-3 {
+                    to
+                } else {
+                    from + (to - from) * t
+                }
+            };
+            let (by, bs) = (settle(body.translation.y, y), settle(body.scale.y, sy));
+            if body.translation.y != by || body.scale.y != bs {
+                body.translation.y = by;
+                body.scale.y = bs;
+            }
         }
     }
 }

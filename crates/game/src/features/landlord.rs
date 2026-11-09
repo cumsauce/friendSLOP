@@ -402,14 +402,18 @@ fn show_tenancy(
         Act3::Won => (0.6, 0.0),
         _ => (1.0, 0.0),
     };
-    for mut tf in &mut body {
-        tf.scale = Vec3::splat(scale);
-        tf.translation = LANDLORD_AT + Vec3::Y * bob;
-        tf.rotation = if t.act == Act3::Won {
+    let want = Transform {
+        translation: LANDLORD_AT + Vec3::Y * bob,
+        rotation: if t.act == Act3::Won {
             Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)
         } else {
             Quat::IDENTITY
-        };
+        },
+        scale: Vec3::splat(scale),
+    };
+    for mut tf in &mut body {
+        // Only re-propagate his ~20 parts when he actually moves (#151).
+        tf.set_if_neq(want);
     }
 }
 

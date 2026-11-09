@@ -192,8 +192,12 @@ fn blow(
     let s = gusts.strength();
     for (d, mut tf) in &mut debris {
         let shake = (gusts.t * 9.0 + d.rest.translation.x).sin() * s * d.wobble;
-        tf.translation = d.rest.translation + Vec3::new(shake, 0.0, shake * 0.5);
-        tf.rotation = d.rest.rotation * Quat::from_rotation_y(shake);
+        // Calm most of the time: leave resting debris untouched (#151).
+        tf.set_if_neq(Transform {
+            translation: d.rest.translation + Vec3::new(shake, 0.0, shake * 0.5),
+            rotation: d.rest.rotation * Quat::from_rotation_y(shake),
+            ..*tf
+        });
     }
     let want = if s > 0.0 { WINDY } else { "" };
     for mut t in &mut text {

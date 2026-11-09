@@ -479,6 +479,8 @@ pub struct Emitter {
     carry: Carry,
     /// Smoothed 0..=1.
     occluded: f32,
+    /// The last ray's answer (rays are cast every few frames, #151).
+    blocked: bool,
 }
 
 fn spawn_pending(
@@ -765,6 +767,7 @@ fn start_sounds(
                 link,
                 carry: p.carry,
                 occluded: 0.0,
+                blocked: false,
             },
         ));
     }
@@ -776,14 +779,24 @@ fn occlude(
     time: Res<Time>,
     ears: Res<Ears>,
     spatial: avian3d::prelude::SpatialQuery,
-    mut emitters: Query<(&GlobalTransform, &mut Emitter)>,
+    mut emitters: Query<(Entity, &GlobalTransform, &mut Emitter)>,
+    mut frame: Local<u32>,
 ) {
+    /// Each sound re-checks its line of sight every this many frames; the
+    /// 150 ms smoothing hides the gap.
+    const EVERY: u32 = 3;
+    *frame = frame.wrapping_add(1);
     let filter = avian3d::prelude::SpatialQueryFilter::default();
     let k = 1.0 - (-time.delta_secs() / 0.15).exp();
-    for (at, mut e) in &mut emitters {
+    for (entity, at, mut e) in &mut emitters {
         // Aim a little above the source so the ground it sits on doesn't count.
         let to = at.translation() + Vec3::Y * 0.4 - ears.pos;
         let d = to.length();
+        if !(entity.index_u32().wrapping_add(*frame)).is_multiple_of(EVERY) {
+            let want = if e.blocked { 1.0 } else { 0.0 };
+            e.occluded += (want - e.occluded) * k;
+            continue;
+        }
         let blocked = if d < e.carry.far && d > 3.0 {
             Dir3::new(to).ok().is_some_and(|dir| {
                 spatial
@@ -793,6 +806,7 @@ fn occlude(
         } else {
             false
         };
+        e.blocked = blocked;
         let want = if blocked { 1.0 } else { 0.0 };
         e.occluded += (want - e.occluded) * k;
     }

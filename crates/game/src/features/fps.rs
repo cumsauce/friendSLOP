@@ -404,6 +404,8 @@ fn walk_controls(
     mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>,
     mut view: ResMut<FpsView>,
     mut was_walking: Local<bool>,
+    time: Res<Time<Real>>,
+    mut last_sent: Local<Option<(WalkControl, f32)>>,
 ) {
     let Some(w) = my_walker(me.as_deref(), &walkers, &duelists) else {
         // Duelling (the duel drives the cursor) or not spawned yet.
@@ -475,12 +477,27 @@ fn walk_controls(
     } else {
         stick.normalize_or_zero()
     };
-    commands.client_trigger(WalkControl {
+    let control = WalkControl {
         stick,
         yaw: view.yaw,
         jump: keys.pressed(KeyCode::Space) || virt.jump,
         run: keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) || virt.run,
+    };
+    // Only send what changed (#151: standing still sent a packet every
+    // frame). The channel is unreliable, so repeat the same input a few
+    // times a second in case one got lost.
+    let now = time.elapsed_secs();
+    let fresh = last_sent.is_none_or(|(sent, at)| {
+        sent.stick != control.stick
+            || sent.yaw != control.yaw
+            || sent.jump != control.jump
+            || sent.run != control.run
+            || now - at > 0.1
     });
+    if fresh || !*was_walking {
+        commands.client_trigger(control);
+        *last_sent = Some((control, now));
+    }
     *was_walking = true;
 }
 
@@ -527,7 +544,10 @@ fn place_labels(
         } else {
             Visibility::Hidden
         });
-        if let Some(p) = screen {
+        // Only relayout the UI when the label actually moved (#151).
+        if let Some(p) = screen
+            && (node.left != Val::Px(p.x - 24.0) || node.top != Val::Px(p.y - 20.0))
+        {
             node.left = Val::Px(p.x - 24.0);
             node.top = Val::Px(p.y - 20.0);
         }

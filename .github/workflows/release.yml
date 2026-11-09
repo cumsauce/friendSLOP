@@ -27,6 +27,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          lfs: true # ship the real models, sounds and music (#166)
       - uses: dtolnay/rust-toolchain@stable
       - name: Linux deps
         if: runner.os == 'Linux'
@@ -38,12 +40,21 @@ jobs:
         with:
           key: release
       - run: cargo build --release --locked
+      # The game looks for assets/ next to the executable (#166).
       - name: package (unix)
         if: runner.os != 'Windows'
-        run: tar czf ${{ matrix.asset }} -C target/release friendslop
+        run: |
+          mkdir -p pkg/friendslop
+          cp target/release/friendslop pkg/friendslop/
+          cp -R crates/game/assets pkg/friendslop/assets
+          tar czf ${{ matrix.asset }} -C pkg friendslop
       - name: package (windows)
         if: runner.os == 'Windows'
-        run: Compress-Archive -Path target/release/friendslop.exe -DestinationPath ${{ matrix.asset }}
+        run: |
+          New-Item -ItemType Directory -Force pkg/friendslop | Out-Null
+          Copy-Item target/release/friendslop.exe pkg/friendslop/
+          Copy-Item -Recurse crates/game/assets pkg/friendslop/assets
+          Compress-Archive -Path pkg/friendslop -DestinationPath ${{ matrix.asset }}
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset }}
@@ -110,5 +121,5 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest dist/* --title "Latest build" \
-            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. friendslop-web.zip is the browser version (solo for now: unzip and serve the folder with any static web server). Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
+            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. friendslop-web.zip is the browser version (multiplayer works, voice chat not yet: unzip and serve the folder with any static web server). Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
             --target ${{ github.sha }} --prerelease

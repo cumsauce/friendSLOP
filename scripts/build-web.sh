@@ -30,17 +30,29 @@ fi
 # getrandom's browser backend (also in .cargo/config.toml, but a RUSTFLAGS
 # env var would replace that, so pass it here too).
 export RUSTFLAGS="${RUSTFLAGS:-} --cfg getrandom_backend=\"wasm_js\""
-cargo build --release --locked --target wasm32-unknown-unknown -p friendslop --bin friendslop
+# The `web` profile (Cargo.toml) builds for size: phones download and compile
+# the whole .wasm before anything shows (#191).
+cargo build --profile web --locked --target wasm32-unknown-unknown -p friendslop --bin friendslop
 
 rm -rf "$OUT"
 mkdir -p "$OUT"
 wasm-bindgen --no-typescript --remove-name-section --remove-producers-section --target web --out-dir "$OUT" --out-name friendslop \
-  "$TARGET_DIR/wasm32-unknown-unknown/release/friendslop.wasm"
+  "$TARGET_DIR/wasm32-unknown-unknown/web/friendslop.wasm"
 if command -v wasm-opt >/dev/null; then
   wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int \
     -o "$OUT/friendslop_bg.wasm" "$OUT/friendslop_bg.wasm" || echo "wasm-opt failed; keeping the unoptimized wasm" >&2
 fi
-cp web/index.html web/manifest.webmanifest "$OUT/"
+# index.html shows download progress; servers often gzip the .wasm (so
+# Content-Length is the compressed size), so tell it the real size.
+wasm_bytes=$(wc -c < "$OUT/friendslop_bg.wasm" | tr -d ' ')
+sed "s/__WASM_BYTES__/$wasm_bytes/" web/index.html > "$OUT/index.html"
+cp web/manifest.webmanifest "$OUT/"
 # Bevy fetches assets over HTTP from ./assets (LFS files must be real, not pointers).
 cp -R crates/game/assets "$OUT/assets"
+# Phones (#191): shrink the 2048 px textures to 512 px (~20 MB -> ~2.5 MB to
+# download, and a fraction of the GPU memory). WEB_TEXTURE_MAX=0 skips it.
+if [[ "${WEB_TEXTURE_MAX:-512}" != 0 ]]; then
+  cargo run --release --locked --quiet --manifest-path tools/web-textures/Cargo.toml -- \
+    "$OUT/assets" "${WEB_TEXTURE_MAX:-512}"
+fi
 echo "web build ready in $OUT ($(du -sh "$OUT" | cut -f1))"

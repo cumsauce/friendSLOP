@@ -32,6 +32,15 @@
     font-size: 22px; padding: 14px 36px; border: 0; border-radius: 999px;
     background: #6bccad; color: #2b1d2e; font-weight: 700;
   }
+  #bar { width: min(320px, 70vw); height: 10px; border-radius: 999px; background: #ffffff22; overflow: hidden; }
+  #bar > div { width: 0; height: 100%; background: #6bccad; transition: width .2s; }
+  #ios { display: none; font-size: 14px; }
+  /* Fullscreen toggle for touch screens (#191), top middle, clear of the touch buttons. */
+  #fs {
+    position: fixed; top: max(8px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+    z-index: 5; font-size: 15px; padding: 6px 14px; border: 0; border-radius: 999px;
+    background: #00000055; color: #fff; display: none;
+  }
   #rotate { display: none; z-index: 20; }
   /* Phones held upright: the game wants landscape. */
   @media (orientation: portrait) and (max-width: 900px) and (pointer: coarse) {
@@ -47,9 +56,13 @@
 <div id="start" class="overlay">
   <h1>friendSLOP</h1>
   <p id="status">Loading…</p>
+  <div id="bar"><div></div></div>
   <button id="go" hidden>Tap to play</button>
+  <p id="ios">For fullscreen on iPhone: tap Share, then "Add to Home Screen", and play from there.</p>
   <p style="font-size:13px">Browser build: host or join friends with a join code (desktop players too). Voice chat needs the desktop game for now.</p>
 </div>
+
+<button id="fs" type="button">⛶ Fullscreen</button>
 
 <div id="rotate" class="overlay">
   <div class="phone">📱</div>
@@ -58,6 +71,20 @@
 
 <script type="module">
   const $ = (id) => document.getElementById(id);
+  const touch = matchMedia("(pointer: coarse)").matches;
+
+  // Render resolution (#191). Phones have 2-3 device pixels per CSS pixel,
+  // which is 4-9x the pixels to shade. Unless "Resolution: Sharp" is saved
+  // (video settings), draw at 1x; Sharp is capped at 2x. Bevy's winit reads
+  // devicePixelRatio for the canvas size, and on Chrome it'd measure device
+  // pixels directly instead, so hide that from it too.
+  const saved = (() => { try { return localStorage.getItem("friendslop/graphics.txt") || ""; } catch (_) { return ""; } })();
+  const sharp = /^sharp=1$/m.test(saved);
+  const ratio = sharp ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+  try {
+    Object.defineProperty(window, "devicePixelRatio", { get: () => ratio, configurable: true });
+    if (window.ResizeObserverEntry) delete ResizeObserverEntry.prototype.devicePixelContentBoxSize;
+  } catch (_) {}
 
   // iOS Safari: stop double-tap zoom, pinch (gesture*) and rubber-band scroll.
   for (const ev of ["gesturestart", "gesturechange", "gestureend", "dblclick"]) {
@@ -94,12 +121,58 @@
     try { await screen.orientation?.lock?.("landscape"); } catch (_) {}
   }
 
+  const canFullscreen = !!(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+  const isFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  // iPhone Safari can't fullscreen a page at all: the home screen app can.
+  const standalone = matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches || navigator.standalone;
+  if (touch && !canFullscreen && !standalone) $("ios").style.display = "block";
+  const showFs = () => {
+    $("fs").style.display = touch && canFullscreen && !isFullscreen() && !$("start") ? "block" : "none";
+  };
+  document.addEventListener("fullscreenchange", showFs);
+  document.addEventListener("webkitfullscreenchange", showFs);
+  $("fs").addEventListener("click", async () => { await goFullscreen(); showFs(); $("bevy").focus(); });
+
   $("go").addEventListener("click", async () => {
     unlock();
-    if (matchMedia("(pointer: coarse)").matches) await goFullscreen();
+    if (touch) await goFullscreen();
     $("start").remove();
+    showFs();
     $("bevy").focus();
   });
+
+  // Download the game with a progress bar (#191). It's one big file, and
+  // without this the page just sat there. The browser still compiles it
+  // while it downloads. The real size is filled in by build-web.sh, since
+  // servers often gzip it (then Content-Length is the compressed size).
+  const WASM_BYTES = Number("__WASM_BYTES__") || 0;
+  const mb = (n) => (n / 1048576).toFixed(1);
+  async function wasmWithProgress() {
+    const res = await fetch("./friendslop_bg.wasm");
+    if (!res.ok) throw new Error("download failed (" + res.status + ")");
+    const total = WASM_BYTES || Number(res.headers.get("content-length")) || 0;
+    if (!res.body || !window.ReadableStream) return res;
+    let got = 0;
+    const reader = res.body.getReader();
+    const stream = new ReadableStream({
+      async pull(ctrl) {
+        const { done, value } = await reader.read();
+        if (done) {
+          $("status").textContent = "Starting the game…";
+          $("bar").firstElementChild.style.width = "100%";
+          return ctrl.close();
+        }
+        got += value.byteLength;
+        const pct = total ? Math.min(99, (100 * got) / total) : 0;
+        $("bar").firstElementChild.style.width = pct + "%";
+        $("status").textContent = total
+          ? "Downloading the game… " + mb(got) + " / " + mb(total) + " MB"
+          : "Downloading the game… " + mb(got) + " MB";
+        ctrl.enqueue(value);
+      },
+    });
+    return new Response(stream, { headers: { "Content-Type": "application/wasm" } });
+  }
 
   const gl2 = !!document.createElement("canvas").getContext("webgl2");
   if (!gl2) {
@@ -107,10 +180,16 @@
   } else {
     try {
       const { default: init } = await import("./friendslop.js");
-      // Bevy's winit loop throws a control-flow "exception" on purpose: ignore it.
-      init().catch((e) => {
+      // Only offer "Tap to play" once the game is actually running (it used
+      // to say Ready while the download had barely begun: a blank screen).
+      // Bevy's winit loop throws a control-flow "exception" on purpose once
+      // it's started: that counts as started.
+      try {
+        await init({ module_or_path: wasmWithProgress() });
+      } catch (e) {
         if (!String(e).includes("Using exceptions for control flow")) throw e;
-      });
+      }
+      $("bar").remove();
       $("status").textContent = "Ready!";
       $("go").hidden = false;
     } catch (e) {

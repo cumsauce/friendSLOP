@@ -1,0 +1,13 @@
+[package]
+name = "web-textures"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+# Build-time helper for scripts/build-web.sh (#191), not part of the game's
+# workspace (so `cargo test --workspace` never builds it).
+[workspace]
+
+[dependencies]
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }

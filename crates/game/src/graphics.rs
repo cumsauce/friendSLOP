@@ -13,8 +13,10 @@
 //! - Bloom: the glow around the bonfire and emissives.
 //! - Anti-aliasing: smooth edges.
 //! - Draw distance: how far the fog starts and the camera draws.
-//! - Resolution: "Sharp" renders at the screen's pixel density, "Fast" at 1x
-//!   (phones are 2-3x).
+//! - Resolution (browser only, #191): "Sharp" renders at the screen's pixel
+//!   density (up to 2x), "Fast" at 1x (phones are 2-3x, so that's 4-9x fewer
+//!   pixels). index.html picks it before the game starts, so a change applies
+//!   on the next page load. Desktop always renders at the window's size.
 //! - Grass & particles: half or full (applies the next time a world is built).
 //! - VSync and Fullscreen: the window.
 //!
@@ -34,6 +36,18 @@ const FILE: &str = "graphics.txt";
 
 /// Can this platform do ambient occlusion?
 pub const SSAO_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
+
+/// Can the render resolution be lowered? Only in the browser, where
+/// index.html sets the canvas's pixel ratio before the game starts (#191).
+pub const RESOLUTION_ADJUSTABLE: bool = cfg!(target_arch = "wasm32");
+
+/// The Resolution setting the page started with (what index.html applied).
+static BOOT_SHARP: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+
+/// The UI is laid out for at least this many logical pixels. Smaller screens
+/// (a phone held sideways is ~850x390) scale the whole UI down to fit,
+/// touch controls included, instead of cutting it off (#191).
+const UI_MIN: Vec2 = Vec2::new(960.0, 600.0);
 
 /// Every video option. (The name stays from when it was just Low/High.)
 #[derive(Resource, Clone, Copy, Debug, PartialEq, Eq)]
@@ -78,7 +92,7 @@ impl Preset {
             bloom: !low,
             antialias: !low,
             far: !low,
-            sharp: high,
+            sharp: high || !RESOLUTION_ADJUSTABLE,
             dense: !low,
             ..q
         }
@@ -168,11 +182,14 @@ impl GraphicsQuality {
                     "Near"
                 }
             }
+            VideoOption::Resolution if !RESOLUTION_ADJUSTABLE => "N/A",
             VideoOption::Resolution => {
-                if self.sharp {
-                    "Sharp"
-                } else {
-                    "Fast"
+                let boot = BOOT_SHARP.get().copied().unwrap_or(self.sharp);
+                match (self.sharp, boot == self.sharp) {
+                    (true, true) => "Sharp",
+                    (false, true) => "Fast",
+                    (true, false) => "Sharp (reload)",
+                    (false, false) => "Fast (reload)",
                 }
             }
             VideoOption::Grass => {
@@ -203,7 +220,7 @@ impl GraphicsQuality {
             VideoOption::Bloom => self.bloom = !self.bloom,
             VideoOption::AntiAlias => self.antialias = !self.antialias,
             VideoOption::DrawDistance => self.far = !self.far,
-            VideoOption::Resolution => self.sharp = !self.sharp,
+            VideoOption::Resolution => self.sharp = !self.sharp || !RESOLUTION_ADJUSTABLE,
             VideoOption::Grass => self.dense = !self.dense,
             VideoOption::VSync => self.vsync = !self.vsync,
             VideoOption::Fullscreen => self.fullscreen = !self.fullscreen,
@@ -259,6 +276,7 @@ impl GraphicsQuality {
             any = true;
         }
         q.ssao &= SSAO_SUPPORTED;
+        q.sharp |= !RESOLUTION_ADJUSTABLE;
         any.then_some(q)
     }
 
@@ -287,9 +305,11 @@ impl GraphicsQuality {
 
 impl Default for GraphicsQuality {
     fn default() -> Self {
-        crate::settings::load_local(FILE)
+        let q = crate::settings::load_local(FILE)
             .and_then(|t| Self::from_text(&t))
-            .unwrap_or_else(Self::platform_default)
+            .unwrap_or_else(Self::platform_default);
+        BOOT_SHARP.get_or_init(|| q.sharp);
+        q
     }
 }
 
@@ -346,14 +366,17 @@ fn save_quality(q: Res<GraphicsQuality>) {
     }
 }
 
-/// Pixel density, vsync and fullscreen. Phones report 2-3 device pixels per
-/// CSS pixel: rendering at 1x is the single biggest win for fill rate. UI
-/// keeps its logical size.
+/// UI size, vsync and fullscreen. (The render resolution is index.html's
+/// job, see [`RESOLUTION_ADJUSTABLE`]: a scale factor override only changes
+/// how big the UI is, never how many pixels get drawn.)
 fn apply_window(q: Res<GraphicsQuality>, mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let Ok(mut window) = window.single_mut() else {
         return;
     };
-    let want = (!q.sharp).then_some(1.0);
+    let want = ui_fit(
+        window.resolution.physical_size().as_vec2(),
+        window.resolution.base_scale_factor(),
+    );
     if window.resolution.scale_factor_override() != want {
         window.resolution.set_scale_factor_override(want);
     }
@@ -376,6 +399,13 @@ fn apply_window(q: Res<GraphicsQuality>, mut window: Query<&mut Window, With<Pri
     if window.mode != mode {
         window.mode = mode;
     }
+}
+
+/// The scale factor that fits [`UI_MIN`] logical pixels on a screen this many
+/// physical pixels big, if that's smaller than the screen's own.
+fn ui_fit(physical: Vec2, base: f32) -> Option<f32> {
+    let fit = (physical / UI_MIN).min_element();
+    (fit > 0.0 && fit < base).then_some(fit)
 }
 
 /// Bloom, anti-aliasing, ambient occlusion, shadow filtering, fog and far
@@ -465,6 +495,19 @@ mod tests {
         assert_eq!(q.value(VideoOption::Preset), "Custom");
         q.cycle(VideoOption::Preset);
         assert_eq!(q.preset(), Some(Preset::Low));
+    }
+
+    #[test]
+    fn small_screens_shrink_the_ui_to_fit() {
+        // A desktop window, at 1x and on a 2x screen: untouched.
+        assert_eq!(ui_fit(Vec2::new(1280.0, 720.0), 1.0), None);
+        assert_eq!(ui_fit(Vec2::new(2560.0, 1440.0), 2.0), None);
+        // A phone sideways at 1x (Fast): 390 px tall shows 600 logical px.
+        let s = ui_fit(Vec2::new(844.0, 390.0), 1.0).unwrap_or(1.0);
+        assert!((390.0 / s - 600.0).abs() < 0.5);
+        // The same phone at 2x (Sharp) lays out the same.
+        let s2 = ui_fit(Vec2::new(1688.0, 780.0), 2.0).unwrap_or(2.0);
+        assert!((s2 - 2.0 * s).abs() < 1e-4);
     }
 
     #[test]

@@ -33,6 +33,12 @@ trigger Claude. The friend's Discord name is credited in the body.
 zone whose noon the daily question reminder uses (e.g. `Europe/London`; default `UTC`). Optional `AVATAR_HOURS`: how often the profile picture is redrawn (default `3`;
 `0` leaves it alone). It's only re-uploaded when the status changed, to stay inside Discord's
 avatar rate limit.
+   Optional `BATCH_MINUTES` (default 30; `0` = post right away): "it's in the game", new
+   questions and gameplay-loop posts are collected and sent together, one message per channel,
+   at most this often. The daily reminders go out as one message too.
+   Optional `BLOCKED_USERS`: comma-separated Discord user IDs to shadowban, on top of the
+   `BLOCKED` set in `bot.py`. Their `/idea` and `/answer` look like they worked, but nothing is
+   sent to GitHub. Remove an ID to lift the ban.
 
 Image: `ghcr.io/cumsauce/friendslop-idea-bot:latest`, built by `.github/workflows/idea-bot.yml`
 from `nix build .#idea-bot-image`.

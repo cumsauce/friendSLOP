@@ -146,6 +146,7 @@ impl Inst {
                 | Inst::Brass
                 | Inst::Pad
                 | Inst::Kalimba
+                | Inst::Flute
                 | Inst::Mini
                 | Inst::PolyBrass
                 | Inst::Strings
@@ -160,7 +161,7 @@ impl Inst {
             EPiano => 0.2,
             Bass | Kick | Fretless => 0.0,
             Lead | Brass | Mini => 0.26,
-            Flute => 0.35,
+            Flute => 0.45,
             Pad | Strings => 0.42,
             PolyBrass => 0.3,
             Snare | Ghost | Tom | Rim | Conga => 0.14,
@@ -170,7 +171,7 @@ impl Inst {
             Swell => 0.45,
             Bell | Chime | Xylo | Harp | Kalimba => 0.38,
             // A classical guitar in a big room.
-            Guitar => 0.5,
+            Guitar => 0.68,
         }
     }
 
@@ -181,12 +182,13 @@ impl Inst {
             Mini => 0.3,
             Lead => 0.26,
             Brass => 0.12,
-            Flute => 0.2,
-            Kalimba => 0.24,
-            Bell | Harp => 0.16,
+            Flute => 0.3,
+            Kalimba => 0.3,
+            Bell | Harp => 0.22,
+            EPiano => 0.07,
             PolyBrass => 0.05,
             Clap => 0.06,
-            Guitar => 0.07,
+            Guitar => 0.14,
             _ => 0.0,
         }
     }
@@ -1131,6 +1133,8 @@ struct PluckVoice {
     gr: f32,
     send: f32,
     echo: f32,
+    lp: [f32; 2],
+    lp_a: f32,
 }
 
 const PLUCK_VOICES: usize = 10;
@@ -1154,6 +1158,8 @@ impl PluckVoice {
             gr: 0.0,
             send: 0.0,
             echo: 0.0,
+            lp: [0.0; 2],
+            lp_a: 1.0,
         }
     }
 
@@ -1164,15 +1170,16 @@ impl PluckVoice {
         let t60 = (7.0 * (110.0 / f).powf(0.4)).clamp(1.8, 8.0);
         // Nylon is mellow: a well-damped loss filter, a touch brighter for
         // harder plucks and brighter sections.
-        let c = (0.5 - 0.16 * vel - 0.1 * bright).clamp(0.2, 0.55);
+        let c = (0.64 - 0.12 * vel - 0.06 * bright).clamp(0.45, 0.72);
         self.a = StringLoop::tune(f, c, t60);
-        self.b = StringLoop::tune(f * 1.0007, (c + 0.12).min(0.7), t60 * 0.55);
+        self.b = StringLoop::tune(f * 1.0002, (c + 0.1).min(0.8), t60 * 0.55);
         // The pluck: a triangle peaking where the thumb meets the string,
         // a little noise for the nail, smoothed more for soft notes.
         let n = self.a.delay.max(2);
         let at = 0.18 + 0.04 * (note as f32 * 0.37).fract();
         let peak = ((n as f32 * at) as usize).clamp(1, n - 1);
-        let nail = 0.12 + 0.25 * vel;
+        // Flesh more than nail: a soft, round attack.
+        let nail = 0.03 + 0.07 * vel;
         self.buf.fill(0.0);
         let mut mean = 0.0;
         for k in 0..n {
@@ -1190,7 +1197,7 @@ impl PluckVoice {
             mean += x;
         }
         mean /= n as f32;
-        let passes = if vel > 0.7 { 1 } else { 2 };
+        let passes = if vel > 0.8 { 2 } else { 3 };
         for _ in 0..passes {
             let mut prev = self.buf[n - 1] - mean;
             for k in 0..n {
@@ -1219,6 +1226,10 @@ impl PluckVoice {
         self.gr = pr * g;
         self.send = Inst::Guitar.send();
         self.echo = Inst::Guitar.echo();
+        // The body and the thumb soften the top end; harder plucks open it.
+        let fc = 2200.0 + 2800.0 * vel + 1200.0 * bright;
+        self.lp_a = 1.0 - (-std::f32::consts::TAU * fc / RATE as f32).exp();
+        self.lp = [0.0; 2];
         self.note = note;
         self.amp = 1.0;
         self.k_rel = per_sample(0.12);
@@ -1237,7 +1248,10 @@ impl PluckVoice {
         let (la, lb) = self.buf.split_at_mut(STRING_LEN);
         let mut loud = 0.0f32;
         for i in 0..n {
-            let x = self.a.tick(la, self.w) + self.b.tick(lb, self.w);
+            let raw = self.a.tick(la, self.w) + self.b.tick(lb, self.w);
+            self.lp[0] += self.lp_a * (raw - self.lp[0]);
+            self.lp[1] += self.lp_a * (self.lp[0] - self.lp[1]);
+            let x = self.lp[1] * 1.15;
             self.w = (self.w + 1) % STRING_LEN;
             if self.hold > 0 {
                 self.hold -= 1;
@@ -1260,6 +1274,179 @@ impl PluckVoice {
         self.age = self.age.saturating_add(n as u32);
         self.level = loud.max(self.level * 0.5);
         if (self.releasing && self.amp < 1e-4) || (self.age > RATE / 4 && self.level < 2e-5) {
+            self.active = false;
+        }
+    }
+}
+
+// --- Blown flute / bottle -------------------------------------------------
+
+/// A breathy blown pipe, half FM and half noise. A sine is phase-modulated
+/// at twice its pitch, which adds only odd harmonics: the hollow tone of a
+/// bottle or an ocarina. Breath (noise through a resonance at the note's
+/// pitch, plus a little hiss) rides on top. The modulation index swells with
+/// the breath, so a note starts with a "chiff", blooms and settles; harder
+/// notes blow brighter, softer ones are mostly air. Low notes are bottles
+/// (purer, breathier), high ones flutes (brighter). Vibrato arrives late.
+#[derive(Clone, Copy, Debug)]
+struct BlowVoice {
+    active: bool,
+    freq: f32,
+    target: f32,
+    glide: f32,
+    ph: f32,
+    mph: f32,
+    vib: f32,
+    age: u32,
+    hold: u32,
+    releasing: bool,
+    amp: f32,
+    att: f32,
+    k_rel: f32,
+    breath: f32,
+    index: f32,
+    chiff: f32,
+    flutter: f32,
+    noise: u32,
+    bp: [f32; 2],
+    hiss: f32,
+    air: f32,
+    vel: f32,
+    gl: f32,
+    gr: f32,
+}
+
+const BLOW_VOICES: usize = 4;
+
+impl BlowVoice {
+    fn idle() -> Self {
+        Self {
+            active: false,
+            freq: 440.0,
+            target: 440.0,
+            glide: 0.0,
+            ph: 0.0,
+            mph: 0.0,
+            vib: 0.0,
+            age: 0,
+            hold: 0,
+            releasing: false,
+            amp: 0.0,
+            att: 0.0,
+            k_rel: 0.0,
+            breath: 0.0,
+            index: 0.0,
+            chiff: 0.0,
+            flutter: 0.0,
+            noise: 0x9E37_79B9,
+            bp: [0.0; 2],
+            hiss: 0.0,
+            air: 0.3,
+            vel: 0.0,
+            gl: 0.0,
+            gr: 0.0,
+        }
+    }
+
+    fn start(&mut self, note: u8, vel: f32, len: u32, seed: u32) {
+        let vel = vel.clamp(0.05, 1.0);
+        let f = hz(note as f32);
+        // 0 = bottle (low), 1 = flute (high).
+        let reg = ((note as f32 - 62.0) / 20.0).clamp(0.0, 1.0);
+        let (pl, pr) = pan_gains(0.12);
+        let g = 0.2 * dyn_gain(vel);
+        *self = Self {
+            active: true,
+            freq: f,
+            target: f,
+            ph: 0.0,
+            mph: 0.25,
+            // Soft notes take longer to speak.
+            att: INV_RATE / (0.025 + 0.06 * (1.0 - vel)),
+            k_rel: per_sample(0.09),
+            hold: len.max(RATE / 25),
+            chiff: 1.0,
+            noise: seed | 1,
+            air: 0.45 - 0.25 * reg - 0.15 * vel,
+            vel,
+            gl: pl * g,
+            gr: pr * g,
+            ..Self::idle()
+        };
+    }
+
+    fn glide_to(&mut self, note: u8, vel: f32, len: u32, time: f32) {
+        self.target = hz(note as f32);
+        self.glide = 1.0 - per_sample(time);
+        self.hold = len.max(1);
+        self.releasing = false;
+        self.vel = vel.clamp(0.05, 1.0);
+        // A little tongue on the new note.
+        self.chiff = self.chiff.max(0.35);
+    }
+
+    #[inline]
+    fn render(&mut self, out: Out, g0: f32, g1: f32) {
+        use std::f32::consts::TAU;
+        let n = out.l.len();
+        let dg = (g1 - g0) / n.max(1) as f32;
+        let mut g = g0;
+        let k_chiff = per_sample(0.035);
+        let k_flutter = 1.0 - per_sample(0.05);
+        let peak = 0.55 + 1.1 * self.vel;
+        for i in 0..n {
+            if self.glide > 0.0 {
+                self.freq = self.target + (self.freq - self.target) * self.glide;
+            }
+            if self.hold > 0 {
+                self.hold -= 1;
+                if self.hold == 0 {
+                    self.releasing = true;
+                }
+            }
+            if self.releasing {
+                self.amp *= self.k_rel;
+            } else if self.amp < 1.0 {
+                self.amp = (self.amp + self.att).min(1.0);
+            }
+            self.chiff *= k_chiff;
+            // Breath pressure: the envelope with a slow, uneven flutter.
+            self.noise ^= self.noise << 13;
+            self.noise ^= self.noise >> 17;
+            self.noise ^= self.noise << 5;
+            let white = self.noise as f32 / u32::MAX as f32 * 2.0 - 1.0;
+            self.flutter += (white - self.flutter) * k_flutter;
+            self.breath = self.amp * (1.0 + 0.6 * self.flutter);
+            // The tone blooms with the breath and spikes at the onset.
+            let want_index = self.breath * peak + 1.2 * self.chiff;
+            self.index += (want_index - self.index) * 0.002;
+            let t = self.age as f32 * INV_RATE;
+            let vib_depth = 0.004 * ((t - 0.35) / 0.4).clamp(0.0, 1.0);
+            self.vib = (self.vib + 5.2 * INV_RATE).fract();
+            let f = self.freq * (1.0 + vib_depth * (TAU * self.vib).sin());
+            self.ph = (self.ph + f * INV_RATE).fract();
+            self.mph = (self.mph + 2.0 * f * INV_RATE).fract();
+            let tone = (TAU * self.ph + self.index * (TAU * self.mph).sin()).sin();
+            // Breath noise resonating at the note, and a little open hiss.
+            let fc = (f * 1.0).min(RATE as f32 / 8.0);
+            let k = 2.0 * (std::f32::consts::PI * fc * INV_RATE).sin();
+            let q = 0.12;
+            let hp = white - self.bp[1] - q * self.bp[0];
+            self.bp[0] += k * hp;
+            self.bp[1] += k * self.bp[0];
+            self.hiss += (white - self.hiss) * 0.35;
+            let air = self.air * (1.0 + 2.0 * self.chiff);
+            let x = tone * (1.0 - 0.5 * air) + air * (0.35 * self.bp[0] + 0.12 * self.hiss);
+            let s = x * self.breath * g;
+            out.l[i] += s * self.gl;
+            out.r[i] += s * self.gr;
+            let m = s * (self.gl + self.gr);
+            out.send[i] += m * Inst::Flute.send();
+            out.echo[i] += m * Inst::Flute.echo();
+            self.age = self.age.saturating_add(1);
+            g += dg;
+        }
+        if self.releasing && self.amp < 1e-4 {
             self.active = false;
         }
     }
@@ -1337,14 +1524,6 @@ const RECIPES: &[Recipe] = &[
         character: 0.5,
         secs: 0.5,
         gain: 0.2,
-    },
-    Recipe {
-        inst: Inst::Flute,
-        foley: 5,
-        notes: &[64, 68, 72, 76, 80, 84],
-        character: 0.6,
-        secs: 1.2,
-        gain: 0.22,
     },
     Recipe {
         inst: Inst::Harp,
@@ -1571,10 +1750,10 @@ fn bus_eq(b: usize) -> StereoEq {
         _ => StereoEq::new(&[
             Eq::Hp(75.0, 0.7),
             Eq::Peak(105.0, 1.4, 2.0),
-            Eq::Peak(220.0, 1.2, 0.5),
-            Eq::Peak(420.0, 0.9, -3.5),
-            Eq::Peak(3000.0, 0.8, 3.5),
-            Eq::HighShelf(9000.0, -2.0),
+            Eq::Peak(220.0, 1.2, 1.5),
+            Eq::Peak(420.0, 0.9, -3.0),
+            Eq::Peak(2500.0, 0.8, 0.5),
+            Eq::HighShelf(6000.0, -4.0),
         ]),
     }
 }
@@ -1589,6 +1768,7 @@ pub struct Band {
     fm: [FmVoice; FM_VOICES],
     lead: FmVoice,
     mini: SubVoice,
+    blow: [BlowVoice; BLOW_VOICES],
     sub: [SubVoice; SUB_VOICES],
     pluck: Vec<PluckVoice>,
     smp: [SampleVoice; SAMPLE_VOICES],
@@ -1635,6 +1815,7 @@ impl Band {
             fm: [FmVoice::idle(); FM_VOICES],
             lead: FmVoice::idle(),
             mini: SubVoice::idle(),
+            blow: [BlowVoice::idle(); BLOW_VOICES],
             sub: [SubVoice::idle(); SUB_VOICES],
             pluck: (0..PLUCK_VOICES).map(|_| PluckVoice::idle()).collect(),
             smp: [SampleVoice {
@@ -1699,6 +1880,7 @@ impl Band {
             + self.pluck.iter().filter(|v| v.active).count()
             + usize::from(self.lead.active)
             + usize::from(self.mini.active)
+            + self.blow.iter().filter(|v| v.active).count()
     }
 
     pub fn play(&mut self, ev: &Ev) {
@@ -1728,6 +1910,25 @@ impl Band {
                     self.mini.start(ev.inst, ev.note, ev.vel, ev.len, 0.06);
                     self.mini.cut_mul = exp2_fast(self.bright - 0.5);
                 }
+            }
+            Inst::Flute => {
+                if ev.glide
+                    && let Some(v) = self.blow.iter_mut().find(|v| v.active && !v.releasing)
+                {
+                    v.glide_to(ev.note, ev.vel, ev.len, 0.06);
+                    return;
+                }
+                let slot = self.blow.iter().position(|v| !v.active).unwrap_or_else(|| {
+                    let mut best = 0;
+                    for (i, v) in self.blow.iter().enumerate() {
+                        if v.amp < self.blow[best].amp {
+                            best = i;
+                        }
+                    }
+                    best
+                });
+                let seed = (self.rand() * u32::MAX as f32) as u32;
+                self.blow[slot].start(ev.note, ev.vel, ev.len, seed);
             }
             Inst::Guitar => {
                 // The same note again re-plucks its string.
@@ -1963,6 +2164,10 @@ impl Band {
         }
         for v in self.pluck.iter_mut().filter(|v| v.active) {
             let b = Bus::Guitar as usize;
+            v.render(out!(b), g0[b], g1[b]);
+        }
+        for v in self.blow.iter_mut().filter(|v| v.active) {
+            let b = Bus::Lead as usize;
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.smp.iter_mut().filter(|v| v.active) {

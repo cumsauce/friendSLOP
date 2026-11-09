@@ -5,7 +5,7 @@
 use bevy::prelude::*;
 
 pub mod ambience;
-pub mod art;
+pub use friendslop_art::art;
 pub mod assets;
 pub mod atmosphere;
 pub mod buildings;
@@ -17,7 +17,7 @@ pub mod features;
 pub mod footsteps;
 pub mod graphics;
 pub mod hud;
-pub mod kcc;
+pub use friendslop_kcc as kcc;
 pub mod landmarks;
 pub mod loading;
 pub mod menu;
@@ -25,7 +25,7 @@ pub mod menu;
 #[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
 pub mod net;
 /// `bevy_replicon_iroh`'s wire format, shared by the browser transport.
-pub mod net_wire;
+pub use friendslop_wire as net_wire;
 pub mod people;
 pub mod player;
 pub mod scenery;
@@ -35,7 +35,7 @@ pub mod settings;
 pub mod spatial;
 pub mod surfaces;
 pub mod terrain;
-pub mod theme;
+pub use friendslop_art::theme;
 pub mod voice;
 #[cfg(target_arch = "wasm32")]
 pub mod web;

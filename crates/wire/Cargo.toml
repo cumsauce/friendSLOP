@@ -1,0 +1,15 @@
+[package]
+name = "friendslop-wire"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "The network wire format shared by the desktop (bevy_replicon_iroh) and browser transports. std only."
+
+[dependencies]
+
+# The tests check these constants still match the desktop transport.
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+bevy_replicon_iroh.workspace = true
+
+[lints]
+workspace = true

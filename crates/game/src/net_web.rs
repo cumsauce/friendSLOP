@@ -5,7 +5,7 @@
 //! every tick, which a browser's single thread can't do. Here iroh runs in
 //! `spawn_local` tasks instead and talks to Bevy through channels that the
 //! systems below drain without ever blocking. The bytes on the wire are
-//! exactly `bevy_replicon_iroh`'s (see `net_wire.rs`), so a desktop host can't
+//! exactly `bevy_replicon_iroh`'s (see `crates/wire`), so a desktop host can't
 //! tell a browser client apart, and the other way round.
 //!
 //! In the browser iroh can't send UDP: every connection goes through iroh's

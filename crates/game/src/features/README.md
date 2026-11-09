@@ -21,3 +21,7 @@ component). Calling `assets.load(..)` each frame and dropping the result throws 
 load away, so it restarts every frame and never finishes. The duel's cowboy models did this,
 re-parsing two glTFs every frame (~5 ms). `FRIENDSLOP_BENCH=1 cargo run -- host` prints frame times plus
 mesh/material churn per second; steady churn there means something rebuilds GPU buffers each frame.
+
+**Keep the logic pure.** Put a feature's decisions in plain functions (values in, values out) and
+keep its systems as thin wiring. Anything that needs no game state (a mesh or sound generator, a
+format, maths) belongs in a foundation crate instead; see "Crates" in AGENTS.md.

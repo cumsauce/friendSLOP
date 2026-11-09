@@ -74,16 +74,63 @@ crates/game/src/
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)
   controls.rs   touch overlay + gamepad, fed into the same keys / WalkInput as keyboard+mouse
   graphics.rs   Low/High graphics preset (Low by default in the browser)
-  net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (net_wire.rs)
+  net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
   landmarks.rs  pond, campfire seats/stones and string lights dressing (local visuals)
   surfaces.rs   procedural PBR surfaces (albedo/normal/roughness) for plain materials, metre UVs
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167)
   features/     one module per idea, see features/README.md
 crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
+crates/art/          friendslop-art: procedural materials/meshes/textures (`art`) and the UI theme (`theme`)
+crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy port, own licence files)
+crates/wire/         friendslop-wire: the iroh wire format shared by the desktop and browser transports
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
 ```
+
+### Crates (how the code is layered)
+
+The workspace has two layers, and dependencies only ever point down:
+
+1. **Foundation crates** (`fusion`, `friendslop-art`, `friendslop-kcc`, `friendslop-wire`): reusable
+   building blocks with **no game code**. They depend only on Bevy, avian and std (or nothing),
+   never on `friendslop` and never on each other unless it's written down here.
+2. **The game** (`crates/game`, package `friendslop`): app states, networking, players, the
+   world, and every idea in `features/`. It re-exports the foundation crates under their old
+   module names (`crate::art`, `crate::theme`, `crate::kcc`, `crate::net_wire`), so feature code
+   uses them like any other module.
+
+Rules for growing it:
+
+- **Where new code goes.** Gameplay for an idea goes in `features/`, as always. Put something
+  in a foundation crate instead when it needs no game state: generators (meshes, textures,
+  sounds, maps), maths, file or wire formats, synths, controllers. A Bevy system that reads or
+  writes game components stays in the game.
+- **Write features as pure functions plus thin systems.** Put the decisions (who gets blamed,
+  what a visit gives you, where a thing stands) in plain functions that take values and
+  return values, and keep the systems as wiring. They're cheap to test and can move down to a
+  crate later without a rewrite.
+- **Networking registration lives only in the game.** `replicate`, `add_*_message` and
+  `add_*_event` are called only from protocol functions in `crates/game`, appended in order. A
+  foundation crate never registers anything, so the order stays in one place.
+- **Every crate builds for the browser.** No threads, `std::fs`, `std::time::Instant` or
+  `SystemTime` in them (see Web, below). Native-only dependencies are target-gated.
+- **Making a new crate.** Make one when a module has a clean seam (it only needs foundation
+  crates and Bevy) and is either reused, slow to compile or big enough to stand alone. Don't
+  split just because a file is long. Name it `friendslop-<thing>` in `crates/<thing>`, inherit
+  the workspace lints and edition, say "No game code" in its description, keep its tests
+  inside it (`cargo test -p friendslop-<thing>` is the fast loop), re-export it from
+  `crates/game/src/lib.rs` if many paths use it, and add it to the tree above and to this list.
+- **Features talk to each other through small public surfaces.** Use another feature's `pub`
+  consts, functions and events, not its private components or internals. When two features
+  need each other, give the shared bit to the one that owns it and keep the link one-way where
+  you can.
+- **Next split (not done yet): the map.** `terrain.rs` and `zones.rs` import features
+  (`duel`, `dave_commune`, `wendys`, `warehouse`, `underground`) to know where things stand, so
+  they can't leave the game crate yet. The way forward is for features to *register* their
+  footprint (an arena, a building, a hole in the ground) and for the map to read those
+  registrations. Once that's inverted, terrain, buildings, zones and surfaces can become a
+  `friendslop-world` crate. New map-shaping features should register rather than be imported.
 
 ### Networking rules (bevy_replicon 0.45)
 

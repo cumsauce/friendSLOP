@@ -39,7 +39,8 @@ fn main() -> AppExit {
         ))
         .add_plugins(friendslop::GamePlugin)
         .add_systems(Startup, cli_args)
-        .add_systems(Update, bench.run_if(bench_enabled))
+        .init_resource::<Churn>()
+        .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))
         .add_plugins(PipelineLog)
         .run()
 }
@@ -82,8 +83,42 @@ fn bench_enabled() -> bool {
     std::env::var_os("FRIENDSLOP_BENCH").is_some_and(|v| v != "0")
 }
 
+/// Asset events seen during the bench window, per asset type: (added,
+/// modified, removed). Steady churn here means GPU buffers rebuilt every
+/// frame.
+#[derive(Resource, Default)]
+struct Churn {
+    mesh: [u32; 3],
+    material: [u32; 3],
+    image: [u32; 3],
+}
+
+fn tally<A: Asset>(events: &mut MessageReader<AssetEvent<A>>, n: &mut [u32; 3]) {
+    for e in events.read() {
+        match e {
+            AssetEvent::Added { .. } => n[0] += 1,
+            AssetEvent::Modified { .. } => n[1] += 1,
+            AssetEvent::Removed { .. } => n[2] += 1,
+            _ => {}
+        }
+    }
+}
+
+fn churn(
+    mut meshes: MessageReader<AssetEvent<Mesh>>,
+    mut materials: MessageReader<AssetEvent<StandardMaterial>>,
+    mut images: MessageReader<AssetEvent<Image>>,
+    mut churn: ResMut<Churn>,
+) {
+    tally(&mut meshes, &mut churn.mesh);
+    tally(&mut materials, &mut churn.material);
+    tally(&mut images, &mut churn.image);
+}
+
 fn bench(
     time: Res<Time<Real>>,
+    mut churn: ResMut<Churn>,
+    entities: Query<()>,
     state: Res<State<friendslop::AppState>>,
     mut samples: Local<Vec<f32>>,
     mut started: Local<Option<f32>>,
@@ -108,6 +143,7 @@ fn bench(
         println!("BENCH world_ready_s={:.2}", ready.took_secs);
     }
     if now < start {
+        *churn = Churn::default();
         return;
     }
     samples.push(dt);
@@ -127,6 +163,22 @@ fn bench(
         sorted.len(),
         1000.0 / avg.max(1e-3)
     );
+    let secs = (now - start).max(1e-3);
+    let per = |n: [u32; 3]| {
+        format!(
+            "+{:.1}/s ~{:.1}/s -{:.1}/s",
+            n[0] as f32 / secs,
+            n[1] as f32 / secs,
+            n[2] as f32 / secs
+        )
+    };
+    println!(
+        "BENCH entities={} mesh {} material {} image {}",
+        entities.iter().count(),
+        per(churn.mesh),
+        per(churn.material),
+        per(churn.image)
+    );
     exit.write(AppExit::Success);
 }
 
@@ -141,7 +193,8 @@ fn asset_root() -> PathBuf {
     if cfg!(target_arch = "wasm32") {
         return PathBuf::from("assets");
     }
-    let found = |dir: &Path| dir.join("audio/music/catsong.ogg").is_file();
+    // CREDITS.md is always there (unlike any one LFS asset).
+    let found = |dir: &Path| dir.join("CREDITS.md").is_file();
     let mut candidates: Vec<PathBuf> = Vec::new();
     if let Ok(manifest) = std::env::var("CARGO_MANIFEST_DIR") {
         candidates.push(PathBuf::from(manifest).join("assets"));

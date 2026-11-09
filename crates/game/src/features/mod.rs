@@ -32,6 +32,7 @@ pub mod mushroom;
 pub mod objective;
 pub mod organ_currency;
 pub mod pets;
+pub mod punishment;
 pub mod random_dialogue;
 pub mod romance;
 pub mod sesbian_lex;
@@ -78,6 +79,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(crate::people::protocol);
         app.add_plugins(abuela::protocol);
         app.add_plugins(sesbian_lex::protocol);
+        app.add_plugins(punishment::protocol);
     }
 }
 
@@ -121,5 +123,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(climb::plugin);
         app.add_plugins(abuela::plugin);
         app.add_plugins(sesbian_lex::plugin);
+        app.add_plugins(punishment::plugin);
     }
 }

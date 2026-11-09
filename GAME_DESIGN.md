@@ -242,6 +242,16 @@ asked for, and what nobody has decided yet.
   falls for you instead of just judging: pink hearts float up above them and everyone hears a
   soft, generated chorus of "aww". You are still shamed. It's only a moment so far; the NPC
   doesn't remember you afterwards.
+- **Punishment** (#123). Every time an NPC catches you farting counts (shown bottom-right as
+  "caught farting N/4"). On the 4th catch the count resets and the commune goes into **attack
+  mode** for 60 s: all ten villagers drop what they're doing and run straight at your body
+  (4 m/s, a little slower than walking, so you can stay ahead by keeping moving) and crowd you
+  when they reach you. Everyone sees a red "ATTACK MODE" line with a countdown, the band goes
+  quiet under frantic, high-pitched string music (bouncing chromatic 16ths, shrieking stabs,
+  a trembling cluster, generated in code) and every chasing villager jingles like a pocket full
+  of keys. Catches don't count while you're already being chased; the clock pauses in the
+  stillness. Only the villagers chase (the bear, crows and Dave keep to their routes), and being
+  reached does nothing yet.
 - **Sesbian lex** (#1). Press L to start a smooch pile where you stand, L near it (within 8 m) to
   pile in, L again or wander off (14 m) to peel away. Join order hands out titles: first in is
   daddy, second the he/him butch, later joiners rotate through more ("the comfortable one",
@@ -460,6 +470,8 @@ asked for, and what nobody has decided yet.
   pitch.
 - Kori.exe (#97): sometimes an NPC who catches you farting gets hearts above them and makes
   soft sounds of awe.
+- Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
+  chase you while high-pitched string music plays and they make jingling-keys sounds.
 
 - (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
   founded the Commune of Dave. Freyja Moth (#43): its flag is themed on the UK flag, with the Welsh
@@ -500,6 +512,7 @@ asked for, and what nobody has decided yet.
 - Does holding in gas (or farting) do anything beyond shame? Who else counts as an NPC?
 - What's up on the lower floating islands? (The top one is heaven, with Abuela.) (#99)
 - An NPC can fall for you now (#97). Should that lead anywhere?
+- The villagers chase you in attack mode (#123). What happens if they catch you?
 - The lex pile (#1) just heats up. Should it do anything, or cost or earn anything?
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?

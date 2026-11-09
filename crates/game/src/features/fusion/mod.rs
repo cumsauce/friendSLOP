@@ -269,12 +269,19 @@ fn music_volume(
     settings: Option<Res<Settings>>,
     time: Res<Time>,
     mut fade_in: Local<f32>,
+    mut hush: Local<f32>,
+    attacks: Query<&crate::features::punishment::AttackMode>,
     mut sinks: Query<&mut AudioSink, With<MusicPlayer>>,
 ) {
     let master = settings.map_or(0.8, |s| s.master_volume);
+    // Attack mode's strings (#123) play over a silent band.
+    let quiet = crate::features::punishment::attack_on(&attacks);
+    let k = 1.0 - (-3.0 * time.delta_secs()).exp();
+    *hush += (f32::from(u8::from(quiet)) - *hush) * k;
     for mut sink in &mut sinks {
         *fade_in = (*fade_in + time.delta_secs() / 2.0).min(1.0);
-        sink.set_volume(Volume::Linear(MUSIC_LEVEL * master * *fade_in));
+        let level = MUSIC_LEVEL * master * *fade_in * (1.0 - *hush);
+        sink.set_volume(Volume::Linear(level));
     }
 }
 

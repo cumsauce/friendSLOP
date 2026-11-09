@@ -222,6 +222,7 @@ fn think(
     mut rng: ResMut<VillageRng>,
     nav: Option<Res<VillageNav>>,
     still: Query<&super::stillness::Stillness>,
+    hunted: super::punishment::Hunted,
     mut villagers: Query<(
         &mut Villager,
         &mut Brain,
@@ -239,7 +240,19 @@ fn think(
     if super::stillness::is_frozen(&still) {
         return; // villagers respect the stillness too
     }
+    let prey = hunted.spots();
     for (mut v, mut brain, agent_target, desired, state) in &mut villagers {
+        // Attack mode (#123): drop everything and chase the farter.
+        if let Some((pos, dir)) = super::punishment::chase_step(v.pos, &prey, dt) {
+            v.pos = outside_arena(pos);
+            v.yaw = (-dir.x).atan2(-dir.y);
+            if v.sitting {
+                v.sitting = false;
+            }
+            brain.target = v.pos;
+            brain.wait = 1.5; // catch their breath, then wander off again
+            continue;
+        }
         if brain.wait > 0.0 {
             brain.wait -= dt;
             if brain.wait <= 0.0 {

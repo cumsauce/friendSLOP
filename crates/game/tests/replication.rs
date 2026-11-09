@@ -1314,3 +1314,54 @@ fn sesbian_lex_pile_forms_heats_up_and_peels_apart() {
     assert!(piles(&mut server).is_empty());
     assert!(piles(&mut client).is_empty());
 }
+
+#[test]
+fn four_catches_set_the_villagers_on_you() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::fart::{Fart, Gas, npc_spots};
+    use friendslop::features::punishment::{AttackMode, STRIKES_TO_ATTACK, Strikes};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    step_all(&mut server, &mut [&mut client]);
+    let strikes = |app: &mut App| {
+        let world = app.world_mut();
+        world
+            .query::<(&Player, &Strikes)>()
+            .iter(world)
+            .find(|(p, _)| p.id == 1)
+            .map(|(_, s)| s.0)
+    };
+    let attacks = |app: &mut App| {
+        let world = app.world_mut();
+        world
+            .query::<&AttackMode>()
+            .iter(world)
+            .copied()
+            .collect::<Vec<_>>()
+    };
+    let dave = npc_spots(0.0, [], [])[0];
+    for n in 1..=STRIKES_TO_ATTACK + 2 {
+        let world = server.world_mut();
+        for mut gas in world.query::<&mut Gas>().iter_mut(world) {
+            gas.0 = 100;
+        }
+        step_all(&mut server, &mut [&mut client]);
+        client.world_mut().client_trigger(Fart { at: dave });
+        step_all(&mut server, &mut [&mut client]);
+        // The host hears its own `Farted` a step after the clients do.
+        step_all(&mut server, &mut [&mut client]);
+        if n < STRIKES_TO_ATTACK {
+            assert_eq!(strikes(&mut server), Some(n), "server strike {n}");
+            assert_eq!(strikes(&mut client), Some(n), "strike {n}");
+            assert!(attacks(&mut client).is_empty());
+        } else {
+            // On the last strike the count resets and the chase is on; more
+            // catches while being chased don't count.
+            assert_eq!(strikes(&mut client), Some(0), "after strike {n}");
+            let on = attacks(&mut client);
+            assert_eq!(on.len(), 1, "one attack: {on:?}");
+            assert_eq!(on[0].target, 1);
+        }
+    }
+}

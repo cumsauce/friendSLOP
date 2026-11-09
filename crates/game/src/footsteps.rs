@@ -1,6 +1,7 @@
-//! Footsteps and landing thuds for your own body (polish, not a friend idea).
+//! Footsteps and landing thuds (polish, not a friend idea): yours, and
+//! everyone else's heard from where they walk.
 //!
-//! Purely local: each peer watches its own replicated `Walker` position, so
+//! Purely local: each peer watches the replicated `Walker` positions, so
 //! nothing new goes over the network. The sounds are synthesized once at
 //! startup (soft noise crunch over a low thump), a few variants so steps
 //! don't sound like a machine gun. Dirt paths sound a little crisper.
@@ -8,6 +9,7 @@
 use std::sync::Arc;
 
 use bevy::audio::{AudioSource, Volume};
+use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
 
 use crate::AppState;
@@ -40,8 +42,10 @@ struct Gait {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(Startup, make_sounds)
-        .add_systems(Update, step_sounds.run_if(in_state(AppState::InGame)));
+    app.add_systems(Startup, make_sounds).add_systems(
+        Update,
+        (step_sounds, others_steps).run_if(in_state(AppState::InGame)),
+    );
 }
 
 fn make_sounds(mut commands: Commands, audio: Option<ResMut<Assets<AudioSource>>>) {
@@ -82,7 +86,65 @@ pub fn step(seed: u32, cutoff: f32, secs: f32) -> Vec<f32> {
         .collect()
 }
 
-#[allow(clippy::too_many_arguments)]
+/// What a body's latest move sounds like.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Footfall {
+    Land,
+    Step { on_path: bool },
+}
+
+impl Gait {
+    /// Follow a body to `pos`: a footfall every stride on the ground, a thud
+    /// on landing, nothing in the air or on a teleport.
+    fn advance(&mut self, pos: Vec3, dt: f32) -> Option<Footfall> {
+        let last = self.last.replace(pos)?;
+        if dt <= 0.0 {
+            return None;
+        }
+        let moved = pos - last;
+        // Teleports (respawn, fate) aren't steps.
+        if moved.length() > 3.0 {
+            self.travelled = 0.0;
+            return None;
+        }
+        // Replicated positions come in steps, so smooth the vertical speed.
+        let vy = moved.y / dt;
+        let prev_vy = self.vy;
+        self.vy += (vy - self.vy) * (dt * 20.0).min(1.0);
+        if prev_vy < LANDING_VY && self.vy.abs() < 1.0 {
+            self.travelled = 0.0;
+            return Some(Footfall::Land);
+        }
+        if self.vy.abs() > AIRBORNE_VY {
+            return None;
+        }
+        self.travelled += moved.xz().length();
+        if self.travelled < STRIDE {
+            return None;
+        }
+        self.travelled = 0.0;
+        Some(Footfall::Step {
+            on_path: crate::terrain::is_path(pos.x, pos.z),
+        })
+    }
+
+    /// Which sound a footfall makes (stepping through the variants).
+    fn sound<'a>(
+        &mut self,
+        sounds: &'a StepSounds,
+        fall: Footfall,
+    ) -> Option<&'a Handle<AudioSource>> {
+        match fall {
+            Footfall::Land => Some(&sounds.land),
+            Footfall::Step { on_path } => {
+                let set = if on_path { &sounds.path } else { &sounds.grass };
+                self.next = (self.next + 1) % set.len().max(1);
+                set.get(self.next)
+            }
+        }
+    }
+}
+
 fn step_sounds(
     mut commands: Commands,
     time: Res<Time>,
@@ -97,48 +159,53 @@ fn step_sounds(
         gait.last = None;
         return;
     };
-    let dt = time.delta_secs();
-    let Some(last) = gait.last.replace(w.pos) else {
+    let Some(fall) = gait.advance(w.pos, time.delta_secs()) else {
         return;
     };
-    if dt <= 0.0 {
-        return;
-    }
-    let moved = w.pos - last;
-    // Teleports (respawn, fate) aren't steps.
-    if moved.length() > 3.0 {
-        gait.travelled = 0.0;
-        return;
-    }
-    // Replicated positions come in steps, so smooth the vertical speed.
-    let vy = moved.y / dt;
-    let prev_vy = gait.vy;
-    gait.vy = gait.vy + (vy - gait.vy) * (dt * 20.0).min(1.0);
-    let mut play = |handle: &Handle<AudioSource>, volume: f32| {
+    let volume = if fall == Footfall::Land { 0.5 } else { 0.22 };
+    if let Some(handle) = gait.sound(&sounds, fall) {
         commands.spawn((
             AudioPlayer(handle.clone()),
             PlaybackSettings::DESPAWN.with_volume(Volume::Linear(volume)),
             DespawnOnExit(AppState::InGame),
         ));
-    };
-    if prev_vy < LANDING_VY && gait.vy.abs() < 1.0 {
-        play(&sounds.land, 0.5);
-        gait.travelled = 0.0;
-        return;
     }
-    if gait.vy.abs() > AIRBORNE_VY {
-        return;
-    }
-    gait.travelled += moved.xz().length();
-    if gait.travelled < STRIDE {
-        return;
-    }
-    gait.travelled = 0.0;
-    let on_path = crate::terrain::is_path(w.pos.x, w.pos.z);
-    let set = if on_path { &sounds.path } else { &sounds.grass };
-    gait.next = (gait.next + 1) % set.len().max(1);
-    if let Some(handle) = set.get(gait.next) {
-        play(handle, 0.22);
+}
+
+/// Everyone else's footsteps, heard from their feet (see `crate::spatial`).
+fn others_steps(
+    mut commands: Commands,
+    time: Res<Time>,
+    sounds: Option<Res<StepSounds>>,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &Walker)>,
+    duelists: Query<&Duelist>,
+    mut gaits: Local<HashMap<u64, Gait>>,
+) {
+    let Some(sounds) = sounds else { return };
+    let mine = me.map(|m| m.0);
+    let dt = time.delta_secs();
+    gaits.retain(|id, _| walkers.iter().any(|(p, _)| p.id == *id));
+    for (player, w) in &walkers {
+        if Some(player.id) == mine || duelists.iter().any(|d| d.player == player.id) {
+            gaits.remove(&player.id);
+            continue;
+        }
+        let gait = gaits.entry(player.id).or_default();
+        let Some(fall) = gait.advance(w.pos, dt) else {
+            continue;
+        };
+        let volume = if fall == Footfall::Land { 0.6 } else { 0.35 };
+        if let Some(handle) = gait.sound(&sounds, fall) {
+            let feet = w.pos + Vec3::Y * 0.1;
+            crate::spatial::play_at(
+                &mut commands,
+                handle,
+                feet,
+                volume,
+                crate::spatial::Carry::STEP,
+            );
+        }
     }
 }
 

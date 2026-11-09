@@ -196,7 +196,7 @@ fn fly(
             .find(|(p, _)| p.id == heli.target)
             .map(|(_, w)| w.pos)
             // Under the meadow in the warehouse (#130), it loses you for a while.
-            .filter(|feet| !super::warehouse::inside(*feet));
+            .filter(|feet| !super::warehouse::inside(*feet) && !super::underground::below(*feet));
         let goal = match (gunner.leaving, feet) {
             (false, Some(feet)) => hover_spot(feet, heli.pos),
             _ => ARRIVE_FROM,

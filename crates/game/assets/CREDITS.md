@@ -54,3 +54,7 @@ textured materials yet, so these models keep their natural colours for now
   [google/fonts](https://github.com/google/fonts/tree/main/ofl/nunito), licensed under the
   [SIL Open Font License 1.1](https://openfontlicense.org). Used for HUD text; the HUD falls
   back to Bevy's built-in font if the file is missing.
+- `fonts/Sniglet-ExtraBold.ttf` — **Sniglet** ExtraBold by Haley Fiege, Brenda Gallo and Pablo
+  Impallari, from [google/fonts](https://github.com/google/fonts/tree/main/ofl/sniglet), licensed
+  under the [SIL Open Font License 1.1](https://openfontlicense.org). Round display font for
+  titles and banners; they keep the HUD font if the file is missing.

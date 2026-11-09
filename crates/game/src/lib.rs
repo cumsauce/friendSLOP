@@ -24,6 +24,7 @@ pub mod player;
 pub mod scenery;
 pub mod settings;
 pub mod terrain;
+pub mod theme;
 pub mod voice;
 pub mod world;
 pub mod zones;
@@ -77,6 +78,7 @@ impl Plugin for GamePlugin {
                 buildings::plugin,
                 creator::plugin,
                 footsteps::plugin,
+                theme::plugin,
             ));
     }
 }

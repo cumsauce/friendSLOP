@@ -224,7 +224,12 @@ fn spawn_fart_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         TextFont::from_font_size(64.0),
-        TextColor(Color::srgb(1.0, 0.2, 0.3)),
+        TextColor(crate::theme::ROSE_RED),
+        TextShadow {
+            offset: Vec2::new(3.0, 4.0),
+            color: Color::srgba(0.3, 0.05, 0.15, 0.45),
+        },
+        crate::assets::DisplayText,
         ShameOverlay,
         Node {
             position_type: PositionType::Absolute,
@@ -288,7 +293,7 @@ fn show_gas(
         return;
     };
     let filled = (gas.0 / 10) as usize;
-    let bar = format!("{}{}", "#".repeat(filled), ".".repeat(10 - filled));
+    let bar = format!("{}{}", "•".repeat(filled), "·".repeat(10 - filled));
     let hint = if gas.0 >= MIN_GAS { "  F to fart" } else { "" };
     let want = format!("gas {bar} {}%{hint}", gas.0);
     for mut text in &mut text {

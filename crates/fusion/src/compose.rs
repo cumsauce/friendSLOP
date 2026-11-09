@@ -1257,7 +1257,46 @@ impl Composer {
         self.colour(bar);
         self.write(bar, new_mood);
         self.transpose(bar);
+        self.humanize(bar);
         bar.events.sort_unstable_by_key(|e| e.at);
+    }
+
+    /// Players aren't sequencers: every phrase breathes (builds to its third
+    /// bar, eases off on the fourth), downbeats lean in, no two notes land at
+    /// quite the same strength, and chord tones spread by a few milliseconds
+    /// instead of striking as one. Drums only get the small touch variation.
+    fn humanize(&mut self, bar: &mut Bar) {
+        const BREATH: [f32; 4] = [0.97, 1.0, 1.05, 0.96];
+        let breath = BREATH[usize::from(self.plan.bar) % 4];
+        let step_len = self.step_len.max(1.0);
+        let last = bar.len.saturating_sub(1);
+        for i in 0..bar.events.len() {
+            let r1 = self.rand();
+            let r2 = self.rand();
+            let e = &mut bar.events[i];
+            let bus = e.inst.bus();
+            if bus == Bus::Drums {
+                e.vel *= 1.0 + 0.1 * (r1 - 0.5);
+                continue;
+            }
+            let step = (e.at as f32 / step_len).round() as u32;
+            let accent = match step {
+                0 => 1.07,
+                s if s % 4 == 0 => 1.03,
+                s if s % 2 == 1 => 0.96,
+                _ => 1.0,
+            };
+            e.vel = (e.vel * breath * accent * (1.0 + 0.16 * (r1 - 0.5))).clamp(0.05, 1.0);
+            if !e.glide {
+                // Keys and guitar spread their chords most; bass sits tight.
+                let spread = match bus {
+                    Bus::Keys | Bus::Guitar | Bus::Pad => 180.0,
+                    Bus::Bass => 50.0,
+                    _ => 90.0,
+                };
+                e.at = (e.at + (r2 * spread) as u32).min(last);
+            }
+        }
     }
 
     /// Follow the player up and down: land a modulation prepared in the

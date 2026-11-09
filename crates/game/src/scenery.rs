@@ -111,6 +111,11 @@ fn is_clear(p: Vec2, margin: f32) -> bool {
     if p.distance(eye) < 6.0 + margin {
         return false;
     }
+    // Nor in the players' spawn rows (fps.rs) or the first-person view from
+    // them, or the first thing you see is a fern leaf.
+    if p.x.abs() < 6.0 + margin && (4.0 - margin..17.0 + margin).contains(&p.y) {
+        return false;
+    }
     // Keep the pond and dirt paths (terrain.rs) open.
     let around = [
         Vec2::ZERO,
@@ -377,7 +382,11 @@ impl Dresser<'_, '_, '_> {
             } else {
                 rng.range(0.8, 1.4)
             };
-            self.model(file, p, rng.yaw(), s, true);
+            let yaw = rng.yaw();
+            // Draw from the rng either way so the rest of the layout is stable.
+            if is_clear(p, 0.3) {
+                self.model(file, p, yaw, s, true);
+            }
         }
     }
 
@@ -411,7 +420,11 @@ impl Dresser<'_, '_, '_> {
                 for _ in 0..2 {
                     let p = rng.around(c, 3.0);
                     let s = rng.range(0.8, 1.3);
-                    self.model(rng.pick(BUSHES), p, rng.yaw(), s, true);
+                    let file = *rng.pick(BUSHES);
+                    let yaw = rng.yaw();
+                    if is_clear(p, 0.5) {
+                        self.model(file, p, yaw, s, true);
+                    }
                 }
                 self.undergrowth(rng, c, 3.5, 5);
             }
@@ -428,7 +441,11 @@ impl Dresser<'_, '_, '_> {
                 for _ in 0..3 {
                     let p = rng.around(c, 3.0);
                     let s = rng.range(0.6, 1.4);
-                    self.model(rng.pick(&FLORA[7..]), p, rng.yaw(), s, true);
+                    let file = *rng.pick(&FLORA[7..]);
+                    let yaw = rng.yaw();
+                    if is_clear(p, 0.3) {
+                        self.model(file, p, yaw, s, true);
+                    }
                 }
                 self.undergrowth(rng, c, 2.8, 3);
             }

@@ -42,6 +42,7 @@ pub mod punishment;
 pub mod random_dialogue;
 pub mod romance;
 pub mod sesbian_lex;
+pub mod skills;
 pub mod smoking;
 pub mod stats;
 pub mod stillness;
@@ -100,6 +101,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(gamble::protocol);
         app.add_plugins(fat_cat::protocol);
         app.add_plugins(gaslighting::protocol);
+        app.add_plugins(skills::protocol);
     }
 }
 
@@ -154,5 +156,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(gamble::plugin);
         app.add_plugins(fat_cat::plugin);
         app.add_plugins(gaslighting::plugin);
+        app.add_plugins(skills::plugin);
     }
 }

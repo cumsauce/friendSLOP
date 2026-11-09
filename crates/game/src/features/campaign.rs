@@ -9,7 +9,10 @@
 //! beating him again, and on the way each chapter asks the group to do things
 //! with the other mechanics (pets, the mushroom, the vault and totems, HALT,
 //! gods tears, hide and seek, duels). Later chapters ask for more. Finishing
-//! chapter five frees the Commune for good.
+//! chapter five frees the Commune for good. Since #165 (WeiYa: "unify gameplay
+//! elements into one coherent game") the side trips are on the list too, one
+//! new place per chapter: Abuela in heaven, Wendy's, Sewer Paul in the tunnels,
+//! and Jegg's warehouse twice, so the whole map feeds the one goal.
 //!
 //! The server owns one replicated [`Campaign`]. It watches the other features'
 //! state each frame and ticks the checklist; ticks never untick. The objective
@@ -30,11 +33,13 @@
 //! is one tier on the Heaven Pass, shown in the goal line, with a toast each
 //! time a tier unlocks. Tier [`heaven_tiers`] is heaven.
 
+use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::features::abuela::Abuela;
 use crate::features::gods_tears::{GodsTear, TOTAL_TEARS};
 use crate::features::halt::Halt;
 use crate::features::hide_and_seek::{HideSeek, Phase};
@@ -42,7 +47,10 @@ use crate::features::landlord::{Act3, Tenancy};
 use crate::features::mushroom::Mushroom;
 use crate::features::objective::RoundReset;
 use crate::features::pets::{Pet, biggest_pack};
+use crate::features::smoking::Stash;
 use crate::features::totems::{Door, Magic, Totem};
+use crate::features::warehouse::{SOUL_PIECES, Warehouse};
+use crate::features::wendys::BurgerBag;
 use crate::player::Player;
 
 /// The one thing everyone is working towards. Shown at the top of the screen.
@@ -61,6 +69,15 @@ pub enum Task {
     HideSeek(u32),
     Duel(u32),
     Landlord,
+    /// Climb the sky islands and talk to Abuela in heaven (#105, #165).
+    Abuela,
+    /// Pick up human meat burgers at Wendy's (#117, #165).
+    Burgers(u32),
+    /// Get a cig (or a joint) from Sewer Paul in the tunnels (#129, #165).
+    Paul(u32),
+    /// Bring soul pieces out of the warehouse to Jegg (#130, #165). Counts
+    /// what Jegg holds this chapter.
+    Jegg(u32),
 }
 
 impl Task {
@@ -70,7 +87,10 @@ impl Task {
             | Task::Halt(n)
             | Task::Tears(n)
             | Task::HideSeek(n)
-            | Task::Duel(n) => n,
+            | Task::Duel(n)
+            | Task::Burgers(n)
+            | Task::Paul(n)
+            | Task::Jegg(n) => n,
             _ => 1,
         }
     }
@@ -92,6 +112,10 @@ impl Task {
             Task::HideSeek(_) => "Play a round of hide and seek (K)",
             Task::Duel(_) => "Fight a duel (1-9 to challenge)",
             Task::Landlord => "Beat the landlord",
+            Task::Abuela => "Climb the sky islands (south-east) and visit Abuela in heaven",
+            Task::Burgers(_) => "Grab human meat burgers at Wendy's (by the road east)",
+            Task::Paul(_) => "Trade a crow egg (by the crows) to Sewer Paul, down the manhole east",
+            Task::Jegg(_) => "Bring soul pieces out of the warehouse (south) to Jegg",
         }
     }
 }
@@ -103,47 +127,58 @@ pub struct Chapter {
 }
 
 pub const CHAPTERS: [Chapter; 5] = [
+    // #165 (WeiYa: "unify gameplay elements into one coherent game"): every
+    // place on the map is now somewhere a chapter sends you, and each intro
+    // carries one storyline from moving in to heaven.
     Chapter {
         name: "Moving In",
-        intro: "Your landlord has just raised the rent. Find your feet, make friends, stand up to him.",
-        tasks: &[Task::Pack, Task::Mushroom(1), Task::Landlord],
+        intro: "Your landlord has just raised the rent. Abuela waits in heaven, up the sky islands:\n\
+                climb up for her blessing, find your feet, and stand up to him.",
+        tasks: &[Task::Pack, Task::Mushroom(1), Task::Abuela, Task::Landlord],
     },
     Chapter {
         name: "Rent Day",
-        intro: "He's back and the rent's gone up again. Crack the vault and test HALT's walls.",
+        intro: "He's back and the rent's gone up again. Crack the vault, test HALT's walls,\n\
+                and feed the commune from Wendy's while you're at it.",
         tasks: &[
             Task::VaultDoor,
             Task::Halt(1),
             Task::HideSeek(1),
+            Task::Burgers(3),
             Task::Landlord,
         ],
     },
     Chapter {
         name: "The Heist",
-        intro: "The tears hold power and the Fire totem burns in the vault. Take what's yours.",
+        intro: "The tears hold power and the Fire totem burns in the vault. Take what's yours.\n\
+                Sewer Paul runs the tunnels: buy his silence with crow eggs.",
         tasks: &[
             Task::FireTotem,
             Task::Tears(3),
             Task::Duel(1),
             Task::Halt(1),
+            Task::Paul(1),
             Task::Landlord,
         ],
     },
     Chapter {
         name: "General Strike",
-        intro: "The whole commune downs tools. Everyone, everything, all at once.",
+        intro: "The whole commune downs tools. Everyone, everything, all at once.\n\
+                Even Jegg: brave the warehouse and bring back pieces of Jegg's soul.",
         tasks: &[
             Task::Pack,
             Task::Mushroom(3),
             Task::HideSeek(2),
             Task::Duel(2),
             Task::Halt(2),
+            Task::Jegg(2),
             Task::Landlord,
         ],
     },
     Chapter {
         name: "The Eviction",
-        intro: "One last time. Beat him now and the Commune is free for good.",
+        intro: "One last time. Make Jegg whole, beat him now, and the Commune is free for good.\n\
+                Abuela is keeping the gates of heaven open for you.",
         tasks: &[
             Task::FireTotem,
             // Counted over the whole campaign (the tears rained only once, #43):
@@ -152,6 +187,7 @@ pub const CHAPTERS: [Chapter; 5] = [
             Task::HideSeek(3),
             Task::Duel(3),
             Task::Halt(3),
+            Task::Jegg(SOUL_PIECES as u32),
             Task::Landlord,
         ],
     },
@@ -246,6 +282,12 @@ pub struct Tally {
     pub mushrooms: u32,
     pub hide_seek: u32,
     pub duels: u32,
+    /// Times Abuela spoke to someone (#165).
+    pub abuela: u32,
+    /// Burgers picked up at Wendy's (#165).
+    pub burgers: u32,
+    /// Cigs and joints Sewer Paul handed out (#165).
+    pub paul: u32,
 }
 
 pub fn protocol(app: &mut App) {
@@ -256,7 +298,9 @@ pub fn protocol(app: &mut App) {
         .add_systems(OnEnter(ServerState::Running), spawn_campaign)
         .add_systems(
             Update,
-            watch_the_world.run_if(in_state(ServerState::Running)),
+            (count_side_trips, watch_the_world)
+                .chain()
+                .run_if(in_state(ServerState::Running)),
         );
 }
 
@@ -307,6 +351,47 @@ fn next_chapter(
     }
 }
 
+/// Adds what went up since last frame to the tally. Only rises count, so a
+/// burger bag or stash that empties (smoking, a new round) never counts back.
+fn rises(seen: &mut HashMap<Entity, u32>, now: impl Iterator<Item = (Entity, u32)>) -> u32 {
+    let mut up = 0;
+    for (e, n) in now {
+        let before = seen.insert(e, n).unwrap_or(n);
+        up += n.saturating_sub(before);
+    }
+    up
+}
+
+/// Server: counts the side trips (#165) that only show as numbers going up on
+/// other features' state: Abuela's visits, burger bags, Sewer Paul's gifts.
+fn count_side_trips(
+    mut tally: ResMut<Tally>,
+    mut abuela_seen: Local<Option<u32>>,
+    mut bags_seen: Local<HashMap<Entity, u32>>,
+    mut stash_seen: Local<HashMap<Entity, u32>>,
+    abuela: Query<&Abuela>,
+    bags: Query<(Entity, &BurgerBag)>,
+    stashes: Query<(Entity, &Stash)>,
+) {
+    if let Ok(a) = abuela.single() {
+        if let Some(before) = *abuela_seen {
+            tally.abuela += a.visits.saturating_sub(before);
+        }
+        *abuela_seen = Some(a.visits);
+    }
+    let burgers = rises(&mut bags_seen, bags.iter().map(|(e, b)| (e, b.0)));
+    let paul = rises(
+        &mut stash_seen,
+        stashes.iter().map(|(e, s)| (e, s.cigs + s.joints)),
+    );
+    if burgers > 0 {
+        tally.burgers += burgers;
+    }
+    if paul > 0 {
+        tally.paul += paul;
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn watch_the_world(
     mut tally: ResMut<Tally>,
@@ -319,6 +404,7 @@ fn watch_the_world(
     halt: Query<&Halt>,
     tears: Query<&GodsTear>,
     hide_seek: Query<&HideSeek>,
+    warehouse: Query<&Warehouse>,
     mut campaign: Query<&mut Campaign>,
 ) {
     // Games that just ended.
@@ -347,6 +433,11 @@ fn watch_the_world(
     // campaign (they don't fall again until it starts over).
     let used = TOTAL_TEARS.saturating_sub(tears.iter().count() as u32);
     let flag = |b: bool| u32::from(b);
+    let jegg = warehouse
+        .iter()
+        .map(|w| u32::from(w.delivered))
+        .max()
+        .unwrap_or(0);
 
     let Ok(mut c) = campaign.single_mut() else {
         return;
@@ -363,6 +454,10 @@ fn watch_the_world(
         Task::HideSeek(_) => tally.hide_seek,
         Task::Duel(_) => tally.duels,
         Task::Landlord => flag(landlord),
+        Task::Abuela => tally.abuela,
+        Task::Burgers(_) => tally.burgers,
+        Task::Paul(_) => tally.paul,
+        Task::Jegg(_) => jegg,
     });
     if *c != next {
         *c = next;
@@ -571,7 +666,11 @@ mod tests {
         assert!(c.task_done(0), "the door closing doesn't untick it");
         assert!(!c.complete());
         c.solo = true;
-        c.observe(|t| u32::from(matches!(t, Task::Halt(_) | Task::Landlord)));
+        c.observe(|t| match t {
+            Task::Halt(_) | Task::Landlord => 1,
+            Task::Burgers(n) => n,
+            _ => 0,
+        });
         assert!(c.complete(), "hide and seek waived when alone");
         assert!(!c.finale());
         assert!(checklist(&c, None).contains("[-] Play a round of hide and seek"));

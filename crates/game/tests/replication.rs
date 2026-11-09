@@ -1037,7 +1037,8 @@ fn finishing_a_chapter_moves_everyone_to_the_next() {
     assert_eq!(c.chapter, 0);
     assert!(!c.solo);
 
-    // Chapter 1: a pack of two pets, a mushroom eaten, the landlord beaten.
+    // Chapter 1: a pack of two pets, a mushroom eaten, Abuela visited (#165),
+    // the landlord beaten.
     place(&mut server, 0, Vec3::ZERO);
     place(&mut server, 1, Vec3::new(0.5, 0.0, 0.0));
     {
@@ -1057,6 +1058,14 @@ fn finishing_a_chapter_moves_everyone_to_the_next() {
         let mut t = world.query::<&mut Tenancy>();
         for mut t in t.iter_mut(world) {
             t.act = Act3::Won;
+        }
+    }
+    step(&mut server, &mut client);
+    {
+        let world = server.world_mut();
+        let mut abuela = world.query::<&mut friendslop::features::abuela::Abuela>();
+        for mut a in abuela.iter_mut(world) {
+            a.visits += 1;
         }
     }
     step(&mut server, &mut client);

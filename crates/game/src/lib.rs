@@ -30,6 +30,7 @@ pub mod player;
 pub mod scenery;
 pub mod settings;
 pub mod spatial;
+pub mod surfaces;
 pub mod terrain;
 pub mod theme;
 pub mod voice;
@@ -97,6 +98,6 @@ impl Plugin for GamePlugin {
                 spatial::plugin,
                 theme::plugin,
             ));
-        app.add_plugins((controls::plugin, graphics::plugin));
+        app.add_plugins((controls::plugin, graphics::plugin, surfaces::plugin));
     }
 }

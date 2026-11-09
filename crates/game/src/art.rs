@@ -23,7 +23,7 @@ pub fn hash(x: i32, y: i32, seed: u32) -> f32 {
 }
 
 /// Smooth value noise that tiles every `period` cells.
-fn tiled_noise(x: f32, y: f32, period: i32, seed: u32) -> f32 {
+pub(crate) fn tiled_noise(x: f32, y: f32, period: i32, seed: u32) -> f32 {
     let (x0, y0) = (x.floor() as i32, y.floor() as i32);
     let (fx, fy) = (x - x0 as f32, y - y0 as f32);
     let s = |v: f32| v * v * (3.0 - 2.0 * v);

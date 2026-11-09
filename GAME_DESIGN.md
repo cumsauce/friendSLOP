@@ -203,6 +203,18 @@ asked for, and what nobody has decided yet.
   Dave's beanie and legs). Props got trims too: music-box lids and gold feet, carved totems,
   capped vault walls, leafier storm trees, parliament columns and rubble, arena corner flags.
   Everything still passes through the cat palette.
+- **PBR surfaces on the primitives** (#128, doomy: "rn they're just flat materials can you proc
+  gen, make shaders, or use textures? or all in combination?"). Chose procedural textures, no
+  custom shader and no downloaded files (`surfaces.rs`). Every plain material (no texture of its
+  own, opaque, not glossy, glowing or unlit) is sorted by its colour into stone (greys), wood
+  (darker browns/reds), leaves (greens), cloth (other strong colours), metal (metallic) or
+  painted (skin, pale and light warm colours), and gets that surface's generated greyscale
+  detail, normal map and roughness map: cracked cobbles, wavy wood grain, leafy bumps, woven
+  threads, brushed metal, a soft painted grain. Colour still comes from the material, so the cat
+  palette keeps working. Cubes, spheres and cylinders stretched by their transform are re-baked
+  once per size with UVs in metres and tangents, so the grain is the same size on a crate and on
+  a 10 m wall. Glossy eyes, water, lamps, the textured ground, vertex-coloured meshes and the
+  glTF models are left as they were.
 - **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
   duelists get bodies in a small walled arena on the floor — animated cowboy/cowgirl models, or
   capsule-and-gun stand-ins if the asset files are missing — and play first-person (WASD, mouse,
@@ -596,5 +608,7 @@ asked for, and what nobody has decided yet.
 - Is the campaign the right length? Which chapters drag, and which fly by? (Six players who pay
   the rent together now beat the landlord in seconds: should he get tougher with more tenants?)
 - Can anyone ever truly escape HALT, and what would be on the other side?
+- Surfaces are guessed from colour (#128): a grey cloak looks like stone, a dark red shirt like
+  wood. Should some things get a hand-picked surface, or is the guess part of the charm?
 - The cat-vision filter only recolours flat colours — the new textured models (trees, cowboys)
   keep their natural greens and reds. Should the filter learn to shift textures too? (#12)

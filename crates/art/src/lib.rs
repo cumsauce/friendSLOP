@@ -3,4 +3,5 @@
 //! palette and widgets ([`theme`]). Depends only on Bevy, never on game code.
 
 pub mod art;
+pub mod palette;
 pub mod theme;

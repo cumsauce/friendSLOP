@@ -9,7 +9,12 @@ use bevy::prelude::*;
 
 use crate::AppState;
 use crate::art;
-use crate::scenery::BONFIRE_AT;
+/// The bonfire on the floor plane.
+const BONFIRE_AT: Vec3 = Vec3::new(
+    crate::places::BONFIRE_AT.x,
+    0.0,
+    crate::places::BONFIRE_AT.y,
+);
 use crate::terrain::POND_AT;
 
 pub fn plugin(app: &mut App) {

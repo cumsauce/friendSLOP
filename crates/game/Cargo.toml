@@ -19,6 +19,10 @@ serde.workspace = true
 bevy_voice_chat.workspace = true
 # The generated soundtrack (composer + synths), Bevy-free (crates/fusion).
 fusion = { path = "../fusion" }
+# The foundation crates (see "Crates" in AGENTS.md): no game code in them.
+friendslop-art = { path = "../art" }
+friendslop-kcc = { path = "../kcc" }
+friendslop-wire = { path = "../wire" }
 
 # Native only: the iroh transport (a tokio runtime plus `block_on` every tick),
 # voice chat (cpal capture/playback threads) and the clipboard can't run on a

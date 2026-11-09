@@ -3631,6 +3631,9 @@ dependencies = [
  "bevy_rerecast",
  "bevy_voice_chat",
  "bytes",
+ "friendslop-art",
+ "friendslop-kcc",
+ "friendslop-wire",
  "fusion",
  "getrandom 0.3.4",
  "iroh",
@@ -3642,6 +3645,28 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+]
+
+[[package]]
+name = "friendslop-art"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
+name = "friendslop-kcc"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "bevy",
+]
+
+[[package]]
+name = "friendslop-wire"
+version = "0.1.0"
+dependencies = [
+ "bevy_replicon_iroh",
 ]
 
 [[package]]

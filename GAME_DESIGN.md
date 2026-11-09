@@ -48,7 +48,7 @@ fast. Perfect bots finish in ~11 minutes.
   uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used
   from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
   through trees, rocks, walls, sheds, bales or crates: the host walks them with a kinematic
-  character controller (`src/kcc`, ported from bevy_ahoy at `630a4573`, MIT OR Apache-2.0) — it
+  character controller (`crates/kcc`, ported from bevy_ahoy at `630a4573`, MIT OR Apache-2.0) — it
   slides along walls, walks slopes up to 45°, steps up stairs and kerbs up to 0.5 m (village
   stairs, ramps, the tower — no special-cased floors anymore), snaps down slopes instead of
   hopping, and jumps ~0.9 m. Headless tests (no physics) fall back to a plain terrain-height
@@ -593,7 +593,7 @@ fast. Perfect bots finish in ~11 minutes.
   with the normal join code, and can **host** too (desktop or browser friends join it). In the
   browser iroh can't use UDP, so its connections always go through iroh's free public relays
   (a bit more lag than a direct desktop link); `net_web.rs` runs iroh in browser async tasks and
-  speaks exactly `bevy_replicon_iroh`'s wire format (`net_wire.rs`). Paste works with Ctrl/Cmd+V
+  speaks exactly `bevy_replicon_iroh`'s wire format (`crates/wire`). Paste works with Ctrl/Cmd+V
   or the Paste button (the browser may ask for clipboard permission). **Share links:** a
   browser host copies `<page>?join=<code>` (C copies it again in game); opening it joins
   straight away, `?host` hosts, and pasting a link into any join box (desktop too) uses its

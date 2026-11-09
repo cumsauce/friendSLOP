@@ -12,6 +12,7 @@ pub mod buildings;
 pub mod camera;
 pub mod creator;
 pub mod features;
+pub mod footsteps;
 pub mod hud;
 pub mod kcc;
 pub mod landmarks;
@@ -75,6 +76,7 @@ impl Plugin for GamePlugin {
                 zones::plugin,
                 buildings::plugin,
                 creator::plugin,
+                footsteps::plugin,
             ));
     }
 }

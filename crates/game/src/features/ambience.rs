@@ -27,6 +27,7 @@ struct AmbientSounds {
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, load_ambience)
         .add_systems(OnEnter(AppState::InGame), start_ambience)
+        .add_systems(Update, district_mix.run_if(in_state(AppState::InGame)))
         .add_observer(ears_on_camera);
 }
 
@@ -64,8 +65,8 @@ fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
             DespawnOnExit(AppState::InGame),
         )
     };
-    commands.spawn(bed(&sounds.birds, 0.18));
-    commands.spawn(bed(&sounds.wind, 0.22));
+    commands.spawn((bed(&sounds.birds, 0.18), Bed::Birds));
+    commands.spawn((bed(&sounds.wind, 0.22), Bed::Wind));
     commands.spawn((
         AudioPlayer(sounds.fire.clone()),
         PlaybackSettings::LOOP
@@ -77,6 +78,48 @@ fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
         Transform::from_translation(crate::scenery::BONFIRE_AT + Vec3::Y * 0.5),
         DespawnOnExit(AppState::InGame),
     ));
+}
+
+/// Which looping bed an ambient player is, so the district mix can steer it.
+#[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
+enum Bed {
+    Birds,
+    Wind,
+}
+
+/// Target (birds, wind) volume where the camera is: birdsong thickens in the
+/// forest and thins out in the village, wind howls through the ruins and maze,
+/// the valley, and higher up (the sky islands).
+pub fn district_levels(at: Vec3) -> (f32, f32) {
+    use crate::zones::Zone;
+    let (birds, wind) = match crate::zones::zone_of(at.xz()) {
+        Zone::Forest => (0.38, 0.16),
+        Zone::Village => (0.09, 0.18),
+        Zone::Ruins => (0.06, 0.4),
+        Zone::Valley => (0.16, 0.32),
+        Zone::Outside => (0.04, 0.42),
+        Zone::Commune | Zone::Meadow => (0.18, 0.22),
+    };
+    let height = ((at.y - crate::terrain::height_at(at.x, at.z) - 4.0) / 30.0).clamp(0.0, 1.0);
+    (birds * (1.0 - 0.7 * height), wind + 0.25 * height)
+}
+
+/// Fade the beds towards the district's mix (a few seconds per crossfade).
+fn district_mix(
+    time: Res<Time>,
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    mut beds: Query<(&Bed, &mut AudioSink)>,
+) {
+    let Some(cam) = camera.iter().next() else {
+        return;
+    };
+    let (birds, wind) = district_levels(cam.translation());
+    let t = (time.delta_secs() * 0.6).min(1.0);
+    for (bed, mut sink) in &mut beds {
+        let want = if *bed == Bed::Birds { birds } else { wind };
+        let now = sink.volume().to_linear();
+        sink.set_volume(Volume::Linear(now + (want - now) * t));
+    }
 }
 
 /// Wind is all low frequencies, so a lower rate is plenty (and cheaper).

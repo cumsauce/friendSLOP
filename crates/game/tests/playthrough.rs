@@ -37,9 +37,15 @@ use friendslop::features::organ_currency::OrganPurse;
 use friendslop::features::pets::{AdoptPet, Pet, PetLure};
 use friendslop::features::punishment::{AttackMode, Strikes};
 use friendslop::features::sesbian_lex::{SesbianLex, SesbianLexToggle};
+use friendslop::features::smoking::{Stash, TakeEgg, VisitPaul, egg_spot, paul_spot};
 use friendslop::features::stats::Stats;
 use friendslop::features::stillness::Stillness;
 use friendslop::features::totems::{CastSpells, Door, GrabTotem, Magic, Totem, UseDoor};
+use friendslop::features::warehouse::{
+    GiveToJegg, INSIDE_Y, KnockDoor, LeaveWarehouse, SoulPiece, Warehouse, door_at, exit_at,
+    inside, jegg_at,
+};
+use friendslop::features::wendys::{Burger, BurgerBag, TakeBurger, burger_spot};
 use friendslop::player::{LocalPlayer, Player};
 
 const PLAYERS: u64 = 6;
@@ -545,6 +551,161 @@ fn landlord(sim: &mut Sim) {
     ));
 }
 
+/// Abuela's job (#165): somebody climbs up and talks to her.
+fn abuela(sim: &mut Sim) {
+    let visitor = 1;
+    sim.until(
+        "visit Abuela",
+        60.0,
+        |s| {
+            s.walk(visitor, chair_at() + Vec3::new(0.0, 0.0, -1.0));
+            s.send(visitor, VisitAbuela);
+        },
+        |s| s.task_done(Task::Abuela),
+    );
+    sim.say(format!(
+        "player {visitor} climbs to heaven for Abuela's blessing"
+    ));
+    sim.walk_xz(visitor, Vec2::ZERO);
+}
+
+/// Wendy's job (#165): grab burgers until the chapter has enough.
+fn burgers(sim: &mut Sim, n: u32) {
+    let mut k = 0u64;
+    sim.until(
+        "grab burgers at Wendy's",
+        180.0,
+        |s| {
+            let Some(slot) = s.all::<Burger>().first().map(|b| b.slot) else {
+                return; // restocking
+            };
+            let who = k % PLAYERS;
+            k += 1;
+            s.walk(who, burger_spot(slot));
+            s.send(who, TakeBurger { slot });
+        },
+        |s| s.task_done(Task::Burgers(n)),
+    );
+    let bags: u32 = sim.per_player::<BurgerBag>().iter().map(|(_, b)| b.0).sum();
+    sim.say(format!(
+        "the group grabs {n} human meat burgers ({bags} carried)"
+    ));
+}
+
+/// Sewer Paul's job (#165): pocket a crow egg, climb down, trade it.
+fn paul(sim: &mut Sim, n: u32) {
+    let who = 3;
+    sim.until(
+        "trade an egg with Sewer Paul",
+        180.0,
+        |s| {
+            let eggs = s
+                .per_player::<Stash>()
+                .into_iter()
+                .find(|(id, _)| *id == who)
+                .map_or(0, |(_, st)| st.eggs);
+            if eggs == 0 {
+                for nest in 0..3 {
+                    s.walk(who, egg_spot(nest));
+                    s.send(who, TakeEgg { nest });
+                    s.run(0.4);
+                }
+            } else {
+                s.walk(who, paul_spot());
+                s.send(who, VisitPaul);
+            }
+        },
+        |s| s.task_done(Task::Paul(n)),
+    );
+    sim.say(format!(
+        "player {who} trades a crow egg to Sewer Paul for a cig"
+    ));
+    sim.walk_xz(who, Vec2::ZERO);
+}
+
+/// Jegg's job (#165): everyone agrees at the warehouse door, then bots fetch
+/// soul pieces one at a time (the monster may get some of them first).
+fn jegg(sim: &mut Sim, n: u32) {
+    let start = sim.t;
+    sim.until(
+        "everyone agrees to go into the warehouse",
+        120.0,
+        |s| {
+            if s.one::<Warehouse>().seed.is_some() {
+                return;
+            }
+            for id in 0..PLAYERS {
+                s.walk(id, door_at() - Vec3::Z * 1.5);
+            }
+            s.run(0.4);
+            let votes = s.one::<Warehouse>().votes;
+            for id in 0..PLAYERS {
+                if !votes.contains(&id) {
+                    s.send(id, KnockDoor);
+                }
+            }
+        },
+        |s| s.one::<Warehouse>().seed.is_some() || s.task_done(Task::Jegg(n)),
+    );
+    let mut k = 0u64;
+    sim.until(
+        "bring soul pieces to Jegg",
+        600.0,
+        |s| {
+            let who = k % PLAYERS;
+            k += 1;
+            let carried = s
+                .all::<SoulPiece>()
+                .into_iter()
+                .find(|p| p.carrier == Some(who));
+            let pos = s
+                .per_player::<Walker>()
+                .into_iter()
+                .find(|(id, _)| *id == who)
+                .map(|(_, w)| w.pos);
+            let Some(pos) = pos else { return };
+            if carried.is_some() {
+                if inside(pos) {
+                    s.walk(who, exit_at() + Vec3::Z);
+                    s.send(who, LeaveWarehouse);
+                    s.run(0.4);
+                }
+                s.walk(who, jegg_at() - Vec3::Z);
+                s.send(who, GiveToJegg);
+                return;
+            }
+            if !inside(pos) {
+                // Back in through the door (or, if it closed, agree again).
+                s.walk(who, door_at() - Vec3::Z * 1.5);
+                s.send(who, KnockDoor);
+                return;
+            }
+            let Some(piece) = s
+                .all::<SoulPiece>()
+                .into_iter()
+                .find(|p| p.carrier.is_none())
+            else {
+                return;
+            };
+            s.walk(who, piece.pos.with_y(INSIDE_Y));
+            s.send(
+                who,
+                friendslop::features::warehouse::TakeSoul { id: piece.id },
+            );
+        },
+        |s| s.task_done(Task::Jegg(n)),
+    );
+    for id in 0..PLAYERS {
+        sim.walk_xz(id, Vec2::new(id as f32, 0.0));
+    }
+    sim.run(1.0);
+    let held = sim.one::<Warehouse>().delivered;
+    let mins = (sim.t - start) / 60.0;
+    sim.say(format!(
+        "into the warehouse: Jegg holds {held} soul pieces after {mins:.1} min"
+    ));
+}
+
 /// The things nobody has to do, done anyway, so every idea gets played.
 fn side_quests(sim: &mut Sim, chapter: usize) {
     // Somebody farts right next to Dave (and the commune) and is shamed.
@@ -629,6 +790,10 @@ fn play_chapter(sim: &mut Sim) {
             Task::HideSeek(n) => hide_and_seek(sim, n),
             Task::Duel(n) => duels(sim, n),
             Task::Landlord => landlord(sim),
+            Task::Abuela => abuela(sim),
+            Task::Burgers(n) => burgers(sim, n),
+            Task::Paul(n) => paul(sim, n),
+            Task::Jegg(n) => jegg(sim, n),
         }
         assert!(
             sim.task_done(task),

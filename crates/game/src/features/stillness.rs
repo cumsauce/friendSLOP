@@ -1,4 +1,4 @@
-//! Every 60 seconds the world freezes for 20 so everyone can socialize and
+//! Every 4 minutes (was 60 s) the world freezes for 20 so everyone can socialize and
 //! stare with passion. From issue #17 by just meat and cheese.
 //!
 //! The server owns the clock and keeps one replicated `Stillness` entity that
@@ -14,8 +14,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 
-/// Seconds of normal play between freezes.
-pub const ACTIVE_SECS: f32 = 60.0;
+/// Seconds of normal play between freezes (was 60; less often, asked by the owner).
+pub const ACTIVE_SECS: f32 = 240.0;
 /// How long a freeze lasts.
 pub const FROZEN_SECS: f32 = 20.0;
 
@@ -197,14 +197,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn sixty_on_twenty_off() {
+    fn four_minutes_on_twenty_seconds_off() {
         assert!(!phase_at(0.0).frozen);
-        assert_eq!(phase_at(0.0).secs_left, 60);
-        assert!(!phase_at(59.9).frozen);
-        assert!(phase_at(60.0).frozen);
-        assert_eq!(phase_at(60.0).secs_left, 20);
-        assert!(phase_at(79.9).frozen);
-        assert!(!phase_at(80.0).frozen);
-        assert!(phase_at(145.0).frozen);
+        assert_eq!(phase_at(0.0).secs_left, 240);
+        assert!(!phase_at(239.9).frozen);
+        assert!(phase_at(240.0).frozen);
+        assert_eq!(phase_at(240.0).secs_left, 20);
+        assert!(phase_at(259.9).frozen);
+        assert!(!phase_at(260.0).frozen);
+        assert!(phase_at(505.0).frozen);
     }
 }

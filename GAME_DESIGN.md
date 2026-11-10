@@ -510,6 +510,14 @@ Dying (to the RPG) just sends you back to the start.
   There is no separate lobby screen yet: hosting drops you straight into the world, and friends
   appear on the player list as they join. If the host connection drops, a joiner goes back to
   the menu with the reason ("Lost the connection to the host: ...") instead of crashing (#194).
+  Since the UI redesign (phase 3, UI polish) the title screen is an ink "journal cover" on the
+  left over the meadow: the illustrated friendSLOP logo, Host a commune, Join with a code, a code
+  field (click it to paste), Character creator, and Settings / Whose fault is it / Quit links.
+  Settings is one big "Make yourself comfortable" notebook: volume sliders, mic and HALT as
+  square checkboxes, video presets (Low / Medium / High, Custom when you change anything) as
+  tabs and every video option as a checkbox card; a Controls tab lists the keys; Esc or Done
+  closes it. The loading curtain shows the logo, how many models have loaded, a progress bar
+  and a tip.
 - **The Stillness** (#17). Every 4 minutes (it was every minute; made rarer at the owner's request) the whole world freezes for 20 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
   in place, gas stops building, and the server ignores every player request (farting, prying,

@@ -21,6 +21,7 @@ pub mod feed;
 pub mod journal;
 pub mod prompt;
 pub mod quest;
+pub mod settings_panel;
 pub mod status;
 pub mod team;
 
@@ -156,6 +157,7 @@ pub fn plugin(app: &mut App) {
             prompt::plugin,
             journal::plugin,
             chapter::plugin,
+            settings_panel::plugin,
         ));
 }
 

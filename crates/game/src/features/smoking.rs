@@ -104,19 +104,12 @@ pub fn light(stash: &mut Stash) -> Option<bool> {
     }
 }
 
-/// Where Sewer Paul stands: in the sewer cell closest to halfway between the
-/// junction and the first manhole (off to one side of the water).
+/// Where Sewer Paul stands: in his chamber halfway between the junction and
+/// the first manhole (pinned whatever the world seed), off to one side of
+/// the water.
 pub fn paul_spot() -> Vec3 {
-    use super::underground::{ENTRANCES, Part, TUNNEL_Y, cell_centre, layout};
-    let mid = ENTRANCES[0].at / 2.0;
-    let l = layout();
-    let at = l
-        .cells
-        .iter()
-        .filter(|(_, p)| **p == Part::Sewer)
-        .map(|(c, _)| cell_centre(*c))
-        .min_by(|a, b| a.distance(mid).total_cmp(&b.distance(mid)))
-        .unwrap_or(mid);
+    use super::underground::{TUNNEL_Y, cell_centre, paul_cell};
+    let at = cell_centre(paul_cell());
     Vec3::new(at.x, TUNNEL_Y, at.y + 0.9)
 }
 
@@ -522,9 +515,12 @@ mod tests {
 
     #[test]
     fn paul_lives_in_the_sewer() {
-        use super::super::underground::{Part, cell_of, layout};
+        use super::super::underground::{Part, SEED_SALT, WorldSeed, cell_of, layout};
         let p = paul_spot();
         let cell = cell_of(Vec2::new(p.x, p.z - 0.9));
-        assert_eq!(layout().part(cell), Some(Part::Sewer));
+        for seed in 0..8 {
+            let l = layout(WorldSeed(seed).for_(SEED_SALT));
+            assert_eq!(l.part(cell), Some(Part::Sewer));
+        }
     }
 }

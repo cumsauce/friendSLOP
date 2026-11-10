@@ -1383,6 +1383,8 @@ fn friends_can_be_courted_and_evil_rats_adopted() {
     use friendslop::features::villagers::{PokeVillager, Villager};
 
     let (mut server, mut client) = (peer(), peer());
+    // The rats move in once the world seed has built the tunnels.
+    server.insert_resource(friendslop::features::world_seed::WorldSeed(1));
     server.connect_client(&mut client);
     let step = |server: &mut App, client: &mut App| {
         for _ in 0..3 {

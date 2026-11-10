@@ -700,11 +700,15 @@ Dying (to the RPG) just sends you back to the start.
   or the Paste button (the browser may ask for clipboard permission). **Share links:** a
   browser host copies `<page>?join=<code>` (C copies it again in game); opening it joins
   straight away, `?host` hosts, and pasting a link into any join box (desktop too) uses its
-  code. **No voice in the browser
-  yet:** the voice plugin is built and its messages registered (so the protocol matches desktop
-  peers), but cpal has no microphone or speakers there, so browser players can't talk or hear;
-  desktop players still talk to each other. Character and graphics settings are
-  saved in localStorage.
+  code. **Voice chat in the browser** (#166): the same proximity voice as on the desktop,
+  and browser and desktop players hear each other. `voice_web.rs` plugs Web Audio into
+  `bevy_voice_chat`'s device seam in place of cpal (which needs threads): the mic comes from
+  `getUserMedia` with the browser's echo cancelling, and voices play through a
+  `ScriptProcessorNode`; codec, mixing and messages are the desktop's own code. The browser asks
+  for the microphone when you join or host (it needs https or localhost, so GitHub Pages works);
+  saying no, or having no mic, still lets you hear everyone. Voices keep 120 ms queued in the
+  browser (40 ms on the desktop) so slow phone frames don't crackle. Character and graphics
+  settings are saved in localStorage.
 - **Phone web performance pass** (#191, WeiYa: "blank screen on iphone ... 1-2 mins to load ...
   has to be phone web performant ... UI too small ... fullscreen button"). The page now shows
   a real download progress bar and only offers "Tap to play" once the game is running (it used
@@ -895,6 +899,9 @@ Dying (to the RPG) just sends you back to the start.
 - WeiYa (#191): the iPhone web build showed a blank screen, took 1-2 minutes to load, wasn't
   fullscreen and had tiny UI: "optimize this as much as physically possible", phone web
   performant. Smaller download, progress bar, 1x rendering, UI fixed (see What exists).
+- WeiYa (#166): add voice chat to the web build, release the web build with the others (an
+  html entry point) and include the assets in every release. The release zips got their
+  `assets/` folder first (#187); browser voice came after (see Browser / phone build).
 - catherine (#151): optimisation passes, aim high, make the game run really well so there's
   room for more stuff; clean things up.
 - doomy (#100): make your own character so others can see you; rigged but procedural, and a
@@ -953,7 +960,7 @@ Dying (to the RPG) just sends you back to the start.
 - Who lives in the east village, and is it part of the Commune or somewhere else?
 - Organs are money, but how do you get them, and what are they for?
 - You can be a person or a creature now. Does what you are change anything in play?
-- Browser players can join and host now but not talk: does browser voice matter to you?
+- Browser voice chat is new (#166): does it work on your phone and browser, and is it loud and clear enough?
 - Phones (#191): how long does the browser build take to load on your phone now, and what still
   feels slow or fiddly (touch controls, menus)?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?

@@ -67,6 +67,13 @@ fn place(server: &mut App, id: u64, at: Vec3) {
 #[test]
 fn everyone_must_agree_then_in_and_out() {
     let (mut server, mut client) = (peer(), peer());
+    // A floor plan where neither monster starts near the door: with a random
+    // one they could catch everyone on the way in (flaky CI, #228).
+    let seed = std::env::var("WAREHOUSE_TEST_SEED")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(7);
+    server.insert_resource(friendslop::features::warehouse::FixedPlan(seed));
     server.connect_client(&mut client);
     exchange(&mut server, &mut client, 3);
     let ids: Vec<u64> = walkers(&mut server).iter().map(|w| w.0).collect();
@@ -109,9 +116,25 @@ fn everyone_must_agree_then_in_and_out() {
 
     // The host picks a piece up (teleported next to it), walks out and
     // gives it to Jegg.
+    // The piece farthest from the monster, so it can't catch the host (and
+    // drop the piece) on the way: the floor plan is random per run.
     let piece = {
         let world = server.world_mut();
-        let Some(p) = world.query::<&SoulPiece>().iter(world).next().copied() else {
+        let monster = world
+            .query::<&Monster>()
+            .iter(world)
+            .next()
+            .map_or(Vec3::ZERO, |m| m.pos);
+        let Some(p) = world
+            .query::<&SoulPiece>()
+            .iter(world)
+            .max_by(|a, b| {
+                a.pos
+                    .distance_squared(monster)
+                    .total_cmp(&b.pos.distance_squared(monster))
+            })
+            .copied()
+        else {
             panic!("no piece");
         };
         p

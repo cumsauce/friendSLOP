@@ -319,11 +319,17 @@ fn owner_of(client: ClientId) -> Option<Entity> {
     }
 }
 
+/// Server, tests and bug repros: when present, every expedition uses this
+/// floor-plan seed instead of a fresh one.
+#[derive(Resource, Clone, Copy, Debug)]
+pub struct FixedPlan(pub u32);
+
 /// Server: someone clicked the loading door from outside.
 fn knock(
     ev: On<FromClient<KnockDoor>>,
     mut commands: Commands,
     time: Res<Time>,
+    fixed: Option<Res<FixedPlan>>,
     still: Query<&super::stillness::Stillness>,
     mut warehouse: Query<&mut Warehouse>,
     mut bodies: Bodies,
@@ -371,7 +377,10 @@ fn knock(
         return;
     }
     // Everyone agrees: in we go, into a building nobody has seen before.
-    let seed = (time.elapsed_secs_f64() * 1000.0) as u32 ^ 0x5017_0130;
+    let seed = fixed.map_or(
+        (time.elapsed_secs_f64() * 1000.0) as u32 ^ 0x5017_0130,
+        |f| f.0,
+    );
     start_expedition(&mut commands, &mut wh, seed);
     for (i, (_, _, mut w, input, kcc)) in bodies.iter_mut().enumerate() {
         put(&mut w, input, kcc, in_spot(i));

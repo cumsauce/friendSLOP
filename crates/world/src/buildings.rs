@@ -10,13 +10,16 @@
 //! landings and ramps go on the `WALKABLE` layer, which `features/fps.rs`
 //! stands bodies on instead of blocking them.
 
-use std::f32::consts::FRAC_PI_2;
-
 use avian3d::prelude::*;
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 
+use friendslop_structures::build::{batches, bodies};
+use friendslop_structures::furniture::{bed, crates, shelf, table};
+pub use friendslop_structures::{Door, Hole, Palette, Ramp, Shape, Solid};
+
 use crate::AppState;
+use crate::surfaces::Surfaced;
 use crate::terrain;
 
 /// Collision layer of walkable floors and ramps: bodies stand on these rather
@@ -27,9 +30,6 @@ pub const WALKABLE: LayerMask = LayerMask(1 << 3);
 const T: f32 = 0.25;
 /// Height of one storey.
 const STOREY: f32 = 3.0;
-/// Door openings (wide and tall enough for a body capsule).
-const DOOR_W: f32 = 1.4;
-const DOOR_H: f32 = 2.3;
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_village);
@@ -64,6 +64,19 @@ pub enum Mat {
     Fruit,
 }
 
+impl Palette for Mat {
+    const HIDDEN: Self = Mat::Hidden;
+    const TIMBER: Self = Mat::Timber;
+    const WOOD: Self = Mat::Wood;
+    const PLANK: Self = Mat::Plank;
+    const CLOTH: Self = Mat::Blue;
+    const LINEN: Self = Mat::Linen;
+    const FRUIT: Self = Mat::Fruit;
+    const RED: Self = Mat::Red;
+    const IRON: Self = Mat::Iron;
+    const LAMP: Self = Mat::Lamp;
+}
+
 impl Mat {
     fn color(self) -> Color {
         let (r, g, b) = match self {
@@ -95,88 +108,18 @@ impl Mat {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Shape {
-    /// Unit cube scaled by `size`.
-    Cube,
-    /// Upright cylinder: `size.x` diameter, `size.y` height.
-    Cylinder,
-    /// Triangular prism (a gable end): `size.x` base, `size.y` height, `size.z` thickness.
-    Gable,
-    /// Small sphere (lamps, fruit).
-    Ball,
-}
-
 /// A village piece that has a collider. Marks the collider as village
 /// architecture for the villagers' navmesh (`features/villagers.rs`).
 #[derive(Component, Clone, Copy, Debug)]
 pub struct Building;
 
-/// How a piece collides.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Solid {
-    None,
-    /// Blocks bodies.
-    Wall,
-    /// Walkable floor or ramp (`WALKABLE`).
-    Floor,
-}
-
-#[derive(Clone, Copy, Debug)]
-pub struct Piece {
-    pub shape: Shape,
-    pub centre: Vec3,
-    pub size: Vec3,
-    pub rot: Quat,
-    pub mat: Mat,
-    pub solid: Solid,
-    /// Small clutter: no shadow.
-    pub small: bool,
-}
-
-/// A doorway (or gate): floor-level centre, the way through, and its size.
-#[derive(Clone, Copy, Debug)]
-pub struct Door {
-    pub centre: Vec3,
-    pub through: Vec3,
-    pub width: f32,
-    pub height: f32,
-}
-
-/// The walking line of a ramp or staircase (top surface, lane centre).
-#[derive(Clone, Copy, Debug)]
-pub struct Ramp {
-    pub from: Vec3,
-    pub to: Vec3,
-    pub width: f32,
-}
-
-/// An opening in a wall: centre along the wall (from its middle), width, and
-/// bottom/top above the wall's base. A bottom of 0 makes it a door.
-#[derive(Clone, Copy, Debug)]
-struct Hole {
-    c: f32,
-    w: f32,
-    y0: f32,
-    y1: f32,
-}
-
+/// Openings for `walls`.
 const fn door(c: f32) -> Hole {
-    Hole {
-        c,
-        w: DOOR_W,
-        y0: 0.0,
-        y1: DOOR_H,
-    }
+    Hole::door(c)
 }
 
 const fn window(c: f32) -> Hole {
-    Hole {
-        c,
-        w: 1.0,
-        y0: 1.0,
-        y1: 2.0,
-    }
+    Hole::window(c)
 }
 
 /// The district's ground level: one height for everything, so floors, walls
@@ -186,262 +129,22 @@ pub fn ground() -> f32 {
 }
 
 /// The whole district, in world space.
-#[derive(Default)]
-pub struct Kit {
-    pub pieces: Vec<Piece>,
-    pub doors: Vec<Door>,
-    pub ramps: Vec<Ramp>,
-    pub lights: Vec<Vec3>,
-    origin: Vec3,
-    yaw: Quat,
+pub type Kit = friendslop_structures::Kit<Mat>;
+/// One village piece.
+pub type Piece = friendslop_structures::Piece<Mat>;
+
+/// Placing on the district's ground level.
+trait Site {
+    fn site(&mut self, at: Vec2, quarter_turns: i32);
 }
 
-fn yaw_of(dir: Vec2) -> Quat {
-    Quat::from_rotation_y((-dir.y).atan2(dir.x))
-}
-
-impl Kit {
-    /// Build the next things in a local frame at `at`, turned by quarter turns.
-    fn place(&mut self, at: Vec2, quarter_turns: i32) {
-        self.origin = Vec3::new(at.x, ground(), at.y);
-        self.yaw = Quat::from_rotation_y(FRAC_PI_2 * quarter_turns as f32);
-    }
-
-    fn world(&self, p: Vec3) -> Vec3 {
-        self.origin + self.yaw * p
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn put(
-        &mut self,
-        shape: Shape,
-        centre: Vec3,
-        size: Vec3,
-        rot: Quat,
-        mat: Mat,
-        solid: Solid,
-        small: bool,
-    ) {
-        self.pieces.push(Piece {
-            shape,
-            centre: self.world(centre),
-            size,
-            rot: self.yaw * rot,
-            mat,
-            solid,
-            small,
-        });
-    }
-
-    /// An axis-aligned box from `min` to `max` (local).
-    fn block(&mut self, min: Vec3, max: Vec3, mat: Mat, solid: Solid) {
-        let (c, s) = ((min + max) / 2.0, max - min);
-        self.put(Shape::Cube, c, s, Quat::IDENTITY, mat, solid, false);
-    }
-
-    /// Small solid clutter (furniture, crates): a box standing on `base`.
-    fn prop(&mut self, base: Vec3, size: Vec3, mat: Mat) {
-        let c = base + Vec3::Y * size.y / 2.0;
-        self.put(Shape::Cube, c, size, Quat::IDENTITY, mat, Solid::Wall, true);
-    }
-
-    /// Small decoration that doesn't collide.
-    fn trinket(&mut self, shape: Shape, centre: Vec3, size: Vec3, mat: Mat) {
-        self.put(shape, centre, size, Quat::IDENTITY, mat, Solid::None, true);
-    }
-
-    /// A horizontal bar of `height` x `thick` from `a` to `b` (local xz),
-    /// bottom at `y`. Rails, hedges, low walls, fences.
-    #[allow(clippy::too_many_arguments)]
-    fn bar(&mut self, a: Vec2, b: Vec2, y: f32, height: f32, thick: f32, mat: Mat, solid: Solid) {
-        let d = b - a;
-        let len = d.length();
-        if len < 1e-3 {
-            return;
-        }
-        let m = (a + b) / 2.0;
-        self.put(
-            Shape::Cube,
-            Vec3::new(m.x, y + height / 2.0, m.y),
-            Vec3::new(len, height, thick),
-            yaw_of(d / len),
-            mat,
-            solid,
-            false,
-        );
-    }
-
-    /// A solid wall from `a` to `b` (local xz), base `y0`, `h` tall, with holes.
-    #[allow(clippy::too_many_arguments)]
-    fn wall(&mut self, a: Vec2, b: Vec2, y0: f32, h: f32, thick: f32, holes: &[Hole], mat: Mat) {
-        let d = b - a;
-        let len = d.length();
-        if len < 1e-3 {
-            return;
-        }
-        let dir = d / len;
-        let rot = yaw_of(dir);
-        let mid = (a + b) / 2.0;
-        let at = |s: f32, y: f32| {
-            let p = mid + dir * s;
-            Vec3::new(p.x, y, p.y)
-        };
-        let seg = |kit: &mut Kit, s0: f32, s1: f32, ya: f32, yb: f32| {
-            if s1 - s0 > 1e-3 && yb - ya > 1e-3 {
-                kit.put(
-                    Shape::Cube,
-                    at((s0 + s1) / 2.0, (ya + yb) / 2.0),
-                    Vec3::new(s1 - s0, yb - ya, thick),
-                    rot,
-                    mat,
-                    Solid::Wall,
-                    false,
-                );
-            }
-        };
-        let mut holes = holes.to_vec();
-        holes.sort_by(|p, q| p.c.total_cmp(&q.c));
-        let mut cursor = -len / 2.0;
-        for hole in holes {
-            let (l, r) = (hole.c - hole.w / 2.0, hole.c + hole.w / 2.0);
-            seg(self, cursor, l, y0, y0 + h);
-            seg(self, l, r, y0, y0 + hole.y0);
-            seg(self, l, r, y0 + hole.y1, y0 + h);
-            let trim = Vec3::new(hole.w + 0.24, 0.1, thick + 0.12);
-            if hole.y1 < h - 0.05 {
-                // A dark lintel over every opening. It hangs 2 cm below the wall's
-                // edge so no face is coplanar with the wall (z-fighting).
-                let c = at(hole.c, y0 + hole.y1 + 0.03);
-                self.put(Shape::Cube, c, trim, rot, Mat::Timber, Solid::None, true);
-            }
-            if hole.y0 <= 1e-3 {
-                self.doors.push(Door {
-                    centre: self.world(at(hole.c, y0)),
-                    through: self.yaw * rot * Vec3::Z,
-                    width: hole.w,
-                    height: hole.y1,
-                });
-            } else {
-                // Sill pokes 2 cm above the wall below it: no coplanar top faces.
-                let c = at(hole.c, y0 + hole.y0 - 0.03);
-                self.put(Shape::Cube, c, trim, rot, Mat::Timber, Solid::None, true);
-            }
-            cursor = r;
-        }
-        seg(self, cursor, len / 2.0, y0, y0 + h);
-    }
-
-    /// A walkable slab with its top at `top`, covering `min`..`max` (local xz).
-    fn floor(&mut self, min: Vec2, max: Vec2, top: f32, mat: Mat) {
-        self.block(
-            Vec3::new(min.x, top - 0.15, min.y),
-            Vec3::new(max.x, top, max.y),
-            mat,
-            Solid::Floor,
-        );
-    }
-
-    /// A walkable ramp whose top surface runs from `from` to `to` (local).
-    fn ramp(&mut self, from: Vec3, to: Vec3, width: f32, mat: Mat) {
-        let d = to - from;
-        let flat = d.with_y(0.0);
-        let rot = yaw_of(Vec2::new(flat.x, flat.z).normalize_or_zero())
-            * Quat::from_rotation_z(d.y.atan2(flat.length()));
-        let thick = 0.2;
-        let centre = (from + to) / 2.0 - rot * Vec3::Y * thick / 2.0;
-        let size = Vec3::new(d.length(), thick, width);
-        self.put(Shape::Cube, centre, size, rot, mat, Solid::Floor, false);
-        self.ramps.push(Ramp {
-            from: self.world(from),
-            to: self.world(to),
-            width,
-        });
-    }
-
-    /// A staircase on the ground: an invisible ramp to walk on, step blocks to
-    /// look at, and solid blocks underneath so nobody walks into its side.
-    fn stairs(&mut self, from: Vec3, to: Vec3, width: f32) {
-        self.ramp(from, to, width, Mat::Hidden);
-        let d = to - from;
-        let flat = d.with_y(0.0);
-        let len = flat.length();
-        let dir = flat / len;
-        let rot = yaw_of(Vec2::new(dir.x, dir.z));
-        let steps = (d.y / 0.25).ceil().max(1.0) as usize;
-        for i in 0..steps {
-            let top = d.y * (i + 1) as f32 / steps as f32;
-            let s = len * (i as f32 + 0.5) / steps as f32;
-            let c = from + dir * s + Vec3::Y * (top - 0.1) / 2.0;
-            let size = Vec3::new(len / steps as f32, top + 0.1, width);
-            self.put(Shape::Cube, c, size, rot, Mat::Wood, Solid::None, false);
-        }
-        for k in 1..5 {
-            let top = d.y * k as f32 / 5.0 - 0.3;
-            let s = len * (k as f32 + 0.5) / 5.0;
-            let c = from + dir * s + Vec3::Y * top / 2.0;
-            let size = Vec3::new(len / 5.0, top, width);
-            self.put(Shape::Cube, c, size, rot, Mat::Hidden, Solid::Wall, false);
-        }
-    }
-
-    /// A pitched roof over a `w` x `d` footprint centred at `c` (local),
-    /// ridge along x, rows of tiles alternating `a`/`b`, gables in `wall`.
-    #[allow(clippy::too_many_arguments)]
-    fn roof(&mut self, c: Vec2, w: f32, d: f32, eave: f32, rise: f32, a: Mat, b: Mat, wall: Mat) {
-        let over = 0.45;
-        let run = d / 2.0 + over;
-        let angle = rise.atan2(d / 2.0);
-        let slope = run / angle.cos();
-        let ridge = Vec3::new(c.x, eave + rise, c.y);
-        let rows = 5;
-        for side in [-1.0f32, 1.0] {
-            let rot = Quat::from_rotation_x(angle * side);
-            let down = Vec3::new(0.0, -angle.sin(), angle.cos() * side);
-            for k in 0..rows {
-                let s = slope * (k as f32 + 0.5) / rows as f32;
-                let n = rot * Vec3::Y;
-                let centre = ridge + down * s + n * (0.08 + 0.03 * (k % 2) as f32);
-                let size = Vec3::new(w + over * 2.0, 0.12, slope / rows as f32 * 1.12);
-                let mat = if k % 2 == 0 { a } else { b };
-                self.put(Shape::Cube, centre, size, rot, mat, Solid::None, false);
-            }
-        }
-        // Ridge cap.
-        let cap = Vec3::new(w + over * 2.0 + 0.1, 0.22, 0.32);
-        self.put(
-            Shape::Cube,
-            ridge + Vec3::Y * 0.12,
-            cap,
-            Quat::IDENTITY,
-            b,
-            Solid::None,
-            false,
-        );
-        // Gable ends, filling the wall up to the ridge.
-        for side in [-1.0f32, 1.0] {
-            let at = Vec3::new(c.x + side * (w / 2.0), eave, c.y);
-            // Wider than the roof run by `T`, so keep the rake slightly
-            // steeper than the roof plane or it pokes up through the tiles.
-            let size = Vec3::new(d + T, rise * (d + T) / d + 0.02, T);
-            let rot = Quat::from_rotation_y(FRAC_PI_2);
-            self.put(Shape::Gable, at, size, rot, wall, Solid::None, false);
-        }
-    }
-
-    /// A hanging lamp (glowing ball on a cord).
-    fn lamp(&mut self, at: Vec3) {
-        self.trinket(
-            Shape::Cube,
-            at + Vec3::Y * 0.5,
-            Vec3::new(0.03, 0.8, 0.03),
-            Mat::Iron,
-        );
-        self.trinket(Shape::Ball, at, Vec3::splat(0.32), Mat::Lamp);
+impl Site for Kit {
+    fn site(&mut self, at: Vec2, quarter_turns: i32) {
+        self.place(Vec3::new(at.x, ground(), at.y), quarter_turns);
     }
 }
 
 /// Four walls of a `w` x `d` storey (local, centred), base `y0`.
-#[allow(clippy::too_many_arguments)]
 fn walls(
     k: &mut Kit,
     w: f32,
@@ -454,130 +157,7 @@ fn walls(
     west: &[Hole],
     mat: Mat,
 ) {
-    let (hx, hz) = (w / 2.0, d / 2.0);
-    k.wall(
-        Vec2::new(-hx - T / 2.0, hz),
-        Vec2::new(hx + T / 2.0, hz),
-        y0,
-        h,
-        T,
-        south,
-        mat,
-    );
-    // North runs east -> west so its holes read from its own middle.
-    k.wall(
-        Vec2::new(hx + T / 2.0, -hz),
-        Vec2::new(-hx - T / 2.0, -hz),
-        y0,
-        h,
-        T,
-        north,
-        mat,
-    );
-    k.wall(
-        Vec2::new(hx, hz - T / 2.0),
-        Vec2::new(hx, -hz + T / 2.0),
-        y0,
-        h,
-        T,
-        east,
-        mat,
-    );
-    k.wall(
-        Vec2::new(-hx, -hz + T / 2.0),
-        Vec2::new(-hx, hz - T / 2.0),
-        y0,
-        h,
-        T,
-        west,
-        mat,
-    );
-    // Dark timber corner posts and a beam along the top. Both stand 2 cm
-    // proud of the wall top so no faces are coplanar (z-fighting).
-    for (sx, sz) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
-        let c = Vec3::new(sx * hx, y0 + (h + 0.03) / 2.0, sz * hz);
-        let s = Vec3::new(T + 0.1, h + 0.03, T + 0.1);
-        k.put(
-            Shape::Cube,
-            c,
-            s,
-            Quat::IDENTITY,
-            Mat::Timber,
-            Solid::None,
-            false,
-        );
-    }
-    for z in [-hz, hz] {
-        let c = Vec3::new(0.0, y0 + h - 0.08, z);
-        let s = Vec3::new(w, 0.2, T + 0.06);
-        k.put(
-            Shape::Cube,
-            c,
-            s,
-            Quat::IDENTITY,
-            Mat::Timber,
-            Solid::None,
-            false,
-        );
-    }
-}
-
-/// Bed with a pillow and blanket, head against `head` (local, on the floor
-/// at `y`), lying along z.
-fn bed(k: &mut Kit, at: Vec3) {
-    k.prop(at, Vec3::new(1.0, 0.5, 2.0), Mat::Wood);
-    let c = at + Vec3::new(0.0, 0.55, 0.15);
-    k.trinket(Shape::Cube, c, Vec3::new(0.95, 0.12, 1.6), Mat::Blue);
-    let c = at + Vec3::new(0.0, 0.6, -0.75);
-    k.trinket(Shape::Cube, c, Vec3::new(0.7, 0.14, 0.35), Mat::Linen);
-}
-
-/// A table with a lamp-lit bowl of fruit.
-fn table(k: &mut Kit, at: Vec3) {
-    k.prop(at + Vec3::Y * 0.7, Vec3::new(1.4, 0.08, 0.9), Mat::Wood);
-    for (sx, sz) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
-        let c = at + Vec3::new(sx * 0.6, 0.35, sz * 0.35);
-        k.prop(c - Vec3::Y * 0.35, Vec3::new(0.08, 0.7, 0.08), Mat::Timber);
-    }
-    k.trinket(
-        Shape::Ball,
-        at + Vec3::new(0.2, 0.86, 0.0),
-        Vec3::splat(0.16),
-        Mat::Fruit,
-    );
-    k.trinket(
-        Shape::Ball,
-        at + Vec3::new(0.05, 0.86, 0.1),
-        Vec3::splat(0.14),
-        Mat::Red,
-    );
-}
-
-/// A crate stack.
-fn crates(k: &mut Kit, at: Vec3, tall: bool) {
-    k.prop(at, Vec3::splat(0.85), Mat::Wood);
-    if tall {
-        k.prop(
-            at + Vec3::new(0.05, 0.85, 0.0),
-            Vec3::splat(0.6),
-            Mat::Plank,
-        );
-    }
-}
-
-/// A tall shelf or wardrobe against a wall, `size` along x/z as given.
-fn shelf(k: &mut Kit, at: Vec3, size: Vec3) {
-    k.prop(at, size, Mat::Plank);
-    for i in 1..4 {
-        let y = size.y * i as f32 / 4.0;
-        let c = at + Vec3::Y * y;
-        k.trinket(
-            Shape::Cube,
-            c,
-            size * Vec3::new(0.7, 0.0, 0.7) + Vec3::Y * 0.18,
-            Mat::Red,
-        );
-    }
+    k.walls(w, d, y0, h, [south, north, east, west], mat);
 }
 
 /// A one-storey cottage, door on the local south (+z) wall, back door east.
@@ -620,7 +200,7 @@ fn cottage(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat), split: bool
     table(k, Vec3::new(-w * 0.15, 0.0, -d * 0.12));
     shelf(
         k,
-        Vec3::new(-hx + 1.1, 0.0, -hz + 0.35),
+        Vec3::new(-hx + 1.1, 0.0, -hz + 0.37),
         Vec3::new(1.4, 1.9, 0.4),
     );
     crates(k, Vec3::new(hx - 0.7, 0.0, hz - 0.7), true);
@@ -713,8 +293,8 @@ fn townhouse(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat)) {
         k.bar(a, b, STOREY, 1.0, 0.1, Mat::Timber, Solid::Wall);
     };
     rail(k, Vec2::new(-bx, bz), Vec2::new(bx, bz));
-    rail(k, Vec2::new(-bx, hz + 0.15), Vec2::new(-bx, bz));
-    rail(k, Vec2::new(bx, hz + 0.15), Vec2::new(bx, bz));
+    rail(k, Vec2::new(-bx, hz + 0.15), Vec2::new(-bx, bz - 0.05));
+    rail(k, Vec2::new(bx, hz + 0.15), Vec2::new(bx, bz - 0.05));
     for sx in [-bx + 0.1, bx - 0.1] {
         let c = Vec3::new(sx, 0.0, bz - 0.1);
         k.prop(c, Vec3::new(0.16, STOREY - 0.15, 0.16), Mat::Timber);
@@ -1012,8 +592,8 @@ fn stall(k: &mut Kit, cloth: Mat) {
         Vec3::new(2.4, 0.95, 0.8),
         Mat::Wood,
     );
-    // Posts poke 2 cm past the counter's faces (no coplanar faces).
-    for (x, z) in [(-1.17, 0.37), (1.17, 0.37), (-1.17, -1.3), (1.17, -1.3)] {
+    // Posts stand just outside the counter's ends (touching, not inside).
+    for (x, z) in [(-1.25, 0.37), (1.25, 0.37), (-1.25, -1.3), (1.25, -1.3)] {
         k.prop(Vec3::new(x, 0.0, z), Vec3::new(0.1, 2.3, 0.1), Mat::Timber);
     }
     for i in 0..4 {
@@ -1104,30 +684,30 @@ pub fn layout() -> Kit {
     let slate = (Mat::Slate, Mat::SlateDark);
 
     // North row, doors facing the street (+z).
-    k.place(Vec2::new(40.0, -11.0), 0);
+    k.site(Vec2::new(40.0, -11.0), 0);
     cottage(&mut k, 7.0, 6.0, Mat::Plaster, tiles, false);
-    k.place(Vec2::new(49.5, -13.0), 0);
+    k.site(Vec2::new(49.5, -13.0), 0);
     townhouse(&mut k, 8.0, 7.0, Mat::Rose, slate);
     k.lights.push(k.world(Vec3::new(0.3, 2.5, 0.3)));
-    k.place(Vec2::new(58.0, -13.0), 0);
+    k.site(Vec2::new(58.0, -13.0), 0);
     cottage(&mut k, 6.0, 6.0, Mat::Sky, tiles, false);
-    k.place(Vec2::new(66.5, -11.0), 0);
+    k.site(Vec2::new(66.5, -11.0), 0);
     cottage(&mut k, 9.0, 6.0, Mat::Plaster, slate, true);
     // South row, turned to face the street (-z).
-    k.place(Vec2::new(42.0, 13.0), 2);
+    k.site(Vec2::new(42.0, 13.0), 2);
     townhouse(&mut k, 8.0, 7.0, Mat::Plaster, tiles);
-    k.place(Vec2::new(51.5, 12.5), 2);
+    k.site(Vec2::new(51.5, 12.5), 2);
     cottage(&mut k, 6.0, 5.0, Mat::Rose, tiles, false);
-    k.place(Vec2::new(60.0, 13.0), 2);
+    k.site(Vec2::new(60.0, 13.0), 2);
     cottage(&mut k, 7.0, 6.0, Mat::Sky, slate, true);
 
-    k.place(BARN_AT, 0);
+    k.site(BARN_AT, 0);
     barn(&mut k);
-    k.place(TOWER_AT, 0);
+    k.site(TOWER_AT, 0);
     tower(&mut k);
 
     // Market square: cobbles, the well, four stalls, a lantern.
-    k.place(MARKET_AT, 0);
+    k.site(MARKET_AT, 0);
     k.block(
         // Just inside the low walls at its edge, so their faces don't coincide.
         Vec3::new(-6.97, 0.0, -6.97),
@@ -1142,10 +722,10 @@ pub fn layout() -> Kit {
         (-4.5, 5.0, 2, Mat::Blue),
         (4.5, 5.0, 2, Mat::Red),
     ] {
-        k.place(MARKET_AT + Vec2::new(x, z), turns);
+        k.site(MARKET_AT + Vec2::new(x, z), turns);
         stall(&mut k, cloth);
     }
-    k.place(MARKET_AT, 0);
+    k.site(MARKET_AT, 0);
     k.prop(
         Vec3::new(-3.2, 0.0, 2.6),
         Vec3::new(0.15, 3.0, 0.15),
@@ -1155,7 +735,7 @@ pub fn layout() -> Kit {
     k.lights.push(k.world(Vec3::new(-3.2, 3.2, 2.6)));
 
     // Everything else in world coordinates.
-    k.place(Vec2::ZERO, 0);
+    k.site(Vec2::ZERO, 0);
     village_grounds(&mut k);
     k
 }
@@ -1191,8 +771,8 @@ fn village_grounds(k: &mut Kit) {
     );
     // East wall with a gate on the street line.
     k.wall(
-        v(79.0, -34.0),
-        v(79.0, 34.0),
+        v(79.0, -33.75),
+        v(79.0, 33.75),
         0.0,
         h,
         t,
@@ -1200,8 +780,9 @@ fn village_grounds(k: &mut Kit) {
         Mat::Stone,
     );
     // West wall, wide open where the path comes in.
-    k.wall(v(36.0, -34.0), v(36.0, -5.0), 0.0, h, t, &[], Mat::Stone);
-    k.wall(v(36.0, 5.0), v(36.0, 34.0), 0.0, h, t, &[], Mat::Stone);
+    // Both stop where the north/south walls and the gate pillars begin.
+    k.wall(v(36.0, -33.75), v(36.0, -5.4), 0.0, h, t, &[], Mat::Stone);
+    k.wall(v(36.0, 5.4), v(36.0, 33.75), 0.0, h, t, &[], Mat::Stone);
     for z in [-5.0, 5.0] {
         k.block(
             Vec3::new(35.6, 0.0, z - 0.4),
@@ -1223,18 +804,18 @@ fn village_grounds(k: &mut Kit) {
     for sx in [-1.0, 1.0] {
         for sz in [-1.0, 1.0] {
             let c = MARKET_AT + v(sx * 7.0, sz * 7.0);
-            low(k, c, c - v(sx * 3.0, 0.0));
-            low(k, c, c - v(0.0, sz * 3.0));
+            low(k, c + v(sx * 0.225, 0.0), c - v(sx * 3.0, 0.0));
+            low(k, c - v(0.0, sz * 0.225), c - v(0.0, sz * 3.0));
         }
     }
     // A paddock fence by the watchtower.
-    let fence = |k: &mut Kit, a: Vec2, b: Vec2| {
+    let fence = |k: &mut Kit, a: Vec2, b: Vec2, first: bool| {
         k.bar(a, b, 0.0, 1.1, 0.12, Mat::Hidden, Solid::Wall);
         for y in [0.45, 0.9] {
             k.bar(a, b, y, 0.1, 0.08, Mat::Wood, Solid::None);
         }
         let n = ((a.distance(b) / 2.0).ceil() as usize).max(1);
-        for i in 0..=n {
+        for i in (if first { 0 } else { 1 })..=n {
             let p = a.lerp(b, i as f32 / n as f32);
             k.prop(
                 Vec3::new(p.x, 0.0, p.y),
@@ -1243,9 +824,9 @@ fn village_grounds(k: &mut Kit) {
             );
         }
     };
-    fence(k, v(65.0, 21.0), v(65.0, 30.0));
-    fence(k, v(65.0, 30.0), v(77.0, 30.0));
-    fence(k, v(77.0, 30.0), v(77.0, 24.0));
+    fence(k, v(65.0, 21.0), v(65.0, 30.0), true);
+    fence(k, v(65.0, 30.0), v(77.0, 30.0), false);
+    fence(k, v(77.0, 30.0), v(77.0, 24.0), false);
     // Crates and bales scattered in the alleys and yards.
     for (x, z, tall) in [
         (44.5, -15.0, true),
@@ -1253,7 +834,7 @@ fn village_grounds(k: &mut Kit) {
         (47.0, 18.5, true),
         (66.0, 24.0, false),
         (75.0, 6.0, true),
-        (40.0, 28.0, false),
+        (41.0, 28.0, false),
         (59.0, 27.0, true),
         (75.5, -9.0, false),
         (38.5, -28.0, true),
@@ -1277,64 +858,42 @@ fn spawn_village(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let kit = layout();
-    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let cylinder = meshes.add(Cylinder::new(0.5, 1.0));
-    let ball = meshes.add(Sphere::new(0.5));
-    let gable = meshes.add(Extrusion::new(
-        Triangle2d::new(
-            Vec2::new(-0.5, 0.0),
-            Vec2::new(0.5, 0.0),
-            Vec2::new(0.0, 1.0),
-        ),
-        1.0,
-    ));
     let mut mats: Vec<(Mat, Handle<StandardMaterial>)> = Vec::new();
-    for piece in &kit.pieces {
-        let (mesh, collider) = match piece.shape {
-            Shape::Cube => (cube.clone(), Some(Collider::cuboid(1.0, 1.0, 1.0))),
-            Shape::Cylinder => (cylinder.clone(), Some(Collider::cylinder(0.5, 1.0))),
-            Shape::Gable => (gable.clone(), None),
-            Shape::Ball => (ball.clone(), None),
+    // One merged mesh per house and material, with UVs already in world
+    // metres and tangents, so `surfaces` leaves it alone (`Surfaced`).
+    for batch in batches(&kit.pieces) {
+        let mat = match mats.iter().find(|(m, _)| *m == batch.mat) {
+            Some((_, h)) => h.clone(),
+            None => {
+                let h = material(&mut materials, batch.mat);
+                mats.push((batch.mat, h.clone()));
+                h
+            }
         };
-        let transform = Transform::from_translation(piece.centre)
-            .with_rotation(piece.rot)
-            .with_scale(piece.size);
         let mut e = commands.spawn((
-            transform,
+            Transform::from_translation(batch.origin),
             Visibility::default(),
+            Mesh3d(meshes.add(batch.mesh)),
+            MeshMaterial3d(mat),
+            Surfaced,
             DespawnOnExit(AppState::InGame),
         ));
-        if collider.is_some() {
-            // Village architecture stays in the villagers' navmesh (see
-            // features/villagers.rs); scattered nature is excluded instead.
-            e.insert(Building);
+        if batch.small || batch.mat == Mat::Lamp {
+            e.insert(NotShadowCaster);
         }
-        if piece.mat != Mat::Hidden {
-            let mat = match mats.iter().find(|(m, _)| *m == piece.mat) {
-                Some((_, h)) => h.clone(),
-                None => {
-                    let h = material(&mut materials, piece.mat);
-                    mats.push((piece.mat, h.clone()));
-                    h
-                }
-            };
-            e.insert((Mesh3d(mesh), MeshMaterial3d(mat)));
-            if piece.small || piece.mat == Mat::Lamp {
-                e.insert(NotShadowCaster);
-            }
-        }
-        match (piece.solid, collider) {
-            (Solid::Wall, Some(c)) => {
-                e.insert((RigidBody::Static, c));
-            }
-            (Solid::Floor, Some(c)) => {
-                e.insert((
-                    RigidBody::Static,
-                    c,
-                    CollisionLayers::new(WALKABLE, LayerMask::ALL),
-                ));
-            }
-            _ => {}
+    }
+    for body in bodies(&kit.pieces) {
+        // Village architecture stays in the villagers' navmesh (see
+        // features/villagers.rs); scattered nature is excluded instead.
+        let mut e = commands.spawn((
+            Transform::from_translation(body.centre).with_rotation(body.rot),
+            RigidBody::Static,
+            body.collider,
+            Building,
+            DespawnOnExit(AppState::InGame),
+        ));
+        if body.solid == Solid::Floor {
+            e.insert(CollisionLayers::new(WALKABLE, LayerMask::ALL));
         }
     }
     for at in kit.lights {
@@ -1491,6 +1050,50 @@ mod tests {
             .filter(|r| (r.to.y - r.from.y - STOREY).abs() < 0.01)
             .count();
         assert!(upper >= 2, "need two two-storey houses");
+    }
+
+    /// Solid boxes may touch but never overlap: walls are split around their
+    /// holes, and lintels and sills only fill the hole. Checks drawn,
+    /// axis-aligned architecture and furniture (hidden helper colliders,
+    /// like the solid blocks under stairs, are allowed inside things).
+    #[test]
+    fn solid_boxes_never_overlap() {
+        let kit = layout();
+        let axis_aligned = |p: &Piece| {
+            let m = Mat3::from_quat(p.rot);
+            [m.x_axis, m.y_axis, m.z_axis]
+                .iter()
+                .all(|a| a.abs().max_element() > 0.9999)
+        };
+        let boxes: Vec<_> = kit
+            .pieces
+            .iter()
+            .filter(|p| {
+                p.shape == Shape::Cube
+                    && p.solid != Solid::None
+                    && p.mat != Mat::Hidden
+                    && axis_aligned(p)
+            })
+            .map(|p| (p, aabb(p)))
+            .collect();
+        let mut bad = Vec::new();
+        for (i, (p, a)) in boxes.iter().enumerate() {
+            for (q, b) in &boxes[i + 1..] {
+                let depth = (a.1.min(b.1) - a.0.max(b.0)).min_element();
+                if depth > 2e-3 {
+                    bad.push(format!(
+                        "{:?} {:?} {:?} vs {:?} {:?} {:?} ({depth})",
+                        p.mat, p.centre, p.size, q.mat, q.centre, q.size
+                    ));
+                }
+            }
+        }
+        assert!(
+            bad.is_empty(),
+            "{} overlaps:\n{}",
+            bad.len(),
+            bad.join("\n")
+        );
     }
 
     /// Two boxes of different materials whose same-facing faces lie in one

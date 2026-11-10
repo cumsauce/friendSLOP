@@ -272,6 +272,7 @@ fn music_volume(
     mut hush: Local<f32>,
     attacks: Query<&crate::features::punishment::AttackMode>,
     spooked: Option<Res<crate::features::warehouse::Spooked>>,
+    adrift: Option<Res<crate::features::infinite::Adrift>>,
     mut sinks: Query<&mut AudioSink, With<MusicPlayer>>,
 ) {
     let master = settings.map_or(0.8, |s| s.master_volume);
@@ -281,6 +282,10 @@ fn music_volume(
         || crate::features::warehouse::spooked(&spooked);
     let k = 1.0 - (-3.0 * time.delta_secs()).exp();
     *hush += (f32::from(u8::from(quiet)) - *hush) * k;
+    // The endless hallway (#206) cuts it dead.
+    if crate::features::infinite::adrift(&adrift) {
+        *hush = 1.0;
+    }
     for mut sink in &mut sinks {
         *fade_in = (*fade_in + time.delta_secs() / 2.0).min(1.0);
         let level = MUSIC_LEVEL * master * *fade_in * (1.0 - *hush);

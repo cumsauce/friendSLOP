@@ -762,6 +762,16 @@ Dying (to the RPG) just sends you back to the start.
   features still put in HUD slots sit around these on matching ink chips. The full chapter
   checklist and the join code moved to Tab; your own stat lines no longer mirror into the
   corner (they're on Tab).
+- **The commune journal and chapter intro** (UI polish, phase 2 of the same brief). Hold Tab to
+  peek at the journal, J keeps it open, H opens it on Help, Esc closes it (Esc no longer leaves
+  the game while it's open; the mouse is freed so its tabs can be clicked). Tabs: **Party** (a
+  table of every player's tears, morality, organ money and totems, your skill levels, your own
+  lines from every feature table, the invite code), **Bag** (every feature's full table),
+  **Skills**, **Help** (all keys and every feature's explanation; the old H panel is gone) and
+  **Credits** (whose idea each thing was, from "Ideas so far"). When a chapter starts, an ink
+  card on the left shows its number, name, story and first jobs; Enter or Esc puts it away, and
+  6 s after loading it shrinks into the quest card on its own (it replaced the big centre
+  banner).
 
 ## Ideas so far
 

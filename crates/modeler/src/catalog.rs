@@ -123,6 +123,10 @@ fn save_catalog(catalog: &Catalog) -> Result<(), String> {
 
 /// Serialize the model into the catalog dir and upsert its index entry (matched by name).
 /// Returns the sanitized model name.
+/// Saves a model non-destructively: procedural parts are not written (they are
+/// the cached evaluation of the ops and re-derive on load), the history tree
+/// rides along inside the model, and the file is replaced atomically so a
+/// crash mid-save can't corrupt the prefab.
 pub fn save_prefab(
     model: &Model,
     description: &str,
@@ -132,12 +136,17 @@ pub fn save_prefab(
     let name = sanitize(&model.name);
     let mut saved = model.clone();
     saved.name = name.clone();
+    if saved.parts_derive_from_ops() {
+        saved.parts.clear();
+    }
     let dir = catalog_dir()?;
     fs::create_dir_all(&dir).map_err(|e| format!("creating {}: {e}", dir.display()))?;
     let file = format!("{name}.json");
     let text = serde_json::to_string_pretty(&saved).map_err(|e| e.to_string())?;
-    fs::write(dir.join(&file), text)
-        .map_err(|e| format!("writing {}: {e}", dir.join(&file).display()))?;
+    let path = dir.join(&file);
+    let tmp = dir.join(format!("{file}.tmp"));
+    fs::write(&tmp, &text).map_err(|e| format!("writing {}: {e}", tmp.display()))?;
+    fs::rename(&tmp, &path).map_err(|e| format!("renaming {}: {e}", tmp.display()))?;
 
     let mut catalog = load_catalog()?;
     let entry = CatalogEntry {
@@ -156,11 +165,21 @@ pub fn save_prefab(
     Ok(name)
 }
 
-/// Load a saved model by name.
+/// Load a saved model by name. Procedural prefabs store no parts; they are
+/// re-derived from the ops here, so a graph prefab is small on disk and still
+/// opens fully evaluated.
 pub fn load_prefab(name: &str) -> Result<Model, String> {
     let path = catalog_dir()?.join(format!("{}.json", sanitize(name)));
     let text = fs::read_to_string(&path).map_err(|e| format!("reading {}: {e}", path.display()))?;
-    serde_json::from_str(&text).map_err(|e| format!("parsing {}: {e}", path.display()))
+    let mut model: Model =
+        serde_json::from_str(&text).map_err(|e| format!("parsing {}: {e}", path.display()))?;
+    model.refresh()?;
+    // Saved snapshots store no nested history, but their ops are intact, so
+    // bring each one's parts back too.
+    for node in &mut model.history.nodes {
+        node.model.refresh()?;
+    }
+    Ok(model)
 }
 
 /// List all catalog entries, most recent last.

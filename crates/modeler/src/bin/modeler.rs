@@ -808,7 +808,7 @@ fn update_graph_hud(
         "{}\n---\n",
         friendslop_modeler::graph::describe(&modeler.session.model.ops)
     );
-    s += &modeler.session.history.describe();
+    s += &modeler.session.model.history.describe();
     text.0 = s;
 }
 
@@ -1303,8 +1303,9 @@ impl Tools {
             let model = catalog::load_prefab(&name)?;
             let mut model = model;
             model.version = s.model.version + 1;
+            let snapshot = s.model.clone();
+            s.model.history.record(snapshot, format!("load `{name}`"));
             s.model = model;
-            s.history.record(&s.model, format!("load `{name}`"));
             Ok(format!("loaded prefab `{name}`\n{}", s.summary()))
         })
         .await
@@ -1318,7 +1319,8 @@ impl Tools {
     ) -> Result<CallToolResult, ErrorData> {
         self.run(move |s| {
             s.model.name = name.clone();
-            s.history.record(&s.model, format!("name `{name}`"));
+            let snapshot = s.model.clone();
+            s.model.history.record(snapshot, format!("name `{name}`"));
             Ok(format!("model renamed to `{name}`"))
         })
         .await

@@ -1,7 +1,7 @@
 //! The tool operations as plain functions on a [`Session`] (model + undo history). Pure,
 //! unit-testable, wiring-free API used by both the MCP tools and tests.
 
-use crate::{Annotation, History, Model, Op, Part, graph};
+use crate::{Annotation, Model, Op, Part, graph};
 
 pub type CmdResult = Result<String, String>;
 
@@ -18,7 +18,6 @@ pub struct PendingPin {
 /// The modeling session the MCP tools drive.
 pub struct Session {
     pub model: Model,
-    pub history: History,
     /// The human's last click on the model, if it hasn't been commented yet.
     pub pending_pin: Option<PendingPin>,
 }
@@ -27,7 +26,6 @@ impl Default for Session {
     fn default() -> Self {
         Self {
             model: Model::named("model"),
-            history: History::default(),
             pending_pin: None,
         }
     }
@@ -38,9 +36,14 @@ impl Session {
         self.model.version += 1;
     }
 
-    /// Records the just-mutated model in the history tree under `label`.
+    /// Records the just-mutated model in the history tree under `label`. The
+    /// tree lives on the model, so it travels with saves and prefab loads.
     fn commit(&mut self, label: &str) {
-        self.history.record(&self.model, label);
+        // The snapshot carries no tree of its own: the live history on the
+        // session model is the single source of truth for the tree shape.
+        let mut snapshot = self.model.clone();
+        snapshot.history = crate::History::default();
+        self.model.history.record(snapshot, label);
     }
 
     /// Upserts one op into the graph, re-derives the parts and records history.
@@ -330,22 +333,28 @@ impl Session {
     }
 
     pub fn undo(&mut self) -> CmdResult {
-        let (id, model) = self.history.undo().ok_or("nothing to undo")?;
-        self.model = model.clone();
+        let (id, mut model) = self.model.history.undo().ok_or("nothing to undo")?;
+        model.refresh()?;
+        model.history = std::mem::take(&mut self.model.history);
+        self.model = model;
         Ok(format!("undone to #{id}, model at v{}", self.model.version))
     }
 
     pub fn redo(&mut self) -> CmdResult {
-        let (id, model) = self.history.redo().ok_or("nothing to redo")?;
-        self.model = model.clone();
+        let (id, mut model) = self.model.history.redo().ok_or("nothing to redo")?;
+        model.refresh()?;
+        model.history = std::mem::take(&mut self.model.history);
+        self.model = model;
         Ok(format!("redone to #{id}, model at v{}", self.model.version))
     }
 
     /// Jump the cursor anywhere in the history tree. Editing after a jump
     /// branches: the old future stays reachable as a sibling subtree.
     pub fn jump(&mut self, id: usize) -> CmdResult {
-        let (_, model) = self.history.jump(id)?;
-        self.model = model.clone();
+        let (_, mut model) = self.model.history.jump(id)?;
+        model.refresh()?;
+        model.history = std::mem::take(&mut self.model.history);
+        self.model = model;
         Ok(format!(
             "jumped to #{id}, model at v{} (editing here branches)",
             self.model.version
@@ -354,7 +363,7 @@ impl Session {
 
     /// The whole history tree, one line per snapshot.
     pub fn history(&self) -> String {
-        self.history.describe()
+        self.model.history.describe()
     }
 
     /// Comment on a part (optionally a specific face or vertex). Face, vertex and
@@ -597,6 +606,7 @@ mod tests {
         assert!(s.history().contains("`rename `leg` -> `b`"));
         // Jump to the abandoned branch's snapshot and the name comes back.
         let id = s
+            .model
             .history
             .nodes
             .iter()
@@ -604,6 +614,26 @@ mod tests {
             .unwrap_or_else(|| panic!("branch snapshot missing"));
         s.jump(id).unwrap_or_else(|e| panic!("{e}"));
         assert_eq!(s.model.parts[0].name, "b");
+    }
+
+    #[test]
+    fn procedural_snapshots_serialize_without_parts_but_with_the_tree() {
+        use crate::History;
+        let mut s = Session::default();
+        s.op_primitive("leg", "box", [1.0, 1.0, 1.0], [0.0, 0.5, 0.0])
+            .unwrap_or_else(|e| panic!("{e}"));
+        s.op_primitive("ball", "sphere", [0.5, 0.0, 0.0], [0.0, 2.0, 0.0])
+            .unwrap_or_else(|e| panic!("{e}"));
+        let json = serde_json::to_string(&s.model.history).unwrap_or_else(|e| panic!("{e}"));
+        assert!(json.contains("ball"), "{json}");
+        let back: History = serde_json::from_str(&json).unwrap_or_else(|e| panic!("{e}"));
+        // The first snapshot is a baked empty model; the second is procedural
+        // and carries ops only, re-deriving both parts.
+        assert!(back.nodes[0].model.parts.is_empty());
+        let mut model = back.nodes[1].model.clone();
+        assert!(model.parts.is_empty());
+        assert!(model.refresh().is_ok());
+        assert_eq!(model.parts.len(), 2);
     }
 
     #[test]

@@ -554,23 +554,13 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(
             Update,
-            (
-                show_checklist.run_if(crate::world::hud_tick()),
-                chapter_banner,
-                tier_toast,
-            )
+            (show_checklist.run_if(crate::world::hud_tick()), tier_toast)
                 .run_if(in_state(AppState::InGame)),
         );
 }
 
 #[derive(Component)]
 struct ChecklistText;
-
-#[derive(Component)]
-struct ChapterBanner;
-
-/// How long the "CHAPTER N" card stays up when a chapter starts.
-const BANNER_SECS: f32 = 9.0;
 
 fn spawn_ui(mut commands: Commands) {
     commands.spawn((
@@ -582,16 +572,6 @@ fn spawn_ui(mut commands: Commands) {
         // the counts and the next job.
         crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         crate::hud::First,
-        DespawnOnExit(AppState::InGame),
-    ));
-    commands.spawn((
-        Text::new(""),
-        ChapterBanner,
-        TextFont::from_font_size(30.0),
-        TextColor(crate::hud::ACCENT),
-        TextLayout::justify(Justify::Center),
-        crate::hud::slot(crate::hud::HudSlot::CenterBanner),
-        Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -616,35 +596,7 @@ fn show_checklist(
     }
 }
 
-fn chapter_banner(
-    time: Res<Time>,
-    campaign: Query<&Campaign>,
-    mut shown: Local<Option<usize>>,
-    mut left: Local<f32>,
-    mut banner: Query<(&mut Text, &mut Visibility), With<ChapterBanner>>,
-) {
-    let Ok(c) = campaign.single() else { return };
-    let Ok((mut text, mut vis)) = banner.single_mut() else {
-        return;
-    };
-    if *shown != Some(c.chapter) {
-        *shown = Some(c.chapter);
-        *left = BANNER_SECS;
-        let ch = c.current();
-        text.0 = format!(
-            "CHAPTER {}: {}\n{}\n\nTHE GOAL: {GOAL}",
-            c.chapter + 1,
-            ch.name.to_uppercase(),
-            ch.intro
-        );
-    }
-    *left -= time.delta_secs();
-    vis.set_if_neq(if *left > 0.0 {
-        Visibility::Inherited
-    } else {
-        Visibility::Hidden
-    });
-}
+// The chapter intro card lives in `ui::chapter`.
 
 /// "Tier N unlocked" whenever the group ticks a task.
 fn tier_toast(

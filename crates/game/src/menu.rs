@@ -939,8 +939,13 @@ fn leave_on_esc(
     mut view: ResMut<crate::features::fps::FpsView>,
     me: Option<Res<LocalPlayer>>,
     duelists: Query<&crate::features::duel::Duelist>,
+    overlay: Option<Res<crate::ui::Overlay>>,
 ) {
     if !keys.just_pressed(KeyCode::Escape) {
+        return;
+    }
+    // The journal or chapter intro takes this Esc (it closes them).
+    if overlay.is_some_and(|o| o.any()) {
         return;
     }
     // Duelists have their cursor locked regardless of `released`, so there is

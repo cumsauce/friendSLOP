@@ -85,7 +85,7 @@ crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy p
 crates/wire/         friendslop-wire: the iroh wire format shared by the desktop and browser transports
 crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares
 crates/world/        friendslop-world: the map: terrain, buildings, landmarks, surfaces, places
-crates/structures/   friendslop-structures: building kit (walls with holes, stairs, roofs, furniture), merged meshes, world-space UVs, colliders
+crates/structures/   friendslop-structures: building kit, house grammar, room graph + hallway kit, prop library + placer, merged meshes, world-space UVs, colliders
 crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers)
 crates/modeler/      friendslop-modeler: MCP-driven mesh modeling (`cargo run -p friendslop-modeler --bin modeler`,
                      window preview / `--headless`): primitives, CSG booleans, UV projections, glTF/glb export,

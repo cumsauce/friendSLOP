@@ -51,3 +51,22 @@ pub struct Detail(pub f32);
 pub fn detail(d: Option<&Detail>) -> f32 {
     d.map_or(1.0, |d| d.0)
 }
+
+/// The seed every generated structure (village houses, the sewer, furniture)
+/// is built from. The host rolls it and the game replicates it, so every peer
+/// builds the same world. Present only once it is known: generators wait for
+/// it with `resource_exists::<WorldSeed>` / `resource_changed::<WorldSeed>`.
+#[derive(Resource, Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct WorldSeed(pub u32);
+
+impl WorldSeed {
+    /// A sub-seed for one generator, so features don't share random streams.
+    pub fn for_(self, salt: u32) -> u32 {
+        let mut x = self.0 ^ salt.wrapping_mul(0x9E37_79B9);
+        x ^= x >> 16;
+        x = x.wrapping_mul(0x85EB_CA6B);
+        x ^= x >> 13;
+        x = x.wrapping_mul(0xC2B2_AE35);
+        x ^ (x >> 16)
+    }
+}

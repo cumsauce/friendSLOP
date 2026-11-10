@@ -1,8 +1,14 @@
-//! Every peer: the ways in up top, the tunnels below (built once from the
-//! pure [`layout`]), and the dark while you're down there.
+//! Every peer: the ways in up top, the tunnels below (built from
+//! [`Tunnels`] with the structures hallway kit, and rebuilt whenever the
+//! world seed changes them), and the dark while you're down there.
+
+use std::collections::HashMap;
 
 use avian3d::prelude::{Collider, RigidBody};
 use bevy::light::NotShadowCaster;
+use friendslop_structures::build::{batches, bodies};
+use friendslop_structures::hall::{Fixture, Hall, Style, hall};
+use friendslop_structures::{Kit, Palette, Solid};
 
 use super::*;
 use crate::AppState;
@@ -18,7 +24,14 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), reset)
         .add_systems(
             Update,
-            (darkness, guide).chain().run_if(in_state(AppState::InGame)),
+            (
+                build_tunnels.run_if(resource_exists_and_changed::<Tunnels>),
+                show_new,
+                darkness,
+                guide,
+            )
+                .chain()
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -37,7 +50,7 @@ fn guide(
     walkers: Query<(&Player, &Walker)>,
     camera: Query<&GlobalTransform, With<MainCamera>>,
     mut line: Query<&mut Text, With<Guide>>,
-    mut cache: Local<Option<Layout>>,
+    tunnels: Option<Res<Tunnels>>,
     mut wait: Local<f32>,
 ) {
     if line.is_empty() {
@@ -54,8 +67,7 @@ fn guide(
         return;
     }
     *wait = 0.25;
-    let want = if below.inside {
-        let l = cache.get_or_insert_with(layout);
+    let want = if let (true, Some(l)) = (below.inside, tunnels.as_deref()) {
         let at = me
             .and_then(|me| walkers.iter().find(|(p, _)| p.id == me.0))
             .map(|(_, w)| w.pos.xz());
@@ -110,6 +122,10 @@ struct Hatch(u8);
 #[derive(Component)]
 struct Deep;
 
+/// Built from the current [`Tunnels`]: replaced when they change.
+#[derive(Component)]
+struct Tunnel;
+
 struct Mats {
     cube: Handle<Mesh>,
     disc: Handle<Mesh>,
@@ -152,7 +168,7 @@ fn block(
         DespawnOnExit(AppState::InGame),
     ));
     if deep {
-        e.insert((Deep, NotShadowCaster, Visibility::Hidden));
+        e.insert((Deep, Tunnel, NotShadowCaster, Visibility::Hidden));
     }
     if solid {
         e.insert((
@@ -170,6 +186,7 @@ fn boxed(at: Vec3, size: Vec3) -> Transform {
 fn light(commands: &mut Commands, at: Vec3, color: Color, intensity: f32, range: f32) {
     commands.spawn((
         Deep,
+        Tunnel,
         PointLight {
             color,
             intensity,
@@ -195,7 +212,6 @@ fn build(
         disc: meshes.add(Cylinder::new(1.0, 1.0)),
     };
     build_tops(&mut commands, &m, &mut materials);
-    build_tunnels(&mut commands, &m, &mut materials);
 }
 
 /// The ways in, up top.
@@ -287,219 +303,196 @@ fn build_tops(commands: &mut Commands, m: &Mats, materials: &mut Assets<Standard
     }
 }
 
-/// The network below, from [`layout`].
-fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<StandardMaterial>) {
-    let l = layout();
-    let looks = |materials: &mut Assets<StandardMaterial>, p: Part| match p {
-        Part::Hub | Part::Sewer => (
-            mat(materials, Color::srgb(0.2, 0.21, 0.19), 0.9),
-            mat(materials, Color::srgb(0.27, 0.3, 0.25), 0.95),
-        ),
-        Part::Passage => (
-            mat(materials, Color::srgb(0.24, 0.2, 0.17), 1.0),
-            mat(materials, Color::srgb(0.38, 0.22, 0.16), 0.95),
-        ),
-        Part::Cellar => (
-            mat(materials, Color::srgb(0.3, 0.22, 0.14), 0.9),
-            mat(materials, Color::srgb(0.5, 0.47, 0.4), 0.95),
-        ),
+/// The tunnel kit's materials.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+enum M {
+    Hidden,
+    Floor(Part),
+    Wall(Part),
+    Trim(Part),
+    Metal,
+    Water,
+    Bulb,
+    Flame,
+}
+
+impl Palette for M {
+    const HIDDEN: Self = M::Hidden;
+    const TIMBER: Self = M::Trim(Part::Passage);
+    const WOOD: Self = M::Trim(Part::Cellar);
+    const PLANK: Self = M::Trim(Part::Cellar);
+    const CLOTH: Self = M::Wall(Part::Cellar);
+    const LINEN: Self = M::Wall(Part::Cellar);
+    const FRUIT: Self = M::Wall(Part::Cellar);
+    const RED: Self = M::Wall(Part::Passage);
+    const IRON: Self = M::Metal;
+    const LAMP: Self = M::Bulb;
+}
+
+fn color(m: M) -> (Color, f32, f32) {
+    let looks = |p: Part| match p {
+        Part::Hub | Part::Sewer => (Color::srgb(0.2, 0.21, 0.19), Color::srgb(0.27, 0.3, 0.25)),
+        Part::Passage => (Color::srgb(0.24, 0.2, 0.17), Color::srgb(0.38, 0.22, 0.16)),
+        Part::Cellar => (Color::srgb(0.3, 0.22, 0.14), Color::srgb(0.5, 0.47, 0.4)),
     };
-    let parts = [Part::Hub, Part::Sewer, Part::Passage, Part::Cellar];
-    let skins: Vec<_> = parts.iter().map(|p| looks(materials, *p)).collect();
-    let skin = |p: Part| &skins[parts.iter().position(|q| *q == p).unwrap_or(0)];
+    match m {
+        M::Hidden => (Color::NONE, 1.0, 0.0),
+        M::Floor(p) => (looks(p).0, 0.9, 0.0),
+        M::Wall(p) => (looks(p).1, 0.95, 0.0),
+        M::Trim(p) => (looks(p).1.darker(0.08), 0.85, 0.0),
+        M::Metal => (Color::srgb(0.2, 0.17, 0.14), 0.5, 0.0),
+        M::Water => (Color::srgb(0.12, 0.18, 0.1), 0.15, 0.25),
+        M::Bulb => (Color::srgb(1.0, 0.9, 0.6), 0.5, 4.0),
+        M::Flame => (Color::srgb(1.0, 0.55, 0.2), 0.5, 6.0),
+    }
+}
+
+fn style(p: Part) -> Style<M> {
+    let wet = matches!(p, Part::Hub | Part::Sewer);
+    Style {
+        floor: M::Floor(p),
+        wall: M::Wall(p),
+        ceiling: M::Floor(p),
+        trim: M::Trim(p),
+        metal: M::Metal,
+        water: M::Water,
+        glow: if p == Part::Passage {
+            M::Flame
+        } else {
+            M::Bulb
+        },
+        wet,
+        pipes: wet,
+        beams: p != Part::Hub,
+        fixture: match p {
+            Part::Sewer => Fixture::Ceiling,
+            Part::Passage => Fixture::Torch,
+            Part::Hub | Part::Cellar => Fixture::None,
+        },
+        every: if p == Part::Passage { 3 } else { 4 },
+    }
+}
+
+/// The network below, from [`Tunnels`]: the old one goes, the new one is
+/// laid with the hallway kit, merged into a few meshes and colliders.
+#[allow(clippy::too_many_arguments)]
+fn build_tunnels(
+    mut commands: Commands,
+    tunnels: Res<Tunnels>,
+    old: Query<Entity, With<Tunnel>>,
+    below: Res<Below>,
+    meshes: Option<ResMut<Assets<Mesh>>>,
+    materials: Option<ResMut<Assets<StandardMaterial>>>,
+) {
+    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+        return;
+    };
+    for e in &old {
+        commands.entity(e).despawn();
+    }
+    let m = Mats {
+        cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+        disc: meshes.add(Cylinder::new(1.0, 1.0)),
+    };
+    let l = &tunnels.0;
     let (y, top) = (TUNNEL_Y, TUNNEL_Y + TUNNEL_H);
-    let (min, max) = l
-        .cells
-        .keys()
-        .fold(((i32::MAX, i32::MAX), (i32::MIN, i32::MIN)), |(a, b), c| {
-            ((a.0.min(c.0), a.1.min(c.1)), (b.0.max(c.0), b.1.max(c.1)))
-        });
-
-    // Floors and ceilings: one slab per run of same-part cells in a row.
-    for z in min.1..=max.1 {
-        let mut x = min.0;
-        while x <= max.0 {
-            let Some(p) = l.part((x, z)) else {
-                x += 1;
-                continue;
-            };
-            let start = x;
-            while l.part((x + 1, z)) == Some(p) {
-                x += 1;
-            }
-            let a = cell_centre((start, z));
-            let b = cell_centre((x, z));
-            let mid = (a + b) / 2.0;
-            let len = b.x - a.x + CELL;
-            for (yy, mat) in [(y - 0.25, &skin(p).0), (top + 0.25, &skin(p).1)] {
-                block(
-                    commands,
-                    m,
-                    mat,
-                    boxed(Vec3::new(mid.x, yy, mid.y), Vec3::new(len, 0.5, CELL)),
-                    true,
-                    true,
-                );
-            }
-            x += 1;
+    let mut kit = Kit::<M>::default();
+    kit.place(Vec3::ZERO, 0);
+    let spec = Hall {
+        cell: CELL,
+        floor: y,
+        height: TUNNEL_H,
+        thick: 0.3,
+    };
+    let cells: Vec<Cell> = l.cells.keys().copied().collect();
+    hall(&mut kit, &spec, &cells, |c| l.part(c).map(style));
+    let mut handles: HashMap<M, Handle<StandardMaterial>> = HashMap::new();
+    let show = if below.inside {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
+    for batch in batches(&kit.pieces) {
+        if batch.mat == M::Hidden {
+            continue;
         }
-    }
-
-    // Walls wherever an open cell meets rock: merged along rows and columns.
-    let t = 0.3;
-    for z in min.1..=max.1 {
-        for side in [-1, 1] {
-            let wall_at = |x: i32| l.part((x, z)).filter(|_| !l.open((x, z + side)));
-            let mut x = min.0;
-            while x <= max.0 {
-                let Some(p) = wall_at(x) else {
-                    x += 1;
-                    continue;
-                };
-                let start = x;
-                while wall_at(x + 1) == Some(p) {
-                    x += 1;
+        let handle = handles
+            .entry(batch.mat)
+            .or_insert_with(|| {
+                let (c, rough, power) = color(batch.mat);
+                if power > 0.0 {
+                    glow(&mut materials, c, power)
+                } else {
+                    mat(&mut materials, c, rough)
                 }
-                let a = cell_centre((start, z));
-                let b = cell_centre((x, z));
-                let zz = a.y + side as f32 * (CELL / 2.0 + t / 2.0);
-                block(
-                    commands,
-                    m,
-                    &skin(p).1,
-                    boxed(
-                        Vec3::new((a.x + b.x) / 2.0, y + TUNNEL_H / 2.0, zz),
-                        Vec3::new(b.x - a.x + CELL + 2.0 * t, TUNNEL_H, t),
-                    ),
-                    true,
-                    true,
-                );
-                x += 1;
-            }
-        }
+            })
+            .clone();
+        commands.spawn((
+            Deep,
+            Tunnel,
+            NotShadowCaster,
+            show,
+            Mesh3d(meshes.add(batch.mesh)),
+            MeshMaterial3d(handle),
+            Transform::from_translation(batch.origin),
+            DespawnOnExit(AppState::InGame),
+        ));
     }
-    for x in min.0..=max.0 {
-        for side in [-1, 1] {
-            let wall_at = |z: i32| l.part((x, z)).filter(|_| !l.open((x + side, z)));
-            let mut z = min.1;
-            while z <= max.1 {
-                let Some(p) = wall_at(z) else {
-                    z += 1;
-                    continue;
-                };
-                let start = z;
-                while wall_at(z + 1) == Some(p) {
-                    z += 1;
-                }
-                let a = cell_centre((x, start));
-                let b = cell_centre((x, z));
-                let xx = a.x + side as f32 * (CELL / 2.0 + t / 2.0);
-                block(
-                    commands,
-                    m,
-                    &skin(p).1,
-                    boxed(
-                        Vec3::new(xx, y + TUNNEL_H / 2.0, (a.y + b.y) / 2.0),
-                        Vec3::new(t, TUNNEL_H, b.y - a.y + CELL + 2.0 * t),
-                    ),
-                    true,
-                    true,
-                );
-                z += 1;
-            }
+    // Colliders as before: plain static bodies, kept out of the navmesh.
+    for body in bodies(&kit.pieces) {
+        if body.solid == Solid::None {
+            continue;
+        }
+        commands.spawn((
+            Tunnel,
+            Transform::from_translation(body.centre).with_rotation(body.rot),
+            RigidBody::Static,
+            body.collider,
+            avian_rerecast::ExcludeColliderFromNavmesh,
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
+    for at in &kit.lights {
+        if l.part(cell_of(at.xz())) == Some(Part::Passage) {
+            light(
+                &mut commands,
+                *at,
+                Color::srgb(1.0, 0.6, 0.3),
+                14_000.0,
+                8.0,
+            );
+        } else {
+            light(
+                &mut commands,
+                *at,
+                Color::srgb(0.95, 1.0, 0.7),
+                18_000.0,
+                9.0,
+            );
         }
     }
 
-    // Dressing and lights, cell by cell.
-    let water = glow(materials, Color::srgb(0.12, 0.18, 0.1), 0.25);
-    let bulb = glow(materials, Color::srgb(1.0, 0.9, 0.6), 4.0);
-    let flame = glow(materials, Color::srgb(1.0, 0.55, 0.2), 6.0);
-    let daylight = glow(materials, Color::srgb(0.8, 0.9, 1.0), 3.0);
-    let shelf = mat(materials, Color::srgb(0.35, 0.25, 0.15), 0.9);
+    // Dressing.
+    let daylight = glow(&mut materials, Color::srgb(0.8, 0.9, 1.0), 3.0);
+    let bulb = glow(&mut materials, Color::srgb(1.0, 0.9, 0.6), 4.0);
+    let shelf = mat(&mut materials, Color::srgb(0.35, 0.25, 0.15), 0.9);
     let jars = [
-        mat(materials, Color::srgb(0.6, 0.35, 0.2), 0.3),
-        mat(materials, Color::srgb(0.45, 0.55, 0.25), 0.3),
-        mat(materials, Color::srgb(0.7, 0.6, 0.3), 0.3),
+        mat(&mut materials, Color::srgb(0.6, 0.35, 0.2), 0.3),
+        mat(&mut materials, Color::srgb(0.45, 0.55, 0.25), 0.3),
+        mat(&mut materials, Color::srgb(0.7, 0.6, 0.3), 0.3),
     ];
-    for (&c, &p) in &l.cells {
-        let o = cell_centre(c);
-        let floor = Vec3::new(o.x, y, o.y);
-        match p {
-            Part::Sewer | Part::Hub => {
-                // The water channel runs towards every wet neighbour.
-                for d in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
-                    let n = (c.0 + d.0, c.1 + d.1);
-                    if !matches!(l.part(n), Some(Part::Sewer | Part::Hub)) {
-                        continue;
-                    }
-                    let dir = Vec3::new(d.0 as f32, 0.0, d.1 as f32);
-                    let along = CELL / 2.0 + 0.05;
-                    let size = if d.0 != 0 {
-                        Vec3::new(along, 0.02, 1.0)
-                    } else {
-                        Vec3::new(1.0, 0.02, along)
-                    };
-                    block(
-                        commands,
-                        m,
-                        &water,
-                        boxed(floor + dir * (CELL / 4.0) + Vec3::Y * 0.012, size),
-                        false,
-                        true,
-                    );
-                }
-                if p == Part::Sewer && (c.0 + c.1).rem_euclid(4) == 0 {
-                    let at = floor + Vec3::Y * (TUNNEL_H - 0.25);
-                    block(
-                        commands,
-                        m,
-                        &bulb,
-                        boxed(at, Vec3::splat(0.18)),
-                        false,
-                        true,
-                    );
-                    light(
-                        commands,
-                        at - Vec3::Y * 0.2,
-                        Color::srgb(0.95, 1.0, 0.7),
-                        18_000.0,
-                        9.0,
-                    );
-                }
-            }
-            Part::Passage if (c.0 + c.1).rem_euclid(3) == 0 => {
-                let at = floor + Vec3::new(CELL / 2.0 - 0.15, 1.9, 0.0);
-                block(
-                    commands,
-                    m,
-                    &flame,
-                    boxed(at, Vec3::new(0.12, 0.22, 0.12)),
-                    false,
-                    true,
-                );
-                light(
-                    commands,
-                    at - Vec3::X * 0.4,
-                    Color::srgb(1.0, 0.6, 0.3),
-                    14_000.0,
-                    8.0,
-                );
-            }
-            _ => {}
-        }
-    }
     // The junction: daylight falls through a grate in the ceiling.
     let hub = Vec3::new(0.0, top, 0.0);
     block(
-        commands,
-        m,
+        &mut commands,
+        &m,
         &daylight,
         boxed(hub - Vec3::Y * 0.02, Vec3::new(1.4, 0.04, 1.4)),
         false,
         true,
     );
     light(
-        commands,
+        &mut commands,
         hub - Vec3::Y * 0.6,
         Color::srgb(0.8, 0.9, 1.0),
         90_000.0,
@@ -511,8 +504,8 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
     for k in 0..3 {
         let sh = back + Vec3::Y * (0.5 + k as f32 * 0.7);
         block(
-            commands,
-            m,
+            &mut commands,
+            &m,
             &shelf,
             boxed(sh, Vec3::new(0.5, 0.06, 6.0)),
             false,
@@ -522,8 +515,9 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
             let jar = &jars[(j + k) % jars.len()];
             commands.spawn((
                 Deep,
+                Tunnel,
                 NotShadowCaster,
-                Visibility::Hidden,
+                show,
                 Mesh3d(m.disc.clone()),
                 MeshMaterial3d(jar.clone()),
                 Transform::from_translation(
@@ -536,19 +530,25 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
     }
     let bare = Vec3::new(cellar.x, top - 0.4, cellar.y);
     block(
-        commands,
-        m,
+        &mut commands,
+        &m,
         &bulb,
         boxed(bare, Vec3::splat(0.14)),
         false,
         true,
     );
-    light(commands, bare, Color::srgb(1.0, 0.8, 0.5), 30_000.0, 10.0);
+    light(
+        &mut commands,
+        bare,
+        Color::srgb(1.0, 0.8, 0.5),
+        30_000.0,
+        10.0,
+    );
 
     // A ladder under every way in, and the hatch seen from below.
-    let wood = mat(materials, Color::srgb(0.32, 0.24, 0.16), 0.9);
-    let rust = mat(materials, Color::srgb(0.35, 0.22, 0.14), 0.6);
-    let hatch_glow = glow(materials, Color::srgb(1.0, 0.88, 0.45), 4.0);
+    let wood = mat(&mut materials, Color::srgb(0.32, 0.24, 0.16), 0.9);
+    let rust = mat(&mut materials, Color::srgb(0.35, 0.22, 0.14), 0.6);
+    let hatch_glow = glow(&mut materials, Color::srgb(1.0, 0.88, 0.45), 4.0);
     for (i, e) in ENTRANCES.iter().enumerate() {
         let base = Vec3::new(e.at.x, y, e.at.y);
         let rail = if e.kind == Kind::Manhole {
@@ -560,8 +560,8 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
         let across = Vec3::new(-e.out.y, 0.0, e.out.x) * 0.25;
         for s in [-1.0, 1.0] {
             block(
-                commands,
-                m,
+                &mut commands,
+                &m,
                 rail,
                 boxed(
                     base + across * s + Vec3::Y * TUNNEL_H / 2.0,
@@ -574,8 +574,8 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
         let rung = Quat::from_rotation_y((-e.out.x).atan2(-e.out.y));
         for k in 0..9 {
             block(
-                commands,
-                m,
+                &mut commands,
+                &m,
                 rail,
                 Transform::from_translation(base + Vec3::Y * (0.3 + k as f32 * 0.33))
                     .with_rotation(rung)
@@ -591,10 +591,16 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
         } else {
             (Color::srgb(1.0, 0.86, 0.5), 9_000.0)
         };
-        light(commands, base + Vec3::Y * (TUNNEL_H - 0.4), sky, power, 7.0);
+        light(
+            &mut commands,
+            base + Vec3::Y * (TUNNEL_H - 0.4),
+            sky,
+            power,
+            7.0,
+        );
         block(
-            commands,
-            m,
+            &mut commands,
+            &m,
             &hatch_glow,
             boxed(
                 base + Vec3::Y * (TUNNEL_H - 0.02),
@@ -606,11 +612,22 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
         commands.spawn((
             Hatch(i as u8),
             Deep,
+            Tunnel,
             Transform::from_translation(base),
-            Visibility::Hidden,
+            show,
             Clickable::at_height(1.4).radius(90.0).labelled("climb up"),
             DespawnOnExit(AppState::InGame),
         ));
+    }
+}
+
+/// Local: tunnels rebuilt while you're down there show straight away.
+fn show_new(below: Res<Below>, mut deep: Query<&mut Visibility, Added<Deep>>) {
+    if !below.inside {
+        return;
+    }
+    for mut v in &mut deep {
+        *v = Visibility::Inherited;
     }
 }
 
@@ -629,20 +646,26 @@ fn darkness(
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
     mut below: ResMut<Below>,
-    cameras: Query<(Entity, Option<&DistanceFog>), With<MainCamera>>,
+    cameras: Query<(Entity, Option<&DistanceFog>, &GlobalTransform), With<MainCamera>>,
     mut suns: Query<(Entity, &mut DirectionalLight)>,
     ambient: Option<ResMut<GlobalAmbientLight>>,
     mut deep: Query<&mut Visibility, With<Deep>>,
     toast: Option<ResMut<Toast>>,
+    tunnels: Option<Res<Tunnels>>,
 ) {
     let mine = me
         .and_then(|me| walkers.iter().find(|(p, _)| p.id == me.0))
         .map(|(_, w)| w.pos)
-        .filter(|p| super::below(*p));
+        .filter(|p| super::below(*p))
+        // A camera put down there on its own (screenshots) sees it too.
+        .or_else(|| {
+            let eye = cameras.single().ok()?.2.translation();
+            super::below(eye).then_some(eye)
+        });
     if mine.is_some() == below.inside {
         return;
     }
-    let Ok((camera, fog)) = cameras.single() else {
+    let Ok((camera, fog, _)) = cameras.single() else {
         return;
     };
     let Some(mut ambient) = ambient else { return };
@@ -673,7 +696,7 @@ fn darkness(
             },
             ..default()
         });
-        let here = layout().part(cell_of(at.xz()));
+        let here = tunnels.and_then(|t| t.part(cell_of(at.xz())));
         let text = match here {
             Some(Part::Cellar) => "a damp cellar: the tunnels go on from here",
             Some(Part::Passage) => "a secret passage: it joins the sewers",

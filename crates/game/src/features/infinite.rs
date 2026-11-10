@@ -190,8 +190,15 @@ pub struct Plan {
 }
 
 impl Plan {
+    /// The plan for the default village (`layout(0)`), until a seed arrives.
     pub fn new() -> Self {
-        let kit = buildings::layout();
+        Self::seeded(0)
+    }
+
+    /// The plan for the village built from `village` (see
+    /// `buildings::village_seed`).
+    pub fn seeded(village: u32) -> Self {
+        let kit = buildings::layout(village);
         let mut spots = Vec::new();
         for d in &kit.doors {
             spots.push(Spot {
@@ -395,9 +402,18 @@ pub fn protocol(app: &mut App) {
     app.init_resource::<Plan>()
         .init_resource::<Haunt>()
         .add_systems(
+            PreUpdate,
+            replan.run_if(resource_exists_and_changed::<crate::features::world_seed::WorldSeed>),
+        )
+        .add_systems(
             Update,
             haunt.after(WalkSet).run_if(in_state(ServerState::Running)),
         );
+}
+
+/// Rebuild the plan when the village is regenerated from a new seed.
+fn replan(seed: Res<crate::features::world_seed::WorldSeed>, mut plan: ResMut<Plan>) {
+    *plan = Plan::seeded(buildings::village_seed(*seed));
 }
 
 type Bodies<'w, 's> = Query<

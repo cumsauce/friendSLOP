@@ -44,10 +44,16 @@ impl Session {
     }
 
     /// Upserts one op into the graph, re-derives the parts and records history.
-    /// Re-issuing an op with the same output name is the parameter tweak path.
+    /// Re-issuing an op replaces the newest op of the same kind and output name
+    /// — never one it reads from, so in-place tweaks (`petal` <- `petal`) are
+    /// safe and append instead.
     fn apply_op(&mut self, op: Op, label: &str) -> CmdResult {
         let out = graph::output(&op).to_string();
-        let prev = self.model.ops.iter().position(|o| graph::output(o) == out);
+        let kind = graph::kind(&op);
+        let reads = graph::inputs(&op);
+        let prev = self.model.ops.iter().rposition(|o| {
+            graph::output(o) == out && graph::kind(o) == kind && !reads.contains(&graph::output(o))
+        });
         let old = prev.map(|i| self.model.ops[i].clone());
         match prev {
             Some(i) => self.model.ops[i] = op,
@@ -121,6 +127,7 @@ impl Session {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn op_radial_array(
         &mut self,
         name: &str,
@@ -128,6 +135,7 @@ impl Session {
         count: u32,
         center: [f32; 3],
         degrees: f32,
+        start_degrees: f32,
     ) -> CmdResult {
         self.apply_op(
             Op::RadialArray {
@@ -136,6 +144,7 @@ impl Session {
                 count,
                 center,
                 degrees,
+                start_degrees,
             },
             &format!("op radial `{name}` = {count} x `{input}` over {degrees}°"),
         )
@@ -612,7 +621,7 @@ mod tests {
             .unwrap_or_else(|e| panic!("{e}"));
         s.op_primitive("petal", "sphere", [0.2, 0.0, 0.0], [0.0, 1.0, 0.3])
             .unwrap_or_else(|e| panic!("{e}"));
-        s.op_radial_array("ring", "petal", 6, [0.0, 1.0, 0.0], 360.0)
+        s.op_radial_array("ring", "petal", 6, [0.0, 1.0, 0.0], 360.0, 0.0)
             .unwrap_or_else(|e| panic!("{e}"));
         assert!(s.model.procedural());
         // stem + petal + 6 ring copies
@@ -621,7 +630,7 @@ mod tests {
 
         // Re-issuing the radial op with another count is the tweak path.
         let v = s.model.version;
-        s.op_radial_array("ring", "petal", 8, [0.0, 1.0, 0.0], 360.0)
+        s.op_radial_array("ring", "petal", 8, [0.0, 1.0, 0.0], 360.0, 0.0)
             .unwrap_or_else(|e| panic!("{e}"));
         assert_eq!(s.model.parts.len(), 10);
         assert_eq!(s.model.ops.len(), 3);

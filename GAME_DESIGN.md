@@ -339,6 +339,17 @@ Dying (to the RPG) just sends you back to the start.
   One spell per caster at a time; muted players can't cast; if the caster leaves, the mute lifts.
   Rockets ignore buildings (they only stop at the ground) and hang in the air during the
   Stillness. Being "killed" is just a respawn: nothing else is lost (`features/mute_spell.rs`).
+- **A secret** (#206, catherine, "infinite staircase": she asked for it to stay a secret, so
+  nothing in the game, the Gameplay loop or the hints mentions it). Walking through any village
+  doorway, or up or down any flight of stairs or ramp, has a 3% chance of leading into a dim
+  hallway (gently going down) or stairway (going on the way you were going) that never ends.
+  The server moves you into an identical copy built far above the map at the same spot, then
+  quietly steps you back one identical stretch as you go, so it looks like one very long
+  hallway fading into the dark. Turn round (more than a quarter turn) and you're out at once,
+  back where you went in, facing the way out. That way in is normal for you from then on, and it
+  can't happen to you again for 5 minutes. In there the music cuts out and the sky goes out.
+  Village doors and stairs only: the warehouse and tunnel corridors don't do it
+  (`features/infinite.rs`).
 - **Whose fault is it** (#149, catherine). A menu button opens a scrollable screen listing every
   idea in "Ideas so far" below, newest first, as "#N: name's fault" with what they asked for.
   It's built from this file, so it keeps itself current. No in-game hover tooltips yet
@@ -849,6 +860,7 @@ Dying (to the RPG) just sends you back to the start.
   including how features interact, hosted and commentated by a wizard-cat version of a famous
   comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
   settings that other features read (several where two features meet), and made spinning free.
+- catherine (#206): a secret.
 
 ## Open questions
 

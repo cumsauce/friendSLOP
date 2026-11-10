@@ -85,6 +85,11 @@ crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy p
 crates/wire/         friendslop-wire: the iroh wire format shared by the desktop and browser transports
 crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares
 crates/world/        friendslop-world: the map: terrain, buildings, landmarks, surfaces, places
+crates/structures/   friendslop-structures: building kit (walls with holes, stairs, roofs, furniture), merged meshes, world-space UVs, colliders
+crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers)
+crates/modeler/      friendslop-modeler: MCP-driven mesh modeling (`cargo run -p friendslop-modeler --bin modeler`,
+                     window preview / `--headless`): primitives, CSG booleans, UV projections, glTF/glb export,
+                     prefab catalog in app data. No game code
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
 ```
@@ -95,9 +100,10 @@ The workspace has two layers, and dependencies only ever point down:
 
 1. **Foundation crates**: reusable building blocks with **no game code**. They depend only on
    Bevy, avian and std, never on `friendslop`, and on each other only as listed:
-   - `fusion`, `friendslop-wire`, `friendslop-kcc`, `friendslop-core`: nothing of ours.
+   - `fusion`, `friendslop-wire`, `friendslop-kcc`, `friendslop-core`, `friendslop-wfc`,
+     `friendslop-structures`: nothing of ours.
    - `friendslop-art`: nothing of ours (`art`, `theme`, and the cat `palette` maths).
-   - `friendslop-world`: `core` and `art`.
+   - `friendslop-world`: `core`, `art` and `structures`.
 2. **The game** (`crates/game`, package `friendslop`): networking, players, the HUD and menus,
    scenery and zones, and every idea in `features/`. It re-exports the foundation crates under
    their old module names (`crate::art`, `crate::theme`, `crate::kcc`, `crate::net_wire`,

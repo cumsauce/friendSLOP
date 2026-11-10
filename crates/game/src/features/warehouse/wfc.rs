@@ -10,6 +10,7 @@
 //! the same warehouse from the replicated seed.
 
 use bevy::prelude::*;
+use friendslop_wfc as wfc;
 
 /// Cells across (x) and deep (z).
 pub const W: usize = 7;
@@ -50,152 +51,58 @@ pub struct Plan {
     pub cells: [[u8; W]; H],
 }
 
-/// Tiny seeded generator (xorshift).
-#[derive(Clone, Debug)]
-pub struct Rng(u32);
-
-impl Rng {
-    pub fn new(seed: u32) -> Self {
-        Self(seed.wrapping_mul(0x9e37_79b9) | 1)
-    }
-    pub fn roll(&mut self) -> f32 {
-        self.0 ^= self.0 << 13;
-        self.0 ^= self.0 >> 17;
-        self.0 ^= self.0 << 5;
-        (self.0 >> 8) as f32 / (1u32 << 24) as f32
-    }
-    pub fn below(&mut self, n: usize) -> usize {
-        ((self.roll() * n as f32) as usize).min(n.saturating_sub(1))
-    }
-}
+/// The seeded generator, shared with the rest of the warehouse.
+pub use friendslop_wfc::Rng;
 
 fn in_grid(x: i32, z: i32) -> bool {
     (0..W as i32).contains(&x) && (0..H as i32).contains(&z)
 }
 
-/// Which tiles a cell may be before anything collapses: no openings through
-/// the outer wall, except the loading door, which is always open.
-fn start_domain(x: usize, z: usize) -> u16 {
-    let mut dom = 0u16;
-    for mask in 0..16u8 {
-        let ok = SIDES.iter().all(|&(bit, dx, dz, _)| {
-            let outside = !in_grid(x as i32 + dx, z as i32 + dz);
-            let door = (x, z) == ENTRANCE && bit == N;
-            if door {
-                mask & bit != 0
-            } else {
-                !outside || mask & bit == 0
-            }
-        });
-        if ok {
-            dom |= 1 << mask;
-        }
-    }
-    dom
+fn bit_of(side: wfc::Side) -> u8 {
+    SIDES[side.index()].0
 }
 
-/// One WFC attempt. `None` on a contradiction.
-fn collapse(rng: &mut Rng) -> Option<Plan> {
-    let mut dom = [[0u16; W]; H];
-    for (z, row) in dom.iter_mut().enumerate() {
-        for (x, d) in row.iter_mut().enumerate() {
-            *d = start_domain(x, z);
-        }
-    }
-    loop {
-        // The most constrained open cell (ties broken at random).
-        let mut best: Option<(usize, usize)> = None;
-        let mut best_n = u32::MAX;
-        for (z, row) in dom.iter().enumerate() {
-            for (x, d) in row.iter().enumerate() {
-                let n = d.count_ones();
-                if n == 0 {
-                    return None;
-                }
-                if n > 1 && (n < best_n || (n == best_n && rng.roll() < 0.3)) {
-                    best = Some((x, z));
-                    best_n = n;
-                }
-            }
-        }
-        let Some((x, z)) = best else { break };
-        // Weighted pick among what's left.
-        let options: Vec<u8> = (0..16u8).filter(|m| dom[z][x] & (1 << m) != 0).collect();
-        let total: f32 = options.iter().map(|&m| weight(m)).sum();
-        let mut roll = rng.roll() * total;
-        let mut pick = options[options.len() - 1];
-        for &m in &options {
-            roll -= weight(m);
-            if roll <= 0.0 {
-                pick = m;
-                break;
-            }
-        }
-        dom[z][x] = 1 << pick;
-        // Propagate.
-        let mut stack = vec![(x, z)];
-        while let Some((cx, cz)) = stack.pop() {
-            for &(bit, dx, dz, back) in &SIDES {
-                let (nx, nz) = (cx as i32 + dx, cz as i32 + dz);
-                if !in_grid(nx, nz) {
-                    continue;
-                }
-                let (nx, nz) = (nx as usize, nz as usize);
-                // Which states of our shared side are still possible?
-                let mut can_open = false;
-                let mut can_close = false;
-                for m in 0..16u8 {
-                    if dom[cz][cx] & (1 << m) != 0 {
-                        if m & bit != 0 {
-                            can_open = true;
-                        } else {
-                            can_close = true;
-                        }
-                    }
-                }
-                let before = dom[nz][nx];
-                let mut after = 0u16;
-                for m in 0..16u8 {
-                    if before & (1 << m) == 0 {
-                        continue;
-                    }
-                    let open = m & back != 0;
-                    if (open && can_open) || (!open && can_close) {
-                        after |= 1 << m;
-                    }
-                }
-                if after == 0 {
-                    return None;
-                }
-                if after != before {
-                    dom[nz][nx] = after;
-                    stack.push((nx, nz));
-                }
-            }
-        }
-    }
+/// The 16 tiles (index = open-side mask); a side's socket is "open?".
+fn problem() -> wfc::Wfc<bool> {
+    let tiles = (0..16u8)
+        .map(|m| wfc::Tile {
+            sockets: wfc::Side::ALL.map(|s| m & bit_of(s) != 0),
+            weight: weight(m),
+        })
+        .collect();
+    wfc::Wfc::new(W, H, tiles)
+}
+
+/// Open sides meet open sides. The outer wall is shut except for the
+/// loading door, which is always open.
+fn boundary(cell: wfc::Cell, side: wfc::Side, open: &bool) -> bool {
+    *open == (cell == ENTRANCE && side == wfc::Side::North)
+}
+
+fn to_plan(s: &wfc::Solution) -> Plan {
     let mut cells = [[0u8; W]; H];
-    for z in 0..H {
-        for x in 0..W {
-            cells[z][x] = dom[z][x].trailing_zeros() as u8;
+    for (z, row) in cells.iter_mut().enumerate() {
+        for (x, c) in row.iter_mut().enumerate() {
+            *c = s.get((x, z)) as u8;
         }
     }
-    Some(Plan { cells })
+    Plan { cells }
 }
 
 impl Plan {
     /// Generate the plan for `seed`: WFC until it's connected enough.
     pub fn generate(seed: u32) -> Plan {
         let mut rng = Rng::new(seed);
-        for _ in 0..200 {
-            let Some(plan) = collapse(&mut rng) else {
-                continue;
-            };
-            if plan.reachable().len() * 10 >= W * H * 6 {
-                return plan;
-            }
-        }
-        Plan::fallback()
+        problem()
+            .solve_until(
+                &mut rng,
+                200,
+                |a, b| a == b,
+                boundary,
+                |s| to_plan(s).reachable().len() * 10 >= W * H * 6,
+            )
+            .map(|s| to_plan(&s))
+            .unwrap_or_else(Plan::fallback)
     }
 
     /// One big open hall (never needed in practice; keeps generation total).
@@ -219,26 +126,22 @@ impl Plan {
         self.cells[z][x] & bit != 0
     }
 
+    fn side_open(&self, c: wfc::Cell, side: wfc::Side) -> bool {
+        self.open(c.0, c.1, bit_of(side))
+    }
+
     /// Neighbour cells you can walk to from (x, z).
     pub fn exits(&self, x: usize, z: usize) -> impl Iterator<Item = (usize, usize)> + '_ {
-        SIDES.iter().filter_map(move |&(bit, dx, dz, _)| {
-            let (nx, nz) = (x as i32 + dx, z as i32 + dz);
-            (self.open(x, z, bit) && in_grid(nx, nz)).then_some((nx as usize, nz as usize))
-        })
+        wfc::exits(W, H, (x, z), |c, s| self.side_open(c, s))
     }
 
     /// Walking distance in cells from `from` to every cell (`u8::MAX` = unreachable).
     pub fn distances(&self, from: (usize, usize)) -> [[u8; W]; H] {
+        let flat = wfc::distances(W, H, from, |c, s| self.side_open(c, s));
         let mut d = [[u8::MAX; W]; H];
-        d[from.1][from.0] = 0;
-        let mut queue = std::collections::VecDeque::from([from]);
-        while let Some((x, z)) = queue.pop_front() {
-            let here = d[z][x];
-            for (nx, nz) in self.exits(x, z) {
-                if d[nz][nx] == u8::MAX {
-                    d[nz][nx] = here + 1;
-                    queue.push_back((nx, nz));
-                }
+        for (i, v) in flat.into_iter().enumerate() {
+            if let Some(v) = v {
+                d[i / W][i % W] = v.min(u8::MAX as u32 - 1) as u8;
             }
         }
         d
@@ -246,30 +149,12 @@ impl Plan {
 
     /// Cells reachable from the loading door.
     pub fn reachable(&self) -> Vec<(usize, usize)> {
-        let d = self.distances(ENTRANCE);
-        let mut out = Vec::new();
-        for (z, row) in d.iter().enumerate() {
-            for (x, v) in row.iter().enumerate() {
-                if *v != u8::MAX {
-                    out.push((x, z));
-                }
-            }
-        }
-        out
+        wfc::reachable(W, H, ENTRANCE, |c, s| self.side_open(c, s))
     }
 
     /// The first step from `from` towards `to`, or `None` if `to` can't be reached.
     pub fn step_towards(&self, from: (usize, usize), to: (usize, usize)) -> Option<(usize, usize)> {
-        if from == to {
-            return Some(to);
-        }
-        let d = self.distances(to);
-        if d[from.1][from.0] == u8::MAX {
-            return None;
-        }
-        self.exits(from.0, from.1)
-            .min_by_key(|&(x, z)| d[z][x])
-            .filter(|&(x, z)| d[z][x] < d[from.1][from.0])
+        wfc::step_towards(W, H, from, to, |c, s| self.side_open(c, s))
     }
 
     /// Can you see from `a` to `b` (floor-plane offsets in metres from the

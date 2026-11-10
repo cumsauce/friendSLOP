@@ -15,6 +15,10 @@
 //!   winning) are tracked and levelled too.
 //!
 //! Level-ups show a toast. The server owns all XP.
+//!
+//! Puddles are replicated [`PeePuddle`]s the server dries after
+//! [`PUDDLE_SECS`] (unless something is [`Lapped`] at them: see
+//! `kitty_lemonade.rs`, #213).
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -118,6 +122,23 @@ pub struct Pissed {
     pub size: f32,
 }
 
+/// A puddle of pee on the ground. Replicated; the server despawns it when it
+/// dries or is drunk.
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct PeePuddle {
+    pub id: u32,
+    pub at: Vec3,
+    pub size: f32,
+}
+
+/// Server only: seconds until a puddle dries up.
+#[derive(Component, Debug)]
+pub struct PuddleLife(pub f32);
+
+/// Server only: something is drinking this puddle, so it doesn't dry.
+#[derive(Component, Debug)]
+pub struct Lapped;
+
 pub fn protocol(app: &mut App) {
     app.replicate::<Skills>()
         .replicate::<Asleep>()
@@ -134,9 +155,11 @@ pub fn protocol(app: &mut App) {
             (
                 hold_sleepers.before(WalkSet),
                 (walk_xp, sleep_xp, smoke_xp).after(WalkSet),
+                dry_puddles,
             )
                 .run_if(in_state(ServerState::Running)),
-        );
+        )
+        .replicate::<PeePuddle>();
 }
 
 fn give_skills(add: On<Add<Player>>, server: Res<State<ServerState>>, mut commands: Commands) {
@@ -172,6 +195,7 @@ fn piss(
     ev: On<FromClient<Piss>>,
     mut commands: Commands,
     mut players: Query<(&Player, &PlayerOwner, &Walker, &mut Skills, Has<Asleep>)>,
+    mut next_id: Local<u32>,
 ) {
     let owner = owner_of(ev.client_id);
     let Some((p, _, w, mut skills, asleep)) = players.iter_mut().find(|(_, o, ..)| o.0 == owner)
@@ -184,12 +208,23 @@ fn piss(
     skills.gain(Skill::Pissing, 3.0);
     let lv = skills.level(Skill::Pissing) as f32;
     let ahead = Vec3::new(-w.yaw.sin(), 0.0, -w.yaw.cos()) * 0.5;
+    let (at, size) = (w.pos + ahead, 0.35 + 0.012 * lv);
+    *next_id = next_id.wrapping_add(1);
+    commands.spawn((
+        PeePuddle {
+            id: *next_id,
+            at,
+            size,
+        },
+        PuddleLife(PUDDLE_SECS),
+        Replicated,
+    ));
     commands.server_trigger(ToClients {
         targets: SendTargets::All,
         message: Pissed {
             player: p.id,
-            at: w.pos + ahead,
-            size: 0.35 + 0.012 * lv,
+            at,
+            size,
         },
     });
 }
@@ -206,6 +241,20 @@ fn duel_xp(ev: On<super::duel::DuelFought>, mut players: Query<(&Player, &mut Sk
             s.gain(Skill::Dueling, 25.0);
         } else if p.id == ev.loser {
             s.gain(Skill::Dueling, 8.0);
+        }
+    }
+}
+
+/// Server: puddles dry up, unless a cat is drinking them.
+fn dry_puddles(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut puddles: Query<(Entity, &mut PuddleLife), Without<Lapped>>,
+) {
+    for (e, mut life) in &mut puddles {
+        life.0 -= time.delta_secs();
+        if life.0 <= 0.0 {
+            commands.entity(e).despawn();
         }
     }
 }
@@ -256,11 +305,16 @@ fn smoke_xp(mut players: Query<&mut Skills, Added<super::smoking::Smoking>>) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(show_puddle)
-        .add_systems(OnEnter(AppState::InGame), spawn_ui)
+    app.add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(
             Update,
-            (press_keys, show_skills, level_up_toast, dry_puddles)
+            (
+                press_keys,
+                show_skills,
+                level_up_toast,
+                show_puddles,
+                shrink_puddles,
+            )
                 .run_if(in_state(AppState::InGame)),
         );
 }
@@ -349,51 +403,51 @@ fn level_up_toast(
     *last = Some(now);
 }
 
-/// A drying puddle.
+/// Local: how long a puddle has been lying there.
 #[derive(Component)]
-struct Puddle(f32);
+struct PuddleAge(f32);
 
-fn show_puddle(
-    ev: On<Pissed>,
+/// The shown size of a puddle `age` seconds old: it shrinks as it dries, but
+/// never quite vanishes (the server removes it).
+pub fn puddle_scale(age: f32) -> f32 {
+    (1.0 - age / PUDDLE_SECS).max(0.1).sqrt()
+}
+
+fn show_puddles(
     mut commands: Commands,
-    state: Option<Res<State<AppState>>>,
+    new: Query<(Entity, &PeePuddle), Added<PeePuddle>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    if state.is_none_or(|s| *s.get() != AppState::InGame) {
+    if new.is_empty() {
         return;
     }
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
         return;
     };
-    let mat = materials.add(StandardMaterial {
-        base_color: Color::srgba(0.95, 0.85, 0.2, 0.7),
-        alpha_mode: AlphaMode::Blend,
-        perceptual_roughness: 0.1,
-        ..default()
-    });
-    commands.spawn((
-        Puddle(PUDDLE_SECS),
-        Mesh3d(meshes.add(Cylinder::new(ev.size, 0.01))),
-        MeshMaterial3d(mat),
-        Transform::from_translation(ev.at + Vec3::Y * 0.02),
-        DespawnOnExit(AppState::InGame),
-    ));
+    for (e, puddle) in &new {
+        let mat = materials.add(StandardMaterial {
+            base_color: Color::srgba(0.95, 0.85, 0.2, 0.7),
+            alpha_mode: AlphaMode::Blend,
+            perceptual_roughness: 0.1,
+            ..default()
+        });
+        commands.entity(e).insert((
+            PuddleAge(0.0),
+            Mesh3d(meshes.add(Cylinder::new(puddle.size, 0.01))),
+            MeshMaterial3d(mat),
+            Transform::from_translation(puddle.at + Vec3::Y * 0.02),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
 }
 
-fn dry_puddles(
-    mut commands: Commands,
-    time: Res<Time>,
-    mut puddles: Query<(Entity, &mut Puddle, &mut Transform)>,
-) {
-    for (e, mut p, mut tf) in &mut puddles {
-        p.0 -= time.delta_secs();
-        if p.0 <= 0.0 {
-            commands.entity(e).despawn();
-        } else {
-            let s = (p.0 / PUDDLE_SECS).sqrt();
-            tf.scale = Vec3::new(s, 1.0, s);
-        }
+fn shrink_puddles(time: Res<Time>, mut puddles: Query<(&mut PuddleAge, &mut Transform)>) {
+    for (mut age, mut tf) in &mut puddles {
+        age.0 += time.delta_secs();
+        let s = puddle_scale(age.0);
+        tf.scale = Vec3::new(s, 1.0, s);
     }
 }
 

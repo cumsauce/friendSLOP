@@ -74,13 +74,15 @@ crates/game/src/
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)
   controls.rs   touch overlay + gamepad, fed into the same keys / WalkInput as keyboard+mouse
   graphics.rs   Low/High graphics preset (Low by default in the browser)
+  textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
+  lod.rs        trees: lighter far meshes, dithered in by distance (#227)
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
                 FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading)
   features/     one module per idea, see features/README.md
 crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
-crates/art/          friendslop-art: procedural materials/meshes/textures (`art`) and the UI theme (`theme`)
+crates/art/          friendslop-art: procedural materials/meshes/textures (`art`), mipmaps (`mips`), mesh LODs (`lod`) and the UI theme (`theme`)
 crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy port, own licence files)
 crates/wire/         friendslop-wire: the iroh wire format shared by the desktop and browser transports
 crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares

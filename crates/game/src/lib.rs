@@ -20,6 +20,7 @@ pub mod hud;
 pub use friendslop_kcc as kcc;
 pub use friendslop_world::landmarks;
 pub mod loading;
+pub mod lod;
 pub mod menu;
 // The browser has its own iroh transport (relay-only, async), same API (#106).
 #[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
@@ -36,6 +37,7 @@ pub mod spatial;
 pub use friendslop_art::theme;
 pub use friendslop_world::surfaces;
 pub use friendslop_world::terrain;
+pub mod textures;
 pub mod ui;
 pub mod voice;
 /// Voice chat audio through Web Audio (#166).
@@ -106,6 +108,8 @@ impl Plugin for GamePlugin {
             surfaces::plugin,
             fault::plugin,
             ui::plugin,
+            textures::plugin,
+            lod::plugin,
         ));
     }
 }

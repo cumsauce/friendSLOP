@@ -878,6 +878,8 @@ Dying (to the RPG) just sends you back to the start.
   its idea in the game (`scripts/screenshot.sh`: screenshot mode, software rendering, no GPU
   needed) and pushes it to the `screenshots` branch; the bot attaches it to the "in the game"
   post, and announces each new `latest` build with the pictures of the ideas since the last one.
+  `FRIENDSLOP_SCREENSHOT_SCENE` (play, busy, clickable, chapter, tab) stages a HUD state for
+  checking UI work against its design.
 - WeiYa (#165): is there a story line, or is every idea its own separate place? Unify every
   idea into one coherent, fun, silly game seen from a bird's-eye view, with polish. We read it as:
   put the side trips on the chapter checklists and give the chapters one storyline.

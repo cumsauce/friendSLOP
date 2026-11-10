@@ -10,6 +10,11 @@
 //! # optional: seconds to wait after the loading curtain lifts (default 10, so
 //! # the 9 s "CHAPTER 1" card is gone)
 //! FRIENDSLOP_SCREENSHOT_WAIT=12
+//! # optional: force a HUD state for visual checks against the Figma frames
+//! # (play, busy, clickable, chapter, tab; see `Scene`)
+//! FRIENDSLOP_SCREENSHOT_SCENE=busy
+//! # optional: window size in logical pixels (scale factor forced to 1)
+//! FRIENDSLOP_SCREENSHOT_SIZE=1920x1080
 //! ```
 //!
 //! On a machine without a GPU, run it under `xvfb-run` with Mesa's software
@@ -18,12 +23,71 @@
 use bevy::prelude::*;
 use bevy::render::view::screenshot::{Screenshot, ScreenshotCaptured, save_to_disk};
 
+use bevy::input::InputSystems;
+use bevy::window::{PrimaryWindow, WindowResolution};
+use bevy_replicon::prelude::ServerState;
+
 use crate::AppState;
+use crate::features::fat_cat::{FatCat, Fuse};
+use crate::features::fps::Walker;
+use crate::features::punishment::AttackMode;
 use crate::loading::WorldReady;
+use crate::player::{LocalPlayer, Player};
 use crate::world::MainCamera;
 
 /// Seconds after loading before the picture: the chapter card (9 s) has gone.
 const DEFAULT_WAIT: f32 = 10.0;
+
+/// A HUD state screenshot mode forces, to compare the UI with its design
+/// frames (`FRIENDSLOP_SCREENSHOT_SCENE`). Only the host's own view is staged.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Scene {
+    /// The normal HUD, nothing staged.
+    #[default]
+    Play,
+    /// ATTACK MODE on you, three toasts, and your fat cat critical with 8 s left.
+    Busy,
+    /// Aiming at your cat, in reach.
+    Clickable,
+    /// Shot while the chapter intro is still up.
+    Chapter,
+    /// The Tab panel held open.
+    Tab,
+}
+
+impl Scene {
+    pub fn parse(s: &str) -> Option<Self> {
+        Some(match s.trim().to_ascii_lowercase().as_str() {
+            "play" | "" => Scene::Play,
+            "busy" => Scene::Busy,
+            "clickable" => Scene::Clickable,
+            "chapter" => Scene::Chapter,
+            "tab" => Scene::Tab,
+            _ => return None,
+        })
+    }
+
+    /// Seconds after loading before the picture, when no wait is given.
+    fn default_wait(self) -> f32 {
+        match self {
+            // After the chapter card (9 s).
+            Scene::Play | Scene::Tab | Scene::Busy | Scene::Clickable => DEFAULT_WAIT,
+            // Before the chapter intro shrinks away.
+            Scene::Chapter => 2.0,
+        }
+    }
+}
+
+/// The toasts the busy scene shows (the design frame's three).
+pub const BUSY_TOASTS: [&str; 3] = [
+    "Moss farted, then pointed at YOU",
+    "You pocket a crow egg",
+    "ACTION FAILED: everyone is bees",
+];
+/// How long before the busy picture the attack starts.
+const ATTACK_LEAD: f32 = 1.5;
+/// The busy scene's cat: nearly maxed out, fuse at 8 s.
+pub const BUSY_CAT: (f32, f32) = (24.8, 8.0);
 
 /// What screenshot mode was asked to do. Present only when it's on.
 #[derive(Resource, Debug, Clone, PartialEq)]
@@ -33,30 +97,74 @@ pub struct ScreenshotJob {
     pub camera: Option<(Vec3, Vec3)>,
     /// Real seconds to wait after the world is ready.
     pub wait: f32,
+    pub scene: Scene,
+    /// Window size in logical pixels, or `None` for the default.
+    pub size: Option<UVec2>,
+    /// Live mode: keep running and save the picture again every this many
+    /// seconds (for watching UI work against a design), instead of quitting.
+    pub every: Option<f32>,
 }
 
 impl ScreenshotJob {
     /// Read the job from environment-style values (`None` = mode off).
     pub fn parse(path: Option<&str>, camera: Option<&str>, wait: Option<&str>) -> Option<Self> {
+        Self::parse_all(path, camera, wait, None, None)
+    }
+
+    /// [`Self::parse`] plus the scene and window size. Unknown scenes and
+    /// malformed sizes fall back to the defaults.
+    pub fn parse_all(
+        path: Option<&str>,
+        camera: Option<&str>,
+        wait: Option<&str>,
+        scene: Option<&str>,
+        size: Option<&str>,
+    ) -> Option<Self> {
         let path = path.map(str::trim).filter(|p| !p.is_empty())?;
+        let scene = scene.and_then(Scene::parse).unwrap_or_default();
         Some(Self {
             path: path.to_owned(),
             camera: camera.and_then(parse_camera),
             wait: wait
                 .and_then(|w| w.trim().parse::<f32>().ok())
                 .filter(|w| w.is_finite() && *w >= 0.0)
-                .unwrap_or(DEFAULT_WAIT),
+                .unwrap_or(scene.default_wait()),
+            scene,
+            size: size.and_then(parse_size),
+            every: None,
         })
     }
 
     fn from_env() -> Option<Self> {
         let var = |k: &str| std::env::var(k).ok();
-        Self::parse(
+        let mut job = Self::parse_all(
             var("FRIENDSLOP_SCREENSHOT").as_deref(),
             var("FRIENDSLOP_SCREENSHOT_CAMERA").as_deref(),
             var("FRIENDSLOP_SCREENSHOT_WAIT").as_deref(),
-        )
+            var("FRIENDSLOP_SCREENSHOT_SCENE").as_deref(),
+            var("FRIENDSLOP_SCREENSHOT_SIZE").as_deref(),
+        )?;
+        job.every = var("FRIENDSLOP_SCREENSHOT_EVERY")
+            .as_deref()
+            .and_then(parse_every);
+        Some(job)
     }
+}
+
+/// `"1920x1080"` into a size. Anything malformed or tiny is ignored.
+/// Seconds between live re-saves (at least half a second).
+fn parse_every(s: &str) -> Option<f32> {
+    s.trim()
+        .parse::<f32>()
+        .ok()
+        .filter(|e| e.is_finite() && *e > 0.0)
+        .map(|e| e.max(0.5))
+}
+
+fn parse_size(s: &str) -> Option<UVec2> {
+    let (w, h) = s.trim().split_once(['x', 'X'])?;
+    let size = UVec2::new(w.trim().parse().ok()?, h.trim().parse().ok()?);
+    (size.x >= 320 && size.y >= 240).then_some(size)
 }
 
 /// `"x,y,z,lx,ly,lz"` into (eye, look-at). Anything malformed is ignored.
@@ -90,9 +198,14 @@ impl Plugin for ScreenshotPlugin {
         let Some(job) = ScreenshotJob::from_env() else {
             return;
         };
-        info!("screenshot mode: will save {}", job.path);
+        info!(
+            "screenshot mode: will save {} (scene {:?})",
+            job.path, job.scene
+        );
+        let scene = job.scene;
         app.insert_resource(job)
             .init_resource::<Progress>()
+            .add_systems(Startup, size_window)
             .add_systems(Update, take.run_if(in_state(AppState::InGame)))
             .add_systems(
                 PostUpdate,
@@ -100,7 +213,116 @@ impl Plugin for ScreenshotPlugin {
                     .run_if(in_state(AppState::InGame))
                     .before(TransformSystems::Propagate),
             );
+        match scene {
+            Scene::Play | Scene::Chapter => {}
+            Scene::Busy => {
+                app.add_systems(
+                    Update,
+                    (stage_attack, stage_critical_cat)
+                        .run_if(in_state(AppState::InGame))
+                        .run_if(in_state(ServerState::Running)),
+                )
+                .add_systems(Update, stage_toasts.run_if(in_state(AppState::InGame)));
+            }
+            Scene::Clickable => {
+                app.add_systems(
+                    PostUpdate,
+                    aim_at_cat
+                        .run_if(in_state(AppState::InGame))
+                        .after(frame_camera)
+                        .before(TransformSystems::Propagate),
+                );
+            }
+            Scene::Tab => {
+                app.add_systems(
+                    PreUpdate,
+                    hold_tab
+                        .after(InputSystems)
+                        .run_if(in_state(AppState::InGame)),
+                );
+            }
+        }
     }
+}
+
+/// Give the window the asked-for logical size (at scale factor 1, so the
+/// picture's pixels are the UI's logical pixels).
+fn size_window(job: Res<ScreenshotJob>, mut window: Query<&mut Window, With<PrimaryWindow>>) {
+    let (Some(size), Ok(mut window)) = (job.size, window.single_mut()) else {
+        return;
+    };
+    window.resolution = WindowResolution::new(size.x, size.y).with_scale_factor_override(1.0);
+}
+
+/// Busy scene: the villagers come for the host just before the picture
+/// (any earlier and they've already caught them, which ends the attack).
+fn stage_attack(
+    mut commands: Commands,
+    time: Res<Time<Real>>,
+    job: Res<ScreenshotJob>,
+    ready: Res<WorldReady>,
+    attacks: Query<(), With<AttackMode>>,
+    mut ready_at: Local<Option<f32>>,
+) {
+    if !ready.ready || !attacks.is_empty() {
+        return;
+    }
+    let now = time.elapsed_secs();
+    let since = now - *ready_at.get_or_insert(now);
+    // In live mode, keep one going all the time.
+    if job.every.is_some() || since >= job.wait - ATTACK_LEAD {
+        crate::features::punishment::start_attack(&mut commands, 0);
+    }
+}
+
+/// Busy scene: the host's cat held at critical mass with its fuse at 8 s.
+fn stage_critical_cat(mut commands: Commands, mut cats: Query<(Entity, &mut FatCat)>) {
+    let (size, fuse) = BUSY_CAT;
+    for (e, mut cat) in &mut cats {
+        if cat.owner != 0 {
+            continue;
+        }
+        if cat.size != size {
+            cat.size = size;
+        }
+        commands.entity(e).insert(Fuse(fuse));
+    }
+}
+
+/// Busy scene: keep the three toasts coming.
+fn stage_toasts(ready: Res<WorldReady>, mut toast: ResMut<crate::hud::Toast>) {
+    if ready.ready && toast.secs_left < 1.0 {
+        toast.show(BUSY_TOASTS.join("\n"));
+    }
+}
+
+/// Clickable scene: look at your own cat from just out of its face, with
+/// the aim point on it. Reach is measured from your body, which it heels to.
+fn aim_at_cat(
+    me: Option<Res<LocalPlayer>>,
+    players: Query<(&Player, &Walker)>,
+    cats: Query<(&FatCat, &GlobalTransform)>,
+    mut camera: Query<&mut Transform, With<MainCamera>>,
+) {
+    let Some(me) = me else { return };
+    let Some((_, walker)) = players.iter().find(|(p, _)| p.id == me.0) else {
+        return;
+    };
+    let Some((_, cat)) = cats.iter().find(|(c, _)| c.owner == me.0) else {
+        return;
+    };
+    let Ok(mut cam) = camera.single_mut() else {
+        return;
+    };
+    let at = cat.translation() + Vec3::Y * 0.5;
+    let toward_me = (walker.pos - at).with_y(0.0).normalize_or(Vec3::Z);
+    let eye = at + toward_me * 1.8 + Vec3::Y * 0.6;
+    *cam = Transform::from_translation(eye).looking_at(at, Vec3::Y);
+}
+
+/// Tab scene: hold Tab down.
+fn hold_tab(mut keys: ResMut<ButtonInput<KeyCode>>) {
+    keys.press(KeyCode::Tab);
 }
 
 /// Hold the camera where the job asked, over whatever the game set.
@@ -125,7 +347,17 @@ fn take(
     if let Some(frames) = progress.saved_frames.as_mut() {
         *frames += 1;
         if *frames > 2 {
-            exit.write(AppExit::Success);
+            match job.every {
+                // Live mode: wait `every` seconds, then take the next one.
+                Some(every) => {
+                    progress.saved_frames = None;
+                    progress.requested = false;
+                    progress.ready_at = Some(time.elapsed_secs() - job.wait + every);
+                }
+                None => {
+                    exit.write(AppExit::Success);
+                }
+            }
         }
         return;
     }
@@ -175,5 +407,32 @@ mod tests {
         assert_eq!(job.wait, DEFAULT_WAIT);
         assert_eq!(parse_camera("1,1,1,1,1,1"), None);
         assert_eq!(parse_camera("x,1,1,0,0,0"), None);
+    }
+
+    #[test]
+    fn live_mode_waits_at_least_half_a_second() {
+        assert_eq!(parse_every("2"), Some(2.0));
+        assert_eq!(parse_every("0.1"), Some(0.5));
+        assert_eq!(parse_every("0"), None);
+        assert_eq!(parse_every("x"), None);
+    }
+
+    #[test]
+    fn reads_scene_and_size() {
+        let job =
+            ScreenshotJob::parse_all(Some("a.png"), None, None, Some("Busy"), Some("1920x1080"));
+        let Some(job) = job else { panic!("job") };
+        assert_eq!(job.scene, Scene::Busy);
+        assert_eq!(job.wait, Scene::Busy.default_wait());
+        assert_eq!(job.size, Some(UVec2::new(1920, 1080)));
+        let Some(job) =
+            ScreenshotJob::parse_all(Some("a.png"), None, Some("3"), Some("nope"), Some("1x1"))
+        else {
+            panic!("job")
+        };
+        assert_eq!((job.scene, job.wait, job.size), (Scene::Play, 3.0, None));
+        for s in ["play", "busy", "clickable", "chapter", "tab"] {
+            assert!(Scene::parse(s).is_some(), "{s}");
+        }
     }
 }

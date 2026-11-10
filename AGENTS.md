@@ -76,7 +76,8 @@ crates/game/src/
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
-  screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167)
+  screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
+                FRIENDSLOP_SCREENSHOT_SCENE forces a HUD state (play/busy/clickable/chapter/tab)
   features/     one module per idea, see features/README.md
 crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
 crates/art/          friendslop-art: procedural materials/meshes/textures (`art`) and the UI theme (`theme`)
@@ -179,6 +180,13 @@ cargo fmt --all
 cargo clippy -p friendslop --target wasm32-unknown-unknown   # the web build must keep compiling (CI)
 scripts/build-web.sh && python3 -m http.server -d dist/web   # browser build (needs wasm-bindgen-cli)
 ```
+
+### Checking UI
+
+To check UI against its design, screenshot mode can force a HUD state:
+`FRIENDSLOP_SCREENSHOT_SCENE=play|busy|clickable|chapter|tab` (and
+`FRIENDSLOP_SCREENSHOT_SIZE=1920x1080`), e.g. `scripts/screenshot.sh busy.png "" busy`. Add
+`FRIENDSLOP_SCREENSHOT_EVERY=3` to keep the game running and re-save the picture every 3 s.
 
 Web (#106): native-only deps (bevy_replicon_iroh, tokio, clipboard) are target-gated in
 `crates/game/Cargo.toml`; the browser has its own iroh transport (`net_web.rs`) that must stay

@@ -94,6 +94,12 @@ pub struct Model {
     /// Next id to hand out for an annotation; ids never repeat within a model.
     #[serde(default)]
     pub next_annotation_id: u32,
+    /// The edit tree this model grew through. Carried in prefabs so a save is
+    /// the full story, not just the final geometry. Snapshot models nest no
+    /// further history (stripped when serialized), so this stays a tree, not a
+    /// recursion.
+    #[serde(default, skip_serializing_if = "History::is_empty")]
+    pub history: History,
 }
 
 impl Model {
@@ -120,6 +126,25 @@ impl Model {
         }
         self.parts = crate::graph::evaluate(&self.ops)?;
         Ok(())
+    }
+
+    /// True when every cached part derives from the ops, so dropping `parts`
+    /// from a save loses nothing. Mixed models (baked parts plus ops) keep
+    /// their parts on disk.
+    pub fn parts_derive_from_ops(&self) -> bool {
+        if !self.procedural() {
+            return false;
+        }
+        match crate::graph::evaluate(&self.ops) {
+            Ok(derived) => {
+                derived.len() == self.parts.len()
+                    && derived
+                        .iter()
+                        .zip(&self.parts)
+                        .all(|(d, p)| d.name == p.name)
+            }
+            Err(_) => false,
+        }
     }
 
     pub fn part_mut(&mut self, name: &str) -> Option<&mut Part> {
@@ -165,6 +190,11 @@ impl Model {
 /// One snapshot of the whole model, plus its place in the edit tree. Editing at
 /// an older node branches: the new snapshot becomes a sibling of what used to
 /// follow it, so abandoned tries stay reachable instead of being lost.
+///
+/// Serialization is non-destructive and small: a snapshot of a procedural
+/// model stores its ops (parts are re-derived on load) and never nests a
+/// second history inside itself.
+#[derive(Clone, Debug, Default)]
 pub struct Snapshot {
     pub model: Model,
     pub parent: Option<usize>,
@@ -172,23 +202,69 @@ pub struct Snapshot {
     pub label: String,
 }
 
+impl Serialize for Snapshot {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeStruct;
+        let mut m = self.model.clone();
+        if m.parts_derive_from_ops() {
+            // Parts are the cached evaluation of ops; drop them from the file.
+            m.parts.clear();
+        }
+        m.history = History::default();
+        let mut st = s.serialize_struct("Snapshot", 4)?;
+        st.serialize_field("model", &m)?;
+        st.serialize_field("parent", &self.parent)?;
+        st.serialize_field("children", &self.children)?;
+        st.serialize_field("label", &self.label)?;
+        st.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for Snapshot {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        struct Raw {
+            model: Model,
+            #[serde(default)]
+            parent: Option<usize>,
+            #[serde(default)]
+            children: Vec<usize>,
+            #[serde(default)]
+            label: String,
+        }
+        let raw = Raw::deserialize(d)?;
+        Ok(Snapshot {
+            model: raw.model,
+            parent: raw.parent,
+            children: raw.children,
+            label: raw.label,
+        })
+    }
+}
+
 /// The history of a session as a tree of snapshots with a cursor. Every
 /// mutation records a child of the current node; undo walks to the parent,
 /// redo to the most recent child, and jump lands anywhere. Navigation is O(1)
 /// and exact: nodes hold full models, never inverse operations.
-#[derive(Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct History {
     pub nodes: Vec<Snapshot>,
+    #[serde(default)]
     pub current: Option<usize>,
 }
 
 impl History {
+    /// True when nothing has been recorded yet (skipped in serialization).
+    pub fn is_empty(&self) -> bool {
+        self.nodes.is_empty()
+    }
+
     /// Records `model` as a child of the current node, makes it current and
     /// returns its id.
-    pub fn record(&mut self, model: &Model, label: impl Into<String>) -> usize {
+    pub fn record(&mut self, model: Model, label: impl Into<String>) -> usize {
         let id = self.nodes.len();
         self.nodes.push(Snapshot {
-            model: model.clone(),
+            model,
             parent: self.current,
             children: Vec::new(),
             label: label.into(),
@@ -200,27 +276,28 @@ impl History {
         id
     }
 
-    /// Moves the cursor to the parent and returns its id and model.
-    pub fn undo(&mut self) -> Option<(usize, &Model)> {
+    /// Moves the cursor to the parent and returns its id and model (owned, so
+    /// the caller can hand it back into a model that owns this history).
+    pub fn undo(&mut self) -> Option<(usize, Model)> {
         let parent = self.nodes[self.current?].parent?;
         self.current = Some(parent);
-        Some((parent, &self.nodes[parent].model))
+        Some((parent, self.nodes[parent].model.clone()))
     }
 
     /// Moves the cursor to the most recent child and returns its id and model.
-    pub fn redo(&mut self) -> Option<(usize, &Model)> {
+    pub fn redo(&mut self) -> Option<(usize, Model)> {
         let id = *self.nodes[self.current?].children.last()?;
         self.current = Some(id);
-        Some((id, &self.nodes[id].model))
+        Some((id, self.nodes[id].model.clone()))
     }
 
     /// Moves the cursor to any node in the tree and returns its id and model.
-    pub fn jump(&mut self, id: usize) -> Result<(usize, &Model), String> {
+    pub fn jump(&mut self, id: usize) -> Result<(usize, Model), String> {
         let Some(node) = self.nodes.get(id) else {
             return Err(format!("no history node #{id} (0..{})", self.nodes.len()));
         };
         self.current = Some(id);
-        Ok((id, &node.model))
+        Ok((id, node.model.clone()))
     }
 
     /// One line per node: id, parent, label, model version and the cursor.

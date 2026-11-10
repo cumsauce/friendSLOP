@@ -33,6 +33,7 @@ pub mod helicopter;
 pub mod hide_and_seek;
 pub mod infinite;
 pub mod interact;
+pub mod kitty_lemonade;
 pub mod landlord;
 pub mod morality;
 pub mod mushroom;
@@ -108,6 +109,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(shipwreck::protocol);
         app.add_plugins(mute_spell::protocol);
         app.add_plugins(infinite::protocol);
+        app.add_plugins(kitty_lemonade::protocol);
     }
 }
 

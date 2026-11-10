@@ -173,6 +173,44 @@ impl Session {
         )
     }
 
+    /// Copies an earlier part in a straight line.
+    pub fn op_linear_array(
+        &mut self,
+        name: &str,
+        input: &str,
+        count: u32,
+        offset: [f32; 3],
+    ) -> CmdResult {
+        self.apply_op(
+            Op::LinearArray {
+                name: name.into(),
+                input: input.into(),
+                count,
+                offset,
+            },
+            &format!("op linear `{name}` = {count} x `{input}`"),
+        )
+    }
+
+    /// Mirrors an earlier part across a plane (axis x/y/z at offset).
+    pub fn op_mirror(
+        &mut self,
+        name: &str,
+        input: &str,
+        axis: &str,
+        offset: [f32; 3],
+    ) -> CmdResult {
+        self.apply_op(
+            Op::Mirror {
+                name: name.into(),
+                input: input.into(),
+                axis: axis.into(),
+                offset,
+            },
+            &format!("op mirror `{name}` = `{input}` across {axis}"),
+        )
+    }
+
     /// Removes the op whose output is `name` and re-derives.
     pub fn op_delete(&mut self, name: &str) -> CmdResult {
         let before = self.model.ops.len();

@@ -7,13 +7,14 @@ use bevy::mesh::{
     Indices, Mesh, VertexAttributeValues,
     primitives::{MeshBuilder, Meshable, SphereKind},
 };
-use bevy::shape::{Capsule3d, Cone, Cuboid, Cylinder, Plane3d, Sphere, Torus};
+use bevy::shape::{Annulus, Capsule3d, Circle, Cone, Cuboid, Cylinder, Plane3d, Sphere, Torus};
 
 const SECTORS: u32 = 32;
 const STACKS: u32 = 16;
 
 /// A named primitive. `size` is full extents for "box" (and the plane's x/z extents), and
-/// `[radius, height, 0]` for everything else (torus: `[ring radius, tube radius, 0]`).
+/// `[radius, height, 0]` for everything else (torus: `[ring radius, tube radius, 0]`;
+/// washer: `[inner radius, outer radius, 0]`).
 pub fn primitive(kind: &str, size: [f32; 3], name: &str) -> Result<Part, String> {
     let mesh = match kind {
         "box" => Cuboid::new(size[0], size[1], size[2]).mesh().build(),
@@ -38,6 +39,52 @@ pub fn primitive(kind: &str, size: [f32; 3], name: &str) -> Result<Part, String>
         }
         "capsule" => Capsule3d::new(size[0], size[1]).mesh().build(),
         "plane" => Plane3d::default().mesh().size(size[0], size[1]).build(),
+        "disc" => Circle { radius: size[0] }.mesh().build(),
+        "washer" => {
+            let (inner, outer) = (size[0], size[1]);
+            if inner <= 0.0 || outer <= inner {
+                return Err(format!(
+                    "washer needs 0 < inner ({inner}) < outer ({outer})"
+                ));
+            }
+            Annulus {
+                inner_circle: Circle { radius: inner },
+                outer_circle: Circle { radius: outer },
+            }
+            .mesh()
+            .build()
+        }
+        // A triangular prism: a ramp/roof profile (triangle in XY) extruded
+        // along Z. Hand-built; bevy has no primitive for it.
+        "wedge" => {
+            let (w, h, d) = (size[0], size[1], size[2]);
+            if w <= 0.0 || h <= 0.0 || d <= 0.0 {
+                return Err("wedge size must be positive".into());
+            }
+            let (x, z) = (w / 2.0, d / 2.0);
+            let verts: Vec<[f32; 3]> = vec![
+                [-x, -h / 2.0, z],  // 0 front-bottom-left
+                [x, -h / 2.0, z],   // 1 front-bottom-right
+                [x, -h / 2.0, -z],  // 2 back-bottom-right
+                [-x, -h / 2.0, -z], // 3 back-bottom-left
+                [-x, h / 2.0, z],   // 4 front-top-left
+                [x, h / 2.0, z],    // 5 front-top-right
+            ];
+            // Outward-wound: bottom, front rectangle, back slope, two sides.
+            let indices: Vec<u32> = vec![
+                0, 2, 1, 0, 3, 2, // bottom (-y)
+                0, 1, 5, 0, 5, 4, // front face (+z)
+                4, 5, 2, 4, 2, 3, // slope from top edge to back bottom
+                0, 4, 3, // left side (-x)
+                1, 2, 5, // right side (+x)
+            ];
+            let mut part = Part::new(name);
+            part.verts = verts;
+            part.indices = indices;
+            crate::uv::ensure_normals(&mut part);
+            crate::uv::ensure_uvs(&mut part, Some("box"))?;
+            return Ok(part);
+        }
         other => return Err(format!("unknown primitive kind `{other}`")),
     };
     let mut part = Part::new(name);
@@ -135,6 +182,36 @@ mod tests {
     #[test]
     fn unknown_kind_errors() {
         assert!(primitive("dodecahedron", [1.0; 3], "x").is_err());
+    }
+
+    #[test]
+    fn wedge_is_closed_and_correctly_wound() {
+        let part = build("wedge", [1.0, 0.5, 2.0]);
+        // 8 triangles, every edge shared by exactly two (closed manifold).
+        assert_eq!(part.tri_count(), 8);
+        let mut edges = std::collections::HashMap::new();
+        for t in part.indices.as_chunks::<3>().0 {
+            for e in 0..3 {
+                let (a, b) = (t[e], t[(e + 1) % 3]);
+                *edges.entry((a.min(b), a.max(b))).or_insert(0u32) += 1;
+            }
+        }
+        assert!(edges.values().all(|&c| c == 2), "wedge edges must pair up");
+    }
+
+    #[test]
+    fn disc_and_washer_are_flat() {
+        let disc = build("disc", [1.0, 0.0, 0.0]);
+        assert!(disc.verts.iter().all(|v| v[2].abs() < 1e-6));
+        let washer = build("washer", [0.5, 1.0, 0.0]);
+        assert!(washer.verts.iter().all(|v| v[2].abs() < 1e-6));
+        assert!(build("washer", [0.5, 1.0, 0.0]).tri_count() > 8);
+    }
+
+    #[test]
+    fn washer_rejects_bad_radii() {
+        assert!(primitive("washer", [1.0, 0.5, 0.0], "x").is_err());
+        assert!(primitive("washer", [0.0, 1.0, 0.0], "x").is_err());
     }
 
     #[test]

@@ -1124,6 +1124,32 @@ struct OpMaterialArgs {
 }
 
 #[derive(serde::Deserialize, schemars::JsonSchema)]
+struct OpLinearArrayArgs {
+    /// Output name prefix: copies become name_1 .. name_{count-1}.
+    name: String,
+    /// An earlier op's output part to copy.
+    input: String,
+    count: u32,
+    /// Per-copy step vector; copy i sits at input + i * offset.
+    #[serde(default)]
+    offset: [f32; 3],
+}
+
+#[derive(serde::Deserialize, schemars::JsonSchema)]
+struct OpMirrorArgs {
+    /// Unique output part name; re-using a name replaces that op.
+    name: String,
+    /// An earlier op's output part to mirror.
+    input: String,
+    /// The plane's axis: "x", "y" or "z".
+    axis: String,
+    /// Where the mirror plane sits on that axis, e.g. [0.5, 0, 0] mirrors
+    /// across x = 0.5.
+    #[serde(default)]
+    offset: [f32; 3],
+}
+
+#[derive(serde::Deserialize, schemars::JsonSchema)]
 struct OpNameArgs {
     /// The op's output part name, as shown by scene_summary's ops list.
     name: String,
@@ -1454,6 +1480,38 @@ impl Tools {
         }): Parameters<OpMaterialArgs>,
     ) -> Result<CallToolResult, ErrorData> {
         self.run(move |s| s.op_material(&name, &input, base_color, roughness, metalness))
+            .await
+    }
+
+    /// Copy an earlier part in a straight line as a graph step. The source
+    /// counts as copy 0; outputs are name_1 .. name_{count-1}.
+    #[tool]
+    async fn op_linear_array(
+        &self,
+        Parameters(OpLinearArrayArgs {
+            name,
+            input,
+            count,
+            offset,
+        }): Parameters<OpLinearArrayArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        self.run(move |s| s.op_linear_array(&name, &input, count, offset))
+            .await
+    }
+
+    /// Mirror an earlier part across a plane as a graph step. The mesh is
+    /// baked (verts reflected, winding flipped), so it renders correctly.
+    #[tool]
+    async fn op_mirror(
+        &self,
+        Parameters(OpMirrorArgs {
+            name,
+            input,
+            axis,
+            offset,
+        }): Parameters<OpMirrorArgs>,
+    ) -> Result<CallToolResult, ErrorData> {
+        self.run(move |s| s.op_mirror(&name, &input, &axis, offset))
             .await
     }
 

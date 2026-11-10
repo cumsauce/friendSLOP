@@ -53,17 +53,8 @@ fn main() {
     .unwrap_or_else(|e| panic!("{e}"));
     s.op_material("leaf_a", "leaf_a", Some([0.3, 0.65, 0.3, 1.0]), None, None)
         .unwrap_or_else(|e| panic!("{e}"));
-    s.op_primitive("leaf_b", "sphere", [0.1, 0.0, 0.0], [-0.1, 0.3, -0.06])
-        .unwrap_or_else(|e| panic!("{e}"));
-    s.op_transform(
-        "leaf_b",
-        "leaf_b",
-        Some([-0.1, 0.3, -0.06]),
-        Some([0.0, -0.866, 0.0, 0.5]),
-        Some([1.0, 0.35, 1.4]),
-    )
-    .unwrap_or_else(|e| panic!("{e}"));
-    s.op_material("leaf_b", "leaf_b", Some([0.3, 0.65, 0.3, 1.0]), None, None)
+    // The second leaf is a true mirror of the first across x = 0.
+    s.op_mirror("leaf_b", "leaf_a", "x", [0.0, 0.0, 0.0])
         .unwrap_or_else(|e| panic!("{e}"));
     s.op_material("stem", "stem", Some([0.35, 0.7, 0.35, 1.0]), None, None)
         .unwrap_or_else(|e| panic!("{e}"));

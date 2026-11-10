@@ -383,6 +383,26 @@ pub enum Op {
         #[serde(default)]
         metalness: Option<f32>,
     },
+    /// Copies an earlier part in a straight line. The source is copy 0;
+    /// copies 1..count are emitted as `{name}_1..{name}_{count-1}`, copy i
+    /// sitting at input + i * offset.
+    LinearArray {
+        name: String,
+        input: String,
+        count: u32,
+        #[serde(default)]
+        offset: [f32; 3],
+    },
+    /// Mirrors an earlier part across the plane `axis = offset[axis]` (axis is
+    /// "x", "y" or "z"). The mesh is baked: verts reflected, winding flipped,
+    /// normals rebuilt — so it renders correctly, unlike a negative scale.
+    Mirror {
+        name: String,
+        input: String,
+        axis: String,
+        #[serde(default)]
+        offset: [f32; 3],
+    },
 }
 
 fn default_degrees() -> f32 {

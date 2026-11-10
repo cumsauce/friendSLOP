@@ -47,14 +47,21 @@ Dying (to the RPG) just sends you back to the start.
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).
-- **Structure pipeline** (structures rework, phase 1-2). Village houses are built with a shared
-  kit (`crates/structures`): walls with door and window holes that never overlap (no flicker),
-  one merged mesh per house and material with textures laid in world metres (no stretching,
-  roof tiles follow the slope), and colliders from the layout, roofs and gables included. The
-  warehouse floor plan uses a generic seeded wave function collapse (`crates/wfc`). Planned next:
-  a seeded room-graph sewer with detailed hallway pieces, generated village houses from a world
-  seed, and a furniture placer. Open: should the village change every playthrough, or only
-  interiors?
+- **Structure pipeline** (structures rework). Buildings come from a shared kit
+  (`crates/structures`) and a **world seed** the host rolls each session (`features/world_seed.rs`;
+  `FRIENDSLOP_SEED=n` fixes it), so every peer builds the same world:
+  - Walls never overlap (no flicker), each house is one merged mesh per material with textures
+    in world metres, and colliders come from the layout (roofs and gables included).
+  - **Village**: six plots get generated houses each session (cottage, townhouse, barn or shop;
+    gable, hip or flat roofs; doors, windows, balconies, shopfronts). The tower, barn, market,
+    walls and the big cottage by the cellar door stay fixed.
+  - **Furniture**: each generated room is filled by a seeded placer from a 19-prop library
+    (bedroom, kitchen, shop, storage themes) that never blocks a door or the stairs.
+  - **Sewer**: a seeded room graph (chambers, loops, dead ends) between fixed entrances,
+    ladders, the cellar and Paul's chamber, built from detailed hallway pieces (trim, pillars,
+    beams, pipes, lamps, a water channel).
+  - The warehouse floor plan uses the generic WFC crate (`crates/wfc`).
+  Open: furniture in the sewer and warehouse; more house types.
 - **First-person bodies** (#53). Everyone has a body (your own character, see below) and
   plays in first person: WASD walk, mouse look, Space jump, Shift run, cursor locked. Left click
   uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used

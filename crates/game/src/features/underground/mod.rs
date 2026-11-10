@@ -6,6 +6,11 @@
 //!   junction chamber under the commune with daylight falling through a
 //!   grate, a damp cellar under a village cottage, and a narrow, torch-lit
 //!   secret passage. Everything down there joins up.
+//! - The network is generated from the [`WorldSeed`] (structures rework,
+//!   phase 3): the junction, the foot of every ladder, the cellar and Sewer
+//!   Paul's spot are pinned; the chambers, corridors, loops and dead ends
+//!   between them change with the seed. Every peer builds [`Tunnels`] from
+//!   the same seed, so the server's rats walk the same tunnels players see.
 //! - Four ways in ([`ENTRANCES`]): a manhole on the road east out of the
 //!   commune, a manhole on the road to the ruins, the cellar door beside the
 //!   big cottage in the east village, and a loose floorboard in the
@@ -21,6 +26,8 @@
 
 use std::collections::{BTreeMap, VecDeque};
 
+use friendslop_structures::graph::{self, Room, Spec, Use};
+
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -28,6 +35,7 @@ use serde::{Deserialize, Serialize};
 use crate::features::fps::{WalkInput, Walker};
 use crate::features::interact::{SERVER_REACH, deny, within};
 use crate::player::PlayerOwner;
+pub use friendslop_core::WorldSeed;
 
 mod visuals;
 
@@ -41,7 +49,7 @@ pub const TUNNEL_H: f32 = 3.2;
 pub const CELL: f32 = 3.0;
 
 /// What a stretch of underground is.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Part {
     /// The junction chamber under the commune.
     Hub,
@@ -157,37 +165,6 @@ impl Layout {
         self.cells.contains_key(&c)
     }
 
-    /// Carve a cell (the first part to claim it keeps it).
-    fn carve(&mut self, c: Cell, part: Part) {
-        self.cells.entry(c).or_insert(part);
-    }
-
-    /// Carve an L: along x first, then along z.
-    fn tunnel(&mut self, from: Cell, to: Cell, part: Part) {
-        let (mut x, z) = from;
-        loop {
-            self.carve((x, z), part);
-            if x == to.0 {
-                break;
-            }
-            x += (to.0 - x).signum();
-        }
-        let mut z = z;
-        while z != to.1 {
-            z += (to.1 - z).signum();
-            self.carve((x, z), part);
-        }
-    }
-
-    /// Carve a square room of `r` cells around `c`.
-    fn room(&mut self, c: Cell, r: i32, part: Part) {
-        for x in -r..=r {
-            for z in -r..=r {
-                self.carve((c.0 + x, c.1 + z), part);
-            }
-        }
-    }
-
     /// Can you walk from `a` to `b` through open cells?
     pub fn connected(&self, a: Cell, b: Cell) -> bool {
         let mut seen = std::collections::BTreeSet::new();
@@ -263,30 +240,97 @@ pub fn turn_word(forward: Vec2, dir: Vec2) -> &'static str {
     }
 }
 
-/// The network (pure, the same on every peer and the server).
-pub fn layout() -> Layout {
-    let mut l = Layout::default();
-    let hub = (0, 0);
-    let at = |i: usize| cell_of(ENTRANCES[i].at);
-    l.room(hub, 1, Part::Hub);
-    l.room(at(2), 1, Part::Cellar);
-    // The sewers: east under the commune road to the manhole and on to the
-    // cottage cellar, and south-west to the manhole on the ruins road (the
-    // second one goes south first, then west).
-    l.tunnel(hub, at(0), Part::Sewer);
-    l.tunnel(at(0), at(2), Part::Sewer);
-    let (bx, bz) = at(1);
-    l.tunnel((0, bz), (bx, bz), Part::Sewer);
-    for z in 1..=bz {
-        l.carve((0, z), Part::Sewer);
-    }
-    // The secret passage: north, a long way, to the woodcutter's hut.
-    let (dx, dz) = at(3);
-    for z in (dz..0).rev() {
-        l.carve((0, z), Part::Passage);
-    }
-    l.tunnel((0, dz), (dx, dz), Part::Passage);
-    l
+/// The salt of the tunnels' sub-seed ([`WorldSeed::for_`]).
+pub const SEED_SALT: u32 = 0x5E3E_0127;
+
+/// Where Sewer Paul's chamber is: halfway along the way to the first manhole.
+pub fn paul_cell() -> Cell {
+    cell_of(ENTRANCES[0].at / 2.0)
+}
+
+/// The rooms that stay put whatever the seed: the junction, the foot of
+/// every ladder (the cellar is a whole room), and Sewer Paul's chamber. The
+/// secret passage's end is a leaf: one way in, one way out.
+fn pins() -> Vec<Room> {
+    let foot = |i: usize| (cell_of(ENTRANCES[i].at), cell_of(down_spot(i).xz()));
+    let tag = |p: Part| p as u8;
+    let (a, b) = foot(0);
+    let e0 = Room::covering(a, b, tag(Part::Sewer));
+    let (a, b) = foot(1);
+    let e1 = Room::covering(a, b, tag(Part::Sewer));
+    let (a, b) = foot(2);
+    let cellar = Room::around(a, 1, tag(Part::Cellar)).with(b);
+    let (a, b) = foot(3);
+    let secret = Room::covering(a, b, tag(Part::Passage)).leaf();
+    vec![
+        Room::around((0, 0), 1, tag(Part::Hub)),
+        e0,
+        e1,
+        cellar,
+        secret,
+        Room::around(paul_cell(), 0, tag(Part::Sewer)),
+    ]
+}
+
+/// The pin index of the secret passage's end.
+const SECRET: usize = 4;
+
+/// The network for a tunnels sub-seed (pure, the same on every peer and the
+/// server): pinned rooms joined by sewers, with a few more chambers, loops
+/// and dead ends rolled from `seed`. The corridor to the secret passage's
+/// end is the passage itself.
+pub fn layout(seed: u32) -> Layout {
+    let spec = Spec {
+        min: (-12, -24),
+        max: (27, 10),
+        pins: pins(),
+        rooms: (4, 7),
+        room_size: (2, 4),
+        tag: Part::Sewer as u8,
+        loops: 2,
+        spurs: 7,
+        spur_len: (2, 5),
+    };
+    let g = graph::generate(&spec, seed);
+    let part_of_tag = |t: u8| match t {
+        0 => Part::Hub,
+        2 => Part::Passage,
+        3 => Part::Cellar,
+        _ => Part::Sewer,
+    };
+    let cells = g
+        .cells
+        .iter()
+        .map(|(&c, u)| {
+            let part = match *u {
+                Use::Room(i) => part_of_tag(g.rooms[i].tag),
+                Use::Corridor(e) => {
+                    let (a, b) = g.edges[e];
+                    if a == SECRET || b == SECRET {
+                        Part::Passage
+                    } else {
+                        Part::Sewer
+                    }
+                }
+                Use::Spur => Part::Sewer,
+            };
+            (c, part)
+        })
+        .collect();
+    Layout { cells }
+}
+
+/// The tunnels of this world: [`layout`] of the [`WorldSeed`]'s sub-seed.
+/// Every peer (and the server) keeps it in step with the seed.
+#[derive(Resource, Clone, Debug, Deref)]
+pub struct Tunnels(pub Layout);
+
+fn sync_tunnels(mut commands: Commands, seed: Res<WorldSeed>) {
+    commands.insert_resource(Tunnels(layout(seed.for_(SEED_SALT))));
+}
+
+fn drop_tunnels(mut commands: Commands) {
+    commands.remove_resource::<Tunnels>();
 }
 
 /// Client -> server: I use way in / ladder `id` (down if I'm up top, up if
@@ -298,7 +342,16 @@ pub struct UseHatch {
 
 pub fn protocol(app: &mut App) {
     app.add_client_event::<UseHatch>(Channel::Ordered)
-        .add_observer(use_hatch);
+        .add_observer(use_hatch)
+        .add_systems(
+            PreUpdate,
+            (
+                sync_tunnels.run_if(resource_exists_and_changed::<WorldSeed>),
+                drop_tunnels
+                    .run_if(not(resource_exists::<WorldSeed>))
+                    .run_if(resource_exists::<Tunnels>),
+            ),
+        );
 }
 
 pub fn plugin(app: &mut App) {
@@ -356,7 +409,7 @@ mod tests {
 
     #[test]
     fn the_way_up_follows_the_tunnels() {
-        let l = layout();
+        let l = layout(WorldSeed(1).for_(SEED_SALT));
         // From the hub there's always a ladder, some way off.
         let Some((_, m, dir)) = way_up(&l, Vec2::ZERO) else {
             panic!("no way up from the hub")
@@ -381,7 +434,26 @@ mod tests {
 
     #[test]
     fn everything_down_there_joins_up() {
-        let l = layout();
+        for seed in 0..40 {
+            everything_joins_up(&layout(WorldSeed(seed).for_(SEED_SALT)));
+        }
+    }
+
+    #[test]
+    fn the_seed_changes_the_tunnels_but_not_the_ways_in() {
+        let a = layout(WorldSeed(1).for_(SEED_SALT));
+        let b = layout(WorldSeed(2).for_(SEED_SALT));
+        assert_ne!(a.cells, b.cells);
+        assert_eq!(a.cells, layout(WorldSeed(1).for_(SEED_SALT)).cells);
+        for l in [&a, &b] {
+            assert_eq!(l.part((0, 0)), Some(Part::Hub));
+            assert_eq!(l.part(cell_of(ENTRANCES[2].at)), Some(Part::Cellar));
+            assert_eq!(l.part(cell_of(ENTRANCES[3].at)), Some(Part::Passage));
+            assert_eq!(l.part(paul_cell()), Some(Part::Sewer));
+        }
+    }
+
+    fn everything_joins_up(l: &Layout) {
         for (i, a) in ENTRANCES.iter().enumerate() {
             let c = cell_of(a.at);
             assert!(l.open(c), "entrance {i} has no tunnel under it");

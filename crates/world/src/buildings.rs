@@ -4,8 +4,12 @@
 //! and village walls, hedges and narrow alleys to run around and hide in.
 //!
 //! Everything is built from code (boxes, cylinders and gable prisms) by the
-//! pure `layout()` function, so every peer builds exactly the same village.
-//! Nothing is replicated. Walls, furniture and cover get static avian3d
+//! pure `layout(seed)` function, so every peer builds exactly the same village
+//! from the replicated [`WorldSeed`]. The tower, barn, market, walls and the
+//! big cottage with the cellar door are pinned; the other six plots get
+//! houses from the shape grammar (`friendslop_structures::grammar`), a rule
+//! set (cottage, townhouse, barn, shop) and its parameters picked per plot
+//! from the seed. The village is rebuilt whenever the seed changes. Walls, furniture and cover get static avian3d
 //! colliders that block bodies (the host runs the collision); upper floors,
 //! landings and ramps go on the `WALKABLE` layer, which `features/fps.rs`
 //! stands bodies on instead of blocking them.
@@ -16,11 +20,14 @@ use bevy::prelude::*;
 
 use friendslop_structures::build::{batches, bodies};
 use friendslop_structures::furniture::{bed, crates, shelf, table};
+pub use friendslop_structures::grammar::Room;
+use friendslop_structures::grammar::{self, Style};
 pub use friendslop_structures::{Door, Hole, Palette, Ramp, Shape, Solid};
 
 use crate::AppState;
 use crate::surfaces::Surfaced;
 use crate::terrain;
+use friendslop_core::WorldSeed;
 
 /// Collision layer of walkable floors and ramps: bodies stand on these rather
 /// than bumping into them.
@@ -32,8 +39,24 @@ const T: f32 = 0.25;
 const STOREY: f32 = 3.0;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_village);
+    app.add_systems(
+        Update,
+        spawn_village
+            .run_if(in_state(AppState::InGame))
+            .run_if(resource_exists_and_changed::<WorldSeed>),
+    );
 }
+
+/// The village's own seed, derived from the world seed. Everything that
+/// needs the same village as the spawned one (`features/infinite.rs`) builds
+/// `layout(village_seed(seed))`.
+pub fn village_seed(seed: WorldSeed) -> u32 {
+    seed.for_(0xB111_A6E5)
+}
+
+/// Every entity the village spawned, so a new seed can replace it.
+#[derive(Component, Clone, Copy, Debug)]
+pub struct VillagePart;
 
 /// What a piece is made of (one shared material each).
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -216,130 +239,6 @@ fn cottage(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat), split: bool
     k.block(
         Vec3::new(hx - 1.2, STOREY, -0.9),
         Vec3::new(hx - 0.6, STOREY + d * 0.45 + 0.8, -0.3),
-        Mat::Stone,
-        Solid::None,
-    );
-}
-
-/// A two-storey house: stairs up the north wall, bedrooms upstairs and a
-/// balcony over the front (local south, +z) door.
-fn townhouse(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat)) {
-    let (hx, hz) = (w / 2.0, d / 2.0);
-    // Ground floor: front door, back door east.
-    walls(
-        k,
-        w,
-        d,
-        0.0,
-        STOREY,
-        &[door(-w * 0.22), window(w * 0.25)],
-        &[window(-w * 0.3), window(w * 0.3)],
-        &[door(0.6)],
-        &[window(0.4)],
-        wall,
-    );
-    // Upper floor: balcony door, windows all round.
-    walls(
-        k,
-        w,
-        d,
-        STOREY,
-        STOREY,
-        &[door(0.0), window(-w * 0.32), window(w * 0.32)],
-        &[window(-w * 0.25), window(w * 0.25)],
-        &[window(0.0)],
-        &[window(0.0)],
-        wall,
-    );
-    k.block(
-        Vec3::new(-hx, 0.0, -hz),
-        Vec3::new(hx, 0.03, hz),
-        Mat::Plank,
-        Solid::None,
-    );
-    // Stairs along the north wall, rising west -> east.
-    let lane = -hz + T / 2.0 + 0.7;
-    let (x0, x1) = (-hx + 0.5, -hx + 5.5);
-    k.stairs(Vec3::new(x0, 0.0, lane), Vec3::new(x1, STOREY, lane), 1.1);
-    // Upper floor around the stairwell, plus a rail along its edge.
-    let well = -hz + 1.4;
-    let inner = Vec2::new(hx - T / 2.0, hz - T / 2.0);
-    k.floor(Vec2::new(-inner.x, well), inner, STOREY, Mat::Plank);
-    k.floor(
-        Vec2::new(x1, -inner.y),
-        Vec2::new(inner.x, well),
-        STOREY,
-        Mat::Plank,
-    );
-    k.bar(
-        Vec2::new(-inner.x, well + 0.05),
-        Vec2::new(x1 - 0.3, well + 0.05),
-        STOREY,
-        1.0,
-        0.08,
-        Mat::Timber,
-        Solid::Wall,
-    );
-    // Balcony over the front, with rails.
-    let (bx, bz) = (1.7, hz + 1.5);
-    // Starts at the wall's outer face so its top isn't coplanar with the wall.
-    k.floor(
-        Vec2::new(-bx, hz + T / 2.0),
-        Vec2::new(bx, bz),
-        STOREY,
-        Mat::Plank,
-    );
-    let rail = |k: &mut Kit, a: Vec2, b: Vec2| {
-        k.bar(a, b, STOREY, 1.0, 0.1, Mat::Timber, Solid::Wall);
-    };
-    rail(k, Vec2::new(-bx, bz), Vec2::new(bx, bz));
-    rail(k, Vec2::new(-bx, hz + 0.15), Vec2::new(-bx, bz - 0.05));
-    rail(k, Vec2::new(bx, hz + 0.15), Vec2::new(bx, bz - 0.05));
-    for sx in [-bx + 0.1, bx - 0.1] {
-        let c = Vec3::new(sx, 0.0, bz - 0.1);
-        k.prop(c, Vec3::new(0.16, STOREY - 0.15, 0.16), Mat::Timber);
-    }
-    // Downstairs: kitchen table, crates, a shelf.
-    table(k, Vec3::new(0.3, 0.0, 0.3));
-    crates(k, Vec3::new(hx - 0.7, 0.0, hz - 0.7), true);
-    shelf(
-        k,
-        Vec3::new(-hx + 0.35, 0.0, hz - 1.6),
-        Vec3::new(0.4, 1.9, 1.4),
-    );
-    k.prop(
-        Vec3::new(hx - 0.6, 0.0, 1.2),
-        Vec3::new(0.6, 0.9, 0.6),
-        Mat::Plank,
-    );
-    // Upstairs: two beds, a wardrobe, a chest.
-    bed(k, Vec3::new(-hx + 0.9, STOREY, 0.6));
-    bed(k, Vec3::new(hx - 0.9, STOREY, 0.6));
-    k.prop(
-        Vec3::new(-1.3, STOREY, hz - 1.5),
-        Vec3::new(1.1, 2.0, 0.6),
-        Mat::Timber,
-    );
-    k.prop(
-        Vec3::new(1.4, STOREY, -0.2),
-        Vec3::new(0.9, 0.55, 0.55),
-        Mat::Wood,
-    );
-    k.lamp(Vec3::new(0.3, 2.3, 0.3));
-    k.lamp(Vec3::new(0.0, STOREY + 2.3, 0.4));
-    k.roof(
-        Vec2::ZERO,
-        w,
-        d,
-        STOREY * 2.0,
-        d * 0.42,
-        roof.0,
-        roof.1,
-        wall,
-    );
-    k.block(
-        Vec3::new(-hx + 0.6, STOREY * 2.0, 0.5),
-        Vec3::new(-hx + 1.2, STOREY * 2.0 + d * 0.42 + 0.9, 1.1),
         Mat::Stone,
         Solid::None,
     );
@@ -677,29 +576,113 @@ pub const MARKET_AT: Vec2 = Vec2::new(57.0, 0.0);
 pub const TOWER_AT: Vec2 = Vec2::new(72.0, 16.0);
 const BARN_AT: Vec2 = Vec2::new(70.5, -24.0);
 
-/// Build the whole district (pure, deterministic).
-pub fn layout() -> Kit {
-    let mut k = Kit::default();
-    let tiles = (Mat::Tile, Mat::TileDark);
-    let slate = (Mat::Slate, Mat::SlateDark);
+/// A house plot: centre, quarter turns (front door side faces the street),
+/// footprint, and whether its house must have an upper floor.
+struct Plot {
+    at: Vec2,
+    turns: i32,
+    w: f32,
+    d: f32,
+    upper: bool,
+}
 
-    // North row, doors facing the street (+z).
-    k.site(Vec2::new(40.0, -11.0), 0);
-    cottage(&mut k, 7.0, 6.0, Mat::Plaster, tiles, false);
-    k.site(Vec2::new(49.5, -13.0), 0);
-    townhouse(&mut k, 8.0, 7.0, Mat::Rose, slate);
-    k.lights.push(k.world(Vec3::new(0.3, 2.5, 0.3)));
-    k.site(Vec2::new(58.0, -13.0), 0);
-    cottage(&mut k, 6.0, 6.0, Mat::Sky, tiles, false);
-    k.site(Vec2::new(66.5, -11.0), 0);
+/// The generated plots (the same footprints the old hand-built houses had,
+/// so terrain flattening and paths still fit). The two 8 x 7 plots always
+/// get two or three storeys: the street spot villagers walk to and the
+/// tests' "two two-storey houses" rely on them.
+const PLOTS: [Plot; 6] = [
+    Plot {
+        at: Vec2::new(40.0, -11.0),
+        turns: 0,
+        w: 7.0,
+        d: 6.0,
+        upper: false,
+    },
+    Plot {
+        at: Vec2::new(49.5, -13.0),
+        turns: 0,
+        w: 8.0,
+        d: 7.0,
+        upper: true,
+    },
+    Plot {
+        at: Vec2::new(58.0, -13.0),
+        turns: 0,
+        w: 6.0,
+        d: 6.0,
+        upper: false,
+    },
+    Plot {
+        at: Vec2::new(42.0, 13.0),
+        turns: 2,
+        w: 8.0,
+        d: 7.0,
+        upper: true,
+    },
+    Plot {
+        at: Vec2::new(51.5, 12.5),
+        turns: 2,
+        w: 6.0,
+        d: 5.0,
+        upper: false,
+    },
+    Plot {
+        at: Vec2::new(60.0, 13.0),
+        turns: 2,
+        w: 7.0,
+        d: 6.0,
+        upper: false,
+    },
+];
+
+/// The pinned big cottage: the underground's cellar door is just outside
+/// its east wall at about (72.6, -11).
+pub const BIG_COTTAGE_AT: Vec2 = Vec2::new(66.5, -11.0);
+
+fn style() -> Style<Mat> {
+    Style {
+        walls: vec![Mat::Plaster, Mat::Rose, Mat::Sky],
+        barn: Mat::BarnRed,
+        roofs: vec![(Mat::Tile, Mat::TileDark), (Mat::Slate, Mat::SlateDark)],
+        floor: Mat::Plank,
+        stone: Mat::Stone,
+        hay: Mat::Hay,
+        awnings: vec![Mat::Red, Mat::Blue],
+    }
+}
+
+/// Build the whole district for `seed` (pure, deterministic).
+pub fn layout(seed: u32) -> Kit {
+    village(seed).0
+}
+
+/// The district plus the rooms inside its generated houses (interior box,
+/// floor height, doorways, theme), for a furniture placer.
+pub fn village(seed: u32) -> (Kit, Vec<Room>) {
+    let mut k = Kit::default();
+    let slate = (Mat::Slate, Mat::SlateDark);
+    let mut rooms = Vec::new();
+    let style = style();
+
+    for (i, plot) in PLOTS.iter().enumerate() {
+        k.site(plot.at, plot.turns);
+        let sub = WorldSeed(seed).for_(i as u32 + 1);
+        let mut design = grammar::house(plot.w, plot.d, plot.upper, sub);
+        if i == 0 {
+            // Its west wall is half a metre from the village wall: no door there.
+            design.west_door = false;
+            design.east_door = true;
+        }
+        rooms.extend(grammar::build(&mut k, &design, &style));
+        if i == 1 {
+            // One warm light in the north row.
+            k.lights
+                .push(k.world(Vec3::new(0.3, 2.5, -0.3 * plot.d / 2.0)));
+        }
+    }
+    // Pinned: the big split cottage by the cellar door.
+    k.site(BIG_COTTAGE_AT, 0);
     cottage(&mut k, 9.0, 6.0, Mat::Plaster, slate, true);
-    // South row, turned to face the street (-z).
-    k.site(Vec2::new(42.0, 13.0), 2);
-    townhouse(&mut k, 8.0, 7.0, Mat::Plaster, tiles);
-    k.site(Vec2::new(51.5, 12.5), 2);
-    cottage(&mut k, 6.0, 5.0, Mat::Rose, tiles, false);
-    k.site(Vec2::new(60.0, 13.0), 2);
-    cottage(&mut k, 7.0, 6.0, Mat::Sky, slate, true);
 
     k.site(BARN_AT, 0);
     barn(&mut k);
@@ -737,7 +720,59 @@ pub fn layout() -> Kit {
     // Everything else in world coordinates.
     k.site(Vec2::ZERO, 0);
     village_grounds(&mut k);
-    k
+    furnish(&mut k, &rooms, seed);
+    (k, rooms)
+}
+
+/// The placer theme for a generated room's tag.
+fn theme_for(tag: &str) -> &'static str {
+    match tag {
+        "bedroom" => "bedroom",
+        "shop" => "shop",
+        "barn" => "storage",
+        _ => "kitchen",
+    }
+}
+
+/// Fill every generated room with seeded furniture (`friendslop_structures::placer`),
+/// keeping its doors reachable and the stairs that pass through it clear.
+fn furnish(k: &mut Kit, rooms: &[grammar::Room], seed: u32) {
+    use friendslop_structures::placer;
+    let ramps = k.ramps.clone();
+    for (i, room) in rooms.iter().enumerate() {
+        let Some(theme) = placer::Theme::named(theme_for(room.theme)) else {
+            continue;
+        };
+        let mut reserved = Vec::new();
+        for r in &ramps {
+            // Only flights that touch this storey.
+            let (lo, hi) = (r.from.y.min(r.to.y), r.from.y.max(r.to.y));
+            if hi < room.floor_y - 0.1 || lo > room.floor_y + 2.0 {
+                continue;
+            }
+            let steps = ((r.to - r.from).length() / 0.5).ceil().max(1.0) as usize;
+            for s in 0..=steps {
+                let p = r.from.lerp(r.to, s as f32 / steps as f32);
+                reserved.push((Vec2::new(p.x, p.z), r.width / 2.0 + 0.4));
+            }
+        }
+        // Pulled in off the walls so props clear the sills and trims that
+        // stand proud of the inner face.
+        let inset = Vec3::new(0.06, 0.0, 0.06);
+        let area = placer::Room {
+            min: Vec3::new(room.min.x, room.floor_y, room.min.z) + inset,
+            max: room.max - inset,
+            doors: room.doors.iter().map(|d| (*d, 1.0)).collect(),
+            windows: Vec::new(),
+            reserved,
+        };
+        let sub = WorldSeed(seed).for_(0x0F00 + i as u32);
+        let placed = placer::place(&area, &theme, u64::from(sub));
+        // Lamps stay as props; the village keeps its few real point lights.
+        let lights = k.lights.len();
+        placer::apply(k, &placed);
+        k.lights.truncate(lights);
+    }
 }
 
 /// Village walls with gates, hedges, low walls, a paddock fence and clutter.
@@ -854,10 +889,15 @@ fn village_grounds(k: &mut Kit) {
 
 fn spawn_village(
     mut commands: Commands,
+    seed: Res<WorldSeed>,
+    old: Query<Entity, With<VillagePart>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let kit = layout();
+    for e in &old {
+        commands.entity(e).despawn();
+    }
+    let kit = layout(village_seed(*seed));
     let mut mats: Vec<(Mat, Handle<StandardMaterial>)> = Vec::new();
     // One merged mesh per house and material, with UVs already in world
     // metres and tangents, so `surfaces` leaves it alone (`Surfaced`).
@@ -876,6 +916,7 @@ fn spawn_village(
             Mesh3d(meshes.add(batch.mesh)),
             MeshMaterial3d(mat),
             Surfaced,
+            VillagePart,
             DespawnOnExit(AppState::InGame),
         ));
         if batch.small || batch.mat == Mat::Lamp {
@@ -890,6 +931,7 @@ fn spawn_village(
             RigidBody::Static,
             body.collider,
             Building,
+            VillagePart,
             DespawnOnExit(AppState::InGame),
         ));
         if body.solid == Solid::Floor {
@@ -907,6 +949,7 @@ fn spawn_village(
                 ..default()
             },
             Transform::from_translation(at - Vec3::Y * 0.3),
+            VillagePart,
             DespawnOnExit(AppState::InGame),
         ));
     }
@@ -972,9 +1015,44 @@ mod tests {
         (lo, hi)
     }
 
+    /// Seeds the tests check the village over.
+    const SEEDS: [u32; 6] = [0, 1, 2, 7, 42, 0xDEAD_BEEF];
+
     #[test]
     fn layout_is_deterministic_and_in_the_east_zone() {
-        let (a, b) = (layout(), layout());
+        for seed in SEEDS {
+            in_the_east_zone(seed);
+        }
+        let differ = SEEDS
+            .iter()
+            .any(|s| layout(*s).pieces.len() != layout(0).pieces.len());
+        assert!(differ, "seeds should change the houses");
+    }
+
+    #[test]
+    fn generated_rooms_have_doors_or_stairs() {
+        for seed in SEEDS {
+            let (kit, rooms) = village(seed);
+            assert!(rooms.len() >= 6, "{} rooms", rooms.len());
+            for room in &rooms {
+                let ground = room.floor_y < ground() + 0.5;
+                let stairs = kit.ramps.iter().any(|r| {
+                    (r.to.y - room.floor_y).abs() < 0.05
+                        && r.to.x > room.min.x - 0.2
+                        && r.to.x < room.max.x + 0.2
+                        && r.to.z > room.min.z - 0.2
+                        && r.to.z < room.max.z + 0.2
+                });
+                assert!(
+                    (ground && !room.doors.is_empty()) || (!ground && stairs),
+                    "seed {seed}: {room:?}"
+                );
+            }
+        }
+    }
+
+    fn in_the_east_zone(seed: u32) {
+        let (a, b) = (layout(seed), layout(seed));
         assert_eq!(a.pieces.len(), b.pieces.len());
         for (p, q) in a.pieces.iter().zip(&b.pieces) {
             assert_eq!(p.centre, q.centre);
@@ -987,9 +1065,37 @@ mod tests {
         assert!(a.lights.len() <= 3, "at most 3 new point lights");
     }
 
+    /// The things other code is pinned to: the tower's lookout ramps, the
+    /// barn, the market's well and the cellar-door cottage's east wall.
+    #[test]
+    fn pinned_places_stay_put() {
+        let (a, b) = (layout(1), layout(2));
+        let near = |k: &Kit, at: Vec2, r: f32| -> Vec<Vec3> {
+            k.pieces
+                .iter()
+                .filter(|p| p.centre.xz().distance(at) < r)
+                .map(|p| p.centre)
+                .collect()
+        };
+        for (at, r) in [
+            (TOWER_AT, 6.0),
+            (BARN_AT, 8.0),
+            (MARKET_AT, 6.0),
+            (BIG_COTTAGE_AT, 5.0),
+        ] {
+            assert_eq!(near(&a, at, r), near(&b, at, r), "{at} moved");
+        }
+    }
+
     #[test]
     fn every_door_lets_a_body_through() {
-        let kit = layout();
+        for seed in SEEDS {
+            doors_let_a_body_through(seed);
+        }
+    }
+
+    fn doors_let_a_body_through(seed: u32) {
+        let kit = layout(seed);
         assert!(kit.doors.len() >= 20, "only {} doors", kit.doors.len());
         for door in &kit.doors {
             assert!(door.width >= 1.2 && door.height >= 2.2, "{door:?}");
@@ -1001,7 +1107,13 @@ mod tests {
 
     #[test]
     fn ramps_are_gentle_clear_and_reach_a_floor() {
-        let kit = layout();
+        for seed in SEEDS {
+            ramps_are_gentle(seed);
+        }
+    }
+
+    fn ramps_are_gentle(seed: u32) {
+        let kit = layout(seed);
         assert!(kit.ramps.len() >= 7, "{} ramps", kit.ramps.len());
         let floors: Vec<_> = kit
             .pieces
@@ -1036,7 +1148,13 @@ mod tests {
 
     #[test]
     fn there_is_a_tall_lookout_and_upper_floors() {
-        let kit = layout();
+        for seed in SEEDS {
+            lookout_and_upper_floors(seed);
+        }
+    }
+
+    fn lookout_and_upper_floors(seed: u32) {
+        let kit = layout(seed);
         let top = kit
             .ramps
             .iter()
@@ -1058,7 +1176,13 @@ mod tests {
     /// like the solid blocks under stairs, are allowed inside things).
     #[test]
     fn solid_boxes_never_overlap() {
-        let kit = layout();
+        for seed in SEEDS {
+            no_overlaps(seed);
+        }
+    }
+
+    fn no_overlaps(seed: u32) {
+        let kit = layout(seed);
         let axis_aligned = |p: &Piece| {
             let m = Mat3::from_quat(p.rot);
             [m.x_axis, m.y_axis, m.z_axis]
@@ -1100,7 +1224,13 @@ mod tests {
     /// plane and overlap flicker (z-fighting). Checks axis-aligned cubes.
     #[test]
     fn no_coplanar_faces_between_materials() {
-        let kit = layout();
+        for seed in SEEDS {
+            no_coplanar(seed);
+        }
+    }
+
+    fn no_coplanar(seed: u32) {
+        let kit = layout(seed);
         let axis_aligned = |p: &Piece| {
             let m = Mat3::from_quat(p.rot);
             [m.x_axis, m.y_axis, m.z_axis]

@@ -59,7 +59,7 @@ fn rerecast_area_type() -> bevy_rerecast::rerecast::AreaType {
 /// the test builds them at full size directly.
 fn buildings_trimesh() -> TriMesh {
     let mut mesh = TriMesh::default();
-    for piece in &buildings::layout().pieces {
+    for piece in &buildings::layout(0).pieces {
         let collider = match piece.shape {
             Shape::Cube => Collider::cuboid(piece.size.x, piece.size.y, piece.size.z),
             Shape::Cylinder => Collider::cylinder(piece.size.x / 2.0, piece.size.y),

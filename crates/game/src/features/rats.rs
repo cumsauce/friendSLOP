@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, refuse, within};
-use crate::features::underground::{CELL, Cell, TUNNEL_Y, cell_centre, layout};
+use crate::features::underground::{CELL, Cell, Layout, TUNNEL_Y, Tunnels, cell_centre};
 use crate::features::villagers::{COUNT, FIRST_FRIEND, NAMES};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -96,13 +96,17 @@ pub fn protocol(app: &mut App) {
         .add_client_event::<AdoptRat>(Channel::Ordered)
         .add_observer(adopt)
         .add_observer(release_on_leave)
-        .add_systems(OnEnter(ServerState::Running), spawn_rats)
-        .add_systems(Update, move_rats.run_if(in_state(ServerState::Running)));
+        .add_systems(
+            Update,
+            (spawn_rats.run_if(resource_exists::<Tunnels>), move_rats)
+                .chain()
+                .run_if(in_state(ServerState::Running)),
+        );
 }
 
 /// Where rat `id` lives: tunnel cells spread out along the network.
-pub fn home(id: u8) -> Vec2 {
-    let cells: Vec<Cell> = layout().cells.keys().copied().collect();
+pub fn home(l: &Layout, id: u8) -> Vec2 {
+    let cells: Vec<Cell> = l.cells.keys().copied().collect();
     if cells.is_empty() {
         return Vec2::ZERO;
     }
@@ -112,8 +116,7 @@ pub fn home(id: u8) -> Vec2 {
 
 /// A stray's next stop from `at`: the centre of a random open cell next to
 /// it (or its own, if it's boxed in).
-pub fn next_stop(at: Vec2, roll: u32) -> Vec2 {
-    let l = layout();
+pub fn next_stop(l: &Layout, at: Vec2, roll: u32) -> Vec2 {
     let c = crate::features::underground::cell_of(at);
     let open: Vec<Cell> = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         .into_iter()
@@ -142,9 +145,27 @@ pub fn step_towards(from: Vec2, target: Vec2, step: f32, heel: f32) -> Vec2 {
     from + gap / len * step.min(len - heel)
 }
 
-fn spawn_rats(mut commands: Commands) {
+/// Server: once the tunnels exist, the rats move in. When the world seed
+/// changes the tunnels, strays go back to their (new) homes.
+fn spawn_rats(
+    mut commands: Commands,
+    tunnels: Res<Tunnels>,
+    mut rats: Query<(&mut Rat, &mut Scurry)>,
+) {
+    if !rats.is_empty() {
+        if tunnels.is_changed() {
+            for (mut rat, mut scurry) in &mut rats {
+                if rat.owner.is_none() {
+                    let at = home(&tunnels, rat.id);
+                    rat.at = Vec3::new(at.x, TUNNEL_Y, at.y);
+                    scurry.to = at;
+                }
+            }
+        }
+        return;
+    }
     for id in 0..RATS as u8 {
-        let at = home(id);
+        let at = home(&tunnels, id);
         commands.spawn((
             Rat {
                 id,
@@ -215,18 +236,20 @@ fn adopt(
 fn release_on_leave(
     remove: On<Remove<Player>>,
     server: Res<State<ServerState>>,
+    tunnels: Option<Res<Tunnels>>,
     players: Query<&Player>,
     mut rats: Query<(&mut Rat, &mut Scurry)>,
 ) {
     if *server.get() != ServerState::Running {
         return;
     }
+    let Some(tunnels) = tunnels else { return };
     let Ok(player) = players.get(remove.entity) else {
         return;
     };
     for (mut rat, mut scurry) in &mut rats {
         if rat.owner == Some(player.id) {
-            let at = home(rat.id);
+            let at = home(&tunnels, rat.id);
             rat.owner = None;
             rat.at = Vec3::new(at.x, TUNNEL_Y, at.y);
             scurry.to = at;
@@ -241,8 +264,10 @@ fn move_rats(
     mut acc: Local<f32>,
     still: Query<&super::stillness::Stillness>,
     walkers: Query<(&Player, &Walker)>,
+    tunnels: Option<Res<Tunnels>>,
     mut rats: Query<(&mut Rat, &mut Scurry)>,
 ) {
+    let Some(tunnels) = tunnels else { return };
     *acc += time.delta_secs();
     let dt = 1.0 / TICK_HZ;
     if *acc < dt {
@@ -275,7 +300,7 @@ fn move_rats(
                     if (scurry.seed >> 12).is_multiple_of(3) {
                         continue;
                     }
-                    scurry.to = next_stop(rat.at.xz(), scurry.seed >> 8);
+                    scurry.to = next_stop(&tunnels, rat.at.xz(), scurry.seed >> 8);
                 }
                 (scurry.to, TUNNEL_Y, SCURRY, 0.0)
             }
@@ -493,17 +518,18 @@ mod tests {
 
     #[test]
     fn rats_live_in_the_tunnels() {
-        let l = layout();
+        use crate::features::underground::{SEED_SALT, WorldSeed, layout};
+        let l = layout(WorldSeed(3).for_(SEED_SALT));
         let mut homes = Vec::new();
         for id in 0..RATS as u8 {
-            let h = home(id);
+            let h = home(&l, id);
             assert!(l.open(crate::features::underground::cell_of(h)), "{id}");
             assert!(!homes.contains(&h), "two rats share a home");
             homes.push(h);
             // Their scurrying never leaves the tunnels either.
             let mut at = h;
             for roll in 0..50u32 {
-                at = next_stop(at, roll.wrapping_mul(2_654_435_761));
+                at = next_stop(&l, at, roll.wrapping_mul(2_654_435_761));
                 assert!(l.open(crate::features::underground::cell_of(at)), "{at}");
             }
         }

@@ -22,6 +22,11 @@ use bevy::prelude::*;
 
 pub mod build;
 pub mod furniture;
+pub mod grammar;
+pub mod graph;
+pub mod hall;
+pub mod placer;
+pub mod props;
 
 /// The materials a kit needs to know about. The game's own material enum
 /// implements this, naming which of its materials play each role.

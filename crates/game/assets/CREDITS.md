@@ -72,3 +72,6 @@ textured materials yet, so these models keep their natural colours for now
   for friendSLOP in its Figma UI kit ("E · Indigo journal") and released as **CC0**.
   Rasterised white at 64 px with `resvg` and tinted in game; a missing file draws nothing
   (every glyph has a text label beside it).
+- `ui/logo.png` (the illustrated friendSLOP logo) and `ui/check.png` (the checkbox tick) —
+  exported from the same Figma UI kit, **CC0**. A missing logo just leaves its space empty on
+  the title screen and loading curtain; a missing tick leaves checked boxes plain indigo.

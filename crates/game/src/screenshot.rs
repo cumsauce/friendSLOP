@@ -53,6 +53,12 @@ pub enum Scene {
     Chapter,
     /// The Tab panel held open.
     Tab,
+    /// The title screen (run without `host`).
+    Title,
+    /// The title screen with the settings notebook open (run without `host`).
+    Settings,
+    /// The loading curtain, shot before it lifts.
+    Loading,
 }
 
 impl Scene {
@@ -63,6 +69,9 @@ impl Scene {
             "clickable" => Scene::Clickable,
             "chapter" => Scene::Chapter,
             "tab" => Scene::Tab,
+            "title" => Scene::Title,
+            "settings" => Scene::Settings,
+            "loading" => Scene::Loading,
             _ => return None,
         })
     }
@@ -74,7 +83,21 @@ impl Scene {
             Scene::Play | Scene::Tab | Scene::Busy | Scene::Clickable => DEFAULT_WAIT,
             // Before the chapter intro shrinks away.
             Scene::Chapter => 2.0,
+            // Real seconds after the title screen opens.
+            Scene::Title | Scene::Settings => 4.0,
+            // Real seconds after entering the game, curtain still up.
+            Scene::Loading => 0.6,
         }
+    }
+
+    /// Shot on the title screen instead of in game.
+    pub fn on_title(self) -> bool {
+        matches!(self, Scene::Title | Scene::Settings)
+    }
+
+    /// Doesn't wait for the loading curtain to lift.
+    fn early(self) -> bool {
+        matches!(self, Scene::Title | Scene::Settings | Scene::Loading)
     }
 }
 
@@ -206,7 +229,14 @@ impl Plugin for ScreenshotPlugin {
         app.insert_resource(job)
             .init_resource::<Progress>()
             .add_systems(Startup, size_window)
-            .add_systems(Update, take.run_if(in_state(AppState::InGame)))
+            .add_systems(
+                Update,
+                take.run_if(in_state(if scene.on_title() {
+                    AppState::Menu
+                } else {
+                    AppState::InGame
+                })),
+            )
             .add_systems(
                 PostUpdate,
                 frame_camera
@@ -214,7 +244,10 @@ impl Plugin for ScreenshotPlugin {
                     .before(TransformSystems::Propagate),
             );
         match scene {
-            Scene::Play | Scene::Chapter => {}
+            Scene::Play | Scene::Chapter | Scene::Title | Scene::Loading => {}
+            Scene::Settings => {
+                app.add_systems(Update, open_settings.run_if(in_state(AppState::Menu)));
+            }
             Scene::Busy => {
                 app.add_systems(
                     Update,
@@ -320,6 +353,17 @@ fn aim_at_cat(
     *cam = Transform::from_translation(eye).looking_at(at, Vec3::Y);
 }
 
+/// Settings scene: open the notebook once.
+fn open_settings(
+    mut done: Local<bool>,
+    mut panel: Query<&mut Node, With<crate::ui::settings_panel::SettingsPanel>>,
+) {
+    if !*done && !panel.is_empty() {
+        *done = true;
+        crate::ui::settings_panel::toggle(&mut panel);
+    }
+}
+
 /// Tab scene: hold Tab down.
 fn hold_tab(mut keys: ResMut<ButtonInput<KeyCode>>) {
     keys.press(KeyCode::Tab);
@@ -361,7 +405,7 @@ fn take(
         }
         return;
     }
-    if !ready.ready || progress.requested {
+    if !(ready.ready || job.scene.early()) || progress.requested {
         return;
     }
     let now = time.elapsed_secs();
@@ -431,7 +475,16 @@ mod tests {
             panic!("job")
         };
         assert_eq!((job.scene, job.wait, job.size), (Scene::Play, 3.0, None));
-        for s in ["play", "busy", "clickable", "chapter", "tab"] {
+        for s in [
+            "play",
+            "busy",
+            "clickable",
+            "chapter",
+            "tab",
+            "title",
+            "settings",
+            "loading",
+        ] {
             assert!(Scene::parse(s).is_some(), "{s}");
         }
     }

@@ -281,7 +281,7 @@ impl GraphicsQuality {
     }
 
     /// Browser builds (and `FRIENDSLOP_LOW=1`) start on Low, others on High.
-    fn platform_default() -> Self {
+    pub fn platform_default() -> Self {
         let windowed = Self {
             shadows: false,
             ssao: false,

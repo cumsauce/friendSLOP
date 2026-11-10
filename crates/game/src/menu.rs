@@ -16,9 +16,7 @@ use crate::hud::Toast;
 use crate::net::{Clipboard, NetCommand, NetStatus};
 use crate::player::LocalPlayer;
 use crate::scenery;
-use crate::settings::Settings;
 use crate::theme::{self, Pop, Squishy};
-use crate::voice::VoiceMuted;
 
 pub struct MenuPlugin;
 
@@ -39,7 +37,6 @@ impl Plugin for MenuPlugin {
                     backdrop_fallbacks,
                     menu_font,
                     menu_shortcuts,
-                    close_video_with_settings,
                     style_status,
                 )
                     .run_if(in_state(AppState::Menu)),
@@ -116,35 +113,22 @@ pub fn code_in(text: &str) -> &str {
 }
 
 pub(crate) const CARD: Color = theme::CARD;
-const FIELD: Color = theme::FIELD;
 pub(crate) const PINK: Color = theme::PINK;
 pub(crate) const LILAC: Color = theme::LILAC;
 pub(crate) const MINT: Color = theme::MINT;
-pub(crate) const GREY: Color = theme::GREY;
 pub(crate) const INK: Color = theme::INK;
 pub(crate) const SOFT_INK: Color = theme::SOFT_INK;
-const OK: Color = Color::srgb(0.3, 0.62, 0.45);
-const ERR: Color = Color::srgb(0.85, 0.3, 0.38);
 
 #[derive(Component, Clone, Copy)]
 enum Label {
     Status,
     Code,
-    Master,
-    Voice,
-    Mic,
-    HaltName,
-    Video(crate::graphics::VideoOption),
     JoinButton,
 }
 
 /// A button's resting color, brightened while hovered.
 #[derive(Component, Clone, Copy)]
 pub(crate) struct BaseColor(pub(crate) Color);
-
-/// The settings card, toggled by the Settings button (or Tab).
-#[derive(Component)]
-pub(crate) struct SettingsPanel;
 
 /// The pill behind the status line (tinted by what the message says).
 #[derive(Component)]
@@ -154,57 +138,86 @@ struct StatusPill;
 #[derive(Component)]
 struct MenuCamera;
 
-fn spawn_menu(mut commands: Commands) {
+/// The title screen's "Indigo journal cover" (Figma 3:1836): an ink card on
+/// the left over the meadow diorama, with the logo, Host / Join / Character
+/// creator buttons, the join-code field and quiet text links.
+fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+    use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK as I_INK, PERIWINKLE, RAISED};
+    use crate::ui::{at, body, head};
+    let logo: Handle<Image> = assets.map(|a| a.load("ui/logo.png")).unwrap_or_default();
+    let b = 2.0;
+    let cover_button = |label: &str, fill: Color, ink: Color, h: f32, y: f32| {
+        (
+            Node {
+                width: px(362),
+                height: px(h),
+                border: UiRect::all(px(b)),
+                border_radius: BorderRadius::all(px(18)),
+                ..at(26.0, y, b)
+            },
+            BackgroundColor(fill),
+            BorderColor::all(BORDER),
+            // A hard ink shadow 5 px down, like the design's lip.
+            BoxShadow::new(I_INK, px(0), px(5), px(0), px(0)),
+            BaseColor(fill),
+            Hovered::default(),
+            Squishy::default(),
+            UiTransform::default(),
+            children![(
+                Text::new(label.to_string()),
+                head(23.0, ink),
+                at(16.0, 9.0, b)
+            )],
+        )
+    };
+    let link = |label: &str, color: Color, x: f32, y: f32| {
+        (
+            Text::new(label.to_string()),
+            body(18.0, color),
+            at(x, y, b),
+            Hovered::default(),
+        )
+    };
     commands
         .spawn((
             Node {
-                width: percent(100),
-                height: percent(100),
-                padding: UiRect::axes(px(56), px(40)),
-                column_gap: px(24),
-                align_items: AlignItems::Center,
+                position_type: PositionType::Absolute,
+                left: px(44),
+                top: px(40),
+                width: px(418),
+                height: px(640),
+                border: UiRect::all(px(b)),
+                border_radius: BorderRadius::all(px(18)),
                 ..default()
             },
+            BackgroundColor(I_INK),
+            BorderColor::all(BORDER),
+            Pop::now(0.85),
+            UiTransform::default(),
             DespawnOnExit(AppState::Menu),
         ))
-        .with_children(|root| {
-            root.spawn((
+        .with_children(|ui| {
+            ui.spawn((
+                Text::new("a commune of terrible ideas"),
+                body(17.0, PERIWINKLE),
+                at(26.0, 20.0, b),
+            ));
+            // The illustrated logo; the wordmark stands in if the file is missing.
+            ui.spawn((
                 Node {
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::axes(px(36), px(28)),
-                    row_gap: px(12),
-                    border_radius: BorderRadius::all(px(32)),
-                    border: UiRect::all(px(2)),
-                    width: px(440),
-                    ..default()
+                    width: px(362),
+                    height: px(104.4),
+                    ..at(26.0, 44.0, b)
                 },
-                BackgroundColor(CARD),
-                BorderColor::all(theme::LINE),
-                theme::shadow(10.0, 32.0),
-                Pop::now(0.85),
-                UiTransform::default(),
-            ))
-            .with_children(|ui| {
-                ui.spawn((
-                    Text::new("friendSLOP"),
-                    TextFont::from_font_size(62.0),
-                    TextColor(PINK),
-                    crate::assets::DisplayText,
-                    TextShadow {
-                        offset: Vec2::new(3.0, 4.0),
-                        color: Color::srgba(0.45, 0.25, 0.5, 0.35),
-                    },
-                ));
-                text(
-                    ui,
-                    "a game made by friends, built by robots",
-                    16.0,
-                    SOFT_INK,
-                );
-                spacer(ui, 6.0);
-
-                button(ui, "Host a game", PINK, 320.0).observe(
+                ImageNode::new(logo),
+            ));
+            ui.spawn((
+                Text::new("1–6 friends. One very bad landlord."),
+                body(17.0, CREAM),
+                at(26.0, 151.0, b),
+            ));
+            ui.spawn(cover_button("Host a commune", BUTTER, I_INK, 54.0, 179.0))
+                .observe(
                     |_: On<PointerClick>,
                      mut net: MessageWriter<NetCommand>,
                      mut connecting: ResMut<Connecting>| {
@@ -212,258 +225,102 @@ fn spawn_menu(mut commands: Commands) {
                         net.write(NetCommand::Host);
                     },
                 );
-                text(
-                    ui,
-                    "works solo too; the join code gets copied for friends",
-                    13.0,
-                    SOFT_INK,
-                );
-                spacer(ui, 6.0);
-
-                ui.spawn((
-                    Text::new("Join a friend"),
-                    TextFont::from_font_size(22.0),
-                    TextColor(INK),
-                    crate::assets::DisplayText,
-                ));
-                ui.spawn((
-                    Node {
-                        width: px(360),
-                        min_height: px(44),
-                        padding: UiRect::axes(px(14), px(8)),
-                        border_radius: BorderRadius::all(px(14)),
-                        border: UiRect::all(px(2)),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    BackgroundColor(FIELD),
-                    BorderColor::all(LILAC),
-                ))
-                .with_children(|b| {
-                    b.spawn((
-                        Text::new(""),
-                        TextFont::from_font_size(13.0),
-                        TextColor(INK),
-                        TextLayout::linebreak(LineBreak::AnyCharacter),
-                        Label::Code,
-                    ));
-                });
-                row(ui, |r| {
-                    button(r, "Paste", LILAC, 100.0).observe(
-                        |_: On<PointerClick>, clip: Res<Clipboard>, mut code: ResMut<JoinCode>| {
-                            if let Some(text) = clip.get() {
-                                code.paste(&text);
-                            }
-                        },
-                    );
-                    button(r, "Clear", LILAC, 100.0)
-                        .observe(|_: On<PointerClick>, mut code: ResMut<JoinCode>| code.0.clear());
-                    button(r, "Join!", PINK, 140.0)
-                        .insert(Label::JoinButton)
-                        .observe(
-                            |_: On<PointerClick>,
-                             code: Res<JoinCode>,
-                             mut connecting: ResMut<Connecting>,
-                             mut status: ResMut<NetStatus>,
-                             client: Option<Res<IrohClient>>| {
-                                join(&code, &mut connecting, &mut status, client.is_some())
-                            },
-                        );
-                });
-                text(
-                    ui,
-                    "type the code, Ctrl/Cmd+V pastes, Enter joins",
-                    13.0,
-                    SOFT_INK,
-                );
-
-                ui.spawn((
-                    Node {
-                        padding: UiRect::axes(px(14), px(6)),
-                        border_radius: BorderRadius::all(px(999)),
-                        max_width: px(380),
-                        display: Display::None,
-                        ..default()
-                    },
-                    BackgroundColor(FIELD),
-                    StatusPill,
-                ))
-                .with_children(|p| {
-                    p.spawn((
-                        Text::new(""),
-                        TextFont::from_font_size(15.0),
-                        TextColor(INK),
-                        Label::Status,
-                    ));
-                });
-                spacer(ui, 4.0);
-
-                row(ui, |r| {
-                    button(r, "Character", LILAC, 120.0).observe(
-                        |_: On<PointerClick>, mut open: ResMut<crate::creator::CreatorOpen>| {
-                            open.0 = !open.0;
-                        },
-                    );
-                    button(r, "Settings", MINT, 120.0).observe(
-                        |_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>| {
-                            toggle_settings(&mut panel);
-                        },
-                    );
-                    button(r, "Whose fault", LILAC, 150.0).observe(
-                        |_: On<PointerClick>,
-                         mut panel: Query<&mut Node, With<crate::fault::FaultPanel>>| {
-                            crate::fault::toggle(&mut panel);
-                        },
-                    );
-                    button(r, "Quit", GREY, 100.0).observe(
-                        |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
-                            exit.write(AppExit::Success);
-                        },
-                    );
-                });
-            });
-
-            root.spawn((
-                Node {
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::FlexStart,
-                    padding: UiRect::axes(px(28), px(22)),
-                    row_gap: px(10),
-                    border_radius: BorderRadius::all(px(28)),
-                    border: UiRect::all(px(2)),
-                    display: Display::None,
-                    ..default()
-                },
-                BackgroundColor(CARD),
-                BorderColor::all(theme::LINE),
-                theme::shadow(10.0, 32.0),
-                Pop::default(),
-                theme::PopOnShow::default(),
-                UiTransform::default(),
-                SettingsPanel,
+            ui.spawn((
+                cover_button("Join with a code", RAISED, CREAM, 52.0, 252.0),
+                Label::JoinButton,
             ))
-            .with_children(|ui| {
-                ui.spawn((
-                    Text::new("Settings"),
-                    TextFont::from_font_size(28.0),
-                    TextColor(INK),
-                    crate::assets::DisplayText,
-                ));
-                volume_row(ui, "Master volume", Label::Master, |s| &mut s.master_volume);
-                volume_row(ui, "Voice volume", Label::Voice, |s| &mut s.voice_volume);
-                row(ui, |r| {
-                    text(r, "Microphone (or press M)", 17.0, INK);
-                    button(r, "", MINT, 110.0).insert(Label::Mic).observe(
-                        |_: On<PointerClick>, mut muted: ResMut<VoiceMuted>| {
-                            muted.0 = !muted.0;
-                        },
-                    );
-                });
-                row(ui, |r| {
-                    text(r, "Let HALT use my username", 17.0, INK);
-                    button(r, "", MINT, 110.0).insert(Label::HaltName).observe(
-                        |_: On<PointerClick>, mut s: ResMut<Settings>| {
-                            s.halt_real_name = !s.halt_real_name;
-                        },
-                    );
-                });
-                row(ui, |r| {
-                    text(r, "Video (presets, shadows...)", 17.0, INK);
-                    button(r, "Video", MINT, 110.0).observe(
-                        |_: On<PointerClick>, mut panel: Query<&mut Node, With<VideoPanel>>| {
-                            for mut node in &mut panel {
-                                node.display = if node.display == Display::None {
-                                    Display::Flex
-                                } else {
-                                    Display::None
-                                };
-                            }
-                        },
-                    );
-                });
-            });
-
-            // Video settings (#132): a preset on top, then every option.
-            root.spawn((
-                Node {
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::FlexStart,
-                    padding: UiRect::axes(px(24), px(18)),
-                    row_gap: px(6),
-                    border_radius: BorderRadius::all(px(28)),
-                    border: UiRect::all(px(2)),
-                    display: Display::None,
-                    ..default()
+            .observe(
+                |_: On<PointerClick>,
+                 code: Res<JoinCode>,
+                 mut connecting: ResMut<Connecting>,
+                 mut status: ResMut<NetStatus>,
+                 client: Option<Res<IrohClient>>| {
+                    join(&code, &mut connecting, &mut status, client.is_some())
                 },
-                BackgroundColor(CARD),
-                BorderColor::all(theme::LINE),
-                theme::shadow(10.0, 32.0),
-                VideoPanel,
+            );
+            // The code field: type, Ctrl/Cmd+V, or click it to paste.
+            ui.spawn((
+                Node {
+                    width: px(362),
+                    height: px(44),
+                    border: UiRect::all(px(b)),
+                    border_radius: BorderRadius::all(px(12)),
+                    overflow: Overflow::clip(),
+                    ..at(26.0, 317.0, b)
+                },
+                BackgroundColor(RAISED),
+                BorderColor::all(BORDER),
+                children![(
+                    Text::new(""),
+                    body(17.0, PERIWINKLE),
+                    TextLayout::no_wrap(),
+                    Label::Code,
+                    at(12.0, 9.0, b),
+                )],
             ))
-            .with_children(|ui| {
-                ui.spawn((
-                    Text::new("Video"),
-                    TextFont::from_font_size(24.0),
-                    TextColor(INK),
-                    crate::assets::DisplayText,
-                ));
-                for option in crate::graphics::VideoOption::ALL {
-                    row(ui, |r| {
-                        r.spawn((
-                            Text::new(option.name()),
-                            TextFont::from_font_size(15.0),
-                            TextColor(INK),
-                            Node {
-                                width: px(150),
-                                ..default()
-                            },
-                        ));
-                        let color = if option == crate::graphics::VideoOption::Preset {
-                            LILAC
-                        } else {
-                            MINT
-                        };
-                        button(r, "", color, 110.0)
-                            .insert(Label::Video(option))
-                            .observe(
-                                move |_: On<PointerClick>,
-                                      mut q: ResMut<crate::graphics::GraphicsQuality>| {
-                                    q.cycle(option);
-                                },
-                            );
-                    });
-                }
-            });
+            .observe(
+                |_: On<PointerClick>, clip: Res<Clipboard>, mut code: ResMut<JoinCode>| {
+                    if let Some(text) = clip.get() {
+                        code.paste(&text);
+                    }
+                },
+            );
+            ui.spawn(cover_button(
+                "Character creator",
+                RAISED,
+                CREAM,
+                52.0,
+                381.0,
+            ))
+            .observe(
+                |_: On<PointerClick>, mut open: ResMut<crate::creator::CreatorOpen>| {
+                    open.0 = !open.0;
+                },
+            );
+            ui.spawn(link("Settings", PERIWINKLE, 26.0, 461.0)).observe(
+                |_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>| {
+                    crate::ui::settings_panel::toggle(&mut panel);
+                },
+            );
+            ui.spawn(link("·", PERIWINKLE, 120.0, 461.0));
+            ui.spawn(link("Whose fault is it", PERIWINKLE, 151.0, 461.0))
+                .observe(
+                    |_: On<PointerClick>,
+                     mut panel: Query<&mut Node, With<crate::fault::FaultPanel>>| {
+                        crate::fault::toggle(&mut panel);
+                    },
+                );
+            ui.spawn(link("Quit", CREAM, 26.0, 502.0)).observe(
+                |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
+                    exit.write(AppExit::Success);
+                },
+            );
+            // Connection news ("Connecting...", errors) above the footer.
+            ui.spawn((
+                Node {
+                    padding: UiRect::axes(px(12), px(5)),
+                    border_radius: BorderRadius::all(px(999)),
+                    max_width: px(362),
+                    display: Display::None,
+                    ..at(26.0, 540.0, b)
+                },
+                BackgroundColor(RAISED),
+                StatusPill,
+                children![(Text::new(""), body(14.0, CREAM), Label::Status)],
+            ));
+            ui.spawn((
+                Text::new("Made by your Discord. Blame accordingly."),
+                body(14.0, PERIWINKLE),
+                at(26.0, 580.0, b),
+            ));
         });
 }
 
-/// The video settings card, opened from Settings.
-#[derive(Component)]
-pub(crate) struct VideoPanel;
-
-/// Closing Settings closes Video too.
-fn close_video_with_settings(
-    settings: Query<&Node, (With<SettingsPanel>, Without<VideoPanel>)>,
-    mut video: Query<&mut Node, With<VideoPanel>>,
-) {
-    if settings.iter().all(|n| n.display == Display::None) {
-        for mut node in &mut video {
-            if node.display != Display::None {
-                node.display = Display::None;
-            }
-        }
-    }
-}
+/// The settings notebook (`ui::settings_panel`).
+pub(crate) use crate::ui::settings_panel::SettingsPanel;
 
 fn toggle_settings(panel: &mut Query<&mut Node, With<SettingsPanel>>) {
-    for mut node in panel.iter_mut() {
-        node.display = if node.display == Display::None {
-            Display::Flex
-        } else {
-            Display::None
-        };
-    }
+    crate::ui::settings_panel::toggle(panel);
 }
 
 /// A tiny diorama of the meadow behind the menu: the real ground and grass
@@ -858,12 +715,13 @@ fn style_status(
     let m = status.message.to_lowercase();
     let bad = m.contains("could not") || m.contains("doesn't") || m.contains("first");
     let good = m.contains("hosting") || m.contains("connected!");
+    // Never red vs green (UI direction E): butter for trouble.
     let tint = if bad {
-        ERR
+        crate::theme::indigo::BUTTER
     } else if good {
-        OK
+        crate::theme::indigo::PERIWINKLE
     } else {
-        LILAC
+        crate::theme::indigo::CREAM
     };
     for (mut node, mut bg) in &mut pill {
         node.display = if m.is_empty() {
@@ -871,11 +729,11 @@ fn style_status(
         } else {
             Display::Flex
         };
-        bg.0 = tint.with_alpha(0.18);
+        bg.0 = crate::theme::indigo::RAISED;
     }
     for (l, mut c) in &mut label {
         if matches!(l, Label::Status) {
-            c.0 = if bad || good { tint } else { INK };
+            c.0 = tint;
         }
     }
 }
@@ -1009,13 +867,6 @@ pub(crate) fn text(ui: &mut ChildSpawnerCommands, s: &str, size: f32, color: Col
     ));
 }
 
-fn spacer(ui: &mut ChildSpawnerCommands, h: f32) {
-    ui.spawn(Node {
-        height: px(h),
-        ..default()
-    });
-}
-
 pub(crate) fn row(ui: &mut ChildSpawnerCommands, f: impl FnOnce(&mut ChildSpawnerCommands)) {
     ui.spawn(Node {
         column_gap: px(12),
@@ -1023,74 +874,6 @@ pub(crate) fn row(ui: &mut ChildSpawnerCommands, f: impl FnOnce(&mut ChildSpawne
         ..default()
     })
     .with_children(f);
-}
-
-/// A rounded button with a text child (the mic button's text is filled live).
-fn button<'a>(
-    ui: &'a mut ChildSpawnerCommands,
-    label: &str,
-    color: Color,
-    width: f32,
-) -> EntityCommands<'a> {
-    let mut e = ui.spawn((
-        Node {
-            width: px(width),
-            padding: UiRect::new(px(16), px(16), px(10), px(9)),
-            justify_content: JustifyContent::Center,
-            border_radius: BorderRadius::all(px(999)),
-            // A chunkier darker lip along the bottom makes buttons look squishy.
-            border: UiRect::new(px(1.5), px(1.5), px(1.5), px(4.0)),
-            ..default()
-        },
-        BackgroundColor(color),
-        BorderColor::all(theme::shade(color, 0.28)),
-        theme::shadow(3.0, 8.0),
-        BaseColor(color),
-        Hovered::default(),
-        Squishy::default(),
-        UiTransform::default(),
-    ));
-    e.with_children(|b| {
-        b.spawn((
-            Text::new(label),
-            TextFont::from_font_size(20.0),
-            TextColor(Color::WHITE),
-            TextShadow {
-                offset: Vec2::new(0.0, 1.5),
-                color: theme::shade(color, 0.45).with_alpha(0.6),
-            },
-        ));
-    });
-    e
-}
-
-fn volume_row(
-    ui: &mut ChildSpawnerCommands,
-    name: &str,
-    label: Label,
-    field: fn(&mut Settings) -> &mut f32,
-) {
-    row(ui, |r| {
-        text(r, name, 17.0, INK);
-        button(r, "-", LILAC, 50.0).observe(move |_: On<PointerClick>, mut s: ResMut<Settings>| {
-            let v = field(&mut s);
-            *v = Settings::nudge(*v, -1);
-        });
-        r.spawn((
-            Text::new(""),
-            TextFont::from_font_size(18.0),
-            TextColor(INK),
-            Node {
-                width: px(60),
-                ..default()
-            },
-            label,
-        ));
-        button(r, "+", LILAC, 50.0).observe(move |_: On<PointerClick>, mut s: ResMut<Settings>| {
-            let v = field(&mut s);
-            *v = Settings::nudge(*v, 1);
-        });
-    });
 }
 
 fn type_join_code(
@@ -1114,12 +897,9 @@ fn type_join_code(
 fn refresh_labels(
     status: Res<NetStatus>,
     code: Res<JoinCode>,
-    settings: Res<Settings>,
-    muted: Res<VoiceMuted>,
     connecting: Res<Connecting>,
     client: Option<Res<IrohClient>>,
     time: Res<Time>,
-    quality: Res<crate::graphics::GraphicsQuality>,
     mut texts: Query<(&mut Text, &Label)>,
     buttons: Query<(&Label, &Children), Without<Text>>,
     mut child_texts: Query<&mut Text, Without<Label>>,
@@ -1127,44 +907,32 @@ fn refresh_labels(
     for (mut t, label) in &mut texts {
         let new = match label {
             Label::Status => status.message.clone(),
-            Label::Code if code.0.is_empty() => "(no code yet)".into(),
+            Label::Code if code.0.is_empty() => "Paste code or share link…".into(),
             Label::Code => code.0.clone(),
-            Label::Master => pct(settings.master_volume),
-            Label::Voice => pct(settings.voice_volume),
-            Label::Mic | Label::HaltName | Label::Video(_) | Label::JoinButton => continue,
+            Label::JoinButton => continue,
         };
         if t.0 != new {
             t.0 = new;
         }
     }
-    let mic = if muted.0 { "Muted" } else { "On" };
-    let halt = if settings.halt_real_name { "Yes" } else { "No" };
     let dots = &"..."[..(time.elapsed_secs() * 3.0) as usize % 4];
     let join = if connecting.pending.is_some() || client.is_some() {
-        format!("Wait{dots}")
+        format!("Joining{dots}")
     } else {
-        "Join!".to_string()
+        "Join with a code".to_string()
     };
     for (label, children) in &buttons {
-        let mic = match label {
-            Label::Mic => mic,
-            Label::HaltName => halt,
-            Label::Video(o) => quality.value(*o),
-            Label::JoinButton => join.as_str(),
-            _ => continue,
-        };
+        if !matches!(label, Label::JoinButton) {
+            continue;
+        }
         for child in children.iter() {
             if let Ok(mut t) = child_texts.get_mut(child)
-                && t.0 != mic
+                && t.0 != join
             {
-                t.0 = mic.into();
+                t.0.clone_from(&join);
             }
         }
     }
-}
-
-fn pct(v: f32) -> String {
-    format!("{}%", (v * 100.0).round() as i32)
 }
 
 #[cfg(test)]

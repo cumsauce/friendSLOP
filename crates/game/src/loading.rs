@@ -13,8 +13,6 @@ use bevy::asset::RecursiveDependencyLoadState;
 use bevy::prelude::*;
 
 use crate::AppState;
-use crate::assets::DisplayText;
-use crate::theme::{self, Bob};
 
 /// Frames this long or shorter count as "smooth".
 const SMOOTH_MS: f32 = 50.0;
@@ -46,7 +44,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), spawn_curtain)
         .add_systems(
             Update,
-            (lift_curtain, walk_critter)
+            lift_curtain
                 .run_if(in_state(AppState::InGame))
                 .run_if(resource_exists::<WorldReadyPending>),
         );
@@ -56,214 +54,137 @@ pub fn plugin(app: &mut App) {
 #[derive(Resource)]
 struct WorldReadyPending;
 
+/// Tips under the progress bar, one per load (by the clock).
+pub const TIPS: [&str; 4] = [
+    "Pet your cat before it becomes everyone’s problem.",
+    "Hold Tab (or press J) for the commune journal.",
+    "F farts once the gas meter says READY.",
+    "M mutes your mic. Your friends can still hear the cat.",
+];
+
+/// How far along loading is, `0..=1`: models loaded, then frames settling.
+pub fn fraction(loaded: usize, total: usize, smooth: u32) -> f32 {
+    let models = if total == 0 {
+        1.0
+    } else {
+        loaded as f32 / total as f32
+    };
+    (0.85 * models + 0.15 * (smooth as f32 / SMOOTH_FRAMES as f32).min(1.0)).clamp(0.0, 1.0)
+}
+
+#[derive(Component, Clone, Copy, PartialEq, Eq)]
+enum Part {
+    Detail,
+    Percent,
+    Bar,
+}
+
+const BAR_W: f32 = 1104.0;
+
+/// The curtain (Figma 3:2198): ink, the illustrated logo, a progress bar
+/// with how many models have loaded, and a tip.
 fn spawn_curtain(
     mut commands: Commands,
     time: Res<Time<Real>>,
+    assets: Option<Res<AssetServer>>,
     mut ready: ResMut<WorldReady>,
     mut progress: ResMut<Progress>,
 ) {
+    use crate::theme::indigo::{CREAM, INK, PERIWINKLE};
+    use crate::ui::{at, body, head};
     *ready = WorldReady::default();
     *progress = Progress {
         started: time.elapsed_secs(),
         smooth: 0,
     };
     commands.insert_resource(WorldReadyPending);
-    commands
-        .spawn((
-            Curtain,
-            Node {
-                position_type: PositionType::Absolute,
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..default()
-            },
-            BackgroundColor(Color::srgb(0.99, 0.9, 0.93)),
-            GlobalZIndex(1000),
-            DespawnOnExit(AppState::InGame),
-        ))
-        .with_children(|bg| {
-            // Soft pastel blobs drifting in the background.
-            for (i, (x, y, size, col)) in [
-                (8.0, 12.0, 260.0, theme::LILAC),
-                (70.0, 58.0, 340.0, theme::MINT),
-                (40.0, -10.0, 200.0, theme::BUTTER),
-                (-6.0, 64.0, 220.0, theme::PEACH),
-                (82.0, 6.0, 160.0, theme::PINK),
-            ]
-            .into_iter()
-            .enumerate()
-            {
-                bg.spawn((
-                    Node {
-                        position_type: PositionType::Absolute,
-                        left: percent(x),
-                        top: percent(y),
-                        width: px(size),
-                        height: px(size),
-                        border_radius: BorderRadius::all(px(size)),
-                        ..default()
-                    },
-                    BackgroundColor(col.with_alpha(0.35)),
-                    UiTransform::default(),
-                    Bob {
-                        phase: i as f32 * 1.3,
-                        height: 18.0,
-                        speed: 0.6,
-                    },
-                ));
-            }
-            bg.spawn((
-                Node {
-                    flex_direction: FlexDirection::Column,
-                    align_items: AlignItems::Center,
-                    padding: UiRect::axes(px(48), px(30)),
-                    row_gap: px(theme::S3),
-                    border: UiRect::all(px(2)),
-                    border_radius: BorderRadius::all(px(32)),
-                    ..default()
-                },
-                BackgroundColor(theme::CARD),
-                BorderColor::all(theme::LINE),
-                theme::shadow(10.0, 36.0),
-            ))
-            .with_children(|card| {
-                critter(card);
-                card.spawn(Node {
-                    align_items: AlignItems::FlexEnd,
-                    column_gap: px(3),
-                    ..default()
-                })
-                .with_children(|row| {
-                    row.spawn((
-                        Text::new("Loading the commune"),
-                        TextFont::from_font_size(30.0),
-                        TextColor(theme::PINK.mix(&theme::INK, 0.15)),
-                        TextShadow {
-                            offset: Vec2::new(2.0, 3.0),
-                            color: theme::SHADOW,
-                        },
-                        DisplayText,
-                    ));
-                    for (i, col) in [theme::PINK, theme::LILAC, theme::MINT]
-                        .into_iter()
-                        .enumerate()
-                    {
-                        row.spawn((
-                            Node {
-                                width: px(8),
-                                height: px(8),
-                                margin: UiRect::bottom(px(8)),
-                                border_radius: BorderRadius::all(px(4)),
-                                ..default()
-                            },
-                            BackgroundColor(col),
-                            UiTransform::default(),
-                            Bob {
-                                phase: -(i as f32) * 0.9,
-                                height: 9.0,
-                                speed: 6.0,
-                            },
-                        ));
-                    }
-                });
-                card.spawn((
-                    Text::new("warming up the campfire, fluffing the grass"),
-                    TextFont::from_font_size(15.0),
-                    TextColor(theme::SOFT_INK),
-                    DisplayText,
-                ));
-            });
-        });
-}
-
-/// The little walking critter on the loading card.
-#[derive(Component)]
-struct Critter;
-
-/// A round pink blob with eyes, blush and feet, built from UI nodes.
-fn critter(card: &mut ChildSpawnerCommands) {
-    let dot = |size: f32, col: Color| {
-        (
-            Node {
-                width: px(size),
-                height: px(size),
-                border_radius: BorderRadius::all(px(size)),
-                ..default()
-            },
-            BackgroundColor(col),
-        )
-    };
-    card.spawn((
-        Critter,
+    let logo: Handle<Image> = assets.map(|a| a.load("ui/logo.png")).unwrap_or_default();
+    let tip = TIPS[(crate::settings::since_epoch().as_secs() as usize) % TIPS.len()];
+    commands.spawn((
+        Curtain,
         Node {
-            width: px(240),
-            height: px(64),
+            position_type: PositionType::Absolute,
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
             justify_content: JustifyContent::Center,
-            align_items: AlignItems::FlexEnd,
+            align_items: AlignItems::Center,
             ..default()
         },
-    ))
-    .with_children(|lane| {
-        lane.spawn((
+        BackgroundColor(INK),
+        GlobalZIndex(1000),
+        DespawnOnExit(AppState::InGame),
+        children![(
+            // The 1280x720 artboard, centred.
             Node {
-                flex_direction: FlexDirection::Column,
-                align_items: AlignItems::Center,
+                width: px(1280),
+                height: px(720),
+                flex_shrink: 0.0,
                 ..default()
             },
-            UiTransform::default(),
-            CritterWalk,
-        ))
-        .with_children(|c| {
-            c.spawn((
-                Node {
-                    width: px(50),
-                    height: px(42),
-                    border: UiRect::all(px(2)),
-                    border_radius: BorderRadius::new(px(26), px(26), px(16), px(16)),
-                    padding: UiRect::top(px(13)),
-                    column_gap: px(12),
-                    justify_content: JustifyContent::Center,
-                    ..default()
-                },
-                BackgroundColor(theme::PINK),
-                BorderColor::all(theme::shade(theme::PINK, 0.35)),
-                UiTransform::default(),
-                Bob {
-                    phase: 0.0,
-                    height: 7.0,
-                    speed: 9.0,
-                },
-            ))
-            .with_children(|face| {
-                face.spawn(dot(7.0, theme::INK));
-                face.spawn(dot(7.0, theme::INK));
-            });
-            c.spawn(Node {
-                column_gap: px(14),
-                ..default()
-            })
-            .with_children(|feet| {
-                feet.spawn(dot(10.0, theme::shade(theme::PINK, 0.35)));
-                feet.spawn(dot(10.0, theme::shade(theme::PINK, 0.35)));
-            });
-        });
-    });
-}
-
-#[derive(Component)]
-struct CritterWalk;
-
-/// Pace the critter back and forth along its lane, facing where it walks.
-fn walk_critter(time: Res<Time<Real>>, mut q: Query<&mut UiTransform, With<CritterWalk>>) {
-    let t = time.elapsed_secs() * 0.9;
-    let x = t.sin() * 80.0;
-    let facing = if t.cos() >= 0.0 { 1.0 } else { -1.0 };
-    for mut tf in &mut q {
-        tf.translation = Val2::px(x, 0.0);
-        tf.scale = Vec2::new(facing, 1.0);
-    }
+            children![
+                (
+                    Text::new("Putting the kettle on…"),
+                    head(24.0, PERIWINKLE),
+                    at(88.0, 72.0, 0.0)
+                ),
+                (
+                    Node {
+                        width: px(600),
+                        height: px(173),
+                        ..at(88.0, 144.0, 0.0)
+                    },
+                    ImageNode::new(logo),
+                ),
+                (
+                    Text::new("Negotiating with the landlord…"),
+                    head(34.0, CREAM),
+                    at(88.0, 386.0, 0.0)
+                ),
+                (
+                    Part::Detail,
+                    Text::new(""),
+                    body(20.0, CREAM),
+                    at(88.0, 446.0, 0.0)
+                ),
+                (
+                    Part::Percent,
+                    Text::new(""),
+                    head(36.0, CREAM),
+                    at(1100.0, 440.0, 0.0)
+                ),
+                (
+                    Node {
+                        width: px(BAR_W),
+                        height: px(28),
+                        border_radius: BorderRadius::all(px(14)),
+                        overflow: Overflow::clip(),
+                        ..at(88.0, 494.0, 0.0)
+                    },
+                    BackgroundColor(Color::srgb_u8(0xE5, 0xD7, 0xE8)),
+                    children![(
+                        Part::Bar,
+                        Node {
+                            width: px(0),
+                            height: percent(100),
+                            border_radius: BorderRadius::all(px(14)),
+                            ..default()
+                        },
+                        BackgroundColor(PERIWINKLE),
+                    )],
+                ),
+                (
+                    Text::new(format!("TIP / {tip}")),
+                    body(22.0, CREAM),
+                    at(88.0, 566.0, 0.0)
+                ),
+                (
+                    Text::new("Your friends are worth the wait."),
+                    body(17.0, PERIWINKLE),
+                    at(88.0, 636.0, 0.0)
+                ),
+            ],
+        )],
+    ));
 }
 
 fn lift_curtain(
@@ -272,22 +193,50 @@ fn lift_curtain(
     assets: Option<Res<AssetServer>>,
     roots: Query<&WorldAssetRoot>,
     curtains: Query<Entity, With<Curtain>>,
+    mut parts: Query<(&Part, Option<&mut Text>, &mut Node)>,
     mut ready: ResMut<WorldReady>,
     mut progress: ResMut<Progress>,
 ) {
     let elapsed = time.elapsed_secs() - progress.started;
-    let loading = assets.is_some_and(|assets| {
-        roots.iter().any(|root| {
-            matches!(
-                assets.get_recursive_dependency_load_state(root.0.id()),
-                Some(RecursiveDependencyLoadState::Loading)
-            )
-        })
+    let total = roots.iter().count();
+    let still = assets.map_or(0, |assets| {
+        roots
+            .iter()
+            .filter(|root| {
+                matches!(
+                    assets.get_recursive_dependency_load_state(root.0.id()),
+                    Some(RecursiveDependencyLoadState::Loading)
+                )
+            })
+            .count()
     });
+    let loading = still > 0;
     if loading || time.delta_secs() * 1000.0 > SMOOTH_MS {
         progress.smooth = 0;
     } else {
         progress.smooth += 1;
+    }
+    let frac = fraction(total - still, total, progress.smooth);
+    for (part, text, mut node) in &mut parts {
+        let want = match part {
+            Part::Bar => {
+                let w = px(BAR_W * frac);
+                if node.width != w {
+                    node.width = w;
+                }
+                continue;
+            }
+            Part::Percent => format!("{}%", (frac * 100.0).round() as u32),
+            Part::Detail if loading => {
+                format!("Unpacking the commune · {} / {total} models", total - still)
+            }
+            Part::Detail => "Warming up the campfire".to_string(),
+        };
+        if let Some(mut t) = text
+            && t.0 != want
+        {
+            t.0 = want;
+        }
     }
     if progress.smooth < SMOOTH_FRAMES && elapsed < MAX_SECS {
         return;
@@ -300,4 +249,17 @@ fn lift_curtain(
         ready: true,
         took_secs: elapsed,
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn progress_counts_models_then_settling() {
+        assert_eq!(fraction(0, 10, 0), 0.0);
+        assert!((fraction(5, 10, 0) - 0.425).abs() < 1e-6);
+        assert_eq!(fraction(10, 10, SMOOTH_FRAMES * 3), 1.0);
+        assert_eq!(fraction(0, 0, SMOOTH_FRAMES), 1.0);
+    }
 }

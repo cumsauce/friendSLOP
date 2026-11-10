@@ -77,7 +77,7 @@ crates/game/src/
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
-                FRIENDSLOP_SCREENSHOT_SCENE forces a HUD state (play/busy/clickable/chapter/tab)
+                FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading)
   features/     one module per idea, see features/README.md
 crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
 crates/art/          friendslop-art: procedural materials/meshes/textures (`art`) and the UI theme (`theme`)
@@ -184,7 +184,7 @@ scripts/build-web.sh && python3 -m http.server -d dist/web   # browser build (ne
 ### Checking UI
 
 To check UI against its design, screenshot mode can force a HUD state:
-`FRIENDSLOP_SCREENSHOT_SCENE=play|busy|clickable|chapter|tab` (and
+`FRIENDSLOP_SCREENSHOT_SCENE=play|busy|clickable|chapter|tab|title|settings|loading` (title and settings run without `host`; and
 `FRIENDSLOP_SCREENSHOT_SIZE=1920x1080`), e.g. `scripts/screenshot.sh busy.png "" busy`. Add
 `FRIENDSLOP_SCREENSHOT_EVERY=3` to keep the game running and re-save the picture every 3 s.
 

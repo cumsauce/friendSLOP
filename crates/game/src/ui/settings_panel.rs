@@ -1,0 +1,672 @@
+//! "Make yourself comfortable": the settings notebook (Figma 3:2059; UI
+//! polish, not a friend idea). Volumes as sliders, mic and HALT as square
+//! checkboxes, video presets as tabs and every video option as a checkbox
+//! card (changing one makes the preset "Custom"). Opened from the title
+//! screen's Settings link or Tab; Esc or Done closes it.
+
+use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
+
+use super::{at, body, head};
+use crate::AppState;
+use crate::graphics::{GraphicsQuality, Preset, VideoOption};
+use crate::settings::Settings;
+use crate::theme::indigo::{BORDER, CREAM, INDIGO, INK, LAVENDER, PAPER};
+use crate::voice::VoiceMuted;
+
+const B: f32 = 2.0;
+const TRACK: Color = Color::srgb_u8(0xD8, 0xCC, 0xE7);
+const OFF_FILL: Color = Color::srgb_u8(0xE5, 0xDC, 0xE6);
+const OFF_LINE: Color = Color::srgb_u8(0xC5, 0xB7, 0xD3);
+const SLIDER_W: f32 = 370.0;
+
+/// The video options shown as checkboxes, in grid order.
+pub const VIDEO_BOXES: [VideoOption; 9] = [
+    VideoOption::Shadows,
+    VideoOption::AntiAlias,
+    VideoOption::AmbientOcclusion,
+    VideoOption::Bloom,
+    VideoOption::Grass,
+    VideoOption::Resolution,
+    VideoOption::DrawDistance,
+    VideoOption::VSync,
+    VideoOption::Fullscreen,
+];
+
+/// Is this option on?
+pub fn checked(q: GraphicsQuality, o: VideoOption) -> bool {
+    match o {
+        VideoOption::Shadows => q.shadows,
+        VideoOption::AmbientOcclusion => q.ssao,
+        VideoOption::Bloom => q.bloom,
+        VideoOption::AntiAlias => q.antialias,
+        VideoOption::DrawDistance => q.far,
+        VideoOption::Resolution => q.sharp,
+        VideoOption::Grass => q.dense,
+        VideoOption::VSync => q.vsync,
+        VideoOption::Fullscreen => q.fullscreen,
+        VideoOption::Preset => false,
+    }
+}
+
+/// The checkbox's label.
+pub fn box_label(q: GraphicsQuality, o: VideoOption) -> String {
+    let name = match o {
+        VideoOption::DrawDistance => "View distance",
+        VideoOption::Resolution => "Sharp resolution",
+        VideoOption::VSync => "V-sync",
+        VideoOption::Bloom => "Bloom",
+        o => o.name(),
+    };
+    if q.value(o).contains("reload") {
+        format!("{name} (reload)")
+    } else {
+        name.to_string()
+    }
+}
+
+/// Volume `0..=1` from where on the track you pressed, snapped to 5%.
+pub fn volume_at(frac: f32) -> f32 {
+    (frac.clamp(0.0, 1.0) * 20.0).round() / 20.0
+}
+
+/// The notebook; hidden until opened.
+#[derive(Component)]
+pub struct SettingsPanel;
+
+/// Open or close the notebook.
+pub fn toggle(panel: &mut Query<&mut Node, With<SettingsPanel>>) {
+    for mut n in panel.iter_mut() {
+        n.display = if n.display == Display::None {
+            Display::Flex
+        } else {
+            Display::None
+        };
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Page {
+    Audio,
+    Video,
+    Controls,
+}
+
+#[derive(Resource)]
+struct OnPage(Page);
+
+#[derive(Component, Clone, Copy)]
+enum Part {
+    PageTab(Page),
+    PresetTab(Option<Preset>),
+    VideoCard,
+    ControlsCard,
+    Pct(Volume),
+    Fill(Volume),
+    Handle(Volume),
+    Box(Check),
+    BoxLabel(VideoOption),
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Volume {
+    Master,
+    Voice,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Check {
+    Mic,
+    Halt,
+    Video(VideoOption),
+}
+
+fn field(s: &mut Settings, v: Volume) -> &mut f32 {
+    match v {
+        Volume::Master => &mut s.master_volume,
+        Volume::Voice => &mut s.voice_volume,
+    }
+}
+
+fn get(s: &Settings, v: Volume) -> f32 {
+    match v {
+        Volume::Master => s.master_volume,
+        Volume::Voice => s.voice_volume,
+    }
+}
+
+pub fn plugin(app: &mut App) {
+    app.insert_resource(OnPage(Page::Video))
+        .add_systems(OnEnter(AppState::Menu), spawn)
+        .add_systems(
+            Update,
+            (close_on_esc, refresh).run_if(in_state(AppState::Menu)),
+        );
+}
+
+fn close_on_esc(keys: Res<ButtonInput<KeyCode>>, mut panel: Query<&mut Node, With<SettingsPanel>>) {
+    if keys.just_pressed(KeyCode::Escape) {
+        for mut n in &mut panel {
+            n.display = Display::None;
+        }
+    }
+}
+
+/// A bordered button `w`x`h` at Figma `x, y` in its (2 px bordered) parent.
+fn button(w: f32, h: f32, radius: f32, fill: Color, x: f32, y: f32) -> impl Bundle {
+    (
+        Node {
+            width: px(w),
+            height: px(h),
+            border: UiRect::all(px(B)),
+            border_radius: BorderRadius::all(px(radius)),
+            ..at(x, y, B)
+        },
+        BackgroundColor(fill),
+        BorderColor::all(BORDER),
+    )
+}
+
+fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+    let check: Handle<Image> = assets.map(|a| a.load("ui/check.png")).unwrap_or_default();
+    let mut root = commands.spawn((
+        SettingsPanel,
+        Node {
+            position_type: PositionType::Absolute,
+            width: percent(100),
+            height: percent(100),
+            display: Display::None,
+            justify_content: JustifyContent::Center,
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        BackgroundColor(INK.with_alpha(0.63)),
+        GlobalZIndex(30),
+        DespawnOnExit(AppState::Menu),
+    ));
+    root.with_children(|scrim| {
+        scrim
+            .spawn((
+                Node {
+                    width: px(1200),
+                    height: px(664),
+                    border: UiRect::all(px(B)),
+                    border_radius: BorderRadius::all(px(24)),
+                    ..default()
+                },
+                BackgroundColor(LAVENDER),
+                BorderColor::all(BORDER),
+            ))
+            .with_children(|p| notebook(p, &check));
+    });
+}
+
+/// A label-sized text helper.
+fn label(
+    s: impl Into<String>,
+    size: f32,
+    color: Color,
+    x: f32,
+    y: f32,
+    border: f32,
+) -> impl Bundle {
+    (Text::new(s.into()), body(size, color), at(x, y, border))
+}
+
+fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
+    p.spawn((
+        Text::new("Make yourself comfortable"),
+        head(35.0, INK),
+        at(26.0, 18.0, B),
+    ));
+    p.spawn((
+        button(148.0, 42.0, 12.0, PAPER, 1018.0, 20.0),
+        children![label("Esc   close", 17.0, INK, 11.0, 8.0, B)],
+    ))
+    .observe(close);
+    for (i, (page, name)) in [
+        (Page::Audio, "Audio + voice"),
+        (Page::Video, "Video"),
+        (Page::Controls, "Controls"),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        p.spawn((
+            Part::PageTab(page),
+            button(177.0, 42.0, 12.0, PAPER, 26.0 + 190.0 * i as f32, 76.0),
+            children![label(name, 17.0, INK, 11.0, 8.0, B)],
+        ))
+        .observe(move |_: On<PointerClick>, mut on: ResMut<OnPage>| on.0 = page);
+    }
+
+    // Left: your ears & your name.
+    p.spawn((
+        Node {
+            width: px(410),
+            height: px(436),
+            border_radius: BorderRadius::all(px(18)),
+            ..at(26.0, 141.0, B)
+        },
+        BackgroundColor(PAPER),
+    ))
+    .with_children(|c| {
+        c.spawn((
+            Text::new("Your ears & your name"),
+            head(26.0, INK),
+            at(20.0, 14.0, 0.0),
+        ));
+        for (v, name, y) in [
+            (Volume::Master, "Master volume", 69.0),
+            (Volume::Voice, "Voice volume", 164.0),
+        ] {
+            c.spawn(label(name, 19.0, INK, 20.0, y, 0.0));
+            c.spawn((Part::Pct(v), label("", 19.0, INDIGO, 313.0, y, 0.0)));
+            slider(c, v, y + 32.0);
+        }
+        check_row(c, check, Check::Mic, "Microphone (M)", 20.0, 268.0);
+        check_row(
+            c,
+            check,
+            Check::Halt,
+            "Let HALT use my username",
+            17.0,
+            326.0,
+        );
+        c.spawn(label(
+            "Voice is always connected.\nMute your mic, not your friends.",
+            15.0,
+            INK,
+            20.0,
+            378.0,
+            0.0,
+        ));
+    });
+
+    // Right: video, or the controls list.
+    p.spawn((
+        Part::VideoCard,
+        Node {
+            width: px(710),
+            height: px(436),
+            border: UiRect::all(px(B)),
+            border_radius: BorderRadius::all(px(18)),
+            ..at(460.0, 141.0, B)
+        },
+        BackgroundColor(PAPER),
+        BorderColor::all(BORDER),
+    ))
+    .with_children(|c| {
+        c.spawn((
+            Text::new("Video / pick your potato"),
+            head(26.0, INK),
+            at(18.0, 12.0, B),
+        ));
+        let tabs = [
+            (Some(Preset::Low), "Low"),
+            (Some(Preset::Medium), "Medium"),
+            (Some(Preset::High), "High"),
+            (None, "Custom"),
+        ];
+        for (i, (preset, name)) in tabs.into_iter().enumerate() {
+            c.spawn((
+                Part::PresetTab(preset),
+                button(158.0, 42.0, 12.0, PAPER, 18.0 + 170.0 * i as f32, 55.0),
+                children![label(name, 17.0, INK, 11.0, 8.0, B)],
+            ))
+            .observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+                if let Some(p) = preset {
+                    let want = p.apply(*q);
+                    q.set_if_neq(want);
+                }
+            });
+        }
+        for (i, o) in VIDEO_BOXES.into_iter().enumerate() {
+            let (x, y) = (18.0 + 228.0 * (i % 3) as f32, 118.0 + 90.0 * (i / 3) as f32);
+            c.spawn((
+                Node {
+                    width: px(214),
+                    height: px(76),
+                    border_radius: BorderRadius::all(px(12)),
+                    ..at(x, y, B)
+                },
+                BackgroundColor(PAPER),
+                children![
+                    checkbox(check, Check::Video(o), 12.0, 24.0),
+                    (
+                        Part::BoxLabel(o),
+                        Text::new(o.name()),
+                        body(16.0, INK),
+                        Node {
+                            width: px(150),
+                            ..at(52.0, 26.0, 0.0)
+                        }
+                    ),
+                ],
+            ))
+            .observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+                if q.value(o) != "N/A" {
+                    q.cycle(o);
+                }
+            });
+        }
+        c.spawn(label(
+            "Preset changes apply immediately. Change a checkbox: Custom.",
+            14.0,
+            INK,
+            18.0,
+            402.0,
+            B,
+        ));
+    });
+    p.spawn((
+        Part::ControlsCard,
+        Node {
+            width: px(710),
+            height: px(436),
+            border: UiRect::all(px(B)),
+            border_radius: BorderRadius::all(px(18)),
+            display: Display::None,
+            ..at(460.0, 141.0, B)
+        },
+        BackgroundColor(PAPER),
+        BorderColor::all(BORDER),
+        children![
+            (Text::new("Controls"), head(26.0, INK), at(18.0, 12.0, B)),
+            (
+                Text::new(crate::hud::help_text()),
+                body(14.0, INK),
+                Node {
+                    width: px(670),
+                    ..at(18.0, 56.0, B)
+                }
+            ),
+        ],
+    ));
+
+    p.spawn((
+        button(178.0, 42.0, 12.0, PAPER, 780.0, 594.0),
+        children![label("Reset defaults", 17.0, INK, 11.0, 8.0, B)],
+    ))
+    .observe(
+        |_: On<PointerClick>, mut s: ResMut<Settings>, mut q: ResMut<GraphicsQuality>| {
+            let keep = s.halt_real_name;
+            *s = Settings {
+                halt_real_name: keep,
+                ..default()
+            };
+            let want = GraphicsQuality::platform_default();
+            q.set_if_neq(want);
+        },
+    );
+    p.spawn((
+        button(192.0, 42.0, 12.0, INDIGO, 978.0, 594.0),
+        children![label("Done", 17.0, CREAM, 11.0, 8.0, B)],
+    ))
+    .observe(close);
+}
+
+fn close(_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>) {
+    for mut n in &mut panel {
+        n.display = Display::None;
+    }
+}
+
+fn slider(c: &mut ChildSpawnerCommands, v: Volume, y: f32) {
+    let track = c
+        .spawn((
+            Node {
+                width: px(SLIDER_W),
+                height: px(26),
+                ..at(20.0, y + 8.0 - 8.0, 0.0)
+            },
+            children![
+                (
+                    Node {
+                        width: px(SLIDER_W),
+                        height: px(10),
+                        border_radius: BorderRadius::all(px(5)),
+                        ..at(0.0, 8.0, 0.0)
+                    },
+                    BackgroundColor(TRACK),
+                ),
+                (
+                    Part::Fill(v),
+                    Node {
+                        width: px(0),
+                        height: px(10),
+                        border_radius: BorderRadius::all(px(5)),
+                        ..at(0.0, 8.0, 0.0)
+                    },
+                    BackgroundColor(INDIGO),
+                ),
+                (
+                    Part::Handle(v),
+                    Node {
+                        width: px(26),
+                        height: px(26),
+                        border: UiRect::all(px(B)),
+                        border_radius: BorderRadius::all(px(13)),
+                        ..at(0.0, 0.0, 0.0)
+                    },
+                    BackgroundColor(PAPER),
+                    BorderColor::all(INDIGO),
+                    Pickable::IGNORE,
+                ),
+            ],
+        ))
+        .id();
+    c.commands_mut()
+        .entity(track)
+        .observe(
+            move |_: On<PointerPress>, nodes: SliderNodes, mut s: ResMut<Settings>| {
+                set_from_cursor(track, &nodes, v, &mut s);
+            },
+        )
+        .observe(
+            move |_: On<PointerDrag>, nodes: SliderNodes, mut s: ResMut<Settings>| {
+                set_from_cursor(track, &nodes, v, &mut s);
+            },
+        );
+}
+
+type SliderNodes<'w, 's> = (
+    Query<'w, 's, (&'static ComputedNode, &'static UiGlobalTransform)>,
+    Query<'w, 's, &'static Window, With<PrimaryWindow>>,
+);
+
+fn set_from_cursor(slider: Entity, (nodes, window): &SliderNodes, v: Volume, s: &mut Settings) {
+    let (Ok((node, tf)), Ok(window)) = (nodes.get(slider), window.single()) else {
+        return;
+    };
+    let Some(cursor) = window.physical_cursor_position() else {
+        return;
+    };
+    let w = node.size().x;
+    if w <= 0.0 {
+        return;
+    }
+    let left = tf.translation.x - w / 2.0;
+    let want = volume_at((cursor.x - left) / w);
+    let f = field(s, v);
+    if *f != want {
+        *f = want;
+    }
+}
+
+fn check_row(
+    c: &mut ChildSpawnerCommands,
+    check: &Handle<Image>,
+    what: Check,
+    name: &str,
+    size: f32,
+    y: f32,
+) {
+    c.spawn((
+        Node {
+            width: px(370),
+            height: px(36),
+            ..at(20.0, y - 4.0, 0.0)
+        },
+        children![
+            label(name, size, INK, 0.0, 4.0, 0.0),
+            checkbox(check, what, 330.0, 0.0),
+        ],
+    ))
+    .observe(
+        move |_: On<PointerClick>, mut s: ResMut<Settings>, mut muted: ResMut<VoiceMuted>| {
+            match what {
+                Check::Mic => muted.0 = !muted.0,
+                Check::Halt => s.halt_real_name = !s.halt_real_name,
+                Check::Video(_) => {}
+            }
+        },
+    );
+}
+
+/// A 28 px square checkbox; [`refresh`] fills and ticks it.
+fn checkbox(check: &Handle<Image>, what: Check, x: f32, y: f32) -> impl Bundle {
+    (
+        Part::Box(what),
+        Node {
+            width: px(28),
+            height: px(28),
+            border: UiRect::all(px(B)),
+            border_radius: BorderRadius::all(px(5)),
+            ..at(x, y, 0.0)
+        },
+        BackgroundColor(PAPER),
+        BorderColor::all(BORDER),
+        Pickable::IGNORE,
+        children![(
+            Node {
+                width: px(18),
+                height: px(18),
+                ..at(3.0, 3.0, B)
+            },
+            ImageNode::new(check.clone()).with_color(CREAM),
+            Pickable::IGNORE,
+        )],
+    )
+}
+
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
+fn refresh(
+    on: Res<OnPage>,
+    s: Res<Settings>,
+    muted: Res<VoiceMuted>,
+    q: Res<GraphicsQuality>,
+    mut nodes: Query<&mut Node>,
+    mut parts: Query<(
+        Entity,
+        &Part,
+        Option<&Children>,
+        Option<&mut BackgroundColor>,
+        Option<&mut BorderColor>,
+        Option<&mut Text>,
+    )>,
+    mut texts: Query<&mut TextColor>,
+    mut vis: Query<&mut Visibility>,
+) {
+    let preset = q.preset();
+    for (e, part, kids, bg, line, text) in &mut parts {
+        let tab =
+            |on: bool, bg: Option<Mut<BackgroundColor>>, texts: &mut Query<&mut TextColor>| {
+                if let Some(mut bg) = bg {
+                    bg.set_if_neq(BackgroundColor(if on { INDIGO } else { PAPER }));
+                }
+                for k in kids.into_iter().flatten() {
+                    if let Ok(mut c) = texts.get_mut(*k) {
+                        c.set_if_neq(TextColor(if on { CREAM } else { INK }));
+                    }
+                }
+            };
+        match *part {
+            Part::PageTab(p) => tab(p == on.0, bg, &mut texts),
+            Part::PresetTab(p) => tab(p == preset, bg, &mut texts),
+            Part::VideoCard | Part::ControlsCard => {
+                let show = matches!(part, Part::ControlsCard) == (on.0 == Page::Controls);
+                if let Ok(mut n) = nodes.get_mut(e) {
+                    let d = if show { Display::Flex } else { Display::None };
+                    if n.display != d {
+                        n.display = d;
+                    }
+                }
+            }
+            Part::Pct(v) => {
+                let want = format!("{}%", (get(&s, v) * 100.0).round() as i32);
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want;
+                }
+            }
+            Part::Fill(v) | Part::Handle(v) => {
+                let f = get(&s, v);
+                if let Ok(mut n) = nodes.get_mut(e) {
+                    let want = if matches!(part, Part::Fill(_)) {
+                        (px(SLIDER_W * f), n.left)
+                    } else {
+                        (n.width, px(SLIDER_W * f - 13.0))
+                    };
+                    if (n.width, n.left) != want {
+                        (n.width, n.left) = want;
+                    }
+                }
+            }
+            Part::Box(what) => {
+                let (on, disabled) = match what {
+                    Check::Mic => (!muted.0, false),
+                    Check::Halt => (s.halt_real_name, false),
+                    Check::Video(o) => (checked(*q, o), q.value(o) == "N/A"),
+                };
+                let (fill, edge) = match (disabled, on) {
+                    (true, _) => (OFF_FILL, OFF_LINE),
+                    (false, true) => (INDIGO, BORDER),
+                    (false, false) => (PAPER, BORDER),
+                };
+                if let Some(mut bg) = bg {
+                    bg.set_if_neq(BackgroundColor(fill));
+                }
+                if let Some(mut l) = line {
+                    l.set_if_neq(BorderColor::all(edge));
+                }
+                for k in kids.into_iter().flatten() {
+                    if let Ok(mut v) = vis.get_mut(*k) {
+                        v.set_if_neq(if on && !disabled {
+                            Visibility::Inherited
+                        } else {
+                            Visibility::Hidden
+                        });
+                    }
+                }
+            }
+            Part::BoxLabel(o) => {
+                let want = box_label(*q, o);
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want;
+                }
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sliders_snap_and_clamp() {
+        assert_eq!(volume_at(0.79), 0.8);
+        assert_eq!(volume_at(-1.0), 0.0);
+        assert_eq!(volume_at(1.7), 1.0);
+    }
+
+    #[test]
+    fn every_box_is_a_real_option() {
+        assert!(!VIDEO_BOXES.contains(&VideoOption::Preset));
+        assert_eq!(VIDEO_BOXES.len(), 9);
+    }
+}

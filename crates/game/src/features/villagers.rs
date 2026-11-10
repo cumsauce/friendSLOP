@@ -16,6 +16,9 @@
 //! headless tests, which never build one) the brain falls back to the old
 //! straight-line steering between the local spots.
 //!
+//! Ten of them are the friends from the Discord (#159, ids from
+//! [`FIRST_FRIEND`]); clicking one is a chat, handled in `discord_friends.rs`.
+//!
 //! Clicking a villager outside hide and seek just gets a hello. A seeker who
 //! clicks one during the seeking phase is told "that's just Kevin from the
 //! commune" and is frozen for [`PENALTY_SECS`]. Now and then a villager near
@@ -43,7 +46,10 @@ use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
-pub const COUNT: usize = 10;
+/// Ten commune regulars plus the ten friends from the Discord (#159).
+pub const COUNT: usize = 20;
+/// Villager ids from here up are the friends (`discord_friends.rs`).
+pub const FIRST_FRIEND: u8 = 10;
 /// AI decisions (and replicated moves) per second.
 pub const AI_HZ: f32 = 5.0;
 pub const PENALTY_SECS: f32 = 3.0;
@@ -60,7 +66,27 @@ const MAX_CLIMB: f32 = 0.5;
 const MAX_SLOPE_DEGS: f32 = 40.0;
 
 pub const NAMES: [&str; COUNT] = [
-    "Kevin", "Brenda", "Old Tom", "Moss", "Pip", "Gwen", "Barnaby", "Juniper", "Dot", "Hank",
+    "Kevin",
+    "Brenda",
+    "Old Tom",
+    "Moss",
+    "Pip",
+    "Gwen",
+    "Barnaby",
+    "Juniper",
+    "Dot",
+    "Hank",
+    // The friends who've sent in ideas on the Discord (#159), busiest first.
+    "doomy",
+    "catherine",
+    "Freyja Moth",
+    "Kori.exe",
+    "just meat and cheese",
+    "corvy",
+    "bben",
+    "WeiYa",
+    "arseeN",
+    "hadalade",
 ];
 
 /// Where villagers like to hang out (x, z).
@@ -111,6 +137,16 @@ impl Villager {
     pub fn name(&self) -> &'static str {
         NAMES[self.id as usize % COUNT]
     }
+
+    /// One of the Discord friends (#159), not a commune regular.
+    pub fn is_friend(&self) -> bool {
+        is_friend(self.id)
+    }
+}
+
+/// Is villager `id` one of the Discord friends (#159)?
+pub fn is_friend(id: u8) -> bool {
+    (FIRST_FRIEND..COUNT as u8).contains(&id)
 }
 
 /// Server only: what a villager is up to.
@@ -689,7 +725,9 @@ fn dress_villagers(mut commands: Commands, new: Query<(Entity, &Villager), Witho
             crate::people::Gait::default(),
             Transform::from_xyz(v.pos.x, 0.0, v.pos.y).with_rotation(Quat::from_rotation_y(v.yaw)),
             Visibility::default(),
-            Clickable::at_height(1.0).radius(60.0).labelled("poke"),
+            Clickable::at_height(1.0)
+                .radius(60.0)
+                .labelled(if v.is_friend() { "chat up" } else { "poke" }),
             // Drawn from the same pool as players' looks, so hiders blend in.
             crate::people::CharacterLook::random(1000 + v.id as u64 * 13),
             DespawnOnExit(AppState::InGame),
@@ -774,7 +812,11 @@ fn click_villager(
         && me
             .as_deref()
             .is_some_and(|m| roles.iter().any(|(p, r)| p.id == m.0 && r.seeks()));
-    if !seeking && let Some(mut toast) = toast {
+    // Friends answer from the server (`discord_friends.rs`).
+    if !seeking
+        && !v.is_friend()
+        && let Some(mut toast) = toast
+    {
         toast.show(format!("{}: {}", v.name(), greeting(v.id as usize)));
     }
 }

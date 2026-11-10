@@ -33,9 +33,11 @@ Villagers fart and blame you. Low morality brings a helicopter that shoots at yo
 actions fail with a silly result. Marmalade, a wizard cat by the bonfire, spins a wheel that
 makes a rule fairer or crueller for everyone. Your fat cat grows while you don't look at it
 and wanders off to drink pee puddles.
-Say "mute" at a friend (Q) and they're silenced with an RPG until they blow you up.
+Say "mute" at a friend (Q) and they're silenced until they RPG you.
 
 **Just for fun:** the affair with Officer Mei, smoking, the lex pile, music boxes, bear, goat.
+Discord friends wander the commune (chat one up 5 times to date them); their evil rat twins
+live in the tunnels and can be adopted.
 
 **Where it's thin:** what you carry back (burgers, cigs, secrets, soul pieces) only ticks the
 checklist, and organs only come from the chapter refill and the landlord. Spells, stats, being shot and being an Abduction
@@ -109,7 +111,8 @@ Dying (to the RPG) just sends you back to the start.
   (trees, rocks, fences, shepherd's shelter); meadows with copses, low stone walls and hedgerows
   (~1.2 m, crouch cover), haystacks and a windmill with turning sails at (-8, -31). The east
   village block (x 35..80, z -35..35) is left for houses. Everything sits on `terrain::height_at`.
-- **Commune villagers** (#61, the "NPCs" part). Ten villagers (Kevin, Brenda, Old Tom, Moss, ...)
+- **Commune villagers** (#61, the "NPCs" part). Twenty villagers: ten regulars (Kevin, Brenda, Old Tom, Moss, ...)
+  and the ten Discord friends (#159, below),
   built by the same character system as players, rolled from the same option pool, so hiders
   can blend in. The
   server moves them at 5 Hz: wander between the bonfire, ruins, pond and cover spots, pause or sit,
@@ -125,6 +128,23 @@ Dying (to the RPG) just sends you back to the start.
   trees, rocks and props are deliberately left out of the mesh (they punch holes that trip
   rerecast; see `vendor/rerecast/README-friendSLOP.md` for the carried fix); `avoid_cover` still
   steers around them. They have no name label.
+- **The Discord friends walk the commune** (#159, catherine). Everyone who has sent in an idea
+  (doomy, catherine, Freyja Moth, Kori.exe, just meat and cheese, corvy, bben, WeiYa, arseeN,
+  hadalade; the list is hand-written in `villagers::NAMES`, add new friends there and in
+  `discord_friends::LINES`) is one of the villagers, so they wander, blend in for hide and seek
+  and chase farters like the rest. Hover one and it says "chat up". Each chat (one every 1.5 s
+  per friend) is a heart and gets a line from them, mostly about their own ideas, sweeter each
+  time ("i farted when i saw you. that's how it starts."). On the 5th they're **dating** you:
+  everyone sees "catherine is dating player 1 now <3" and hearts float over them. A friend who's
+  dating someone turns everyone else down until that player leaves. Dating does nothing else yet.
+- **Evil rats in the tunnels** (#159, catherine). Each friend has an evil twin with their name
+  backwards (enirehtac, ymood, exe.iroK, ...): a grey rat with pink ears and glowing red eyes,
+  scurrying between the tunnel cells under the map. The lore, as the rats tell it when you adopt
+  one: they were the evil halves of everybody and let themselves be turned into rats to save
+  the world, and nobody said thanks. Click a stray to adopt it (one rat each, on top of a surface
+  pet); it squeaks and follows you everywhere, popping up at your heel when you climb a ladder.
+  Click your rat to hear something evil ("i saved the world and all i got was this tail.").
+  If you leave, your rat goes home to the tunnels. Rats don't count towards connecting the pets.
 - **One click, one thing** (polish). A left click resolves to the single closest clickable thing
   under the crosshair/cursor (`features/interact.rs`), so one click never triggers two features,
   and only within ~3.5 m of your body; otherwise the HUD toast says "too far away". The server
@@ -298,7 +318,7 @@ Dying (to the RPG) just sends you back to the start.
   doesn't remember you afterwards.
 - **Punishment** (#123). Every time an NPC catches you farting counts (shown bottom-right as
   "caught farting N/4"). On the 4th catch the count resets and the commune goes into **attack
-  mode** for 60 s: all ten villagers drop what they're doing and run straight at your body
+  mode** for 60 s: all twenty villagers (friends too) drop what they're doing and run straight at your body
   (4 m/s, a little slower than walking, so you can stay ahead by keeping moving) and crowd you
   when they reach you. Everyone sees a red "ATTACK MODE" line with a countdown, the band goes
   quiet under frantic, high-pitched string music (bouncing chromatic 16ths, shrieking stabs,
@@ -870,6 +890,10 @@ Dying (to the RPG) just sends you back to the start.
   comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
   settings that other features read (several where two features meet), and made spinning free.
 - catherine (#206): a secret.
+- catherine (#159): the people in the Discord, especially idea contributors, as interactable and
+  romancable characters; evil variants of everyone with inverted names, living underground,
+  turned into rats in the lore to save the world, adoptable as pets. Built as friend villagers
+  you court with five chats, and backwards-named rats in the tunnels.
 
 ## Open questions
 
@@ -898,7 +922,9 @@ Dying (to the RPG) just sends you back to the start.
   It can have a nightmare bathroom now (#161): are there other biomes in there?
 - You can pick up human meat burgers at Wendy's (#117). What are they for?
 - You can smoke cigs and joints from Sewer Paul (#129). Should smoking do anything to you?
-- The tunnels under the map (#127) connect four places. What lives down there, or what's hidden?
+- The tunnels under the map (#127) connect four places, and the friends' evil rat twins live
+  there now (#159). What else is hidden down there, and should your rat do anything evil?
+- You can date a Discord friend now (#159). Should dating them lead anywhere?
 - The lex pile (#1) just heats up. Should it do anything, or cost or earn anything?
 - Marmalade's wheel (#173) is free to spin. Should gambling cost something (organs?), and should
   some rules be off the table, or should more be on it (the Stillness, duels, the landlord's boss fight)?

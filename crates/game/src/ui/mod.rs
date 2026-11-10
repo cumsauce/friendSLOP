@@ -15,8 +15,10 @@ use bevy::window::PrimaryWindow;
 use crate::AppState;
 use crate::theme::indigo;
 
+pub mod chapter;
 pub mod danger;
 pub mod feed;
+pub mod journal;
 pub mod prompt;
 pub mod quest;
 pub mod status;
@@ -117,6 +119,20 @@ pub fn card(w: f32, h: f32, radius: f32, border: f32, fill: Color, line: Color) 
     )
 }
 
+/// Which big overlays are up (as of the end of the last frame), so Esc and
+/// clicks go to them instead of leaving the game or the world.
+#[derive(Resource, Default, Debug, Clone, Copy)]
+pub struct Overlay {
+    pub journal: bool,
+    pub intro: bool,
+}
+
+impl Overlay {
+    pub fn any(self) -> bool {
+        self.journal || self.intro
+    }
+}
+
 /// The HUD's root: fills the screen, passes clicks through.
 #[derive(Component)]
 pub struct HudRoot;
@@ -127,6 +143,7 @@ pub struct HeadFont(pub Handle<Font>);
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Icons>()
+        .init_resource::<Overlay>()
         .add_systems(Startup, load)
         .add_systems(Update, (scale_ui, apply_fonts))
         .add_systems(OnEnter(AppState::InGame), spawn_root)
@@ -137,6 +154,8 @@ pub fn plugin(app: &mut App) {
             feed::plugin,
             status::plugin,
             prompt::plugin,
+            journal::plugin,
+            chapter::plugin,
         ));
 }
 

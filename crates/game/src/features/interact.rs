@@ -241,8 +241,13 @@ fn click(
     still: Query<&super::stillness::Stillness>,
     mut view: ResMut<FpsView>,
     mut toast: ResMut<Toast>,
+    overlay: Option<Res<crate::ui::Overlay>>,
 ) {
     if !mouse.just_pressed(MouseButton::Left) {
+        return;
+    }
+    // Clicks on the open journal are for its tabs, not the world.
+    if overlay.is_some_and(|o| o.journal) {
         return;
     }
     let Some(me) = me else { return };

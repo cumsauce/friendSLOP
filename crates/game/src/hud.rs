@@ -274,8 +274,8 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("1-9", "challenge that player to a duel"),
     ("Y / N", "accept / refuse"),
     ("C", "copy the join code again"),
-    ("Tab (hold) / J", "scoreboard"),
-    ("H", "this help"),
+    ("Tab (hold) / J", "the journal (Esc closes)"),
+    ("H", "help, in the journal"),
     ("F3", "FPS counter"),
     ("Esc", "free the mouse; again to leave (disconnects)"),
 ];
@@ -345,9 +345,6 @@ pub use crate::ui::status::StatusMount;
 /// The bottom-left "Tab / J  journal" hint (last in the bottom-left column).
 #[derive(Component)]
 struct JournalHint;
-/// J flips the scoreboard open (Tab only holds it).
-#[derive(Resource, Default)]
-pub struct ScoreboardOpen(pub bool);
 /// A line in a fading slot: what it said last and how long ago that changed.
 #[derive(Component, Default)]
 struct Fade {
@@ -365,15 +362,10 @@ impl Plugin for HudPlugin {
             app.add_plugins(FrameTimeDiagnosticsPlugin::default());
         }
         app.init_resource::<Toast>()
-            .init_resource::<ScoreboardOpen>()
             .add_systems(OnEnter(AppState::InGame), spawn_slots)
-            .add_systems(
-                OnExit(AppState::InGame),
-                |mut t: ResMut<Toast>, mut open: ResMut<ScoreboardOpen>| {
-                    *t = Toast::default();
-                    open.0 = false;
-                },
-            )
+            .add_systems(OnExit(AppState::InGame), |mut t: ResMut<Toast>| {
+                *t = Toast::default();
+            })
             .add_systems(
                 Update,
                 (
@@ -598,42 +590,20 @@ fn tick_toast(time: Res<Time>, mut toast: ResMut<Toast>) {
     }
 }
 
+/// F3 flips the FPS counter. The Scoreboard and Help panels stay hidden:
+/// the journal (`ui::journal`) shows their lines now.
 fn toggle_overlays(
     keys: Res<ButtonInput<KeyCode>>,
-    mut open: ResMut<ScoreboardOpen>,
-    mut roots: Query<(&SlotRoot, &mut Visibility, &mut Pop)>,
     mut fps: Query<&mut Visibility, (With<FpsText>, Without<SlotRoot>)>,
 ) {
-    let flip = |v: &mut Visibility| {
-        *v = if *v == Visibility::Hidden {
-            Visibility::Inherited
-        } else {
-            Visibility::Hidden
-        };
-    };
-    if keys.just_pressed(KeyCode::KeyJ) {
-        open.0 = !open.0;
-    }
-    let tab = keys.pressed(KeyCode::Tab) || open.0;
-    for (r, mut v, mut pop) in &mut roots {
-        let was = *v;
-        match r.0 {
-            HudSlot::Scoreboard => {
-                v.set_if_neq(if tab {
-                    Visibility::Inherited
-                } else {
-                    Visibility::Hidden
-                });
-            }
-            HudSlot::Help if keys.just_pressed(KeyCode::KeyH) => flip(&mut v),
-            _ => {}
-        }
-        if was == Visibility::Hidden && *v != Visibility::Hidden {
-            *pop = Pop::now(0.9);
-        }
-    }
     if keys.just_pressed(KeyCode::F3) {
-        fps.iter_mut().for_each(|mut v| flip(&mut v));
+        for mut v in &mut fps {
+            *v = if *v == Visibility::Hidden {
+                Visibility::Inherited
+            } else {
+                Visibility::Hidden
+            };
+        }
     }
 }
 

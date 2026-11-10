@@ -11,7 +11,7 @@ use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 
 use crate::AppState;
-use crate::player::LocalPlayer;
+use crate::theme::indigo as idg;
 use crate::theme::{self, Pop};
 
 /// Where a piece of HUD text lives.
@@ -61,7 +61,9 @@ impl HudSlot {
     }
 
     fn node(self) -> Node {
-        let m = px(12);
+        // UI direction E: the slots sit around the new widgets (quest card
+        // top-left, team strip top-right, status stack bottom-right).
+        let m = px(idg::EDGE);
         let mut n = Node {
             position_type: PositionType::Absolute,
             flex_direction: FlexDirection::Column,
@@ -70,27 +72,35 @@ impl HudSlot {
             ..default()
         };
         match self {
-            HudSlot::TopLeft => (n.top, n.left) = (m, m),
+            // Under the quest card.
+            HudSlot::TopLeft => (n.top, n.left) = (px(172), m),
+            // Under the team strip.
             HudSlot::TopRight => {
-                (n.top, n.right) = (m, m);
+                (n.top, n.right) = (px(82), m);
                 n.align_items = AlignItems::FlexEnd;
             }
-            HudSlot::BottomLeft => (n.bottom, n.left) = (m, m),
+            // Above the journal hint (which is this column's last child).
+            HudSlot::BottomLeft => (n.bottom, n.left) = (px(30), m),
+            // Above the gas / mic / cat stack (its last child), 5 px up.
             HudSlot::BottomRight => {
-                (n.bottom, n.right) = (m, m);
+                (n.bottom, n.right) = (px(5), m);
                 n.align_items = AlignItems::FlexEnd;
+                n.row_gap = px(8);
+                // A fixed width, so wrapped lines are measured at the width
+                // they're drawn at (otherwise the stack runs off the bottom).
+                n.width = px(330);
             }
+            // The danger lane comes first, then these lines under it.
             HudSlot::TopCenter => {
-                n.top = m;
+                n.top = px(100);
                 (n.left, n.right) = (percent(30), percent(30));
                 n.max_width = Val::Auto;
                 n.align_items = AlignItems::Center;
+                n.row_gap = px(8);
             }
+            // Its lines go to the event feed (`ui::feed`) instead.
             HudSlot::Toasts => {
-                n.top = px(150);
-                (n.left, n.right) = (percent(30), percent(30));
-                n.max_width = Val::Auto;
-                n.align_items = AlignItems::Center;
+                n.display = Display::None;
             }
             HudSlot::Help => {
                 n.top = percent(10);
@@ -99,10 +109,10 @@ impl HudSlot {
                 n.padding = UiRect::all(px(theme::S4 + 4.0));
                 n.row_gap = px(theme::S2);
                 n.border = UiRect::all(px(2));
-                n.border_radius = BorderRadius::all(px(theme::R_PANEL));
+                n.border_radius = BorderRadius::all(px(24));
             }
             HudSlot::Subtitle => {
-                n.bottom = px(72);
+                n.bottom = px(27);
                 (n.left, n.right) = (percent(30), percent(30));
                 n.max_width = Val::Auto;
                 n.align_items = AlignItems::Center;
@@ -120,7 +130,7 @@ impl HudSlot {
                 n.padding = UiRect::all(px(theme::S4));
                 n.row_gap = px(theme::S2);
                 n.border = UiRect::all(px(2));
-                n.border_radius = BorderRadius::all(px(theme::R_PANEL));
+                n.border_radius = BorderRadius::all(px(24));
             }
         }
         n
@@ -140,30 +150,47 @@ pub struct InSlot(pub HudSlot);
 #[derive(Component, Clone, Copy, Debug)]
 pub struct First;
 
-/// Longest a mirrored own-stats line gets before it's cut short (full text: Tab).
+/// Longest a shortened line gets before it's cut short (full text: Tab).
 const OWN_LINE_CHARS: usize = 44;
 
-// HUD lines sit on cream chips, so text is plum ink with berry accents.
-pub const TEXT: Color = theme::INK;
-pub const DIM: Color = theme::SOFT_INK;
-pub const WARN: Color = theme::ROSE_RED;
-pub const ACCENT: Color = theme::BERRY;
+// HUD lines sit on solid indigo-ink chips (UI direction E), so text is cream
+// with periwinkle and butter accents.
+pub const TEXT: Color = idg::CREAM;
+pub const DIM: Color = idg::PERIWINKLE;
+pub const WARN: Color = idg::BUTTER;
+pub const ACCENT: Color = idg::PERIWINKLE;
 /// Light text for labels floating over the world (no chip behind them).
 pub const LABEL: Color = theme::CREAM;
-const PANEL: Color = theme::CREAM_GLASS;
-const BIG_PANEL: Color = theme::CARD;
+const PANEL: Color = idg::INK;
+const BIG_PANEL: Color = idg::INK;
+
+/// A feature's text colour, made readable on an ink chip: the old warning
+/// reds become butter, anything dark becomes cream, light colours stay.
+pub fn on_ink(c: Color) -> Color {
+    let s = c.to_srgba();
+    let warm_warning = s.red > 0.7 && s.green < 0.45 && s.blue < 0.65;
+    if warm_warning {
+        return idg::BUTTER.with_alpha(s.alpha);
+    }
+    let luma = 0.2126 * s.red + 0.7152 * s.green + 0.0722 * s.blue;
+    if luma < 0.55 {
+        idg::CREAM.with_alpha(s.alpha)
+    } else {
+        c
+    }
+}
 /// How long a fading line stays fully visible, then how long it takes to go.
 const FADE_HOLD: f32 = 5.0;
 const FADE_OUT: f32 = 1.2;
 
 pub fn normal() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(13.0), TextColor(TEXT))
+    (TextFont::from_font_size(15.0), TextColor(TEXT))
 }
 pub fn small() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(12.0), TextColor(DIM))
+    (TextFont::from_font_size(14.0), TextColor(DIM))
 }
 pub fn warning() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(13.0), TextColor(WARN))
+    (TextFont::from_font_size(15.0), TextColor(WARN))
 }
 pub fn banner() -> (TextFont, TextColor) {
     (TextFont::from_font_size(26.0), TextColor(TEXT))
@@ -181,32 +208,15 @@ pub fn title() -> (TextFont, TextColor) {
     (TextFont::from_font_size(13.0), TextColor(ACCENT))
 }
 
-/// The rounded chip behind one line of slotted HUD text: cream paper, a thin
-/// rosy outline and a soft shadow. Banners and the objective get a bit more air.
+/// The card behind one line of slotted HUD text: solid ink, a quiet
+/// outline (subtitles: none), rounded corners. Banners get more air.
 fn chip(slot: HudSlot) -> impl Bundle {
     let (pad, radius, line) = match slot {
-        HudSlot::CenterBanner => (UiRect::axes(px(26), px(16)), theme::R_PANEL, theme::PINK),
-        HudSlot::TopCenter => (
-            UiRect::axes(px(theme::S4), px(theme::S2)),
-            theme::R_PANEL,
-            theme::BUTTER,
-        ),
-        HudSlot::Toasts => (
-            UiRect::axes(px(theme::S3 + 2.0), px(theme::S1 + 2.0)),
-            theme::R_PILL,
-            theme::LILAC,
-        ),
-        _ => (
-            UiRect::axes(px(theme::S3 - 1.0), px(theme::S1 + 2.0)),
-            theme::R_CHIP,
-            theme::LINE,
-        ),
+        HudSlot::CenterBanner => (UiRect::axes(px(26), px(16)), 18.0, idg::BORDER),
+        HudSlot::Subtitle => (UiRect::axes(px(8), px(8)), 12.0, idg::INK),
+        _ => (UiRect::axes(px(8), px(6)), 12.0, idg::BORDER),
     };
-    let border = if matches!(slot, HudSlot::TopCenter | HudSlot::CenterBanner) {
-        2.0
-    } else {
-        1.5
-    };
+    let border = 2.0;
     (
         Node {
             padding: pad,
@@ -216,7 +226,7 @@ fn chip(slot: HudSlot) -> impl Bundle {
         },
         BackgroundColor(PANEL),
         BorderColor::all(line),
-        theme::shadow(3.0, 10.0),
+        theme::shadow(2.0, 6.0),
         ChipLine(line),
     )
 }
@@ -264,7 +274,7 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("1-9", "challenge that player to a duel"),
     ("Y / N", "accept / refuse"),
     ("C", "copy the join code again"),
-    ("Tab (hold)", "scoreboard"),
+    ("Tab (hold) / J", "scoreboard"),
     ("H", "this help"),
     ("F3", "FPS counter"),
     ("Esc", "free the mouse; again to leave (disconnects)"),
@@ -328,10 +338,16 @@ pub fn own_lines(table: &str, me: u64) -> Vec<String> {
 
 #[derive(Component)]
 struct SlotRoot(HudSlot);
+/// Where `ui::danger` puts the danger lane (first in the top-centre column).
+pub use crate::ui::danger::DangerMount;
+/// Where `ui::status` puts the gas / mic / cat stack (bottom-right column).
+pub use crate::ui::status::StatusMount;
+/// The bottom-left "Tab / J  journal" hint (last in the bottom-left column).
 #[derive(Component)]
-struct ToastText;
-#[derive(Component)]
-struct OwnLinesText;
+struct JournalHint;
+/// J flips the scoreboard open (Tab only holds it).
+#[derive(Resource, Default)]
+pub struct ScoreboardOpen(pub bool);
 /// A line in a fading slot: what it said last and how long ago that changed.
 #[derive(Component, Default)]
 struct Fade {
@@ -349,16 +365,20 @@ impl Plugin for HudPlugin {
             app.add_plugins(FrameTimeDiagnosticsPlugin::default());
         }
         app.init_resource::<Toast>()
+            .init_resource::<ScoreboardOpen>()
             .add_systems(OnEnter(AppState::InGame), spawn_slots)
-            .add_systems(OnExit(AppState::InGame), |mut t: ResMut<Toast>| {
-                *t = Toast::default()
-            })
+            .add_systems(
+                OnExit(AppState::InGame),
+                |mut t: ResMut<Toast>, mut open: ResMut<ScoreboardOpen>| {
+                    *t = Toast::default();
+                    open.0 = false;
+                },
+            )
             .add_systems(
                 Update,
                 (
                     adopt_slotted,
-                    // The scoreboards it copies change at HUD rate too (#151).
-                    mirror_own_lines.run_if(crate::world::hud_tick()),
+                    readable_on_ink,
                     tick_toast,
                     toggle_overlays,
                     show_fps,
@@ -377,7 +397,7 @@ fn spawn_slots(mut commands: Commands) {
         let mut e = commands.spawn((s.node(), SlotRoot(s), DespawnOnExit(AppState::InGame)));
         let panel = (
             BackgroundColor(BIG_PANEL),
-            BorderColor::all(theme::LINE),
+            BorderColor::all(idg::BORDER),
             theme::shadow(8.0, 28.0),
             UiTransform::default(),
         );
@@ -398,24 +418,35 @@ fn spawn_slots(mut commands: Commands) {
                     header(c, "what's going on", theme::LILAC);
                 });
             }
+            HudSlot::TopCenter => {
+                e.with_child((DangerMount, Node::default()));
+            }
+            HudSlot::BottomRight => {
+                e.with_child((StatusMount, Node::default()));
+            }
+            HudSlot::BottomLeft => {
+                let b = 2.0;
+                e.with_child((
+                    JournalHint,
+                    Node {
+                        width: px(188),
+                        height: px(40),
+                        padding: UiRect::axes(px(12.0 - b), px(8.0 - b)),
+                        border: UiRect::all(px(b)),
+                        border_radius: BorderRadius::all(px(12)),
+                        ..default()
+                    },
+                    BackgroundColor(idg::INK),
+                    BorderColor::all(idg::BORDER),
+                    children![(
+                        Text::new("Tab / J   journal"),
+                        crate::ui::body(17.0, idg::CREAM)
+                    )],
+                ));
+            }
             _ => {}
         }
     }
-    commands.spawn((
-        Text::new(""),
-        OwnLinesText,
-        slot(HudSlot::BottomLeft),
-        small(),
-        DespawnOnExit(AppState::InGame),
-    ));
-    commands.spawn((
-        Text::new(""),
-        ToastText,
-        slot(HudSlot::Toasts),
-        TextFont::from_font_size(15.0),
-        TextColor(ACCENT),
-        DespawnOnExit(AppState::InGame),
-    ));
     commands.spawn((
         Text::new(""),
         FpsText,
@@ -461,6 +492,7 @@ fn apply_font(
         let hud = slotted || fps || parent.is_some_and(|p| roots.contains(p.parent()));
         if hud && tf.font == default {
             tf.font = FontSource::Handle(font.0.clone());
+            tf.weight = FontWeight(700);
         }
     }
 }
@@ -512,9 +544,17 @@ fn adopt_slotted(
             ec.insert_if_new(normal()).insert(chip(*s));
         }
         // Text is required to have a colour, so unstyled lines arrive white
-        // (Bevy's default); give them the readable ink for the cream chips.
-        if color.is_none_or(|c| c.0 == Color::WHITE) {
-            ec.insert(TextColor(if s.one_panel() { DIM } else { TEXT }));
+        // (Bevy's default); give them the readable cream for the ink chips.
+        match color {
+            None => {
+                ec.insert(TextColor(if s.one_panel() { DIM } else { TEXT }));
+            }
+            Some(c) if c.0 == Color::WHITE => {
+                ec.insert(TextColor(if s.one_panel() { DIM } else { TEXT }));
+            }
+            Some(c) => {
+                ec.insert(TextColor(on_ink(c.0)));
+            }
         }
         if s.fades() {
             ec.insert(Fade::default());
@@ -528,7 +568,9 @@ fn adopt_slotted(
         if *s == HudSlot::CenterBanner {
             ec.insert(crate::assets::DisplayText);
         }
-        if first {
+        // The bottom columns end in a mount (status stack, journal hint):
+        // lines go above it.
+        if first || matches!(s, HudSlot::BottomLeft | HudSlot::BottomRight) {
             commands.entity(root).insert_children(0, &[e]);
         } else {
             ec.insert(ChildOf(root));
@@ -536,46 +578,29 @@ fn adopt_slotted(
     }
 }
 
-fn mirror_own_lines(
-    me: Option<Res<LocalPlayer>>,
-    tables: Query<(&Text, &InSlot), Without<OwnLinesText>>,
-    mut own: Query<&mut Text, With<OwnLinesText>>,
-) {
-    let Some(me) = me else { return };
-    let mut lines = Vec::new();
-    for (t, s) in &tables {
-        if s.0 == HudSlot::Scoreboard {
-            lines.extend(own_lines(&t.0, me.0).into_iter().map(|l| clip(&l)));
-        }
-    }
-    let want = lines.join("\n");
-    for mut t in &mut own {
-        if t.0 != want {
-            t.0.clone_from(&want);
+/// Keep slotted text readable when a feature recolours it later.
+fn readable_on_ink(mut texts: Query<&mut TextColor, (With<InSlot>, Changed<TextColor>)>) {
+    for mut c in &mut texts {
+        let want = on_ink(c.0);
+        if want != c.0 {
+            c.0 = want;
         }
     }
 }
 
-fn tick_toast(
-    time: Res<Time>,
-    mut toast: ResMut<Toast>,
-    mut text: Query<&mut Text, With<ToastText>>,
-) {
+/// Count the toast down (the event feed shows it; see `ui::feed`).
+fn tick_toast(time: Res<Time>, mut toast: ResMut<Toast>) {
     if toast.secs_left > 0.0 {
         toast.secs_left -= time.delta_secs();
         if toast.secs_left <= 0.0 {
             toast.text.clear();
         }
     }
-    for mut t in &mut text {
-        if t.0 != toast.text {
-            t.0.clone_from(&toast.text);
-        }
-    }
 }
 
 fn toggle_overlays(
     keys: Res<ButtonInput<KeyCode>>,
+    mut open: ResMut<ScoreboardOpen>,
     mut roots: Query<(&SlotRoot, &mut Visibility, &mut Pop)>,
     mut fps: Query<&mut Visibility, (With<FpsText>, Without<SlotRoot>)>,
 ) {
@@ -586,7 +611,10 @@ fn toggle_overlays(
             Visibility::Hidden
         };
     };
-    let tab = keys.pressed(KeyCode::Tab);
+    if keys.just_pressed(KeyCode::KeyJ) {
+        open.0 = !open.0;
+    }
+    let tab = keys.pressed(KeyCode::Tab) || open.0;
     for (r, mut v, mut pop) in &mut roots {
         let was = *v;
         match r.0 {

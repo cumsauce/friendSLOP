@@ -114,6 +114,8 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(kitty_lemonade::protocol);
         app.add_plugins(discord_friends::protocol);
         app.add_plugins(rats::protocol);
+        // The team strip's mic badges (UI direction E): everyone's mute state.
+        app.add_plugins(crate::voice::mic_protocol);
     }
 }
 

@@ -10,11 +10,73 @@ use crate::voice_chat::*;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 
-use crate::player::Player;
+use crate::player::{LocalPlayer, Player, PlayerOwner};
+use serde::{Deserialize, Serialize};
 
 /// Press M to toggle. Muting stops your mic; you still hear others.
 #[derive(Resource, Default, Debug)]
 pub struct VoiceMuted(pub bool);
+
+/// Replicated on every [`Player`]: their mic is muted (M), so the team strip
+/// can show it on everyone's badge, not just your own.
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct MicMuted(pub bool);
+
+/// Client -> server: "my mic is (un)muted now".
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+pub struct SetMicMuted {
+    pub muted: bool,
+}
+
+/// Mic-state registration (appended last in the protocol; same on every peer).
+pub fn mic_protocol(app: &mut App) {
+    app.replicate::<MicMuted>()
+        .add_client_event::<SetMicMuted>(Channel::Ordered)
+        .add_observer(set_mic_muted);
+}
+
+/// Server: put the sender's mic state on their player.
+fn set_mic_muted(
+    ev: On<FromClient<SetMicMuted>>,
+    mut commands: Commands,
+    players: Query<(Entity, &PlayerOwner, Option<&MicMuted>)>,
+) {
+    let owner = match ev.client_id {
+        ClientId::Server => None,
+        ClientId::Client(e) => Some(e),
+    };
+    let Some((e, _, now)) = players.iter().find(|(_, o, _)| o.0 == owner) else {
+        return;
+    };
+    if now.map(|m| m.0) != Some(ev.muted) {
+        commands.entity(e).insert(MicMuted(ev.muted));
+    }
+}
+
+/// Tell the server when M flips (and once our player exists).
+fn send_mic_state(
+    mut commands: Commands,
+    muted: Res<VoiceMuted>,
+    me: Option<Res<LocalPlayer>>,
+    players: Query<(&Player, Option<&MicMuted>)>,
+    server: Res<State<ServerState>>,
+    client: Res<State<ClientState>>,
+) {
+    let in_session =
+        *server.get() == ServerState::Running || *client.get() == ClientState::Connected;
+    let Some(me) = me else { return };
+    if !in_session {
+        return;
+    }
+    let Some((_, shown)) = players.iter().find(|(p, _)| p.id == me.0) else {
+        return;
+    };
+    // Send when what everyone sees differs from the truth (covers joining,
+    // M presses, and a lost first message); at most once per change.
+    if shown.map(|m| m.0).unwrap_or(false) != muted.0 && (muted.is_changed() || shown.is_none()) {
+        commands.client_trigger(SetMicMuted { muted: muted.0 });
+    }
+}
 
 pub struct VoicePlugin;
 
@@ -35,6 +97,7 @@ impl Plugin for VoicePlugin {
         app.init_resource::<VoiceMuted>()
             .add_observer(tag_speaker)
             .add_systems(Update, drive_voice.before(VoiceChatSystems::Devices))
+            .add_systems(Update, send_mic_state.after(drive_voice))
             .add_systems(
                 Update,
                 keep_everyone_audible.before(VoiceChatSystems::Playback),

@@ -136,47 +136,44 @@ pub fn pick(
 
 pub fn plugin(app: &mut App) {
     app.add_observer(show_denied)
-        .add_systems(OnEnter(AppState::InGame), spawn_hint)
+        .init_resource::<AimHover>()
+        .add_systems(OnExit(AppState::InGame), |mut h: ResMut<AimHover>| {
+            h.0 = None
+        })
         .add_systems(
             Update,
             (click, hover_hint).run_if(in_state(AppState::InGame)),
         );
 }
 
-/// The hover hint text, shown under the aim point.
-pub fn hint_text(label: Option<&str>, in_reach: bool) -> String {
-    match (label, in_reach) {
-        (Some(verb), true) => format!("click: {verb}"),
-        (None, true) => "click".to_string(),
-        (Some(verb), false) => format!("{verb} (too far)"),
-        (None, false) => "too far".to_string(),
+/// The context prompt's verb for a clickable's label: "pet the cat" ->
+/// "Pet the cat"; unlabelled things are just "Use".
+pub fn verb(label: Option<&str>) -> String {
+    let Some(label) = label.map(str::trim).filter(|l| !l.is_empty()) else {
+        return "Use".to_string();
+    };
+    let mut chars = label.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().chain(chars).collect(),
+        None => "Use".to_string(),
     }
 }
 
-#[derive(Component)]
-struct HoverHint;
-
-fn spawn_hint(mut commands: Commands) {
-    commands.spawn((
-        HoverHint,
-        Text::new(""),
-        TextFont::from_font_size(15.0),
-        TextColor(crate::theme::INK),
-        TextLayout::justify(Justify::Center),
-        Node {
-            position_type: PositionType::Absolute,
-            padding: UiRect::axes(px(8), px(3)),
-            border_radius: BorderRadius::all(px(999)),
-            ..default()
-        },
-        BackgroundColor(crate::theme::CREAM.with_alpha(0.85)),
-        GlobalZIndex(30),
-        Visibility::Hidden,
-        DespawnOnExit(AppState::InGame),
-    ));
+/// What the aim point (crosshair, or cursor in the overview) is on this
+/// frame, for the HUD's context prompt and crosshair.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Aim {
+    /// Where the aim point is, in window logical pixels.
+    pub at: Vec2,
+    pub label: Option<&'static str>,
+    pub in_reach: bool,
 }
 
-/// Show what the aim point is on (and whether it's in reach), every frame.
+/// The current [`Aim`], or `None` when it's on nothing clickable.
+#[derive(Resource, Default, Debug, Clone, Copy, PartialEq)]
+pub struct AimHover(pub Option<Aim>);
+
+/// Work out what the aim point is on (and whether it's in reach), every frame.
 #[allow(clippy::too_many_arguments)]
 fn hover_hint(
     me: Option<Res<LocalPlayer>>,
@@ -186,11 +183,8 @@ fn hover_hint(
     walkers: Query<(&Player, &Walker)>,
     duelists: Query<&Duelist>,
     view: Res<FpsView>,
-    mut hint: Query<(&mut Text, &mut Node, &mut Visibility), With<HoverHint>>,
+    mut hover: ResMut<AimHover>,
 ) {
-    let Ok((mut text, mut node, mut vis)) = hint.single_mut() else {
-        return;
-    };
     let target = (|| {
         let me = me.as_ref()?;
         if duelists.iter().any(|d| d.player == me.0) || (view.first_person && view.released) {
@@ -210,23 +204,15 @@ fn hover_hint(
         let target = pick(cursor, candidates)?;
         let (_, c, tf, _) = clickables.get(target).ok()?;
         let here = walkers.iter().find(|(p, _)| p.id == me.0)?.1.pos;
-        Some((
-            cursor,
-            hint_text(c.label, within(here, tf.translation(), REACH)),
-        ))
+        Some(Aim {
+            at: cursor,
+            label: c.label,
+            in_reach: within(here, tf.translation(), REACH),
+        })
     })();
-    let Some((cursor, want)) = target else {
-        vis.set_if_neq(Visibility::Hidden);
-        return;
-    };
-    vis.set_if_neq(Visibility::Inherited);
-    if text.0 != want {
-        text.0 = want;
+    if hover.0 != target {
+        hover.0 = target;
     }
-    // Centred a little under the aim point (width is a rough guess from the text).
-    let w = 9.0 * text.0.chars().count() as f32 + 16.0;
-    node.left = Val::Px(cursor.x - w / 2.0);
-    node.top = Val::Px(cursor.y + 16.0);
 }
 
 fn show_denied(ev: On<Denied>, toast: Option<ResMut<Toast>>) {
@@ -326,10 +312,10 @@ mod tests {
     }
 
     #[test]
-    fn hints_say_what_and_whether_you_can_reach() {
-        assert_eq!(hint_text(Some("pet the cat"), true), "click: pet the cat");
-        assert_eq!(hint_text(None, true), "click");
-        assert_eq!(hint_text(None, false), "too far");
+    fn prompts_name_the_verb() {
+        assert_eq!(verb(Some("pet the cat")), "Pet the cat");
+        assert_eq!(verb(Some("  ")), "Use");
+        assert_eq!(verb(None), "Use");
     }
 
     #[test]

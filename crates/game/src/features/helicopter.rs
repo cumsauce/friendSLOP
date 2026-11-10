@@ -576,8 +576,8 @@ fn spawn_ui(mut commands: Commands) {
     ));
 }
 
-/// Tell the hunted (and everyone else) what's going on, and the hunted when
-/// they've been shot.
+/// Tell the hunted when they've been shot (who's hunted shows in the HUD's
+/// danger lane, `ui::danger`).
 fn show_warning(
     me: Option<Res<LocalPlayer>>,
     helis: Query<&Helicopter>,
@@ -586,16 +586,8 @@ fn show_warning(
     let me = me.map(|m| m.0);
     let mut lines = Vec::new();
     for heli in &helis {
-        if Some(heli.target) == me {
-            lines.push("A HELICOPTER is hunting you for being a bad person. Be better!".into());
-            if heli.hit {
-                lines.push("You've been shot! (It doesn't do anything. Yet.)".into());
-            }
-        } else {
-            lines.push(format!(
-                "A helicopter is hunting player {} for being a bad person.",
-                heli.target
-            ));
+        if Some(heli.target) == me && heli.hit {
+            lines.push("You've been shot! (It doesn't do anything. Yet.)".to_string());
         }
     }
     let want = lines.join("\n");

@@ -17,7 +17,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::campaign::{CHAPTERS, Campaign, ending, goal_line};
+use crate::features::campaign::{CHAPTERS, Campaign, ending};
 use crate::features::halt::Halt;
 use crate::features::landlord::{Act3, HEISTS_BEFORE_BOSS, RAISES_BEFORE_CRIME, Tenancy};
 
@@ -147,22 +147,11 @@ pub fn plugin(app: &mut App) {
 }
 
 #[derive(Component)]
-struct ObjectiveText;
-
-#[derive(Component)]
 struct RoundSummary;
 
 fn spawn_objective_ui(mut commands: Commands) {
-    // The goal line (#75: "make it really obvious"): big, gold, at the very top.
-    commands.spawn((
-        Text::new(""),
-        ObjectiveText,
-        TextFont::from_font_size(20.0),
-        TextColor(crate::hud::ACCENT),
-        crate::hud::slot(crate::hud::HudSlot::TopCenter),
-        crate::hud::First,
-        DespawnOnExit(AppState::InGame),
-    ));
+    // The goal (#75: "make it really obvious") is the HUD's quest card now
+    // (`ui::quest`): chapter, jobs, Heaven Pass and the next thing to do.
     commands.spawn((
         Text::new(""),
         TextFont::from_font_size(22.0),
@@ -178,21 +167,11 @@ fn show_objective(
     campaign: Query<&Campaign>,
     halt: Query<&Halt>,
     tenancy: Query<&Tenancy>,
-    mut line: Query<&mut Text, (With<ObjectiveText>, Without<RoundSummary>)>,
     mut summary: Query<(&mut Text, &mut Visibility), With<RoundSummary>>,
 ) {
     let Ok(o) = objective.single() else {
         return;
     };
-    let text = match campaign.single() {
-        Ok(c) => goal_line(c),
-        Err(_) => objective_line(o),
-    };
-    for mut t in &mut line {
-        if t.0 != text {
-            t.0.clone_from(&text);
-        }
-    }
     let Ok((mut t, mut vis)) = summary.single_mut() else {
         return;
     };

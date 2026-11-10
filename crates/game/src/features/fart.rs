@@ -192,13 +192,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), forget_shame)
         .add_systems(
             Update,
-            (
-                press_to_fart,
-                show_gas.run_if(crate::world::hud_tick()),
-                feel_shame,
-                fade_news,
-            )
-                .run_if(in_state(AppState::InGame)),
+            (press_to_fart, feel_shame, fade_news).run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -212,21 +206,12 @@ struct Shame {
 }
 
 #[derive(Component)]
-struct GasText;
-
-#[derive(Component)]
 struct FartNews;
 
 #[derive(Component)]
 struct ShameOverlay;
 
 fn spawn_fart_ui(mut commands: Commands) {
-    commands.spawn((
-        Text::new(""),
-        GasText,
-        crate::hud::slot(crate::hud::HudSlot::BottomRight),
-        DespawnOnExit(AppState::InGame),
-    ));
     commands.spawn((
         Text::new(""),
         FartNews,
@@ -301,26 +286,6 @@ fn press_to_fart(
         return;
     };
     commands.client_trigger(Fart { at });
-}
-
-fn show_gas(
-    local: Option<Res<LocalPlayer>>,
-    players: Query<(&Player, &Gas)>,
-    mut text: Query<&mut Text, With<GasText>>,
-) {
-    let Some(local) = local else { return };
-    let Some((_, gas)) = players.iter().find(|(p, _)| p.id == local.0) else {
-        return;
-    };
-    let filled = (gas.0 / 10) as usize;
-    let bar = format!("{}{}", "•".repeat(filled), "·".repeat(10 - filled));
-    let hint = if gas.0 >= MIN_GAS { "  F to fart" } else { "" };
-    let want = format!("gas {bar} {}%{hint}", gas.0);
-    for mut text in &mut text {
-        if text.0 != want {
-            text.0.clone_from(&want);
-        }
-    }
 }
 
 fn hear_fart(

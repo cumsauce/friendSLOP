@@ -149,47 +149,12 @@ fn apply_freeze(still: Query<&Stillness>, mut time: ResMut<Time<Virtual>>) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_still_text)
-        .add_systems(OnExit(AppState::InGame), unfreeze)
-        .add_systems(
-            Update,
-            update_still_text
-                .run_if(crate::world::hud_tick())
-                .run_if(in_state(AppState::InGame)),
-        );
+    // The frozen countdown shows in the HUD's danger lane (`ui::danger`).
+    app.add_systems(OnExit(AppState::InGame), unfreeze);
 }
 
 fn unfreeze(mut time: ResMut<Time<Virtual>>) {
     time.unpause();
-}
-
-#[derive(Component)]
-struct StillText;
-
-fn spawn_still_text(mut commands: Commands) {
-    commands.spawn((
-        Text::new(""),
-        TextFont::from_font_size(24.0),
-        StillText,
-        crate::hud::slot(crate::hud::HudSlot::CenterBanner),
-        TextLayout::justify(Justify::Center),
-        DespawnOnExit(AppState::InGame),
-    ));
-}
-
-fn update_still_text(still: Query<&Stillness>, mut text: Query<&mut Text, With<StillText>>) {
-    let want = match still.iter().next() {
-        Some(s) if s.frozen => format!(
-            "The world stands still.\nSocialize, and stare with passion. ({}s)",
-            s.secs_left
-        ),
-        _ => String::new(),
-    };
-    for mut text in &mut text {
-        if text.0 != want {
-            text.0 = want.clone();
-        }
-    }
 }
 
 #[cfg(test)]

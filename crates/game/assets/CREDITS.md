@@ -62,3 +62,13 @@ textured materials yet, so these models keep their natural colours for now
   Impallari, from [google/fonts](https://github.com/google/fonts/tree/main/ofl/sniglet), licensed
   under the [SIL Open Font License 1.1](https://openfontlicense.org). Round display font for
   titles and banners; they keep the HUD font if the file is missing.
+- `fonts/Fredoka.ttf` — **Fredoka** (variable weight and width) by The Fredoka Project Authors
+  (https://github.com/hafontia/Fredoka-One), from
+  [google/fonts](https://github.com/google/fonts/tree/main/ofl/fredoka), licensed under the
+  [SIL Open Font License 1.1](https://openfontlicense.org). Display face of the "Indigo
+  journal" HUD (card titles, countdowns, the prompt's verb), used at SemiBold; that text
+  falls back to Nunito ExtraBold if the file is missing.
+- `ui/*.png` (mic, mic_slash, tear, gas, cat, warn, target, hand) — the HUD's glyphs, drawn
+  for friendSLOP in its Figma UI kit ("E · Indigo journal") and released as **CC0**.
+  Rasterised white at 64 px with `resvg` and tinted in game; a missing file draws nothing
+  (every glyph has a text label beside it).

@@ -19,13 +19,12 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::AppState;
 use crate::features::fps::Walker;
 use crate::features::punishment::{ATTACK_SECS, AttackMode};
 
 use crate::features::villagers::Villager;
 use crate::hud::Toast;
-use crate::player::{LocalPlayer, Player};
+use crate::player::Player;
 
 /// A chasing villager this close (on the floor) catches you.
 pub const CATCH_DIST: f32 = 1.4;
@@ -341,62 +340,14 @@ fn hold_bodies(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(show_notice)
-        .add_systems(OnEnter(AppState::InGame), spawn_ui)
-        .add_systems(
-            Update,
-            show_caught
-                .run_if(crate::world::hud_tick())
-                .run_if(in_state(AppState::InGame)),
-        );
+    // Held / floated / accomplice states show in the HUD's danger lane
+    // (`ui::danger`, UI direction E).
+    app.add_observer(show_notice);
 }
 
 fn show_notice(ev: On<CaughtNotice>, toast: Option<ResMut<Toast>>) {
     if let Some(mut toast) = toast {
         toast.show(ev.text.clone());
-    }
-}
-
-#[derive(Component)]
-struct CaughtText;
-
-fn spawn_ui(mut commands: Commands) {
-    commands.spawn((
-        Text::new(""),
-        TextColor(crate::theme::ROSE_RED),
-        CaughtText,
-        crate::hud::slot(crate::hud::HudSlot::Toasts),
-        DespawnOnExit(AppState::InGame),
-    ));
-}
-
-/// While you're held or hunted as an accomplice, say so.
-fn show_caught(
-    me: Option<Res<LocalPlayer>>,
-    caught: Query<&Caught>,
-    mut text: Query<&mut Text, With<CaughtText>>,
-) {
-    let me = me.map(|m| m.0);
-    let want = caught
-        .iter()
-        .find_map(|c| {
-            let held = me.is_some_and(|m| c.held.contains(&m));
-            let next = me.is_some() && c.accomplice == me;
-            if c.accomplice.is_none() && (held || c.lift > 0.0) {
-                Some(format!("LOCKED IN THE AIR ({})", c.secs_left))
-            } else if held {
-                Some("CAUGHT: you're being carried off".to_string())
-            } else if next {
-                Some("ACCOMPLICE: the poop police is coming for you too".to_string())
-            } else {
-                None
-            }
-        })
-        .unwrap_or_default();
-    for mut t in &mut text {
-        if t.0 != want {
-            t.0.clone_from(&want);
-        }
     }
 }
 

@@ -301,7 +301,11 @@ impl Dresser<'_, '_, '_> {
         if !is_rigid(file) {
             e.insert(crate::ambience::Sway::default());
         }
-        if small {
+        // Trees get a far mesh and draw to the fog instead of vanishing like
+        // small props (#227); `small` ones just cast no shadow.
+        if TREES.contains(&file) || DEAD_TREES.contains(&file) {
+            e.insert(crate::lod::TreeLod { shadows: !small });
+        } else if small {
             e.insert(SmallProp);
         }
         e.id()

@@ -120,6 +120,9 @@ fn bench(
     time: Res<Time<Real>>,
     mut churn: ResMut<Churn>,
     entities: Query<()>,
+    mesh_ids: Query<&Mesh3d>,
+    colliders: Query<(), With<avian3d::prelude::Collider>>,
+    mesh_assets: Res<Assets<Mesh>>,
     state: Res<State<friendslop::AppState>>,
     mut samples: Local<Vec<f32>>,
     mut started: Local<Option<f32>>,
@@ -179,6 +182,24 @@ fn bench(
         per(churn.mesh),
         per(churn.material),
         per(churn.image)
+    );
+    // What there is to draw (#227): mesh entities, how many distinct meshes
+    // they share (fewer = better batching), and the vertices of those still
+    // on the CPU (render-only meshes count 0).
+    let mut distinct = std::collections::HashSet::new();
+    let mut verts = 0usize;
+    for m in &mesh_ids {
+        distinct.insert(m.0.id());
+        verts += mesh_assets
+            .get(&m.0)
+            .and_then(|m| m.try_attribute(Mesh::ATTRIBUTE_POSITION).ok())
+            .map_or(0, |a| a.len());
+    }
+    println!(
+        "BENCH meshes={} distinct={} cpu_verts={verts} colliders={}",
+        mesh_ids.iter().count(),
+        distinct.len(),
+        colliders.iter().count()
     );
     exit.write(AppExit::Success);
 }

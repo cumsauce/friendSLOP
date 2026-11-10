@@ -31,6 +31,7 @@ pub mod great_storm;
 pub mod halt;
 pub mod helicopter;
 pub mod hide_and_seek;
+pub mod infinite;
 pub mod interact;
 pub mod landlord;
 pub mod morality;
@@ -106,6 +107,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(skills::protocol);
         app.add_plugins(shipwreck::protocol);
         app.add_plugins(mute_spell::protocol);
+        app.add_plugins(infinite::protocol);
     }
 }
 
@@ -163,5 +165,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(skills::plugin);
         app.add_plugins(shipwreck::plugin);
         app.add_plugins(mute_spell::plugin);
+        app.add_plugins(infinite::plugin);
     }
 }

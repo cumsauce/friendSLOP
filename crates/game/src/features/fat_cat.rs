@@ -68,6 +68,19 @@ pub const BLAST_RADIUS: f32 = 10.0;
 /// ...this far.
 pub const BLAST_PUSH: f32 = 8.0;
 
+/// Server only: the cat goes here instead of after its owner (a pee
+/// puddle, see `kitty_lemonade.rs`, #213), stopping with its head over it.
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
+pub struct Lured(pub Vec3);
+
+/// On a cat busy drinking (seconds left). Replicated, for the HUD and its
+/// nodding head.
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct Lapping(pub f32);
+
+/// A lured cat stops this far from the spot (times its size): head over it.
+pub const LAP_HEEL: f32 = 0.55;
+
 /// On a cat whose fuse is lit: seconds until it explodes. Replicated.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub struct Fuse(pub f32);
@@ -108,13 +121,19 @@ pub fn protocol(app: &mut App) {
         .add_client_event::<PetCat>(Channel::Ordered)
         .add_server_event::<CatExploded>(Channel::Ordered)
         .add_observer(pet_cat)
+        .replicate::<Lapping>()
         .add_systems(
             Update,
             (give_cats, attach_cat_agents, follow_and_grow, burn_fuses)
                 .chain()
+                .in_set(CatSet)
                 .run_if(in_state(ServerState::Running)),
         );
 }
+
+/// Server: the cats' following, growing and fuses (order lures before it).
+#[derive(SystemSet, Clone, Debug, PartialEq, Eq, Hash)]
+pub struct CatSet;
 
 /// Server: one cat per player (spawned at their feet), and none for leavers.
 fn give_cats(
@@ -212,6 +231,7 @@ fn follow_and_grow(
     mut cats: Query<(
         &mut FatCat,
         &Watched,
+        Option<&Lured>,
         Option<&mut bevy_landmass::AgentTarget3d>,
         Option<&bevy_landmass::AgentDesiredVelocity3d>,
         Option<&bevy_landmass::AgentState>,
@@ -222,17 +242,21 @@ fn follow_and_grow(
         return;
     }
     let dt = time.delta_secs();
-    for (mut cat, watched, target, desired, state) in &mut cats {
+    for (mut cat, watched, lured, target, desired, state) in &mut cats {
         let Some((_, walker)) = players.iter().find(|(p, _)| p.id == cat.owner) else {
             continue;
         };
         let mut next = *cat;
         next.size = grown(cat.size, watched.0, dt);
-        let owner = walker.pos;
+        // Something better than you (a puddle) pulls it there instead.
+        let (owner, heel) = match lured {
+            Some(l) => (l.0, LAP_HEEL * next.size),
+            None => (walker.pos, HEEL * next.size),
+        };
         let here = cat.pos.xz();
-        let flat = if here.distance(owner.xz()) > LOST + HEEL * next.size {
+        let flat = if lured.is_none() && here.distance(owner.xz()) > LOST + heel {
             // Lost you: pop up behind you.
-            let behind = Vec2::new(walker.yaw.sin(), walker.yaw.cos()) * HEEL * next.size;
+            let behind = Vec2::new(walker.yaw.sin(), walker.yaw.cos()) * heel;
             owner.xz() + behind
         } else {
             // Walk the navmesh to you when it has a path; else straight at you.
@@ -247,11 +271,11 @@ fn follow_and_grow(
                 .flatten()
                 .filter(|v| v.length() > 1e-3);
             match path {
-                Some(v) if here.distance(owner.xz()) > HEEL * next.size => {
-                    let step = (SPEED * dt).min(here.distance(owner.xz()) - HEEL * next.size);
+                Some(v) if here.distance(owner.xz()) > heel => {
+                    let step = (SPEED * dt).min(here.distance(owner.xz()) - heel);
                     here + v.normalize() * step
                 }
-                _ => waddle(here, owner.xz(), HEEL * next.size, dt),
+                _ => waddle(here, owner.xz(), heel, dt),
             }
         };
         let gap = owner.xz() - flat;
@@ -636,10 +660,10 @@ fn dress_cats(
 }
 
 /// Glide to the replicated spot and size, rolling side to side as it waddles.
-fn move_cats(time: Res<Time>, mut cats: Query<(&FatCat, &mut Transform)>) {
+fn move_cats(time: Res<Time>, mut cats: Query<(&FatCat, Has<Lapping>, &mut Transform)>) {
     let t = time.elapsed_secs();
     let k = (time.delta_secs() * 8.0).min(1.0);
-    for (cat, mut tf) in &mut cats {
+    for (cat, lapping, mut tf) in &mut cats {
         let gap = cat.pos - tf.translation;
         let moving = gap.xz().length() > 0.02 * cat.size;
         tf.translation += gap * k;
@@ -650,7 +674,15 @@ fn move_cats(time: Res<Time>, mut cats: Query<(&FatCat, &mut Transform)>) {
         } else {
             0.0
         };
-        tf.rotation = Quat::from_rotation_y(cat.yaw) * Quat::from_rotation_z(roll);
+        // Drinking: nose down, lapping away.
+        let nod = if lapping {
+            -0.18 - 0.07 * (t * 11.0).sin()
+        } else {
+            0.0
+        };
+        tf.rotation = Quat::from_rotation_y(cat.yaw)
+            * Quat::from_rotation_z(roll)
+            * Quat::from_rotation_x(nod);
     }
 }
 
@@ -836,17 +868,24 @@ fn spawn_cat_hud(mut commands: Commands) {
 
 fn update_cat_hud(
     me: Option<Res<LocalPlayer>>,
-    cats: Query<(&FatCat, Option<&Fuse>)>,
+    cats: Query<(&FatCat, Option<&Fuse>, Option<&Lapping>)>,
     mut hud: Query<&mut Text, With<CatHud>>,
 ) {
     let want = me
-        .and_then(|me| cats.iter().find(|(c, _)| c.owner == me.0))
-        .map(|(c, fuse)| {
+        .and_then(|me| cats.iter().find(|(c, ..)| c.owner == me.0))
+        .map(|(c, fuse, lapping)| {
             if let Some(f) = fuse {
                 return format!(
                     "!!! YOUR CAT IS GOING CRITICAL ({:.0}s) !!! pet him smaller (click him): {:.1}x",
                     f.0.ceil(),
                     c.size
+                );
+            }
+            if let Some(l) = lapping {
+                return format!(
+                    "your fat cat: {:.1}x (busy drinking pee, {:.0}s)",
+                    c.size,
+                    l.0.ceil()
                 );
             }
             let warning = if c.size >= MAX_SIZE {

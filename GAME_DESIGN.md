@@ -31,14 +31,14 @@ him in a boss fight (Act 3). Each ticked job is a Heaven Pass tier; chapter 5 op
 shames you; get caught 4 times and the villagers chase you and float you with an accomplice.
 Villagers fart and blame you. Low morality brings a helicopter that shoots at you. 5% of
 actions fail with a silly result. Marmalade, a wizard cat by the bonfire, spins a wheel that
-makes a rule fairer or crueller for everyone. Your fat cat grows while you don't look at it.
+makes a rule fairer or crueller for everyone. Your fat cat grows while you don't look at it
+and wanders off to drink pee puddles.
 Say "mute" at a friend (Q) and they're silenced with an RPG until they blow you up.
 
 **Just for fun:** the affair with Officer Mei, smoking, the lex pile, music boxes, bear, goat.
 
-**Where it's thin:** the side trips now count for the checklist, but what you carry back
-(burgers, cigs, secrets, soul pieces) still doesn't do anything else, and organs only come from
-the start-of-chapter refill and the landlord. Spells, stats, being shot and being an Abduction
+**Where it's thin:** what you carry back (burgers, cigs, secrets, soul pieces) only ticks the
+checklist, and organs only come from the chapter refill and the landlord. Spells, stats, being shot and being an Abduction
 don't change play. Gambling is free. Six players paying together beat the landlord fast.
 Dying (to the RPG) just sends you back to the start.
 
@@ -908,7 +908,7 @@ Dying (to the RPG) just sends you back to the start.
 - The mute spell (#146) is the first voice spell. What other spells could you say, and what
   should dying mean beyond going back to the start?
 - What does connecting all the pets achieve, and what else do pets do?
-- Your fat cat (#145) only ever gets bigger. Should anything shrink it, and should a huge cat matter?
+- Your fat cat (#145) drinks pee now (#213). Should what it eats or drinks change it?
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being
   good get you anything? And which other actions count as good or bad?
 - Heaven is now a little garden with Abuela on the top island. What else is up there, and what happens once the campaign lets you in? Should Heaven Pass tiers give rewards?

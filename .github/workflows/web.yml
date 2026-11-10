@@ -1,0 +1,78 @@
+name: Web
+
+# Automatic browser build (#230): every push to main builds the web version
+# (scripts/build-web.sh) and puts it on GitHub Pages, so the newest game is
+# always playable at https://cumsauce.github.io/friendSLOP/ (https, so the
+# browser lets voice chat use the mic).
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - ".github/ISSUE_TEMPLATE/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time. A newer push waits (replacing any older waiting one)
+# instead of cancelling the running build, so frequent merges can't starve
+# the site of updates.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # The site serves the real models, sounds and fonts. Cache the LFS
+      # objects so each deploy doesn't spend the repo's LFS bandwidth again.
+      - name: list LFS objects
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-ids
+      - uses: actions/cache@v4
+        with:
+          path: .git/lfs
+          key: lfs-${{ hashFiles('.lfs-ids') }}
+          restore-keys: lfs-
+      - run: git lfs pull
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: web-deploy
+          workspaces: |
+            . -> target
+            tools/web-textures -> target
+      - name: wasm-bindgen-cli + binaryen
+        run: |
+          version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
+          if [[ "$(wasm-bindgen --version 2>/dev/null | awk '{print $2}')" != "$version" ]]; then
+            cargo install wasm-bindgen-cli --version "$version" --locked --force
+          fi
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends binaryen clang llvm
+      - run: scripts/build-web.sh dist/web
+      # A tiny stamp so anyone can see which commit the site is running.
+      - run: echo "${{ github.sha }}" > dist/web/version.txt
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

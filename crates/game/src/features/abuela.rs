@@ -249,7 +249,9 @@ fn dress_abuela(
                 Dressed,
                 Transform::from_translation(chair_at()),
                 Visibility::default(),
-                Clickable::at_height(1.0).radius(70.0),
+                Clickable::at_height(1.0)
+                    .radius(70.0)
+                    .labelled("talk to Abuela"),
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {

@@ -401,7 +401,7 @@ fn dress_totems(
             .entity(entity)
             .insert((
                 Transform::from_xyz(totem.at.x, 0.0, totem.at.y),
-                Clickable::at_height(0.5),
+                Clickable::at_height(0.5).labelled("take the totem"),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))
@@ -460,7 +460,7 @@ fn dress_doors(
             Mesh3d(meshes.add(Cuboid::new(0.15, 1.4, 1.2))),
             MeshMaterial3d(mat),
             Transform::from_xyz(door.at.x, 0.7, door.at.y),
-            Clickable::at_height(0.0),
+            Clickable::at_height(0.0).labelled("open the door"),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));

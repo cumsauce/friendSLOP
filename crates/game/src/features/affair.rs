@@ -357,7 +357,9 @@ fn spawn_officer(mut commands: Commands) {
         Transform::from_xyz(OFFICER_AT.x, y, OFFICER_AT.y)
             .with_rotation(Quat::from_rotation_y(f32::atan2(-face.x, -face.y))),
         Visibility::default(),
-        Clickable::at_height(1.0).radius(60.0),
+        Clickable::at_height(1.0)
+            .radius(60.0)
+            .labelled("flirt with Officer Mei"),
         officer_look(),
         DespawnOnExit(AppState::InGame),
     ));
@@ -371,7 +373,9 @@ fn dress_wife(mut commands: Commands, new: Query<(Entity, &Wife), Without<Dresse
             crate::people::Gait::default(),
             Transform::from_xyz(w.pos.x, y, w.pos.y).with_rotation(Quat::from_rotation_y(w.yaw)),
             Visibility::default(),
-            Clickable::at_height(1.0).radius(60.0),
+            Clickable::at_height(1.0)
+                .radius(60.0)
+                .labelled("talk to your wife"),
             wife_look(),
             DespawnOnExit(AppState::InGame),
         ));

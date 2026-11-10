@@ -295,7 +295,7 @@ fn dress_pets(
             .entity(entity)
             .insert((
                 Transform::from_xyz(pet.at.x, 0.0, pet.at.y),
-                Clickable::at_height(0.3),
+                Clickable::at_height(0.3).labelled("adopt"),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))

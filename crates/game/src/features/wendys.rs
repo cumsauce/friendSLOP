@@ -312,7 +312,9 @@ fn dress_burgers(
             .entity(entity)
             .insert((
                 Transform::from_translation(burger_spot(burger.slot)),
-                Clickable::at_height(0.1).radius(30.0),
+                Clickable::at_height(0.1)
+                    .radius(30.0)
+                    .labelled("take the burger"),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))

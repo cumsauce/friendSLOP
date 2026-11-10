@@ -628,9 +628,10 @@ fn tag_targets(
         let want =
             seeking && role == Some(&Role::Hider) && me.as_deref().is_some_and(|m| m.0 != p.id);
         if want && !tagged {
-            commands
-                .entity(e)
-                .insert((TagTarget, Clickable::at_height(1.0).radius(60.0)));
+            commands.entity(e).insert((
+                TagTarget,
+                Clickable::at_height(1.0).radius(60.0).labelled("tag"),
+            ));
         } else if !want && tagged {
             commands.entity(e).remove::<(TagTarget, Clickable)>();
         }

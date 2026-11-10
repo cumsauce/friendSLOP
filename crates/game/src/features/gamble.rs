@@ -629,7 +629,9 @@ fn spawn_booth(
         Gait::default(),
         Transform::from_translation(at + rot * Vec3::new(0.0, 0.0, 0.75)).with_rotation(rot),
         Visibility::default(),
-        Clickable::at_height(0.9).radius(70.0),
+        Clickable::at_height(0.9)
+            .radius(70.0)
+            .labelled("spin the wheel"),
         wizard_look(),
         DespawnOnExit(AppState::InGame),
     ));
@@ -672,7 +674,9 @@ fn spawn_booth(
             WheelFace::default(),
             Transform::from_translation(hub).with_rotation(rot),
             Visibility::default(),
-            Clickable::at_height(0.0).radius(70.0),
+            Clickable::at_height(0.0)
+                .radius(70.0)
+                .labelled("spin the wheel"),
             DespawnOnExit(AppState::InGame),
         ))
         .id();

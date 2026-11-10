@@ -291,7 +291,7 @@ fn dress_mushrooms(
             .entity(entity)
             .insert((
                 Transform::from_xyz(mushroom.at.x, 0.0, mushroom.at.y),
-                Clickable::at_height(0.3),
+                Clickable::at_height(0.3).labelled("eat the mushroom"),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))

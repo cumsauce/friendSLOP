@@ -82,18 +82,16 @@ pub struct VoicePlugin;
 
 impl Plugin for VoicePlugin {
     fn build(&self, app: &mut App) {
-        // Added in the browser too (#106): cpal can't start its capture and
-        // playback threads there, so a browser peer has no audio, but
-        // `VoiceRepliconPlugin` must register the same messages on every peer
-        // or browser and desktop protocols wouldn't match.
+        // Added in the browser too (#106): `VoiceRepliconPlugin` must
+        // register the same messages on every peer or browser and desktop
+        // protocols wouldn't match.
         app.add_plugins(VoiceChatPlugin {
             config: voice_config(),
         })
         .add_plugins(VoiceRepliconPlugin::default());
+        // The browser talks to Web Audio instead of cpal threads (#166).
         #[cfg(target_arch = "wasm32")]
-        app.add_systems(Startup, || {
-            info!("voice chat has no audio in the browser yet (you can play, not talk)");
-        });
+        app.insert_resource(VoiceIo(std::sync::Arc::new(crate::voice_web::WebAudioIo)));
         app.init_resource::<VoiceMuted>()
             .add_observer(tag_speaker)
             .add_systems(Update, drive_voice.before(VoiceChatSystems::Devices))
@@ -116,7 +114,26 @@ pub fn voice_config() -> VoiceChatConfig {
         full_volume_distance: 3.0,
         rolloff: 1.6,
         pan_strength: 0.7,
+        output_queue_ms: OUTPUT_QUEUE_MS,
         ..default()
+    }
+}
+
+/// Mixed voice queued ahead of the speakers. The browser's audio callback
+/// takes about 21 ms at once and phone frames run long, so it keeps more.
+pub const OUTPUT_QUEUE_MS: f32 = if cfg!(target_arch = "wasm32") {
+    120.0
+} else {
+    40.0
+};
+
+/// Split interleaved stereo into left and right (the browser wants channels
+/// apart). Stops at the shortest buffer.
+pub fn deinterleave(stereo: &[f32], left: &mut [f32], right: &mut [f32]) {
+    let pairs = stereo.as_chunks::<2>().0;
+    for (([a, b], l), r) in pairs.iter().zip(left.iter_mut()).zip(right.iter_mut()) {
+        *l = *a;
+        *r = *b;
     }
 }
 
@@ -206,6 +223,14 @@ mod tests {
             range.unwrap_or(c.range),
             c.rolloff,
         )
+    }
+
+    #[test]
+    fn deinterleave_splits_channels() {
+        let (mut l, mut r) = ([0.0; 3], [0.0; 3]);
+        deinterleave(&[1.0, -1.0, 2.0, -2.0, 3.0, -3.0, 9.0], &mut l, &mut r);
+        assert_eq!(l, [1.0, 2.0, 3.0]);
+        assert_eq!(r, [-1.0, -2.0, -3.0]);
     }
 
     #[test]

@@ -121,5 +121,5 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest dist/* --title "Latest build" \
-            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. friendslop-web.zip is the browser version (multiplayer works, voice chat not yet: unzip and serve the folder with any static web server). Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
+            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. friendslop-web.zip is the browser version (multiplayer and voice chat; the browser asks for your mic, which needs https or localhost: unzip and serve the folder with any static web server). Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
             --target ${{ github.sha }} --prerelease

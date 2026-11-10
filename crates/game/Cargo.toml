@@ -13,9 +13,9 @@ avian_rerecast.workspace = true
 bevy_landmass.workspace = true
 landmass_rerecast.workspace = true
 serde.workspace = true
-# Voice chat on every peer. In the browser cpal has no capture/playback device,
-# so audio stays off, but the replicon protocol it registers (VoiceUp/VoiceDown)
-# must be identical to the desktop's or browser and desktop peers can't talk.
+# Voice chat on every peer. The browser swaps cpal for Web Audio (voice_web.rs,
+# #166); the replicon protocol it registers (VoiceUp/VoiceDown) must be
+# identical to the desktop's or browser and desktop peers can't talk.
 bevy_voice_chat.workspace = true
 # The generated soundtrack (composer + synths), Bevy-free (crates/fusion).
 fusion = { path = "../fusion" }
@@ -27,7 +27,7 @@ friendslop-wire = { path = "../wire" }
 friendslop-world = { path = "../world" }
 
 # Native only: the iroh transport (a tokio runtime plus `block_on` every tick),
-# voice chat (cpal capture/playback threads) and the clipboard can't run on a
+# and the clipboard can't run on a
 # browser's main thread. The web build (scripts/build-web.sh) leaves them out;
 # see "Web build" in GAME_DESIGN.md.
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -39,6 +39,11 @@ arboard.workspace = true
 web-sys = { version = "0.3", features = [
   "Window", "Storage", "Navigator", "Clipboard", "ClipboardEvent", "DataTransfer",
   "Document", "Event", "EventTarget", "Location", "UrlSearchParams",
+  # Voice chat through Web Audio (voice_web.rs, #166).
+  "AudioContext", "AudioContextState", "BaseAudioContext", "AudioNode", "AudioDestinationNode",
+  "AudioBuffer", "AudioProcessingEvent", "ScriptProcessorNode", "GainNode", "AudioParam",
+  "MediaDevices", "MediaStream", "MediaStreamTrack", "MediaStreamConstraints",
+  "MediaStreamAudioSourceNode",
 ] }
 wasm-bindgen = "0.2"
 # getrandom 0.3 also needs `--cfg getrandom_backend="wasm_js"` (.cargo/config.toml).

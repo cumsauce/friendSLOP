@@ -784,6 +784,26 @@ Dying (to the RPG) just sends you back to the start.
   `FRIENDSLOP_BENCH=1 cargo run -- host` prints frame times and GPU asset churn; there's no GPU
   in CI so the gains weren't measured on real hardware (in software rendering the frame cost is
   almost all pixel shading, which these changes barely touch).
+- **Second performance pass** (#227, WeiYa: "much more fps ... less vram ... gpu instancing,
+  lods, mipmaps ... bake lightmaps ... asset streaming ... chunk the map ... too much popin,
+  especially seen with the trees ... graphics should not become worse ... goal: at least 3x").
+  No gameplay changes. **Mipmaps:** model textures (trees, rocks, flowers) loaded as one full-size
+  level, so far trees read every texel of 2048² textures and shimmered. As they load they're now
+  capped at 1024² and given a full mip chain (`textures.rs`, `art::mips`; colour averaged in
+  linear light, leaf alpha kept so far foliage stays leafy): about 110 MB less video memory on
+  the desktop. The browser already shipped them at 512. **Tree LODs:** every tree builds two
+  lighter meshes once per model (`lod.rs`, `art::lod`: trunk and branches simplified to ~40%
+  then ~20% of their triangles, leaf cards halved then quartered and grown a little), shared by
+  every tree so they still draw in batches (Bevy already instances identical meshes). The full
+  mesh dithers into the lighter ones at 20-28 m and 55-70 m, so there's no visible switch.
+  **Pop-in:** most forest trees were tagged as small props and vanished at 35 m (60 m on Far);
+  now every tree draws to the fog. Small props and grass chunks still stop at the same distances
+  but dither out over the last 30% instead of popping. **Not done:** baked lightmaps (every
+  model would need a second UV set and a baker, and the world is rebuilt from a seed on every
+  join), asset streaming, and chunking anything beyond the 64 ground chunks. The sun's shadows
+  stay real-time (off on Low). There's still no GPU in CI, so the 3x target isn't measured
+  (software rendering is too slow to compare frame rates). `FRIENDSLOP_BENCH=1` now also prints
+  how many meshes there are, how many distinct ones, and their vertex count.
 - **HUD: "E · Indigo journal"** (UI polish, not a friend idea; from the Figma UI brief in
   `docs/figma-ui-brief.md`, which answered "about 12 floating cards at once"). Solid deep-indigo
   cards with cream text (`theme::indigo`), Fredoka for titles and countdowns, Nunito Bold for
@@ -919,6 +939,11 @@ Dying (to the RPG) just sends you back to the start.
 - WeiYa (#191): the iPhone web build showed a blank screen, took 1-2 minutes to load, wasn't
   fullscreen and had tiny UI: "optimize this as much as physically possible", phone web
   performant. Smaller download, progress bar, 1x rendering, UI fixed (see What exists).
+- WeiYa (#227): much more fps (at least 3x) and less video memory, especially on phones, with
+  GPU instancing, LODs, mipmaps, baked lightmaps instead of real-time lighting, asset streaming
+  and a chunked map, all invisible to the player: less pop-in (trees especially), no worse
+  graphics, and much shorter map load and join times. Mipmaps, tree LODs and the pop-in fix are
+  in (see What exists); lightmaps, streaming and more chunking aren't yet.
 - WeiYa (#166): add voice chat to the web build, release the web build with the others (an
   html entry point) and include the assets in every release. The release zips got their
   `assets/` folder first (#187); browser voice came after (see Browser / phone build).
@@ -987,8 +1012,9 @@ Dying (to the RPG) just sends you back to the start.
 - Organs are money, but how do you get them, and what are they for?
 - You can be a person or a creature now. Does what you are change anything in play?
 - Browser voice chat is new (#166): does it work on your phone and browser, and is it loud and clear enough?
-- Phones (#191): how long does the browser build take to load on your phone now, and what still
-  feels slow or fiddly (touch controls, menus)?
+- Phones (#191, #227): how long does the browser build take to load on your phone now, how many
+  fps do you get, and what still feels slow or fiddly (touch controls, menus)? Does anything still
+  pop in?
 - Should there be a lobby/waiting room before the game starts, and who decides when it starts?
 - What power do gods tears actually give, and what does an Abduction do (or get) when it feeds?
 - The tears are limited. What happens when they're all used up?

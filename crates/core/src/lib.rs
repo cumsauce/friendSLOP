@@ -14,7 +14,7 @@ pub enum AppState {
 }
 
 /// Small detail (flowers, pebbles, grass tufts) that stops drawing past a
-/// distance (#151): `(near, far)` metres for the Near / Far draw distance.
+/// distance (#151), fading out as it goes (#227): `(near, far)` metres for the Near / Far draw distance.
 /// It's tiny, often half-hidden by fog, and there are thousands of it.
 /// The game's video settings turn this into a `VisibilityRange`.
 #[derive(Component, Clone, Copy, Debug)]
@@ -34,12 +34,21 @@ impl DrawRange {
         from_bounds: false,
     };
 
-    /// The visibility range for the Far (`far`) or Near draw distance.
+    /// The visibility range for the Far (`far`) or Near draw distance. Things
+    /// dither out over the last [`Self::FADE`] of it instead of popping out
+    /// (#227: "too much popin ... needs to be invisible to the player").
     pub fn range(self, far: bool) -> VisibilityRange {
-        let mut r = VisibilityRange::abrupt(0.0, if far { self.far } else { self.near });
-        r.use_aabb = self.from_bounds;
-        r
+        let end = if far { self.far } else { self.near };
+        let fade = (end * Self::FADE).max(4.0).min(end);
+        VisibilityRange {
+            start_margin: 0.0..0.0,
+            end_margin: end - fade..end,
+            use_aabb: self.from_bounds,
+        }
     }
+
+    /// The share of a draw distance spent fading out.
+    pub const FADE: f32 = 0.3;
 }
 
 /// How much grass and ambient detail to spawn, `0..=1`, kept in step with

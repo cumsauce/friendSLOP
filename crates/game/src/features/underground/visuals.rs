@@ -16,7 +16,73 @@ pub fn plugin(app: &mut App) {
         .add_observer(click)
         .add_systems(OnEnter(AppState::InGame), (build, reset))
         .add_systems(OnExit(AppState::InGame), reset)
-        .add_systems(Update, darkness.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            (darkness, guide).chain().run_if(in_state(AppState::InGame)),
+        );
+}
+
+/// The "way up" line shown while you're down there.
+#[derive(Component)]
+struct Guide;
+
+/// While you're below: how far the nearest ladder is along the tunnels and
+/// which way to turn for it (checked a few times a second).
+#[allow(clippy::too_many_arguments)]
+fn guide(
+    mut commands: Commands,
+    time: Res<Time>,
+    below: Res<Below>,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &Walker)>,
+    camera: Query<&GlobalTransform, With<MainCamera>>,
+    mut line: Query<&mut Text, With<Guide>>,
+    mut cache: Local<Option<Layout>>,
+    mut wait: Local<f32>,
+) {
+    if line.is_empty() {
+        commands.spawn((
+            Guide,
+            Text::new(""),
+            crate::hud::slot(crate::hud::HudSlot::TopCenter),
+            DespawnOnExit(AppState::InGame),
+        ));
+        return;
+    }
+    *wait -= time.delta_secs();
+    if *wait > 0.0 && below.inside {
+        return;
+    }
+    *wait = 0.25;
+    let want = if below.inside {
+        let l = cache.get_or_insert_with(layout);
+        let at = me
+            .and_then(|me| walkers.iter().find(|(p, _)| p.id == me.0))
+            .map(|(_, w)| w.pos.xz());
+        let fwd = camera
+            .single()
+            .map(|c| c.forward().as_vec3().xz())
+            .unwrap_or(Vec2::NEG_Y);
+        match at.and_then(|a| way_up(l, a)) {
+            Some((_, m, dir)) if dir == Vec2::ZERO => {
+                format!("Way up: the ladder is right here ({m:.0} m). Click it to climb out")
+            }
+            Some((_, m, dir)) => {
+                format!(
+                    "Way up: nearest ladder {m:.0} m, {}. Click it to climb out",
+                    turn_word(fwd, dir)
+                )
+            }
+            None => "Way up: find a ladder and click it to climb out".to_string(),
+        }
+    } else {
+        String::new()
+    };
+    for mut t in &mut line {
+        if t.0 != want {
+            t.0.clone_from(&want);
+        }
+    }
 }
 
 /// Local: is my body in the tunnels, and what the dark replaced.
@@ -482,6 +548,7 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
     // A ladder under every way in, and the hatch seen from below.
     let wood = mat(materials, Color::srgb(0.32, 0.24, 0.16), 0.9);
     let rust = mat(materials, Color::srgb(0.35, 0.22, 0.14), 0.6);
+    let hatch_glow = glow(materials, Color::srgb(1.0, 0.88, 0.45), 4.0);
     for (i, e) in ENTRANCES.iter().enumerate() {
         let base = Vec3::new(e.at.x, y, e.at.y);
         let rail = if e.kind == Kind::Manhole {
@@ -517,15 +584,25 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
                 true,
             );
         }
-        if e.kind == Kind::Manhole {
-            light(
-                commands,
-                base + Vec3::Y * (TUNNEL_H - 0.4),
-                Color::srgb(0.8, 0.9, 1.0),
-                12_000.0,
-                6.0,
-            );
-        }
+        // Every ladder is lit from above, with a glowing hatch in the
+        // ceiling, so the ways out stand out down the tunnels.
+        let (sky, power) = if e.kind == Kind::Manhole {
+            (Color::srgb(0.8, 0.9, 1.0), 12_000.0)
+        } else {
+            (Color::srgb(1.0, 0.86, 0.5), 9_000.0)
+        };
+        light(commands, base + Vec3::Y * (TUNNEL_H - 0.4), sky, power, 7.0);
+        block(
+            commands,
+            m,
+            &hatch_glow,
+            boxed(
+                base + Vec3::Y * (TUNNEL_H - 0.02),
+                Vec3::new(0.9, 0.03, 0.9),
+            ),
+            false,
+            true,
+        );
         commands.spawn((
             Hatch(i as u8),
             Deep,
@@ -602,6 +679,7 @@ fn darkness(
             Some(Part::Passage) => "a secret passage: it joins the sewers",
             _ => "the sewers: every tunnel down here joins up",
         };
+        let text = format!("{text}. Click a lit ladder to climb out");
         if let Some(mut toast) = toast {
             toast.show(text);
         }

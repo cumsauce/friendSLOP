@@ -207,6 +207,62 @@ impl Layout {
     }
 }
 
+/// The nearest way up from `from`, walking the tunnels: which ladder, how
+/// many metres away, and the direction of the first step towards it (zero
+/// once you're at it). `None` if you're not in a tunnel.
+pub fn way_up(l: &Layout, from: Vec2) -> Option<(usize, f32, Vec2)> {
+    let start = cell_of(from);
+    if !l.open(start) {
+        return None;
+    }
+    let ladders: Vec<Cell> = ENTRANCES.iter().map(|e| cell_of(e.at)).collect();
+    // Breadth-first from where you stand, remembering each cell's first step.
+    let mut first: BTreeMap<Cell, (Cell, u32)> = BTreeMap::new();
+    first.insert(start, (start, 0));
+    let mut todo = VecDeque::from([start]);
+    while let Some(c) = todo.pop_front() {
+        let (step, d) = first[&c];
+        if let Some(i) = ladders.iter().position(|&lc| lc == c) {
+            let dir = if c == start {
+                Vec2::ZERO
+            } else {
+                (cell_centre(step) - cell_centre(start)).normalize_or_zero()
+            };
+            let at = ENTRANCES[i].at;
+            let metres = d as f32 * CELL + if d == 0 { from.distance(at) } else { 0.0 };
+            return Some((i, metres, dir));
+        }
+        for dd in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
+            let n = (c.0 + dd.0, c.1 + dd.1);
+            if l.open(n) && !first.contains_key(&n) {
+                first.insert(n, (if c == start { n } else { step }, d + 1));
+                todo.push_back(n);
+            }
+        }
+    }
+    None
+}
+
+/// Which way `dir` is for someone facing `forward` (both on the ground).
+pub fn turn_word(forward: Vec2, dir: Vec2) -> &'static str {
+    if dir == Vec2::ZERO {
+        return "right here";
+    }
+    let f = forward.normalize_or_zero();
+    let ahead = f.dot(dir);
+    // Ground is x/z with -z forward at yaw 0: right of `f` is (-f.y, f.x).
+    let right = Vec2::new(-f.y, f.x).dot(dir);
+    if ahead > 0.7 {
+        "straight ahead"
+    } else if ahead < -0.7 {
+        "behind you"
+    } else if right > 0.0 {
+        "to your right"
+    } else {
+        "to your left"
+    }
+}
+
 /// The network (pure, the same on every peer and the server).
 pub fn layout() -> Layout {
     let mut l = Layout::default();
@@ -297,6 +353,31 @@ fn use_hatch(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_way_up_follows_the_tunnels() {
+        let l = layout();
+        // From the hub there's always a ladder, some way off.
+        let Some((_, m, dir)) = way_up(&l, Vec2::ZERO) else {
+            panic!("no way up from the hub")
+        };
+        assert!(m > 0.0 && dir != Vec2::ZERO);
+        // Standing at a ladder: it's right here.
+        let at = ENTRANCES[0].at;
+        let Some((i, m, dir)) = way_up(&l, cell_centre(cell_of(at))) else {
+            panic!("no way up at a ladder")
+        };
+        assert_eq!((i, dir), (0, Vec2::ZERO));
+        assert!(m < CELL);
+        // Nowhere near a tunnel: nothing.
+        assert!(way_up(&l, Vec2::new(9_999.0, 9_999.0)).is_none());
+        // Turning words.
+        let fwd = Vec2::new(0.0, -1.0);
+        assert_eq!(turn_word(fwd, Vec2::new(0.0, -1.0)), "straight ahead");
+        assert_eq!(turn_word(fwd, Vec2::new(0.0, 1.0)), "behind you");
+        assert_eq!(turn_word(fwd, Vec2::new(1.0, 0.0)), "to your right");
+        assert_eq!(turn_word(fwd, Vec2::new(-1.0, 0.0)), "to your left");
+    }
 
     #[test]
     fn everything_down_there_joins_up() {

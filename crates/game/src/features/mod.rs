@@ -9,6 +9,7 @@ use bevy::prelude::*;
 pub mod abuela;
 pub mod affair;
 pub mod ambience;
+pub mod babble;
 pub mod bear;
 pub mod campaign;
 pub mod cat_palette;
@@ -135,7 +136,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(dave_commune::plugin);
         app.add_plugins(morality::plugin);
         app.add_plugins(goat::plugin);
-        app.add_plugins(voice_lines::plugin);
+        app.add_plugins((babble::plugin, voice_lines::plugin));
         app.add_plugins(stillness::plugin);
         app.add_plugins(gods_tears::plugin);
         app.add_plugins(fart::plugin);

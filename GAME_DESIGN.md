@@ -441,7 +441,10 @@ Dying (to the RPG) just sends you back to the start.
   down its ladder (server-checked reach); click any ladder below to come up there, so you can go
   down in one place and come up in another. Down there (local only) the sky goes out, a murky fog
   closes in, a toast says where you are, and the band plays its own underground tune. The
-  helicopter (#134) loses you while you're below. The tunnels do nothing else yet.
+  helicopter (#134) loses you while you're below. The tunnels do nothing else yet. Getting out
+  used to be unclear, so every ladder below is now lit from above with a glowing hatch, and
+  while you're down there a line under the danger lane says how far the nearest ladder is along
+  the tunnels and which way to turn ("nearest ladder 18 m, to your left. Click it to climb out").
 - **Wendy's** (#117, Kori.exe: "a Wendy's on the map somewhere that has human meat burgers
   available to pick up"). A little cream burger shack on a stone base stands in the meadow just
   north of the road to the east village (around (30, 9)), with a red-and-white striped awning, a
@@ -501,8 +504,13 @@ Dying (to the RPG) just sends you back to the start.
 - **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
   Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
   plays a little jingle first and hops), the bear, or a crow. It shows as a subtitle with a
-  procedurally generated babble voice. The issue asked for audio from a specific 1993 game; we
-  can't ship someone else's copyrighted audio, so the lines and voices are original.
+  babble voice. The issue asked for audio from a specific 1993 game; we can't ship someone
+  else's copyrighted audio, so the lines and voices are original. The babble is Animal Crossing
+  style gibberish (asked for in chat): each letter plays a tiny slice of a real voice, sped up,
+  with vowels picking darker or brighter slices. The slices are 50 short syllables cut from five
+  CC0 Wikimedia Commons voice recordings (`scripts/voice_grains.py`); the bear borrows a low
+  man's voice, crows a fast Cantonese one, music boxes a singer's. Without the file it falls
+  back to the old synth blips.
 - **Main menu** (#25). A cute pastel clickable menu: Host a game (works solo; the join code is
   copied to the clipboard), Join (type or paste a friend's code, then Join! or Enter), and
   Settings: master volume, voice volume, microphone on/muted (M still toggles it). Settings are

@@ -131,6 +131,14 @@ struct PinTyping {
 #[derive(Component)]
 struct TypingHud;
 
+/// The left panel showing the procedural op graph and history cursor. Toggled
+/// with G; read-only.
+#[derive(Component)]
+struct GraphHud;
+
+#[derive(Resource, Default)]
+struct GraphHudVisible(bool);
+
 /// A click hit to turn into a pin marker, deferred to a spawn system because
 /// `MeshRayCast` already borrows `Assets<Mesh>` immutably.
 #[derive(Resource, Default)]
@@ -219,6 +227,7 @@ fn main() -> AppExit {
     .insert_resource(PendingShots::default())
     .insert_resource(Orbit::default())
     .init_resource::<CameraDrag>()
+    .init_resource::<GraphHudVisible>()
     .init_resource::<SceneBuilt>()
     .init_resource::<PinTyping>()
     .init_resource::<PendingPinSpawn>()
@@ -234,6 +243,7 @@ fn main() -> AppExit {
             spawn_pin_markers.run_if(windowed),
             pin_typing.run_if(windowed),
             update_typing_hud.run_if(windowed),
+            update_graph_hud.run_if(windowed),
         ),
     );
     if headless {
@@ -523,6 +533,23 @@ fn setup_scene(
             ..default()
         },
     ));
+    commands.spawn((
+        Name::new("graph hud"),
+        GraphHud,
+        Visibility::Hidden,
+        Text::new(String::new()),
+        TextFont {
+            font_size: FontSize::Px(14.0),
+            ..default()
+        },
+        TextColor(Color::WHITE),
+        Node {
+            position_type: PositionType::Absolute,
+            top: Val::Px(8.0),
+            left: Val::Px(8.0),
+            ..default()
+        },
+    ));
     let ground = materials.add(StandardMaterial {
         base_color: Color::srgb(0.35, 0.35, 0.38),
         ..default()
@@ -752,6 +779,37 @@ fn update_typing_hud(
         ),
         None => String::new(),
     };
+}
+
+/// G toggles the read-only graph panel: the op chain the parts derive from,
+/// plus the history tree with its cursor. Hidden until asked for.
+fn update_graph_hud(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut visible: ResMut<GraphHudVisible>,
+    modeler: Res<Modeler>,
+    mut hud: Query<(&mut Text, &mut Visibility), With<GraphHud>>,
+) {
+    if keys.just_pressed(KeyCode::KeyG) {
+        visible.0 = !visible.0;
+    }
+    let Ok((mut text, mut vis)) = hud.single_mut() else {
+        return;
+    };
+    *vis = if visible.0 {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
+    if !visible.0 {
+        text.0.clear();
+        return;
+    }
+    let mut s = format!(
+        "{}\n---\n",
+        friendslop_modeler::graph::describe(&modeler.session.model.ops)
+    );
+    s += &modeler.session.history.describe();
+    text.0 = s;
 }
 
 /// Encode a captured frame to PNG bytes (BGRA/RGBA in, RGBA PNG out).

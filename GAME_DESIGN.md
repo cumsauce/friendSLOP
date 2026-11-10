@@ -940,6 +940,10 @@ Dying (to the RPG) just sends you back to the start.
   capped it at 25x so the world still fits around it.
 - corvy (#195): the cat grows too quickly; at least 10x slower.
 - corvy (#192): the cat meows at most every 30 s, only when you're not looking at it; looking resets the timer.
+- catherine (#232): gather all the work that needs an admin or some outside person to act on
+  the repo, the bot image and so on, as a list for doomy. It's `ADMIN_TODO.md`: stuck
+  `needs-human` issues, secrets and tokens to renew, the manual release, redeploying the
+  Discord bot, upstream fixes, and checks that need a real machine or phone. No game change.
 - catherine (#170): a profile picture for the Discord bot made from the game's assets and
   current status, updating every now and then. The bot (`tools/idea-bot/avatar.py`) renders
   the game's own campfire and cowboy models at night with a tiny software renderer: the big

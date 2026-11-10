@@ -57,6 +57,7 @@ pub fn evaluate(ops: &[Op]) -> Result<Vec<Part>, String> {
                 count,
                 center,
                 degrees,
+                start_degrees,
             } => {
                 let source = lookup(&named, input)?;
                 if *count == 0 {
@@ -64,7 +65,7 @@ pub fn evaluate(ops: &[Op]) -> Result<Vec<Part>, String> {
                 }
                 let step = degrees / *count as f32;
                 for i in 0..*count {
-                    let yaw = i as f32 * step;
+                    let yaw = start_degrees + i as f32 * step;
                     let mut part = source.clone();
                     part.name = format!("{name}_{i}");
                     let offset = Vec3::from(part.translation) - Vec3::from(*center);
@@ -130,6 +131,31 @@ pub fn output(op: &Op) -> &str {
         | Op::Boolean { name, .. }
         | Op::RadialArray { name, .. }
         | Op::Material { name, .. } => name,
+    }
+}
+
+/// What kind of op this is; upserts only replace ops of the same kind, so an
+/// in-place op (output name == an input name) never eats its own source.
+pub fn kind(op: &Op) -> &'static str {
+    match op {
+        Op::Primitive { .. } => "primitive",
+        Op::Transform { .. } => "transform",
+        Op::Boolean { .. } => "boolean",
+        Op::RadialArray { .. } => "radial",
+        Op::Material { .. } => "material",
+    }
+}
+
+/// The part names an op reads.
+pub fn inputs(op: &Op) -> Vec<&str> {
+    match op {
+        Op::Primitive { .. } => Vec::new(),
+        Op::Transform { input, .. }
+        | Op::RadialArray { input, .. }
+        | Op::Material { input, .. } => {
+            vec![input]
+        }
+        Op::Boolean { a, b, .. } => vec![a, b],
     }
 }
 
@@ -230,6 +256,7 @@ mod tests {
                 count: 4,
                 center: [0.0, 0.0, 0.0],
                 degrees: 360.0,
+                start_degrees: 0.0,
             },
         ])
         .unwrap_or_else(|e| panic!("{e}"));
@@ -266,6 +293,7 @@ mod tests {
             count: 8,
             center: [0.0; 3],
             degrees: 360.0,
+            start_degrees: 45.0,
         }]);
         assert!(text.contains("8 x `petal`"), "{text}");
     }

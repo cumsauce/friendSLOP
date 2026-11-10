@@ -281,7 +281,9 @@ pub enum Op {
         b: String,
     },
     /// Copies an earlier part around a circle: `count` copies spread over
-    /// `degrees` (360 = full ring), rotating about the +Y axis through `center`.
+    /// `degrees` starting at `start_degrees`, rotating about the +Y axis
+    /// through `center`. With start = step and degrees = 360 - step, the
+    /// source part fills the 0° slot evenly.
     RadialArray {
         name: String,
         input: String,
@@ -290,6 +292,8 @@ pub enum Op {
         center: [f32; 3],
         #[serde(default = "default_degrees")]
         degrees: f32,
+        #[serde(default)]
+        start_degrees: f32,
     },
     /// Re-materials an earlier part into a new output.
     Material {

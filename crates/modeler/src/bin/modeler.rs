@@ -1099,6 +1099,10 @@ struct OpRadialArrayArgs {
     /// Arc to spread the copies over, in degrees. Default 360 (full ring).
     #[serde(default = "default_tool_degrees")]
     degrees: f32,
+    /// Angle of the first copy. Use step (= degrees / count) plus count-1
+    /// copies when the source part itself should fill the 0° slot evenly.
+    #[serde(default)]
+    start_degrees: f32,
 }
 
 fn default_tool_degrees() -> f32 {
@@ -1428,9 +1432,10 @@ impl Tools {
             count,
             center,
             degrees,
+            start_degrees,
         }): Parameters<OpRadialArrayArgs>,
     ) -> Result<CallToolResult, ErrorData> {
-        self.run(move |s| s.op_radial_array(&name, &input, count, center, degrees))
+        self.run(move |s| s.op_radial_array(&name, &input, count, center, degrees, start_degrees))
             .await
     }
 

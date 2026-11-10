@@ -27,7 +27,7 @@ warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, o
 Every chapter ends with the landlord: pay rent in organs (Act 1), pickpocket him (Act 2), beat
 him in a boss fight (Act 3). Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
 
-**Always going on:** the Stillness freezes everything for 20 s every minute. Farting near an NPC
+**Always going on:** the Stillness freezes everything for 20 s every 4 minutes. Farting near an NPC
 shames you; get caught 4 times and the villagers chase you and float you with an accomplice.
 Villagers fart and blame you. Low morality brings a helicopter that shoots at you. 5% of
 actions fail with a silly result. Marmalade, a wizard cat by the bonfire, spins a wheel that
@@ -490,7 +490,7 @@ Dying (to the RPG) just sends you back to the start.
   There is no separate lobby screen yet: hosting drops you straight into the world, and friends
   appear on the player list as they join. If the host connection drops, a joiner goes back to
   the menu with the reason ("Lost the connection to the host: ...") instead of crashing (#194).
-- **The Stillness** (#17). Every 60 seconds the whole world freezes for 20 seconds so everyone
+- **The Stillness** (#17). Every 4 minutes (it was every minute; made rarer at the owner's request) the whole world freezes for 20 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
   in place, gas stops building, and the server ignores every player request (farting, prying,
   duels, totems, pets, tears, the landlord, the mushroom, tuning your fart); a big message with a

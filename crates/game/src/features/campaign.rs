@@ -118,6 +118,25 @@ impl Task {
             Task::Jegg(_) => "Bring soul pieces out of the warehouse (south) to Jegg",
         }
     }
+
+    /// The same job as one short "now: ..." line for the quest card.
+    pub fn next(self) -> &'static str {
+        match self {
+            Task::Pack => "adopt pets, leash them into one pack",
+            Task::Mushroom(_) => "eat the voice mushroom",
+            Task::VaultDoor => "bring a totem to its vault door",
+            Task::FireTotem => "take the Fire totem from the vault",
+            Task::Halt(_) => "break out of HALT (G to pry)",
+            Task::Tears(_) => "use gods tears",
+            Task::HideSeek(_) => "play hide and seek (K)",
+            Task::Duel(_) => "fight a duel (1-9)",
+            Task::Landlord => "beat the landlord",
+            Task::Abuela => "climb the sky islands to Abuela",
+            Task::Burgers(_) => "grab burgers at Wendy's (east)",
+            Task::Paul(_) => "trade a crow egg to Sewer Paul",
+            Task::Jegg(_) => "bring soul pieces to Jegg",
+        }
+    }
 }
 
 pub struct Chapter {
@@ -497,6 +516,16 @@ pub fn checklist(c: &Campaign, landlord: Option<&str>) -> String {
     s
 }
 
+/// The quest card's "now: ..." line: the first job still to do.
+pub fn next_line(c: &Campaign) -> String {
+    let ch = c.current();
+    match (0..ch.tasks.len()).find(|&i| !c.task_done(i)) {
+        Some(i) => format!("now: {}", ch.tasks[i].next()),
+        None if c.finale() => "now: walk into heaven".to_string(),
+        None => "now: press Enter for the next chapter".to_string(),
+    }
+}
+
 /// The big line at the top of the screen.
 pub fn goal_line(c: &Campaign) -> String {
     format!(
@@ -549,7 +578,9 @@ fn spawn_ui(mut commands: Commands) {
         ChecklistText,
         TextFont::from_font_size(14.0),
         TextColor(crate::hud::TEXT),
-        crate::hud::slot(crate::hud::HudSlot::TopLeft),
+        // The full checklist lives on Tab; the quest card (`ui::quest`) has
+        // the counts and the next job.
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         crate::hud::First,
         DespawnOnExit(AppState::InGame),
     ));

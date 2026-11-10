@@ -675,25 +675,25 @@ fn fps_camera(
     cam.rotation = Quat::from_euler(EulerRot::YXZ, view.yaw, view.pitch, 0.0);
 }
 
+/// The first-person aim point (a crosshair glyph; the HUD swaps it for a
+/// hand over something clickable in reach, see `ui::prompt`).
 #[derive(Component)]
-struct WalkCrosshair;
+pub struct WalkCrosshair;
 
-fn spawn_crosshair(mut commands: Commands) {
+fn spawn_crosshair(mut commands: Commands, icons: Option<Res<crate::ui::Icons>>) {
+    let image = icons.map(|i| i.target.clone()).unwrap_or_default();
     commands.spawn((
         WalkCrosshair,
         Node {
             position_type: PositionType::Absolute,
             top: percent(50),
             left: percent(50),
-            width: px(9),
-            height: px(9),
-            margin: UiRect::all(px(-4.5)),
-            border: UiRect::all(px(1.5)),
-            border_radius: BorderRadius::all(px(5)),
+            width: px(24),
+            height: px(24),
+            margin: UiRect::all(px(-12)),
             ..default()
         },
-        BackgroundColor(crate::theme::CREAM.with_alpha(0.9)),
-        BorderColor::all(crate::theme::BERRY.with_alpha(0.75)),
+        ImageNode::new(image).with_color(crate::theme::indigo::INK),
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));

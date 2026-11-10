@@ -207,19 +207,9 @@ fn stop_all(mut commands: Commands, mut p: ResMut<Punishment>) {
 }
 
 #[derive(Component)]
-struct AttackText;
-
-#[derive(Component)]
 struct StrikesText;
 
 fn spawn_ui(mut commands: Commands) {
-    commands.spawn((
-        Text::new(""),
-        TextColor(crate::theme::ROSE_RED),
-        AttackText,
-        crate::hud::slot(crate::hud::HudSlot::Toasts),
-        DespawnOnExit(AppState::InGame),
-    ));
     commands.spawn((
         Text::new(""),
         StrikesText,
@@ -320,35 +310,12 @@ fn jingle_keys(
 
 fn show_attack(
     me: Option<Res<LocalPlayer>>,
-    attacks: Query<&AttackMode>,
     players: Query<(&Player, &Strikes)>,
-    mut attack_text: Query<&mut Text, (With<AttackText>, Without<StrikesText>)>,
-    mut strikes_text: Query<&mut Text, (With<StrikesText>, Without<AttackText>)>,
+    mut strikes_text: Query<&mut Text, With<StrikesText>>,
     odds: Query<&crate::features::gamble::HouseOdds>,
 ) {
+    // The attack itself shows in the HUD's danger lane (`ui::danger`).
     let me = me.map(|m| m.0);
-    let want = attacks
-        .iter()
-        .map(|a| {
-            if Some(a.target) == me {
-                format!(
-                    "ATTACK MODE: the whole commune is after YOU. Run! ({})",
-                    a.secs_left
-                )
-            } else {
-                format!(
-                    "ATTACK MODE: the commune is chasing player {} ({})",
-                    a.target, a.secs_left
-                )
-            }
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-    for mut text in &mut attack_text {
-        if text.0 != want {
-            text.0.clone_from(&want);
-        }
-    }
     let mine = players
         .iter()
         .find(|(p, _)| Some(p.id) == me)

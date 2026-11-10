@@ -37,6 +37,49 @@ pub const R_CHIP: f32 = 12.0;
 pub const R_PANEL: f32 = 22.0;
 pub const R_PILL: f32 = 999.0;
 
+/// The "E · Indigo journal" UI direction (Figma spec node 3:2918): solid deep
+/// indigo cards with cream text, so the HUD reads over both the bright meadow
+/// and dark interiors. Authored at 1280x720 logical pixels.
+pub mod indigo {
+    use bevy::prelude::Color;
+
+    /// Surface / ink: HUD cards, journal cover, loading curtain. #30294E
+    pub const INK: Color = Color::srgb(0.188, 0.161, 0.306);
+    /// Text and glyphs on ink. #FFF8E7
+    pub const CREAM: Color = Color::srgb(1.0, 0.973, 0.906);
+    /// Expanded journal and settings backdrop. #EDF0FF
+    pub const LAVENDER: Color = Color::srgb(0.929, 0.941, 1.0);
+    /// Light controls and content cards. #F7F4FF
+    pub const PAPER: Color = Color::srgb(0.969, 0.957, 1.0);
+    /// Inset cover buttons, input fields, meter tracks. #51456D
+    pub const RAISED: Color = Color::srgb_u8(0x51, 0x45, 0x6D);
+    /// Quiet card and checkbox outlines. #7C709C
+    pub const BORDER: Color = Color::srgb(0.486, 0.439, 0.612);
+    /// Secondary text on ink, loading progress. #AABCF5
+    pub const PERIWINKLE: Color = Color::srgb(0.667, 0.737, 0.961);
+    /// Utility primary buttons, checked boxes, sliders, selected tabs. #3D4DA4
+    pub const INDIGO: Color = Color::srgb(0.239, 0.302, 0.643);
+    /// Warnings: attack, cat critical, speaker highlight, Host. #FFE174
+    pub const BUTTER: Color = Color::srgb(1.0, 0.882, 0.455);
+    /// Logo extrusion and world facets. #7660B8
+    pub const PURPLE: Color = Color::srgb(0.463, 0.376, 0.722);
+
+    /// Logical size the UI is authored at.
+    pub const AUTHOR_W: f32 = 1280.0;
+    pub const AUTHOR_H: f32 = 720.0;
+    /// Gap between HUD cards and the screen edge.
+    pub const EDGE: f32 = 24.0;
+
+    /// Uniform UI scale for a window of `w` x `h` logical pixels: height / 720,
+    /// but never wider than the window (so 16:10 and 4:3 don't overlap).
+    pub fn ui_scale(w: f32, h: f32) -> f32 {
+        if w <= 0.0 || h <= 0.0 {
+            return 1.0;
+        }
+        (h / AUTHOR_H).min(w / AUTHOR_W)
+    }
+}
+
 /// A soft drop shadow under a panel.
 pub fn shadow(y: f32, blur: f32) -> BoxShadow {
     BoxShadow::new(SHADOW, px(0), px(y), px(0), px(blur))
@@ -211,5 +254,14 @@ mod tests {
         assert!(ease_out_back(0.7) > 1.0);
         let p = Pop::now(0.5);
         assert!((p.scale() - 0.5).abs() < 1e-5);
+    }
+
+    #[test]
+    fn ui_scales_by_height_without_overflowing_width() {
+        assert_eq!(indigo::ui_scale(1280.0, 720.0), 1.0);
+        assert_eq!(indigo::ui_scale(1920.0, 1080.0), 1.5);
+        // 16:10 is limited by its width.
+        assert!((indigo::ui_scale(1440.0, 900.0) - 1.125).abs() < 1e-5);
+        assert_eq!(indigo::ui_scale(0.0, 0.0), 1.0);
     }
 }

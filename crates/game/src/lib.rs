@@ -36,6 +36,7 @@ pub mod spatial;
 pub use friendslop_art::theme;
 pub use friendslop_world::surfaces;
 pub use friendslop_world::terrain;
+pub mod ui;
 pub mod voice;
 #[cfg(target_arch = "wasm32")]
 pub mod web;
@@ -101,6 +102,7 @@ impl Plugin for GamePlugin {
             graphics::plugin,
             surfaces::plugin,
             fault::plugin,
+            ui::plugin,
         ));
     }
 }

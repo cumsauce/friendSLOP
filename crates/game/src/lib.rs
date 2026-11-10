@@ -38,14 +38,17 @@ pub use friendslop_world::surfaces;
 pub use friendslop_world::terrain;
 pub mod ui;
 pub mod voice;
+/// Voice chat audio through Web Audio (#166).
+#[cfg(target_arch = "wasm32")]
+pub mod voice_web;
 #[cfg(target_arch = "wasm32")]
 pub mod web;
 pub mod world;
 pub mod zones;
 
-/// `bevy_voice_chat`'s prelude. It is built for the browser too (#106): there
-/// it finds no audio devices, but its replicon messages keep the protocol
-/// identical to desktop peers.
+/// `bevy_voice_chat`'s prelude. It is built for the browser too (#106), where
+/// it runs on Web Audio (`voice_web`, #166) with the same replicon messages
+/// as desktop peers.
 pub mod voice_chat {
     pub use bevy_voice_chat::prelude::*;
 }

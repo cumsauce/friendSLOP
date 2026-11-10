@@ -744,6 +744,24 @@ Dying (to the RPG) just sends you back to the start.
   `FRIENDSLOP_BENCH=1 cargo run -- host` prints frame times and GPU asset churn; there's no GPU
   in CI so the gains weren't measured on real hardware (in software rendering the frame cost is
   almost all pixel shading, which these changes barely touch).
+- **HUD: "E · Indigo journal"** (UI polish, not a friend idea; from the Figma UI brief in
+  `docs/figma-ui-brief.md`, which answered "about 12 floating cards at once"). Solid deep-indigo
+  cards with cream text (`theme::indigo`), Fredoka for titles and countdowns, Nunito Bold for
+  the rest, authored at 1280x720 and scaled up uniformly with bigger windows (`ui/`). On
+  screen: a **quest card** top-left (chapter N/5 and its name, jobs done, Heaven Pass tier, and
+  "now:" the next job); a **team strip** top-right (one badge per player: mic, name, gods' tears
+  ×N; butter with a waveform while they talk, a slash when muted; mute state is replicated
+  now); a **danger lane** under it (ATTACK MODE, the Stillness, the rent raise in its last
+  minute, the helicopter, being carried or floated; most urgent first, at most three, with
+  MM:SS countdowns); an **event feed** on the left (every toast and toast line: at most three,
+  repeats within 2 s merge into ×N, 4 s then a fade); the **gas meter, mic chip and cat size**
+  bottom-right (the cat card turns into a blinking butter "PET. THE. CAT." fuse card at
+  critical mass); a "Tab / J journal" hint bottom-left (J toggles the Tab panel); subtitles
+  bottom-centre; and a **context prompt** under the aim point ("Pet the cat · LMB / B · in
+  reach", or "Too far · move closer"), with the crosshair turning into a hand. Lines other
+  features still put in HUD slots sit around these on matching ink chips. The full chapter
+  checklist and the join code moved to Tab; your own stat lines no longer mirror into the
+  corner (they're on Tab).
 
 ## Ideas so far
 

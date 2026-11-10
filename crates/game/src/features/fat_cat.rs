@@ -383,22 +383,18 @@ fn pet_cat(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(click_cat)
-        .add_observer(boom)
-        .add_systems(OnEnter(AppState::InGame), spawn_cat_hud)
-        .add_systems(
-            Update,
-            (
-                dress_cats,
-                move_cats,
-                report_in_view,
-                meow,
-                blink,
-                fade_blasts,
-                update_cat_hud.run_if(crate::world::hud_tick()),
-            )
-                .run_if(in_state(AppState::InGame)),
-        );
+    app.add_observer(click_cat).add_observer(boom).add_systems(
+        Update,
+        (
+            dress_cats,
+            move_cats,
+            report_in_view,
+            meow,
+            blink,
+            fade_blasts,
+        )
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 /// Local: clicking a cat pets it.
@@ -852,55 +848,6 @@ pub fn meow_samples(rate: u32, size: f32, seed: u32) -> Vec<f32> {
     }
     super::synth_audio::master(&mut out, rate, 6000.0, 0.75);
     out
-}
-
-#[derive(Component)]
-struct CatHud;
-
-fn spawn_cat_hud(mut commands: Commands) {
-    commands.spawn((
-        Text::new(""),
-        CatHud,
-        crate::hud::slot(crate::hud::HudSlot::BottomLeft),
-        DespawnOnExit(AppState::InGame),
-    ));
-}
-
-fn update_cat_hud(
-    me: Option<Res<LocalPlayer>>,
-    cats: Query<(&FatCat, Option<&Fuse>, Option<&Lapping>)>,
-    mut hud: Query<&mut Text, With<CatHud>>,
-) {
-    let want = me
-        .and_then(|me| cats.iter().find(|(c, ..)| c.owner == me.0))
-        .map(|(c, fuse, lapping)| {
-            if let Some(f) = fuse {
-                return format!(
-                    "!!! YOUR CAT IS GOING CRITICAL ({:.0}s) !!! pet him smaller (click him): {:.1}x",
-                    f.0.ceil(),
-                    c.size
-                );
-            }
-            if let Some(l) = lapping {
-                return format!(
-                    "your fat cat: {:.1}x (busy drinking pee, {:.0}s)",
-                    c.size,
-                    l.0.ceil()
-                );
-            }
-            let warning = if c.size >= MAX_SIZE {
-                "it can't get any bigger"
-            } else {
-                "it grows when you don't look at it"
-            };
-            format!("your fat cat: {:.1}x ({warning})", c.size)
-        })
-        .unwrap_or_default();
-    for mut text in &mut hud {
-        if text.0 != want {
-            text.0.clone_from(&want);
-        }
-    }
 }
 
 #[cfg(test)]

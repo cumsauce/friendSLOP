@@ -7,7 +7,6 @@ use crate::AppState;
 use crate::art;
 use crate::net::NetStatus;
 use crate::player::Player;
-use crate::voice::VoiceMuted;
 
 /// How often HUD text is rebuilt (5 Hz, on real time so it keeps updating
 /// while the world stands still). Formatting strings every frame is waste.
@@ -133,27 +132,28 @@ fn spawn_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         HudText,
-        crate::hud::slot(crate::hud::HudSlot::TopLeft),
+        // On Tab: the team strip shows who's here, the mic chip your mic.
+        crate::hud::slot(crate::hud::HudSlot::Scoreboard),
         DespawnOnExit(AppState::InGame),
     ));
 }
 
 fn update_hud(
     status: Res<NetStatus>,
-    muted: Res<VoiceMuted>,
     players: Query<(), With<Player>>,
     mut hud: Query<&mut Text, With<HudText>>,
 ) {
     let n = players.iter().count();
     let mut lines = vec![format!(
-        "{n} {}  |  mic {}",
+        "{n} {}  |  H help",
         if n == 1 { "player" } else { "players" },
-        if muted.0 { "muted" } else { "on" }
     )];
     if let Some(code) = &status.join_code {
-        lines.push(format!("code {}  (C copies)", crate::hud::short_code(code)));
+        lines.push(format!(
+            "join code {}  (C copies)",
+            crate::hud::short_code(code)
+        ));
     }
-    lines.push("H help  |  Tab scores".into());
     let text = lines.join("\n");
     for mut t in &mut hud {
         if t.0 != text {

@@ -16,6 +16,8 @@ asked for, and what nobody has decided yet.
 
 <!-- The current loop in plain words, for friends. Refreshed on every change; the Discord bot
 posts this section every few landed ideas (#153). Keep it under ~1800 characters. -->
+**Play in the browser:** https://cumsauce.github.io/friendSLOP/
+
 **The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
 
 **Each chapter:** a checklist (top-left) of jobs, and each one sends you somewhere new:
@@ -701,8 +703,11 @@ Dying (to the RPG) just sends you back to the start.
   with the scroll wheel, clamped to the floor. V again returns to first person.
 
 - **Browser / phone build** (#106). `scripts/build-web.sh` builds a WebGL2 page (index.html +
-  wasm + assets) into `dist/web`; the Release workflow attaches it as `friendslop-web.zip` and,
-  if the repo has Pages enabled, hosts it there. WebGL **1.0** isn't possible: Bevy 0.20's
+  wasm + assets) into `dist/web`; the Release workflow attaches it as `friendslop-web.zip`.
+  **Always online** (#230): every push to `main` rebuilds it (`.github/workflows/web.yml`) and
+  deploys it to GitHub Pages at https://cumsauce.github.io/friendSLOP/ (https, so the mic works;
+  `version.txt` there names the commit). A deploy takes ~20-30 minutes; merges that land while
+  one is building queue up and only the newest of them is built next. WebGL **1.0** isn't possible: Bevy 0.20's
   renderer (wgpu) needs WebGL2 at minimum (every current browser, iOS 15+). Phone-friendly:
   no zoom/scroll/bounce, 100dvh, "Tap to play" goes fullscreen and locks landscape where the
   browser allows (Android Chrome); iOS Safari can do neither for a page, so a "turn your phone
@@ -917,6 +922,8 @@ Dying (to the RPG) just sends you back to the start.
 - WeiYa (#166): add voice chat to the web build, release the web build with the others (an
   html entry point) and include the assets in every release. The release zips got their
   `assets/` folder first (#187); browser voice came after (see Browser / phone build).
+- catherine (#230): automatic web builds deployed to a host, so the game can be played on the
+  web ("work super extra hard on this"). GitHub Pages, rebuilt on every push to main.
 - catherine (#151): optimisation passes, aim high, make the game run really well so there's
   room for more stuff; clean things up.
 - doomy (#100): make your own character so others can see you; rigged but procedural, and a

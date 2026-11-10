@@ -3,6 +3,8 @@
 A multiplayer game that **nobody is designing**. Friends throw ideas over the wall, Claude builds
 them, and whatever passes CI ships. Expect chaos.
 
+- 🌐 **Play in your browser:** **https://cumsauce.github.io/friendSLOP/**, rebuilt automatically
+  from every change to `main` (allow the mic for voice chat).
 - 🎮 **Play:** grab the build for your OS from [Releases → latest](../../releases/tag/latest).
   One person presses **H** to host (a join code is copied to their clipboard) and shares the code.
   Everyone else copies it and presses **J**. Talk with your mic, **M** to mute.

@@ -52,7 +52,7 @@ const SPEED: f32 = 1.3;
 const ARENA_MARGIN: f32 = 1.5;
 
 /// The villagers' body on the navmesh (handoff #94).
-const AGENT_RADIUS: f32 = 0.35;
+pub(crate) const AGENT_RADIUS: f32 = 0.35;
 const AGENT_HEIGHT: f32 = 1.7;
 /// Ledges up to this height are walkable (the hut steps, the quarry terraces).
 const MAX_CLIMB: f32 = 0.5;
@@ -142,16 +142,16 @@ struct VillageRng(u64);
 /// Server: the villagers' navigation. Created when the host enters the game;
 /// the mesh arrives in the background a moment later.
 #[derive(Resource)]
-struct VillageNav {
-    /// The landmass archipelago every villager agent joins.
-    archipelago: Entity,
+pub(crate) struct VillageNav {
+    /// The landmass archipelago every villager agent joins (the fat cats too).
+    pub(crate) archipelago: Entity,
     /// The rerecast mesh, held so it stays loaded.
     mesh: Handle<bevy_rerecast::Navmesh>,
     /// When the build was queued, for the ready log line.
     started: Instant,
     /// The mesh is built and hung on an island: only now can agents path
     /// across the map (before that, long trips would straight-line through walls).
-    ready: bool,
+    pub(crate) ready: bool,
 }
 
 impl VillageRng {
@@ -689,7 +689,7 @@ fn dress_villagers(mut commands: Commands, new: Query<(Entity, &Villager), Witho
             crate::people::Gait::default(),
             Transform::from_xyz(v.pos.x, 0.0, v.pos.y).with_rotation(Quat::from_rotation_y(v.yaw)),
             Visibility::default(),
-            Clickable::at_height(1.0).radius(60.0),
+            Clickable::at_height(1.0).radius(60.0).labelled("poke"),
             // Drawn from the same pool as players' looks, so hiders blend in.
             crate::people::CharacterLook::random(1000 + v.id as u64 * 13),
             DespawnOnExit(AppState::InGame),

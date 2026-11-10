@@ -278,7 +278,9 @@ fn spawn_landlord(
         .spawn((
             LandlordBody,
             Transform::from_translation(LANDLORD_AT),
-            Clickable::at_height(1.2).radius(60.0),
+            Clickable::at_height(1.2)
+                .radius(60.0)
+                .labelled("pay the landlord"),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ))

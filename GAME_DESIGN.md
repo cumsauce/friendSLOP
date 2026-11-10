@@ -316,6 +316,10 @@ Dying (to the RPG) just sends you back to the start.
   the crew gets up. Doubloons show bottom-right and buy nothing yet (`features/shipwreck.rs`).
   It's the first feature to keep trees off its ground by claiming a footprint
   (`world::footprints`) instead of being imported by the map.
+- **Click hints**. Whatever your aim point (crosshair, or the cursor in the overview camera) is
+  on gets a little label under it saying what clicking does ("click: pet the cat", "click: take
+  the burger", "click: vote to go in"), or "too far" when you're out of reach. Things without
+  a verb just say "click" (`features/interact.rs`, `Clickable::labelled`).
 - **Skills** (#176, catherine: "everything, even walking and sleeping and pissing and farting
   should have a skill that improves it over time like rune factory"). Everyone levels six skills
   1-100 by doing them (each level needs more XP): Walking (per metre; up to +20% walk and run
@@ -566,9 +570,14 @@ Dying (to the RPG) just sends you back to the start.
   While it's off your screen, at most every 30 s (looking at it restarts the wait, #192, corvy), it lets out a horrific synthesized meow (detuned, ring-modulated, clipped
   "mrrrEEEOOWW"), heard in 3D by everyone; the bigger it is the deeper, longer and further it
   carries. Whenever none of it is on your screen it grows (+0.008x per second, ten times slower since #195, corvy; up to 25x) and it
-  never shrinks back, so the only way to stop it is to keep looking at it. Only its owner's view
-  counts. Your client tells the server whether it's on screen; the server grows it. Bottom-left
-  shows your cat's size. It's harmless and doesn't block anything, it's just in the way visually.
+  only grows while unwatched. Only its owner's view counts. Your client tells the server whether
+  it's on screen; the server grows it. Bottom-left shows your cat's size. It walks the villagers'
+  navmesh to you (round trees, walls and the pond) and only straight-lines where there's no mesh
+  (indoors, underground). **Petting** (click any cat, from close by) shrinks it by 0.6x. At
+  **critical mass (10x)** its fuse lights: it flashes red and beeps like a bomb, faster and faster,
+  and the HUD shouts at its owner. Pet it back under 10x within 30 s or it **explodes**: a big
+  orange flash, everyone within 10 m is flung 8 m away, and it's a merely fat cat (1x) again.
+  (Asked for by the owner directly, no issue.)
 - **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
   game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
   Press G to pry at the seams; every pry fills the shared escape bar (top right) but angers HALT.

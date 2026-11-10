@@ -424,7 +424,9 @@ fn dress_pirates(mut commands: Commands, new: Query<(Entity, &Pirate), Without<D
             Transform::from_translation(pirate_spot(p.id))
                 .with_rotation(Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2)),
             Visibility::default(),
-            Clickable::at_height(1.0).radius(60.0),
+            Clickable::at_height(1.0)
+                .radius(60.0)
+                .labelled("fight the pirate"),
             crate::people::CharacterLook::random(0x0185_0000 + p.id as u64 * 7),
             DespawnOnExit(AppState::InGame),
         ));
@@ -462,7 +464,9 @@ fn dress_chest(
             .insert((
                 Transform::from_translation(chest_spot()),
                 Visibility::default(),
-                Clickable::at_height(0.4).radius(50.0),
+                Clickable::at_height(0.4)
+                    .radius(50.0)
+                    .labelled("take the treasure"),
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|c| {

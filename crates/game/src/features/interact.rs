@@ -8,6 +8,10 @@
 //! re-checks the distance and answers with `Denied` when it says no, shown in
 //! the HUD toast.
 //!
+//! Whatever the aim point is on gets a hint under it: the thing's verb
+//! ([`Clickable::labelled`], or just "click"), and "too far" when it's out of
+//! reach, so you can tell what's clickable before you click.
+//!
 //! In a duel the duel owns the mouse (shooting), so picking is off there. In
 //! first person, a click while the cursor is free (after Esc) only grabs it
 //! again.
@@ -36,6 +40,8 @@ pub const SERVER_REACH: f32 = REACH + 1.0;
 pub struct Clickable {
     pub height: f32,
     pub radius_px: f32,
+    /// What clicking does, shown in the hover hint ("pet the cat").
+    pub label: Option<&'static str>,
 }
 
 impl Clickable {
@@ -43,7 +49,14 @@ impl Clickable {
         Self {
             height,
             radius_px: CLICK_RADIUS,
+            label: None,
         }
+    }
+
+    /// The verb shown in the hover hint.
+    pub fn labelled(mut self, label: &'static str) -> Self {
+        self.label = Some(label);
+        self
     }
 
     pub fn radius(mut self, px: f32) -> Self {
@@ -123,7 +136,97 @@ pub fn pick(
 
 pub fn plugin(app: &mut App) {
     app.add_observer(show_denied)
-        .add_systems(Update, click.run_if(in_state(AppState::InGame)));
+        .add_systems(OnEnter(AppState::InGame), spawn_hint)
+        .add_systems(
+            Update,
+            (click, hover_hint).run_if(in_state(AppState::InGame)),
+        );
+}
+
+/// The hover hint text, shown under the aim point.
+pub fn hint_text(label: Option<&str>, in_reach: bool) -> String {
+    match (label, in_reach) {
+        (Some(verb), true) => format!("click: {verb}"),
+        (None, true) => "click".to_string(),
+        (Some(verb), false) => format!("{verb} (too far)"),
+        (None, false) => "too far".to_string(),
+    }
+}
+
+#[derive(Component)]
+struct HoverHint;
+
+fn spawn_hint(mut commands: Commands) {
+    commands.spawn((
+        HoverHint,
+        Text::new(""),
+        TextFont::from_font_size(15.0),
+        TextColor(crate::theme::INK),
+        TextLayout::justify(Justify::Center),
+        Node {
+            position_type: PositionType::Absolute,
+            padding: UiRect::axes(px(8), px(3)),
+            border_radius: BorderRadius::all(px(999)),
+            ..default()
+        },
+        BackgroundColor(crate::theme::CREAM.with_alpha(0.85)),
+        GlobalZIndex(30),
+        Visibility::Hidden,
+        DespawnOnExit(AppState::InGame),
+    ));
+}
+
+/// Show what the aim point is on (and whether it's in reach), every frame.
+#[allow(clippy::too_many_arguments)]
+fn hover_hint(
+    me: Option<Res<LocalPlayer>>,
+    window: Query<&Window, With<PrimaryWindow>>,
+    camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    clickables: Query<(Entity, &Clickable, &GlobalTransform, &InheritedVisibility)>,
+    walkers: Query<(&Player, &Walker)>,
+    duelists: Query<&Duelist>,
+    view: Res<FpsView>,
+    mut hint: Query<(&mut Text, &mut Node, &mut Visibility), With<HoverHint>>,
+) {
+    let Ok((mut text, mut node, mut vis)) = hint.single_mut() else {
+        return;
+    };
+    let target = (|| {
+        let me = me.as_ref()?;
+        if duelists.iter().any(|d| d.player == me.0) || (view.first_person && view.released) {
+            return None;
+        }
+        let window = window.single().ok()?;
+        let cursor = aim_point(window, &view)?;
+        let (camera, cam_tf) = camera.single().ok()?;
+        let candidates = clickables.iter().filter_map(|(e, c, tf, vis)| {
+            if !vis.get() {
+                return None;
+            }
+            let at = tf.translation() + Vec3::Y * c.height;
+            let p = camera.world_to_viewport(cam_tf, at).ok()?;
+            Some((e, p, c.radius_px))
+        });
+        let target = pick(cursor, candidates)?;
+        let (_, c, tf, _) = clickables.get(target).ok()?;
+        let here = walkers.iter().find(|(p, _)| p.id == me.0)?.1.pos;
+        Some((
+            cursor,
+            hint_text(c.label, within(here, tf.translation(), REACH)),
+        ))
+    })();
+    let Some((cursor, want)) = target else {
+        vis.set_if_neq(Visibility::Hidden);
+        return;
+    };
+    vis.set_if_neq(Visibility::Inherited);
+    if text.0 != want {
+        text.0 = want;
+    }
+    // Centred a little under the aim point (width is a rough guess from the text).
+    let w = 9.0 * text.0.chars().count() as f32 + 16.0;
+    node.left = Val::Px(cursor.x - w / 2.0);
+    node.top = Val::Px(cursor.y + 16.0);
 }
 
 fn show_denied(ev: On<Denied>, toast: Option<ResMut<Toast>>) {
@@ -220,6 +323,13 @@ mod tests {
         );
         assert_eq!(got, Some(b));
         assert_eq!(pick(Vec2::ZERO, [(a, Vec2::new(100.0, 0.0), 40.0)]), None);
+    }
+
+    #[test]
+    fn hints_say_what_and_whether_you_can_reach() {
+        assert_eq!(hint_text(Some("pet the cat"), true), "click: pet the cat");
+        assert_eq!(hint_text(None, true), "click");
+        assert_eq!(hint_text(None, false), "too far");
     }
 
     #[test]

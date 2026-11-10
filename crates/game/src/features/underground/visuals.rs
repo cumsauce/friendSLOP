@@ -213,7 +213,9 @@ fn build_tops(commands: &mut Commands, m: &Mats, materials: &mut Assets<Standard
             Hatch(i as u8),
             Transform::from_translation(at),
             Visibility::default(),
-            Clickable::at_height(0.3).radius(80.0),
+            Clickable::at_height(0.3)
+                .radius(80.0)
+                .labelled("climb down"),
             DespawnOnExit(AppState::InGame),
         ));
     }
@@ -529,7 +531,7 @@ fn build_tunnels(commands: &mut Commands, m: &Mats, materials: &mut Assets<Stand
             Deep,
             Transform::from_translation(base),
             Visibility::Hidden,
-            Clickable::at_height(1.4).radius(90.0),
+            Clickable::at_height(1.4).radius(90.0).labelled("climb up"),
             DespawnOnExit(AppState::InGame),
         ));
     }

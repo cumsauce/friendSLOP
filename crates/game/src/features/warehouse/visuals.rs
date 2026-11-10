@@ -351,7 +351,9 @@ fn build_outside(
         OutsideDoor,
         Transform::from_translation(d - Vec3::Z * 0.2),
         Visibility::default(),
-        Clickable::at_height(1.6).radius(110.0),
+        Clickable::at_height(1.6)
+            .radius(110.0)
+            .labelled("vote to go in"),
         DespawnOnExit(AppState::InGame),
     ));
     // One sick, buzzing lamp over the door.
@@ -422,7 +424,9 @@ fn build_outside(
             Visibility::default(),
             Gait::default(),
             CharacterLook::random(0x7e66_0130),
-            Clickable::at_height(1.0).radius(70.0),
+            Clickable::at_height(1.0)
+                .radius(70.0)
+                .labelled("talk to Jegg"),
             DespawnOnExit(AppState::InGame),
         ))
         .with_children(|p| {
@@ -588,7 +592,9 @@ fn build_inside(
         InteriorPart,
         Transform::from_translation(ex + Vec3::Z * 0.3),
         Visibility::default(),
-        Clickable::at_height(1.4).radius(100.0),
+        Clickable::at_height(1.4)
+            .radius(100.0)
+            .labelled("leave the warehouse"),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -867,7 +873,9 @@ fn dress_pieces(
                 PieceDressed,
                 Transform::from_translation(piece.pos),
                 Visibility::default(),
-                Clickable::at_height(0.0).radius(60.0),
+                Clickable::at_height(0.0)
+                    .radius(60.0)
+                    .labelled("take the soul piece"),
             ))
             .with_children(|p| crystal(p, &mut meshes, &mut materials));
     }
@@ -894,9 +902,11 @@ fn animate_pieces(
         if carried && clickable {
             commands.entity(e).remove::<Clickable>();
         } else if !carried && !clickable {
-            commands
-                .entity(e)
-                .insert(Clickable::at_height(0.0).radius(60.0));
+            commands.entity(e).insert(
+                Clickable::at_height(0.0)
+                    .radius(60.0)
+                    .labelled("take the soul piece"),
+            );
         }
     }
 }

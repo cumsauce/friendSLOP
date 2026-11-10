@@ -85,25 +85,7 @@ jobs:
         with:
           name: friendslop-web.zip
           path: friendslop-web.zip
-      # Optional: also host it on GitHub Pages when the repo has Pages set to
-      # "GitHub Actions". Skipped (not failed) otherwise.
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist/web
-
-  pages:
-    needs: web
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - id: deploy
-        uses: actions/deploy-pages@v4
+      # (The site itself is deployed on every push to main by web.yml, #230.)
 
   publish:
     needs: [build, web]

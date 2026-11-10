@@ -3634,6 +3634,7 @@ dependencies = [
  "friendslop-art",
  "friendslop-core",
  "friendslop-kcc",
+ "friendslop-wfc",
  "friendslop-wire",
  "friendslop-world",
  "fusion",
@@ -3672,6 +3673,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "friendslop-structures"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "bevy",
+]
+
+[[package]]
+name = "friendslop-wfc"
+version = "0.1.0"
+
+[[package]]
 name = "friendslop-wire"
 version = "0.1.0"
 dependencies = [
@@ -3686,6 +3699,7 @@ dependencies = [
  "bevy",
  "friendslop-art",
  "friendslop-core",
+ "friendslop-structures",
 ]
 
 [[package]]

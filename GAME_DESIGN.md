@@ -47,6 +47,14 @@ Dying (to the RPG) just sends you back to the start.
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).
+- **Structure pipeline** (structures rework, phase 1-2). Village houses are built with a shared
+  kit (`crates/structures`): walls with door and window holes that never overlap (no flicker),
+  one merged mesh per house and material with textures laid in world metres (no stretching,
+  roof tiles follow the slope), and colliders from the layout, roofs and gables included. The
+  warehouse floor plan uses a generic seeded wave function collapse (`crates/wfc`). Planned next:
+  a seeded room-graph sewer with detailed hallway pieces, generated village houses from a world
+  seed, and a furniture placer. Open: should the village change every playthrough, or only
+  interiors?
 - **First-person bodies** (#53). Everyone has a body (your own character, see below) and
   plays in first person: WASD walk, mouse look, Space jump, Shift run, cursor locked. Left click
   uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used

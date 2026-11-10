@@ -50,6 +50,11 @@ textured materials yet, so these models keep their natural colours for now
 - `audio/ambience/fire_crackle.ogg` — "[Fire Crackling](https://opengameart.org/content/fire-crackling)"
   by AntumDeluge, CC0 (file: https://opengameart.org/sites/default/files/fire-1_0.ogg).
 - The wind bed is synthesized in code (`features/ambience.rs`), no file.
+- `audio/voice/grains.wav` — the gibberish voice bank: 50 short voiced syllables (90 ms each)
+  cut by `scripts/voice_grains.py` from five **CC0** recordings on Wikimedia Commons (only the
+  bits used are kept): "Sophie in 't Veld - voice - en.flac", "Female-vibrato-1.wav",
+  "Brian Wong - voice - cantonese.flac", "Adrian Goldsworthy - voice - en.flac" and
+  "Michael Noer - voice - da.flac" (https://commons.wikimedia.org/wiki/File:<name>).
 
 ## Fonts (`fonts/`)
 

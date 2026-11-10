@@ -225,6 +225,7 @@ fn speak(
     offset: Res<super::stillness::SessionOffset>,
     mut commands: Commands,
     audio: Option<Res<Assets<AudioSource>>>,
+    bank: Option<Res<super::babble::Bank>>,
     mut last: Local<Option<u32>>,
     mut text: Query<&mut Text, With<Subtitle>>,
 ) {
@@ -239,8 +240,14 @@ fn speak(
     {
         let (who, said) = line(n);
         let said = random_dialogue::say(said);
+        // The recorded-grain bank once loaded; the synth blips without it.
+        let bytes = bank
+            .as_ref()
+            .zip(audio.as_ref())
+            .and_then(|(b, a)| a.get(&b.0))
+            .map(|src| src.bytes.clone());
         play_synth(&mut commands, move || {
-            wav_bytes(&voice_samples(who, &said, n, RATE), RATE)
+            wav_bytes(&voice(who, &said, n, bytes.as_deref()), RATE)
         });
     }
     *last = now;
@@ -253,6 +260,56 @@ fn speak(
 
 use crate::features::synth_audio::RATE;
 const SYLLABLE: f32 = 0.11;
+
+/// Each speaker's gibberish voice (see [`super::babble`]).
+pub fn babble_voice(who: Speaker) -> super::babble::Voice {
+    use super::babble::{Timbre, Voice};
+    match who {
+        Speaker::Bear => Voice {
+            timbre: Timbre::Low,
+            pitch: 0.95,
+            letter: 0.07,
+        },
+        Speaker::Crow => Voice {
+            timbre: Timbre::Tonal,
+            pitch: 2.1,
+            letter: 0.045,
+        },
+        Speaker::MusicBox => Voice {
+            timbre: Timbre::Singer,
+            pitch: 1.4,
+            letter: 0.06,
+        },
+    }
+}
+
+/// The line as sound: recorded-grain gibberish when the bank's `bytes` are
+/// here (music boxes still play their jingle first), else [`voice_samples`].
+pub fn voice(who: Speaker, said: &str, seed: u32, bytes: Option<&[u8]>) -> Vec<f32> {
+    let Some(bank) = bytes
+        .and_then(super::babble::parse_wav)
+        .filter(|b| b.len() >= super::babble::bank_len())
+    else {
+        return voice_samples(who, said, seed, RATE);
+    };
+    let mut out = if who == Speaker::MusicBox {
+        // Just the jingle: an empty line has no syllables to blip.
+        let mut j = voice_samples(who, "", seed, RATE);
+        j.truncate((0.16 * 5.0 * RATE as f32) as usize);
+        j
+    } else {
+        Vec::new()
+    };
+    out.extend(super::babble::speak(
+        &bank,
+        babble_voice(who),
+        said,
+        seed,
+        RATE,
+    ));
+    crate::features::synth_audio::master(&mut out, RATE, 9000.0, 0.6);
+    out
+}
 
 /// A babble voice: one short vowel-ish blip per syllable of `said`, pitch
 /// wandering around the speaker's voice. Music boxes play a jingle first.

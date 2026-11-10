@@ -133,7 +133,7 @@ pub fn next_stop(at: Vec2, roll: u32) -> Vec2 {
 
 /// Where a rat at `from` ends up after stepping `step` metres towards
 /// `target`, stopping `heel` short.
-pub fn scurry(from: Vec2, target: Vec2, step: f32, heel: f32) -> Vec2 {
+pub fn step_towards(from: Vec2, target: Vec2, step: f32, heel: f32) -> Vec2 {
     let gap = target - from;
     let len = gap.length();
     if len <= heel {
@@ -281,7 +281,7 @@ fn move_rats(
             }
         };
         let here = rat.at.xz();
-        let next = scurry(here, target, speed * dt, heel);
+        let next = step_towards(here, target, speed * dt, heel);
         if next != here || rat.at.y != y {
             let d = next - here;
             let yaw = if d.length() > 1e-4 {
@@ -511,9 +511,9 @@ mod tests {
 
     #[test]
     fn scurrying_stops_at_heel() {
-        let a = scurry(Vec2::ZERO, Vec2::new(10.0, 0.0), 1.0, 0.9);
+        let a = step_towards(Vec2::ZERO, Vec2::new(10.0, 0.0), 1.0, 0.9);
         assert_eq!(a, Vec2::new(1.0, 0.0));
-        let b = scurry(Vec2::new(9.5, 0.0), Vec2::new(10.0, 0.0), 1.0, 0.9);
+        let b = step_towards(Vec2::new(9.5, 0.0), Vec2::new(10.0, 0.0), 1.0, 0.9);
         assert_eq!(b, Vec2::new(9.5, 0.0));
     }
 

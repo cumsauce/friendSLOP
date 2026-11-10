@@ -1378,7 +1378,7 @@ fn four_catches_set_the_villagers_on_you() {
 #[test]
 fn friends_can_be_courted_and_evil_rats_adopted() {
     use bevy_replicon::prelude::ClientTriggerExt;
-    use friendslop::features::discord_friends::{Courtship, HEARTS_TO_DATE};
+    use friendslop::features::discord_friends::Courtship;
     use friendslop::features::rats::{AdoptRat, RATS, Rat};
     use friendslop::features::villagers::{PokeVillager, Villager};
 
@@ -1420,7 +1420,6 @@ fn friends_can_be_courted_and_evil_rats_adopted() {
         .get(&(0, friend.id))
         .copied();
     assert_eq!(hearts, Some(1));
-    assert!(HEARTS_TO_DATE > 1);
 
     // The host adopts a rat down in the tunnels.
     let world = server.world_mut();

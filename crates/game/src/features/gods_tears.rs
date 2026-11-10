@@ -271,7 +271,7 @@ fn dress_tears(
             .entity(entity)
             .insert((
                 Transform::from_xyz(tear.at.x, FALL_FROM, tear.at.y),
-                Clickable::at_height(0.3),
+                Clickable::at_height(0.3).labelled("use the tear"),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
             ))

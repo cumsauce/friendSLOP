@@ -5,6 +5,14 @@
 //! their body. Each client watches its *own* cat: whenever none of it is on
 //! that player's screen, the client tells the server ([`CatInView`]) and the
 //! server grows the cat. Looking at it stops the growth (it never shrinks).
+//! It walks the villagers' navmesh to you (round trees, walls and the pond),
+//! straight-lining only where there's no mesh (indoors, underground).
+//! At [`CRITICAL`] size its fuse lights (critical mass): it blinks and
+//! beeps like a bomb for [`FUSE_SECS`]. Click (pet) a cat to shrink it by
+//! [`PET_SHRINK`]; get it back under critical and the fuse goes out. If the
+//! fuse runs out it explodes, flinging everyone within [`BLAST_RADIUS`] and
+//! leaving a merely fat cat again.
+//!
 //! The cat is built from primitives; its meows are synthesized locally on
 //! every peer (lower and more horrible the bigger it gets), heard in 3D, at
 //! most every 30 s and only while it's off your screen (#192).
@@ -49,14 +57,60 @@ const SPEED: f32 = 7.0;
 const HEEL: f32 = 1.3;
 /// Further away than this (a teleport, the warehouse) it just appears behind you.
 const LOST: f32 = 30.0;
+/// At this size the fuse lights.
+pub const CRITICAL: f32 = 10.0;
+/// Seconds from lit fuse to boom.
+pub const FUSE_SECS: f32 = 30.0;
+/// How much one pet shrinks a cat.
+pub const PET_SHRINK: f32 = 0.6;
+/// Everyone this close to an exploding cat is flung.
+pub const BLAST_RADIUS: f32 = 10.0;
+/// ...this far.
+pub const BLAST_PUSH: f32 = 8.0;
+
+/// On a cat whose fuse is lit: seconds until it explodes. Replicated.
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct Fuse(pub f32);
+
+/// Client -> server: I pet `owner`'s cat.
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+pub struct PetCat {
+    pub owner: u64,
+}
+
+/// Server -> everyone: `owner`'s cat exploded at `at`.
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct CatExploded {
+    pub owner: u64,
+    pub at: Vec3,
+}
+
+/// The size after one pet.
+pub fn petted(size: f32) -> f32 {
+    (size - PET_SHRINK).max(1.0)
+}
+
+/// Where someone at `pos` lands when a cat explodes at `blast` (unchanged if
+/// out of range).
+pub fn flung(pos: Vec2, blast: Vec2) -> Vec2 {
+    let d = pos - blast;
+    if d.length() > BLAST_RADIUS {
+        return pos;
+    }
+    pos + d.normalize_or(Vec2::X) * BLAST_PUSH
+}
 
 pub fn protocol(app: &mut App) {
     app.replicate::<FatCat>()
         .add_client_event::<CatInView>(Channel::Ordered)
         .add_observer(on_in_view)
+        .replicate::<Fuse>()
+        .add_client_event::<PetCat>(Channel::Ordered)
+        .add_server_event::<CatExploded>(Channel::Ordered)
+        .add_observer(pet_cat)
         .add_systems(
             Update,
-            (give_cats, follow_and_grow)
+            (give_cats, attach_cat_agents, follow_and_grow, burn_fuses)
                 .chain()
                 .run_if(in_state(ServerState::Running)),
         );
@@ -129,17 +183,46 @@ pub fn grown(size: f32, watched: bool, dt: f32) -> f32 {
     }
 }
 
+/// Server: once the villagers' navmesh is up, each cat gets a landmass agent
+/// (only where cats have a transform, i.e. on a host that renders them).
+fn attach_cat_agents(
+    mut commands: Commands,
+    nav: Option<Res<super::villagers::VillageNav>>,
+    fresh: Query<(Entity, &FatCat), (With<Transform>, Without<bevy_landmass::Agent3d>)>,
+) {
+    let Some(nav) = nav else { return };
+    for (e, cat) in &fresh {
+        commands.entity(e).insert((
+            bevy_landmass::Agent3d::default(),
+            bevy_landmass::AgentSettings {
+                radius: super::villagers::AGENT_RADIUS,
+                desired_speed: SPEED,
+                max_speed: SPEED,
+            },
+            bevy_landmass::ArchipelagoRef3d::new(nav.archipelago),
+            bevy_landmass::AgentTarget3d::Point(cat.pos),
+        ));
+    }
+}
+
+#[allow(clippy::type_complexity)]
 fn follow_and_grow(
     time: Res<Time>,
     players: Query<(&Player, &Walker)>,
-    mut cats: Query<(&mut FatCat, &Watched)>,
+    mut cats: Query<(
+        &mut FatCat,
+        &Watched,
+        Option<&mut bevy_landmass::AgentTarget3d>,
+        Option<&bevy_landmass::AgentDesiredVelocity3d>,
+        Option<&bevy_landmass::AgentState>,
+    )>,
     still: Query<&super::stillness::Stillness>,
 ) {
     if super::stillness::is_frozen(&still) {
         return;
     }
     let dt = time.delta_secs();
-    for (mut cat, watched) in &mut cats {
+    for (mut cat, watched, target, desired, state) in &mut cats {
         let Some((_, walker)) = players.iter().find(|(p, _)| p.id == cat.owner) else {
             continue;
         };
@@ -152,7 +235,24 @@ fn follow_and_grow(
             let behind = Vec2::new(walker.yaw.sin(), walker.yaw.cos()) * HEEL * next.size;
             owner.xz() + behind
         } else {
-            waddle(here, owner.xz(), HEEL * next.size, dt)
+            // Walk the navmesh to you when it has a path; else straight at you.
+            if let Some(mut target) = target {
+                let want = bevy_landmass::AgentTarget3d::Point(owner);
+                if *target != want {
+                    *target = want;
+                }
+            }
+            let path = matches!(state, Some(bevy_landmass::AgentState::Moving))
+                .then(|| desired.map(|d| d.velocity().xz()))
+                .flatten()
+                .filter(|v| v.length() > 1e-3);
+            match path {
+                Some(v) if here.distance(owner.xz()) > HEEL * next.size => {
+                    let step = (SPEED * dt).min(here.distance(owner.xz()) - HEEL * next.size);
+                    here + v.normalize() * step
+                }
+                _ => waddle(here, owner.xz(), HEEL * next.size, dt),
+            }
         };
         let gap = owner.xz() - flat;
         if gap.length() > 0.05 {
@@ -173,8 +273,95 @@ fn follow_and_grow(
     }
 }
 
+/// Server: light the fuse at critical mass, put it out below it, and blow
+/// up cats whose fuse runs out.
+fn burn_fuses(
+    time: Res<Time>,
+    mut commands: Commands,
+    still: Query<&super::stillness::Stillness>,
+    mut cats: Query<(Entity, &mut FatCat, Option<&mut Fuse>)>,
+    mut walkers: Query<(&mut Walker, Option<&mut crate::kcc::Kcc>)>,
+) {
+    if super::stillness::is_frozen(&still) {
+        return;
+    }
+    for (e, mut cat, fuse) in &mut cats {
+        match fuse {
+            None if cat.size >= CRITICAL => {
+                commands.entity(e).insert(Fuse(FUSE_SECS));
+            }
+            None => {}
+            Some(_) if cat.size < CRITICAL => {
+                commands.entity(e).remove::<Fuse>();
+            }
+            Some(mut f) => {
+                let before = f.0.ceil();
+                f.bypass_change_detection().0 -= time.delta_secs();
+                if f.0.ceil() != before {
+                    f.set_changed();
+                }
+                if f.0 > 0.0 {
+                    continue;
+                }
+                commands.entity(e).remove::<Fuse>();
+                let at = cat.pos;
+                cat.size = 1.0;
+                for (mut w, kcc) in &mut walkers {
+                    let to = flung(w.pos.xz(), at.xz());
+                    if to != w.pos.xz() {
+                        w.pos = Vec3::new(
+                            to.x,
+                            crate::terrain::height_at(to.x, to.y).max(w.pos.y),
+                            to.y,
+                        );
+                        if let Some(mut kcc) = kcc {
+                            kcc.velocity = Vec3::ZERO;
+                        }
+                    }
+                }
+                commands.server_trigger(ToClients {
+                    targets: SendTargets::All,
+                    message: CatExploded {
+                        owner: cat.owner,
+                        at,
+                    },
+                });
+            }
+        }
+    }
+}
+
+/// Server: a pet shrinks the cat (anyone may pet any cat, from close by).
+fn pet_cat(
+    ev: On<FromClient<PetCat>>,
+    mut commands: Commands,
+    mut cats: Query<&mut FatCat>,
+    walkers: Query<(&PlayerOwner, &Walker)>,
+) {
+    let Some(mut cat) = cats.iter_mut().find(|c| c.owner == ev.owner) else {
+        return;
+    };
+    // A big cat is easier to reach: its body is that much bigger.
+    let reach = super::interact::SERVER_REACH + 0.5 * cat.size;
+    let owner = match ev.client_id {
+        ClientId::Server => None,
+        ClientId::Client(e) => Some(e),
+    };
+    let near = walkers
+        .iter()
+        .find(|(o, _)| o.0 == owner)
+        .is_some_and(|(_, w)| super::interact::within(w.pos, cat.pos, reach));
+    if !near {
+        super::interact::deny(&mut commands, ev.client_id, "too far away: walk closer");
+        return;
+    }
+    cat.size = petted(cat.size);
+}
+
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_cat_hud)
+    app.add_observer(click_cat)
+        .add_observer(boom)
+        .add_systems(OnEnter(AppState::InGame), spawn_cat_hud)
         .add_systems(
             Update,
             (
@@ -182,10 +369,144 @@ pub fn plugin(app: &mut App) {
                 move_cats,
                 report_in_view,
                 meow,
+                blink,
+                fade_blasts,
                 update_cat_hud.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
         );
+}
+
+/// Local: clicking a cat pets it.
+fn click_cat(ev: On<super::interact::Clicked>, mut commands: Commands, cats: Query<&FatCat>) {
+    if let Ok(cat) = cats.get(ev.entity) {
+        commands.client_trigger(PetCat { owner: cat.owner });
+    }
+}
+
+/// Local: the cat's fur, so it can flash.
+#[derive(Component)]
+struct CatFur(Handle<StandardMaterial>);
+
+/// Local: when this cat last beeped.
+#[derive(Component, Default)]
+struct Beep(bool);
+
+/// How fast a lit cat blinks (Hz): faster as the fuse burns down.
+pub fn blink_rate(left: f32) -> f32 {
+    1.5 + 8.0 * (1.0 - (left / FUSE_SECS).clamp(0.0, 1.0))
+}
+
+/// A lit cat flashes red and beeps on each flash, faster as the fuse runs out.
+fn blink(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut cats: Query<(&FatCat, Option<&Fuse>, &CatFur, &mut Beep, &Transform)>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let t = time.elapsed_secs();
+    for (cat, fuse, fur, mut beep, tf) in &mut cats {
+        let on = fuse.is_some_and(|f| (t * blink_rate(f.0)).fract() < 0.5);
+        if let Some(mut m) = materials.get_mut(&fur.0) {
+            let want = if on {
+                LinearRgba::rgb(3.0, 0.2, 0.1)
+            } else {
+                LinearRgba::BLACK
+            };
+            if m.emissive != want {
+                m.emissive = want;
+            }
+        }
+        if on && !beep.0 {
+            let at = tf.translation + Vec3::Y * 0.7 * cat.size;
+            crate::spatial::play_wav_at(
+                &mut commands,
+                at,
+                0.6,
+                crate::spatial::Carry::CALL,
+                || {
+                    super::bear::wav_bytes(
+                        &beep_samples(super::synth_audio::RATE),
+                        super::synth_audio::RATE,
+                    )
+                },
+            );
+        }
+        beep.0 = on;
+    }
+}
+
+/// A short square-ish bomb beep.
+pub fn beep_samples(rate: u32) -> Vec<f32> {
+    let n = (0.08 * rate as f32) as usize;
+    (0..n)
+        .map(|i| {
+            let t = i as f32 / rate as f32;
+            let env = (1.0 - i as f32 / n as f32).min(t * 400.0);
+            0.35 * env * (t * 1800.0 * std::f32::consts::TAU).sin().signum()
+        })
+        .collect()
+}
+
+/// A fading blast ball.
+#[derive(Component)]
+struct Blast(f32);
+
+/// Local: a cat went off. A big orange flash, and word to everyone.
+fn boom(
+    ev: On<CatExploded>,
+    mut commands: Commands,
+    me: Option<Res<LocalPlayer>>,
+    toast: Option<ResMut<crate::hud::Toast>>,
+    state: Option<Res<State<AppState>>>,
+    meshes: Option<ResMut<Assets<Mesh>>>,
+    materials: Option<ResMut<Assets<StandardMaterial>>>,
+) {
+    if state.is_none_or(|s| *s.get() != AppState::InGame) {
+        return;
+    }
+    if let Some(mut toast) = toast {
+        let whose = if me.is_some_and(|m| m.0 == ev.owner) {
+            "YOUR fat cat".to_string()
+        } else {
+            format!("player {}'s fat cat", ev.owner)
+        };
+        toast.show(format!(
+            "KABOOM! {whose} reached critical mass and exploded"
+        ));
+    }
+    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+        return;
+    };
+    let mat = materials.add(StandardMaterial {
+        base_color: Color::srgba(1.0, 0.6, 0.15, 0.8),
+        emissive: LinearRgba::rgb(6.0, 2.5, 0.4),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        ..default()
+    });
+    commands.spawn((
+        Blast(0.0),
+        Mesh3d(meshes.add(Sphere::new(1.0))),
+        MeshMaterial3d(mat),
+        Transform::from_translation(ev.at + Vec3::Y),
+        DespawnOnExit(AppState::InGame),
+    ));
+}
+
+fn fade_blasts(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut blasts: Query<(Entity, &mut Blast, &mut Transform)>,
+) {
+    for (e, mut b, mut tf) in &mut blasts {
+        b.0 += time.delta_secs();
+        if b.0 > 0.8 {
+            commands.entity(e).despawn();
+        } else {
+            tf.scale = Vec3::splat(1.0 + b.0 * BLAST_RADIUS);
+        }
+    }
 }
 
 /// Local: the time until this cat's next meow.
@@ -218,6 +539,11 @@ fn dress_cats(
                     .with_rotation(Quat::from_rotation_y(cat.yaw))
                     .with_scale(Vec3::splat(cat.size)),
                 Visibility::default(),
+                super::interact::Clickable::at_height(0.5)
+                    .radius(80.0)
+                    .labelled("pet the cat"),
+                CatFur(fur.clone()),
+                Beep::default(),
                 MeowIn {
                     secs: MEOW_EVERY,
                     count: 0,
@@ -510,12 +836,19 @@ fn spawn_cat_hud(mut commands: Commands) {
 
 fn update_cat_hud(
     me: Option<Res<LocalPlayer>>,
-    cats: Query<&FatCat>,
+    cats: Query<(&FatCat, Option<&Fuse>)>,
     mut hud: Query<&mut Text, With<CatHud>>,
 ) {
     let want = me
-        .and_then(|me| cats.iter().find(|c| c.owner == me.0))
-        .map(|c| {
+        .and_then(|me| cats.iter().find(|(c, _)| c.owner == me.0))
+        .map(|(c, fuse)| {
+            if let Some(f) = fuse {
+                return format!(
+                    "!!! YOUR CAT IS GOING CRITICAL ({:.0}s) !!! pet him smaller (click him): {:.1}x",
+                    f.0.ceil(),
+                    c.size
+                );
+            }
             let warning = if c.size >= MAX_SIZE {
                 "it can't get any bigger"
             } else {
@@ -552,6 +885,17 @@ mod tests {
         assert_eq!(grown(2.0, true, 10.0), 2.0);
         assert!(grown(2.0, false, 1.0) > 2.0);
         assert_eq!(grown(MAX_SIZE - 0.01, false, 100.0), MAX_SIZE);
+    }
+
+    #[test]
+    fn petting_shrinks_and_blasts_fling_only_the_nearby() {
+        assert!((petted(CRITICAL) - (CRITICAL - PET_SHRINK)).abs() < 1e-5);
+        assert_eq!(petted(1.2), 1.0);
+        let near = flung(Vec2::new(2.0, 0.0), Vec2::ZERO);
+        assert!((near.x - (2.0 + BLAST_PUSH)).abs() < 1e-4);
+        let far = Vec2::new(BLAST_RADIUS + 1.0, 0.0);
+        assert_eq!(flung(far, Vec2::ZERO), far);
+        assert!(blink_rate(1.0) > blink_rate(FUSE_SECS));
     }
 
     #[test]

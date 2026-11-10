@@ -315,7 +315,9 @@ fn spawn_paul(mut commands: Commands) {
         crate::people::Gait::default(),
         Transform::from_translation(paul_spot()).with_rotation(Quat::from_rotation_y(1.2)),
         Visibility::default(),
-        Clickable::at_height(1.0).radius(60.0),
+        Clickable::at_height(1.0)
+            .radius(60.0)
+            .labelled("talk to Sewer Paul"),
         crate::people::CharacterLook::random(0x5e3e_9a01),
         DespawnOnExit(AppState::InGame),
     ));
@@ -410,7 +412,9 @@ fn dress_eggs(
             Mesh3d(mesh.clone()),
             MeshMaterial3d(shell.clone()),
             Transform::from_translation(egg_spot(egg.nest)).with_scale(Vec3::new(1.0, 1.3, 1.0)),
-            Clickable::at_height(0.0).radius(30.0),
+            Clickable::at_height(0.0)
+                .radius(30.0)
+                .labelled("take the crow egg"),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));

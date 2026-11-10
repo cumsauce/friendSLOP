@@ -1374,3 +1374,67 @@ fn four_catches_set_the_villagers_on_you() {
         }
     }
 }
+
+#[test]
+fn friends_can_be_courted_and_evil_rats_adopted() {
+    use bevy_replicon::prelude::ClientTriggerExt;
+    use friendslop::features::discord_friends::{Courtship, HEARTS_TO_DATE};
+    use friendslop::features::rats::{AdoptRat, RATS, Rat};
+    use friendslop::features::villagers::{PokeVillager, Villager};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    let step = |server: &mut App, client: &mut App| {
+        for _ in 0..3 {
+            server.update();
+            server.exchange_with_client(client);
+            client.update();
+        }
+    };
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    assert_eq!(world.query::<&Rat>().iter(world).count(), RATS);
+    let Some(friend) = world
+        .query::<&Villager>()
+        .iter(world)
+        .find(|v| v.is_friend())
+        .copied()
+    else {
+        panic!("no friend villagers");
+    };
+
+    // The host chats the friend up (no cooldown issue: one chat only).
+    place(
+        &mut server,
+        0,
+        Vec3::new(friend.pos.x + 0.5, 0.0, friend.pos.y),
+    );
+    server
+        .world_mut()
+        .client_trigger(PokeVillager { id: friend.id });
+    step(&mut server, &mut client);
+    let hearts = server
+        .world()
+        .resource::<Courtship>()
+        .hearts
+        .get(&(0, friend.id))
+        .copied();
+    assert_eq!(hearts, Some(1));
+    assert!(HEARTS_TO_DATE > 1);
+
+    // The host adopts a rat down in the tunnels.
+    let world = server.world_mut();
+    let Some(rat) = world.query::<&Rat>().iter(world).next().copied() else {
+        panic!("no rats");
+    };
+    place(&mut server, 0, rat.at + Vec3::X * 0.5);
+    server.world_mut().client_trigger(AdoptRat { id: rat.id });
+    step(&mut server, &mut client);
+    let world = client.world_mut();
+    let owner = world
+        .query::<&Rat>()
+        .iter(world)
+        .find(|r| r.id == rat.id)
+        .and_then(|r| r.owner);
+    assert_eq!(owner, Some(0), "the rat is the host's now");
+}

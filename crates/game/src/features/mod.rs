@@ -16,6 +16,7 @@ pub mod caught;
 pub mod climb;
 pub mod crows;
 pub mod dave_commune;
+pub mod discord_friends;
 pub mod duel;
 pub mod fart;
 pub mod fart_sound;
@@ -43,6 +44,7 @@ pub mod organ_currency;
 pub mod pets;
 pub mod punishment;
 pub mod random_dialogue;
+pub mod rats;
 pub mod romance;
 pub mod sesbian_lex;
 pub mod shipwreck;
@@ -110,6 +112,8 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(mute_spell::protocol);
         app.add_plugins(infinite::protocol);
         app.add_plugins(kitty_lemonade::protocol);
+        app.add_plugins(discord_friends::protocol);
+        app.add_plugins(rats::protocol);
     }
 }
 
@@ -168,5 +172,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(shipwreck::plugin);
         app.add_plugins(mute_spell::plugin);
         app.add_plugins(infinite::plugin);
+        app.add_plugins(discord_friends::plugin);
+        app.add_plugins(rats::plugin);
     }
 }

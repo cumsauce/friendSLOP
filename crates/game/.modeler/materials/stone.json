@@ -1,0 +1,665 @@
+{
+  "name": "stone",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n_big",
+      "octaves": 4,
+      "seed": 3,
+      "size": 0.9,
+      "type": "noise"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n_fine",
+      "octaves": 3,
+      "seed": 7,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "coords": "p",
+      "jitter": 1.0,
+      "name": "cracks",
+      "size": 1.1,
+      "type": "worley"
+    },
+    {
+      "gamma": 1.0,
+      "in": [
+        0.0,
+        0.025
+      ],
+      "input": "cracks.edge",
+      "name": "crack_m",
+      "type": "levels"
+    },
+    {
+      "input": "n_big",
+      "name": "base",
+      "stops": [
+        [
+          0.0,
+          "#5d5952"
+        ],
+        [
+          0.45,
+          "#7a756b"
+        ],
+        [
+          0.75,
+          "#8c8679"
+        ],
+        [
+          1.0,
+          "#9a9384"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#3f3b36",
+      "b": "base2",
+      "c": "crack_m",
+      "name": "col_c",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n_fine",
+      "name": "fine_t",
+      "to": [
+        0.9,
+        1.05
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "col_c",
+      "b": "fine_t",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "crack_m",
+      "b": 0.015,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n_fine",
+      "name": "rough",
+      "to": [
+        0.75,
+        0.95
+      ],
+      "type": "remap"
+    },
+    {
+      "dir": [
+        0,
+        1,
+        0
+      ],
+      "hi": 0.85,
+      "lo": 0.55,
+      "name": "up",
+      "type": "facing"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "moss_n",
+      "octaves": 4,
+      "seed": 11,
+      "size": 0.35,
+      "type": "noise"
+    },
+    {
+      "a": "up",
+      "b": "moss_n",
+      "name": "moss_raw",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "in": [
+        0.32,
+        0.45
+      ],
+      "input": "moss_amt",
+      "name": "moss_m",
+      "type": "levels"
+    },
+    {
+      "input": "n_fine",
+      "name": "moss_col",
+      "stops": [
+        [
+          0.0,
+          "#4f6e28"
+        ],
+        [
+          1.0,
+          "#7f9f3f"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "moss_col",
+      "name": "moss_out",
+      "roughness": 0.95,
+      "type": "output"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "over": [
+        {
+          "mask": "moss_m",
+          "output": "moss_out"
+        }
+      ],
+      "roughness": "rough",
+      "type": "output"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n_mid",
+      "octaves": 3,
+      "seed": 5,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n_mid",
+      "name": "mid_t",
+      "to": [
+        0.8,
+        1.12
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "base",
+      "b": "mid_t",
+      "name": "base2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "moss_raw",
+      "b": "$moss",
+      "name": "moss_amt",
+      "op": "mul",
+      "type": "math"
+    }
+  ],
+  "params": {
+    "moss": 1.0
+  },
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "stone",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n_big",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.6,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n_fine",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "jitter": 1.0,
+              "name": "cracks",
+              "size": 0.5,
+              "type": "worley"
+            },
+            {
+              "gamma": 1.0,
+              "in": [
+                0.0,
+                0.06
+              ],
+              "input": "cracks.edge",
+              "name": "crack_m",
+              "type": "levels"
+            },
+            {
+              "input": "n_big",
+              "name": "base",
+              "stops": [
+                [
+                  0.0,
+                  "#6e6a62"
+                ],
+                [
+                  0.5,
+                  "#8f8a80"
+                ],
+                [
+                  1.0,
+                  "#a8a297"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#4a4640",
+              "b": "base",
+              "c": "crack_m",
+              "name": "col_c",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n_fine",
+              "name": "fine_t",
+              "to": [
+                0.85,
+                1.1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "col_c",
+              "b": "fine_t",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "crack_m",
+              "b": 0.01,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n_fine",
+              "name": "rough",
+              "to": [
+                0.75,
+                0.95
+              ],
+              "type": "remap"
+            },
+            {
+              "dir": [
+                0,
+                1,
+                0
+              ],
+              "hi": 0.85,
+              "lo": 0.55,
+              "name": "up",
+              "type": "facing"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "moss_n",
+              "octaves": 4,
+              "seed": 11,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "a": "up",
+              "b": "moss_n",
+              "name": "moss_raw",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.3,
+                0.45
+              ],
+              "input": "moss_raw",
+              "name": "moss_m",
+              "type": "levels"
+            },
+            {
+              "input": "n_fine",
+              "name": "moss_col",
+              "stops": [
+                [
+                  0.0,
+                  "#4f6e28"
+                ],
+                [
+                  1.0,
+                  "#7f9f3f"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "moss_col",
+              "name": "moss_out",
+              "roughness": 0.95,
+              "type": "output"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "over": [
+                {
+                  "mask": "moss_m",
+                  "output": "moss_out"
+                }
+              ],
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+p +n_big +n_fine +cracks +crack_m +base +col_c +fine_t +col +h +rough +up +moss_n +moss_raw +moss_m +moss_col +moss_out +out"
+      },
+      {
+        "model": {
+          "name": "stone",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n_big",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.9,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n_fine",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "jitter": 1.0,
+              "name": "cracks",
+              "size": 1.1,
+              "type": "worley"
+            },
+            {
+              "gamma": 1.0,
+              "in": [
+                0.0,
+                0.025
+              ],
+              "input": "cracks.edge",
+              "name": "crack_m",
+              "type": "levels"
+            },
+            {
+              "input": "n_big",
+              "name": "base",
+              "stops": [
+                [
+                  0.0,
+                  "#5d5952"
+                ],
+                [
+                  0.45,
+                  "#7a756b"
+                ],
+                [
+                  0.75,
+                  "#8c8679"
+                ],
+                [
+                  1.0,
+                  "#9a9384"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#3f3b36",
+              "b": "base2",
+              "c": "crack_m",
+              "name": "col_c",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n_fine",
+              "name": "fine_t",
+              "to": [
+                0.9,
+                1.05
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "col_c",
+              "b": "fine_t",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "crack_m",
+              "b": 0.015,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n_fine",
+              "name": "rough",
+              "to": [
+                0.75,
+                0.95
+              ],
+              "type": "remap"
+            },
+            {
+              "dir": [
+                0,
+                1,
+                0
+              ],
+              "hi": 0.85,
+              "lo": 0.55,
+              "name": "up",
+              "type": "facing"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "moss_n",
+              "octaves": 4,
+              "seed": 11,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "a": "up",
+              "b": "moss_n",
+              "name": "moss_raw",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.32,
+                0.45
+              ],
+              "input": "moss_amt",
+              "name": "moss_m",
+              "type": "levels"
+            },
+            {
+              "input": "n_fine",
+              "name": "moss_col",
+              "stops": [
+                [
+                  0.0,
+                  "#4f6e28"
+                ],
+                [
+                  1.0,
+                  "#7f9f3f"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "moss_col",
+              "name": "moss_out",
+              "roughness": 0.95,
+              "type": "output"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "over": [
+                {
+                  "mask": "moss_m",
+                  "output": "moss_out"
+                }
+              ],
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n_mid",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n_mid",
+              "name": "mid_t",
+              "to": [
+                0.8,
+                1.12
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "base",
+              "b": "mid_t",
+              "name": "base2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "moss_raw",
+              "b": "$moss",
+              "name": "moss_amt",
+              "op": "mul",
+              "type": "math"
+            }
+          ],
+          "params": {
+            "moss": 1.0
+          },
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+n_mid +mid_t +base2 +moss_amt ~n_big ~cracks ~crack_m ~base ~col_c ~fine_t ~h ~moss_m"
+      }
+    ],
+    "current": 1
+  }
+}

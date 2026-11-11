@@ -39,11 +39,12 @@ const PUNCH_REACH: f32 = 1.8;
 const NEWS_SECS: f32 = 5.0;
 /// Character and gun models from `assets/models` (see CREDITS.md). The
 /// converted glbs come out a few units tall with the rig's origin mid-thigh,
-/// so these put a cowboy at ~1.9 m with his boots on the floor and the
-/// revolver palm-sized. Nudge after eyeballing a duel.
+/// so these put a cowboy at ~1.9 m with his boots on the floor. The revolver is
+/// modeler-made at real size (34 cm, barrel along +X; source in `.modeler/`),
+/// shown a touch big so it reads in first person. Nudge after eyeballing a duel.
 const CHARACTER_SCALE: f32 = 0.44;
 const CHARACTER_Y_OFFSET: f32 = 0.61;
-const GUN_SCALE: f32 = 0.3;
+const GUN_SCALE: f32 = 1.25;
 
 /// A player's body while they're in the duel arena. Replicated.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -967,7 +968,7 @@ struct DuelRigs {
 
 const MALE: &str = "models/characters/Cowboy_Male.glb";
 const FEMALE: &str = "models/characters/Cowboy_Female.glb";
-const GUN: &str = "models/props/revolver.glb";
+const GUN: &str = "models/props/revolver.gltf";
 
 /// The first-person revolver is a plain static model: a scene, no rig.
 #[derive(Default)]

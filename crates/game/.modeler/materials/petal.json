@@ -1,0 +1,126 @@
+{
+  "name": "petal",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 41,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0.0,
+          "#d4507f"
+        ],
+        [
+          1.0,
+          "#f08ab0"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "hue": "$hue",
+      "input": "c",
+      "name": "c2",
+      "sat": "$sat",
+      "type": "hsv",
+      "val": "$val"
+    },
+    {
+      "base_color": "c2",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {
+    "hue": 0.0,
+    "sat": 1.0,
+    "val": 1.0
+  },
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "petal",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 41,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0.0,
+                  "#d4507f"
+                ],
+                [
+                  1.0,
+                  "#f08ab0"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "hue": "$hue",
+              "input": "c",
+              "name": "c2",
+              "sat": "$sat",
+              "type": "hsv",
+              "val": "$val"
+            },
+            {
+              "base_color": "c2",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {
+            "hue": 0.0,
+            "sat": 1.0,
+            "val": 1.0
+          },
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+p +n +c +c2 +out"
+      }
+    ],
+    "current": 0
+  }
+}

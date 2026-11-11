@@ -1,0 +1,146 @@
+{
+  "name": "grip_wood",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "wv",
+      "octaves": 3,
+      "seed": 2,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "amount": 0.01,
+      "by": "wv",
+      "coords": "p",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "center": [
+        0.0,
+        -0.3
+      ],
+      "coords": "wp",
+      "name": "rg",
+      "spacing": 0.004,
+      "type": "rings"
+    },
+    {
+      "input": "rg",
+      "name": "col",
+      "stops": [
+        [
+          0.0,
+          "#5a2f17"
+        ],
+        [
+          0.5,
+          "#7d4422"
+        ],
+        [
+          1.0,
+          "#9a5a2e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "clearcoat": 0.4,
+      "name": "out",
+      "roughness": 0.4,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "grip_wood",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "wv",
+              "octaves": 3,
+              "seed": 2,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "amount": 0.01,
+              "by": "wv",
+              "coords": "p",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "center": [
+                0.0,
+                -0.3
+              ],
+              "coords": "wp",
+              "name": "rg",
+              "spacing": 0.004,
+              "type": "rings"
+            },
+            {
+              "input": "rg",
+              "name": "col",
+              "stops": [
+                [
+                  0.0,
+                  "#5a2f17"
+                ],
+                [
+                  0.5,
+                  "#7d4422"
+                ],
+                [
+                  1.0,
+                  "#9a5a2e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "clearcoat": 0.4,
+              "name": "out",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+p +wv +wp +rg +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -32,18 +32,18 @@ Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
 **Always going on:** the Stillness freezes everything for 20 s every 4 minutes. Fart near an
 NPC and get caught 4 times: villagers chase you and float you. Villagers fart and blame you.
 Low morality brings a helicopter that shoots at you. 5% of actions fail sillily. Marmalade's
-wheel makes a rule fairer or crueller. Your fat cat grows unwatched and drinks pee puddles.
+wheel makes a rule fairer or crueller. Your fat cat grows unwatched and drinks pee; at 10x
+it gobbles up you or anyone in its mouth.
 Say "mute" at a friend (Q) and they're silenced until they RPG you.
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 Some nights (real clock, 10pm-5am) you hear whispers behind you.
 
-**Just for fun:** Officer Mei, smoking, the lex pile, bear, goat, Discord friends to date and
-their evil rat twins.
+**Just for fun:** Mei, smoking, the lex pile, bear, goat, Discord friends to date, rat twins.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free. Six players beat the landlord fast. Only the RPG can kill you.
+free. Six players beat the landlord fast. Only the RPG and a 10x cat can kill you.
 
 ## What exists
 
@@ -650,6 +650,12 @@ free. Six players beat the landlord fast. Only the RPG can kill you.
   **critical mass (10x)** its fuse lights: it flashes red and beeps like a bomb, faster and faster,
   and the HUD shouts at its owner. Pet it back under 10x within 30 s or it **explodes**: a big
   orange flash, everyone within 10 m is flung 8 m away, and it's a merely fat cat (1x) again.
+  While the fuse is lit the cat is also **hungry** (#238, corvy: "if the cat gets too big,
+  like 10x, it should gobble you up"): it stops keeping its distance and comes at its owner
+  mouth first (it's slower than you sprint), and anyone alive whose feet end up in its mouth is
+  gobbled: they die (heaven, see Dying), everyone sees "GULP. ...", and the meal settles the
+  cat back to 1x with its fuse out. Anyone can be eaten, not just the owner (including friends
+  walking up to pet it from the front).
   (Asked for by the owner directly, no issue.)
 - **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
   game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
@@ -985,6 +991,9 @@ free. Six players beat the landlord fast. Only the RPG can kill you.
   capped it at 25x so the world still fits around it.
 - corvy (#195): the cat grows too quickly; at least 10x slower.
 - corvy (#192): the cat meows at most every 30 s, only when you're not looking at it; looking resets the timer.
+- corvy (#238, on what else should kill you): if the cat gets too big, like 10x, it should
+  gobble you up. We made the lit-fuse cat hungry: it closes in on its owner and eats anyone in
+  its mouth; eating resets it like the explosion does.
 - catherine (#232): gather all the work that needs an admin or some outside person to act on
   the repo, the bot image and so on, as a list for doomy. It's `ADMIN_TODO.md`: stuck
   `needs-human` issues, secrets and tokens to renew, the manual release, redeploying the
@@ -1067,9 +1076,8 @@ free. Six players beat the landlord fast. Only the RPG can kill you.
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
 - The mute spell (#146) is the first voice spell. What other spells could you say?
-- Dying (#209) means heaven, begging and maybe the hell pit, but only the RPG kills. What else
-  should be able to kill you (the helicopter's bullets, the bear, the duel)? Is there anything
-  else down in hell?
+- Dying (#209) means heaven, begging and maybe the hell pit. The RPG and a 10x cat (#238) kill;
+  what else should (#238 is still open for answers)? Is there anything else down in hell?
 - What does connecting all the pets achieve, and what else do pets do?
 - Your fat cat (#145) drinks pee now (#213). Should what it eats or drinks change it?
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being

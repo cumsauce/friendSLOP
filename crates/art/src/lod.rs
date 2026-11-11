@@ -60,7 +60,7 @@ fn components(indices: &[u32], vertices: usize) -> (Vec<usize>, usize) {
         }
         x
     }
-    for t in indices.chunks_exact(3) {
+    for t in indices.as_chunks::<3>().0 {
         let a = find(&mut parent, t[0] as usize);
         for &v in &t[1..] {
             let b = find(&mut parent, v as usize);
@@ -69,7 +69,9 @@ fn components(indices: &[u32], vertices: usize) -> (Vec<usize>, usize) {
     }
     let mut ids = HashMap::new();
     let tri_group = indices
-        .chunks_exact(3)
+        .as_chunks::<3>()
+        .0
+        .iter()
         .map(|t| {
             let root = find(&mut parent, t[0] as usize);
             let n = ids.len();
@@ -108,20 +110,20 @@ pub fn cluster(
     };
     // Cell sums, to find each cell's average.
     let mut cells: HashMap<([i32; 3], u8), ([f32; 3], u32)> = HashMap::new();
-    for i in 0..positions.len() {
+    for (i, p) in positions.iter().enumerate() {
         let e = cells.entry(key(i)).or_insert(([0.0; 3], 0));
-        for k in 0..3 {
-            e.0[k] += positions[i][k];
+        for (sum, x) in e.0.iter_mut().zip(p) {
+            *sum += x;
         }
         e.1 += 1;
     }
     // Each cell's representative: the vertex nearest its average.
     let mut rep: HashMap<([i32; 3], u8), (u32, f32)> = HashMap::new();
-    for i in 0..positions.len() {
+    for (i, &p) in positions.iter().enumerate() {
         let k = key(i);
         let (sum, n) = cells[&k];
         let avg = [sum[0] / n as f32, sum[1] / n as f32, sum[2] / n as f32];
-        let d = sub(positions[i], avg);
+        let d = sub(p, avg);
         let dist = d[0] * d[0] + d[1] * d[1] + d[2] * d[2];
         let e = rep.entry(k).or_insert((i as u32, f32::MAX));
         if dist < e.1 {
@@ -135,7 +137,7 @@ pub fn cluster(
         indices: Vec::new(),
     };
     let mut seen = std::collections::HashSet::new();
-    for t in indices.chunks_exact(3) {
+    for t in indices.as_chunks::<3>().0 {
         let r: Vec<u32> = t.iter().map(|&v| rep[&key(v as usize)].0).collect();
         if r[0] == r[1] || r[1] == r[2] || r[0] == r[2] {
             continue;
@@ -167,11 +169,11 @@ pub fn thin_cards(positions: &[[f32; 3]], indices: &[u32], keep_one_in: usize) -
     // Centre of each card.
     let mut centre = vec![([0.0f32; 3], 0u32); groups];
     let mut counted = vec![false; positions.len()];
-    for (t, &g) in indices.chunks_exact(3).zip(&tri_group) {
+    for (t, &g) in indices.as_chunks::<3>().0.iter().zip(&tri_group) {
         for &v in t {
             if !std::mem::replace(&mut counted[v as usize], true) {
-                for k in 0..3 {
-                    centre[g].0[k] += positions[v as usize][k];
+                for (sum, x) in centre[g].0.iter_mut().zip(&positions[v as usize]) {
+                    *sum += x;
                 }
                 centre[g].1 += 1;
             }
@@ -187,7 +189,7 @@ pub fn thin_cards(positions: &[[f32; 3]], indices: &[u32], keep_one_in: usize) -
         positions: Vec::new(),
         indices: Vec::new(),
     };
-    for (t, &g) in indices.chunks_exact(3).zip(&tri_group) {
+    for (t, &g) in indices.as_chunks::<3>().0.iter().zip(&tri_group) {
         if g % keep_one_in != 0 {
             continue;
         }
@@ -287,7 +289,9 @@ mod tests {
     }
 
     fn area(p: &[[f32; 3]], idx: &[u32]) -> f32 {
-        idx.chunks_exact(3)
+        idx.as_chunks::<3>()
+            .0
+            .iter()
             .map(|t| {
                 let (a, b, c) = (p[t[0] as usize], p[t[1] as usize], p[t[2] as usize]);
                 let (u, v) = (sub(b, a), sub(c, a));
@@ -327,7 +331,9 @@ mod tests {
         let mut idx2 = idx.clone();
         let off = p.len() as u32;
         idx2.extend(
-            idx.chunks_exact(3)
+            idx.as_chunks::<3>()
+                .0
+                .iter()
                 .flat_map(|t| [t[0] + off, t[2] + off, t[1] + off]),
         );
         let lod = cluster(&p2, Some(&n2), &idx2, 0.5);
@@ -350,7 +356,7 @@ mod tests {
         // Pieces of 8 triangles: too chunky to thin, too thin to cluster.
         let (p, idx) = cards(100, 0.2);
         let mut fans = Vec::new();
-        for q in idx.chunks_exact(6).collect::<Vec<_>>().chunks(4) {
+        for q in idx.as_chunks::<6>().0.iter().collect::<Vec<_>>().chunks(4) {
             for (k, quad) in q.iter().enumerate() {
                 // Join each group of four cards through their first vertex.
                 let first = q[0][0];

@@ -89,7 +89,9 @@ fn coverage(data: &[u8], cutoff: f32, scale: f32) -> f32 {
         return 0.0;
     }
     let hit = data
-        .chunks_exact(4)
+        .as_chunks::<4>()
+        .0
+        .iter()
         .filter(|p| (p[3] as f32 / 255.0) * scale >= cutoff)
         .count();
     hit as f32 / n as f32
@@ -107,14 +109,14 @@ fn keep_coverage(data: &mut [u8], cutoff: f32, target: f32) {
         }
     }
     let scale = hi;
-    for p in data.chunks_exact_mut(4) {
+    for p in data.as_chunks_mut::<4>().0 {
         p[3] = (p[3] as f32 * scale).round().clamp(0.0, 255.0) as u8;
     }
 }
 
 /// Does any pixel have alpha below 255?
 pub fn has_alpha(data: &[u8]) -> bool {
-    data.chunks_exact(4).any(|p| p[3] < 255)
+    data.as_chunks::<4>().0.iter().any(|p| p[3] < 255)
 }
 
 /// How many mip levels a `w`×`h` texture has, down to 1×1.
@@ -171,7 +173,12 @@ mod tests {
         // 8x4 + 4x2 + 2x1 + 1x1 pixels.
         assert_eq!(all.len(), (32 + 8 + 2 + 1) * 4);
         // A flat colour stays the same colour all the way down.
-        assert!(all.chunks_exact(4).all(|p| p == [10, 20, 30, 255]));
+        assert!(
+            all.as_chunks::<4>()
+                .0
+                .iter()
+                .all(|p| *p == [10, 20, 30, 255])
+        );
     }
 
     #[test]

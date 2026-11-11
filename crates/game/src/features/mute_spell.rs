@@ -7,7 +7,7 @@
 //! M, Q alone does it). The target is muted: their mic is forced off and they
 //! get an RPG with infinite rockets. Q fires it where they look. A rocket only
 //! hurts the player who muted them (it flies straight through everyone else)
-//! and one hit kills: the caster is sent back to their spawn point. That
+//! and one hit kills: the caster dies and goes to heaven (see `afterlife`). That
 //! ends the mission: the RPG disappears and the target can talk again.
 //!
 //! The server owns all of it: [`Silenced`] sits on the muted player's
@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::bear::wav_bytes;
-use crate::features::fps::{EYE, Walker, spawn_point};
+use crate::features::fps::{EYE, Walker};
 use crate::features::interact::deny;
 use crate::features::synth_audio::RATE;
 use crate::hud::Toast;
@@ -257,7 +257,7 @@ fn fly_rockets(
         // Check along the whole step so a fast rocket can't skip past.
         let victim = walkers.iter_mut().find(|(_, p, ..)| p.id == rocket.victim);
         let mut killed = false;
-        if let Some((_, _, mut walker, kcc)) = victim {
+        if let Some((_, _, walker, _)) = victim {
             let chest = walker.pos + Vec3::Y * CHEST;
             let seg = to - from;
             let t = if seg.length_squared() > 0.0 {
@@ -267,10 +267,10 @@ fn fly_rockets(
             };
             if rocket_hits(from + seg * t, walker.pos) {
                 killed = true;
-                walker.pos = spawn_point(rocket.victim);
-                if let Some(mut kcc) = kcc {
-                    kcc.velocity = Vec3::ZERO;
-                }
+                // Dying sends you to heaven (#209).
+                commands.trigger(super::afterlife::Die {
+                    player: rocket.victim,
+                });
             }
         }
         let ground = crate::terrain::height_at(to.x, to.z);
@@ -583,7 +583,7 @@ fn boom(
     {
         let text = if me == Some(ev.victim) {
             format!(
-                "player {}'s rocket got you. Back to the start. They can talk again.",
+                "player {}'s rocket got you. They can talk again.",
                 ev.shooter
             )
         } else if me == Some(ev.shooter) {

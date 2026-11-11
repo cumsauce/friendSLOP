@@ -34,16 +34,17 @@ NPC and get caught 4 times: villagers chase you and float you. Villagers fart an
 Low morality brings a helicopter that shoots at you. 5% of actions fail sillily. Marmalade's
 wheel makes a rule fairer or crueller. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
-Say "mute" at a friend (Q) and they're silenced until they RPG you.
+Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 3 min
+and systemd (PID 1) kills you.
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 Some nights (real clock, 10pm-5am) you hear whispers behind you.
 
-**Just for fun:** Mei, smoking, the lex pile, bear, goat, Discord friends to date, rat twins.
+**Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free. Six players beat the landlord fast. Only the RPG and a 10x cat can kill you.
+free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
 
 ## What exists
 
@@ -657,6 +658,11 @@ free. Six players beat the landlord fast. Only the RPG and a 10x cat can kill yo
   cat back to 1x with its fuse out. Anyone can be eaten, not just the owner (including friends
   walking up to pet it from the front).
   (Asked for by the owner directly, no issue.)
+- **systemd** (#238, bben: "pid 1, usually systemd"). Every player is a service and PID 1
+  watches them. Moving or turning your head pings its watchdog; stand perfectly still for
+  3 minutes and you get a private "watchdog ping overdue. MOVE" warning 20 s before it
+  SIGKILLs you (you die, see Dying) and everyone sees the journal line. The clock stops
+  while the world is frozen and while you're dead. No body, just the log (`features/systemd.rs`).
 - **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
   game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
   Press G to pry at the seams; every pry fills the shared escape bar (top right) but angers HALT.
@@ -994,6 +1000,8 @@ free. Six players beat the landlord fast. Only the RPG and a 10x cat can kill yo
 - corvy (#238, on what else should kill you): if the cat gets too big, like 10x, it should
   gobble you up. We made the lit-fuse cat hungry: it closes in on its owner and eats anyone in
   its mouth; eating resets it like the explosion does.
+- bben (#238, same question): "pid 1, usually systemd". We read it as systemd's watchdog:
+  stand still (AFK) for 3 minutes and PID 1 kills you, with a warning first.
 - catherine (#232): gather all the work that needs an admin or some outside person to act on
   the repo, the bot image and so on, as a list for doomy. It's `ADMIN_TODO.md`: stuck
   `needs-human` issues, secrets and tokens to renew, the manual release, redeploying the
@@ -1076,7 +1084,7 @@ free. Six players beat the landlord fast. Only the RPG and a 10x cat can kill yo
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
 - The mute spell (#146) is the first voice spell. What other spells could you say?
-- Dying (#209) means heaven, begging and maybe the hell pit. The RPG and a 10x cat (#238) kill;
+- Dying (#209) means heaven, begging and maybe the hell pit. The RPG, a 10x cat and systemd's idle watchdog (#238) kill;
   what else should (#238 is still open for answers)? Is there anything else down in hell?
 - What does connecting all the pets achieve, and what else do pets do?
 - Your fat cat (#145) drinks pee now (#213). Should what it eats or drinks change it?

@@ -1229,8 +1229,8 @@ mod tests {
 
     #[test]
     fn hell_is_far_under_everything() {
-        assert!(LAVA_Y + PIT_HEIGHT < super::super::underground::TUNNEL_Y - 50.0);
-        assert!(HELL_AT.x.abs() + PIT_RADIUS < crate::camera::FLOOR_HALF);
+        const { assert!(LAVA_Y + PIT_HEIGHT < super::super::underground::TUNNEL_Y - 50.0) };
+        const { assert!(HELL_AT.x.abs() + PIT_RADIUS < crate::camera::FLOOR_HALF) };
     }
 
     #[test]

@@ -1,0 +1,3618 @@
+{
+  "format_version": 1,
+  "name": "pk-ladder-wood",
+  "parts": [],
+  "version": 9548,
+  "ops": [
+    {
+      "primitive": {
+        "name": "rail0_raw",
+        "kind": "box",
+        "size": [
+          0.07,
+          3.2,
+          0.07
+        ],
+        "translation": [
+          -0.25,
+          1.6,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "round": {
+        "name": "rail0",
+        "input": "rail0_raw",
+        "mode": "chamfer",
+        "radius": 0.012,
+        "segments": 0
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail1_raw",
+        "kind": "box",
+        "size": [
+          0.07,
+          3.2,
+          0.07
+        ],
+        "translation": [
+          0.25,
+          1.6,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "round": {
+        "name": "rail1",
+        "input": "rail1_raw",
+        "mode": "chamfer",
+        "radius": 0.012,
+        "segments": 0
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung0",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.3,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung1",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.63,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung2",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.96,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung3",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.29,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung4",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.62,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung5",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.95,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung6",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          2.28,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung7",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          2.61,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rung8",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.56,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          2.94,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "rail0",
+        "input": "rail0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rail0_raw",
+        "input": "rail0_raw",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rail1",
+        "input": "rail1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rail1_raw",
+        "input": "rail1_raw",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung0",
+        "input": "rung0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung1",
+        "input": "rung1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung2",
+        "input": "rung2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung3",
+        "input": "rung3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung4",
+        "input": "rung4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung5",
+        "input": "rung5",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung6",
+        "input": "rung6",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung7",
+        "input": "rung7",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rung8",
+        "input": "rung8",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 18,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3e2918"
+                  ],
+                  [
+                    0.5,
+                    "#5a3c25"
+                  ],
+                  [
+                    1.0,
+                    "#6e4c32"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "rail0_raw",
+        "input": "rail0_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rail1_raw",
+        "input": "rail1_raw",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pk-ladder-wood",
+          "parts": [],
+          "version": 9519,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pk-ladder-wood`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pk-ladder-wood",
+          "parts": [],
+          "version": 9548,
+          "ops": [
+            {
+              "primitive": {
+                "name": "rail0_raw",
+                "kind": "box",
+                "size": [
+                  0.07,
+                  3.2,
+                  0.07
+                ],
+                "translation": [
+                  -0.25,
+                  1.6,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "round": {
+                "name": "rail0",
+                "input": "rail0_raw",
+                "mode": "chamfer",
+                "radius": 0.012,
+                "segments": 0
+              }
+            },
+            {
+              "primitive": {
+                "name": "rail1_raw",
+                "kind": "box",
+                "size": [
+                  0.07,
+                  3.2,
+                  0.07
+                ],
+                "translation": [
+                  0.25,
+                  1.6,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "round": {
+                "name": "rail1",
+                "input": "rail1_raw",
+                "mode": "chamfer",
+                "radius": 0.012,
+                "segments": 0
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung0",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  0.3,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung1",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  0.63,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung2",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  0.96,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung3",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  1.29,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung4",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  1.62,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung5",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  1.95,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung6",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  2.28,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung7",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  2.61,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rung8",
+                "kind": "cylinder",
+                "size": [
+                  0.022,
+                  0.56,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  2.94,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.70710677,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "rail0",
+                "input": "rail0",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rail0_raw",
+                "input": "rail0_raw",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rail1",
+                "input": "rail1",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rail1_raw",
+                "input": "rail1_raw",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung0",
+                "input": "rung0",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung1",
+                "input": "rung1",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung2",
+                "input": "rung2",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung3",
+                "input": "rung3",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung4",
+                "input": "rung4",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung5",
+                "input": "rung5",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung6",
+                "input": "rung6",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung7",
+                "input": "rung7",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rung8",
+                "input": "rung8",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-timber",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 13,
+                        "size": 0.015,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "n",
+                        "length": 0.12,
+                        "name": "grain",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "grain",
+                        "name": "g2",
+                        "type": "levels"
+                      },
+                      {
+                        "name": "big",
+                        "octaves": 3,
+                        "seed": 18,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "g2",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3e2918"
+                          ],
+                          [
+                            0.5,
+                            "#5a3c25"
+                          ],
+                          [
+                            1.0,
+                            "#6e4c32"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "big",
+                        "name": "bt",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "g2",
+                        "name": "r",
+                        "to": [
+                          0.8,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "g2",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "rail0_raw",
+                "input": "rail0_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rail1_raw",
+                "input": "rail1_raw",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "28 edits: primitive `rail0_raw` (box) size=[0.07, 3.2, 0.07] at=[-0.25, 1.6, 0.0] … hidden `rail1_raw`"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

@@ -1,0 +1,158 @@
+{
+  "name": "de-lamp",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 31,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0.0,
+          "#ffc870"
+        ],
+        [
+          1.0,
+          "#ffe7a8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c",
+      "b": 1.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "c",
+      "emissive": "em",
+      "name": "out",
+      "roughness": 0.3,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "de-lamp",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0.0,
+                  "#ffc870"
+                ],
+                [
+                  1.0,
+                  "#ffe7a8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c",
+              "b": 4.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "c",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.3,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+n +c +em +out"
+      },
+      {
+        "model": {
+          "name": "de-lamp",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0.0,
+                  "#ffc870"
+                ],
+                [
+                  1.0,
+                  "#ffe7a8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c",
+              "b": 1.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "c",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.3,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~em"
+      }
+    ],
+    "current": 1
+  }
+}

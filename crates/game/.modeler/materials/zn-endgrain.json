@@ -1,0 +1,142 @@
+{
+  "name": "zn-endgrain",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 21,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "name": "bn",
+      "octaves": 2,
+      "seed": 22,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "a": "fn",
+      "b": "bn",
+      "c": 0.5,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#b08354"
+        ],
+        [
+          0.5,
+          "#cfa671"
+        ],
+        [
+          1,
+          "#e0bd88"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "fn",
+      "b": 0.0015,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-endgrain",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 21,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "name": "bn",
+              "octaves": 2,
+              "seed": 22,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "a": "fn",
+              "b": "bn",
+              "c": 0.5,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#b08354"
+                ],
+                [
+                  0.5,
+                  "#cfa671"
+                ],
+                [
+                  1,
+                  "#e0bd88"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "fn",
+              "b": 0.0015,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +bn +t0 +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

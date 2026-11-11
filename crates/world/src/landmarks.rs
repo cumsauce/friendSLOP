@@ -2,10 +2,15 @@
 //! pond (ripples, lily pads, reeds, rocks, a little jetty and two bobbing
 //! ducks), the campfire (stone ring, log seats, ember glow) and strings of
 //! lantern bulbs along the paths between them. Purely local visuals, spawned
-//! identically on every peer; nothing here is replicated or collides.
+//! identically on every peer; nothing here is replicated or collides. The
+//! jetty, log seats, light posts, reeds and lily pads are modeler models in
+//! `assets/models/scenery` (sources in `crates/game/.modeler/`); a missing
+//! file just draws nothing.
 
+use bevy::gltf::GltfAssetLabel;
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
+use bevy::world_serialization::WorldInstanceReady;
 
 use crate::AppState;
 use crate::art;
@@ -25,7 +30,36 @@ pub fn plugin(app: &mut App) {
     .add_systems(
         Update,
         (ripple, bob, paddle, glow_embers).run_if(in_state(AppState::InGame)),
-    );
+    )
+    .add_observer(no_model_shadows);
+}
+
+/// A small model whose meshes cast no shadow once its scene has spawned.
+#[derive(Component)]
+struct NoShadows;
+
+fn no_model_shadows(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    small: Query<(), With<NoShadows>>,
+    children: Query<&Children>,
+    meshes: Query<(), With<Mesh3d>>,
+) {
+    if small.get(ready.entity).is_err() {
+        return;
+    }
+    for child in children.iter_descendants(ready.entity) {
+        if meshes.get(child).is_ok() {
+            commands.entity(child).insert(NotShadowCaster);
+        }
+    }
+}
+
+/// The scene root for one `assets/models/scenery` model.
+fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/scenery/{file}.gltf"))),
+    )
 }
 
 /// Radius of the open water (matches the pond surface in `terrain.rs`).
@@ -64,6 +98,11 @@ fn small() -> (NotShadowCaster, DespawnOnExit<AppState>) {
     (NotShadowCaster, DespawnOnExit(AppState::InGame))
 }
 
+/// [`small`] for a model: its meshes cast no shadow once spawned.
+fn small_model() -> (NoShadows, DespawnOnExit<AppState>) {
+    (NoShadows, DespawnOnExit(AppState::InGame))
+}
+
 fn flat(x: f32, y: f32, z: f32) -> Transform {
     Transform::from_xyz(x, y, z).with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2))
 }
@@ -87,6 +126,7 @@ fn jetty_dir() -> Vec2 {
 
 fn dress_pond(
     mut commands: Commands,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -124,11 +164,7 @@ fn dress_pond(
         ));
     }
 
-    // Lily pads (a notched disc) and two pink flowers.
-    let pad = meshes.add(CircularSector::new(0.3, std::f32::consts::PI * 0.9));
-    let pad_mat = art::soft(&mut materials, Color::srgb(0.3, 0.6, 0.25));
-    let bloom = meshes.add(Sphere::new(0.07));
-    let pink = art::soft(&mut materials, Color::srgb(1.0, 0.6, 0.78));
+    // Lily pads (a notched disc), every third with a pink flower.
     for (i, (a, r)) in [
         (2.3, 2.2),
         (2.6, 1.6),
@@ -144,34 +180,26 @@ fn dress_pond(
         let p = around(jetty_angle + a, r);
         // High enough that bobbing never dips it into the ripples (z-fighting).
         let y = WATER_Y + 0.035;
-        let mut pad_e = commands.spawn((
-            Mesh3d(pad.clone()),
-            MeshMaterial3d(pad_mat.clone()),
-            Transform::from_xyz(p.x, y, p.y).with_rotation(
-                Quat::from_rotation_y(a * 3.7)
-                    * Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
+        commands.spawn((
+            model(
+                &assets,
+                if i % 3 == 0 {
+                    "lily_pad_bloom"
+                } else {
+                    "lily_pad"
+                },
             ),
+            Transform::from_xyz(p.x, y, p.y).with_rotation(Quat::from_rotation_y(a * 3.7)),
             Bob {
                 y,
                 phase: i as f32 * 0.9,
             },
-            small(),
+            small_model(),
         ));
-        if i % 3 == 0 {
-            pad_e.with_child((
-                Mesh3d(bloom.clone()),
-                MeshMaterial3d(pink.clone()),
-                Transform::from_xyz(0.05, 0.0, 0.05).with_scale(Vec3::new(1.0, 1.0, 0.7)),
-                NotShadowCaster,
-            ));
-        }
     }
 
-    // Reeds and cattails round the far bank, swaying in the breeze.
-    let stem = meshes.add(Cylinder::new(0.018, 1.0));
-    let tail = meshes.add(Capsule3d::new(0.04, 0.14));
-    let reed_green = art::soft(&mut materials, Color::srgb(0.35, 0.55, 0.22));
-    let tail_brown = art::soft(&mut materials, Color::srgb(0.4, 0.24, 0.12));
+    // Reeds and cattails round the far bank, swaying in the breeze: clumps
+    // about 1 m tall, scaled to each one's height, every other with cattails.
     for i in 0..26 {
         let k = i as f32;
         // Skip a wedge either side of the jetty.
@@ -183,29 +211,14 @@ fn dress_pond(
         let p = around(a, r);
         let h = 0.7 + art::hash(i, 2, 7) * 0.6;
         let lean = Quat::from_rotation_z((art::hash(i, 4, 7) - 0.5) * 0.25);
-        commands
-            .spawn((
-                Transform::from_xyz(p.x, 0.0, p.y).with_rotation(lean),
-                Visibility::default(),
-                art::Wiggle::sway(lean, Vec3::X, 0.06, 1.1, k * 0.7),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|reed| {
-                reed.spawn((
-                    Mesh3d(stem.clone()),
-                    MeshMaterial3d(reed_green.clone()),
-                    Transform::from_xyz(0.0, h / 2.0, 0.0).with_scale(Vec3::new(1.0, h, 1.0)),
-                    NotShadowCaster,
-                ));
-                if i % 2 == 0 {
-                    reed.spawn((
-                        Mesh3d(tail.clone()),
-                        MeshMaterial3d(tail_brown.clone()),
-                        Transform::from_xyz(0.0, h - 0.08, 0.0),
-                        NotShadowCaster,
-                    ));
-                }
-            });
+        commands.spawn((
+            model(&assets, if i % 2 == 0 { "reeds_a" } else { "reeds_b" }),
+            Transform::from_xyz(p.x, 0.0, p.y)
+                .with_rotation(lean)
+                .with_scale(Vec3::splat(h)),
+            art::Wiggle::sway(lean, Vec3::X, 0.06, 1.1, k * 0.7),
+            small_model(),
+        ));
     }
 
     // A couple of mossy rocks on the bank.
@@ -222,69 +235,21 @@ fn dress_pond(
         ));
     }
 
-    // The jetty: planks on two stringers, four posts, a lantern at the end.
-    let wood = art::soft(&mut materials, Color::srgb(0.55, 0.38, 0.22));
-    let dark_wood = art::soft(&mut materials, Color::srgb(0.38, 0.26, 0.15));
+    // The jetty: planks on two stringers, four posts, a lantern at the end
+    // (one model, along its X), and the lantern's light.
     let (start, end) = (WATER_R + 1.0, 1.6);
     let mid = c + jd * (start + end) / 2.0;
     let len = start - end;
     let yaw = Quat::from_rotation_y(-jetty_angle);
     commands
         .spawn((
+            model(&assets, "jetty"),
             Transform::from_xyz(mid.x, 0.0, mid.y).with_rotation(yaw),
-            Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ))
         .with_children(|j| {
-            let plank = meshes.add(Cuboid::new(0.24, 0.05, 0.9));
-            let n = 9;
-            for i in 0..n {
-                let x = -len / 2.0 + (i as f32 + 0.5) * len / n as f32;
-                j.spawn((
-                    Mesh3d(plank.clone()),
-                    MeshMaterial3d(if i % 2 == 0 {
-                        wood.clone()
-                    } else {
-                        dark_wood.clone()
-                    }),
-                    Transform::from_xyz(x, 0.28, 0.0)
-                        .with_rotation(Quat::from_rotation_y((art::hash(i, 0, 9) - 0.5) * 0.06)),
-                ));
-            }
-            let stringer = meshes.add(Cuboid::new(len, 0.08, 0.08));
-            for z in [-0.36, 0.36] {
-                j.spawn((
-                    Mesh3d(stringer.clone()),
-                    MeshMaterial3d(dark_wood.clone()),
-                    Transform::from_xyz(0.0, 0.21, z),
-                    NotShadowCaster,
-                ));
-            }
-            let post = meshes.add(Cylinder::new(0.06, 0.6));
-            for x in [-len / 2.0 + 0.2, len / 2.0 - 0.15] {
-                for z in [-0.42, 0.42] {
-                    j.spawn((
-                        Mesh3d(post.clone()),
-                        MeshMaterial3d(dark_wood.clone()),
-                        Transform::from_xyz(x, 0.2, z),
-                        NotShadowCaster,
-                    ));
-                }
-            }
             // Lantern post at the water end.
             let lx = -len / 2.0 + 0.2;
-            j.spawn((
-                Mesh3d(meshes.add(Cylinder::new(0.04, 1.3))),
-                MeshMaterial3d(dark_wood.clone()),
-                Transform::from_xyz(lx, 0.9, 0.42),
-                NotShadowCaster,
-            ));
-            j.spawn((
-                Mesh3d(meshes.add(Cuboid::new(0.16, 0.2, 0.16))),
-                MeshMaterial3d(glow(&mut materials, Color::srgb(1.0, 0.75, 0.4), 6.0)),
-                Transform::from_xyz(lx, 1.6, 0.42),
-                NotShadowCaster,
-            ));
             j.spawn((
                 PointLight {
                     color: Color::srgb(1.0, 0.72, 0.4),
@@ -364,6 +329,7 @@ fn dress_pond(
 
 fn dress_campfire(
     mut commands: Commands,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -398,39 +364,18 @@ fn dress_campfire(
         Embers(ember_mat),
         small(),
     ));
-    // Log seats round the fire, each facing it.
-    let bark = art::soft(&mut materials, Color::srgb(0.42, 0.28, 0.16));
-    let cut = art::soft(&mut materials, Color::srgb(0.85, 0.7, 0.48));
-    let log = meshes.add(Cylinder::new(0.2, 1.5));
-    let end = meshes.add(Circle::new(0.19));
+    // Log seats round the fire, each facing it (the model lies along its Z,
+    // origin at the log's centre).
     for i in 0..4 {
         let a = 0.4 + i as f32 * std::f32::consts::FRAC_PI_2;
         let p = c + Vec2::new(a.cos(), a.sin()) * 2.3;
         // Lying along the tangent of the circle.
         let yaw = Quat::from_rotation_y(-a);
-        commands
-            .spawn((
-                Transform::from_xyz(p.x, 0.2, p.y)
-                    .with_rotation(yaw * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-                Visibility::default(),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|l| {
-                l.spawn((
-                    Mesh3d(log.clone()),
-                    MeshMaterial3d(bark.clone()),
-                    Transform::default(),
-                ));
-                for s in [-1.0_f32, 1.0] {
-                    l.spawn((
-                        Mesh3d(end.clone()),
-                        MeshMaterial3d(cut.clone()),
-                        Transform::from_xyz(0.0, s * 0.76, 0.0)
-                            .with_rotation(Quat::from_rotation_x(-s * std::f32::consts::FRAC_PI_2)),
-                        NotShadowCaster,
-                    ));
-                }
-            });
+        commands.spawn((
+            model(&assets, "log_seat"),
+            Transform::from_xyz(p.x, 0.2, p.y).with_rotation(yaw),
+            DespawnOnExit(AppState::InGame),
+        ));
     }
 }
 
@@ -438,18 +383,16 @@ fn dress_campfire(
 /// pond, strung with emissive bulbs (no lights of their own).
 fn string_lights(
     mut commands: Commands,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let post_mat = art::soft(&mut materials, Color::srgb(0.36, 0.25, 0.15));
     let wire_mat = art::soft(&mut materials, Color::srgb(0.12, 0.1, 0.08));
     let bulbs = [
         glow(&mut materials, Color::srgb(1.0, 0.8, 0.45), 8.0),
         glow(&mut materials, Color::srgb(1.0, 0.55, 0.35), 8.0),
         glow(&mut materials, Color::srgb(0.95, 0.9, 0.6), 8.0),
     ];
-    let post = meshes.add(Cylinder::new(0.05, 2.4));
-    let cap = meshes.add(Cuboid::new(0.14, 0.18, 0.14));
     let bulb = meshes.add(Sphere::new(0.05));
     let wire = meshes.add(Cylinder::new(0.008, 1.0));
     const TOP: f32 = 2.3;
@@ -464,17 +407,11 @@ fn string_lights(
             .map(|t| a.lerp(b, t) + perp)
             .collect();
         for p in &posts {
+            // Pole and glowing cap (one model); the wire hangs from TOP.
             commands.spawn((
-                Mesh3d(post.clone()),
-                MeshMaterial3d(post_mat.clone()),
-                Transform::from_xyz(p.x, 1.2, p.y),
+                model(&assets, "light_post"),
+                Transform::from_xyz(p.x, 0.0, p.y),
                 DespawnOnExit(AppState::InGame),
-            ));
-            commands.spawn((
-                Mesh3d(cap.clone()),
-                MeshMaterial3d(bulbs[0].clone()),
-                Transform::from_xyz(p.x, TOP + 0.15, p.y),
-                small(),
             ));
         }
         for (k, w) in posts.windows(2).enumerate() {

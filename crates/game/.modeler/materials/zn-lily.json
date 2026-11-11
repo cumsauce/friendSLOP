@@ -1,0 +1,126 @@
+{
+  "name": "zn-lily",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 151,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "name": "bn",
+      "octaves": 2,
+      "seed": 152,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "a": "fn",
+      "b": "bn",
+      "c": 0.5,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#3f7a2a"
+        ],
+        [
+          0.5,
+          "#4f9233"
+        ],
+        [
+          1,
+          "#6aa845"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.45,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-lily",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 151,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "name": "bn",
+              "octaves": 2,
+              "seed": 152,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "a": "fn",
+              "b": "bn",
+              "c": 0.5,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#3f7a2a"
+                ],
+                [
+                  0.5,
+                  "#4f9233"
+                ],
+                [
+                  1,
+                  "#6aa845"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +bn +t0 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

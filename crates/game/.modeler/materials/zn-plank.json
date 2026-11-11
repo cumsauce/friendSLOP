@@ -1,0 +1,449 @@
+{
+  "name": "zn-plank",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 2,
+      "seed": 51,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "amount": 0.05,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "name": "g",
+      "size": [
+        1.0,
+        0.02
+      ],
+      "stagger": 0.36,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "gr",
+      "seed": 52,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 53,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "a": "gr",
+      "b": "fn",
+      "c": 0.4,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "name": "pl",
+      "size": [
+        1.0,
+        0.25
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "id": "pl.id",
+      "max": 0.2,
+      "min": -0.2,
+      "name": "pt",
+      "seed": 54,
+      "type": "random"
+    },
+    {
+      "a": "t0",
+      "b": "pt",
+      "name": "t1",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "input": "t1",
+      "name": "wc",
+      "stops": [
+        [
+          0,
+          "#6e5238"
+        ],
+        [
+          0.5,
+          "#8f6c4a"
+        ],
+        [
+          1,
+          "#a7835c"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "pl.edge",
+      "b": 0.003,
+      "c": 0.012,
+      "name": "gv",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "a": "#3a2616",
+      "b": "wc",
+      "c": "gv",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "gv",
+      "b": 0.004,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "t0",
+      "b": 0.001,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "h1",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.75,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-plank",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 51,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "g",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.37,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 52,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 53,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.4,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "name": "pl",
+              "size": [
+                1.0,
+                0.2
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "pl.id",
+              "max": 0.2,
+              "min": -0.2,
+              "name": "pt",
+              "seed": 54,
+              "type": "random"
+            },
+            {
+              "a": "t0",
+              "b": "pt",
+              "name": "t1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "input": "t1",
+              "name": "wc",
+              "stops": [
+                [
+                  0,
+                  "#6e5238"
+                ],
+                [
+                  0.5,
+                  "#8f6c4a"
+                ],
+                [
+                  1,
+                  "#a7835c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "pl.edge",
+              "b": 0.003,
+              "c": 0.012,
+              "name": "gv",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": "#3a2616",
+              "b": "wc",
+              "c": "gv",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "gv",
+              "b": 0.004,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": 0.001,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+wv +wp +g +gr +fn +t0 +pl +pt +t1 +wc +gv +col +h0 +h1 +h +out"
+      },
+      {
+        "model": {
+          "name": "zn-plank",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 51,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "g",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.36,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 52,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 53,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.4,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "name": "pl",
+              "size": [
+                1.0,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "pl.id",
+              "max": 0.2,
+              "min": -0.2,
+              "name": "pt",
+              "seed": 54,
+              "type": "random"
+            },
+            {
+              "a": "t0",
+              "b": "pt",
+              "name": "t1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "input": "t1",
+              "name": "wc",
+              "stops": [
+                [
+                  0,
+                  "#6e5238"
+                ],
+                [
+                  0.5,
+                  "#8f6c4a"
+                ],
+                [
+                  1,
+                  "#a7835c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "pl.edge",
+              "b": 0.003,
+              "c": 0.012,
+              "name": "gv",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": "#3a2616",
+              "b": "wc",
+              "c": "gv",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "gv",
+              "b": 0.004,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": 0.001,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~g ~pl"
+      }
+    ],
+    "current": 1
+  }
+}

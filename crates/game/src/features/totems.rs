@@ -343,60 +343,54 @@ pub fn plugin(app: &mut App) {
         );
 }
 
-/// The vault's walls (local scenery; the doors are replicated).
-fn build_vault(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    let stone = crate::art::soft(&mut materials, Color::srgb(0.55, 0.5, 0.6));
+/// The vault's walls (local scenery; the doors are replicated). One
+/// modeler-made model draws them (`models/features/vault.gltf`, sources in
+/// `.modeler/`); each wall keeps its own collider.
+fn build_vault(mut commands: Commands, assets: Res<AssetServer>) {
     let h = VAULT_HALF;
-    let wall = |len_x: f32, len_z: f32| Cuboid::new(len_x, 1.6, len_z);
     // North and south walls, then the short stubs either side of each door.
     let mut pieces = vec![
-        (wall(2.0 * h + 0.3, 0.3), Vec2::new(0.0, -h)),
-        (wall(2.0 * h + 0.3, 0.3), Vec2::new(0.0, h)),
+        (Vec2::new(2.0 * h + 0.3, 0.3), Vec2::new(0.0, -h)),
+        (Vec2::new(2.0 * h + 0.3, 0.3), Vec2::new(0.0, h)),
     ];
     for x in [-h, h] {
         for z in [-1.0, 1.0] {
-            pieces.push((wall(0.3, h - 0.6), Vec2::new(x, z * (h + 0.6) / 2.0)));
+            pieces.push((Vec2::new(0.3, h - 0.6), Vec2::new(x, z * (h + 0.6) / 2.0)));
         }
     }
-    let cap_stone = crate::art::soft(&mut materials, Color::srgb(0.7, 0.66, 0.75));
-    for (shape, off) in pieces {
-        let cap = Cuboid::new(shape.size().x + 0.12, 0.14, shape.size().z + 0.12);
-        let size = shape.size();
+    for (size, off) in pieces {
         commands.spawn((
             // Walls are solid: the vault is more than a picture of one.
             RigidBody::Static,
-            Collider::cuboid(size.x, 1.6, size.z),
-            Mesh3d(meshes.add(shape)),
-            MeshMaterial3d(stone.clone()),
+            Collider::cuboid(size.x, 1.6, size.y),
             Transform::from_xyz(VAULT_AT.x + off.x, 0.8, VAULT_AT.y + off.y),
             DespawnOnExit(AppState::InGame),
         ));
-        commands.spawn((
-            Mesh3d(meshes.add(cap)),
-            MeshMaterial3d(cap_stone.clone()),
-            Transform::from_xyz(VAULT_AT.x + off.x, 1.65, VAULT_AT.y + off.y),
-            DespawnOnExit(AppState::InGame),
-        ));
     }
+    commands.spawn((
+        WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/vault.gltf")),
+        ),
+        Transform::from_xyz(VAULT_AT.x, 0.0, VAULT_AT.y),
+        DespawnOnExit(AppState::InGame),
+    ));
 }
 
 fn dress_totems(
     mut commands: Commands,
     new: Query<(Entity, &Totem), Added<Totem>>,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, totem) in &new {
+        // The core and orb glow in the magic's colour, so they stay meshes
+        // here; the stone plinth and gold rings are a modeler-made model.
         let glow = materials.add(StandardMaterial {
             base_color: totem.magic.color(),
             emissive: LinearRgba::from(totem.magic.color()) * 0.6,
             ..default()
         });
-        let base = crate::art::soft(&mut materials, Color::srgb(0.5, 0.45, 0.55));
         commands
             .entity(entity)
             .insert((
@@ -424,18 +418,11 @@ fn dress_totems(
                     Transform::from_xyz(0.0, 0.75, 0.0),
                 ));
                 p.spawn((
-                    Mesh3d(meshes.add(Cylinder::new(0.24, 0.1).mesh().resolution(6))),
-                    MeshMaterial3d(base.clone()),
-                    Transform::from_xyz(0.0, 0.05, 0.0),
+                    WorldAssetRoot(assets.load(
+                        GltfAssetLabel::Scene(0).from_asset("models/features/totem_base.gltf"),
+                    )),
+                    Transform::default(),
                 ));
-                let ring = meshes.add(Torus::new(0.14, 0.19));
-                for y in [0.2, 0.45] {
-                    p.spawn((
-                        Mesh3d(ring.clone()),
-                        MeshMaterial3d(base.clone()),
-                        Transform::from_xyz(0.0, y, 0.0),
-                    ));
-                }
             });
     }
 }
@@ -443,27 +430,44 @@ fn dress_totems(
 fn dress_doors(
     mut commands: Commands,
     new: Query<(Entity, &Door), Added<Door>>,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, door) in &new {
+        // The rune glows in the door's magic colour; the slab itself is a
+        // modeler-made model (timber, iron bands, a gold ring round the rune).
         let mat = materials.add(StandardMaterial {
             base_color: door.magic.color(),
-            emissive: LinearRgba::from(door.magic.color()) * 0.2,
+            emissive: LinearRgba::from(door.magic.color()) * 0.6,
             ..default()
         });
-        commands.entity(entity).insert((
-            // The collider rides the transform, so the door sinking open
-            // clears the gap and a closed one blocks it.
-            RigidBody::Static,
-            Collider::cuboid(0.15, 1.4, 1.2),
-            Mesh3d(meshes.add(Cuboid::new(0.15, 1.4, 1.2))),
-            MeshMaterial3d(mat),
-            Transform::from_xyz(door.at.x, 0.7, door.at.y),
-            Clickable::at_height(0.0).labelled("open the door"),
-            Visibility::default(),
-            DespawnOnExit(AppState::InGame),
-        ));
+        commands
+            .entity(entity)
+            .insert((
+                // The collider rides the transform, so the door sinking open
+                // clears the gap and a closed one blocks it.
+                RigidBody::Static,
+                Collider::cuboid(0.15, 1.4, 1.2),
+                Transform::from_xyz(door.at.x, 0.7, door.at.y),
+                Clickable::at_height(0.0).labelled("open the door"),
+                Visibility::default(),
+                DespawnOnExit(AppState::InGame),
+            ))
+            .with_children(|d| {
+                d.spawn((
+                    WorldAssetRoot(assets.load(
+                        GltfAssetLabel::Scene(0).from_asset("models/features/magic_door.gltf"),
+                    )),
+                    Transform::default(),
+                ));
+                // A diamond rune through the slab, showing on both faces.
+                d.spawn((
+                    Mesh3d(meshes.add(Cuboid::new(0.14, 0.26, 0.26))),
+                    MeshMaterial3d(mat),
+                    Transform::from_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_4)),
+                ));
+            });
     }
 }
 

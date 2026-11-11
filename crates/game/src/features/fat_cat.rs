@@ -12,6 +12,11 @@
 //! [`PET_SHRINK`]; get it back under critical and the fuse goes out. If the
 //! fuse runs out it explodes, flinging everyone within [`BLAST_RADIUS`] and
 //! leaving a merely fat cat again.
+//! While the fuse is lit the cat is also hungry (#238, corvy: "if the cat
+//! gets too big, like 10x, it should gobble you up"): it stops keeping its
+//! distance and closes in on its owner, and anyone alive whose feet end up
+//! in its mouth is gobbled (they die, see `afterlife.rs`). A meal settles
+//! it: the fuse goes out and it's a merely fat cat again.
 //!
 //! The cat is built from primitives; its meows are synthesized locally on
 //! every peer (lower and more horrible the bigger it gets), heard in 3D, at
@@ -67,6 +72,12 @@ pub const PET_SHRINK: f32 = 0.6;
 pub const BLAST_RADIUS: f32 = 10.0;
 /// ...this far.
 pub const BLAST_PUSH: f32 = 8.0;
+/// A hungry (lit) cat stops this close to you (times its size): mouth first.
+const HUNGRY_HEEL: f32 = 0.8;
+/// Its mouth is this far in front of its feet (times its size)...
+pub const MOUTH_AHEAD: f32 = 0.8;
+/// ...and swallows feet this close to it (times its size).
+pub const MOUTH_RADIUS: f32 = 0.4;
 
 /// Server only: the cat goes here instead of after its owner (a pee
 /// puddle, see `kitty_lemonade.rs`, #213), stopping with its head over it.
@@ -98,6 +109,27 @@ pub struct CatExploded {
     pub at: Vec3,
 }
 
+/// Server -> everyone: `owner`'s hungry cat gobbled up `victim` at `at`.
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct CatGobbled {
+    pub owner: u64,
+    pub victim: u64,
+    pub at: Vec3,
+}
+
+/// Where a cat's mouth is: in front of its head, the way it faces.
+pub fn mouth(cat: &FatCat) -> Vec3 {
+    let ahead = Vec3::new(-cat.yaw.sin(), 0.0, -cat.yaw.cos()) * MOUTH_AHEAD * cat.size;
+    cat.pos + ahead
+}
+
+/// Whether a hungry cat swallows someone standing at `feet`.
+pub fn gobbles(cat: &FatCat, feet: Vec3) -> bool {
+    let m = mouth(cat);
+    m.xz().distance(feet.xz()) <= MOUTH_RADIUS * cat.size
+        && (feet.y - m.y).abs() <= MOUTH_RADIUS * cat.size + 1.0
+}
+
 /// The size after one pet.
 pub fn petted(size: f32) -> f32 {
     (size - PET_SHRINK).max(1.0)
@@ -122,9 +154,16 @@ pub fn protocol(app: &mut App) {
         .add_server_event::<CatExploded>(Channel::Ordered)
         .add_observer(pet_cat)
         .replicate::<Lapping>()
+        .add_server_event::<CatGobbled>(Channel::Ordered)
         .add_systems(
             Update,
-            (give_cats, attach_cat_agents, follow_and_grow, burn_fuses)
+            (
+                give_cats,
+                attach_cat_agents,
+                follow_and_grow,
+                burn_fuses,
+                gobble,
+            )
                 .chain()
                 .in_set(CatSet)
                 .run_if(in_state(ServerState::Running)),
@@ -232,6 +271,7 @@ fn follow_and_grow(
         &mut FatCat,
         &Watched,
         Option<&Lured>,
+        Has<Fuse>,
         Option<&mut bevy_landmass::AgentTarget3d>,
         Option<&bevy_landmass::AgentDesiredVelocity3d>,
         Option<&bevy_landmass::AgentState>,
@@ -242,7 +282,7 @@ fn follow_and_grow(
         return;
     }
     let dt = time.delta_secs();
-    for (mut cat, watched, lured, target, desired, state) in &mut cats {
+    for (mut cat, watched, lured, hungry, target, desired, state) in &mut cats {
         let Some((_, walker)) = players.iter().find(|(p, _)| p.id == cat.owner) else {
             continue;
         };
@@ -251,6 +291,8 @@ fn follow_and_grow(
         // Something better than you (a puddle) pulls it there instead.
         let (owner, heel) = match lured {
             Some(l) => (l.0, LAP_HEEL * next.size),
+            // A hungry cat comes for you, mouth first (#238).
+            None if hungry => (walker.pos, HUNGRY_HEEL * next.size),
             None => (walker.pos, HEEL * next.size),
         };
         let here = cat.pos.xz();
@@ -355,6 +397,37 @@ fn burn_fuses(
     }
 }
 
+/// Server: a hungry (lit) cat gobbles up the first living player in its
+/// mouth (#238). They die, and the meal settles it back to 1x.
+fn gobble(
+    mut commands: Commands,
+    still: Query<&super::stillness::Stillness>,
+    mut cats: Query<(Entity, &mut FatCat), With<Fuse>>,
+    players: Query<(&Player, &Walker), Without<super::afterlife::Dead>>,
+) {
+    if super::stillness::is_frozen(&still) {
+        return;
+    }
+    for (e, mut cat) in &mut cats {
+        let Some((victim, _)) = players.iter().find(|(_, w)| gobbles(&cat, w.pos)) else {
+            continue;
+        };
+        let victim = victim.id;
+        let at = mouth(&cat);
+        commands.trigger(super::afterlife::Die { player: victim });
+        commands.entity(e).remove::<Fuse>();
+        cat.size = 1.0;
+        commands.server_trigger(ToClients {
+            targets: SendTargets::All,
+            message: CatGobbled {
+                owner: cat.owner,
+                victim,
+                at,
+            },
+        });
+    }
+}
+
 /// Server: a pet shrinks the cat (anyone may pet any cat, from close by).
 fn pet_cat(
     ev: On<FromClient<PetCat>>,
@@ -383,18 +456,21 @@ fn pet_cat(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(click_cat).add_observer(boom).add_systems(
-        Update,
-        (
-            dress_cats,
-            move_cats,
-            report_in_view,
-            meow,
-            blink,
-            fade_blasts,
-        )
-            .run_if(in_state(AppState::InGame)),
-    );
+    app.add_observer(click_cat)
+        .add_observer(boom)
+        .add_observer(gulp)
+        .add_systems(
+            Update,
+            (
+                dress_cats,
+                move_cats,
+                report_in_view,
+                meow,
+                blink,
+                fade_blasts,
+            )
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 /// Local: clicking a cat pets it.
@@ -466,6 +542,36 @@ pub fn beep_samples(rate: u32) -> Vec<f32> {
             0.35 * env * (t * 1800.0 * std::f32::consts::TAU).sin().signum()
         })
         .collect()
+}
+
+/// The toast for a gobbling, from `me`'s point of view.
+pub fn gobble_text(owner: u64, victim: u64, me: Option<u64>) -> String {
+    let whose = match (me == Some(owner), owner == victim) {
+        (true, true) => return "GULP. YOUR fat cat got too big and gobbled you up".into(),
+        (false, true) => return format!("GULP. player {owner}'s fat cat gobbled them up"),
+        (true, false) => "YOUR fat cat".to_string(),
+        (false, false) => format!("player {owner}'s fat cat"),
+    };
+    if me == Some(victim) {
+        format!("GULP. {whose} gobbled you up")
+    } else {
+        format!("GULP. {whose} gobbled up player {victim}")
+    }
+}
+
+/// Local: a cat ate someone. Word to everyone.
+fn gulp(
+    ev: On<CatGobbled>,
+    me: Option<Res<LocalPlayer>>,
+    toast: Option<ResMut<crate::hud::Toast>>,
+    state: Option<Res<State<AppState>>>,
+) {
+    if state.is_none_or(|s| *s.get() != AppState::InGame) {
+        return;
+    }
+    if let Some(mut toast) = toast {
+        toast.show(gobble_text(ev.owner, ev.victim, me.map(|m| m.0)));
+    }
 }
 
 /// A fading blast ball.
@@ -853,6 +959,38 @@ pub fn meow_samples(rate: u32, size: f32, seed: u32) -> Vec<f32> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_hungry_cat_gobbles_what_is_in_its_mouth() {
+        let cat = FatCat {
+            owner: 0,
+            pos: Vec3::ZERO,
+            yaw: 0.0, // facing -Z
+            size: CRITICAL,
+        };
+        let m = mouth(&cat);
+        assert!((m - Vec3::new(0.0, 0.0, -MOUTH_AHEAD * CRITICAL)).length() < 1e-4);
+        // A hungry cat parks you right in its mouth...
+        assert!(gobbles(&cat, Vec3::new(0.0, 0.0, -HUNGRY_HEEL * CRITICAL)));
+        // ...but where a calm cat heels, and behind it, you're safe.
+        assert!(!gobbles(&cat, Vec3::new(0.0, 0.0, -HEEL * CRITICAL)));
+        assert!(!gobbles(&cat, Vec3::new(0.0, 0.0, 5.0)));
+        // Not from a floor far above.
+        assert!(!gobbles(&cat, m + Vec3::Y * 20.0));
+    }
+
+    #[test]
+    fn gobbling_is_announced() {
+        assert!(gobble_text(1, 1, Some(1)).contains("gobbled you up"));
+        assert_eq!(
+            gobble_text(1, 2, Some(2)),
+            "GULP. player 1's fat cat gobbled you up"
+        );
+        assert_eq!(
+            gobble_text(1, 2, Some(1)),
+            "GULP. YOUR fat cat gobbled up player 2"
+        );
+    }
 
     #[test]
     fn cat_waddles_to_heel() {

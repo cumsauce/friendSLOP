@@ -114,7 +114,7 @@ pub fn far_mesh(mesh: &Mesh, detail: f32, keep_one_in: usize) -> Option<Mesh> {
         } else {
             pick(values, &lod.source)?
         };
-        far.try_insert_attribute(attribute.clone(), values).ok()?;
+        far.try_insert_attribute(*attribute, values).ok()?;
     }
     far.insert_indices(Indices::U32(lod.indices));
     Some(far)

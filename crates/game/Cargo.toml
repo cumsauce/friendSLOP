@@ -36,6 +36,8 @@ friendslop-world = { path = "../world" }
 bevy_replicon_iroh.workspace = true
 tokio.workspace = true
 arboard.workspace = true
+# Local time zone, for real-world night (whispers, #235). The browser asks JS `Date`.
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", features = [

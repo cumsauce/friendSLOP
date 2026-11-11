@@ -36,6 +36,7 @@ actions fail with a silly result. Marmalade, a wizard cat by the bonfire, spins 
 makes a rule fairer or crueller for everyone. Your fat cat grows while you don't look at it
 and wanders off to drink pee puddles.
 Say "mute" at a friend (Q) and they're silenced until they RPG you.
+Some nights (by your real clock, 10pm-5am) you hear whispers right behind you.
 
 **Just for fun:** the affair with Officer Mei, smoking, the lex pile, music boxes, bear, goat.
 Discord friends wander the commune (chat one up 5 times to date them); their evil rat twins
@@ -227,6 +228,12 @@ Dying (to the RPG) just sends you back to the start.
   ~2.5% of a core, respects master volume. Plus real sound effects
   for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
   wind loop, and a crackling-fire loop heard at the campfire.
+  **Night whispers** (#235, `features/whispers.rs`): the game has no day and night, so night is
+  your own clock, 22:00-05:00 local time. Each night gets one roll (15%) the first time you
+  play it (saved in `whispers.txt`, so restarting doesn't re-roll); if it hits, 40 s to 10 min
+  later two whisperers and a low murmur start just behind your head for 7 s and stay behind you
+  however you turn. Made from shaped noise (breathy formant vowels, "s"/"sh" hisses, a muffled
+  murmur). Only you hear it; each player rolls their own night.
   Procedural sounds (bear, HALT, voice lines, farts) render at 44.1 kHz with band-limited
   oscillators, a gentle low-pass, click-free fades, normalised levels and dithered output.
   **3D sound** (`spatial.rs`, polish): world sounds are heard where they are, through our own
@@ -998,10 +1005,15 @@ Dying (to the RPG) just sends you back to the start.
   romancable characters; evil variants of everyone with inverted names, living underground,
   turned into rats in the lore to save the world, adoptable as pets. Built as friend villagers
   you court with five chats, and backwards-named rats in the tunnels.
+- catherine (#235): once a night, a low chance of creepy whispering and murmuring that sounds
+  like it's behind you. With no in-game night we used the player's real clock (22:00-05:00),
+  one 15% roll per night per player, and kept the voices behind you as you turn.
 
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
+- Night whispers (#235) follow your real clock, since the game has no night. Should the game
+  get its own night, and should anything be behind the whispers?
 - The shipwreck's pirates hand out doubloons (#185). What should they buy?
 - Hide and seek: should found hiders seek, or just watch? Should the world change each round?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?

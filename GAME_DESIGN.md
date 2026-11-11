@@ -20,32 +20,30 @@ posts this section every few landed ideas (#153). Keep it under ~1800 characters
 
 **The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
 
-**Each chapter:** a checklist (top-left) of jobs, and each one sends you somewhere new:
+**Each chapter:** a checklist (top-left) of jobs in new places:
 1 *Moving In*: leash the pets, eat the mushroom, climb the sky islands to Abuela in heaven.
 2 *Rent Day*: open a vault door, break out of HALT, hide and seek, grab burgers at Wendy's.
 3 *The Heist*: carry out the Fire totem, use gods tears, a duel, trade a crow egg to Sewer
 Paul in the tunnels. 4 *General Strike*: all of it at once, plus 2 soul pieces from the
 warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, one last time.
-Every chapter ends with the landlord: pay rent in organs (Act 1), pickpocket him (Act 2), beat
-him in a boss fight (Act 3). Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
+Each chapter ends with the landlord: pay rent in organs, pickpocket him, then a boss fight.
+Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
 
-**Always going on:** the Stillness freezes everything for 20 s every 4 minutes. Farting near an NPC
-shames you; get caught 4 times and the villagers chase you and float you with an accomplice.
-Villagers fart and blame you. Low morality brings a helicopter that shoots at you. 5% of
-actions fail with a silly result. Marmalade, a wizard cat by the bonfire, spins a wheel that
-makes a rule fairer or crueller for everyone. Your fat cat grows while you don't look at it
-and wanders off to drink pee puddles.
+**Always going on:** the Stillness freezes everything for 20 s every 4 minutes. Fart near an
+NPC and get caught 4 times: villagers chase you and float you. Villagers fart and blame you.
+Low morality brings a helicopter that shoots at you. 5% of actions fail sillily. Marmalade's
+wheel makes a rule fairer or crueller. Your fat cat grows unwatched and drinks pee puddles.
 Say "mute" at a friend (Q) and they're silenced until they RPG you.
-Some nights (by your real clock, 10pm-5am) you hear whispers right behind you.
+**Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
+or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
+Some nights (real clock, 10pm-5am) you hear whispers behind you.
 
-**Just for fun:** the affair with Officer Mei, smoking, the lex pile, music boxes, bear, goat.
-Discord friends wander the commune (chat one up 5 times to date them); their evil rat twins
-live in the tunnels and can be adopted.
+**Just for fun:** Officer Mei, smoking, the lex pile, bear, goat, Discord friends to date and
+their evil rat twins.
 
-**Where it's thin:** what you carry back (burgers, cigs, secrets, soul pieces) only ticks the
-checklist, and organs only come from the chapter refill and the landlord. Spells, stats, being shot and being an Abduction
-don't change play. Gambling is free. Six players paying together beat the landlord fast.
-Dying (to the RPG) just sends you back to the start.
+**Where it's thin:** what you carry back only ticks the checklist; organs only come from the
+chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
+free. Six players beat the landlord fast. Only the RPG can kill you.
 
 ## What exists
 
@@ -383,10 +381,25 @@ Dying (to the RPG) just sends you back to the start.
   means your mic must be sending voice when you press Q (with no working mic, or self-muted with
   M, Q alone works). They're muted (mic forced off) and get an RPG with infinite rockets: Q fires
   where they look, one a second. Rockets fly through everyone except the caster, and one hit
-  sends the caster back to their spawn point. Then the RPG disappears and they can talk again.
+  kills the caster (they go to heaven, see Dying). Then the RPG disappears and they can talk again.
   One spell per caster at a time; muted players can't cast; if the caster leaves, the mute lifts.
   Rockets ignore buildings (they only stop at the ground) and hang in the air during the
-  Stillness. Being "killed" is just a respawn: nothing else is lost (`features/mute_spell.rs`).
+  Stillness (`features/mute_spell.rs`).
+- **Dying** (#209, cumsauce: "you go to heaven. players must beg for your innocence. if they
+  succeed, you may return. players may also use a Tome of Uncancelling. if you are thrown to
+  hell, you must navigate the hell pit before coming back"). When you die (today only the mute
+  spell's RPG kills; duels keep their own respawns) a gravestone goes up where you fell and you
+  wake up in heaven with Abuela; walk off the edge and you're back in the clouds. Heaven judges
+  you after 60 s. Until then the living click your grave to beg (a silly plea line each time,
+  one every 0.4 s each); a plea counts 2 if your mic is sending voice (begging out loud), 1
+  otherwise. 12 in time and you're innocent: back at your grave. Otherwise you're guilty and
+  thrown into the **hell pit**, a closed lava cave far under the forest (y -150): hop 22 rising
+  basalt stepping stones spiralling in to a white light in the middle and you're back at your
+  spawn; touch the lava and you start the pit again. The **Tome of Uncancelling** (a glowing
+  purple book) sits on a lectern by the spawn: take it, click a grave and that friend is back at
+  once, from heaven or hell. It's used up and a new one appears after 3 minutes; if you die
+  holding it, it goes back to the lectern. Dying for the first time also gets you to Abuela
+  (`features/afterlife.rs`).
 - **A secret** (#206, catherine, "infinite staircase": she asked for it to stay a secret, so
   nothing in the game, the Gameplay loop or the hints mentions it). Walking through any village
   doorway, or up or down any flight of stairs or ramp, has a 3% chance of leading into a dim
@@ -995,7 +1008,12 @@ Dying (to the RPG) just sends you back to the start.
 - just meat and cheese (#146): a voice-chat spell system; the first spell, "mute PLAYER", mutes
   them and hands them an infinite-ammo RPG that only hurts the caster and kills in one hit; it
   disappears (and they're unmuted) once they kill you. We can't recognise speech, so you say
-  it out loud while pressing Q, looking at them; "killed" means sent back to your spawn.
+  it out loud while pressing Q, looking at them; "killed" now means dying (#209).
+- cumsauce (#209, answering "What should dying actually mean?"): you go to heaven; players beg
+  for your innocence and if they succeed you return; or a Tome of Uncancelling; thrown to hell,
+  you navigate the hell pit before coming back. We read "beg" as clicking your grave (out loud
+  counts double), "fail" as a 60 s judgement running out, and made one tome that comes back
+  3 minutes after use.
 - catherine (#173): gamble with the game's balance, fair and unfair settings at random,
   including how features interact, hosted and commentated by a wizard-cat version of a famous
   comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
@@ -1048,8 +1066,10 @@ Dying (to the RPG) just sends you back to the start.
 - Should a failed action's result (petunias, hampter, the world ending...) actually change play?
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
-- The mute spell (#146) is the first voice spell. What other spells could you say, and what
-  should dying mean beyond going back to the start?
+- The mute spell (#146) is the first voice spell. What other spells could you say?
+- Dying (#209) means heaven, begging and maybe the hell pit, but only the RPG kills. What else
+  should be able to kill you (the helicopter's bullets, the bear, the duel)? Is there anything
+  else down in hell?
 - What does connecting all the pets achieve, and what else do pets do?
 - Your fat cat (#145) drinks pee now (#213). Should what it eats or drinks change it?
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being

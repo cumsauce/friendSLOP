@@ -8,6 +8,7 @@ use bevy::prelude::*;
 
 pub mod abuela;
 pub mod affair;
+pub mod afterlife;
 pub mod ambience;
 pub mod babble;
 pub mod bear;
@@ -120,6 +121,7 @@ impl Plugin for FeaturesProtocolPlugin {
         // The team strip's mic badges (UI direction E): everyone's mute state.
         app.add_plugins(crate::voice::mic_protocol);
         app.add_plugins(world_seed::protocol);
+        app.add_plugins(afterlife::protocol);
     }
 }
 
@@ -182,5 +184,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(rats::plugin);
         app.add_plugins(world_seed::plugin);
         app.add_plugins(whispers::plugin);
+        app.add_plugins(afterlife::plugin);
     }
 }

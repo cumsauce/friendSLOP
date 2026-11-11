@@ -60,6 +60,7 @@ pub mod villagers;
 pub mod voice_lines;
 pub mod warehouse;
 pub mod wendys;
+pub mod whispers;
 pub mod world_seed;
 
 pub struct FeaturesProtocolPlugin;
@@ -180,5 +181,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(discord_friends::plugin);
         app.add_plugins(rats::plugin);
         app.add_plugins(world_seed::plugin);
+        app.add_plugins(whispers::plugin);
     }
 }

@@ -109,14 +109,16 @@ crates/village/      friendslop-village: villagers, caught, punishment, hide_and
 crates/story/        friendslop-story: campaign, objective, landlord, totems, gods_tears, abuela, gamble, ...
 crates/afterlife/    friendslop-afterlife: afterlife, fat_cat, kitty_lemonade, mute_spell, systemd
 crates/side/         friendslop-side: standalone ideas (affair, fusion, goat, rats, shipwreck, ...)
-crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
+crates/fusion/       the generated soundtrack (no Bevy): synths in code; the score (every mood's songs) and the mix
+                     are data in assets/data/music/; `cargo run -p fusion --bin fusion-render -- help`
 crates/art/          friendslop-art: procedural materials/meshes/textures (`art`), mipmaps (`mips`), mesh LODs (`lod`) and the UI theme (`theme`)
 crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy port, own licence files)
 crates/wire/         friendslop-wire: the iroh wire format shared by the desktop and browser transports
 crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares
 crates/world/        friendslop-world: the map: terrain, buildings, landmarks, surfaces, places
 crates/structures/   friendslop-structures: building kit, house grammar, room graph + hallway kit, prop library + placer, merged meshes, world-space UVs, colliders
-crates/data/         friendslop-data: data files (maps, tuning, writing) loaded at run time, re-read when edited
+crates/data/         friendslop-data: data files (maps, tuning, writing, music) loaded at run time, re-read when edited
+                     (the Bevy plugin is its default `plugin` feature; fusion uses it without)
 crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers)
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/it/ headless multiplayer tests (replicon test_app, no sockets)

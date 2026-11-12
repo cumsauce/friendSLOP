@@ -4,7 +4,7 @@
 //! Notes are MIDI numbers (60 = middle C); pitch classes are `0..12`.
 
 /// A chord quality, each with the extensions fusion actually uses.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 pub enum Quality {
     /// Major 9 (ionian).
     Maj9,

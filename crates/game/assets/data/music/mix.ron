@@ -1,0 +1,10 @@
+// The soundtrack's mix, one number per bus:
+//   [drums, bass, keys, lead, pad, perc, brass, guitar]
+// Edit and save: the running game picks it up within a second.
+(
+    // Bus trims: the kit is synthesized hot, the band sits up with it.
+    trim: [1.0, 1.55, 1.6, 1.5, 1.6, 1.45, 1.6, 1.7],
+    // How deep each bus ducks under a full-strength kick: pads and bass breathe
+    // most, the lead least, the drums and percussion not at all.
+    pump: [0.0, 0.35, 0.22, 0.1, 0.4, 0.0, 0.22, 0.18],
+)

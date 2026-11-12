@@ -32,6 +32,7 @@ impl Plugin for MapPlugin {
             .register_type::<Plot>()
             .register_type::<Hangout>()
             .register_type::<Clear>()
+            .register_type::<Block>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
     }
 }
@@ -113,6 +114,16 @@ pub struct Hangout;
 #[reflect(Component, Default)]
 pub struct Clear {
     pub radius: f32,
+}
+
+/// A static collider filling the marker's box (`round`: an upright
+/// cylinder), its y above the ground; `on` names the entity whose ground it
+/// stands on instead of its own.
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Block {
+    pub round: bool,
+    pub on: String,
 }
 
 /// A `.bsn` file's text.
@@ -202,9 +213,11 @@ fn spawn_maps(world: &mut World) {
 fn load_gltf_sources(
     mut commands: Commands,
     assets: Res<AssetServer>,
-    added: Query<(Entity, &GltfSource), Added<GltfSource>>,
+    mut added: Query<(Entity, &GltfSource, &mut Transform), Added<GltfSource>>,
 ) {
-    for (e, g) in &added {
+    for (e, g, mut t) in &mut added {
+        // A map places models above its ground, like the rest of the map.
+        t.translation.y += crate::terrain::height_at(t.translation.x, t.translation.z);
         commands.entity(e).insert((
             WorldAssetRoot(
                 assets.load(GltfAssetLabel::Scene(g.scene_index).from_asset(g.path.clone())),

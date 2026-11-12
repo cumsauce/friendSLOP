@@ -254,7 +254,7 @@ fn build_outside(
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     let y0 = outside_floor();
     let c = Vec3::new(outside_at().x, y0, outside_at().y);
-    let (sx, sz, hy) = (OUTSIDE_SIZE.x, OUTSIDE_SIZE.y, OUTSIDE_HEIGHT);
+    let (sx, sz, hy) = (outside_size().x, outside_size().y, outside_height());
     // The building outside: plinth (hides the slope), rusty ribbed shell,
     // roof, dead windows (some boarded up), the rolling shutter and the lamp
     // over the door, all one model at the floor centre.

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "commune-map",
   "parts": [],
-  "version": 1610,
+  "version": 1645,
   "ops": [
     {
       "terrain": {
@@ -290,6 +290,11 @@
           -60.0
         ],
         "components": {
+          "Feature": {
+            "depth": -150,
+            "height": 26,
+            "radius": 16
+          },
           "Spot": {
             "name": "hell"
           }
@@ -305,7 +310,15 @@
           0.0,
           41.0
         ],
+        "size": [
+          20.0,
+          7.5,
+          13.0
+        ],
         "components": {
+          "Feature": {
+            "height": 7.5
+          },
           "Spot": {
             "name": "warehouse"
           }
@@ -579,6 +592,11 @@
           13.0,
           0.0,
           -2.0
+        ],
+        "size": [
+          4.0,
+          1.0,
+          4.0
         ],
         "components": {
           "Clear": {
@@ -1590,6 +1608,510 @@
         "components": {
           "Clear": {
             "radius": 2
+          }
+        }
+      }
+    },
+    {
+      "prefab": {
+        "name": "woodcutter_hut",
+        "prefab": "zn-woodcutter-hut",
+        "translation": [
+          -28.0,
+          0.0,
+          -62.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "back",
+          "left",
+          "right",
+          "front",
+          "chimney",
+          "chimney_cap",
+          "beam"
+        ],
+        "digest": 11850749070922102344
+      }
+    },
+    {
+      "marker": {
+        "name": "hut_back",
+        "kind": "block",
+        "translation": [
+          -28.0,
+          1.3,
+          -64.0
+        ],
+        "size": [
+          5.0,
+          2.6,
+          0.25
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hut_left",
+        "kind": "block",
+        "translation": [
+          -30.5,
+          1.0,
+          -62.0
+        ],
+        "size": [
+          0.25,
+          2.0,
+          4.0
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hut_right",
+        "kind": "block",
+        "translation": [
+          -25.5,
+          0.7,
+          -62.8
+        ],
+        "size": [
+          0.25,
+          1.4,
+          2.4
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hut_front",
+        "kind": "block",
+        "translation": [
+          -29.6,
+          0.9,
+          -60.0
+        ],
+        "size": [
+          1.8,
+          1.8,
+          0.25
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hut_chimney",
+        "kind": "block",
+        "translation": [
+          -30.9,
+          2.0,
+          -63.0
+        ],
+        "size": [
+          0.9,
+          4.0,
+          0.9
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "prefab": {
+        "name": "chopping_stump",
+        "prefab": "zn-stump",
+        "translation": [
+          -24.5,
+          0.0,
+          -58.5
+        ],
+        "rotation": null,
+        "scale": [
+          1.0,
+          1.4,
+          1.0
+        ],
+        "parts": [
+          "body",
+          "top",
+          "root0",
+          "root1",
+          "root2",
+          "root3"
+        ],
+        "digest": 7018172362289603265
+      }
+    },
+    {
+      "marker": {
+        "name": "chopping_stump_block",
+        "kind": "block",
+        "translation": [
+          -24.5,
+          0.35,
+          -58.5
+        ],
+        "size": [
+          1.0,
+          0.7,
+          1.0
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "prefab": {
+        "name": "log_pile",
+        "prefab": "zn-log-pile",
+        "translation": [
+          -32.5,
+          0.0,
+          -59.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "log0",
+          "end0a",
+          "end0b",
+          "log1",
+          "end1a",
+          "end1b",
+          "log2",
+          "end2a",
+          "end2b",
+          "log3",
+          "end3a",
+          "end3b",
+          "log4",
+          "end4a",
+          "end4b",
+          "log5",
+          "end5a",
+          "end5b"
+        ],
+        "digest": 17460242548793304870
+      }
+    },
+    {
+      "marker": {
+        "name": "log_pile_0",
+        "kind": "block",
+        "translation": [
+          -32.5,
+          0.3,
+          -59.0
+        ],
+        "size": [
+          2.2,
+          0.5,
+          0.5
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "log_pile_1",
+        "kind": "block",
+        "translation": [
+          -32.5,
+          0.8,
+          -58.7
+        ],
+        "size": [
+          2.2,
+          0.5,
+          0.5
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "log_pile_2",
+        "kind": "block",
+        "translation": [
+          -32.5,
+          1.3,
+          -58.4
+        ],
+        "size": [
+          2.2,
+          0.5,
+          0.5
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "prefab": {
+        "name": "castle_arch",
+        "prefab": "zn-castle-arch",
+        "translation": [
+          -34.0,
+          0.0,
+          58.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "pillara",
+          "pillarb",
+          "lintel",
+          "arch",
+          "quoina0",
+          "quoina1",
+          "quoinb0",
+          "quoinb1"
+        ],
+        "digest": 2541484440195994374
+      }
+    },
+    {
+      "marker": {
+        "name": "castle_arch_n",
+        "kind": "block",
+        "translation": [
+          -34.0,
+          4.0,
+          55.8
+        ],
+        "size": [
+          1.8,
+          8.0,
+          1.6
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "castle_arch_s",
+        "kind": "block",
+        "translation": [
+          -34.0,
+          4.0,
+          60.2
+        ],
+        "size": [
+          1.8,
+          8.0,
+          1.6
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "castle_arch_top",
+        "kind": "block",
+        "translation": [
+          -34.0,
+          7.2,
+          58.0
+        ],
+        "size": [
+          1.8,
+          1.6,
+          6.0
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "prefab": {
+        "name": "quarry_crane",
+        "prefab": "zn-quarry-crane",
+        "translation": [
+          -46.0,
+          0.0,
+          62.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "posta",
+          "postb",
+          "cross",
+          "jib",
+          "rope",
+          "load.core",
+          "load.bx0",
+          "load.bx1",
+          "load.bz2",
+          "load.bz3",
+          "load.bx4",
+          "load.bx5",
+          "load.bz6",
+          "load.bz7",
+          "load.by8",
+          "load.by9",
+          "load.by10",
+          "load.by11",
+          "load.brace_f",
+          "load.brace_b",
+          "load.brace_r",
+          "load.brace_l"
+        ],
+        "digest": 10876611372860498500
+      }
+    },
+    {
+      "marker": {
+        "name": "quarry_crane_n",
+        "kind": "block",
+        "translation": [
+          -46.0,
+          3.5,
+          60.8
+        ],
+        "size": [
+          0.35,
+          7.0,
+          0.35
+        ],
+        "components": {
+          "Block": {
+            "on": "quarry_crane",
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "quarry_crane_s",
+        "kind": "block",
+        "translation": [
+          -46.0,
+          3.5,
+          63.2
+        ],
+        "size": [
+          0.35,
+          7.0,
+          0.35
+        ],
+        "components": {
+          "Block": {
+            "on": "quarry_crane",
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "prefab": {
+        "name": "windmill_tower",
+        "prefab": "zn-windmill",
+        "translation": [
+          -8.0,
+          0.0,
+          -31.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "plinth",
+          "tower",
+          "roof",
+          "door",
+          "axle"
+        ],
+        "digest": 1431218477288610632
+      }
+    },
+    {
+      "marker": {
+        "name": "windmill_drum",
+        "kind": "block",
+        "translation": [
+          -8.0,
+          1.0,
+          -31.0
+        ],
+        "size": [
+          5.2,
+          2.05,
+          5.2
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "windmill_body",
+        "kind": "block",
+        "translation": [
+          -8.0,
+          5.0,
+          -31.0
+        ],
+        "size": [
+          5.2,
+          10.0,
+          5.2
+        ],
+        "components": {
+          "Block": {
+            "round": true
           }
         }
       }

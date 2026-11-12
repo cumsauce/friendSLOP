@@ -55,10 +55,18 @@ const LECTERN_TOP: f32 = 1.05;
 
 /// The hell pit: centre (x, z) far under the forest, and its lava level.
 pub use friendslop_world::places::hell_at;
-pub const LAVA_Y: f32 = -150.0;
-/// The pit's wall radius and ceiling height above the lava.
-pub const PIT_RADIUS: f32 = 16.0;
-const PIT_HEIGHT: f32 = 26.0;
+/// The lava level: the hell spot's `Feature` depth.
+pub fn lava_y() -> f32 {
+    friendslop_world::places::sizes("hell").depth
+}
+/// The pit's wall radius and ceiling height above the lava (the hell spot's
+/// `Feature` radius and height).
+pub fn pit_radius() -> f32 {
+    friendslop_world::places::sizes("hell").radius
+}
+fn pit_height() -> f32 {
+    friendslop_world::places::sizes("hell").height
+}
 /// How far from the centre the climb starts.
 const START_RING: f32 = 11.0;
 /// Stepping stones: the gap between edges and how much each one rises.
@@ -225,7 +233,7 @@ pub struct Stone {
 pub fn hell_stones() -> Vec<Stone> {
     let at = |ring: f32, angle: f32| hell_at() + Vec2::new(angle.cos(), angle.sin()) * ring;
     let mut stones = vec![Stone {
-        top: at(START_RING, 0.0).extend(LAVA_Y + START_TOP).xzy(),
+        top: at(START_RING, 0.0).extend(lava_y() + START_TOP).xzy(),
         radius: 2.5,
     }];
     let mut last = (at(START_RING, 0.0), 2.5);
@@ -242,7 +250,7 @@ pub fn hell_stones() -> Vec<Stone> {
         if p.distance(last.0) >= last.1 + radius + STONE_GAP {
             let n = stones.len() as f32;
             stones.push(Stone {
-                top: Vec3::new(p.x, LAVA_Y + START_TOP + n * STONE_RISE, p.y),
+                top: Vec3::new(p.x, lava_y() + START_TOP + n * STONE_RISE, p.y),
                 radius,
             });
             last = (p, radius);
@@ -258,16 +266,19 @@ pub fn hell_start() -> Vec3 {
 
 /// The white light's platform in the middle, a step above the last stone.
 pub fn hell_exit() -> Vec3 {
-    let top = hell_stones().last().map_or(LAVA_Y + START_TOP, |s| s.top.y) + STONE_RISE;
+    let top = hell_stones()
+        .last()
+        .map_or(lava_y() + START_TOP, |s| s.top.y)
+        + STONE_RISE;
     Vec3::new(hell_at().x, top, hell_at().y)
 }
 
 /// Has a body in hell with feet at `feet` touched the lava (or got out of
 /// the pit some other way)?
 pub fn burnt(feet: Vec3) -> bool {
-    feet.y < LAVA_Y + 0.2
-        || feet.y > LAVA_Y + PIT_HEIGHT
-        || feet.xz().distance(hell_at()) > PIT_RADIUS + 1.0
+    feet.y < lava_y() + 0.2
+        || feet.y > lava_y() + pit_height()
+        || feet.xz().distance(hell_at()) > pit_radius() + 1.0
 }
 
 /// Has a body in hell with feet at `feet` reached the white light?
@@ -961,7 +972,7 @@ fn dig_hell(
         unlit: true,
         ..default()
     });
-    let centre = hell_at().extend(LAVA_Y).xzy();
+    let centre = hell_at().extend(lava_y()).xzy();
     let spawn_solid = |commands: &mut Commands,
                        mesh: Handle<Mesh>,
                        mat: Handle<StandardMaterial>,
@@ -979,15 +990,15 @@ fn dig_hell(
     };
     // The lava lake (no collider: you sink into it).
     commands.spawn((
-        Mesh3d(meshes.add(Cylinder::new(PIT_RADIUS, 0.2))),
+        Mesh3d(meshes.add(Cylinder::new(pit_radius(), 0.2))),
         MeshMaterial3d(lava),
         Transform::from_translation(centre),
         DespawnOnExit(AppState::InGame),
     ));
     // Walls all round and a ceiling, so it's dark and closed.
     let sides = 28;
-    let panel = 2.0 * PIT_RADIUS * (std::f32::consts::PI / sides as f32).tan() + 0.4;
-    let panel_mesh = meshes.add(Cuboid::new(panel, PIT_HEIGHT + 2.0, 1.0));
+    let panel = 2.0 * pit_radius() * (std::f32::consts::PI / sides as f32).tan() + 0.4;
+    let panel_mesh = meshes.add(Cuboid::new(panel, pit_height() + 2.0, 1.0));
     for i in 0..sides {
         let a = i as f32 / sides as f32 * std::f32::consts::TAU;
         let out = Vec3::new(a.cos(), 0.0, a.sin());
@@ -996,18 +1007,18 @@ fn dig_hell(
             panel_mesh.clone(),
             wall.clone(),
             Transform::from_translation(
-                centre + out * (PIT_RADIUS + 0.5) + Vec3::Y * (PIT_HEIGHT / 2.0),
+                centre + out * (pit_radius() + 0.5) + Vec3::Y * (pit_height() / 2.0),
             )
             .with_rotation(Quat::from_rotation_y(-a + std::f32::consts::FRAC_PI_2)),
-            Collider::cuboid(panel, PIT_HEIGHT + 2.0, 1.0),
+            Collider::cuboid(panel, pit_height() + 2.0, 1.0),
         );
     }
-    let roof = 2.0 * PIT_RADIUS + 4.0;
+    let roof = 2.0 * pit_radius() + 4.0;
     spawn_solid(
         &mut commands,
         meshes.add(Cuboid::new(roof, 1.0, roof)),
         wall.clone(),
-        Transform::from_translation(centre + Vec3::Y * (PIT_HEIGHT + 0.5)),
+        Transform::from_translation(centre + Vec3::Y * (pit_height() + 0.5)),
         Collider::cuboid(roof, 1.0, roof),
     );
     // A basalt column standing up out of the lava: the collider is the
@@ -1015,7 +1026,7 @@ fn dig_hell(
     // `by-basalt-cluster`: unit radius, 4 m tall, centred) stretched to fit.
     let spawn_basalt =
         |commands: &mut Commands, top: Vec3, radius: f32, turn: f32| {
-            let height = top.y - LAVA_Y + 1.0;
+            let height = top.y - lava_y() + 1.0;
             let mut rock = commands.spawn((
                 Transform::from_translation(top - Vec3::Y * (height / 2.0)),
                 Visibility::default(),
@@ -1046,7 +1057,7 @@ fn dig_hell(
     // The white light's platform and its beam.
     let exit = hell_exit();
     spawn_basalt(&mut commands, exit, EXIT_RADIUS, 0.0);
-    let beam = PIT_HEIGHT - (exit.y - LAVA_Y);
+    let beam = pit_height() - (exit.y - lava_y());
     commands.spawn((
         Mesh3d(meshes.add(Cylinder::new(EXIT_REACH * 0.7, beam))),
         MeshMaterial3d(light),
@@ -1191,20 +1202,20 @@ mod tests {
         );
         for s in &stones {
             assert!(
-                s.top.xz().distance(hell_at()) + s.radius < PIT_RADIUS,
+                s.top.xz().distance(hell_at()) + s.radius < pit_radius(),
                 "inside the walls"
             );
             assert!(!burnt(s.top), "standing on a stone is safe");
             assert!(!escaped(s.top), "only the light gets you out");
         }
         assert!(escaped(exit));
-        assert!(burnt(hell_start().with_y(LAVA_Y)), "the lava burns");
+        assert!(burnt(hell_start().with_y(lava_y())), "the lava burns");
     }
 
     #[test]
     fn hell_is_far_under_everything() {
-        const { assert!(LAVA_Y + PIT_HEIGHT < super::super::underground::TUNNEL_Y - 50.0) };
-        assert!(hell_at().x.abs() + PIT_RADIUS < crate::camera::FLOOR_HALF);
+        assert!(lava_y() + pit_height() < super::super::underground::TUNNEL_Y - 50.0);
+        assert!(hell_at().x.abs() + pit_radius() < crate::camera::FLOOR_HALF);
     }
 
     #[test]

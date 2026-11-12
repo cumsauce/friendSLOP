@@ -306,6 +306,18 @@ pub struct HousePlot {
     pub upper: bool,
 }
 
+/// A static collider from the map: a box (or upright cylinder) of `size`
+/// at `centre`, whose y is above the ground at `ground_at`.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct MapBlock {
+    pub centre: Vec3,
+    pub size: Vec3,
+    /// Turn about +y, radians.
+    pub yaw: f32,
+    pub round: bool,
+    pub ground_at: Vec2,
+}
+
 /// Everything the map lays out, read once from the commune map.
 #[derive(Debug, Default)]
 pub struct Layout {
@@ -327,6 +339,10 @@ pub struct Layout {
     pub quarry: Sizes,
     pub arena: Sizes,
     pub village: Sizes,
+    /// Static colliders the map places (see [`MapBlock`]).
+    pub blocks: Vec<MapBlock>,
+    /// Every spot's sizes, by name (see [`sizes`]).
+    pub spots: std::collections::HashMap<String, Sizes>,
 }
 
 /// Reads the layout out of a map's entities.
@@ -412,6 +428,24 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
         quarry: sizes("quarry"),
         arena: sizes("arena"),
         village: sizes("village"),
+        blocks: map
+            .iter()
+            .filter(|e| e.has("Block"))
+            .map(|e| {
+                let on = e.text("Block", "on");
+                MapBlock {
+                    centre: Vec3::from_array(e.translation),
+                    size: e.size.map_or(Vec3::ONE, Vec3::from_array),
+                    yaw: e.yaw.to_radians(),
+                    round: e.flag("Block", "round"),
+                    ground_at: pos(&on).unwrap_or(e.at()),
+                }
+            })
+            .collect(),
+        spots: map
+            .iter()
+            .filter_map(|e| Some((e.spot()?, sizes(&e.spot()?))))
+            .collect(),
     }
 }
 
@@ -434,6 +468,11 @@ pub fn forest_clearing_at() -> Vec2 {
 /// The ruins' collapsed tower.
 pub fn ruins_tower_at() -> Vec2 {
     placed(25)
+}
+
+/// A spot's sizes (its `Feature` and box); zero for an unknown spot.
+pub fn sizes(name: &str) -> Sizes {
+    layout().spots.get(name).copied().unwrap_or_default()
 }
 
 /// Half the duel arena's width (its `Feature` radius).

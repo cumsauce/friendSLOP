@@ -123,6 +123,120 @@
       }
     },
     {
+      "name": "castle_arch",
+      "translation": [
+        -34.0,
+        0.0,
+        58.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/zn-castle-arch.gltf"
+    },
+    {
+      "name": "castle_arch_n",
+      "kind": "block",
+      "translation": [
+        -34.0,
+        4.0,
+        55.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.8,
+        8.0,
+        1.6
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "castle_arch_s",
+      "kind": "block",
+      "translation": [
+        -34.0,
+        4.0,
+        60.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.8,
+        8.0,
+        1.6
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "castle_arch_top",
+      "kind": "block",
+      "translation": [
+        -34.0,
+        7.2,
+        58.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.8,
+        1.6,
+        6.0
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
       "name": "centre",
       "kind": "spot",
       "translation": [
@@ -156,6 +270,58 @@
         },
         "Spot": {
           "name": "centre"
+        }
+      }
+    },
+    {
+      "name": "chopping_stump",
+      "translation": [
+        -24.5,
+        0.0,
+        -58.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.4,
+        1.0
+      ],
+      "gltf": "models/prefabs/zn-stump.gltf"
+    },
+    {
+      "name": "chopping_stump_block",
+      "kind": "block",
+      "translation": [
+        -24.5,
+        0.35,
+        -58.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        0.7,
+        1.0
+      ],
+      "components": {
+        "Block": {
+          "round": true
         }
       }
     },
@@ -1099,6 +1265,11 @@
         1.0
       ],
       "components": {
+        "Feature": {
+          "depth": -150,
+          "height": 26,
+          "radius": 16
+        },
         "Spot": {
           "name": "hell"
         }
@@ -1131,6 +1302,161 @@
         },
         "Spot": {
           "name": "hill"
+        }
+      }
+    },
+    {
+      "name": "hut_back",
+      "kind": "block",
+      "translation": [
+        -28.0,
+        1.3,
+        -64.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        5.0,
+        2.6,
+        0.25
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "hut_chimney",
+      "kind": "block",
+      "translation": [
+        -30.9,
+        2.0,
+        -63.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.9,
+        4.0,
+        0.9
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "hut_front",
+      "kind": "block",
+      "translation": [
+        -29.6,
+        0.9,
+        -60.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.8,
+        1.8,
+        0.25
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "hut_left",
+      "kind": "block",
+      "translation": [
+        -30.5,
+        1.0,
+        -62.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.25,
+        2.0,
+        4.0
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "hut_right",
+      "kind": "block",
+      "translation": [
+        -25.5,
+        0.7,
+        -62.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.25,
+        1.4,
+        2.4
+      ],
+      "components": {
+        "Block": {
+          "round": false
         }
       }
     },
@@ -1217,6 +1543,120 @@
       "components": {
         "Spot": {
           "name": "lectern"
+        }
+      }
+    },
+    {
+      "name": "log_pile",
+      "translation": [
+        -32.5,
+        0.0,
+        -59.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/zn-log-pile.gltf"
+    },
+    {
+      "name": "log_pile_0",
+      "kind": "block",
+      "translation": [
+        -32.5,
+        0.3,
+        -59.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        2.2,
+        0.5,
+        0.5
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "log_pile_1",
+      "kind": "block",
+      "translation": [
+        -32.5,
+        0.8,
+        -58.7
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        2.2,
+        0.5,
+        0.5
+      ],
+      "components": {
+        "Block": {
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "log_pile_2",
+      "kind": "block",
+      "translation": [
+        -32.5,
+        1.3,
+        -58.4
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        2.2,
+        0.5,
+        0.5
+      ],
+      "components": {
+        "Block": {
+          "round": false
         }
       }
     },
@@ -1701,6 +2141,91 @@
       }
     },
     {
+      "name": "quarry_crane",
+      "translation": [
+        -46.0,
+        0.0,
+        62.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/zn-quarry-crane.gltf"
+    },
+    {
+      "name": "quarry_crane_n",
+      "kind": "block",
+      "translation": [
+        -46.0,
+        3.5,
+        60.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.35,
+        7.0,
+        0.35
+      ],
+      "components": {
+        "Block": {
+          "on": "quarry_crane",
+          "round": false
+        }
+      }
+    },
+    {
+      "name": "quarry_crane_s",
+      "kind": "block",
+      "translation": [
+        -46.0,
+        3.5,
+        63.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.35,
+        7.0,
+        0.35
+      ],
+      "components": {
+        "Block": {
+          "on": "quarry_crane",
+          "round": false
+        }
+      }
+    },
+    {
       "name": "ruins_tower",
       "kind": "spot",
       "translation": [
@@ -1939,6 +2464,11 @@
         1.0,
         1.0,
         1.0
+      ],
+      "size": [
+        4.0,
+        1.0,
+        4.0
       ],
       "components": {
         "Clear": {
@@ -2267,7 +2797,15 @@
         1.0,
         1.0
       ],
+      "size": [
+        20.0,
+        7.5,
+        13.0
+      ],
       "components": {
+        "Feature": {
+          "height": 7.5
+        },
         "Spot": {
           "name": "warehouse"
         }
@@ -2324,6 +2862,110 @@
           "name": "windmill"
         }
       }
+    },
+    {
+      "name": "windmill_body",
+      "kind": "block",
+      "translation": [
+        -8.0,
+        5.0,
+        -31.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        5.2,
+        10.0,
+        5.2
+      ],
+      "components": {
+        "Block": {
+          "round": true
+        }
+      }
+    },
+    {
+      "name": "windmill_drum",
+      "kind": "block",
+      "translation": [
+        -8.0,
+        1.0,
+        -31.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        5.2,
+        2.05,
+        5.2
+      ],
+      "components": {
+        "Block": {
+          "round": true
+        }
+      }
+    },
+    {
+      "name": "windmill_tower",
+      "translation": [
+        -8.0,
+        0.0,
+        -31.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/zn-windmill.gltf"
+    },
+    {
+      "name": "woodcutter_hut",
+      "translation": [
+        -28.0,
+        0.0,
+        -62.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/zn-woodcutter-hut.gltf"
     },
     {
       "name": "wreck",

@@ -32,6 +32,8 @@ pub mod features {
 /// This crate's data files (see `friendslop_data`).
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
+        &fusion::compose::SCORE,
+        &fusion::synth::MIX,
         &features::affair::TUNING,
         &features::ambience::TUNING,
         &features::discord_friends::TUNING,

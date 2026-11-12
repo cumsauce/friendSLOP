@@ -6,10 +6,15 @@ license.workspace = true
 description = "Game data files (maps, tuning, writing) loaded at run time from assets/data: read from disk on desktop and in tests, fetched by the asset server in the browser, reloaded when edited. No game code."
 
 [dependencies]
-bevy.workspace = true
+bevy = { workspace = true, optional = true }
 serde.workspace = true
 serde_json = "1"
 ron = "0.12"
+
+[features]
+default = ["plugin"]
+# The Bevy plugin (browser fetch, desktop reload). Off for crates with no Bevy (fusion).
+plugin = ["dep:bevy"]
 
 [lints]
 workspace = true

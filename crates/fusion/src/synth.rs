@@ -28,7 +28,7 @@ pub const RATE: u32 = 44_100;
 const INV_RATE: f32 = 1.0 / RATE as f32;
 
 /// Which instrument (and mixer bus) a note is for.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 pub enum Inst {
     // Live FM voices.
     EPiano,
@@ -1704,8 +1704,17 @@ pub struct Ev {
 
 // --- Mixer -----------------------------------------------------------------
 
-/// Bus trims: the kit is synthesized hot, the band sits up with it.
-const BUS_TRIM: [f32; BUSES] = [1.0, 1.55, 1.6, 1.5, 1.6, 1.45, 1.6, 1.7];
+/// The band's balance: `assets/data/music/mix.ron`, per bus (drums, bass,
+/// keys, lead, pad, perc, brass, guitar).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Mix {
+    /// Bus trims: the kit is synthesized hot, the band sits up with it.
+    pub trim: Vec<f32>,
+    /// How deep each bus ducks under a full-strength kick.
+    pub pump: Vec<f32>,
+}
+
+pub static MIX: friendslop_data::Data<Mix> = friendslop_data::Data::ron("data/music/mix.ron");
 
 /// Per-bus EQ: carve each part its own space so the low mids (where EP,
 /// pads and brass all pile up) stay clear, the bass has weight and the
@@ -1825,11 +1834,6 @@ pub struct Band {
     /// right now, 0..1. Set on each hit, falls back over ~130 ms.
     pump: f32,
 }
-
-/// How deep each bus ducks under a full-strength kick (drums, bass, keys,
-/// lead, pad, perc, brass, guitar): pads and bass breathe most, the lead
-/// least, the drums and percussion not at all.
-const PUMP_DEPTH: [f32; BUSES] = [0.0, 0.35, 0.22, 0.1, 0.4, 0.0, 0.22, 0.18];
 
 /// The master colour stage (see [`MasterColour::process`]).
 struct MasterColour {
@@ -2295,11 +2299,12 @@ impl Band {
             self.pump *= fall;
         }
         // Bus processing.
+        let mix = MIX.get();
         for b in 0..BUSES {
             let (l, r) = (&mut bl[b][..n], &mut br[b][..n]);
             self.eq[b].process(l, r);
-            let t = BUS_TRIM[b];
-            let depth = PUMP_DEPTH[b];
+            let t = mix.trim.get(b).copied().unwrap_or(1.0);
+            let depth = mix.pump.get(b).copied().unwrap_or(0.0);
             if depth > 0.0 {
                 for ((x, y), p) in l.iter_mut().zip(r.iter_mut()).zip(&pump[..n]) {
                     // A smooth dip (squared) so the duck doesn't click.

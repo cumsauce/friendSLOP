@@ -201,6 +201,7 @@ pub fn parse_shot(line: &str) -> Option<(String, (Vec3, Vec3))> {
 
 /// Shot-list mode: what's waiting, and the file as last read.
 #[derive(Resource, Default)]
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))] // shot lists are desktop only
 struct ShotQueue {
     seen: String,
     pending: std::collections::VecDeque<(String, (Vec3, Vec3))>,
@@ -210,6 +211,7 @@ struct ShotQueue {
 
 /// Seconds a new camera spot settles (models and trees stream in) before
 /// its picture.
+#[cfg(not(target_arch = "wasm32"))]
 const SHOT_SETTLE: f32 = 2.5;
 
 /// Shot-list mode: reread the file when it changes and start the next shot

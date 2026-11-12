@@ -40,9 +40,11 @@ fn queue(mut events: MessageReader<AssetEvent<Image>>, mut pending: ResMut<Pendi
     }
 }
 
-/// Is this a model texture (and not UI art or something generated)?
+/// Is this a model texture (and not UI art or something generated)? The
+/// modeler's shared textures live in `textures/`: KTX2 with their own mips
+/// on the desktop (skipped below, they aren't RGBA8), PNGs in the browser.
 fn is_model_texture(path: Option<AssetPath>) -> bool {
-    path.is_some_and(|p| p.path().starts_with("models"))
+    path.is_some_and(|p| p.path().starts_with("models") || p.path().starts_with("textures"))
 }
 
 /// The alpha-test cutoff of the first masked material using `id` as its
@@ -115,6 +117,9 @@ mod tests {
     fn only_model_textures() {
         assert!(is_model_texture(Some(AssetPath::from(
             "models/nature/Leaves.png"
+        ))));
+        assert!(is_model_texture(Some(AssetPath::from(
+            "textures/stone-base_color-d43a110146556e10.png"
         ))));
         assert!(!is_model_texture(Some(AssetPath::from("ui/logo.png"))));
         assert!(!is_model_texture(None));

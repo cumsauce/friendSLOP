@@ -593,7 +593,7 @@ fn backdrop_model(
         scenery::nature_model(assets, file),
         Transform::from_xyz(at.x, y, at.y)
             .with_rotation(Quat::from_rotation_y(yaw))
-            .with_scale(Vec3::splat(scale * scenery::model_size_fix(file))),
+            .with_scale(Vec3::splat(scale)),
         crate::ambience::Sway::default(),
         PendingModel(kind),
         DespawnOnExit(AppState::Menu),

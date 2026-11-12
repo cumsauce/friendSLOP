@@ -1,0 +1,392 @@
+{
+  "name": "mushroom",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "dir": [
+        0,
+        1,
+        0
+      ],
+      "hi": 0.3,
+      "lo": -0.1,
+      "name": "top",
+      "type": "facing"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 6,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "coords": "p",
+      "jitter": 0.8,
+      "name": "sp",
+      "size": 0.035,
+      "type": "worley"
+    },
+    {
+      "in": [
+        0.25,
+        0.3
+      ],
+      "input": "sp.f1",
+      "name": "spots",
+      "type": "levels"
+    },
+    {
+      "input": "n",
+      "name": "capc",
+      "stops": [
+        [
+          0.0,
+          "#7a3f22"
+        ],
+        [
+          1.0,
+          "#b0643a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#f1e6cf",
+      "b": "capc",
+      "c": "spots",
+      "name": "capc2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "n",
+      "name": "stemc",
+      "stops": [
+        [
+          0.0,
+          "#d8ccb2"
+        ],
+        [
+          1.0,
+          "#f2ead8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        0.12,
+        0
+      ],
+      "name": "hgt",
+      "to": [
+        0,
+        0.16,
+        0
+      ],
+      "type": "gradient"
+    },
+    {
+      "a": "top",
+      "b": "hgt",
+      "name": "capmask",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "stemc",
+      "b": "capc2",
+      "c": "capmask",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "stemc",
+      "name": "out",
+      "roughness": 0.7,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "mushroom",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "dir": [
+                0,
+                1,
+                0
+              ],
+              "hi": 0.3,
+              "lo": -0.1,
+              "name": "top",
+              "type": "facing"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 6,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "jitter": 0.8,
+              "name": "sp",
+              "size": 0.035,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.25,
+                0.3
+              ],
+              "input": "sp.f1",
+              "name": "spots",
+              "type": "levels"
+            },
+            {
+              "input": "n",
+              "name": "capc",
+              "stops": [
+                [
+                  0.0,
+                  "#7a3f22"
+                ],
+                [
+                  1.0,
+                  "#b0643a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#f1e6cf",
+              "b": "capc",
+              "c": "spots",
+              "name": "capc2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "n",
+              "name": "stemc",
+              "stops": [
+                [
+                  0.0,
+                  "#d8ccb2"
+                ],
+                [
+                  1.0,
+                  "#f2ead8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                0.12,
+                0
+              ],
+              "name": "hgt",
+              "to": [
+                0,
+                0.16,
+                0
+              ],
+              "type": "gradient"
+            },
+            {
+              "a": "top",
+              "b": "hgt",
+              "name": "capmask",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "stemc",
+              "b": "capc2",
+              "c": "capmask",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+p +top +n +sp +spots +capc +capc2 +stemc +hgt +capmask +col +out"
+      },
+      {
+        "model": {
+          "name": "mushroom",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "dir": [
+                0,
+                1,
+                0
+              ],
+              "hi": 0.3,
+              "lo": -0.1,
+              "name": "top",
+              "type": "facing"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 6,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "jitter": 0.8,
+              "name": "sp",
+              "size": 0.035,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.25,
+                0.3
+              ],
+              "input": "sp.f1",
+              "name": "spots",
+              "type": "levels"
+            },
+            {
+              "input": "n",
+              "name": "capc",
+              "stops": [
+                [
+                  0.0,
+                  "#7a3f22"
+                ],
+                [
+                  1.0,
+                  "#b0643a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#f1e6cf",
+              "b": "capc",
+              "c": "spots",
+              "name": "capc2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "n",
+              "name": "stemc",
+              "stops": [
+                [
+                  0.0,
+                  "#d8ccb2"
+                ],
+                [
+                  1.0,
+                  "#f2ead8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                0.12,
+                0
+              ],
+              "name": "hgt",
+              "to": [
+                0,
+                0.16,
+                0
+              ],
+              "type": "gradient"
+            },
+            {
+              "a": "top",
+              "b": "hgt",
+              "name": "capmask",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "stemc",
+              "b": "capc2",
+              "c": "capmask",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "stemc",
+              "name": "out",
+              "roughness": 0.7,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~out"
+      }
+    ],
+    "current": 1
+  }
+}

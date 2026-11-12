@@ -49,7 +49,8 @@ sed "s/__WASM_BYTES__/$wasm_bytes/" web/index.html > "$OUT/index.html"
 cp web/manifest.webmanifest "$OUT/"
 # Bevy fetches assets over HTTP from ./assets (LFS files must be real, not pointers).
 cp -R crates/game/assets "$OUT/assets"
-# Phones (#191): shrink the 2048 px textures to 512 px (~20 MB -> ~2.5 MB to
+# Phones (#191): decode the modeler's KTX2 textures (BC formats phones lack)
+# to PNG and shrink the 2048 px textures to 512 px (~20 MB -> ~2.5 MB to
 # download, and a fraction of the GPU memory). WEB_TEXTURE_MAX=0 skips it.
 if [[ "${WEB_TEXTURE_MAX:-512}" != 0 ]]; then
   cargo run --release --locked --quiet --manifest-path tools/web-textures/Cargo.toml -- \

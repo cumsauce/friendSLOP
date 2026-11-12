@@ -1,0 +1,371 @@
+{
+  "name": "leaf",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 4,
+      "seed": 21,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "nf",
+      "octaves": 3,
+      "seed": 22,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c0",
+      "stops": [
+        [
+          0.0,
+          "#3f6b22"
+        ],
+        [
+          0.5,
+          "#5f8f2f"
+        ],
+        [
+          1.0,
+          "#8ab043"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "nf",
+      "name": "ft",
+      "to": [
+        0.88,
+        1.1
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c0",
+      "b": "ft",
+      "name": "c1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "name": "ao",
+      "radius": 0.15,
+      "type": "mesh_ao"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "ao",
+      "name": "aot",
+      "to": [
+        0.45,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c1",
+      "b": "aot",
+      "name": "c2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "$light",
+      "name": "c3",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "c4",
+      "name": "out",
+      "roughness": 0.75,
+      "type": "output"
+    },
+    {
+      "hue": "$hue",
+      "input": "c3",
+      "name": "c4",
+      "type": "hsv"
+    }
+  ],
+  "params": {
+    "hue": 0.0,
+    "light": 1.0
+  },
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "leaf",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 4,
+              "seed": 21,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "nf",
+              "octaves": 3,
+              "seed": 22,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c0",
+              "stops": [
+                [
+                  0.0,
+                  "#3f6b22"
+                ],
+                [
+                  0.5,
+                  "#5f8f2f"
+                ],
+                [
+                  1.0,
+                  "#8ab043"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "nf",
+              "name": "ft",
+              "to": [
+                0.88,
+                1.1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c0",
+              "b": "ft",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "name": "ao",
+              "radius": 0.15,
+              "type": "mesh_ao"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ao",
+              "name": "aot",
+              "to": [
+                0.45,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c1",
+              "b": "aot",
+              "name": "c2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "$light",
+              "name": "c3",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "c3",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {
+            "hue": 0.0,
+            "light": 1.0
+          },
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+p +n +nf +c0 +ft +c1 +ao +aot +c2 +c3 +out"
+      },
+      {
+        "model": {
+          "name": "leaf",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 4,
+              "seed": 21,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "nf",
+              "octaves": 3,
+              "seed": 22,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c0",
+              "stops": [
+                [
+                  0.0,
+                  "#3f6b22"
+                ],
+                [
+                  0.5,
+                  "#5f8f2f"
+                ],
+                [
+                  1.0,
+                  "#8ab043"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "nf",
+              "name": "ft",
+              "to": [
+                0.88,
+                1.1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c0",
+              "b": "ft",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "name": "ao",
+              "radius": 0.15,
+              "type": "mesh_ao"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ao",
+              "name": "aot",
+              "to": [
+                0.45,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c1",
+              "b": "aot",
+              "name": "c2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "$light",
+              "name": "c3",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "c4",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            },
+            {
+              "hue": "$hue",
+              "input": "c3",
+              "name": "c4",
+              "type": "hsv"
+            }
+          ],
+          "params": {
+            "hue": 0.0,
+            "light": 1.0
+          },
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+c4 ~out"
+      }
+    ],
+    "current": 1
+  }
+}

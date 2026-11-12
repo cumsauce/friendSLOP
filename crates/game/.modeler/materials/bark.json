@@ -1,0 +1,204 @@
+{
+  "name": "bark",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "coords": "p",
+      "mode": "ridged",
+      "name": "streak",
+      "octaves": 4,
+      "seed": 2,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "blot",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.2,
+      "type": "noise"
+    },
+    {
+      "input": "streak",
+      "name": "col0",
+      "stops": [
+        [
+          0.0,
+          "#3b281a"
+        ],
+        [
+          0.55,
+          "#6b4a2f"
+        ],
+        [
+          1.0,
+          "#8a6440"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "blot",
+      "name": "blot_t",
+      "to": [
+        0.85,
+        1.1
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "col0",
+      "b": "blot_t",
+      "name": "col1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "col1",
+      "b": "#1e1714",
+      "c": "$burn",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "streak",
+      "b": 0.006,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.9,
+      "type": "output"
+    }
+  ],
+  "params": {
+    "burn": 0.0
+  },
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bark",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "coords": "p",
+              "mode": "ridged",
+              "name": "streak",
+              "octaves": 4,
+              "seed": 2,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "blot",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.2,
+              "type": "noise"
+            },
+            {
+              "input": "streak",
+              "name": "col0",
+              "stops": [
+                [
+                  0.0,
+                  "#3b281a"
+                ],
+                [
+                  0.55,
+                  "#6b4a2f"
+                ],
+                [
+                  1.0,
+                  "#8a6440"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "blot",
+              "name": "blot_t",
+              "to": [
+                0.85,
+                1.1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "col0",
+              "b": "blot_t",
+              "name": "col1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col1",
+              "b": "#1e1714",
+              "c": "$burn",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "streak",
+              "b": 0.006,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.9,
+              "type": "output"
+            }
+          ],
+          "params": {
+            "burn": 0.0
+          },
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+p +streak +blot +col0 +blot_t +col1 +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

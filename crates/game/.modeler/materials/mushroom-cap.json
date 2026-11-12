@@ -1,0 +1,284 @@
+{
+  "name": "mushroom_cap",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "dir": [
+        0,
+        1,
+        0
+      ],
+      "hi": 0.2,
+      "lo": -0.3,
+      "name": "top",
+      "type": "facing"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 6,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "coords": "p",
+      "jitter": 0.8,
+      "name": "sp",
+      "size": 0.04,
+      "type": "worley"
+    },
+    {
+      "in": [
+        0.006,
+        0.009
+      ],
+      "input": "sp.f1",
+      "name": "spots",
+      "type": "levels"
+    },
+    {
+      "input": "n",
+      "name": "capc",
+      "stops": [
+        [
+          0.0,
+          "#7a3f22"
+        ],
+        [
+          1.0,
+          "#b8693a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#efe2c6",
+      "b": "capc",
+      "c": "spots",
+      "name": "capc2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "#d9c7a3",
+      "b": "capc2",
+      "c": "top",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.55,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "mushroom_cap",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "dir": [
+                0,
+                1,
+                0
+              ],
+              "hi": 0.2,
+              "lo": -0.3,
+              "name": "top",
+              "type": "facing"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 6,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "jitter": 0.8,
+              "name": "sp",
+              "size": 0.04,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.22,
+                0.3
+              ],
+              "input": "sp.f1",
+              "name": "spots",
+              "type": "levels"
+            },
+            {
+              "input": "n",
+              "name": "capc",
+              "stops": [
+                [
+                  0.0,
+                  "#7a3f22"
+                ],
+                [
+                  1.0,
+                  "#b8693a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#efe2c6",
+              "b": "capc",
+              "c": "spots",
+              "name": "capc2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#d9c7a3",
+              "b": "capc2",
+              "c": "top",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.55,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+p +top +n +sp +spots +capc +capc2 +col +out"
+      },
+      {
+        "model": {
+          "name": "mushroom_cap",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "dir": [
+                0,
+                1,
+                0
+              ],
+              "hi": 0.2,
+              "lo": -0.3,
+              "name": "top",
+              "type": "facing"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 6,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "coords": "p",
+              "jitter": 0.8,
+              "name": "sp",
+              "size": 0.04,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.006,
+                0.009
+              ],
+              "input": "sp.f1",
+              "name": "spots",
+              "type": "levels"
+            },
+            {
+              "input": "n",
+              "name": "capc",
+              "stops": [
+                [
+                  0.0,
+                  "#7a3f22"
+                ],
+                [
+                  1.0,
+                  "#b8693a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#efe2c6",
+              "b": "capc",
+              "c": "spots",
+              "name": "capc2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#d9c7a3",
+              "b": "capc2",
+              "c": "top",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.55,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~spots"
+      }
+    ],
+    "current": 1
+  }
+}

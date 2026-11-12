@@ -1,0 +1,214 @@
+{
+  "name": "ash",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 5,
+      "seed": 4,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "jitter": 1.0,
+      "name": "w",
+      "size": 0.08,
+      "type": "worley"
+    },
+    {
+      "input": "n",
+      "name": "c0",
+      "stops": [
+        [
+          0.0,
+          "#1b1716"
+        ],
+        [
+          0.5,
+          "#3a3330"
+        ],
+        [
+          0.8,
+          "#6a625c"
+        ],
+        [
+          1.0,
+          "#8c8580"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "gamma": 1.0,
+      "in": [
+        0.0,
+        0.12
+      ],
+      "input": "w.f1",
+      "name": "glow_m",
+      "type": "levels"
+    },
+    {
+      "a": 1.0,
+      "b": "glow_m",
+      "name": "glow_i",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "glow_i",
+      "b": "n",
+      "name": "glow_n",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "in": [
+        0.45,
+        0.7
+      ],
+      "input": "glow_n",
+      "name": "glow",
+      "type": "levels"
+    },
+    {
+      "a": "#ff5a1f",
+      "b": "glow",
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "em",
+      "b": 4.0,
+      "name": "em2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "c0",
+      "emissive": "em2",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "ash",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 5,
+              "seed": 4,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "jitter": 1.0,
+              "name": "w",
+              "size": 0.08,
+              "type": "worley"
+            },
+            {
+              "input": "n",
+              "name": "c0",
+              "stops": [
+                [
+                  0.0,
+                  "#1b1716"
+                ],
+                [
+                  0.5,
+                  "#3a3330"
+                ],
+                [
+                  0.8,
+                  "#6a625c"
+                ],
+                [
+                  1.0,
+                  "#8c8580"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "gamma": 1.0,
+              "in": [
+                0.0,
+                0.12
+              ],
+              "input": "w.f1",
+              "name": "glow_m",
+              "type": "levels"
+            },
+            {
+              "a": 1.0,
+              "b": "glow_m",
+              "name": "glow_i",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "glow_i",
+              "b": "n",
+              "name": "glow_n",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.45,
+                0.7
+              ],
+              "input": "glow_n",
+              "name": "glow",
+              "type": "levels"
+            },
+            {
+              "a": "#ff5a1f",
+              "b": "glow",
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "em",
+              "b": 4.0,
+              "name": "em2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "c0",
+              "emissive": "em2",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +w +c0 +glow_m +glow_i +glow_n +glow +em +em2 +out"
+      }
+    ],
+    "current": 0
+  }
+}

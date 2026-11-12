@@ -28,6 +28,14 @@ If you're running in CI, also read `.github/claude/run.md`.
   equally permissive) with entries in `assets/CREDITS.md`. Prefer generating procedurally or
   keeping it tiny when an asset isn't really needed, and never let gameplay *depend* on asset
   files: they must degrade quietly if LFS data is missing.
+- **Models come from the modeler** when you can make them there (we're replacing the kit models
+  over time). Run it with `crates/game` as the project so editable sources land in
+  `crates/game/.modeler/` (prefabs, procedural materials, the `friendslop` style) and
+  `export_model("models/....gltf", optimize: "game")` writes into `assets/`, its textures as
+  shared KTX2 files in `assets/textures/` (the web build decodes them to PNG for phones). Model
+  at real size (1 unit = 1 m), group parts that share a material so they share one texture
+  atlas, use tile-domain materials where models can share a bake, and `history_prune` before
+  saving so the sources stay small.
 - **List keywords (#51).** An issue may tag a list of examples with a keyword in parentheses:
   - `(strict)`: put exactly these examples in the game, no more and no fewer.
   - `(expand, x..y)`: put exactly these examples in, then invent between x and y more in the same

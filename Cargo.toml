@@ -37,6 +37,11 @@ debug = "line-tables-only"
 opt-level = 3
 debug = "line-tables-only"
 
+# Proc macros (Bevy's derives, `bsn!`) and build scripts optimised too: the
+# macros run on every rebuild of the game crate, and run faster optimised.
+[profile.dev.build-override]
+opt-level = 3
+
 # The soundtrack synthesizes live on the audio thread; it's small, so
 # optimise it fully even in dev builds.
 [profile.dev.package.fusion]

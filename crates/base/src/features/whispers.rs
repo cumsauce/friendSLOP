@@ -19,16 +19,28 @@ use crate::features::bear::wav_bytes;
 use crate::features::synth_audio::{RATE, master};
 use crate::spatial::{Carry, Ears, play_wav_at};
 
-/// Chance that a given night has whispers.
-pub const CHANCE: f32 = 0.15;
-/// Night is from this local hour...
-pub const NIGHT_FROM: u32 = 22;
-/// ...to this one (exclusive).
-pub const NIGHT_UNTIL: u32 = 5;
+/// Tuning numbers: `assets/data/base/whispers.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Chance that a given night has whispers.
+    pub chance: f32,
+    /// Night is from this local hour...
+    pub night_from: u32,
+    /// ...to this one (exclusive).
+    pub night_until: u32,
+    /// How long each voice lasts.
+    pub seconds: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/base/whispers.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// The whispers come this many seconds (in game) after the roll, at random.
 const DELAY: (f32, f32) = (40.0, 600.0);
-/// How long each voice lasts.
-const SECONDS: f32 = 7.0;
 /// Where the roll is remembered.
 const FILE: &str = "whispers.txt";
 /// The voices: offsets from your head in its own space (+Z is behind you),
@@ -53,7 +65,7 @@ pub fn plugin(app: &mut App) {
 
 /// Is `hour` (0..24, local) night?
 pub fn is_night(hour: u32) -> bool {
-    !(NIGHT_UNTIL..NIGHT_FROM).contains(&hour)
+    !(tuning().night_until..tuning().night_from).contains(&hour)
 }
 
 /// Which night local time `local_secs` (seconds since the epoch, shifted to
@@ -70,7 +82,7 @@ pub fn hour_of(local_secs: i64) -> u32 {
 
 /// Does a night whose roll came out as `roll` (0..1) get whispers?
 pub fn whispers_tonight(roll: f32) -> bool {
-    roll < CHANCE
+    roll < tuning().chance
 }
 
 /// Seconds east of UTC on this machine right now.
@@ -229,7 +241,7 @@ const VOWELS: [(f32, f32); 6] = [
 /// One whisperer: bursts of breathy syllables with hissed consonants, in
 /// short phrases with pauses between them.
 pub fn whisper_samples(seed: u64, rate: u32) -> Vec<f32> {
-    let n = (SECONDS * rate as f32) as usize;
+    let n = (tuning().seconds * rate as f32) as usize;
     let mut out = vec![0.0f32; n];
     let mut rng = Noise(seed | 1);
     let (mut f1, mut f2, mut hiss) = (
@@ -282,7 +294,7 @@ pub fn whisper_samples(seed: u64, rate: u32) -> Vec<f32> {
 /// A low, muffled murmur: like voices through a wall, words you can't make
 /// out, rising and falling slowly.
 pub fn murmur_samples(seed: u64, rate: u32) -> Vec<f32> {
-    let n = (SECONDS * rate as f32) as usize;
+    let n = (tuning().seconds * rate as f32) as usize;
     let mut out = Vec::with_capacity(n);
     let mut rng = Noise(seed | 1);
     let (mut f1, mut f2) = (BandPass::default(), BandPass::default());
@@ -347,7 +359,7 @@ mod tests {
     #[test]
     fn whispers_are_finite_quiet_and_have_gaps() {
         for samples in [whisper_samples(7, RATE), murmur_samples(7, RATE)] {
-            assert_eq!(samples.len(), (SECONDS * RATE as f32) as usize);
+            assert_eq!(samples.len(), (tuning().seconds * RATE as f32) as usize);
             assert!(samples.iter().all(|s| s.is_finite() && s.abs() <= 1.0));
             assert!(samples.iter().any(|s| s.abs() > 0.1));
         }

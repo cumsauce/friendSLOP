@@ -3,7 +3,7 @@
 //! the monster, and the dark (lights, fog, flashlight, drone) while you're in.
 //! The nightmare bathroom's look and sound (#161) is in [`bathroom`].
 
-mod bathroom;
+pub(crate) mod bathroom;
 
 use bevy::audio::{AudioSource, Volume};
 use std::f32::consts::FRAC_PI_2;

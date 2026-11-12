@@ -32,7 +32,7 @@ use crate::AppState;
 use crate::features::campaign::Campaign;
 use crate::features::duel::Duelist;
 use crate::features::fps::Walker;
-use crate::features::hide_and_seek::{HideSeek, Phase, SEEK_SECS};
+use crate::features::hide_and_seek::{HideSeek, Phase};
 use crate::features::landlord::{Act3, Tenancy, landlord_at};
 use crate::features::stillness::Stillness;
 use crate::player::{LocalPlayer, Player};
@@ -495,7 +495,8 @@ fn direct(
             0.3 + 0.2 * (1.0 - h.secs_left as f32 / 30.0).clamp(0.0, 1.0),
         )
     } else if let Some(h) = hide.iter().next().filter(|h| h.phase == Phase::Seeking) {
-        let left = (h.secs_left as f32 / SEEK_SECS).clamp(0.0, 1.0);
+        let left = (h.secs_left as f32 / crate::features::hide_and_seek::tuning().seek_secs)
+            .clamp(0.0, 1.0);
         (Mood::Seeking, 0.65 + 0.35 * (1.0 - left))
     } else if let Some(t) = tenancy.iter().next().filter(|t| t.act == Act3::Boss) {
         (

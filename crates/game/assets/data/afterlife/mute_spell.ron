@@ -1,0 +1,16 @@
+// Tuning for mute spell (crates/afterlife/src/features/mute_spell.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // How far away you can mute someone.
+    cast_range: 30.0,
+    // How far off your line of sight (metres) someone can be and still count as aimed at.
+    aim_slack: 1.2,
+    // Rocket speed, metres per second.
+    rocket_speed: 30.0,
+    // A rocket gives up (fizzles) after this long.
+    rocket_life: 3.0,
+    // A rocket this close to the caster's chest kills them.
+    hit_radius: 1.0,
+    // Seconds between rockets.
+    reload: 1.0,
+)

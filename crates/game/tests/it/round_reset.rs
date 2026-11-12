@@ -7,7 +7,7 @@ use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
 use friendslop::features::campaign::Campaign;
-use friendslop::features::gods_tears::{GodsTear, TOTAL_TEARS, Transformation};
+use friendslop::features::gods_tears::{GodsTear, Transformation};
 use friendslop::features::halt::Halt;
 use friendslop::features::landlord::{Act3, Tenancy};
 use friendslop::features::morality::Morality;
@@ -116,7 +116,11 @@ fn defeating_the_landlord_then_restarting_resets_the_round() {
     // and what they did to you (and your conscience) carries over. Only a new
     // campaign, after the finale, is a new world (#135).
     let tears = world.query::<&GodsTear>().iter(world).count();
-    assert_eq!(tears, TOTAL_TEARS as usize - 5, "used tears stay used");
+    assert_eq!(
+        tears,
+        friendslop::features::gods_tears::tuning().total_tears as usize - 5,
+        "used tears stay used"
+    );
     let players = world.query::<&Player>().iter(world).count();
     assert_eq!(players, 2);
     assert!(

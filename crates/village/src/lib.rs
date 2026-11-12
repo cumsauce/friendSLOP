@@ -24,3 +24,15 @@ pub mod features {
     pub mod villagers;
     pub mod wendys;
 }
+
+/// This crate's data files (see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![
+        &features::caught::TUNING,
+        &features::hide_and_seek::TUNING,
+        &features::punishment::TUNING,
+        &features::romance::TUNING,
+        &features::villagers::TUNING,
+        &features::wendys::TUNING,
+    ]
+}

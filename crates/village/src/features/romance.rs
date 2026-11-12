@@ -15,14 +15,29 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::bear::{Bear, wav_bytes};
 use crate::features::crows::Crow;
-use crate::features::fart::{Farted, SHAME_RADIUS, npc_spots};
+use crate::features::fart::{Farted, npc_spots};
 
-/// One shameful fart in this many makes the witness fall for you.
-pub const SMITTEN_ONE_IN: u32 = 3;
-/// How long the hearts float.
-pub const HEART_SECS: f32 = 4.0;
-/// How many hearts float up.
-const HEARTS: usize = 6;
+/// Tuning numbers: `assets/data/village/romance.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// One shameful fart in this many makes the witness fall for you.
+    pub smitten_one_in: u32,
+    /// How long the hearts float.
+    pub heart_secs: f32,
+    /// How many hearts float up.
+    pub hearts: usize,
+    pub aww_rate: u32,
+    /// Length of the "aww".
+    pub aww_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/village/romance.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Server -> everyone: the NPC at `at` (x, z) is smitten with `player`.
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -56,7 +71,7 @@ impl LoveDice {
 
 /// The NPC (of `npcs`) that saw a fart at `at`: the closest within range.
 pub fn witness(at: Vec2, npcs: &[Vec2]) -> Option<Vec2> {
-    witness_within(at, npcs, SHAME_RADIUS)
+    witness_within(at, npcs, crate::features::fart::tuning().shame_radius)
 }
 
 /// Like [`witness`], with NPCs that see `radius` metres (#173).
@@ -134,7 +149,7 @@ fn swoon(
         );
         let carry = crate::spatial::Carry::CALL;
         crate::spatial::play_wav_at(&mut commands, at, 1.0, carry, || {
-            wav_bytes(&aww(AWW_RATE), AWW_RATE)
+            wav_bytes(&aww(tuning().aww_rate), tuning().aww_rate)
         });
     }
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
@@ -165,7 +180,7 @@ pub fn spawn_hearts(
         unlit: true,
         ..default()
     });
-    for i in 0..HEARTS {
+    for i in 0..tuning().hearts {
         let f = i as f32;
         let base = Vec3::new(
             above.x + (f * 2.4).sin() * 0.4,
@@ -209,7 +224,7 @@ fn float_hearts(
 ) {
     for (entity, mut heart, mut tf) in &mut hearts {
         heart.age += time.delta_secs();
-        if heart.age >= HEART_SECS {
+        if heart.age >= tuning().heart_secs {
             commands.entity(entity).despawn();
             continue;
         }
@@ -217,7 +232,7 @@ fn float_hearts(
         let size = if heart.age < 0.0 {
             0.0
         } else {
-            (t * 4.0).min(1.0) * ((HEART_SECS - t) * 1.5).min(1.0)
+            (t * 4.0).min(1.0) * ((tuning().heart_secs - t) * 1.5).min(1.0)
         };
         let sway = (t * 2.5 + heart.phase).sin() * 0.25;
         tf.translation = heart.base + Vec3::new(sway, t * 0.6, 0.0);
@@ -225,10 +240,6 @@ fn float_hearts(
         tf.scale = Vec3::splat(size * (1.0 + 0.1 * (t * 9.0).sin()));
     }
 }
-
-const AWW_RATE: u32 = 22_050;
-/// Length of the "aww".
-pub const AWW_SECS: f32 = 1.6;
 
 /// A soft, breathy chorus going "awww": a few voices, each a stack of
 /// harmonics shaped by "aw" vowel formants, sliding gently down in pitch with
@@ -239,11 +250,11 @@ pub fn aww(rate: u32) -> Vec<f32> {
         [(330.0, 5.1, 0.0), (262.0, 4.6, 0.06), (392.0, 5.7, 0.11)];
     // "aw" formants: (centre Hz, width Hz).
     const FORMANTS: [(f32, f32); 2] = [(650.0, 180.0), (1000.0, 220.0)];
-    let n = (AWW_SECS * rate as f32) as usize;
+    let n = (tuning().aww_secs * rate as f32) as usize;
     let mut out = vec![0.0f32; n];
     for (pitch, vib, delay) in VOICES {
         let mut phase = 0.0f32;
-        let len = AWW_SECS - delay;
+        let len = tuning().aww_secs - delay;
         for (i, s) in out.iter_mut().enumerate() {
             let t = i as f32 / rate as f32 - delay;
             if t < 0.0 {
@@ -292,15 +303,18 @@ mod tests {
     fn romance_happens_sometimes() {
         let mut dice = LoveDice::default();
         let hits = (0..3000)
-            .filter(|_| dice.roll().is_multiple_of(SMITTEN_ONE_IN))
+            .filter(|_| dice.roll().is_multiple_of(tuning().smitten_one_in))
             .count();
         assert!((700..1300).contains(&hits), "{hits}");
     }
 
     #[test]
     fn aww_is_soft_and_sane() {
-        let s = aww(AWW_RATE);
-        assert_eq!(s.len(), (AWW_SECS * AWW_RATE as f32) as usize);
+        let s = aww(tuning().aww_rate);
+        assert_eq!(
+            s.len(),
+            (tuning().aww_secs * tuning().aww_rate as f32) as usize
+        );
         assert!(s.iter().all(|x| x.is_finite()));
         let peak = s.iter().fold(0.0f32, |m, x| m.max(x.abs()));
         assert!(peak > 0.05 && peak <= 0.6, "peak {peak}");

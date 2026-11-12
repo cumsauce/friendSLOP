@@ -21,9 +21,21 @@ use crate::features::villagers::{Villager, name};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player};
 
-/// Shortest and longest gap between villager farts.
-pub const MIN_SECS: f32 = 50.0;
-pub const MAX_SECS: f32 = 110.0;
+/// Tuning numbers: `assets/data/side/gaslighting.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Shortest and longest gap between villager farts.
+    pub min_secs: f32,
+    pub max_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/side/gaslighting.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Server -> everyone: villager `villager` farted at `at` and blamed `blamed`.
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -43,7 +55,7 @@ struct Gut {
 impl Default for Gut {
     fn default() -> Self {
         Self {
-            next: MIN_SECS,
+            next: tuning().min_secs,
             dice: 0x6a5_1197,
         }
     }
@@ -88,7 +100,7 @@ fn rumble(
     if gut.next > 0.0 {
         return;
     }
-    gut.next = MIN_SECS + gut.roll() * (MAX_SECS - MIN_SECS);
+    gut.next = tuning().min_secs + gut.roll() * (tuning().max_secs - tuning().min_secs);
     let all: Vec<&Villager> = villagers.iter().collect();
     if all.is_empty() {
         return;

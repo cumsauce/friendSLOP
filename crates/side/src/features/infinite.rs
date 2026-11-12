@@ -34,29 +34,41 @@ use crate::features::fps::{WalkInput, WalkSet, Walker};
 use crate::player::{LocalPlayer, Player};
 use crate::world::MainCamera;
 
-/// The chance a doorway or a flight of stairs goes on forever.
-pub const CHANCE: f32 = 0.03;
-/// Seconds after getting out before it can happen to you again.
-pub const COOLDOWN: f32 = 300.0;
+/// Tuning numbers: `assets/data/side/infinite.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// The chance a doorway or a flight of stairs goes on forever.
+    pub chance: f32,
+    /// Seconds after getting out before it can happen to you again.
+    pub cooldown: f32,
+    /// Height between copies, so none of them overlap.
+    pub stack: f32,
+    /// Stretches built behind the way in, and ahead of it.
+    pub behind: i32,
+    pub ahead: i32,
+    pub hall_seg: f32,
+    /// A stretch is always longer than this, so the camera snaps across the
+    /// step back instead of easing (see `fps_camera`).
+    pub min_seg: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/side/infinite.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// The lowest copy's floor, far above the map (and its sky islands).
 pub const SPACE_Y: f32 = 400.0;
-/// Height between copies, so none of them overlap.
-const STACK: f32 = 160.0;
-/// Stretches built behind the way in, and ahead of it.
-const BEHIND: i32 = 3;
-const AHEAD: i32 = 16;
 /// The hallway: inside width, floor to ceiling, one stretch, and its slope
 /// (it keeps going down).
 const HALL_W: f32 = 1.9;
 const HALL_H: f32 = 2.7;
-const HALL_SEG: f32 = 4.0;
 pub const HALL_PITCH: f32 = -0.05;
 /// Stairways: inside width and headroom over the steps.
 const STAIR_W: f32 = 2.2;
 const STAIR_H: f32 = 2.8;
-/// A stretch is always longer than this, so the camera snaps across the
-/// step back instead of easing (see `fps_camera`).
-const MIN_SEG: f32 = 3.6;
 /// Wall thickness.
 const T: f32 = 0.25;
 
@@ -123,7 +135,8 @@ impl Space {
     pub fn contains(&self, p: Vec3) -> bool {
         let s = self.along(p);
         let lateral = (p - self.origin).dot(self.side()).abs();
-        let range = -(BEHIND + 1) as f32 * self.seg..(AHEAD + 1) as f32 * self.seg;
+        let range =
+            -(tuning().behind + 1) as f32 * self.seg..(tuning().ahead + 1) as f32 * self.seg;
         range.contains(&s) && lateral < self.width + 2.0 && (p.y - self.line(s).y).abs() < 6.0
     }
 
@@ -246,14 +259,14 @@ impl Plan {
                 return i;
             }
             let (seg, width, height) = match floor {
-                Floor::Hall => (HALL_SEG, HALL_W, HALL_H),
-                Floor::Slope => (HALL_SEG, STAIR_W, STAIR_H),
-                Floor::Steps { run } => ((MIN_SEG / run).ceil() * run, STAIR_W, STAIR_H),
+                Floor::Hall => (tuning().hall_seg, HALL_W, HALL_H),
+                Floor::Slope => (tuning().hall_seg, STAIR_W, STAIR_H),
+                Floor::Steps { run } => ((tuning().min_seg / run).ceil() * run, STAIR_W, STAIR_H),
             };
             // Stacked up out of everyone's way, each centred over the map.
             let k = spaces.len() as f32;
-            let middle = (AHEAD - BEHIND) as f32 * seg / 2.0;
-            let origin = Vec3::new(0.0, SPACE_Y + STACK * k, 0.0) - dir * middle;
+            let middle = (tuning().ahead - tuning().behind) as f32 * seg / 2.0;
+            let origin = Vec3::new(0.0, SPACE_Y + tuning().stack * k, 0.0) - dir * middle;
             spaces.push(Space {
                 dir,
                 pitch,
@@ -455,7 +468,7 @@ fn haunt(
                 // Out, ASAP: back where they came in, facing the way out.
                 put(&mut walker, input, kcc, lost.back);
                 commands.entity(entity).remove::<Lost>();
-                haunt.cooldown.insert(id, COOLDOWN);
+                haunt.cooldown.insert(id, tuning().cooldown);
             } else if let Some(to) = space.wrap(pos) {
                 walker.pos = to; // keep the momentum: it's the same hallway
             }
@@ -478,7 +491,7 @@ fn haunt(
             if facing(walker.yaw).dot(entry.travel) < 0.5 || haunt.spared.contains(&(id, i)) {
                 break;
             }
-            if haunt.roll() >= CHANCE {
+            if haunt.roll() >= tuning().chance {
                 break;
             }
             let Some(space) = plan.spaces.get(entry.space) else {
@@ -580,7 +593,10 @@ pub fn blocks(space: &Space) -> (Vec<Block>, Vec<Vec3>) {
     let up = rot * Vec3::Y;
     let side = space.side();
     let stretch = (1.0 + space.pitch * space.pitch).sqrt();
-    let (s0, s1) = (-BEHIND as f32 * space.seg, AHEAD as f32 * space.seg);
+    let (s0, s1) = (
+        -tuning().behind as f32 * space.seg,
+        tuning().ahead as f32 * space.seg,
+    );
     let mid = space.line((s0 + s1) / 2.0);
     let len = (s1 - s0) * stretch;
     let (w, h) = (space.width, space.height);
@@ -614,7 +630,7 @@ pub fn blocks(space: &Space) -> (Vec<Block>, Vec<Vec3>) {
         put(c, size, rot, Look::Wall, Solid::Wall);
     }
     // Every stretch: a timber frame, a lamp, and its steps.
-    for k in -BEHIND..AHEAD {
+    for k in -tuning().behind..tuning().ahead {
         let s = k as f32 * space.seg;
         let at = space.line(s);
         for side_k in [-1.0f32, 1.0] {
@@ -870,7 +886,10 @@ mod tests {
     fn copies_never_overlap_and_stay_on_the_map() {
         let plan = Plan::new();
         for (i, a) in plan.spaces.iter().enumerate() {
-            for s in [-(BEHIND as f32) * a.seg, AHEAD as f32 * a.seg] {
+            for s in [
+                -(tuning().behind as f32) * a.seg,
+                tuning().ahead as f32 * a.seg,
+            ] {
                 let p = a.line(s);
                 assert!(p.x.abs() < 85.0 && p.z.abs() < 85.0, "{i} {p}");
                 assert!(p.y > SPACE_Y - 60.0, "{i} {p}");

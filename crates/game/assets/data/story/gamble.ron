@@ -1,0 +1,12 @@
+// Tuning for gamble (crates/story/src/features/gamble.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Seconds between one player's spins.
+    cooldown_secs: 4.0,
+    // Chance the wheel lands on the blank wedge (everything back to normal).
+    blank_chance: 0.08,
+    // Of the rest, the chance a spin is kind.
+    fair_chance: 0.5,
+    // How long the wheel spins before it lands.
+    spin_secs: 2.6,
+)

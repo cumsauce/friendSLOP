@@ -19,9 +19,23 @@ use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
-pub const HIDE_SECS: f32 = 30.0;
-pub const SEEK_SECS: f32 = 180.0;
-pub const RESULTS_SECS: f32 = 10.0;
+/// Tuning numbers: `assets/data/village/hide_and_seek.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub hide_secs: f32,
+    pub seek_secs: f32,
+    pub results_secs: f32,
+    /// Hiders hear a heartbeat when a seeker is this close (metres).
+    pub heartbeat_range: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/village/hide_and_seek.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum Phase {
@@ -168,16 +182,17 @@ fn begin_round(
     }
     *state = HideSeek {
         phase: Phase::Hiding,
-        secs_left: HIDE_SECS as u16,
+        secs_left: tuning().hide_secs as u16,
         round: state.round + 1,
         ..default()
     };
-    clock.0 = HIDE_SECS;
+    clock.0 = tuning().hide_secs;
     news(
         commands,
         format!(
             "hide and seek: player {} seeks! hide in {}s",
-            sorted[pick].1, HIDE_SECS as u16
+            sorted[pick].1,
+            tuning().hide_secs as u16
         ),
     );
     true
@@ -293,8 +308,8 @@ fn tick(
                 commands.entity(e).remove::<HoldAt>();
             }
             state.phase = Phase::Seeking;
-            clock.0 = SEEK_SECS;
-            state.secs_left = SEEK_SECS as u16;
+            clock.0 = tuning().seek_secs;
+            state.secs_left = tuning().seek_secs as u16;
             news(&mut commands, "ready or not, here they come!");
         }
         Phase::Seeking if clock.0 <= 0.0 => {
@@ -327,8 +342,8 @@ fn finish(
     state.phase = Phase::Results;
     state.hiders_won = hiders_won;
     state.found = found;
-    state.secs_left = RESULTS_SECS as u16;
-    clock.0 = RESULTS_SECS;
+    state.secs_left = tuning().results_secs as u16;
+    clock.0 = tuning().results_secs;
     news(
         commands,
         if hiders_won {
@@ -391,9 +406,6 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), clear_labels);
 }
 
-/// Hiders hear a heartbeat when a seeker is this close (metres).
-pub const HEARTBEAT_RANGE: f32 = 6.0;
-
 /// Does player `theirs` keep their floating name label hidden from me during a
 /// round? Mine always shows; during Hiding/Seeking seekers see no labels at
 /// all, and nobody sees a hider's.
@@ -407,8 +419,8 @@ pub fn label_hidden(phase: Phase, is_me: bool, mine: Option<Role>, theirs: Optio
 /// Seconds between heartbeats for a hider with the nearest seeker `dist` away,
 /// or `None` if no seeker is close enough. Faster the closer they are.
 pub fn heartbeat_interval(dist: f32) -> Option<f32> {
-    (dist.is_finite() && dist <= HEARTBEAT_RANGE)
-        .then(|| 0.45 + 0.75 * (dist / HEARTBEAT_RANGE).clamp(0.0, 1.0))
+    (dist.is_finite() && dist <= tuning().heartbeat_range)
+        .then(|| 0.45 + 0.75 * (dist / tuning().heartbeat_range).clamp(0.0, 1.0))
 }
 
 fn hide_labels(
@@ -518,7 +530,7 @@ fn heartbeat(
             })
         })
         .clone();
-    let volume = 0.35 + 0.5 * (1.0 - nearest / HEARTBEAT_RANGE);
+    let volume = 0.35 + 0.5 * (1.0 - nearest / tuning().heartbeat_range);
     crate::assets::play_sfx(&mut commands, &handle, volume);
 }
 

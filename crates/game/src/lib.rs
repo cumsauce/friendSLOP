@@ -124,7 +124,11 @@ impl Plugin for GamePlugin {
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     let mut files = friendslop_world::data_files();
     files.extend(friendslop_base::data_files());
+    files.extend(friendslop_play::data_files());
+    files.extend(friendslop_places::data_files());
+    files.extend(friendslop_village::data_files());
     files.extend(friendslop_story::data_files());
+    files.extend(friendslop_afterlife::data_files());
     files.extend(friendslop_side::data_files());
     files
 }

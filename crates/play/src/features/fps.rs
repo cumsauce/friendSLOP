@@ -32,7 +32,18 @@ use crate::world::MainCamera;
 
 /// The soft wall: how far out you can walk (the edge hills rise beyond it).
 const EDGE: f32 = FLOOR_HALF - 2.0;
-const LOOK_SENSITIVITY: f32 = 0.003;
+/// Tuning numbers: `assets/data/play/fps.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub look_sensitivity: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/play/fps.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// A player's body out in the world. Lives on the `Player` entity. Replicated.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -458,8 +469,8 @@ fn walk_controls(
         return;
     }
     if grab {
-        view.yaw -= motion.delta.x * LOOK_SENSITIVITY;
-        view.pitch = (view.pitch - motion.delta.y * LOOK_SENSITIVITY).clamp(-1.5, 1.5);
+        view.yaw -= motion.delta.x * tuning().look_sensitivity;
+        view.pitch = (view.pitch - motion.delta.y * tuning().look_sensitivity).clamp(-1.5, 1.5);
     }
     let virt = virt.map(|v| *v).unwrap_or_default();
     // Touch drag / right stick (#106) look whether or not a cursor is grabbed.

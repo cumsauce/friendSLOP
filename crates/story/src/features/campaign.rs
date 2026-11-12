@@ -40,7 +40,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::abuela::Abuela;
-use crate::features::gods_tears::{GodsTear, TOTAL_TEARS};
+use crate::features::gods_tears::GodsTear;
 use crate::features::halt::Halt;
 use crate::features::hide_and_seek::{HideSeek, Phase};
 use crate::features::landlord::{Act3, Tenancy};
@@ -385,7 +385,9 @@ fn watch_the_world(
     let escapes = halt.iter().map(|h| h.escapes).max().unwrap_or(0);
     // Every tear that isn't lying on the ground any more has been used, this
     // campaign (they don't fall again until it starts over).
-    let used = TOTAL_TEARS.saturating_sub(tears.iter().count() as u32);
+    let used = crate::features::gods_tears::tuning()
+        .total_tears
+        .saturating_sub(tears.iter().count() as u32);
     let flag = |b: bool| u32::from(b);
     let jegg = warehouse
         .iter()

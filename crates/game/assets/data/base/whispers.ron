@@ -1,0 +1,12 @@
+// Tuning for whispers (crates/base/src/features/whispers.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Chance that a given night has whispers.
+    chance: 0.15,
+    // Night is from this local hour...
+    night_from: 22,
+    // ...to this one (exclusive).
+    night_until: 5,
+    // How long each voice lasts.
+    seconds: 7.0,
+)

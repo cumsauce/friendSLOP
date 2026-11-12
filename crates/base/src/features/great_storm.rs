@@ -13,10 +13,22 @@ use bevy::prelude::*;
 use crate::AppState;
 use crate::features::stillness::{Stillness, is_frozen};
 
-/// Seconds between leftover gusts.
-pub const GUST_EVERY: f32 = 25.0;
-/// How long a gust lasts.
-pub const GUST_SECS: f32 = 4.0;
+/// Tuning numbers: `assets/data/base/great_storm.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds between leftover gusts.
+    pub gust_every: f32,
+    /// How long a gust lasts.
+    pub gust_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/base/great_storm.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Gusts>()
@@ -33,12 +45,12 @@ pub struct Gusts {
 impl Gusts {
     /// Strength of the current gust, 0 when calm.
     pub fn strength(&self) -> f32 {
-        let phase = self.t % GUST_EVERY;
-        let into = phase - (GUST_EVERY - GUST_SECS);
+        let phase = self.t % tuning().gust_every;
+        let into = phase - (tuning().gust_every - tuning().gust_secs);
         if into <= 0.0 {
             0.0
         } else {
-            (into / GUST_SECS * std::f32::consts::PI).sin()
+            (into / tuning().gust_secs * std::f32::consts::PI).sin()
         }
     }
 }
@@ -166,7 +178,7 @@ mod tests {
     fn gusts_come_and_go() {
         let at = |t| Gusts { t }.strength();
         assert_eq!(at(0.0), 0.0);
-        assert!(at(GUST_EVERY - GUST_SECS / 2.0) > 0.9);
-        assert_eq!(at(GUST_EVERY + 1.0), 0.0);
+        assert!(at(tuning().gust_every - tuning().gust_secs / 2.0) > 0.9);
+        assert_eq!(at(tuning().gust_every + 1.0), 0.0);
     }
 }

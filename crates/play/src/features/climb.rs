@@ -26,18 +26,30 @@ use crate::features::duel::Duelist;
 use crate::features::fps::{WalkInput, Walker};
 use crate::player::Player;
 
-/// Climbing speed up a face (m/s).
-pub const CLIMB_SPEED: f32 = 2.5;
-/// Sideways shuffle speed on a face (m/s).
-const SHUFFLE_SPEED: f32 = 1.5;
+/// Tuning numbers: `assets/data/play/climb.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Climbing speed up a face (m/s).
+    pub climb_speed: f32,
+    /// Sideways shuffle speed on a face (m/s).
+    pub shuffle_speed: f32,
+    /// Faces steeper than this (normal's up part below it) are climbable; anything
+    /// flatter is just ground you can walk on.
+    pub max_face_up: f32,
+    pub knees: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/play/climb.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// How far in front of the body a face still counts as in reach.
 const REACH: f32 = crate::kcc::BODY_RADIUS + 0.35;
-/// Faces steeper than this (normal's up part below it) are climbable; anything
-/// flatter is just ground you can walk on.
-const MAX_FACE_UP: f32 = 0.5;
 /// Ray heights above the feet: chest (still climbing) and knees (at the lip).
 const CHEST: f32 = 1.2;
-const KNEES: f32 = 0.3;
 
 /// One floating island: centre (x, z), grassy top height, radius.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -149,8 +161,12 @@ pub fn climb_velocity(hold: Hold, yaw: f32, stick_x: f32) -> Vec3 {
     match hold {
         Hold::None => Vec3::ZERO,
         // A little forward keeps us against the face.
-        Hold::Face => Vec3::Y * CLIMB_SPEED + right * stick_x * SHUFFLE_SPEED + forward * 0.3,
-        Hold::Lip => Vec3::Y * CLIMB_SPEED + forward * 2.0,
+        Hold::Face => {
+            Vec3::Y * tuning().climb_speed
+                + right * stick_x * tuning().shuffle_speed
+                + forward * 0.3
+        }
+        Hold::Lip => Vec3::Y * tuning().climb_speed + forward * 2.0,
     }
 }
 
@@ -174,9 +190,9 @@ pub fn climb_step(
         move_and_slide
             .spatial_query
             .cast_ray(feet + Vec3::Y * height, dir, REACH, true, &filter)
-            .is_some_and(|hit| hit.normal.y.abs() < MAX_FACE_UP && hit.distance > 0.0)
+            .is_some_and(|hit| hit.normal.y.abs() < tuning().max_face_up && hit.distance > 0.0)
     };
-    let h = hold(true, face_at(CHEST), face_at(KNEES));
+    let h = hold(true, face_at(CHEST), face_at(tuning().knees));
     if h == Hold::None {
         return None;
     }

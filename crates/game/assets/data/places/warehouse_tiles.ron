@@ -1,0 +1,21 @@
+// The warehouse's tile kit (#130): the pieces wave function collapse fills its
+// 7 x 7 floor with. Each is a modeler model one 5 m cell across (sources:
+// `.modeler/prefabs/wh-tile-*`), centred on its origin on the floor.
+//   model:  under assets/models/features/
+//   open:   the sides an aisle carries on through, as modelled (N is -z, E +x,
+//           S +z, W -x). The other sides are walled. Every quarter turn of a
+//           piece is tried, so a corner covers all four corners.
+//   weight: how much each turn is wanted.
+// Add a variant by adding another piece with the same open sides: they share
+// the work. The walls' colliders come from the plan, not the models.
+(
+    pieces: [
+        // A blocked-up cell (filled with stacked crates).
+        (model: "wh_tile_closed.gltf", open: [], weight: 0.6),
+        (model: "wh_tile_end.gltf", open: [N], weight: 1.6),
+        (model: "wh_tile_straight.gltf", open: [N, S], weight: 3.0),
+        (model: "wh_tile_corner.gltf", open: [N, E], weight: 2.6),
+        (model: "wh_tile_tee.gltf", open: [N, E, S], weight: 1.8),
+        (model: "wh_tile_cross.gltf", open: [N, E, S, W], weight: 1.0),
+    ],
+)

@@ -38,7 +38,10 @@ If you're running in CI, also read `.github/claude/run.md`.
   where its meshes were and keeping its colliders as mesh-less entities (gameplay never
   depends on the file). Building props are marked by `Kit::begin_prop` and drawn from
   `models/props/` when listed in `buildings::PROP_MODELS`; the six building surfaces take
-  their textures from `models/surfaces/`. Creatures and characters are rigged
+  their textures from `models/surfaces/`. Generated interiors take their pieces from a **tile kit**: modeler
+  prefabs one grid cell across (`wh-tile-*`), listed with their open sides and weights in a data
+  file (`data/places/warehouse_tiles.ron`); WFC tries every quarter turn of each piece and the
+  colliders come from the plan, not the models. Add a look by adding a piece. Creatures and characters are rigged
   in the modeler (skeleton, bind, clips) and drawn with `crate::rigged` (put `Rigged` on the
   entity, switch `RigClip` from its state); trees sway live through the modeler's runtime
   plugin (`modeler_bevy`, a pinned git dependency). Several agents can share one modeler daemon, but

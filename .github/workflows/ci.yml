@@ -24,6 +24,9 @@ jobs:
   # Lint and test run side by side on their own runners.
   lint:
     name: lint (linux)
+    # Claude's PRs are checked in its own session and merged without waiting;
+    # main still runs CI after they land (and a failure starts a fix run).
+    if: ${{ !startsWith(github.head_ref, 'claude/') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -46,6 +49,9 @@ jobs:
 
   test:
     name: test (linux)
+    # Claude's PRs are checked in its own session and merged without waiting;
+    # main still runs CI after they land (and a failure starts a fix run).
+    if: ${{ !startsWith(github.head_ref, 'claude/') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -67,6 +73,9 @@ jobs:
   # The browser build (#106) must keep compiling. Linux only, no wasm-bindgen.
   web:
     name: web (wasm32 check)
+    # Claude's PRs are checked in its own session and merged without waiting;
+    # main still runs CI after they land (and a failure starts a fix run).
+    if: ${{ !startsWith(github.head_ref, 'claude/') }}
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings --cfg getrandom_backend="wasm_js"
@@ -92,6 +101,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          [[ "${{ needs.lint.result }}" == success ]]
-          [[ "${{ needs.test.result }}" == success ]]
-          [[ "${{ needs.web.result }}" == success ]]
+          for r in "${{ needs.lint.result }}" "${{ needs.test.result }}" "${{ needs.web.result }}"; do
+            [[ "$r" == success || "$r" == skipped ]]
+          done

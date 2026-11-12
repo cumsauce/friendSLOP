@@ -11,119 +11,100 @@
 
 use bevy::prelude::*;
 
-/// The commune's map as the modeler exported it (embedded, so every peer
-/// reads the same spots before any asset loads).
-const COMMUNE_MAP: &str = include_str!("../../game/assets/maps/commune.bsn");
+/// The commune's map as plain data (the modeler writes `commune.map.json`
+/// beside the scene), embedded so every peer reads the same layout before
+/// any asset loads, the browser included.
+const COMMUNE_MAP: &str = include_str!("../../game/assets/maps/commune.map.json");
 
-/// One entity of a modeler scene, read from its text: its name, position and
-/// the map components it carries, as `component -> field -> raw value`.
-#[derive(Clone, Debug, Default, PartialEq)]
+/// A map as the modeler writes it beside the scene (`modeler::scene::MapFile`).
+#[derive(serde::Deserialize, Default)]
+struct MapFile {
+    entities: Vec<MapEntity>,
+}
+
+/// One entity of a modeler map: a marker or a placed model, with the
+/// components from `.modeler/components.json` it carries.
+#[derive(serde::Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(default)]
 pub struct MapEntity {
     pub name: String,
-    pub at: Vec3,
-    pub components: Vec<(String, Vec<(String, String)>)>,
+    /// The marker's kind (`spot`, `waypoint`, `plot`, `trip`, ...).
+    pub kind: String,
+    pub translation: [f32; 3],
+    /// Facing in degrees about +y (0 faces +z).
+    pub yaw: f32,
+    /// A marker's box (x, y, z), if it has one.
+    pub size: Option<[f32; 3]>,
+    /// The model it places, if any.
+    pub gltf: Option<String>,
+    pub components: serde_json::Map<String, serde_json::Value>,
 }
 
 impl MapEntity {
-    /// Has it the component `c` (the type's last path segment)?
+    /// Where it stands on the ground (x, z).
+    pub fn at(&self) -> Vec2 {
+        Vec2::new(self.translation[0], self.translation[2])
+    }
+
+    /// Its box on the ground (x, z size); zero without one.
+    pub fn footprint(&self) -> Vec2 {
+        self.size.map_or(Vec2::ZERO, |s| Vec2::new(s[0], s[2]))
+    }
+
+    /// Has it the component `c`?
     pub fn has(&self, c: &str) -> bool {
-        self.components.iter().any(|(n, _)| n == c)
+        self.components.contains_key(c)
     }
 
-    /// The raw value of `c.field`, if written.
-    pub fn raw(&self, c: &str, field: &str) -> Option<&str> {
-        let (_, fields) = self.components.iter().find(|(n, _)| n == c)?;
-        fields
-            .iter()
-            .find(|(k, _)| k == field)
-            .map(|(_, v)| v.as_str())
+    fn field(&self, c: &str, field: &str) -> Option<&serde_json::Value> {
+        self.components.get(c)?.get(field)
     }
 
-    /// A string field (quotes stripped); empty when missing.
+    /// A string field; empty when missing.
     pub fn text(&self, c: &str, field: &str) -> String {
-        self.raw(c, field)
-            .map(|v| v.trim_matches('"').to_string())
+        self.field(c, field)
+            .and_then(|v| v.as_str())
             .unwrap_or_default()
+            .to_string()
     }
 
     /// A number field; 0 when missing (the component's default).
     pub fn num(&self, c: &str, field: &str) -> f32 {
-        self.raw(c, field)
-            .and_then(|v| v.parse().ok())
-            .unwrap_or_default()
+        self.field(c, field)
+            .and_then(|v| v.as_f64())
+            .unwrap_or_default() as f32
     }
 
     /// A bool field; false when missing.
     pub fn flag(&self, c: &str, field: &str) -> bool {
-        self.raw(c, field) == Some("true")
+        self.field(c, field)
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
     }
 
-    /// A `Vec2` field; zero when missing.
-    pub fn vec2(&self, c: &str, field: &str) -> Vec2 {
-        let v = self.raw(c, field).unwrap_or_default();
-        Vec2::new(coord(v, "x"), coord(v, "y"))
+    /// A list of names (a `refs` / `strings` field); empty when missing.
+    pub fn names(&self, c: &str, field: &str) -> Vec<&str> {
+        self.field(c, field)
+            .and_then(|v| v.as_array())
+            .map(|a| a.iter().filter_map(|v| v.as_str()).collect())
+            .unwrap_or_default()
     }
 
     /// Its Spot's name, if it is one.
     pub fn spot(&self) -> Option<String> {
         self.has("Spot").then(|| self.text("Spot", "name"))
     }
-
-    /// The model it places, if any.
-    pub fn model(&self) -> Option<String> {
-        self.has("GltfSource")
-            .then(|| self.text("GltfSource", "path"))
-    }
 }
 
-/// `axis` of a written vector (`glam::Vec3 { x: 1.0, y: 0.0, z: 2.0 }`).
-fn coord(v: &str, axis: &str) -> f32 {
-    let key = format!("{axis}: ");
-    v.find(&key)
-        .map(|i| &v[i + key.len()..])
-        .and_then(|r| r[..r.find([',', ' ', '}']).unwrap_or(r.len())].parse().ok())
+/// Reads a modeler `.map.json`; an unreadable map reads as empty (the
+/// map test catches it).
+pub fn read_map(json: &str) -> Vec<MapEntity> {
+    serde_json::from_str::<MapFile>(json)
+        .map(|m| m.entities)
         .unwrap_or_default()
 }
 
-/// Reads a modeler `.bsn` scene's top-level entities. It knows the modeler's
-/// own layout: `#name`, then one component per 4-space line, its fields on
-/// 8-space `key: value,` lines.
-pub fn read_map(text: &str) -> Vec<MapEntity> {
-    text.split("\n    --")
-        .filter_map(|block| {
-            let mut e = MapEntity {
-                name: block
-                    .split('#')
-                    .nth(1)?
-                    .split_whitespace()
-                    .next()?
-                    .to_string(),
-                ..default()
-            };
-            for line in block.lines() {
-                let depth = line.len() - line.trim_start().len();
-                let line = line.trim();
-                if depth == 4 && !line.starts_with('#') {
-                    let path = line.split([' ', '{', '(']).next().unwrap_or_default();
-                    let name = path.rsplit("::").next().unwrap_or_default();
-                    e.components.push((name.to_string(), Vec::new()));
-                } else if depth == 8
-                    && let Some((k, v)) = line.split_once(": ")
-                    && let Some((_, fields)) = e.components.last_mut()
-                {
-                    fields.push((k.to_string(), v.trim_end_matches(',').to_string()));
-                }
-            }
-            e.at = e
-                .raw("Transform", "translation")
-                .map(|v| Vec3::new(coord(v, "x"), coord(v, "y"), coord(v, "z")))
-                .unwrap_or_default();
-            Some(e)
-        })
-        .collect()
-}
-
-/// The commune map's entities, sorted by name (the modeler writes them so).
+/// The commune map's entities.
 pub fn commune() -> &'static [MapEntity] {
     static MAP: std::sync::OnceLock<Vec<MapEntity>> = std::sync::OnceLock::new();
     MAP.get_or_init(|| read_map(COMMUNE_MAP))
@@ -139,7 +120,7 @@ pub fn spot(name: &str) -> Option<Vec2> {
     commune()
         .iter()
         .find(|e| e.spot().as_deref() == Some(name))
-        .map(|e| e.at.xz())
+        .map(|e| e.at())
 }
 
 /// Every place the game needs a spot for (the map test checks them all).
@@ -305,7 +286,8 @@ pub fn landlord_at() -> Vec3 {
     Vec3::new(p.x, 0.0, p.y)
 }
 
-/// A spot's ground feature sizes (its `Feature` component).
+/// A spot's ground feature sizes (its `Feature` component; `size` is the
+/// marker's own box, x by z).
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Sizes {
     pub radius: f32,
@@ -349,7 +331,7 @@ pub struct Layout {
 
 /// Reads the layout out of a map's entities.
 pub fn layout_of(map: &[MapEntity]) -> Layout {
-    let pos = |name: &str| map.iter().find(|e| e.name == name).map(|e| e.at.xz());
+    let pos = |name: &str| map.iter().find(|e| e.name == name).map(|e| e.at());
     let sizes = |name: &str| {
         map.iter()
             .find(|e| e.spot().as_deref() == Some(name))
@@ -357,7 +339,7 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
                 radius: e.num("Feature", "radius"),
                 height: e.num("Feature", "height"),
                 depth: e.num("Feature", "depth"),
-                size: e.vec2("Feature", "size"),
+                size: e.footprint(),
             })
             .unwrap_or_default()
     };
@@ -365,12 +347,12 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
         .iter()
         .filter(|e| e.has("District"))
         .map(|e| {
-            let half = e.vec2("District", "size") / 2.0;
+            let half = e.footprint() / 2.0;
             (
                 e.num("District", "order") as u32,
                 e.text("District", "kind"),
-                e.at.xz() - half,
-                e.at.xz() + half,
+                e.at() - half,
+                e.at() + half,
             )
         })
         .collect();
@@ -385,10 +367,10 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
             .iter()
             .filter(|e| e.has("Path"))
             .flat_map(|e| {
-                let from = e.at.xz();
-                e.text("Path", "to")
-                    .split(',')
-                    .filter_map(|n| pos(n.trim()))
+                let from = e.at();
+                e.names("Path", "to")
+                    .into_iter()
+                    .filter_map(pos)
                     .map(move |to| (from, to))
                     .collect::<Vec<_>>()
             })
@@ -403,26 +385,26 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
             .iter()
             .filter(|e| e.has("Plot"))
             .map(|e| HousePlot {
-                at: e.at.xz(),
-                size: e.vec2("Plot", "size"),
-                turns: e.num("Plot", "turns") as i32,
+                at: e.at(),
+                size: e.footprint(),
+                turns: ((e.yaw / 90.0).round() as i32).rem_euclid(4),
                 upper: e.flag("Plot", "upper"),
             })
             .collect(),
         hangouts: map
             .iter()
-            .filter(|e| e.has("Hangout") && !e.flag("Hangout", "trip"))
-            .map(|e| e.at.xz())
+            .filter(|e| e.has("Hangout") && e.kind != "trip")
+            .map(|e| e.at())
             .collect(),
         trips: map
             .iter()
-            .filter(|e| e.has("Hangout") && e.flag("Hangout", "trip"))
-            .map(|e| e.at.xz())
+            .filter(|e| e.has("Hangout") && e.kind == "trip")
+            .map(|e| e.at())
             .collect(),
         clears: map
             .iter()
             .filter(|e| e.has("Clear"))
-            .map(|e| (e.at.xz(), e.num("Clear", "radius")))
+            .map(|e| (e.at(), e.num("Clear", "radius")))
             .collect(),
         pond: sizes("pond"),
         hill: sizes("hill"),
@@ -461,8 +443,8 @@ pub fn arena_half() -> f32 {
 
 /// Keeps the dressing off the models the commune map places.
 pub fn claim_map_props() {
-    for e in commune().iter().filter(|e| e.model().is_some()) {
-        crate::footprints::claim(e.at.xz(), 1.2);
+    for e in commune().iter().filter(|e| e.gltf.is_some()) {
+        crate::footprints::claim(e.at(), 1.2);
     }
 }
 
@@ -481,7 +463,7 @@ mod map_tests {
         assert_eq!(landlord_at(), Vec3::new(13.0, 0.0, -4.0));
         let crates = commune().iter().find(|e| e.name == "picnic_crates");
         assert_eq!(
-            crates.and_then(|e| e.model()).as_deref(),
+            crates.and_then(|e| e.gltf.as_deref()),
             Some("models/prefabs/fu-crates.gltf")
         );
         assert!(spot("nowhere").is_none());

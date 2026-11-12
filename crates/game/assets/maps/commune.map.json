@@ -1,0 +1,2361 @@
+{
+  "scene": "commune",
+  "entities": [
+    {
+      "name": "arena",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        -12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Feature": {
+          "radius": 7
+        },
+        "Path": {
+          "to": [
+            "w_north"
+          ]
+        },
+        "Spot": {
+          "name": "arena"
+        }
+      }
+    },
+    {
+      "name": "barn",
+      "kind": "spot",
+      "translation": [
+        70.5,
+        0.0,
+        -24.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "barn"
+        }
+      }
+    },
+    {
+      "name": "big_cottage",
+      "kind": "spot",
+      "translation": [
+        66.5,
+        0.0,
+        -11.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "big_cottage"
+        }
+      }
+    },
+    {
+      "name": "bonfire",
+      "kind": "spot",
+      "translation": [
+        -8.5,
+        0.0,
+        -1.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 3.5
+        },
+        "Path": {
+          "to": [
+            "parliament",
+            "w_valley"
+          ]
+        },
+        "Spot": {
+          "name": "bonfire"
+        }
+      }
+    },
+    {
+      "name": "centre",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 4.5
+        },
+        "Path": {
+          "to": [
+            "arena",
+            "bonfire",
+            "pond",
+            "w_east"
+          ]
+        },
+        "Spot": {
+          "name": "centre"
+        }
+      }
+    },
+    {
+      "name": "clear_01",
+      "kind": "clear",
+      "translation": [
+        8.0,
+        0.0,
+        3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2.5
+        }
+      }
+    },
+    {
+      "name": "clear_02",
+      "kind": "clear",
+      "translation": [
+        9.0,
+        0.0,
+        -8.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2.5
+        }
+      }
+    },
+    {
+      "name": "clear_03",
+      "kind": "clear",
+      "translation": [
+        10.0,
+        0.0,
+        -6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2
+        }
+      }
+    },
+    {
+      "name": "clear_04",
+      "kind": "clear",
+      "translation": [
+        -6.0,
+        0.0,
+        11.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2
+        }
+      }
+    },
+    {
+      "name": "clear_05",
+      "kind": "clear",
+      "translation": [
+        -6.0,
+        0.0,
+        -3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2.5
+        }
+      }
+    },
+    {
+      "name": "clear_06",
+      "kind": "clear",
+      "translation": [
+        4.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2
+        }
+      }
+    },
+    {
+      "name": "clear_07",
+      "kind": "clear",
+      "translation": [
+        5.0,
+        0.0,
+        4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2.5
+        }
+      }
+    },
+    {
+      "name": "clear_08",
+      "kind": "clear",
+      "translation": [
+        -4.0,
+        0.0,
+        4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2
+        }
+      }
+    },
+    {
+      "name": "clear_09",
+      "kind": "clear",
+      "translation": [
+        3.0,
+        0.0,
+        8.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2
+        }
+      }
+    },
+    {
+      "name": "clear_10",
+      "kind": "clear",
+      "translation": [
+        -9.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2
+        }
+      }
+    },
+    {
+      "name": "clear_11",
+      "kind": "clear",
+      "translation": [
+        7.0,
+        0.0,
+        -2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 2
+        }
+      }
+    },
+    {
+      "name": "dave",
+      "kind": "spot",
+      "translation": [
+        -13.0,
+        0.0,
+        -3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dave"
+        }
+      }
+    },
+    {
+      "name": "district_bounds",
+      "kind": "zone",
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        176.0,
+        1.0,
+        176.0
+      ],
+      "components": {
+        "District": {
+          "kind": "bounds",
+          "order": 0
+        }
+      }
+    },
+    {
+      "name": "district_commune",
+      "kind": "zone",
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        54.0,
+        1.0,
+        54.0
+      ],
+      "components": {
+        "District": {
+          "kind": "commune",
+          "order": 1
+        }
+      }
+    },
+    {
+      "name": "district_forest",
+      "kind": "zone",
+      "translation": [
+        0.0,
+        0.0,
+        -61.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        176.0,
+        1.0,
+        53.0
+      ],
+      "components": {
+        "District": {
+          "kind": "forest",
+          "order": 3
+        }
+      }
+    },
+    {
+      "name": "district_ruins",
+      "kind": "zone",
+      "translation": [
+        -59.0,
+        0.0,
+        59.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        58.0,
+        1.0,
+        58.0
+      ],
+      "components": {
+        "District": {
+          "kind": "ruins",
+          "order": 4
+        }
+      }
+    },
+    {
+      "name": "district_valley",
+      "kind": "zone",
+      "translation": [
+        -61.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        53.0,
+        1.0,
+        60.0
+      ],
+      "components": {
+        "District": {
+          "kind": "valley",
+          "order": 5
+        }
+      }
+    },
+    {
+      "name": "district_village",
+      "kind": "zone",
+      "translation": [
+        57.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        49.0,
+        1.0,
+        74.0
+      ],
+      "components": {
+        "District": {
+          "kind": "village",
+          "order": 2
+        }
+      }
+    },
+    {
+      "name": "forest_clearing",
+      "kind": "spot",
+      "translation": [
+        -28.0,
+        0.0,
+        -62.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "forest_clearing"
+        }
+      }
+    },
+    {
+      "name": "gamble",
+      "kind": "spot",
+      "translation": [
+        -10.0,
+        0.0,
+        9.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 5.0
+        },
+        "Spot": {
+          "name": "gamble"
+        }
+      }
+    },
+    {
+      "name": "hangout_01",
+      "kind": "hangout",
+      "translation": [
+        -8.5,
+        0.0,
+        0.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_02",
+      "kind": "hangout",
+      "translation": [
+        -6.5,
+        0.0,
+        -1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_03",
+      "kind": "hangout",
+      "translation": [
+        -12.0,
+        0.0,
+        -1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_04",
+      "kind": "hangout",
+      "translation": [
+        -16.5,
+        0.0,
+        -4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_05",
+      "kind": "hangout",
+      "translation": [
+        9.0,
+        0.0,
+        9.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_06",
+      "kind": "hangout",
+      "translation": [
+        13.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_07",
+      "kind": "hangout",
+      "translation": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_08",
+      "kind": "hangout",
+      "translation": [
+        -4.0,
+        0.0,
+        4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_09",
+      "kind": "hangout",
+      "translation": [
+        3.0,
+        0.0,
+        8.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_10",
+      "kind": "hangout",
+      "translation": [
+        -6.0,
+        0.0,
+        11.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_11",
+      "kind": "hangout",
+      "translation": [
+        8.0,
+        0.0,
+        3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_12",
+      "kind": "hangout",
+      "translation": [
+        15.0,
+        0.0,
+        -3.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_13",
+      "kind": "hangout",
+      "translation": [
+        -8.0,
+        0.0,
+        -24.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_14",
+      "kind": "hangout",
+      "translation": [
+        -30.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hangout_15",
+      "kind": "hangout",
+      "translation": [
+        10.0,
+        0.0,
+        32.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "hell",
+      "kind": "spot",
+      "translation": [
+        -60.0,
+        0.0,
+        -60.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "hell"
+        }
+      }
+    },
+    {
+      "name": "hill",
+      "kind": "spot",
+      "translation": [
+        -62.0,
+        0.0,
+        -6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Feature": {
+          "height": 12,
+          "radius": 24
+        },
+        "Spot": {
+          "name": "hill"
+        }
+      }
+    },
+    {
+      "name": "lake",
+      "kind": "spot",
+      "translation": [
+        -44.0,
+        0.0,
+        20.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Feature": {
+          "depth": -1.6,
+          "height": -0.35,
+          "radius": 7
+        },
+        "Spot": {
+          "name": "lake"
+        }
+      }
+    },
+    {
+      "name": "landlord",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        -4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 3.0
+        },
+        "Spot": {
+          "name": "landlord"
+        }
+      }
+    },
+    {
+      "name": "lectern",
+      "kind": "spot",
+      "translation": [
+        -4.5,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "lectern"
+        }
+      }
+    },
+    {
+      "name": "market",
+      "kind": "spot",
+      "translation": [
+        57.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "market"
+        }
+      }
+    },
+    {
+      "name": "maze",
+      "kind": "spot",
+      "translation": [
+        -66.0,
+        0.0,
+        44.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "maze"
+        }
+      }
+    },
+    {
+      "name": "officer",
+      "kind": "spot",
+      "translation": [
+        15.5,
+        0.0,
+        -3.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "officer"
+        }
+      }
+    },
+    {
+      "name": "parliament",
+      "kind": "spot",
+      "translation": [
+        -12.0,
+        0.0,
+        -10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "parliament"
+        }
+      }
+    },
+    {
+      "name": "picnic",
+      "kind": "spot",
+      "translation": [
+        6.0,
+        0.0,
+        20.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "picnic"
+        }
+      }
+    },
+    {
+      "name": "picnic_barrel",
+      "translation": [
+        8.2,
+        0.0,
+        21.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/fu-barrel.gltf"
+    },
+    {
+      "name": "picnic_crates",
+      "translation": [
+        3.6,
+        0.0,
+        21.4
+      ],
+      "rotation": [
+        0.0,
+        0.17365,
+        0.0,
+        0.98481
+      ],
+      "yaw": 20.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/fu-crates.gltf"
+    },
+    {
+      "name": "picnic_stool_1",
+      "translation": [
+        5.0,
+        0.0,
+        20.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/fu-stool.gltf"
+    },
+    {
+      "name": "picnic_stool_2",
+      "translation": [
+        7.0,
+        0.0,
+        20.0
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "yaw": -180.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/fu-stool.gltf"
+    },
+    {
+      "name": "picnic_table",
+      "translation": [
+        6.0,
+        0.0,
+        20.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "models/prefabs/fu-table.gltf"
+    },
+    {
+      "name": "plot_1",
+      "kind": "plot",
+      "translation": [
+        40.0,
+        0.0,
+        -11.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        7.0,
+        1.0,
+        6.0
+      ],
+      "components": {
+        "Plot": {
+          "upper": false
+        }
+      }
+    },
+    {
+      "name": "plot_2",
+      "kind": "plot",
+      "translation": [
+        49.5,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        8.0,
+        1.0,
+        7.0
+      ],
+      "components": {
+        "Plot": {
+          "upper": true
+        }
+      }
+    },
+    {
+      "name": "plot_3",
+      "kind": "plot",
+      "translation": [
+        58.0,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        6.0,
+        1.0,
+        6.0
+      ],
+      "components": {
+        "Plot": {
+          "upper": false
+        }
+      }
+    },
+    {
+      "name": "plot_4",
+      "kind": "plot",
+      "translation": [
+        42.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "yaw": -180.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        8.0,
+        1.0,
+        7.0
+      ],
+      "components": {
+        "Plot": {
+          "upper": true
+        }
+      }
+    },
+    {
+      "name": "plot_5",
+      "kind": "plot",
+      "translation": [
+        51.5,
+        0.0,
+        12.5
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "yaw": -180.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        6.0,
+        1.0,
+        5.0
+      ],
+      "components": {
+        "Plot": {
+          "upper": false
+        }
+      }
+    },
+    {
+      "name": "plot_6",
+      "kind": "plot",
+      "translation": [
+        60.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "yaw": -180.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        7.0,
+        1.0,
+        6.0
+      ],
+      "components": {
+        "Plot": {
+          "upper": false
+        }
+      }
+    },
+    {
+      "name": "pond",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        9.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Feature": {
+          "radius": 3.2
+        },
+        "Spot": {
+          "name": "pond"
+        }
+      }
+    },
+    {
+      "name": "quarry",
+      "kind": "spot",
+      "translation": [
+        -55.0,
+        0.0,
+        65.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Feature": {
+          "depth": 5,
+          "radius": 12
+        },
+        "Spot": {
+          "name": "quarry"
+        }
+      }
+    },
+    {
+      "name": "ruins_tower",
+      "kind": "spot",
+      "translation": [
+        -41.0,
+        0.0,
+        44.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "ruins_tower"
+        }
+      }
+    },
+    {
+      "name": "tower",
+      "kind": "spot",
+      "translation": [
+        72.0,
+        0.0,
+        16.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "tower"
+        }
+      }
+    },
+    {
+      "name": "trip_1",
+      "kind": "trip",
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "trip_2",
+      "kind": "trip",
+      "translation": [
+        57.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "trip_3",
+      "kind": "trip",
+      "translation": [
+        42.0,
+        0.0,
+        12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "trip_4",
+      "kind": "trip",
+      "translation": [
+        -64.5,
+        0.0,
+        44.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "trip_5",
+      "kind": "trip",
+      "translation": [
+        -38.0,
+        0.0,
+        58.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "trip_6",
+      "kind": "trip",
+      "translation": [
+        -28.0,
+        0.0,
+        -62.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "trip_7",
+      "kind": "trip",
+      "translation": [
+        -35.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Hangout": {}
+      }
+    },
+    {
+      "name": "vault",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        -2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Clear": {
+          "radius": 4.5
+        },
+        "Spot": {
+          "name": "vault"
+        }
+      }
+    },
+    {
+      "name": "village",
+      "kind": "spot",
+      "translation": [
+        57.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        45.0,
+        1.0,
+        70.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "village"
+        }
+      }
+    },
+    {
+      "name": "w_east",
+      "kind": "waypoint",
+      "translation": [
+        40.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "w_hill",
+      "kind": "waypoint",
+      "translation": [
+        -56.0,
+        0.0,
+        -6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "w_lake",
+      "kind": "waypoint",
+      "translation": [
+        -41.0,
+        0.0,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "w_north",
+      "kind": "waypoint",
+      "translation": [
+        -4.0,
+        0.0,
+        -40.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Path": {
+          "to": [
+            "w_north2"
+          ]
+        }
+      }
+    },
+    {
+      "name": "w_north2",
+      "kind": "waypoint",
+      "translation": [
+        3.0,
+        0.0,
+        -72.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "w_ruins_a",
+      "kind": "waypoint",
+      "translation": [
+        -3.0,
+        0.0,
+        5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Path": {
+          "to": [
+            "w_ruins_b"
+          ]
+        }
+      }
+    },
+    {
+      "name": "w_ruins_b",
+      "kind": "waypoint",
+      "translation": [
+        -32.0,
+        0.0,
+        34.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Path": {
+          "to": [
+            "w_ruins_c"
+          ]
+        }
+      }
+    },
+    {
+      "name": "w_ruins_c",
+      "kind": "waypoint",
+      "translation": [
+        -44.0,
+        0.0,
+        52.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "w_valley",
+      "kind": "waypoint",
+      "translation": [
+        -36.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Path": {
+          "to": [
+            "w_lake",
+            "w_hill"
+          ]
+        }
+      }
+    },
+    {
+      "name": "w_warehouse_a",
+      "kind": "waypoint",
+      "translation": [
+        16.0,
+        0.0,
+        14.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Path": {
+          "to": [
+            "w_warehouse_b"
+          ]
+        }
+      }
+    },
+    {
+      "name": "w_warehouse_b",
+      "kind": "waypoint",
+      "translation": [
+        14.0,
+        0.0,
+        33.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "name": "warehouse",
+      "kind": "spot",
+      "translation": [
+        14.0,
+        0.0,
+        41.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "warehouse"
+        }
+      }
+    },
+    {
+      "name": "wendys",
+      "kind": "spot",
+      "translation": [
+        30.0,
+        0.0,
+        9.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "wendys"
+        }
+      }
+    },
+    {
+      "name": "windmill",
+      "kind": "spot",
+      "translation": [
+        -8.0,
+        0.0,
+        -31.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "windmill"
+        }
+      }
+    },
+    {
+      "name": "wreck",
+      "kind": "spot",
+      "translation": [
+        -34.5,
+        0.0,
+        21.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "wreck"
+        }
+      }
+    }
+  ],
+  "terrains": [
+    {
+      "name": "ground",
+      "heights": "maps/commune.ground.heights"
+    }
+  ]
+}

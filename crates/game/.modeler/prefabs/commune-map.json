@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "commune-map",
   "parts": [],
-  "version": 113,
+  "version": 1610,
   "ops": [
     {
       "terrain": {
@@ -213,7 +213,10 @@
             "radius": 3.5
           },
           "Path": {
-            "to": "parliament,w_valley"
+            "to": [
+              "parliament",
+              "w_valley"
+            ]
           },
           "Spot": {
             "name": "bonfire"
@@ -251,7 +254,9 @@
             "radius": 7
           },
           "Path": {
-            "to": "w_north"
+            "to": [
+              "w_north"
+            ]
           },
           "Spot": {
             "name": "arena"
@@ -618,7 +623,12 @@
             "radius": 4.5
           },
           "Path": {
-            "to": "arena,bonfire,pond,w_east"
+            "to": [
+              "arena",
+              "bonfire",
+              "pond",
+              "w_east"
+            ]
           },
           "Spot": {
             "name": "centre"
@@ -635,13 +645,12 @@
           0.0,
           0.0
         ],
+        "size": [
+          45.0,
+          1.0,
+          70.0
+        ],
         "components": {
-          "Feature": {
-            "size": [
-              45,
-              70
-            ]
-          },
           "Spot": {
             "name": "village"
           }
@@ -702,7 +711,9 @@
         ],
         "components": {
           "Path": {
-            "to": "w_north2"
+            "to": [
+              "w_north2"
+            ]
           }
         }
       }
@@ -729,7 +740,10 @@
         ],
         "components": {
           "Path": {
-            "to": "w_lake,w_hill"
+            "to": [
+              "w_lake",
+              "w_hill"
+            ]
           }
         }
       }
@@ -767,7 +781,9 @@
         ],
         "components": {
           "Path": {
-            "to": "w_ruins_b"
+            "to": [
+              "w_ruins_b"
+            ]
           }
         }
       }
@@ -783,7 +799,9 @@
         ],
         "components": {
           "Path": {
-            "to": "w_ruins_c"
+            "to": [
+              "w_ruins_c"
+            ]
           }
         }
       }
@@ -810,7 +828,9 @@
         ],
         "components": {
           "Path": {
-            "to": "w_warehouse_b"
+            "to": [
+              "w_warehouse_b"
+            ]
           }
         }
       }
@@ -835,14 +855,15 @@
           0.0,
           0.0
         ],
+        "size": [
+          54.0,
+          1.0,
+          54.0
+        ],
         "components": {
           "District": {
             "kind": "commune",
-            "order": 1,
-            "size": [
-              54,
-              54
-            ]
+            "order": 1
           }
         }
       }
@@ -856,14 +877,15 @@
           0.0,
           0.0
         ],
+        "size": [
+          49.0,
+          1.0,
+          74.0
+        ],
         "components": {
           "District": {
             "kind": "village",
-            "order": 2,
-            "size": [
-              49,
-              74
-            ]
+            "order": 2
           }
         }
       }
@@ -877,14 +899,15 @@
           0.0,
           -61.5
         ],
+        "size": [
+          176.0,
+          1.0,
+          53.0
+        ],
         "components": {
           "District": {
             "kind": "forest",
-            "order": 3,
-            "size": [
-              176,
-              53
-            ]
+            "order": 3
           }
         }
       }
@@ -898,14 +921,15 @@
           0.0,
           59.0
         ],
+        "size": [
+          58.0,
+          1.0,
+          58.0
+        ],
         "components": {
           "District": {
             "kind": "ruins",
-            "order": 4,
-            "size": [
-              58,
-              58
-            ]
+            "order": 4
           }
         }
       }
@@ -919,14 +943,15 @@
           0.0,
           0.0
         ],
+        "size": [
+          53.0,
+          1.0,
+          60.0
+        ],
         "components": {
           "District": {
             "kind": "valley",
-            "order": 5,
-            "size": [
-              53,
-              60
-            ]
+            "order": 5
           }
         }
       }
@@ -940,14 +965,15 @@
           0.0,
           0.0
         ],
+        "size": [
+          176.0,
+          1.0,
+          176.0
+        ],
         "components": {
           "District": {
             "kind": "bounds",
-            "order": 0,
-            "size": [
-              176,
-              176
-            ]
+            "order": 0
           }
         }
       }
@@ -961,13 +987,14 @@
           0.0,
           -11.0
         ],
+        "yaw": 0.0,
+        "size": [
+          7.0,
+          1.0,
+          6.0
+        ],
         "components": {
           "Plot": {
-            "size": [
-              7,
-              6
-            ],
-            "turns": 0,
             "upper": false
           }
         }
@@ -982,13 +1009,14 @@
           0.0,
           -13.0
         ],
+        "yaw": 0.0,
+        "size": [
+          8.0,
+          1.0,
+          7.0
+        ],
         "components": {
           "Plot": {
-            "size": [
-              8,
-              7
-            ],
-            "turns": 0,
             "upper": true
           }
         }
@@ -1003,13 +1031,14 @@
           0.0,
           -13.0
         ],
+        "yaw": 0.0,
+        "size": [
+          6.0,
+          1.0,
+          6.0
+        ],
         "components": {
           "Plot": {
-            "size": [
-              6,
-              6
-            ],
-            "turns": 0,
             "upper": false
           }
         }
@@ -1024,13 +1053,14 @@
           0.0,
           13.0
         ],
+        "yaw": 180.0,
+        "size": [
+          8.0,
+          1.0,
+          7.0
+        ],
         "components": {
           "Plot": {
-            "size": [
-              8,
-              7
-            ],
-            "turns": 2,
             "upper": true
           }
         }
@@ -1045,13 +1075,14 @@
           0.0,
           12.5
         ],
+        "yaw": 180.0,
+        "size": [
+          6.0,
+          1.0,
+          5.0
+        ],
         "components": {
           "Plot": {
-            "size": [
-              6,
-              5
-            ],
-            "turns": 2,
             "upper": false
           }
         }
@@ -1066,13 +1097,14 @@
           0.0,
           13.0
         ],
+        "yaw": 180.0,
+        "size": [
+          7.0,
+          1.0,
+          6.0
+        ],
         "components": {
           "Plot": {
-            "size": [
-              7,
-              6
-            ],
-            "turns": 2,
             "upper": false
           }
         }
@@ -1088,9 +1120,7 @@
           0.5
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1104,9 +1134,7 @@
           -1.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1120,9 +1148,7 @@
           -1.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1136,9 +1162,7 @@
           -4.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1152,9 +1176,7 @@
           9.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1168,9 +1190,7 @@
           13.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1184,9 +1204,7 @@
           2.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1200,9 +1218,7 @@
           4.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1216,9 +1232,7 @@
           8.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1232,9 +1246,7 @@
           11.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1248,9 +1260,7 @@
           3.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1264,9 +1274,7 @@
           -3.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1280,9 +1288,7 @@
           -24.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1296,9 +1302,7 @@
           0.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
@@ -1312,121 +1316,105 @@
           32.0
         ],
         "components": {
-          "Hangout": {
-            "trip": false
-          }
+          "Hangout": {}
         }
       }
     },
     {
       "marker": {
         "name": "trip_1",
-        "kind": "hangout",
+        "kind": "trip",
         "translation": [
           0.0,
           0.0,
           0.0
         ],
         "components": {
-          "Hangout": {
-            "trip": true
-          }
+          "Hangout": {}
         }
       }
     },
     {
       "marker": {
         "name": "trip_2",
-        "kind": "hangout",
+        "kind": "trip",
         "translation": [
           57.0,
           0.0,
           0.0
         ],
         "components": {
-          "Hangout": {
-            "trip": true
-          }
+          "Hangout": {}
         }
       }
     },
     {
       "marker": {
         "name": "trip_3",
-        "kind": "hangout",
+        "kind": "trip",
         "translation": [
           42.0,
           0.0,
           12.0
         ],
         "components": {
-          "Hangout": {
-            "trip": true
-          }
+          "Hangout": {}
         }
       }
     },
     {
       "marker": {
         "name": "trip_4",
-        "kind": "hangout",
+        "kind": "trip",
         "translation": [
           -64.5,
           0.0,
           44.0
         ],
         "components": {
-          "Hangout": {
-            "trip": true
-          }
+          "Hangout": {}
         }
       }
     },
     {
       "marker": {
         "name": "trip_5",
-        "kind": "hangout",
+        "kind": "trip",
         "translation": [
           -38.0,
           0.0,
           58.0
         ],
         "components": {
-          "Hangout": {
-            "trip": true
-          }
+          "Hangout": {}
         }
       }
     },
     {
       "marker": {
         "name": "trip_6",
-        "kind": "hangout",
+        "kind": "trip",
         "translation": [
           -28.0,
           0.0,
           -62.0
         ],
         "components": {
-          "Hangout": {
-            "trip": true
-          }
+          "Hangout": {}
         }
       }
     },
     {
       "marker": {
         "name": "trip_7",
-        "kind": "hangout",
+        "kind": "trip",
         "translation": [
           -35.0,
           0.0,
           13.0
         ],
         "components": {
-          "Hangout": {
-            "trip": true
-          }
+          "Hangout": {}
         }
       }
     },

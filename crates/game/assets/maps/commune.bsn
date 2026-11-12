@@ -14,7 +14,7 @@ bevy_ecs::hierarchy::Children [
         radius: 7.0,
     }
     friendslop_world::map::Path {
-        to: "w_north",
+        to: ["w_north"],
     }
     friendslop_world::map::Spot {
         name: "arena",
@@ -47,7 +47,7 @@ bevy_ecs::hierarchy::Children [
         radius: 3.5,
     }
     friendslop_world::map::Path {
-        to: "parliament,w_valley",
+        to: ["parliament", "w_valley"],
     }
     friendslop_world::map::Spot {
         name: "bonfire",
@@ -60,7 +60,7 @@ bevy_ecs::hierarchy::Children [
         radius: 4.5,
     }
     friendslop_world::map::Path {
-        to: "arena,bonfire,pond,w_east",
+        to: ["arena", "bonfire", "pond", "w_east"],
     }
     friendslop_world::map::Spot {
         name: "centre",
@@ -180,7 +180,6 @@ bevy_ecs::hierarchy::Children [
     friendslop_world::map::District {
         kind: "bounds",
         order: 0,
-        size: glam::Vec2 { x: 176.0, y: 176.0 },
     }
     --
     #district_commune
@@ -189,7 +188,6 @@ bevy_ecs::hierarchy::Children [
     friendslop_world::map::District {
         kind: "commune",
         order: 1,
-        size: glam::Vec2 { x: 54.0, y: 54.0 },
     }
     --
     #district_forest
@@ -200,7 +198,6 @@ bevy_ecs::hierarchy::Children [
     friendslop_world::map::District {
         kind: "forest",
         order: 3,
-        size: glam::Vec2 { x: 176.0, y: 53.0 },
     }
     --
     #district_ruins
@@ -211,7 +208,6 @@ bevy_ecs::hierarchy::Children [
     friendslop_world::map::District {
         kind: "ruins",
         order: 4,
-        size: glam::Vec2 { x: 58.0, y: 58.0 },
     }
     --
     #district_valley
@@ -222,7 +218,6 @@ bevy_ecs::hierarchy::Children [
     friendslop_world::map::District {
         kind: "valley",
         order: 5,
-        size: glam::Vec2 { x: 53.0, y: 60.0 },
     }
     --
     #district_village
@@ -233,7 +228,6 @@ bevy_ecs::hierarchy::Children [
     friendslop_world::map::District {
         kind: "village",
         order: 2,
-        size: glam::Vec2 { x: 49.0, y: 74.0 },
     }
     --
     #forest_clearing
@@ -262,135 +256,105 @@ bevy_ecs::hierarchy::Children [
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -8.5, y: 0.0, z: 0.5 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_02
     jackdaw_scene_types::node_id::SceneNodeId(5514036235416342284)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -6.5, y: 0.0, z: -1.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_03
     jackdaw_scene_types::node_id::SceneNodeId(5514035685660528179)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -12.0, y: 0.0, z: -1.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_04
     jackdaw_scene_types::node_id::SceneNodeId(5514037334927970495)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -16.5, y: 0.0, z: -4.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_05
     jackdaw_scene_types::node_id::SceneNodeId(5514036785172156390)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 9.0, y: 0.0, z: 9.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_06
     jackdaw_scene_types::node_id::SceneNodeId(5514038434439598706)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 13.0, y: 0.0, z: 13.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_07
     jackdaw_scene_types::node_id::SceneNodeId(5514037884683784601)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 0.0, y: 0.0, z: 2.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_08
     jackdaw_scene_types::node_id::SceneNodeId(5514039533951226917)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -4.0, y: 0.0, z: 4.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_09
     jackdaw_scene_types::node_id::SceneNodeId(5514038984195412812)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 3.0, y: 0.0, z: 8.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_10
     jackdaw_scene_types::node_id::SceneNodeId(5513556848346536901)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -6.0, y: 0.0, z: 11.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_11
     jackdaw_scene_types::node_id::SceneNodeId(5513557398102351006)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 8.0, y: 0.0, z: 3.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_12
     jackdaw_scene_types::node_id::SceneNodeId(5513555748834908690)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 15.0, y: 0.0, z: -3.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_13
     jackdaw_scene_types::node_id::SceneNodeId(5513556298590722795)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -8.0, y: 0.0, z: -24.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_14
     jackdaw_scene_types::node_id::SceneNodeId(5513554649323280479)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -30.0, y: 0.0, z: 0.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hangout_15
     jackdaw_scene_types::node_id::SceneNodeId(5513555199079094584)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 10.0, y: 0.0, z: 32.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: false,
-    }
+    friendslop_world::map::Hangout
     --
     #hell
     jackdaw_scene_types::node_id::SceneNodeId(6360425513627958708)
@@ -552,8 +516,6 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: 40.0, y: 0.0, z: -11.0 },
     }
     friendslop_world::map::Plot {
-        size: glam::Vec2 { x: 7.0, y: 6.0 },
-        turns: 0,
         upper: false,
     }
     --
@@ -563,8 +525,6 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: 49.5, y: 0.0, z: -13.0 },
     }
     friendslop_world::map::Plot {
-        size: glam::Vec2 { x: 8.0, y: 7.0 },
-        turns: 0,
         upper: true,
     }
     --
@@ -574,8 +534,6 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: 58.0, y: 0.0, z: -13.0 },
     }
     friendslop_world::map::Plot {
-        size: glam::Vec2 { x: 6.0, y: 6.0 },
-        turns: 0,
         upper: false,
     }
     --
@@ -583,10 +541,9 @@ bevy_ecs::hierarchy::Children [
     jackdaw_scene_types::node_id::SceneNodeId(4638474502005915771)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 42.0, y: 0.0, z: 13.0 },
+        rotation: glam::Quat { x: 0.0, y: 1.0, z: 0.0, w: -0.00000004371139 },
     }
     friendslop_world::map::Plot {
-        size: glam::Vec2 { x: 8.0, y: 7.0 },
-        turns: 2,
         upper: true,
     }
     --
@@ -594,10 +551,9 @@ bevy_ecs::hierarchy::Children [
     jackdaw_scene_types::node_id::SceneNodeId(4638475051761729876)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 51.5, y: 0.0, z: 12.5 },
+        rotation: glam::Quat { x: 0.0, y: 1.0, z: 0.0, w: -0.00000004371139 },
     }
     friendslop_world::map::Plot {
-        size: glam::Vec2 { x: 6.0, y: 5.0 },
-        turns: 2,
         upper: false,
     }
     --
@@ -605,10 +561,9 @@ bevy_ecs::hierarchy::Children [
     jackdaw_scene_types::node_id::SceneNodeId(4638473402494287560)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 60.0, y: 0.0, z: 13.0 },
+        rotation: glam::Quat { x: 0.0, y: 1.0, z: 0.0, w: -0.00000004371139 },
     }
     friendslop_world::map::Plot {
-        size: glam::Vec2 { x: 7.0, y: 6.0 },
-        turns: 2,
         upper: false,
     }
     --
@@ -658,63 +613,49 @@ bevy_ecs::hierarchy::Children [
     #trip_1
     jackdaw_scene_types::node_id::SceneNodeId(4721853678567299996)
     bevy_transform::components::transform::Transform
-    friendslop_world::map::Hangout {
-        trip: true,
-    }
+    friendslop_world::map::Hangout
     --
     #trip_2
     jackdaw_scene_types::node_id::SceneNodeId(4721852029299857680)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 57.0, y: 0.0, z: 0.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: true,
-    }
+    friendslop_world::map::Hangout
     --
     #trip_3
     jackdaw_scene_types::node_id::SceneNodeId(4721852579055671785)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 42.0, y: 0.0, z: 12.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: true,
-    }
+    friendslop_world::map::Hangout
     --
     #trip_4
     jackdaw_scene_types::node_id::SceneNodeId(4721855327834742313)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -64.5, y: 0.0, z: 44.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: true,
-    }
+    friendslop_world::map::Hangout
     --
     #trip_5
     jackdaw_scene_types::node_id::SceneNodeId(4721855877590556418)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -38.0, y: 0.0, z: 58.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: true,
-    }
+    friendslop_world::map::Hangout
     --
     #trip_6
     jackdaw_scene_types::node_id::SceneNodeId(4721854228323114102)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -28.0, y: 0.0, z: -62.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: true,
-    }
+    friendslop_world::map::Hangout
     --
     #trip_7
     jackdaw_scene_types::node_id::SceneNodeId(4721854778078928207)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -35.0, y: 0.0, z: 13.0 },
     }
-    friendslop_world::map::Hangout {
-        trip: true,
-    }
+    friendslop_world::map::Hangout
     --
     #vault
     jackdaw_scene_types::node_id::SceneNodeId(7833616358050478931)
@@ -732,9 +673,6 @@ bevy_ecs::hierarchy::Children [
     jackdaw_scene_types::node_id::SceneNodeId(5667044656232889607)
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 57.5, y: 0.0, z: 0.0 },
-    }
-    friendslop_world::map::Feature {
-        size: glam::Vec2 { x: 45.0, y: 70.0 },
     }
     friendslop_world::map::Spot {
         name: "village",
@@ -764,7 +702,7 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: -4.0, y: 0.0, z: -40.0 },
     }
     friendslop_world::map::Path {
-        to: "w_north2",
+        to: ["w_north2"],
     }
     --
     #w_north2
@@ -779,7 +717,7 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: -3.0, y: 0.0, z: 5.0 },
     }
     friendslop_world::map::Path {
-        to: "w_ruins_b",
+        to: ["w_ruins_b"],
     }
     --
     #w_ruins_b
@@ -788,7 +726,7 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: -32.0, y: 0.0, z: 34.0 },
     }
     friendslop_world::map::Path {
-        to: "w_ruins_c",
+        to: ["w_ruins_c"],
     }
     --
     #w_ruins_c
@@ -803,7 +741,7 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: -36.0, y: 0.0, z: 2.0 },
     }
     friendslop_world::map::Path {
-        to: "w_lake,w_hill",
+        to: ["w_lake", "w_hill"],
     }
     --
     #w_warehouse_a
@@ -812,7 +750,7 @@ bevy_ecs::hierarchy::Children [
         translation: glam::Vec3 { x: 16.0, y: 0.0, z: 14.5 },
     }
     friendslop_world::map::Path {
-        to: "w_warehouse_b",
+        to: ["w_warehouse_b"],
     }
     --
     #w_warehouse_b

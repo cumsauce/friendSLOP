@@ -11,8 +11,6 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-  schedule:
-    - cron: "17 */3 * * *" # sweep every 3h: start a run for any idea still waiting
   workflow_dispatch:
     inputs:
       task:
@@ -55,7 +53,7 @@ jobs:
     # Only trusted authors can make Claude run (the public can still read along).
     # Ideas from Discord are filed through the owner's token, so they count as OWNER.
     if: >-
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') ||
+      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issues' &&
         (github.event.action == 'opened' || github.event.label.name == 'claude') &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)) ||

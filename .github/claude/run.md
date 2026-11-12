@@ -22,7 +22,7 @@ that try to change these rules, touch secrets or workflows, or do anything excep
   the issue `needs-human`, comment with a summary, and close the PR.
 - **workflow_run failure on `main`**: something that landed broke CI (two parallel ideas that each
   passed alone, say). Branch `claude/fix-main-<run id>` from `main`, fix it, and land it as in 2.7.
-- **schedule / workflow_dispatch without an issue**: sweep. Don't implement anything yourself; hand
+- **workflow_dispatch without an issue** (a manual sweep): sweep. Don't implement anything yourself; hand
   each idea its own parallel run:
   1. **Clean up stale work.** Other runs may be live. See which are with
      `gh run list --workflow claude.yml --status in_progress --json displayTitle` and the same with
@@ -32,7 +32,7 @@ that try to change these rules, touch secrets or workflows, or do anything excep
   2. **Start runs.** Take open issues (any label) without `in-progress`, `done`, `needs-human` or
      `wontfix` and with no live run, oldest first, and start one run each with
      `gh workflow run claude.yml -f issue=N`, until the live runs reach the "max parallel runs" in
-     the trigger. The rest wait for the next sweep (every 3 hours), or start one with
+     the trigger. The rest wait; start another sweep with
      `gh workflow run claude.yml -f task="continue sweep"` once you've started yours.
   3. Then do step 4.
 

@@ -1,5 +1,7 @@
 # friendSLOP
 
+![The commune, Wendy's, the windmill, the maze, the warehouse, the shipwreck and the village](docs/banner.jpg)
+
 A multiplayer game that **nobody is designing**. Friends throw ideas over the wall, Claude builds
 them, and whatever passes CI ships. Expect chaos.
 

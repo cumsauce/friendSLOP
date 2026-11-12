@@ -2628,8 +2628,7 @@ impl Composer {
         }
         let first = self.chord(m.notes[0].step as u32);
         let anchor = first.nearest_strong(fold(from));
-        for k in 0..m.n {
-            let mn = m.notes[k];
+        for &mn in m.notes.iter().take(m.n) {
             let step = mn.step as i32 + shift as i32;
             if !(0..self.steps as i32).contains(&step) {
                 continue;

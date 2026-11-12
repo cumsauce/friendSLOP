@@ -65,6 +65,12 @@ pub enum Mood {
     /// Under the commune, in the sewers and passages (#127): dub-wet minor,
     /// a bottle-flute lead and kalimba drips echoing down the tunnels.
     Underground,
+    /// Inside Wendy's (#117): a too-cheerful fast-food jingle with something
+    /// off about it: organ, doo-wah singers, vibes and bongos.
+    Wendys,
+    /// Up in Wendy's attic: the jingle gone wrong. Slow, warped minor, a
+    /// music-box vibes figure, singers far off, the clock ticking.
+    WendysAttic,
 }
 
 /// How a mood sounds on top of what it plays: the band's overall colour
@@ -100,7 +106,7 @@ impl Mood {
         table().moods.get(&self).map_or(Tone::NEUTRAL, |ms| ms.tone)
     }
 
-    pub const ALL: [Mood; 13] = [
+    pub const ALL: [Mood; 15] = [
         Mood::Menu,
         Mood::Explore,
         Mood::Village,
@@ -114,6 +120,8 @@ impl Mood {
         Mood::Landlord,
         Mood::Still,
         Mood::Underground,
+        Mood::Wendys,
+        Mood::WendysAttic,
     ];
 
     pub fn from_index(i: u8) -> Mood {
@@ -261,6 +269,13 @@ struct Style {
     /// Who answers the lead in its gaps (call and response).
     answer: Option<Inst>,
     nylon: Nylon,
+    /// Who plays the keys' comping (the electric piano unless a song says).
+    keys: Inst,
+    /// Who plays the conga part (tumbao) when the kit has congas.
+    hand: Inst,
+    /// Extra hand percussion with its own pattern (tambourine, claves,
+    /// guiro, woodblock).
+    perc: &'static [Inst],
 }
 
 // --- The score file -------------------------------------------------------
@@ -315,6 +330,16 @@ struct SongScore {
     kit: Kit,
     answer: Option<Inst>,
     nylon: NylonScore,
+    /// Optional: who comps on the keys (default EPiano; Clav, Organ...).
+    #[serde(default)]
+    keys: Option<Inst>,
+    /// Optional: who plays the conga part (default Conga; Bongo, Timbales,
+    /// Cajon, Tabla).
+    #[serde(default)]
+    hand: Option<Inst>,
+    /// Optional: extra hand percussion (Tambourine, Claves, Guiro, Woodblock).
+    #[serde(default)]
+    perc: Vec<Inst>,
 }
 
 /// The score, read at run time (see [`friendslop_data`]).
@@ -357,6 +382,9 @@ const FALLBACK: Style = Style {
     kit: KIT_NONE,
     answer: None,
     nylon: Nylon::None,
+    keys: Inst::EPiano,
+    hand: Inst::Conga,
+    perc: &[],
 };
 
 fn leak<T>(v: Vec<T>) -> &'static [T] {
@@ -418,6 +446,9 @@ fn build(score: &Score) -> Table {
                             NylonScore::Bossa => Nylon::Bossa,
                             NylonScore::Pick(at) => Nylon::Pick(leak(at.clone())),
                         },
+                        keys: s.keys.unwrap_or(Inst::EPiano),
+                        hand: s.hand.unwrap_or(Inst::Conga),
+                        perc: leak(s.perc.clone()),
                     }))
                 })
                 .collect();
@@ -1547,7 +1578,25 @@ impl Composer {
                     _ => (0, 0.0),
                 };
                 if note > 0 {
-                    Self::push(bar, hit(at + jitter / 2, Inst::Conga, note, v * soft));
+                    let (inst, note) = hand_note(s.hand, note);
+                    Self::push(bar, hit(at + jitter / 2, inst, note, v * soft));
+                }
+            }
+            for &inst in s.perc {
+                if i < 0.3 || kind == Section::Intro {
+                    continue;
+                }
+                if let Some(v) = perc_hit(inst, k, odd_bar) {
+                    let v = v * (0.85 + 0.3 * self.rand());
+                    let note = match inst {
+                        // Woodblock: high on the beat, low off it.
+                        Inst::Woodblock if !k.is_multiple_of(4) => 77,
+                        Inst::Woodblock => 76,
+                        Inst::Tambourine => 54,
+                        Inst::Guiro => 73,
+                        _ => 75,
+                    };
+                    Self::push(bar, hit(at + jitter, inst, note, v * soft));
                 }
             }
         }
@@ -1838,7 +1887,7 @@ impl Composer {
                     bar,
                     Ev {
                         at: base + j as u32 * strum,
-                        inst: Inst::EPiano,
+                        inst: self.style().keys,
                         note,
                         vel,
                         len,
@@ -2213,7 +2262,8 @@ impl Composer {
             return;
         }
         let (lo, hi) = match inst {
-            Inst::PolyBrass | Inst::EPiano => (60, 76),
+            Inst::PolyBrass | Inst::EPiano | Inst::Clav | Inst::Organ => (60, 76),
+            Inst::PanFlute => (64, 84),
             Inst::Strings => (57, 74),
             // Blown bottles live lower than a flute.
             Inst::Flute => (60, 79),
@@ -2505,12 +2555,13 @@ impl Composer {
             );
             // Keys stab.
             self.ep = voice_lead(ch, &self.ep, 50, 62);
+            let keys = self.style().keys;
             for &n in &{ self.ep } {
                 Self::push(
                     bar,
                     Ev {
                         at,
-                        inst: Inst::EPiano,
+                        inst: keys,
                         note: n,
                         vel: 0.9,
                         len,
@@ -3162,6 +3213,65 @@ fn hit(at: u32, inst: Inst, note: u8, vel: f32) -> Ev {
         vel,
         len: 0,
         glide: false,
+    }
+}
+
+/// The conga part's (note, instrument) on another hand drum: the tumbao's
+/// low "l", open "o"/slap "S" and heel-toe "h"/"t" land on that drum's
+/// low and high heads.
+fn hand_note(hand: Inst, conga: u8) -> (Inst, u8) {
+    let high = conga >= 58;
+    let slap = conga >= 64;
+    let note = match hand {
+        Inst::Bongo => {
+            if slap {
+                72
+            } else {
+                67
+            }
+        }
+        Inst::Timbales => {
+            if high {
+                65
+            } else {
+                60
+            }
+        }
+        Inst::Cajon => {
+            if slap {
+                38
+            } else {
+                36
+            }
+        }
+        Inst::Tabla => {
+            if high {
+                64
+            } else {
+                41
+            }
+        }
+        _ => return (Inst::Conga, conga),
+    };
+    (hand, note)
+}
+
+/// Extra hand percussion: velocity for 16th step `st` (of a 4/4 bar), if it
+/// plays there. Tambourine on the backbeat with 8th shakes, claves in a 3-2
+/// son clave over two bars, guiro long-short scrapes, woodblock on the 8ths.
+fn perc_hit(inst: Inst, st: usize, odd_bar: bool) -> Option<f32> {
+    let pat: &[u8] = match inst {
+        Inst::Tambourine => b"..o.X.o...o.X.o.",
+        Inst::Claves if odd_bar => b"....X...X.......",
+        Inst::Claves => b"X..X...X........",
+        Inst::Guiro => b"X.o.....X.o.....",
+        Inst::Woodblock => b"o.o.o.o.o.o.o.oX",
+        _ => return None,
+    };
+    match pat.get(st % 16) {
+        Some(b'X') => Some(0.85),
+        Some(b'o') => Some(0.45),
+        _ => None,
     }
 }
 

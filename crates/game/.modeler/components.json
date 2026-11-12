@@ -54,6 +54,14 @@
         "radius": "f32"
       },
       "doc": "Keep trees, bushes and rocks this far from here."
+    },
+    "Block": {
+      "type": "friendslop_world::map::Block",
+      "fields": {
+        "round": "bool",
+        "on": "ref"
+      },
+      "doc": "A static collider filling the marker's box (round: an upright cylinder, its size x the diameter), its y above the ground; on: stand on that entity's ground instead of its own (a crane on a slope)."
     }
   }
 }

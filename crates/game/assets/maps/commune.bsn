@@ -53,6 +53,43 @@ bevy_ecs::hierarchy::Children [
         name: "bonfire",
     }
     --
+    #castle_arch
+    jackdaw_scene_types::node_id::SceneNodeId(422793469382606751)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -34.0, y: 0.0, z: 58.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/zn-castle-arch.gltf",
+        scene_index: 0,
+    }
+    --
+    #castle_arch_n
+    jackdaw_scene_types::node_id::SceneNodeId(1109991390767934021)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -34.0, y: 4.0, z: 55.8 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #castle_arch_s
+    jackdaw_scene_types::node_id::SceneNodeId(1109994139547004548)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -34.0, y: 4.0, z: 60.2 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #castle_arch_top
+    jackdaw_scene_types::node_id::SceneNodeId(7693130378783638413)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -34.0, y: 7.2, z: 58.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
     #centre
     jackdaw_scene_types::node_id::SceneNodeId(4016473775262928528)
     bevy_transform::components::transform::Transform
@@ -64,6 +101,26 @@ bevy_ecs::hierarchy::Children [
     }
     friendslop_world::map::Spot {
         name: "centre",
+    }
+    --
+    #chopping_stump
+    jackdaw_scene_types::node_id::SceneNodeId(3649928874681048643)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -24.5, y: 0.0, z: -58.5 },
+        scale: glam::Vec3 { x: 1.0, y: 1.4, z: 1.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/zn-stump.gltf",
+        scene_index: 0,
+    }
+    --
+    #chopping_stump_block
+    jackdaw_scene_types::node_id::SceneNodeId(3721055240556254314)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -24.5, y: 0.35, z: -58.5 },
+    }
+    friendslop_world::map::Block {
+        round: true,
     }
     --
     #clear_01
@@ -361,6 +418,11 @@ bevy_ecs::hierarchy::Children [
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: -60.0, y: 0.0, z: -60.0 },
     }
+    friendslop_world::map::Feature {
+        depth: -150.0,
+        height: 26.0,
+        radius: 16.0,
+    }
     friendslop_world::map::Spot {
         name: "hell",
     }
@@ -376,6 +438,51 @@ bevy_ecs::hierarchy::Children [
     }
     friendslop_world::map::Spot {
         name: "hill",
+    }
+    --
+    #hut_back
+    jackdaw_scene_types::node_id::SceneNodeId(1062482332060510161)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -28.0, y: 1.3, z: -64.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #hut_chimney
+    jackdaw_scene_types::node_id::SceneNodeId(7254833774977377177)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -30.9, y: 2.0, z: -63.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #hut_front
+    jackdaw_scene_types::node_id::SceneNodeId(6770383526183781559)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -29.6, y: 0.9, z: -60.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #hut_left
+    jackdaw_scene_types::node_id::SceneNodeId(8234011077238590676)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -30.5, y: 1.0, z: -62.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #hut_right
+    jackdaw_scene_types::node_id::SceneNodeId(5070183978351162181)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -25.5, y: 0.7, z: -62.8 },
+    }
+    friendslop_world::map::Block {
+        round: false,
     }
     --
     #lake
@@ -411,6 +518,43 @@ bevy_ecs::hierarchy::Children [
     }
     friendslop_world::map::Spot {
         name: "lectern",
+    }
+    --
+    #log_pile
+    jackdaw_scene_types::node_id::SceneNodeId(7504847772603363570)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -32.5, y: 0.0, z: -59.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/zn-log-pile.gltf",
+        scene_index: 0,
+    }
+    --
+    #log_pile_0
+    jackdaw_scene_types::node_id::SceneNodeId(7811966131193344813)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -32.5, y: 0.3, z: -59.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #log_pile_1
+    jackdaw_scene_types::node_id::SceneNodeId(7811966680949158918)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -32.5, y: 0.8, z: -58.7 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #log_pile_2
+    jackdaw_scene_types::node_id::SceneNodeId(7811965031681716602)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -32.5, y: 1.3, z: -58.4 },
+    }
+    friendslop_world::map::Block {
+        round: false,
     }
     --
     #market
@@ -592,6 +736,36 @@ bevy_ecs::hierarchy::Children [
         name: "quarry",
     }
     --
+    #quarry_crane
+    jackdaw_scene_types::node_id::SceneNodeId(26046032608846872)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -46.0, y: 0.0, z: 62.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/zn-quarry-crane.gltf",
+        scene_index: 0,
+    }
+    --
+    #quarry_crane_n
+    jackdaw_scene_types::node_id::SceneNodeId(2312924610952793204)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -46.0, y: 3.5, z: 60.8 },
+    }
+    friendslop_world::map::Block {
+        on: "quarry_crane",
+        round: false,
+    }
+    --
+    #quarry_crane_s
+    jackdaw_scene_types::node_id::SceneNodeId(2312921862173722677)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -46.0, y: 3.5, z: 63.2 },
+    }
+    friendslop_world::map::Block {
+        on: "quarry_crane",
+        round: false,
+    }
+    --
     #ruins_tower
     jackdaw_scene_types::node_id::SceneNodeId(5568947160775803593)
     bevy_transform::components::transform::Transform {
@@ -764,6 +938,9 @@ bevy_ecs::hierarchy::Children [
     bevy_transform::components::transform::Transform {
         translation: glam::Vec3 { x: 14.0, y: 0.0, z: 41.0 },
     }
+    friendslop_world::map::Feature {
+        height: 7.5,
+    }
     friendslop_world::map::Spot {
         name: "warehouse",
     }
@@ -784,6 +961,44 @@ bevy_ecs::hierarchy::Children [
     }
     friendslop_world::map::Spot {
         name: "windmill",
+    }
+    --
+    #windmill_body
+    jackdaw_scene_types::node_id::SceneNodeId(3891393512257734295)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 5.0, z: -31.0 },
+    }
+    friendslop_world::map::Block {
+        round: true,
+    }
+    --
+    #windmill_drum
+    jackdaw_scene_types::node_id::SceneNodeId(7249306944743517697)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 1.0, z: -31.0 },
+    }
+    friendslop_world::map::Block {
+        round: true,
+    }
+    --
+    #windmill_tower
+    jackdaw_scene_types::node_id::SceneNodeId(743976704738933314)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 0.0, z: -31.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/zn-windmill.gltf",
+        scene_index: 0,
+    }
+    --
+    #woodcutter_hut
+    jackdaw_scene_types::node_id::SceneNodeId(7473355721063004381)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -28.0, y: 0.0, z: -62.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/zn-woodcutter-hut.gltf",
+        scene_index: 0,
     }
     --
     #wreck

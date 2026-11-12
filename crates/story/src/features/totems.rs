@@ -55,7 +55,10 @@ impl Magic {
 
 /// Centre of the walled vault. Its west door is Wind, its east door Frost.
 pub use friendslop_world::places::vault_at;
-const VAULT_HALF: f32 = 2.0;
+/// Half the vault's width (its spot's box on the map).
+fn vault_half() -> f32 {
+    friendslop_world::places::sizes("vault").size.x / 2.0
+}
 
 /// A totem. Lying at `at` when `holder` and `slotted` are both `None`.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -161,7 +164,10 @@ fn spawn_totems_and_doors(commands: &mut Commands) {
         Replicated,
     ));
     commands.spawn((totem(3, Magic::Fire, vault_at(), true), Replicated));
-    for (id, magic, dx) in [(1, Magic::Wind, -VAULT_HALF), (2, Magic::Frost, VAULT_HALF)] {
+    for (id, magic, dx) in [
+        (1, Magic::Wind, -vault_half()),
+        (2, Magic::Frost, vault_half()),
+    ] {
         commands.spawn((
             Door {
                 id,
@@ -347,7 +353,7 @@ pub fn plugin(app: &mut App) {
 /// modeler-made model draws them (`models/features/vault.gltf`, sources in
 /// `.modeler/`); each wall keeps its own collider.
 fn build_vault(mut commands: Commands, assets: Res<AssetServer>) {
-    let h = VAULT_HALF;
+    let h = vault_half();
     // North and south walls, then the short stubs either side of each door.
     let mut pieces = vec![
         (Vec2::new(2.0 * h + 0.3, 0.3), Vec2::new(0.0, -h)),

@@ -188,8 +188,11 @@ Rules for growing it:
   `friendslop_world::places` from the embedded scene: `Spot` (every fixed place, `<name>_at()`;
   a test checks each name in `places::PLACES`), `Feature` (a spot's sizes: pond, hill, lake,
   quarry, arena, village flat), `Path` (the ground's paths), `District` (zone boxes),
-  `Plot` (house plots), `Hangout` (villagers' spots and trips) and `Clear` (ground kept free
-  of trees and rocks). `places::layout()` holds them. No positions or sizes in code: change
+  `Plot` (house plots), `Hangout` (villagers' spots and trips), `Clear` (ground kept free
+  of trees and rocks) and `Block` (static colliders for the map's set pieces). Set pieces are
+  prefab instances on the map (snapped to the ground) with `Block` markers for their colliders,
+  read from the embedded `commune.map.json`, so collisions never wait on a model file.
+  A place's sizes are its spot's `Feature` and marker box (`places::sizes(name)`). `places::layout()` holds them. No positions or sizes in code: change
   the map in the modeler and re-export. Props the map places claim their ground.
 - **Claim ground, don't get imported.** A feature that needs clear ground calls
   `friendslop_world::footprints::claim(at, radius)` in its protocol function, and scenery and

@@ -27,6 +27,8 @@ use crate::rules::villagers::Villager;
 
 /// Catches that set the commune on you.
 pub const STRIKES_TO_ATTACK: u8 = 4;
+pub const JINGLE_RATE: u32 = 32000;
+
 /// Tuning numbers: `assets/data/village/punishment.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -36,7 +38,6 @@ pub struct Tuning {
     pub chase_speed: f32,
     /// Chasers stop this close to you (they crowd you rather than stack up).
     pub crowd_gap: f32,
-    pub jingle_rate: u32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -291,11 +292,7 @@ fn jingle_keys(
         p.jingles = (0..4)
             .map(|i| {
                 audio.add(AudioSource {
-                    bytes: wav_bytes(
-                        &jingle(tuning().jingle_rate, 0x6e7 + i * 977),
-                        tuning().jingle_rate,
-                    )
-                    .into(),
+                    bytes: wav_bytes(&jingle(JINGLE_RATE, 0x6e7 + i * 977), JINGLE_RATE).into(),
                 })
             })
             .collect();
@@ -576,8 +573,8 @@ mod tests {
 
     #[test]
     fn jingles_ring_and_differ() {
-        let a = jingle(tuning().jingle_rate, 1);
-        let b = jingle(tuning().jingle_rate, 2);
+        let a = jingle(JINGLE_RATE, 1);
+        let b = jingle(JINGLE_RATE, 2);
         assert!(a.iter().all(|x| x.is_finite() && x.abs() <= 1.0));
         assert!(a.iter().any(|x| x.abs() > 0.5));
         assert_ne!(a, b);

@@ -166,7 +166,8 @@ Rules for growing it:
   compiled in (no `include_str!`): editing it needs no rebuild, the desktop game re-reads it
   within a second, and the browser fetches it before you can host or join. Each data file gets a
   test that it parses and has every field. Keep in code only what isn't a choice: maths,
-  structure, UI layout, key bindings, offsets inside a model, generators' algorithms.
+  structure, UI layout, key bindings, offsets inside a model, generators' algorithms, sample
+  rates and buffer sizes, indices into other lists, and constants used in const contexts.
 - **Write features as pure functions plus thin systems.** Put the decisions (who gets blamed,
   what a visit gives you, where a thing stands) in plain functions that take values and
   return values, and keep the systems as wiring. They're cheap to test and can move down to a

@@ -11,29 +11,18 @@ pub const COUNT: usize = 20;
 /// Villager ids from here up are the friends (`discord_friends.rs`).
 pub const FIRST_FRIEND: u8 = 10;
 
-pub const NAMES: [&str; COUNT] = [
-    "Kevin",
-    "Brenda",
-    "Old Tom",
-    "Moss",
-    "Pip",
-    "Gwen",
-    "Barnaby",
-    "Juniper",
-    "Dot",
-    "Hank",
-    // The friends who've sent in ideas on the Discord (#159), busiest first.
-    "doomy",
-    "catherine",
-    "Freyja Moth",
-    "Kori.exe",
-    "just meat and cheese",
-    "corvy",
-    "bben",
-    "WeiYa",
-    "arseeN",
-    "hadalade",
-];
+/// Villager names by id (`data/text/villager_names.ron`).
+pub static NAMES: friendslop_data::Data<Vec<String>> =
+    friendslop_data::Data::ron("data/text/villager_names.ron");
+
+/// Villager `id`'s name.
+pub fn name(id: usize) -> String {
+    let names = NAMES.get();
+    names
+        .get(id % names.len().max(1))
+        .cloned()
+        .unwrap_or_else(|| format!("villager {id}"))
+}
 
 /// Server -> everyone: one villager. `pos` is the feet position on the floor.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -45,8 +34,8 @@ pub struct Villager {
 }
 
 impl Villager {
-    pub fn name(&self) -> &'static str {
-        NAMES[self.id as usize % COUNT]
+    pub fn name(&self) -> String {
+        name(self.id as usize)
     }
 
     /// One of the Discord friends (#159), not a commune regular.

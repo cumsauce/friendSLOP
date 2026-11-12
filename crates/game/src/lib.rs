@@ -122,5 +122,9 @@ impl Plugin for GamePlugin {
 
 /// Every data file the game reads, from every crate.
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
-    friendslop_world::data_files()
+    let mut files = friendslop_world::data_files();
+    files.extend(friendslop_base::data_files());
+    files.extend(friendslop_story::data_files());
+    files.extend(friendslop_side::data_files());
+    files
 }

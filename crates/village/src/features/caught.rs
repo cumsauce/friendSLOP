@@ -188,7 +188,7 @@ fn catch(
         let name = villagers
             .iter()
             .find(|v| v.id == catcher)
-            .map_or("a villager", |v| v.name());
+            .map_or("a villager".to_string(), |v| v.name());
         let caught_text = match accomplice {
             Some(a) => format!("{name} caught you and is carrying you off to get player {a}!"),
             None => format!("{name} caught you!"),

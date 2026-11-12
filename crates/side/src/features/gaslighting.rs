@@ -17,7 +17,7 @@ use crate::features::bear::wav_bytes;
 use crate::features::fart_sound::{FartTone, fart_samples};
 use crate::features::fps::Walker;
 use crate::features::synth_audio::RATE;
-use crate::features::villagers::{NAMES, Villager};
+use crate::features::villagers::{Villager, name};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player};
 
@@ -132,7 +132,7 @@ fn gaslight(
     if state.is_none_or(|s| *s.get() != AppState::InGame) {
         return;
     }
-    let name = NAMES[ev.villager as usize % NAMES.len()];
+    let name = name(ev.villager as usize);
     let excuse = EXCUSES[ev.villager as usize % EXCUSES.len()];
     let who = if me.is_some_and(|m| m.0 == ev.blamed) {
         "YOU".to_string()

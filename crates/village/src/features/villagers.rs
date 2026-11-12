@@ -806,14 +806,14 @@ fn mutter(
         .map(|v| (v.id, v.pos.distance(here.xz())))
         .filter(|(_, d)| *d < 8.0)
         .min_by(|a, b| a.1.total_cmp(&b.1))
-        .map(|(id, _)| NAMES[id as usize % COUNT])
+        .map(|(id, _)| name(id as usize))
     else {
         return;
     };
     let lines: Vec<&str> = MUTTERS
         .iter()
         .copied()
-        .filter(|l| l.split(':').next() == Some(speaker))
+        .filter(|l| l.split(':').next() == Some(speaker.as_str()))
         .collect();
     if !lines.is_empty()
         && let Some(mut toast) = toast

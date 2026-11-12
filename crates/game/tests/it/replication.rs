@@ -1249,7 +1249,7 @@ fn visiting_abuela_in_heaven_is_shared() {
     let heard = &client.world().resource::<Heard>().0;
     assert_eq!(heard.len(), 1);
     assert_eq!(heard[0].player, 1);
-    assert!((heard[0].line as usize) < LINES.len());
+    assert!((heard[0].line as usize) < LINES.get().len());
     step_all(&mut server, &mut [&mut client]);
     assert_eq!(
         visits(&mut client),

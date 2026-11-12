@@ -139,78 +139,16 @@ impl Task {
     }
 }
 
+#[derive(Deserialize, Clone, Debug, Default)]
 pub struct Chapter {
-    pub name: &'static str,
-    pub intro: &'static str,
-    pub tasks: &'static [Task],
+    pub name: String,
+    pub intro: String,
+    pub tasks: Vec<Task>,
 }
 
-pub const CHAPTERS: [Chapter; 5] = [
-    // #165 (WeiYa: "unify gameplay elements into one coherent game"): every
-    // place on the map is now somewhere a chapter sends you, and each intro
-    // carries one storyline from moving in to heaven.
-    Chapter {
-        name: "Moving In",
-        intro: "Your landlord has just raised the rent. Abuela waits in heaven, up the sky islands:\n\
-                climb up for her blessing, find your feet, and stand up to him.",
-        tasks: &[Task::Pack, Task::Mushroom(1), Task::Abuela, Task::Landlord],
-    },
-    Chapter {
-        name: "Rent Day",
-        intro: "He's back and the rent's gone up again. Crack the vault, test HALT's walls,\n\
-                and feed the commune from Wendy's while you're at it.",
-        tasks: &[
-            Task::VaultDoor,
-            Task::Halt(1),
-            Task::HideSeek(1),
-            Task::Burgers(3),
-            Task::Landlord,
-        ],
-    },
-    Chapter {
-        name: "The Heist",
-        intro: "The tears hold power and the Fire totem burns in the vault. Take what's yours.\n\
-                Sewer Paul runs the tunnels: buy his silence with crow eggs.",
-        tasks: &[
-            Task::FireTotem,
-            Task::Tears(3),
-            Task::Duel(1),
-            Task::Halt(1),
-            Task::Paul(1),
-            Task::Landlord,
-        ],
-    },
-    Chapter {
-        name: "General Strike",
-        intro: "The whole commune downs tools. Everyone, everything, all at once.\n\
-                Even Jegg: brave the warehouse and bring back pieces of Jegg's soul.",
-        tasks: &[
-            Task::Pack,
-            Task::Mushroom(3),
-            Task::HideSeek(2),
-            Task::Duel(2),
-            Task::Halt(2),
-            Task::Jegg(2),
-            Task::Landlord,
-        ],
-    },
-    Chapter {
-        name: "The Eviction",
-        intro: "One last time. Make Jegg whole, beat him now, and the Commune is free for good.\n\
-                Abuela is keeping the gates of heaven open for you.",
-        tasks: &[
-            Task::FireTotem,
-            // Counted over the whole campaign (the tears rained only once, #43):
-            // 3 in chapter three, then 6 more.
-            Task::Tears(9),
-            Task::HideSeek(3),
-            Task::Duel(3),
-            Task::Halt(3),
-            Task::Jegg(SOUL_PIECES as u32),
-            Task::Landlord,
-        ],
-    },
-];
+/// The chapters, in order (`data/text/campaign.ron`).
+pub static CHAPTERS: friendslop_data::Data<Vec<Chapter>> =
+    friendslop_data::Data::ron("data/text/campaign.ron");
 
 /// Server -> everyone: where the campaign stands.
 #[derive(Component, Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
@@ -224,8 +162,11 @@ pub struct Campaign {
 }
 
 impl Campaign {
-    pub fn current(&self) -> &'static Chapter {
-        &CHAPTERS[self.chapter.min(CHAPTERS.len() - 1)]
+    pub fn current(&self) -> Chapter {
+        let all = CHAPTERS.get();
+        all.get(self.chapter.min(all.len().saturating_sub(1)))
+            .cloned()
+            .unwrap_or_default()
     }
 
     pub fn waived(&self, task: Task) -> bool {
@@ -256,7 +197,8 @@ impl Campaign {
 
     /// Heaven Pass tier: every task ticked so far, across all chapters.
     pub fn tier(&self) -> usize {
-        let before: usize = CHAPTERS[..self.chapter.min(CHAPTERS.len())]
+        let all = CHAPTERS.get();
+        let before: usize = all[..self.chapter.min(all.len())]
             .iter()
             .map(|ch| ch.tasks.len())
             .sum();
@@ -265,7 +207,7 @@ impl Campaign {
 
     /// The last chapter is done: the Commune is free.
     pub fn finale(&self) -> bool {
-        self.complete() && self.chapter + 1 >= CHAPTERS.len()
+        self.complete() && self.chapter + 1 >= CHAPTERS.get().len()
     }
 
     /// Raise task progress to what's been seen; never lowers it.
@@ -284,7 +226,7 @@ impl Campaign {
 /// Tiers on the Heaven Pass (one per task in the whole campaign). The top
 /// tier is heaven.
 pub fn heaven_tiers() -> usize {
-    CHAPTERS.iter().map(|ch| ch.tasks.len()).sum()
+    CHAPTERS.get().iter().map(|ch| ch.tasks.len()).sum()
 }
 
 /// Server only: counts of things that happened this chapter (the rest is read
@@ -348,7 +290,7 @@ fn next_chapter(
     }
     for mut c in &mut campaign {
         let chapter = if c.complete() {
-            (c.chapter + 1) % CHAPTERS.len()
+            (c.chapter + 1) % CHAPTERS.get().len()
         } else {
             c.chapter
         };
@@ -482,7 +424,7 @@ pub fn checklist(c: &Campaign, landlord: Option<&str>) -> String {
     let mut s = format!(
         "CHAPTER {}/{}: {}",
         c.chapter + 1,
-        CHAPTERS.len(),
+        CHAPTERS.get().len(),
         ch.name.to_uppercase()
     );
     for (i, &t) in ch.tasks.iter().enumerate() {
@@ -526,7 +468,7 @@ pub fn goal_line(c: &Campaign) -> String {
         c.tier(),
         heaven_tiers(),
         c.chapter + 1,
-        CHAPTERS.len(),
+        CHAPTERS.get().len(),
         c.done_count(),
         c.current().tasks.len()
     )
@@ -623,11 +565,11 @@ mod tests {
 
     #[test]
     fn chapters_end_with_the_landlord_and_ask_for_more() {
-        for ch in &CHAPTERS {
+        for ch in CHAPTERS.get().iter() {
             assert_eq!(ch.tasks.last(), Some(&Task::Landlord), "{}", ch.name);
         }
         let total = |ch: &Chapter| ch.tasks.iter().map(|t| t.need()).sum::<u32>();
-        assert!(total(&CHAPTERS[4]) > total(&CHAPTERS[0]));
+        assert!(total(&CHAPTERS.get()[4]) > total(&CHAPTERS.get()[0]));
     }
 
     #[test]
@@ -655,10 +597,10 @@ mod tests {
     #[test]
     fn the_last_chapter_is_the_finale() {
         let mut c = Campaign {
-            chapter: CHAPTERS.len() - 1,
+            chapter: CHAPTERS.get().len() - 1,
             ..default()
         };
-        assert_eq!(c.tier(), heaven_tiers() - CHAPTERS[4].tasks.len());
+        assert_eq!(c.tier(), heaven_tiers() - CHAPTERS.get()[4].tasks.len());
         c.observe(|t| t.need());
         assert!(c.finale());
         assert_eq!(c.tier(), heaven_tiers(), "the top tier is heaven");

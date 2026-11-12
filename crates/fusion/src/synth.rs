@@ -1,13 +1,18 @@
 //! The band's instruments and mixer.
 //!
 //! - FM voices (DX7 style): electric piano, slap and fretless bass, a
-//!   singing FM lead, FM brass lead, a bell pad and a kalimba/marimba.
+//!   singing FM lead, FM brass lead, a bell pad, a kalimba, vibes, marimba,
+//!   steel drum, and a drawbar organ (additive sines, key click, Leslie).
 //! - Subtractive voices (band-limited saws through a swept state-variable
 //!   filter): a CS-80/GS-1 style brass section that swells in, Juno-ish
 //!   strings, and a Minimoog-style mono lead with glide.
-//! - A nylon-string guitar: plucked strings (Karplus-Strong) with a soft
-//!   thumb-and-nail pluck, two string polarisations and a body resonance.
+//! - Plucked strings (Karplus-Strong, two polarisations, a body filter):
+//!   nylon, steel and overdriven electric guitars, a clavinet through an
+//!   envelope filter, upright and slap bass.
+//! - Blown pipes (flute/bottle, pan flute) and a jazz choir (detuned saws
+//!   through "oo"-to-"ah" formants).
 //! - A sample bank: a synthesized kit and hand percussion (see `drums`),
+//!   (timbales, bongos, cajón, tabla, tambourine, güiro, claves, woodblock),
 //!   plus `foley-synth` note-block instruments (bells, chimes, xylophone,
 //!   flute, harp) rendered once and replayed at pitch.
 //! - A mixer with per-bus EQ (to keep the low mids clear), chorus on the
@@ -69,10 +74,43 @@ pub enum Inst {
     Harp,
     /// Live: a nylon-string guitar (plucked-string model).
     Guitar,
+    // Live plucked strings (the same string model, other strings and bodies).
+    /// Funk clavinet: a bright, short pluck through an envelope filter.
+    Clav,
+    /// Steel-string acoustic guitar.
+    SteelGuitar,
+    /// Overdriven electric guitar.
+    ElectricGuitar,
+    /// Upright (double) bass: a round, dead-ish pluck.
+    Upright,
+    /// Slapped bass string: a snappy pluck with a hard click.
+    SlapBass,
+    // Live FM / additive voices.
+    /// Drawbar organ with a key click and a rotating-speaker wobble.
+    Organ,
+    /// Vibraphone: soft mallet bars with motor tremolo.
+    Vibes,
+    /// Marimba: woody bars with a short ring.
+    Marimba,
+    /// Steel drum (steel pan).
+    SteelDrum,
+    // Sampled hand percussion.
+    Timbales,
+    Bongo,
+    Cajon,
+    Tabla,
+    Tambourine,
+    Guiro,
+    Claves,
+    Woodblock,
+    /// Live: a breathy pan flute that scoops into each note.
+    PanFlute,
+    /// Live: a jazz vocal group singing "doo-ah" in close harmony.
+    Choir,
 }
 
 impl Inst {
-    pub const ALL: [Inst; 30] = [
+    pub const ALL: [Inst; 49] = [
         Inst::EPiano,
         Inst::Bass,
         Inst::Fretless,
@@ -103,6 +141,25 @@ impl Inst {
         Inst::Flute,
         Inst::Harp,
         Inst::Guitar,
+        Inst::Clav,
+        Inst::SteelGuitar,
+        Inst::ElectricGuitar,
+        Inst::Upright,
+        Inst::SlapBass,
+        Inst::Organ,
+        Inst::Vibes,
+        Inst::Marimba,
+        Inst::SteelDrum,
+        Inst::Timbales,
+        Inst::Bongo,
+        Inst::Cajon,
+        Inst::Tabla,
+        Inst::Tambourine,
+        Inst::Guiro,
+        Inst::Claves,
+        Inst::Woodblock,
+        Inst::PanFlute,
+        Inst::Choir,
     ];
 }
 
@@ -125,13 +182,14 @@ impl Inst {
         use Inst::*;
         match self {
             Kick | Snare | Ghost | Hat | OpenHat | Crash | Ride | Clap | Shaker | Conga | Tom
-            | Rim | Cowbell | Swell => Bus::Drums,
-            Bass | Fretless => Bus::Bass,
-            EPiano => Bus::Keys,
-            Guitar => Bus::Guitar,
-            Lead | Brass | Flute | Mini => Bus::Lead,
-            Pad | Strings => Bus::Pad,
-            Bell | Chime | Xylo | Harp | Kalimba => Bus::Perc,
+            | Rim | Cowbell | Swell | Timbales | Bongo | Cajon | Tabla | Tambourine | Guiro
+            | Claves | Woodblock => Bus::Drums,
+            Bass | Fretless | Upright | SlapBass => Bus::Bass,
+            EPiano | Clav | Organ => Bus::Keys,
+            Guitar | SteelGuitar | ElectricGuitar => Bus::Guitar,
+            Lead | Brass | Flute | Mini | PanFlute => Bus::Lead,
+            Pad | Strings | Choir => Bus::Pad,
+            Bell | Chime | Xylo | Harp | Kalimba | Vibes | Marimba | SteelDrum => Bus::Perc,
             PolyBrass => Bus::Brass,
         }
     }
@@ -151,6 +209,30 @@ impl Inst {
                 | Inst::PolyBrass
                 | Inst::Strings
                 | Inst::Guitar
+                | Inst::Clav
+                | Inst::SteelGuitar
+                | Inst::ElectricGuitar
+                | Inst::Upright
+                | Inst::SlapBass
+                | Inst::Organ
+                | Inst::Vibes
+                | Inst::Marimba
+                | Inst::SteelDrum
+                | Inst::PanFlute
+                | Inst::Choir
+        )
+    }
+
+    /// Played by the plucked-string model.
+    fn plucked(self) -> bool {
+        matches!(
+            self,
+            Inst::Guitar
+                | Inst::Clav
+                | Inst::SteelGuitar
+                | Inst::ElectricGuitar
+                | Inst::Upright
+                | Inst::SlapBass
         )
     }
 
@@ -172,6 +254,16 @@ impl Inst {
             Bell | Chime | Xylo | Harp | Kalimba => 0.38,
             // A classical guitar in a big room.
             Guitar => 0.68,
+            SteelGuitar => 0.45,
+            ElectricGuitar => 0.22,
+            Clav | Organ => 0.15,
+            Upright | SlapBass => 0.03,
+            Vibes | SteelDrum => 0.4,
+            Marimba => 0.3,
+            PanFlute => 0.62,
+            Choir => 0.5,
+            Timbales | Bongo | Cajon | Tabla | Woodblock => 0.14,
+            Tambourine | Guiro | Claves => 0.1,
         }
     }
 
@@ -189,6 +281,11 @@ impl Inst {
             PolyBrass => 0.05,
             Clap => 0.06,
             Guitar => 0.14,
+            SteelGuitar => 0.1,
+            ElectricGuitar => 0.22,
+            Vibes | SteelDrum => 0.18,
+            PanFlute => 0.32,
+            Choir => 0.06,
             _ => 0.0,
         }
     }
@@ -208,6 +305,14 @@ impl Inst {
             Bell | Chime | Xylo => 0.4,
             Harp => -0.3,
             Flute => 0.15,
+            PanFlute => -0.12,
+            Timbales => 0.35,
+            Bongo => -0.45,
+            Tabla => -0.2,
+            Tambourine => 0.5,
+            Guiro => 0.4,
+            Claves => -0.35,
+            Woodblock => 0.3,
             _ => 0.0,
         }
     }
@@ -283,6 +388,11 @@ struct Patch {
     ks: f32,
     /// Slow drift of the brightness (fraction of the index) on held notes.
     i_lfo: f32,
+    /// Extra pure sines over the carrier, (ratio, level): organ drawbars.
+    bars: &'static [(f32, f32)],
+    /// Amplitude tremolo depth (0 = off) and rate in Hz: vibes motor, Leslie.
+    trem: f32,
+    trem_rate: f32,
 }
 
 const EP: Patch = Patch {
@@ -306,6 +416,9 @@ const EP: Patch = Patch {
     sub: 0.0,
     ks: 0.5,
     i_lfo: 0.0,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
 };
 
 const BASS: Patch = Patch {
@@ -330,6 +443,9 @@ const BASS: Patch = Patch {
     sub: 0.55,
     ks: 0.3,
     i_lfo: 0.0,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
 };
 
 const FRETLESS: Patch = Patch {
@@ -354,6 +470,9 @@ const FRETLESS: Patch = Patch {
     sub: 0.6,
     ks: 0.2,
     i_lfo: 0.0,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
 };
 
 const LEAD: Patch = Patch {
@@ -377,6 +496,9 @@ const LEAD: Patch = Patch {
     sub: 0.0,
     ks: 0.35,
     i_lfo: 0.15,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
 };
 
 const BRASS: Patch = Patch {
@@ -401,6 +523,9 @@ const BRASS: Patch = Patch {
     sub: 0.0,
     ks: 0.35,
     i_lfo: 0.12,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
 };
 
 const PAD: Patch = Patch {
@@ -424,6 +549,9 @@ const PAD: Patch = Patch {
     sub: 0.0,
     ks: 0.4,
     i_lfo: 0.45,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
 };
 
 const KALIMBA: Patch = Patch {
@@ -448,10 +576,134 @@ const KALIMBA: Patch = Patch {
     sub: 0.0,
     ks: 0.6,
     i_lfo: 0.0,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
+};
+
+const ORGAN: Patch = Patch {
+    // Drawbar organ: no FM on the carrier, just pure sines stacked at the
+    // drawbar footages (16', 8', 4', 2 2/3', 2', 1 1/3', 1'), a 7:1 key
+    // click that dies in a few ms, and a rotating speaker's wobble.
+    r1: 1.0,
+    i1_peak: 0.0,
+    i1_sus: 0.0,
+    i1_tau: 1.0,
+    r2: 7.0,
+    i2_peak: 1.6,
+    i2_tau: 0.004,
+    fb: 0.0,
+    attack: 0.004,
+    decay: 1.0,
+    sustain: 1.0,
+    release: 0.07,
+    detune: 0.0,
+    gain: 0.06,
+    vibrato: 0.002,
+    swell: false,
+    sub: 0.0,
+    ks: 0.0,
+    i_lfo: 0.0,
+    bars: &[
+        (0.5, 0.7),
+        (2.0, 0.8),
+        (3.0, 0.45),
+        (4.0, 0.4),
+        (6.0, 0.15),
+        (8.0, 0.25),
+    ],
+    trem: 0.22,
+    trem_rate: 6.3,
+};
+
+const VIBES: Patch = Patch {
+    // Vibraphone: a soft 4:1 mallet knock and a 10:1 tick over a pure,
+    // long-ringing bar, pulsed by the motor's tremolo.
+    r1: 4.0,
+    i1_peak: 0.9,
+    i1_sus: 0.0,
+    i1_tau: 0.06,
+    r2: 10.0,
+    i2_peak: 0.4,
+    i2_tau: 0.004,
+    fb: 0.0,
+    attack: 0.002,
+    decay: 2.6,
+    sustain: 0.0,
+    release: 0.6,
+    detune: 0.0,
+    gain: 0.15,
+    vibrato: 0.0,
+    swell: false,
+    sub: 0.0,
+    ks: 0.5,
+    i_lfo: 0.0,
+    bars: &[],
+    trem: 0.45,
+    trem_rate: 5.2,
+};
+
+const MARIMBA: Patch = Patch {
+    // Marimba: a woody 4:1 knock and a 10:1 click over a round
+    // fundamental that rings briefly (the resonator tube).
+    r1: 4.0,
+    i1_peak: 0.8,
+    i1_sus: 0.0,
+    i1_tau: 0.025,
+    r2: 10.0,
+    i2_peak: 0.5,
+    i2_tau: 0.003,
+    fb: 0.0,
+    attack: 0.001,
+    decay: 0.4,
+    sustain: 0.0,
+    release: 0.2,
+    detune: 0.0,
+    gain: 0.15,
+    vibrato: 0.0,
+    swell: false,
+    sub: 0.35,
+    ks: 0.5,
+    i_lfo: 0.0,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
+};
+
+const STEEL_DRUM: Patch = Patch {
+    // Steel pan: an all-harmonic 1:1 pair that blooms and fades, a
+    // slightly sharp 3:1 (the "twelfth" partial) beating against it, and a
+    // detuned second carrier for the shimmer of the hammered note.
+    r1: 1.0,
+    i1_peak: 1.5,
+    i1_sus: 0.3,
+    i1_tau: 0.15,
+    r2: 3.01,
+    i2_peak: 0.5,
+    i2_tau: 0.3,
+    fb: 0.0,
+    attack: 0.002,
+    decay: 1.1,
+    sustain: 0.0,
+    release: 0.3,
+    detune: 0.04,
+    gain: 0.12,
+    vibrato: 0.0,
+    swell: false,
+    sub: 0.0,
+    ks: 0.4,
+    i_lfo: 0.0,
+    bars: &[],
+    trem: 0.0,
+    trem_rate: 0.0,
 };
 
 fn patch(inst: Inst) -> &'static Patch {
     match inst {
+        Inst::Organ => &ORGAN,
+        Inst::Vibes => &VIBES,
+        Inst::Marimba => &MARIMBA,
+        Inst::SteelDrum => &STEEL_DRUM,
         Inst::EPiano => &EP,
         Inst::Bass => &BASS,
         Inst::Fretless => &FRETLESS,
@@ -476,6 +728,8 @@ struct FmVoice {
     pm2: f32,
     last: f32,
     lfo: f32,
+    /// Tremolo phase.
+    tph: f32,
     amp: f32,
     i1: f32,
     i2: f32,
@@ -514,6 +768,7 @@ impl FmVoice {
             pm2: 0.0,
             last: 0.0,
             lfo: 0.0,
+            tph: 0.0,
             amp: 0.0,
             i1: 0.0,
             i2: 0.0,
@@ -540,7 +795,10 @@ impl FmVoice {
         let p = patch(inst);
         let f = hz(note as f32);
         // Higher notes on a real tine piano (or a kalimba) die sooner.
-        let pitch_k = if matches!(inst, Inst::EPiano | Inst::Kalimba) {
+        let pitch_k = if matches!(
+            inst,
+            Inst::EPiano | Inst::Kalimba | Inst::Vibes | Inst::Marimba | Inst::SteelDrum
+        ) {
             (1.0 - (note as f32 - 60.0) / 60.0).clamp(0.5, 1.3)
         } else {
             1.0
@@ -620,6 +878,17 @@ impl FmVoice {
             self.drift += 0.15 * n as f32 * INV_RATE;
         }
         let isc = self.iscale * (1.0 / TAU) * (1.0 + p.i_lfo * sin_cyc(self.drift));
+        // Drawbars, leaving out any that would sound above ~15 kHz.
+        let mut bars = [(0.0f32, 0.0f32); 8];
+        let mut nb = 0;
+        for &(r, a) in p.bars.iter().take(8) {
+            if r * self.target < 15_000.0 {
+                bars[nb] = (r, a);
+                nb += 1;
+            }
+        }
+        let bars = &bars[..nb];
+        let trem_inc = p.trem_rate * INV_RATE;
         for i in 0..n {
             // Envelopes.
             if self.att_left > 0 {
@@ -679,6 +948,16 @@ impl FmVoice {
             }
             if p.sub > 0.0 {
                 s += p.sub * sin_cyc(self.pc);
+            }
+            for &(r, a) in bars {
+                s += a * sin_cyc(self.pc * r);
+            }
+            if p.trem > 0.0 {
+                self.tph += trem_inc;
+                if self.tph > 1.0 {
+                    self.tph -= 1.0;
+                }
+                s *= 1.0 - p.trem * (0.5 + 0.5 * sin_cyc(self.tph));
             }
             let s = s * self.amp * g;
             out.l[i] += s * self.gl;
@@ -1047,8 +1326,196 @@ impl SubVoice {
 
 // --- Plucked strings ------------------------------------------------------
 
-/// Longest string period in samples (E2 is ~535; this reaches ~43 Hz).
-const STRING_LEN: usize = 1024;
+/// Longest string period in samples (E1 is ~1070; this reaches ~22 Hz).
+const STRING_LEN: usize = 2048;
+
+/// How one kind of string sounds on the plucked-string model.
+#[derive(Clone, Copy, Debug)]
+struct StringPatch {
+    /// Ring time (T60, s) at 110 Hz, falling as `(110 / f)^0.4` above,
+    /// and its limits.
+    t60: f32,
+    t60_min: f32,
+    t60_max: f32,
+    /// Loss-filter pole (higher is duller), less for harder plucks
+    /// (`c_vel`) and brighter sections (`c_bright`).
+    c: f32,
+    c_vel: f32,
+    c_bright: f32,
+    /// Where on the string it's plucked (fraction from the bridge).
+    at: f32,
+    /// Nail/pick noise in the pluck, plus this much more per velocity.
+    nail: f32,
+    nail_vel: f32,
+    /// Smoothing passes over the pluck: hard notes, soft notes.
+    passes: (u32, u32),
+    /// Output low-pass (body, amp cabinet): Hz, plus per velocity and per
+    /// brightness.
+    lp: f32,
+    lp_vel: f32,
+    lp_bright: f32,
+    /// Overdrive before the cabinet (0 = clean).
+    drive: f32,
+    /// Envelope filter (clav auto-wah): sweep depth in octaves (0 = off).
+    wah: f32,
+    gain: f32,
+    release: f32,
+    /// Stereo spread by pitch (0 = centred).
+    spread: f32,
+    /// One note at a time (a bass line).
+    mono: bool,
+}
+
+const NYLON: StringPatch = StringPatch {
+    t60: 7.0,
+    t60_min: 1.8,
+    t60_max: 8.0,
+    c: 0.64,
+    c_vel: 0.12,
+    c_bright: 0.06,
+    at: 0.18,
+    nail: 0.03,
+    nail_vel: 0.07,
+    passes: (2, 3),
+    lp: 2200.0,
+    lp_vel: 2800.0,
+    lp_bright: 1200.0,
+    drive: 0.0,
+    wah: 0.0,
+    gain: 0.3,
+    release: 0.12,
+    spread: 0.4,
+    mono: false,
+};
+
+const CLAV: StringPatch = StringPatch {
+    // Struck near the end by a hammer pad: bright, short, damped the moment
+    // the key comes up, and quacking through an envelope filter.
+    t60: 1.4,
+    t60_min: 0.5,
+    t60_max: 2.0,
+    c: 0.3,
+    c_vel: 0.1,
+    c_bright: 0.08,
+    at: 0.06,
+    nail: 0.12,
+    nail_vel: 0.15,
+    passes: (1, 1),
+    lp: 5000.0,
+    lp_vel: 5000.0,
+    lp_bright: 2000.0,
+    drive: 0.0,
+    wah: 3.0,
+    gain: 0.24,
+    release: 0.025,
+    spread: 0.3,
+    mono: false,
+};
+
+const STEEL: StringPatch = StringPatch {
+    // Steel strings and a pick: long, bright and jangly.
+    t60: 9.0,
+    t60_min: 2.5,
+    t60_max: 10.0,
+    c: 0.42,
+    c_vel: 0.1,
+    c_bright: 0.06,
+    at: 0.14,
+    nail: 0.12,
+    nail_vel: 0.12,
+    passes: (1, 2),
+    lp: 4500.0,
+    lp_vel: 5000.0,
+    lp_bright: 1500.0,
+    drive: 0.0,
+    wah: 0.0,
+    gain: 0.26,
+    release: 0.15,
+    spread: 0.4,
+    mono: false,
+};
+
+const ELECTRIC: StringPatch = StringPatch {
+    // A bridge pickup into a cranked amp: overdrive, then a cabinet that
+    // cuts the fizz.
+    t60: 6.0,
+    t60_min: 2.0,
+    t60_max: 8.0,
+    c: 0.35,
+    c_vel: 0.08,
+    c_bright: 0.05,
+    at: 0.12,
+    nail: 0.1,
+    nail_vel: 0.05,
+    passes: (1, 2),
+    lp: 3400.0,
+    lp_vel: 600.0,
+    lp_bright: 800.0,
+    drive: 5.0,
+    wah: 0.0,
+    gain: 0.12,
+    release: 0.08,
+    spread: 0.25,
+    mono: false,
+};
+
+const UPRIGHT: StringPatch = StringPatch {
+    // Gut strings plucked with the side of a finger: round, woody and
+    // dying away fast.
+    t60: 2.6,
+    t60_min: 1.0,
+    t60_max: 3.5,
+    c: 0.7,
+    c_vel: 0.08,
+    c_bright: 0.04,
+    at: 0.22,
+    nail: 0.02,
+    nail_vel: 0.02,
+    passes: (3, 3),
+    lp: 900.0,
+    lp_vel: 1100.0,
+    lp_bright: 400.0,
+    drive: 0.0,
+    wah: 0.0,
+    gain: 0.55,
+    release: 0.1,
+    spread: 0.0,
+    mono: true,
+};
+
+const SLAP: StringPatch = StringPatch {
+    // A roundwound string thumped near the neck and snapping on the frets.
+    t60: 4.0,
+    t60_min: 2.0,
+    t60_max: 5.0,
+    c: 0.35,
+    c_vel: 0.1,
+    c_bright: 0.05,
+    at: 0.08,
+    nail: 0.35,
+    nail_vel: 0.25,
+    passes: (1, 1),
+    lp: 2500.0,
+    lp_vel: 5000.0,
+    lp_bright: 1500.0,
+    drive: 0.0,
+    wah: 0.0,
+    gain: 0.4,
+    release: 0.05,
+    spread: 0.0,
+    mono: true,
+};
+
+fn string_patch(inst: Inst) -> &'static StringPatch {
+    match inst {
+        Inst::Clav => &CLAV,
+        Inst::SteelGuitar => &STEEL,
+        Inst::ElectricGuitar => &ELECTRIC,
+        Inst::Upright => &UPRIGHT,
+        Inst::SlapBass => &SLAP,
+        _ => &NYLON,
+    }
+}
 
 /// One string polarisation: a delay line closed through a one-pole loss
 /// filter and a fractional-delay allpass that keeps it in tune.
@@ -1116,6 +1583,8 @@ impl StringLoop {
 #[derive(Clone, Debug)]
 struct PluckVoice {
     active: bool,
+    inst: Inst,
+    p: &'static StringPatch,
     note: u8,
     a: StringLoop,
     b: StringLoop,
@@ -1135,14 +1604,21 @@ struct PluckVoice {
     echo: f32,
     lp: [f32; 2],
     lp_a: f32,
+    /// Envelope filter: state, envelope, decay per sample, base cutoff.
+    wah: Svf,
+    wah_env: f32,
+    wah_k: f32,
+    wah_fc: f32,
 }
 
-const PLUCK_VOICES: usize = 10;
+const PLUCK_VOICES: usize = 14;
 
 impl PluckVoice {
     fn idle() -> Self {
         Self {
             active: false,
+            inst: Inst::Guitar,
+            p: &NYLON,
             note: 0,
             a: StringLoop::default(),
             b: StringLoop::default(),
@@ -1160,26 +1636,33 @@ impl PluckVoice {
             echo: 0.0,
             lp: [0.0; 2],
             lp_a: 1.0,
+            wah: Svf::default(),
+            wah_env: 0.0,
+            wah_k: 0.0,
+            wah_fc: 1000.0,
         }
     }
 
-    fn start(&mut self, note: u8, vel: f32, len: u32, bright: f32, noise: &mut u32) {
+    fn start(&mut self, inst: Inst, note: u8, vel: f32, len: u32, bright: f32, noise: &mut u32) {
+        let p = string_patch(inst);
+        self.inst = inst;
+        self.p = p;
         let vel = vel.clamp(0.05, 1.0);
         let f = hz(note as f32);
         // Low strings ring for seconds, the top of the neck much less.
-        let t60 = (7.0 * (110.0 / f).powf(0.4)).clamp(1.8, 8.0);
-        // Nylon is mellow: a well-damped loss filter, a touch brighter for
-        // harder plucks and brighter sections.
-        let c = (0.64 - 0.12 * vel - 0.06 * bright).clamp(0.45, 0.72);
+        let t60 = (p.t60 * (110.0 / f).powf(0.4)).clamp(p.t60_min, p.t60_max);
+        // The loss filter: a touch brighter for harder plucks and brighter
+        // sections (nylon is mellow, steel and clav bright).
+        let c = (p.c - p.c_vel * vel - p.c_bright * bright).clamp(0.15, p.c + 0.08);
         self.a = StringLoop::tune(f, c, t60);
         self.b = StringLoop::tune(f * 1.0002, (c + 0.1).min(0.8), t60 * 0.55);
         // The pluck: a triangle peaking where the thumb meets the string,
         // a little noise for the nail, smoothed more for soft notes.
         let n = self.a.delay.max(2);
-        let at = 0.18 + 0.04 * (note as f32 * 0.37).fract();
+        let at = p.at + 0.04 * (note as f32 * 0.37).fract();
         let peak = ((n as f32 * at) as usize).clamp(1, n - 1);
         // Flesh more than nail: a soft, round attack.
-        let nail = 0.03 + 0.07 * vel;
+        let nail = p.nail + p.nail_vel * vel;
         self.buf.fill(0.0);
         let mut mean = 0.0;
         for (k, slot) in self.buf.iter_mut().enumerate().take(n) {
@@ -1197,7 +1680,7 @@ impl PluckVoice {
             mean += x;
         }
         mean /= n as f32;
-        let passes = if vel > 0.8 { 2 } else { 3 };
+        let passes = if vel > 0.8 { p.passes.0 } else { p.passes.1 };
         for _ in 0..passes {
             let mut prev = self.buf[n - 1] - mean;
             for slot in self.buf.iter_mut().take(n) {
@@ -1219,20 +1702,25 @@ impl PluckVoice {
         lb.rotate_right(STRING_LEN - n);
         self.w = 0;
         // Lower strings sit a little left, higher ones right (a stereo mic).
-        let pan = ((note as f32 - 60.0) / 24.0).clamp(-0.4, 0.4);
+        let pan = ((note as f32 - 60.0) / 24.0).clamp(-p.spread, p.spread);
         let (pl, pr) = pan_gains(pan);
-        let g = 0.3 * dyn_gain(vel);
+        let g = p.gain * dyn_gain(vel);
         self.gl = pl * g;
         self.gr = pr * g;
-        self.send = Inst::Guitar.send();
-        self.echo = Inst::Guitar.echo();
+        self.send = inst.send();
+        self.echo = inst.echo();
         // The body and the thumb soften the top end; harder plucks open it.
-        let fc = 2200.0 + 2800.0 * vel + 1200.0 * bright;
+        let fc = (p.lp + p.lp_vel * vel + p.lp_bright * bright).min(0.4 * RATE as f32);
         self.lp_a = 1.0 - (-std::f32::consts::TAU * fc / RATE as f32).exp();
         self.lp = [0.0; 2];
+        // The auto-wah opens from just above the note, harder hits further.
+        self.wah = Svf::default();
+        self.wah_env = p.wah * (0.5 + 0.5 * vel);
+        self.wah_k = per_sample(0.09);
+        self.wah_fc = (f * 1.5).max(250.0);
         self.note = note;
         self.amp = 1.0;
-        self.k_rel = per_sample(0.12);
+        self.k_rel = per_sample(p.release);
         self.hold = len.max(RATE / 20);
         self.age = 0;
         self.releasing = false;
@@ -1248,7 +1736,15 @@ impl PluckVoice {
         let (la, lb) = self.buf.split_at_mut(STRING_LEN);
         let mut loud = 0.0f32;
         for i in 0..n {
-            let raw = self.a.tick(la, self.w) + self.b.tick(lb, self.w);
+            let mut raw = self.a.tick(la, self.w) + self.b.tick(lb, self.w);
+            if self.p.drive > 0.0 {
+                raw = (self.p.drive * raw).tanh() * (1.6 / self.p.drive.sqrt());
+            }
+            if self.p.wah > 0.0 {
+                let fc = self.wah_fc * exp2_fast(self.wah_env);
+                raw = self.wah.lp(raw, fc, 0.45);
+                self.wah_env *= self.wah_k;
+            }
             self.lp[0] += self.lp_a * (raw - self.lp[0]);
             self.lp[1] += self.lp_a * (self.lp[0] - self.lp[1]);
             let x = self.lp[1] * 1.15;
@@ -1291,6 +1787,10 @@ impl PluckVoice {
 #[derive(Clone, Copy, Debug)]
 struct BlowVoice {
     active: bool,
+    /// `Flute` (bottle/flute) or `PanFlute` (purer, airier, scoops in).
+    inst: Inst,
+    /// Breath vibrato depth.
+    vib_amt: f32,
     freq: f32,
     target: f32,
     glide: f32,
@@ -1316,12 +1816,14 @@ struct BlowVoice {
     gr: f32,
 }
 
-const BLOW_VOICES: usize = 4;
+const BLOW_VOICES: usize = 6;
 
 impl BlowVoice {
     fn idle() -> Self {
         Self {
             active: false,
+            inst: Inst::Flute,
+            vib_amt: 0.0025,
             freq: 440.0,
             target: 440.0,
             glide: 0.0,
@@ -1348,13 +1850,39 @@ impl BlowVoice {
         }
     }
 
-    fn start(&mut self, note: u8, vel: f32, len: u32, seed: u32) {
+    fn start(&mut self, inst: Inst, note: u8, vel: f32, len: u32, seed: u32) {
         let vel = vel.clamp(0.05, 1.0);
         let f = hz(note as f32);
         // 0 = bottle (low), 1 = flute (high).
         let reg = ((note as f32 - 62.0) / 20.0).clamp(0.0, 1.0);
-        let (pl, pr) = pan_gains(0.12);
+        let (pl, pr) = pan_gains(inst.pan());
         let g = 0.12 * dyn_gain(vel);
+        if inst == Inst::PanFlute {
+            // A row of stopped pipes: nearly pure, lots of air, a strong
+            // "tu" on the onset, and each note bent up into from a little
+            // flat, with a wide breath vibrato.
+            *self = Self {
+                active: true,
+                inst,
+                vib_amt: 0.0045,
+                freq: f * exp2_fast(-0.7 / 12.0),
+                target: f,
+                glide: per_sample(0.045),
+                ph: 0.0,
+                mph: 0.25,
+                att: INV_RATE / (0.03 + 0.06 * (1.0 - vel)),
+                k_rel: per_sample(0.12),
+                hold: len.max(RATE / 25),
+                chiff: 1.0,
+                noise: seed | 1,
+                air: 0.9 - 0.2 * vel,
+                vel: vel * 0.4,
+                gl: pl * g * 1.1,
+                gr: pr * g * 1.1,
+                ..Self::idle()
+            };
+            return;
+        }
         *self = Self {
             active: true,
             freq: f,
@@ -1422,7 +1950,7 @@ impl BlowVoice {
             let want_index = self.breath * peak + 0.5 * self.chiff;
             self.index += (want_index - self.index) * 0.002;
             let t = self.age as f32 * INV_RATE;
-            let vib_depth = 0.0025 * ((t - 0.35) / 0.4).clamp(0.0, 1.0);
+            let vib_depth = self.vib_amt * ((t - 0.35) / 0.4).clamp(0.0, 1.0);
             self.vib = (self.vib + 5.2 * INV_RATE).fract();
             let f = self.freq * (1.0 + vib_depth * (TAU * self.vib).sin());
             self.ph = (self.ph + f * INV_RATE).fract();
@@ -1442,10 +1970,192 @@ impl BlowVoice {
             out.l[i] += s * self.gl;
             out.r[i] += s * self.gr;
             let m = s * (self.gl + self.gr);
-            out.send[i] += m * Inst::Flute.send();
-            out.echo[i] += m * Inst::Flute.echo();
+            out.send[i] += m * self.inst.send();
+            out.echo[i] += m * self.inst.echo();
             self.age = self.age.saturating_add(1);
             g += dg;
+        }
+        if self.releasing && self.amp < 1e-4 {
+            self.active = false;
+        }
+    }
+}
+
+// --- Jazz choir ---------------------------------------------------------
+
+/// Singers per choir note (each a little out of tune with the others).
+const SINGERS: usize = 3;
+
+/// One note of a jazz vocal group: three singers (band-limited saws, the
+/// glottal buzz, each slightly detuned with its own vibrato) through three
+/// formant band-passes. The vowel opens from "oo" to "ah" as the note
+/// speaks, the "doo-ah" of close-harmony backing vocals; low notes sing
+/// with men's formants, high ones with women's. A little breath on top.
+#[derive(Clone, Copy, Debug)]
+struct ChoirVoice {
+    active: bool,
+    freq: f32,
+    ph: [f32; SINGERS],
+    vib: [f32; SINGERS],
+    det: [f32; SINGERS],
+    /// Formant band-passes (Chamberlin: band, low) per formant.
+    bp: [[f32; 2]; 3],
+    /// Source low-pass state (soft singing is darker).
+    src_lp: f32,
+    src_a: f32,
+    /// Vowel: 0 = "oo", 1 = "ah".
+    vowel: f32,
+    k_vowel: f32,
+    /// Formant scale: 1 = men, ~1.18 = women.
+    fscale: f32,
+    amp: f32,
+    att: f32,
+    k_rel: f32,
+    hold: u32,
+    age: u32,
+    releasing: bool,
+    noise: u32,
+    gl: f32,
+    gr: f32,
+}
+
+const CHOIR_VOICES: usize = 8;
+
+/// Formant centres (Hz), damping and level for "oo" and "ah".
+const OO: [(f32, f32, f32); 3] = [
+    (320.0, 0.25, 1.0),
+    (800.0, 0.14, 0.45),
+    (2300.0, 0.08, 0.12),
+];
+const AH: [(f32, f32, f32); 3] = [
+    (730.0, 0.18, 1.0),
+    (1100.0, 0.12, 0.6),
+    (2500.0, 0.08, 0.22),
+];
+
+impl ChoirVoice {
+    fn idle() -> Self {
+        Self {
+            active: false,
+            freq: 220.0,
+            ph: [0.0; SINGERS],
+            vib: [0.0; SINGERS],
+            det: [1.0; SINGERS],
+            bp: [[0.0; 2]; 3],
+            src_lp: 0.0,
+            src_a: 0.5,
+            vowel: 0.0,
+            k_vowel: 0.0,
+            fscale: 1.0,
+            amp: 0.0,
+            att: 0.0,
+            k_rel: 0.0,
+            hold: 0,
+            age: 0,
+            releasing: false,
+            noise: 0x1234_5679,
+            gl: 0.0,
+            gr: 0.0,
+        }
+    }
+
+    fn start(&mut self, note: u8, vel: f32, len: u32, pan: f32, bright: f32, seed: u32) {
+        let vel = vel.clamp(0.05, 1.0);
+        let (pl, pr) = pan_gains(pan);
+        let g = 0.11 * dyn_gain(vel);
+        let fc = 1800.0 + 2500.0 * vel + 1500.0 * bright;
+        let r = |k: u32| {
+            ((seed.wrapping_mul(2_654_435_761).rotate_left(k * 7)) as f32) / u32::MAX as f32
+        };
+        *self = Self {
+            active: true,
+            freq: hz(note as f32),
+            // Each singer a few cents off, vibrato starting out of step.
+            det: [exp2_fast(-0.08 / 12.0), 1.0, exp2_fast(0.07 / 12.0)],
+            vib: [r(1), r(2), r(3)],
+            ph: [r(4), r(5), r(6)],
+            src_a: 1.0 - (-TAU * fc * INV_RATE).exp(),
+            k_vowel: per_sample(0.12),
+            fscale: if note >= 60 { 1.18 } else { 1.0 },
+            att: INV_RATE / (0.06 + 0.08 * (1.0 - vel)),
+            k_rel: per_sample(0.3),
+            hold: len.max(RATE / 20),
+            noise: seed | 1,
+            gl: pl * g,
+            gr: pr * g,
+            ..Self::idle()
+        };
+    }
+
+    #[inline]
+    fn render(&mut self, out: Out, g0: f32, g1: f32) {
+        let n = out.l.len();
+        let dg = (g1 - g0) / n.max(1) as f32;
+        let mut g = g0;
+        let send = Inst::Choir.send();
+        let echo = Inst::Choir.echo();
+        // Formants are set once per block: the vowel moves slowly.
+        let v = self.vowel;
+        let mut fk = [(0.0f32, 0.0f32, 0.0f32); 3];
+        for (j, slot) in fk.iter_mut().enumerate() {
+            let (f0, d0, a0) = OO[j];
+            let (f1, d1, a1) = AH[j];
+            let f = (f0 + (f1 - f0) * v) * self.fscale;
+            let d = d0 + (d1 - d0) * v;
+            let a = a0 + (a1 - a0) * v;
+            // Normalise the band-pass's 1/damping peak.
+            *slot = (2.0 * (std::f32::consts::PI * f * INV_RATE).sin(), d, a * d);
+        }
+        let t = self.age as f32 * INV_RATE;
+        let vib_depth = 0.004 * ((t - 0.3) / 0.5).clamp(0.0, 1.0);
+        for i in 0..n {
+            if self.hold > 0 {
+                self.hold -= 1;
+                if self.hold == 0 {
+                    self.releasing = true;
+                }
+            }
+            if self.releasing {
+                self.amp *= self.k_rel;
+            } else if self.amp < 1.0 {
+                self.amp = (self.amp + self.att).min(1.0);
+            }
+            let mut buzz = 0.0;
+            for k in 0..SINGERS {
+                self.vib[k] = (self.vib[k] + (5.0 + 0.3 * k as f32) * INV_RATE).fract();
+                let f = self.freq * self.det[k] * (1.0 + vib_depth * sin_cyc(self.vib[k]));
+                let dt = f * INV_RATE;
+                self.ph[k] += dt;
+                if self.ph[k] >= 1.0 {
+                    self.ph[k] -= 1.0;
+                }
+                buzz += saw(self.ph[k], dt);
+            }
+            self.noise ^= self.noise << 13;
+            self.noise ^= self.noise >> 17;
+            self.noise ^= self.noise << 5;
+            let white = self.noise as f32 / u32::MAX as f32 * 2.0 - 1.0;
+            self.src_lp +=
+                self.src_a * (buzz * (1.0 / SINGERS as f32) + 0.08 * white - self.src_lp);
+            let x = self.src_lp;
+            let mut y = 0.0;
+            for (st, &(k, d, a)) in self.bp.iter_mut().zip(&fk) {
+                let hp = x - st[1] - d * st[0];
+                st[0] += k * hp;
+                st[1] += k * st[0];
+                y += a * st[0];
+            }
+            let s = y * self.amp * g * 2.2;
+            out.l[i] += s * self.gl;
+            out.r[i] += s * self.gr;
+            let m = s * (self.gl + self.gr);
+            out.send[i] += m * send;
+            out.echo[i] += m * echo;
+            g += dg;
+        }
+        self.age = self.age.saturating_add(n as u32);
+        if t > 0.04 {
+            self.vowel = 1.0 + (self.vowel - 1.0) * self.k_vowel.powi(n as i32);
         }
         if self.releasing && self.amp < 1e-4 {
             self.active = false;
@@ -1593,6 +2303,29 @@ const KIT: &[(Inst, u8, DrumGen, f32)] = &[
     (Inst::Rim, 37, drums::rim, 0.28),
     (Inst::Cowbell, 56, drums::cowbell, 0.16),
     (Inst::Swell, 57, drums::swell, 0.2),
+    (Inst::Timbales, 65, || drums::timbale(390.0), 0.32),
+    (Inst::Timbales, 60, || drums::timbale(290.0), 0.32),
+    (
+        Inst::Bongo,
+        72,
+        || drums::membrane(470.0, 0.08, 0.1, 0.55),
+        0.38,
+    ),
+    (
+        Inst::Bongo,
+        67,
+        || drums::membrane(350.0, 0.1, 0.1, 0.5),
+        0.38,
+    ),
+    (Inst::Cajon, 36, || drums::cajon(0.0), 0.45),
+    (Inst::Cajon, 38, || drums::cajon(1.0), 0.38),
+    (Inst::Tabla, 64, || drums::tabla(false), 0.3),
+    (Inst::Tabla, 41, || drums::tabla(true), 0.4),
+    (Inst::Tambourine, 54, drums::tambourine, 0.12),
+    (Inst::Guiro, 73, drums::guiro, 0.12),
+    (Inst::Claves, 75, drums::claves, 0.18),
+    (Inst::Woodblock, 76, || drums::woodblock(1100.0), 0.22),
+    (Inst::Woodblock, 77, || drums::woodblock(800.0), 0.22),
 ];
 
 /// How many [`Bank::build_step`] calls finish the bank.
@@ -1792,6 +2525,7 @@ pub struct Band {
     lead: FmVoice,
     mini: SubVoice,
     blow: [BlowVoice; BLOW_VOICES],
+    choir: [ChoirVoice; CHOIR_VOICES],
     sub: [SubVoice; SUB_VOICES],
     pluck: Vec<PluckVoice>,
     smp: [SampleVoice; SAMPLE_VOICES],
@@ -1896,6 +2630,7 @@ impl Band {
             lead: FmVoice::idle(),
             mini: SubVoice::idle(),
             blow: [BlowVoice::idle(); BLOW_VOICES],
+            choir: [ChoirVoice::idle(); CHOIR_VOICES],
             sub: [SubVoice::idle(); SUB_VOICES],
             pluck: (0..PLUCK_VOICES).map(|_| PluckVoice::idle()).collect(),
             smp: [SampleVoice {
@@ -1970,6 +2705,7 @@ impl Band {
             + usize::from(self.lead.active)
             + usize::from(self.mini.active)
             + self.blow.iter().filter(|v| v.active).count()
+            + self.choir.iter().filter(|v| v.active).count()
     }
 
     pub fn play(&mut self, ev: &Ev) {
@@ -2000,9 +2736,33 @@ impl Band {
                     self.mini.cut_mul = exp2_fast(self.bright - 0.5);
                 }
             }
-            Inst::Flute => {
+            Inst::Choir => {
+                let slot = self
+                    .choir
+                    .iter()
+                    .position(|v| !v.active)
+                    .unwrap_or_else(|| {
+                        let mut best = 0;
+                        for (i, v) in self.choir.iter().enumerate() {
+                            let s = |v: &ChoirVoice| v.amp - if v.releasing { 1.0 } else { 0.0 };
+                            if s(v) < s(&self.choir[best]) {
+                                best = i;
+                            }
+                        }
+                        best
+                    });
+                // Basses left, sopranos right, like a choir on risers.
+                let pan = ((ev.note as f32 - 62.0) / 16.0).clamp(-0.6, 0.6);
+                let seed = (self.rand() * u32::MAX as f32) as u32;
+                let bright = self.bright;
+                self.choir[slot].start(ev.note, ev.vel, ev.len, pan, bright, seed);
+            }
+            Inst::Flute | Inst::PanFlute => {
                 if ev.glide
-                    && let Some(v) = self.blow.iter_mut().find(|v| v.active && !v.releasing)
+                    && let Some(v) = self
+                        .blow
+                        .iter_mut()
+                        .find(|v| v.active && !v.releasing && v.inst == ev.inst)
                 {
                     v.glide_to(ev.note, ev.vel, ev.len, 0.06);
                     return;
@@ -2017,14 +2777,23 @@ impl Band {
                     best
                 });
                 let seed = (self.rand() * u32::MAX as f32) as u32;
-                self.blow[slot].start(ev.note, ev.vel, ev.len, seed);
+                self.blow[slot].start(ev.inst, ev.note, ev.vel, ev.len, seed);
             }
-            Inst::Guitar => {
-                // The same note again re-plucks its string.
+            inst if inst.plucked() => {
+                // The same note again re-plucks its string; a bass is one
+                // string at a time.
+                let mono = string_patch(inst).mono;
                 let slot = self
                     .pluck
                     .iter()
-                    .position(|v| v.active && v.note == ev.note)
+                    .position(|v| {
+                        v.active && v.inst == inst && (mono || v.note == ev.note) && !v.releasing
+                    })
+                    .or_else(|| {
+                        self.pluck
+                            .iter()
+                            .position(|v| v.active && v.inst == inst && v.note == ev.note)
+                    })
                     .or_else(|| self.pluck.iter().position(|v| !v.active))
                     .unwrap_or_else(|| {
                         // Steal the quietest.
@@ -2041,7 +2810,7 @@ impl Band {
                     });
                 let bright = self.bright;
                 let mut noise = self.rng;
-                self.pluck[slot].start(ev.note, ev.vel, ev.len, bright, &mut noise);
+                self.pluck[slot].start(inst, ev.note, ev.vel, ev.len, bright, &mut noise);
                 self.rng = noise | 1;
             }
             Inst::PolyBrass | Inst::Strings => {
@@ -2065,6 +2834,9 @@ impl Band {
                     Inst::EPiano => (ev.note as f32 - 62.0) / 24.0,
                     Inst::Pad => (self.rand() - 0.5) * 0.8,
                     Inst::Kalimba => 0.25 + (self.rand() - 0.5) * 0.5,
+                    // Mallets across the bars, low left to high right.
+                    Inst::Vibes | Inst::Marimba => (ev.note as f32 - 70.0) / 24.0,
+                    Inst::SteelDrum => -0.2 + (self.rand() - 0.5) * 0.4,
                     _ => 0.0,
                 };
                 self.fm[slot].start(inst, ev.note, ev.vel, ev.len, pan.clamp(-0.6, 0.6));
@@ -2141,6 +2913,10 @@ impl Band {
                 | Inst::Rim
                 | Inst::Cowbell
                 | Inst::Swell
+                | Inst::Cajon
+                | Inst::Tambourine
+                | Inst::Guiro
+                | Inst::Claves
         );
         let rate = if pitched {
             2f32.powf((ev.note as f32 - root as f32) / 12.0)
@@ -2167,7 +2943,13 @@ impl Band {
         let tone = vel.min(1.0).powf(1.5);
         let floor = match ev.inst {
             Inst::Kick => 2500.0,
-            Inst::Hat | Inst::OpenHat | Inst::Crash | Inst::Ride | Inst::Shaker => 5000.0,
+            Inst::Hat
+            | Inst::OpenHat
+            | Inst::Crash
+            | Inst::Ride
+            | Inst::Shaker
+            | Inst::Tambourine
+            | Inst::Guiro => 5000.0,
             _ => 1500.0,
         };
         let fc = (floor + (20_000.0 - floor) * tone).min(0.45 * RATE as f32);
@@ -2260,11 +3042,15 @@ impl Band {
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.pluck.iter_mut().filter(|v| v.active) {
-            let b = Bus::Guitar as usize;
+            let b = v.inst.bus() as usize;
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.blow.iter_mut().filter(|v| v.active) {
             let b = Bus::Lead as usize;
+            v.render(out!(b), g0[b], g1[b]);
+        }
+        for v in self.choir.iter_mut().filter(|v| v.active) {
+            let b = Bus::Pad as usize;
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.smp.iter_mut().filter(|v| v.active) {
@@ -2436,6 +3222,17 @@ mod tests {
             Inst::PolyBrass,
             Inst::Strings,
             Inst::Guitar,
+            Inst::Clav,
+            Inst::SteelGuitar,
+            Inst::ElectricGuitar,
+            Inst::Upright,
+            Inst::SlapBass,
+            Inst::Organ,
+            Inst::Vibes,
+            Inst::Marimba,
+            Inst::SteelDrum,
+            Inst::PanFlute,
+            Inst::Choir,
         ] {
             let mut band = Band::new(bank.clone());
             band.bus_target = [1.0; BUSES];

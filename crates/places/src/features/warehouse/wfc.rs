@@ -32,23 +32,95 @@ const SIDES: [(u8, i32, i32, u8); 4] = [
     (WEST, -1, 0, E),
 ];
 
-/// How much each tile (a 4-bit mask of open sides) is wanted: aisles and
-/// corners mostly, some junctions and dead ends, the odd blocked-up cell.
-fn weight(mask: u8) -> f32 {
-    match mask.count_ones() {
-        0 => 0.6,
-        1 => 1.6,
-        2 if mask == N | S || mask == E | WEST => 3.0,
-        2 => 2.6,
-        3 => 1.8,
-        _ => 1.0,
+/// A side of a tile piece, as the tile set names it.
+#[derive(serde::Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Side {
+    N,
+    E,
+    S,
+    W,
+}
+
+impl Side {
+    fn bit(self) -> u8 {
+        match self {
+            Side::N => N,
+            Side::E => E,
+            Side::S => S,
+            Side::W => WEST,
+        }
     }
 }
 
-/// A finished plan: the open sides of every cell, `cells[z][x]`.
+/// One piece of the tile kit: a modeler model the size of a cell, the sides
+/// it's open on as modelled, and how much each of its turns is wanted.
+#[derive(serde::Deserialize, Clone, Debug)]
+pub struct Piece {
+    /// Under `assets/models/features/`.
+    pub model: String,
+    pub open: Vec<Side>,
+    pub weight: f32,
+}
+
+/// The warehouse's tile kit (`assets/data/places/warehouse_tiles.ron`).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct TileSet {
+    pub pieces: Vec<Piece>,
+}
+
+pub static TILES: friendslop_data::Data<TileSet> =
+    friendslop_data::Data::ron("data/places/warehouse_tiles.ron");
+
+/// A piece's open sides after turning it `turns` quarter turns clockwise
+/// (seen from above: north goes east).
+pub fn turned(mask: u8, turns: u8) -> u8 {
+    (0..turns % 4).fold(mask & 15, |m, _| ((m << 1) | (m >> 3)) & 15)
+}
+
+/// Which piece fills a cell, and how far it's turned.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Placed {
+    /// Index into the tile set's pieces.
+    pub piece: u8,
+    /// Quarter turns clockwise (seen from above).
+    pub turns: u8,
+}
+
+impl Placed {
+    /// The rotation that turns the model as placed.
+    pub fn rotation(self) -> Quat {
+        Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2 * self.turns as f32)
+    }
+}
+
+/// Every distinct turn of every piece: (open mask, which piece, weight).
+fn variants(set: &TileSet) -> Vec<(u8, Placed, f32)> {
+    let mut out: Vec<(u8, Placed, f32)> = Vec::new();
+    for (i, p) in set.pieces.iter().enumerate() {
+        let mask = p.open.iter().fold(0, |m, s| m | s.bit());
+        let mut seen = Vec::new();
+        for turns in 0..4u8 {
+            let m = turned(mask, turns);
+            if seen.contains(&m) {
+                continue;
+            }
+            seen.push(m);
+            let placed = Placed {
+                piece: i as u8,
+                turns,
+            };
+            out.push((m, placed, p.weight.max(0.0)));
+        }
+    }
+    out
+}
+
+/// A finished plan: the open sides of every cell, `cells[z][x]`, and the
+/// piece that fills it (`None` in the fallback hall).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Plan {
     pub cells: [[u8; W]; H],
+    pub pieces: [[Option<Placed>; W]; H],
 }
 
 /// The seeded generator, shared with the rest of the warehouse.
@@ -62,12 +134,13 @@ fn bit_of(side: wfc::Side) -> u8 {
     SIDES[side.index()].0
 }
 
-/// The 16 tiles (index = open-side mask); a side's socket is "open?".
-fn problem() -> wfc::Wfc<bool> {
-    let tiles = (0..16u8)
-        .map(|m| wfc::Tile {
+/// The kit's pieces in every turn; a side's socket is "open?".
+fn problem(vars: &[(u8, Placed, f32)]) -> wfc::Wfc<bool> {
+    let tiles = vars
+        .iter()
+        .map(|&(m, _, weight)| wfc::Tile {
             sockets: wfc::Side::ALL.map(|s| m & bit_of(s) != 0),
-            weight: weight(m),
+            weight,
         })
         .collect();
     wfc::Wfc::new(W, H, tiles)
@@ -79,29 +152,37 @@ fn boundary(cell: wfc::Cell, side: wfc::Side, open: &bool) -> bool {
     *open == (cell == ENTRANCE && side == wfc::Side::North)
 }
 
-fn to_plan(s: &wfc::Solution) -> Plan {
+fn to_plan(s: &wfc::Solution, vars: &[(u8, Placed, f32)]) -> Plan {
     let mut cells = [[0u8; W]; H];
-    for (z, row) in cells.iter_mut().enumerate() {
-        for (x, c) in row.iter_mut().enumerate() {
-            *c = s.get((x, z)) as u8;
+    let mut pieces = [[None; W]; H];
+    for z in 0..H {
+        for x in 0..W {
+            if let Some(&(m, placed, _)) = vars.get(s.get((x, z))) {
+                cells[z][x] = m;
+                pieces[z][x] = Some(placed);
+            }
         }
     }
-    Plan { cells }
+    Plan { cells, pieces }
 }
 
 impl Plan {
     /// Generate the plan for `seed`: WFC until it's connected enough.
     pub fn generate(seed: u32) -> Plan {
         let mut rng = Rng::new(seed);
-        problem()
+        let vars = variants(&TILES.get());
+        if vars.is_empty() {
+            return Plan::fallback();
+        }
+        problem(&vars)
             .solve_until(
                 &mut rng,
                 200,
                 |a, b| a == b,
                 boundary,
-                |s| to_plan(s).reachable().len() * 10 >= W * H * 6,
+                |s| to_plan(s, &vars).reachable().len() * 10 >= W * H * 6,
             )
-            .map(|s| to_plan(&s))
+            .map(|s| to_plan(&s, &vars))
             .unwrap_or_else(Plan::fallback)
     }
 
@@ -119,7 +200,10 @@ impl Plan {
                 *c = m;
             }
         }
-        Plan { cells }
+        Plan {
+            cells,
+            pieces: [[None; W]; H],
+        }
     }
 
     pub fn open(&self, x: usize, z: usize, bit: u8) -> bool {
@@ -235,6 +319,30 @@ mod tests {
         }
         assert_ne!(Plan::generate(1), Plan::generate(2));
         consistent(&Plan::fallback());
+    }
+
+    #[test]
+    fn pieces_match_their_cells() {
+        let set = TILES.get();
+        assert!(!set.pieces.is_empty(), "the tile set loads");
+        for seed in 0..20 {
+            let plan = Plan::generate(seed);
+            for z in 0..H {
+                for x in 0..W {
+                    let Some(p) = plan.pieces[z][x] else {
+                        panic!("seed {seed}: no piece at {x},{z}");
+                    };
+                    let piece = &set.pieces[p.piece as usize];
+                    let mask = piece.open.iter().fold(0, |m, s| m | s.bit());
+                    assert_eq!(turned(mask, p.turns), plan.cells[z][x]);
+                }
+            }
+        }
+        // A quarter turn takes north to east, and the model turns the same way.
+        assert_eq!(turned(N, 1), E);
+        assert_eq!(turned(N | E, 3), N | WEST);
+        let p = Placed { piece: 0, turns: 1 };
+        assert!((p.rotation() * Vec3::NEG_Z - Vec3::X).length() < 1e-5);
     }
 
     #[test]

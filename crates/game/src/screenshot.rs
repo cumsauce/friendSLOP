@@ -15,6 +15,7 @@
 //! FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt  (lines `out.png x,y,z,lx,ly,lz`; edit and save it
 //!   while the game runs to take more pictures without restarting)
 //! FRIENDSLOP_SCREENSHOT_SCENE=busy
+//! FRIENDSLOP_SCREENSHOT_WAREHOUSE=7   (open the warehouse with floor plan 7: its inside is at y -60)
 //! # optional: window size in logical pixels (scale factor forced to 1)
 //! FRIENDSLOP_SCREENSHOT_SIZE=1920x1080
 //! ```
@@ -332,6 +333,26 @@ impl Plugin for ScreenshotPlugin {
                     .run_if(in_state(AppState::InGame))
                     .before(TransformSystems::Propagate),
             );
+        // `FRIENDSLOP_SCREENSHOT_WAREHOUSE=<seed>`: open the warehouse with
+        // that floor plan, so a shot list can look round its inside (y -60).
+        if let Some(seed) = std::env::var("FRIENDSLOP_SCREENSHOT_WAREHOUSE")
+            .ok()
+            .and_then(|s| s.parse::<u32>().ok())
+        {
+            app.add_systems(
+                Update,
+                (move |mut commands: Commands,
+                       mut wh: Query<&mut crate::features::warehouse::Warehouse>| {
+                    if let Ok(mut wh) = wh.single_mut()
+                        && wh.seed.is_none()
+                    {
+                        crate::features::warehouse::start_expedition(&mut commands, &mut wh, seed);
+                    }
+                })
+                .run_if(in_state(AppState::InGame))
+                .run_if(in_state(ServerState::Running)),
+            );
+        }
         match scene {
             Scene::Play | Scene::Chapter | Scene::Title | Scene::Loading => {}
             Scene::Clean => {

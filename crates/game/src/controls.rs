@@ -27,6 +27,7 @@ use bevy::window::PrimaryWindow;
 use crate::AppState;
 use crate::features::fps::FpsView;
 use crate::net::NetCommand;
+pub use friendslop_base::controls::*;
 
 /// Radians of look per pixel dragged on a touch screen.
 const TOUCH_LOOK: f32 = 0.006;
@@ -35,17 +36,6 @@ const PAD_LOOK: f32 = 3.2;
 /// Joystick throw in logical pixels.
 const STICK_RADIUS: f32 = 60.0;
 const DEADZONE: f32 = 0.15;
-
-/// Movement and look from touch / gamepad this frame, read by `fps.rs`.
-#[derive(Resource, Default, Debug, Clone, Copy)]
-pub struct VirtualInput {
-    /// -1..=1 each way, `y` forward.
-    pub stick: Vec2,
-    /// Radians to turn this frame (`x` yaw right, `y` pitch down).
-    pub look: Vec2,
-    pub jump: bool,
-    pub run: bool,
-}
 
 /// Set once the screen is touched: shows the touch overlay.
 #[derive(Resource, Default, Debug)]

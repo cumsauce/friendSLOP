@@ -16,7 +16,7 @@ All three tasks from the 2026-11-08 handoff are **done and merged**: #95 (z-figh
   their PR #60 closed unmerged), so `vendor/rerecast/` carries the one-line C++-parity skip fix
   via `[patch.crates-io]` — see `vendor/rerecast/README-friendSLOP.md`. Drop the vendored copy
   once upstream ships the fix. `tests/it/navmesh.rs` is the regression test.
-- **#98 — kinematic walking (bevy_ahoy port).** `crates/game/src/kcc/` carries the controller
+- **#98 — kinematic walking (bevy_ahoy port).** `crates/kcc/` carries the controller
   core ported from bevy_ahoy at pinned commit `630a4573` (MIT OR Apache-2.0, both licenses in
   the directory): walk 5 / sprint 10.5, jump ~0.9 m, step-up 0.5 m, 45° slope limit, ground
   snapping, wall sliding, all via avian's `MoveAndSlide` against the whole world — no

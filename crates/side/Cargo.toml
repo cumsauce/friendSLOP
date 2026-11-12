@@ -1,0 +1,37 @@
+[package]
+name = "friendslop-side"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "friendSLOP game layer: Standalone ideas nothing else depends on."
+
+[lib]
+doctest = false
+
+[dependencies]
+bevy.workspace = true
+bevy_replicon.workspace = true
+avian3d.workspace = true
+bevy_rerecast.workspace = true
+avian_rerecast.workspace = true
+bevy_landmass.workspace = true
+landmass_rerecast.workspace = true
+serde.workspace = true
+serde_json = "1"
+bevy_voice_chat.workspace = true
+fusion = { path = "../fusion" }
+friendslop-art = { path = "../art" }
+friendslop-core = { path = "../core" }
+friendslop-kcc = { path = "../kcc" }
+friendslop-wfc = { path = "../wfc" }
+friendslop-structures = { path = "../structures" }
+friendslop-world = { path = "../world" }
+modeler_bevy = { git = "https://github.com/cumsauce/modeler", rev = "ba0fd6ad741e26bb65f76e10e52f64b16b6c4bac" }
+friendslop-base = { path = "../base" }
+friendslop-play = { path = "../play" }
+friendslop-places = { path = "../places" }
+friendslop-village = { path = "../village" }
+friendslop-story = { path = "../story" }
+
+[lints]
+workspace = true

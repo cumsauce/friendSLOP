@@ -23,6 +23,7 @@ use crate::features::dave_commune::PARLIAMENT_AT;
 use crate::features::duel::{ARENA_CENTER, ARENA_HALF};
 use crate::features::landlord::LANDLORD_AT;
 use crate::features::totems::VAULT_AT;
+pub use friendslop_base::scenery::BONFIRE_AT;
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<KitCache>()
@@ -789,13 +790,6 @@ fn dress_floor(
         }
     }
 }
-
-/// Where the commune keeps its campfire, beside the ruins and Dave.
-pub(crate) const BONFIRE_AT: Vec3 = Vec3::new(
-    friendslop_world::places::BONFIRE_AT.x,
-    0.0,
-    friendslop_world::places::BONFIRE_AT.y,
-);
 
 #[derive(Component)]
 struct BonfireFlame;

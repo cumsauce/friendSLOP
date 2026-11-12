@@ -6,7 +6,7 @@ use bevy::prelude::*;
 
 pub mod ambience;
 pub use friendslop_art::art;
-pub mod assets;
+pub use friendslop_base::assets;
 pub mod atmosphere;
 pub use friendslop_world::buildings;
 pub mod camera;
@@ -15,46 +15,42 @@ pub mod creator;
 pub mod fault;
 pub mod features;
 pub mod footsteps;
-pub mod graphics;
-pub mod hud;
+pub use friendslop_base::graphics;
+pub use friendslop_base::hud;
 pub use friendslop_kcc as kcc;
 pub use friendslop_world::landmarks;
 pub mod loading;
 pub mod lod;
 pub mod menu;
-pub mod rigged;
+pub use friendslop_base::rigged;
 // The browser has its own iroh transport (relay-only, async), same API (#106).
 #[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
 pub mod net;
+pub use friendslop_base::people;
+pub use friendslop_base::player;
 /// `bevy_replicon_iroh`'s wire format, shared by the browser transport.
 pub use friendslop_wire as net_wire;
-pub mod people;
-pub mod player;
 pub mod scenery;
 /// Screenshot mode for Discord posts (#167); off unless `FRIENDSLOP_SCREENSHOT` is set.
 pub mod screenshot;
-pub mod settings;
-pub mod spatial;
 pub use friendslop_art::theme;
+pub use friendslop_base::settings;
+pub use friendslop_base::spatial;
+pub use friendslop_base::textures;
 pub use friendslop_world::surfaces;
 pub use friendslop_world::terrain;
-pub mod textures;
 pub mod ui;
-pub mod voice;
+pub use friendslop_base::voice;
 /// Voice chat audio through Web Audio (#166).
 #[cfg(target_arch = "wasm32")]
-pub mod voice_web;
+pub use friendslop_base::voice_web;
 #[cfg(target_arch = "wasm32")]
-pub mod web;
+pub use friendslop_base::web;
 pub mod world;
 pub mod zones;
+pub use friendslop_base::rules;
 
-/// `bevy_voice_chat`'s prelude. It is built for the browser too (#106), where
-/// it runs on Web Audio (`voice_web`, #166) with the same replicon messages
-/// as desktop peers.
-pub mod voice_chat {
-    pub use bevy_voice_chat::prelude::*;
-}
+pub use friendslop_base::voice_chat;
 
 /// Top-level flow (in `friendslop-core` so every crate can use it).
 pub use friendslop_core::AppState;

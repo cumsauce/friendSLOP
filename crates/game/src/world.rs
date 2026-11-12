@@ -7,15 +7,7 @@ use crate::AppState;
 use crate::art;
 use crate::net::NetStatus;
 use crate::player::Player;
-
-/// How often HUD text is rebuilt (5 Hz, on real time so it keeps updating
-/// while the world stands still). Formatting strings every frame is waste.
-pub const HUD_PERIOD: std::time::Duration = std::time::Duration::from_millis(200);
-
-/// Run condition for HUD update systems: true every `HUD_PERIOD`.
-pub fn hud_tick() -> impl FnMut(Res<Time<Real>>) -> bool + Clone {
-    bevy::time::common_conditions::on_real_timer(HUD_PERIOD)
-}
+pub use friendslop_base::world::*;
 
 pub struct WorldPlugin;
 
@@ -30,9 +22,6 @@ impl Plugin for WorldPlugin {
             );
     }
 }
-
-#[derive(Component)]
-pub struct MainCamera;
 
 fn spawn_world(mut commands: Commands, assets: Res<AssetServer>) {
     // Sky, sun, fog and post-processing live in `atmosphere.rs`.

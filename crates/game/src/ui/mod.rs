@@ -14,6 +14,7 @@ use bevy::window::PrimaryWindow;
 
 use crate::AppState;
 use crate::theme::indigo;
+pub use friendslop_base::ui::*;
 
 pub mod chapter;
 pub mod danger;
@@ -24,43 +25,6 @@ pub mod quest;
 pub mod settings_panel;
 pub mod status;
 pub mod team;
-
-/// The HUD's small white glyphs (`assets/ui/*.png`, exported from the Figma
-/// kit), tinted per use. A missing file just draws nothing: every glyph has
-/// text beside it that says the same thing.
-#[derive(Resource, Clone, Default)]
-pub struct Icons {
-    pub mic: Handle<Image>,
-    pub mic_slash: Handle<Image>,
-    pub tear: Handle<Image>,
-    pub gas: Handle<Image>,
-    pub cat: Handle<Image>,
-    pub warn: Handle<Image>,
-    pub target: Handle<Image>,
-    pub hand: Handle<Image>,
-}
-
-/// Text in the UI face (Nunito Bold) once it has loaded.
-#[derive(Component, Clone, Copy, Debug, Default)]
-pub struct Body;
-
-/// Text in the display face (Fredoka SemiBold, or Nunito ExtraBold when the
-/// Fredoka file is missing) once it has loaded.
-#[derive(Component, Clone, Copy, Debug, Default)]
-pub struct Head;
-
-/// UI-face text: `size` logical px, bold, in `color`.
-pub fn body(size: f32, color: Color) -> impl Bundle {
-    (
-        TextFont {
-            font_size: FontSize::Px(size),
-            weight: FontWeight(700),
-            ..default()
-        },
-        TextColor(color),
-        Body,
-    )
-}
 
 /// Display-face text: `size` logical px, semibold, in `color`.
 pub fn head(size: f32, color: Color) -> impl Bundle {
@@ -118,20 +82,6 @@ pub fn card(w: f32, h: f32, radius: f32, border: f32, fill: Color, line: Color) 
         BackgroundColor(fill),
         BorderColor::all(line),
     )
-}
-
-/// Which big overlays are up (as of the end of the last frame), so Esc and
-/// clicks go to them instead of leaving the game or the world.
-#[derive(Resource, Default, Debug, Clone, Copy)]
-pub struct Overlay {
-    pub journal: bool,
-    pub intro: bool,
-}
-
-impl Overlay {
-    pub fn any(self) -> bool {
-        self.journal || self.intro
-    }
 }
 
 /// The HUD's root: fills the screen, passes clicks through.

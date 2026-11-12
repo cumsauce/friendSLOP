@@ -14,10 +14,16 @@ env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
   RUSTFLAGS: -D warnings
+  # CI never runs a debugger: no debug info (faster links, smaller cache), and
+  # our own crates unoptimised (deps stay at opt-level 3 via package."*").
+  CARGO_PROFILE_DEV_DEBUG: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
+  CARGO_PROFILE_DEV_OPT_LEVEL: 0
 
 jobs:
-  cargo:
-    name: cargo (linux)
+  # Lint and test run side by side on their own runners.
+  lint:
+    name: lint (linux)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -31,11 +37,30 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
+          key: lint
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: fmt
         run: cargo fmt --all --check
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked
+
+  test:
+    name: test (linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: test
+          save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: test
         run: cargo test --workspace --locked
 
@@ -63,9 +88,10 @@ jobs:
   # Single required check for branch protection / auto-merge.
   ci-ok:
     if: always()
-    needs: [cargo, web]
+    needs: [lint, test, web]
     runs-on: ubuntu-latest
     steps:
       - run: |
-          [[ "${{ needs.cargo.result }}" == success ]]
+          [[ "${{ needs.lint.result }}" == success ]]
+          [[ "${{ needs.test.result }}" == success ]]
           [[ "${{ needs.web.result }}" == success ]]

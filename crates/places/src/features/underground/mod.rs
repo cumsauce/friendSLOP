@@ -266,20 +266,8 @@ fn pins() -> Vec<Room> {
     ]
 }
 
-/// Tuning numbers: `assets/data/places/underground.ron` (read at run time, edit without a rebuild).
-#[derive(serde::Deserialize, Default, Debug, Clone)]
-pub struct Tuning {
-    /// The pin index of the secret passage's end.
-    pub secret: usize,
-}
-
-pub static TUNING: friendslop_data::Data<Tuning> =
-    friendslop_data::Data::ron("data/places/underground.ron");
-
-/// The current tuning numbers.
-pub fn tuning() -> std::sync::Arc<Tuning> {
-    TUNING.get()
-}
+/// The pin index of the secret passage's end.
+pub const SECRET: usize = 4;
 
 /// The network for a tunnels sub-seed (pure, the same on every peer and the
 /// server): pinned rooms joined by sewers, with a few more chambers, loops
@@ -312,7 +300,7 @@ pub fn layout(seed: u32) -> Layout {
                 Use::Room(i) => part_of_tag(g.rooms[i].tag),
                 Use::Corridor(e) => {
                     let (a, b) = g.edges[e];
-                    if a == tuning().secret || b == tuning().secret {
+                    if a == SECRET || b == SECRET {
                         Part::Passage
                     } else {
                         Part::Sewer

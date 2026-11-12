@@ -20,12 +20,13 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::player::Player;
 
+pub const HUD_LEFT: f32 = 12.0;
+
 /// Tuning numbers: `assets/data/play/stats.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
     /// Glimbo at which the teacup appears.
     pub teacup_glimbo: u8,
-    pub hud_left: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -180,9 +181,8 @@ fn update_stats_hud(
         &Color::srgb(1.0, 0.8, 0.2),
         pelf_gold(best(&players, |s| s.pelf)),
     );
-    let left = px(tuning().hud_left
-        + 15.0
-        + wobble_px(best(&players, |s| s.wobblesome), time.elapsed_secs()));
+    let left =
+        px(HUD_LEFT + 15.0 + wobble_px(best(&players, |s| s.wobblesome), time.elapsed_secs()));
     for (mut text, mut font, mut tint, mut node) in &mut hud {
         if text.0 != want {
             text.0.clone_from(&want);

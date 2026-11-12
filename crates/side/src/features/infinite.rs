@@ -34,6 +34,13 @@ use crate::features::fps::{WalkInput, WalkSet, Walker};
 use crate::player::{LocalPlayer, Player};
 use crate::world::MainCamera;
 
+/// Height between copies, so none of them overlap.
+pub const STACK: f32 = 160.0;
+pub const HALL_SEG: f32 = 4.0;
+/// A stretch is always longer than this, so the camera snaps across the
+/// step back instead of easing (see `fps_camera`).
+pub const MIN_SEG: f32 = 3.6;
+
 /// Tuning numbers: `assets/data/side/infinite.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -41,15 +48,9 @@ pub struct Tuning {
     pub chance: f32,
     /// Seconds after getting out before it can happen to you again.
     pub cooldown: f32,
-    /// Height between copies, so none of them overlap.
-    pub stack: f32,
     /// Stretches built behind the way in, and ahead of it.
     pub behind: i32,
     pub ahead: i32,
-    pub hall_seg: f32,
-    /// A stretch is always longer than this, so the camera snaps across the
-    /// step back instead of easing (see `fps_camera`).
-    pub min_seg: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -259,14 +260,14 @@ impl Plan {
                 return i;
             }
             let (seg, width, height) = match floor {
-                Floor::Hall => (tuning().hall_seg, HALL_W, HALL_H),
-                Floor::Slope => (tuning().hall_seg, STAIR_W, STAIR_H),
-                Floor::Steps { run } => ((tuning().min_seg / run).ceil() * run, STAIR_W, STAIR_H),
+                Floor::Hall => (HALL_SEG, HALL_W, HALL_H),
+                Floor::Slope => (HALL_SEG, STAIR_W, STAIR_H),
+                Floor::Steps { run } => ((MIN_SEG / run).ceil() * run, STAIR_W, STAIR_H),
             };
             // Stacked up out of everyone's way, each centred over the map.
             let k = spaces.len() as f32;
             let middle = (tuning().ahead - tuning().behind) as f32 * seg / 2.0;
-            let origin = Vec3::new(0.0, SPACE_Y + tuning().stack * k, 0.0) - dir * middle;
+            let origin = Vec3::new(0.0, SPACE_Y + STACK * k, 0.0) - dir * middle;
             spaces.push(Space {
                 dir,
                 pitch,

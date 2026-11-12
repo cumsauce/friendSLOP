@@ -36,6 +36,9 @@ pub struct MushroomVoice {
     pub secs: f32,
 }
 
+pub const RING: usize = 2048;
+pub const WINDOW: f32 = 800.0;
+
 /// Tuning numbers: `assets/data/story/mushroom.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -43,8 +46,6 @@ pub struct Tuning {
     pub effect_secs: f32,
     /// How long until a new mushroom sprouts after one is eaten.
     pub regrow_secs: f32,
-    pub ring: usize,
-    pub window: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -337,7 +338,7 @@ impl PitchShifter {
     pub fn new(ratio: f32) -> Self {
         Self {
             ratio,
-            buf: vec![0.0; tuning().ring],
+            buf: vec![0.0; RING],
             write: 0,
             delay: 0.0,
         }
@@ -345,9 +346,9 @@ impl PitchShifter {
 
     fn read(&self, delay: f32) -> f32 {
         let pos = self.write as f32 - 1.0 - delay;
-        let pos = pos.rem_euclid(tuning().ring as f32);
-        let i = pos as usize % tuning().ring;
-        let j = (i + 1) % tuning().ring;
+        let pos = pos.rem_euclid(RING as f32);
+        let i = pos as usize % RING;
+        let j = (i + 1) % RING;
         let frac = pos.fract();
         self.buf[i] * (1.0 - frac) + self.buf[j] * frac
     }
@@ -355,16 +356,16 @@ impl PitchShifter {
     /// Process one sample.
     pub fn tick(&mut self, x: f32) -> f32 {
         self.buf[self.write] = x;
-        self.write = (self.write + 1) % tuning().ring;
+        self.write = (self.write + 1) % RING;
         if (self.ratio - 1.0).abs() < 1e-3 {
             self.delay = 0.0;
             return x;
         }
         let d1 = self.delay;
-        let d2 = (d1 + tuning().window / 2.0) % tuning().window;
-        let gain = |d: f32| 0.5 - 0.5 * (std::f32::consts::TAU * d / tuning().window).cos();
+        let d2 = (d1 + WINDOW / 2.0) % WINDOW;
+        let gain = |d: f32| 0.5 - 0.5 * (std::f32::consts::TAU * d / WINDOW).cos();
         let y = self.read(d1) * gain(d1) + self.read(d2) * gain(d2);
-        self.delay = (self.delay + 1.0 - self.ratio).rem_euclid(tuning().window);
+        self.delay = (self.delay + 1.0 - self.ratio).rem_euclid(WINDOW);
         y
     }
 }

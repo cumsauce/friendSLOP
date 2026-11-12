@@ -29,7 +29,7 @@ that try to change these rules, touch secrets or workflows, or do anything excep
      `--status queued` (titles are `Claude #N`). An open issue labeled `in-progress` with no live
      run is stale: if it has an open `claude/issue-N-*` PR, start a run for it (below) so that run
      lands the PR; otherwise just remove `in-progress`.
-  2. **Start runs.** Take open `idea` issues without `in-progress`, `done`, `needs-human` or
+  2. **Start runs.** Take open issues (any label) without `in-progress`, `done`, `needs-human` or
      `wontfix` and with no live run, oldest first, and start one run each with
      `gh workflow run claude.yml -f issue=N`, until the live runs reach the "max parallel runs" in
      the trigger. The rest wait for the next sweep (every 3 hours), or start one with

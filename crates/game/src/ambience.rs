@@ -15,7 +15,7 @@ use bevy::world_serialization::{WorldAssetRoot, WorldInstanceReady};
 
 use crate::AppState;
 use crate::rigged::{RigClip, Rigged};
-use crate::scenery::BONFIRE_AT;
+use crate::scenery::bonfire_at;
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_ambience)
@@ -251,14 +251,14 @@ fn spawn_ambience(
     }
     for _ in 0..n(SMOKE) {
         let life = rng.range(3.5, 5.5);
-        let e = spawn_particle(&mut commands, &mut rng, Kind::Smoke, BONFIRE_AT, life);
+        let e = spawn_particle(&mut commands, &mut rng, Kind::Smoke, bonfire_at(), life);
         commands
             .entity(e)
             .insert((Mesh3d(puff.clone()), MeshMaterial3d(smoke_mat.clone())));
     }
     for _ in 0..n(SPARKS) {
         let life = rng.range(0.8, 1.6);
-        let e = spawn_particle(&mut commands, &mut rng, Kind::Spark, BONFIRE_AT, life);
+        let e = spawn_particle(&mut commands, &mut rng, Kind::Spark, bonfire_at(), life);
         commands
             .entity(e)
             .insert((Mesh3d(dot.clone()), MeshMaterial3d(spark_mat.clone())));

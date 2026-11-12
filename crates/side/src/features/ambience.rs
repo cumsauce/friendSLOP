@@ -63,7 +63,7 @@ fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
     crate::spatial::loop_at(
         &mut commands,
         &sounds.fire,
-        crate::scenery::BONFIRE_AT + Vec3::Y * 0.5,
+        crate::scenery::bonfire_at() + Vec3::Y * 0.5,
         0.9,
         crate::spatial::Carry::NEARBY,
     );

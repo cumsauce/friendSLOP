@@ -214,4 +214,10 @@ pub mod scenery {
         0.0,
         friendslop_world::places::BONFIRE_AT.y,
     );
+
+    /// The campfire where the commune map puts it (else [`BONFIRE_AT`]).
+    pub fn bonfire_at() -> Vec3 {
+        let p = friendslop_world::places::bonfire();
+        Vec3::new(p.x, 0.0, p.y)
+    }
 }

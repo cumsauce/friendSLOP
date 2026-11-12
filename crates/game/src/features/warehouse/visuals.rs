@@ -6,7 +6,10 @@
 mod bathroom;
 
 use bevy::audio::{AudioSource, Volume};
+use std::f32::consts::FRAC_PI_2;
+
 use bevy::light::NotShadowCaster;
+use bevy::world_serialization::WorldInstanceReady;
 
 use super::wfc::{CELL, E, ENTRANCE, H, N, Plan, Rng, S, W, WEST, cell_centre};
 use super::*;
@@ -25,6 +28,7 @@ pub fn plugin(app: &mut App) {
         .add_observer(click)
         .add_observer(on_caught)
         .add_observer(on_delivered)
+        .add_observer(no_shadows)
         .add_systems(OnEnter(AppState::InGame), (build_outside, spawn_ui, reset))
         .add_systems(OnExit(AppState::InGame), reset)
         .add_systems(
@@ -363,6 +367,7 @@ fn build_inside(
     materials: Option<ResMut<Assets<StandardMaterial>>>,
     images: Option<ResMut<Assets<Image>>>,
     audio: Option<ResMut<Assets<AudioSource>>>,
+    assets: Option<Res<AssetServer>>,
 ) {
     let want = warehouse.iter().next().and_then(|w| w.seed);
     if built.0 == want {
@@ -400,14 +405,6 @@ fn build_inside(
     let floor = mat(&mut materials, Color::srgb(0.22, 0.22, 0.23), 0.95);
     let wall = mat(&mut materials, Color::srgb(0.3, 0.29, 0.27), 0.95);
     let stain = mat(&mut materials, Color::srgb(0.16, 0.14, 0.12), 1.0);
-    let steel = mat(&mut materials, Color::srgb(0.35, 0.3, 0.26), 0.5);
-    let shelf = mat(&mut materials, Color::srgb(0.4, 0.33, 0.24), 0.9);
-    let cardboard = [
-        mat(&mut materials, Color::srgb(0.5, 0.4, 0.27), 1.0),
-        mat(&mut materials, Color::srgb(0.42, 0.33, 0.22), 1.0),
-        mat(&mut materials, Color::srgb(0.32, 0.3, 0.28), 1.0),
-    ];
-    let tube = glow(&mut materials, Color::srgb(0.85, 0.95, 1.0), 3.0);
     let exit_sign = glow(&mut materials, Color::srgb(0.3, 1.0, 0.45), 3.0);
     let shutter = mat(&mut materials, Color::srgb(0.3, 0.3, 0.32), 0.6);
     let (gw, gh) = (W as f32 * CELL, H as f32 * CELL);
@@ -420,6 +417,31 @@ fn build_inside(
                 solid: bool| {
         let e = block(commands, &cube, m, at, size, solid);
         commands.entity(e).insert(InteriorPart);
+    };
+    // Modeler-made props (sources in `.modeler/`, prefabs `wh-*`): the
+    // boxes are unit cubes centred on their origin, scaled per instance; the
+    // three looks stand in for the three cardboard tones. A missing file just
+    // draws nothing (the colliders are separate from the models).
+    let prop = |commands: &mut Commands, file: &str, tf: Transform| -> Entity {
+        let mut e = commands.spawn((
+            tf,
+            Visibility::default(),
+            InteriorPart,
+            DespawnOnExit(AppState::InGame),
+        ));
+        if let Some(assets) = &assets {
+            e.insert(WorldAssetRoot(assets.load(
+                GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}")),
+            )));
+        }
+        e.id()
+    };
+    const BOXES: [&str; 3] = ["wh_box_a.gltf", "wh_box_b.gltf", "wh_box_c.gltf"];
+    let solid = |commands: &mut Commands, e: Entity| {
+        commands.entity(e).insert((
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+        ));
     };
     // Floor, ceiling and the outer shell.
     part(
@@ -577,20 +599,20 @@ fn build_inside(
                     let off =
                         Vec3::new((k % 2) as f32 * 2.0 - 1.0, 0.0, (k / 2) as f32 * 2.0 - 1.0)
                             * 1.1;
-                    let m = &cardboard[rng.below(3)];
-                    part(
+                    let look = BOXES[rng.below(3)];
+                    let e = prop(
                         &mut commands,
-                        m,
-                        cw + off + Vec3::Y * s / 2.0,
-                        Vec3::splat(s),
-                        true,
+                        look,
+                        Transform::from_translation(cw + off + Vec3::Y * s / 2.0)
+                            .with_rotation(Quat::from_rotation_y(k as f32 * FRAC_PI_2))
+                            .with_scale(Vec3::splat(s)),
                     );
-                    part(
+                    solid(&mut commands, e);
+                    prop(
                         &mut commands,
-                        m,
-                        cw + off + Vec3::Y * (s + 0.5),
-                        Vec3::splat(1.0),
-                        false,
+                        look,
+                        Transform::from_translation(cw + off + Vec3::Y * (s + 0.5))
+                            .with_rotation(Quat::from_rotation_y(0.3 * k as f32 - 0.45)),
                     );
                 }
                 continue;
@@ -610,19 +632,19 @@ fn build_inside(
                 if mask & bit != 0 || door || rng.roll() < 0.45 {
                     continue;
                 }
-                // A rack along this wall: uprights, three boards, some boxes.
+                // A rack along this wall (the model runs along x, origin
+                // on the floor under its middle), and some boxes on it.
                 let along = Vec3::new(dir.z.abs(), 0.0, dir.x.abs());
                 let len = CELL - 1.4;
                 let back = cw + dir * (CELL / 2.0 - 0.6);
                 let depth = dir.abs() * 0.6 + along * len;
+                let yaw = if dir.x != 0.0 { FRAC_PI_2 } else { 0.0 };
+                prop(
+                    &mut commands,
+                    "wh_rack.gltf",
+                    Transform::from_translation(back).with_rotation(Quat::from_rotation_y(yaw)),
+                );
                 for k in 0..3 {
-                    part(
-                        &mut commands,
-                        &shelf,
-                        back + Vec3::Y * (0.3 + k as f32 * 1.0),
-                        depth.with_y(0.07),
-                        false,
-                    );
                     for b in 0..3 {
                         if rng.roll() < 0.4 {
                             continue;
@@ -631,55 +653,41 @@ fn build_inside(
                         let at = back
                             + along * ((b as f32 - 1.0) * len / 3.2)
                             + Vec3::Y * (0.34 + k as f32 * 1.0 + s / 2.0);
-                        part(
+                        prop(
                             &mut commands,
-                            &cardboard[rng.below(3)],
-                            at,
-                            Vec3::splat(s),
-                            false,
+                            BOXES[rng.below(3)],
+                            Transform::from_translation(at)
+                                .with_rotation(Quat::from_rotation_y(yaw))
+                                .with_scale(Vec3::splat(s)),
                         );
                     }
                 }
-                for side in [-1.0f32, 1.0] {
-                    part(
-                        &mut commands,
-                        &steel,
-                        back + along * side * len / 2.0 + Vec3::Y * 1.3,
-                        Vec3::new(0.08, 2.6, 0.08) + dir.abs() * 0.5,
-                        false,
-                    );
-                }
                 // One collider for the whole rack.
-                let e = block(
-                    &mut commands,
-                    &cube,
-                    &shelf,
-                    back + Vec3::Y * 1.3,
-                    depth.with_y(2.6),
-                    true,
-                );
-                commands
-                    .entity(e)
-                    .insert((InteriorPart, Visibility::Hidden));
+                commands.spawn((
+                    InteriorPart,
+                    Transform::from_translation(back + Vec3::Y * 1.3).with_scale(depth.with_y(2.6)),
+                    avian3d::prelude::RigidBody::Static,
+                    avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+                    DespawnOnExit(AppState::InGame),
+                ));
             }
             if mask.count_ones() >= 2 && rng.roll() < 0.3 {
                 let at = cw + Vec3::new(rng.roll() - 0.5, 0.0, rng.roll() - 0.5) * 1.5;
-                part(
+                // The pallet model is 1.2 x 0.14 x 1.0, centred on its origin.
+                prop(
                     &mut commands,
-                    &shelf,
-                    at + Vec3::Y * 0.07,
-                    Vec3::new(1.2, 0.14, 1.0),
-                    false,
+                    "wh_pallet.gltf",
+                    Transform::from_translation(at + Vec3::Y * 0.07),
                 );
             }
             if lamps < 8 && rng.roll() < 0.22 {
                 lamps += 1;
-                part(
+                // Two glowing tubes (1.4 m, centred on the origin) under a
+                // housing, hung from the ceiling 0.3 m above.
+                prop(
                     &mut commands,
-                    &tube,
-                    cw + Vec3::Y * (INSIDE_WALL - 0.3),
-                    Vec3::new(1.4, 0.06, 0.12),
-                    false,
+                    "wh_tube.gltf",
+                    Transform::from_translation(cw + Vec3::Y * (INSIDE_WALL - 0.3)),
                 );
                 let base = 18_000.0 + rng.roll() * 10_000.0;
                 commands.spawn((
@@ -727,28 +735,41 @@ struct PieceDressed;
 #[derive(Component)]
 struct Crystal;
 
-fn crystal(
-    p: &mut ChildSpawnerCommands,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
+/// A model whose meshes cast no shadows (the glowing soul crystal).
+#[derive(Component)]
+struct NoShadows;
+
+fn no_shadows(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    marked: Query<(), With<NoShadows>>,
+    children: Query<&Children>,
+    meshes: Query<(), With<Mesh3d>>,
 ) {
-    let shine = glow(materials, Color::srgb(0.6, 0.85, 1.0), 6.0);
-    let cone = meshes.add(Cone::new(0.14, 0.3));
+    if marked.get(ready.entity).is_err() {
+        return;
+    }
+    for child in children.iter_descendants(ready.entity) {
+        if meshes.get(child).is_ok() {
+            commands.entity(child).insert(NotShadowCaster);
+        }
+    }
+}
+
+/// The soul crystal: a modeler-made glowing bipyramid (0.28 wide, 0.6 tall,
+/// centred on its origin; prefab `wh-crystal`) and its light.
+fn crystal(p: &mut ChildSpawnerCommands, assets: Option<&AssetServer>) {
     p.spawn((Crystal, Transform::default(), Visibility::default()))
         .with_children(|c| {
-            c.spawn((
-                Mesh3d(cone.clone()),
-                MeshMaterial3d(shine.clone()),
-                Transform::from_xyz(0.0, 0.15, 0.0),
-                NotShadowCaster,
-            ));
-            c.spawn((
-                Mesh3d(cone),
-                MeshMaterial3d(shine),
-                Transform::from_xyz(0.0, -0.15, 0.0)
-                    .with_rotation(Quat::from_rotation_x(std::f32::consts::PI)),
-                NotShadowCaster,
-            ));
+            if let Some(assets) = assets {
+                c.spawn((
+                    WorldAssetRoot(assets.load(
+                        GltfAssetLabel::Scene(0).from_asset("models/features/wh_crystal.gltf"),
+                    )),
+                    NoShadows,
+                    Transform::default(),
+                ));
+            }
             c.spawn((
                 PointLight {
                     color: Color::srgb(0.55, 0.8, 1.0),
@@ -764,10 +785,9 @@ fn crystal(
 fn dress_pieces(
     mut commands: Commands,
     new: Query<(Entity, &SoulPiece), Without<PieceDressed>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
+    assets: Option<Res<AssetServer>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(assets) = assets else {
         return;
     };
     for (e, piece) in &new {
@@ -781,7 +801,7 @@ fn dress_pieces(
                     .radius(60.0)
                     .labelled("take the soul piece"),
             ))
-            .with_children(|p| crystal(p, &mut meshes, &mut materials));
+            .with_children(|p| crystal(p, Some(&assets)));
     }
 }
 
@@ -839,6 +859,7 @@ fn dress_monsters(
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
     audio: Option<ResMut<Assets<AudioSource>>>,
+    assets: Option<Res<AssetServer>>,
 ) {
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
         return;
@@ -910,7 +931,7 @@ fn dress_monsters(
                     Transform::from_xyz(0.0, 0.8, 0.0),
                     Visibility::Hidden,
                 ))
-                .with_children(|d| crystal(d, &mut meshes, &mut materials));
+                .with_children(|d| crystal(d, assets.as_deref()));
             });
         // Its breathing follows it about.
         let Some(audio) = audio.as_deref_mut() else {

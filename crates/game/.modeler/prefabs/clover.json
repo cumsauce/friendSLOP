@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "clover",
   "parts": [],
-  "version": 2265,
+  "version": 17245,
   "ops": [
     {
       "revolve": {
@@ -28,7 +28,7 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 5,
+        "segments": 3,
         "translation": [
           0.0,
           0.0,
@@ -808,168 +808,6 @@
       }
     },
     {
-      "group": {
-        "name": "lobes",
-        "inputs": [
-          "lobes_2",
-          "lobes_3",
-          "lobes_4",
-          "lobes_6",
-          "lobes_7",
-          "lobes_8",
-          "lobes_10",
-          "lobes_11",
-          "lobes_12",
-          "lobes_14",
-          "lobes_15",
-          "lobes_16",
-          "lobes_18",
-          "lobes_19",
-          "lobes_20",
-          "lobes_22",
-          "lobes_23",
-          "lobes_24",
-          "lobes_26",
-          "lobes_27",
-          "lobes_28"
-        ]
-      }
-    },
-    {
-      "material": {
-        "name": "lobes",
-        "input": "lobes",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "leaf",
-          "params": {
-            "hue": 0.03,
-            "light": 1.15
-          },
-          "scale": 1.0,
-          "graph": {
-            "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
-            "nodes": [
-              {
-                "name": "p",
-                "of": "position",
-                "type": "input"
-              },
-              {
-                "coords": "p",
-                "mode": "fbm",
-                "name": "n",
-                "octaves": 4,
-                "seed": 21,
-                "size": 0.15,
-                "type": "noise"
-              },
-              {
-                "coords": "p",
-                "mode": "fbm",
-                "name": "nf",
-                "octaves": 3,
-                "seed": 22,
-                "size": 0.03,
-                "type": "noise"
-              },
-              {
-                "input": "n",
-                "name": "c0",
-                "stops": [
-                  [
-                    0.0,
-                    "#3f6b22"
-                  ],
-                  [
-                    0.5,
-                    "#5f8f2f"
-                  ],
-                  [
-                    1.0,
-                    "#8ab043"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "nf",
-                "name": "ft",
-                "to": [
-                  0.88,
-                  1.1
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "c0",
-                "b": "ft",
-                "name": "c1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "name": "ao",
-                "radius": 0.15,
-                "type": "mesh_ao"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "ao",
-                "name": "aot",
-                "to": [
-                  0.45,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "c1",
-                "b": "aot",
-                "name": "c2",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "c2",
-                "b": "$light",
-                "name": "c3",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "base_color": "c4",
-                "name": "out",
-                "roughness": 0.75,
-                "type": "output"
-              },
-              {
-                "hue": "$hue",
-                "input": "c3",
-                "name": "c4",
-                "type": "hsv"
-              }
-            ],
-            "params": {
-              "hue": 0.0,
-              "light": 1.0
-            }
-          }
-        }
-      }
-    },
-    {
       "collider": {
         "name": "col",
         "parts": [
@@ -1189,6 +1027,316 @@
         "input": "lobes_28",
         "visible": false
       }
+    },
+    {
+      "group": {
+        "name": "lobes_hi",
+        "inputs": [
+          "lobes_2",
+          "lobes_3",
+          "lobes_4",
+          "lobes_6",
+          "lobes_7",
+          "lobes_8",
+          "lobes_10",
+          "lobes_11",
+          "lobes_12",
+          "lobes_14",
+          "lobes_15",
+          "lobes_16",
+          "lobes_18",
+          "lobes_19",
+          "lobes_20",
+          "lobes_22",
+          "lobes_23",
+          "lobes_24",
+          "lobes_26",
+          "lobes_27",
+          "lobes_28"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "lobes_hi",
+        "input": "lobes_hi",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "leaf",
+          "params": {
+            "hue": 0.03,
+            "light": 1.15
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3f6b22"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#8ab043"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.88,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "ft",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "ao",
+                "radius": 0.15,
+                "type": "mesh_ao"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "ao",
+                "name": "aot",
+                "to": [
+                  0.45,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c1",
+                "b": "aot",
+                "name": "c2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c2",
+                "b": "$light",
+                "name": "c3",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c4",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              },
+              {
+                "hue": "$hue",
+                "input": "c3",
+                "name": "c4",
+                "type": "hsv"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "light": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "lobes",
+        "input": "lobes_hi",
+        "tris": 216
+      }
+    },
+    {
+      "material": {
+        "name": "lobes",
+        "input": "lobes",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "leaf",
+          "params": {
+            "hue": 0.03,
+            "light": 1.15
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3f6b22"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#8ab043"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.88,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "ft",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "ao",
+                "radius": 0.15,
+                "type": "mesh_ao"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "ao",
+                "name": "aot",
+                "to": [
+                  0.45,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c1",
+                "b": "aot",
+                "name": "c2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c2",
+                "b": "$light",
+                "name": "c3",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c4",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              },
+              {
+                "hue": "$hue",
+                "input": "c3",
+                "name": "c4",
+                "type": "hsv"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "light": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "lobes_hi",
+        "input": "lobes_hi",
+        "visible": false
+      }
     }
   ],
   "annotations": [],
@@ -1233,515 +1381,9 @@
       {
         "model": {
           "format_version": 1,
-          "name": "plant_7",
-          "parts": [],
-          "version": 2198,
-          "ops": [
-            {
-              "revolve": {
-                "name": "leaf",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.32,
-                      0.3
-                    ],
-                    [
-                      0.22,
-                      0.7
-                    ],
-                    [
-                      0.0,
-                      1.0
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_1",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  0.6191887,
-                  -0.007831321,
-                  0.006175746,
-                  0.7851789
-                ],
-                "scale": [
-                  0.25848436,
-                  0.46997154,
-                  0.031018123
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_2",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  0.58271253,
-                  0.2923662,
-                  -0.2364705,
-                  0.7204511
-                ],
-                "scale": [
-                  0.25491408,
-                  0.46348014,
-                  0.03058969
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_3",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  0.4721413,
-                  0.51294756,
-                  -0.41356027,
-                  0.5856068
-                ],
-                "scale": [
-                  0.2551937,
-                  0.46398857,
-                  0.030623246
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_4",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  0.20719701,
-                  0.728994,
-                  -0.60228074,
-                  0.250789
-                ],
-                "scale": [
-                  0.22647099,
-                  0.41176543,
-                  0.027176518
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_5",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  0.053587332,
-                  0.77708805,
-                  -0.62354034,
-                  0.066783294
-                ],
-                "scale": [
-                  0.27566305,
-                  0.50120556,
-                  0.03307957
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_6",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  -0.1807273,
-                  0.75177664,
-                  -0.5910378,
-                  -0.22987796
-                ],
-                "scale": [
-                  0.2875258,
-                  0.52277416,
-                  0.034503095
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_7",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  -0.46765697,
-                  0.5249363,
-                  -0.4384366,
-                  -0.55992156
-                ],
-                "scale": [
-                  0.26231992,
-                  0.47694534,
-                  0.031478394
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "leaves_8",
-                "input": "leaf",
-                "translation": [
-                  0.0,
-                  0.06,
-                  0.0
-                ],
-                "rotation": [
-                  -0.56673515,
-                  0.36300883,
-                  -0.3054106,
-                  -0.67361724
-                ],
-                "scale": [
-                  0.2563262,
-                  0.46604764,
-                  0.030759145
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "leaves",
-                "inputs": [
-                  "leaves_1",
-                  "leaves_2",
-                  "leaves_3",
-                  "leaves_4",
-                  "leaves_5",
-                  "leaves_6",
-                  "leaves_7",
-                  "leaves_8"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "leaves",
-                "input": "leaves",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "leaf",
-                  "params": {
-                    "hue": 0.03,
-                    "light": 1.1
-                  },
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "nf",
-                        "octaves": 3,
-                        "seed": 22,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3f6b22"
-                          ],
-                          [
-                            0.5,
-                            "#5f8f2f"
-                          ],
-                          [
-                            1.0,
-                            "#8ab043"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "ft",
-                        "to": [
-                          0.88,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "ft",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "name": "ao",
-                        "radius": 0.15,
-                        "type": "mesh_ao"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "ao",
-                        "name": "aot",
-                        "to": [
-                          0.45,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "aot",
-                        "name": "c2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c2",
-                        "b": "$light",
-                        "name": "c3",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c4",
-                        "name": "out",
-                        "roughness": 0.75,
-                        "type": "output"
-                      },
-                      {
-                        "hue": "$hue",
-                        "input": "c3",
-                        "name": "c4",
-                        "type": "hsv"
-                      }
-                    ],
-                    "params": {
-                      "hue": 0.0,
-                      "light": 1.0
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "collider": {
-                "name": "col",
-                "parts": [
-                  "*"
-                ],
-                "shape": "none",
-                "body": "static",
-                "sensor": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaf",
-                "input": "leaf",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_1",
-                "input": "leaves_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_2",
-                "input": "leaves_2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_3",
-                "input": "leaves_3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_4",
-                "input": "leaves_4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_5",
-                "input": "leaves_5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_6",
-                "input": "leaves_6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_7",
-                "input": "leaves_7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leaves_8",
-                "input": "leaves_8",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `clover`"
-      },
-      {
-        "model": {
-          "format_version": 1,
           "name": "clover",
           "parts": [],
-          "version": 2200,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": 1,
-        "children": [
-          3
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "clover",
-          "parts": [],
-          "version": 2265,
+          "version": 17234,
           "ops": [
             {
               "revolve": {
@@ -1767,7 +1409,7 @@
                   ]
                 ],
                 "degrees": 360.0,
-                "segments": 5,
+                "segments": 3,
                 "translation": [
                   0.0,
                   0.0,
@@ -2547,168 +2189,6 @@
               }
             },
             {
-              "group": {
-                "name": "lobes",
-                "inputs": [
-                  "lobes_2",
-                  "lobes_3",
-                  "lobes_4",
-                  "lobes_6",
-                  "lobes_7",
-                  "lobes_8",
-                  "lobes_10",
-                  "lobes_11",
-                  "lobes_12",
-                  "lobes_14",
-                  "lobes_15",
-                  "lobes_16",
-                  "lobes_18",
-                  "lobes_19",
-                  "lobes_20",
-                  "lobes_22",
-                  "lobes_23",
-                  "lobes_24",
-                  "lobes_26",
-                  "lobes_27",
-                  "lobes_28"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "lobes",
-                "input": "lobes",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "leaf",
-                  "params": {
-                    "hue": 0.03,
-                    "light": 1.15
-                  },
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "nf",
-                        "octaves": 3,
-                        "seed": 22,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3f6b22"
-                          ],
-                          [
-                            0.5,
-                            "#5f8f2f"
-                          ],
-                          [
-                            1.0,
-                            "#8ab043"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "ft",
-                        "to": [
-                          0.88,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "ft",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "name": "ao",
-                        "radius": 0.15,
-                        "type": "mesh_ao"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "ao",
-                        "name": "aot",
-                        "to": [
-                          0.45,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "aot",
-                        "name": "c2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c2",
-                        "b": "$light",
-                        "name": "c3",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c4",
-                        "name": "out",
-                        "roughness": 0.75,
-                        "type": "output"
-                      },
-                      {
-                        "hue": "$hue",
-                        "input": "c3",
-                        "name": "c4",
-                        "type": "hsv"
-                      }
-                    ],
-                    "params": {
-                      "hue": 0.0,
-                      "light": 1.0
-                    }
-                  }
-                }
-              }
-            },
-            {
               "collider": {
                 "name": "col",
                 "parts": [
@@ -2928,6 +2408,316 @@
                 "input": "lobes_28",
                 "visible": false
               }
+            },
+            {
+              "group": {
+                "name": "lobes_hi",
+                "inputs": [
+                  "lobes_2",
+                  "lobes_3",
+                  "lobes_4",
+                  "lobes_6",
+                  "lobes_7",
+                  "lobes_8",
+                  "lobes_10",
+                  "lobes_11",
+                  "lobes_12",
+                  "lobes_14",
+                  "lobes_15",
+                  "lobes_16",
+                  "lobes_18",
+                  "lobes_19",
+                  "lobes_20",
+                  "lobes_22",
+                  "lobes_23",
+                  "lobes_24",
+                  "lobes_26",
+                  "lobes_27",
+                  "lobes_28"
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "lobes_hi",
+                "input": "lobes_hi",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "leaf",
+                  "params": {
+                    "hue": 0.03,
+                    "light": 1.15
+                  },
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "object",
+                    "tile": 1.0,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "p",
+                        "of": "position",
+                        "type": "input"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 22,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3f6b22"
+                          ],
+                          [
+                            0.5,
+                            "#5f8f2f"
+                          ],
+                          [
+                            1.0,
+                            "#8ab043"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.88,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "ft",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "name": "ao",
+                        "radius": 0.15,
+                        "type": "mesh_ao"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "ao",
+                        "name": "aot",
+                        "to": [
+                          0.45,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c1",
+                        "b": "aot",
+                        "name": "c2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "c2",
+                        "b": "$light",
+                        "name": "c3",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "c4",
+                        "name": "out",
+                        "roughness": 0.75,
+                        "type": "output"
+                      },
+                      {
+                        "hue": "$hue",
+                        "input": "c3",
+                        "name": "c4",
+                        "type": "hsv"
+                      }
+                    ],
+                    "params": {
+                      "hue": 0.0,
+                      "light": 1.0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "decimate": {
+                "name": "lobes",
+                "input": "lobes_hi",
+                "tris": 216
+              }
+            },
+            {
+              "material": {
+                "name": "lobes",
+                "input": "lobes",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "leaf",
+                  "params": {
+                    "hue": 0.03,
+                    "light": 1.15
+                  },
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "object",
+                    "tile": 1.0,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "p",
+                        "of": "position",
+                        "type": "input"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 22,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3f6b22"
+                          ],
+                          [
+                            0.5,
+                            "#5f8f2f"
+                          ],
+                          [
+                            1.0,
+                            "#8ab043"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.88,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "ft",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "name": "ao",
+                        "radius": 0.15,
+                        "type": "mesh_ao"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "ao",
+                        "name": "aot",
+                        "to": [
+                          0.45,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c1",
+                        "b": "aot",
+                        "name": "c2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "c2",
+                        "b": "$light",
+                        "name": "c3",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "c4",
+                        "name": "out",
+                        "roughness": 0.75,
+                        "type": "output"
+                      },
+                      {
+                        "hue": "$hue",
+                        "input": "c3",
+                        "name": "c4",
+                        "type": "hsv"
+                      }
+                    ],
+                    "params": {
+                      "hue": 0.0,
+                      "light": 1.0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "lobes_hi",
+                "input": "lobes_hi",
+                "visible": false
+              }
             }
           ],
           "annotations": [],
@@ -2954,12 +2744,13 @@
           },
           "derived_from_ops": true
         },
-        "parent": 2,
+        "parent": 0,
         "children": [],
-        "label": "65 edits: revolve `stem` profile=[[[0.0, 0.0], [0.5, 0.0], [0.4, 1.0], [0.0, 1.0]]] degrees=360 segments=5 round=0 at=[0.0, 0.0, 0.0] … hidden `lobes_28`"
+        "label": "decimate `lobes` <- `lobes_hi` tris=216",
+        "author": "lite-nature"
       }
     ],
-    "current": 3
+    "current": 1
   },
   "style": {
     "name": "friendslop",

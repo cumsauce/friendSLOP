@@ -17,9 +17,9 @@
 //! The east village (x 35..80, z −35..35) is left empty for the houses.
 //! Like `scenery.rs`, nothing is replicated: every peer builds the same layout
 //! from fixed seeds, everything sits on `terrain::height_at`, models (logs,
-//! the hut, statue, archway, crane and windmill come from
-//! `assets/models/scenery`) degrade to nothing without LFS while their
-//! colliders and the primitive-built walls and hedges stay.
+//! the hut, statue, archway, crane, windmill and the field walls and
+//! hedgerows come from `assets/models/scenery`) degrade to nothing without LFS
+//! while their colliders and the primitive-built maze and castle walls stay.
 
 use avian3d::prelude::*;
 use bevy::prelude::*;
@@ -176,7 +176,7 @@ fn dress_zones(
     castle(&mut d, &x, &mut Rng(0xCA_571E));
     quarry(&mut d, &mut Rng(0x0_0A22));
     valley(&mut d, &mut Rng(0x7A_11E7));
-    meadows(&mut d, &x, &mut Rng(0x3E_AD0));
+    meadows(&mut d, &mut Rng(0x3E_AD0));
     windmill(&mut d);
 }
 
@@ -503,14 +503,18 @@ fn quarry(d: &mut Dresser, rng: &mut Rng) {
     }
 }
 
+/// The field wall and hedgerow segment models (`fn-stone-wall*`,
+/// `fn-hedge-segment`): 2 m along X, base at the origin, this tall and thick
+/// at scale 1, so a segment is scaled to the box its collider fills.
+const WALL_SEG: Vec3 = Vec3::new(2.0, 1.2, 0.6);
+const HEDGE_SEG: Vec3 = Vec3::new(2.0, 1.37, 1.0);
+
 /// A low wall (stone or hedgerow) ~1.2 m high: cover to crouch behind.
-fn low_wall(d: &mut Dresser, x: &Extra, rng: &mut Rng, c: Vec2, len: f32) {
+fn low_wall(d: &mut Dresser, rng: &mut Rng, c: Vec2, len: f32) {
     let yaw_a = rng.f() * TAU;
     let dir = Vec2::from_angle(-yaw_a);
     let hedge = rng.f() < 0.4;
     let segs = (len / 2.0).ceil() as i32;
-    let mossy = d.kit.mossy.clone();
-    let stone = d.kit.stone.clone();
     for i in 0..segs {
         if rng.f() < 0.08 {
             continue; // a gap for slipping through
@@ -525,25 +529,29 @@ fn low_wall(d: &mut Dresser, x: &Extra, rng: &mut Rng, c: Vec2, len: f32) {
         } else {
             rng.range(1.0, 1.3)
         };
-        let mat = if hedge {
-            &x.hedge
+        let (file, model) = if hedge {
+            ("hedge_segment", HEDGE_SEG)
         } else if rng.f() < 0.3 {
-            &mossy
+            ("stone_wall_mossy", WALL_SEG)
         } else {
-            &stone
+            ("stone_wall", WALL_SEG)
         };
-        d.block(
-            v3(p, h / 2.0),
-            // Overlapping neighbours alternate thickness (no coplanar faces).
-            Vec3::new(
-                len / segs as f32 + 0.05,
-                h,
-                if hedge { 1.0 } else { 0.6 } + (i % 2) as f32 * 0.04,
-            ),
-            Quat::from_rotation_y(yaw_a),
-            mat,
-            true,
+        // Neighbouring segments overlap by 5 cm, and the colliders alternate
+        // thickness as the old boxes did.
+        let size = Vec3::new(
+            len / segs as f32 + 0.05,
+            h,
+            if hedge { 1.0 } else { 0.6 } + (i % 2) as f32 * 0.04,
         );
+        let rot = Quat::from_rotation_y(yaw_a);
+        d.prop(
+            file,
+            Transform::from_translation(v3(p, 0.0))
+                .with_rotation(rot)
+                .with_scale(size / model),
+            false,
+        );
+        d.solid_box(v3(p, h / 2.0), size, rot);
     }
 }
 
@@ -564,7 +572,7 @@ fn valley(d: &mut Dresser, rng: &mut Rng) {
     }
 }
 
-fn meadows(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
+fn meadows(d: &mut Dresser, rng: &mut Rng) {
     // Small copses.
     for c in scatter(rng, Zone::Meadow, 14, 14.0, 5.0) {
         for _ in 0..(3 + (rng.f() * 3.0) as u32) {
@@ -580,7 +588,7 @@ fn meadows(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
     // Field walls and hedgerows.
     for c in scatter(rng, Zone::Meadow, 18, 12.0, 2.0) {
         let len = rng.range(10.0, 18.0);
-        low_wall(d, x, rng, c, len);
+        low_wall(d, rng, c, len);
     }
     // Haystacks.
     for c in scatter(rng, Zone::Meadow, 10, 12.0, 3.0) {

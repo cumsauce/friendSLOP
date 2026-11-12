@@ -1,0 +1,1071 @@
+{
+  "format_version": 1,
+  "name": "by-tome",
+  "parts": [],
+  "version": 13356,
+  "ops": [
+    {
+      "primitive": {
+        "name": "board_top",
+        "kind": "box",
+        "size": [
+          0.41,
+          0.018,
+          0.335
+        ],
+        "translation": [
+          0.005,
+          0.041,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "board_bottom",
+        "kind": "box",
+        "size": [
+          0.41,
+          0.018,
+          0.335
+        ],
+        "translation": [
+          0.005,
+          -0.041,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "spine",
+        "kind": "cylinder",
+        "size": [
+          0.05,
+          0.335,
+          0.0
+        ],
+        "translation": [
+          -0.195,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "pages",
+        "kind": "box",
+        "size": [
+          0.385,
+          0.066,
+          0.31
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "emblem",
+        "kind": "box",
+        "size": [
+          0.075,
+          0.008,
+          0.075
+        ],
+        "translation": [
+          0.02,
+          0.052,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.38268346,
+          0.0,
+          0.9238795
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "clasp",
+        "kind": "box",
+        "size": [
+          0.03,
+          0.11,
+          0.06
+        ],
+        "translation": [
+          0.207,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "board_top",
+        "input": "board_top",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-tome-cover",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 461,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#4f1a6e"
+                  ],
+                  [
+                    1,
+                    "#7a3399"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col",
+                "b": 1.4,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "board_bottom",
+        "input": "board_bottom",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-tome-cover",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 461,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#4f1a6e"
+                  ],
+                  [
+                    1,
+                    "#7a3399"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col",
+                "b": 1.4,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "spine",
+        "input": "spine",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-tome-cover",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 461,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#4f1a6e"
+                  ],
+                  [
+                    1,
+                    "#7a3399"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col",
+                "b": 1.4,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pages",
+        "input": "pages",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-tome-pages",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 471,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#ffcc55"
+                  ],
+                  [
+                    1,
+                    "#ffe9a0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0004,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col",
+                "b": 0.8,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "height": "h",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "emblem",
+        "input": "emblem",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-tome-pages",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 471,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#ffcc55"
+                  ],
+                  [
+                    1,
+                    "#ffe9a0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0004,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col",
+                "b": 0.8,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "height": "h",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "clasp",
+        "input": "clasp",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-tome-pages",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 471,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#ffcc55"
+                  ],
+                  [
+                    1,
+                    "#ffe9a0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0004,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col",
+                "b": 0.8,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "height": "h",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "by-tome",
+          "parts": [],
+          "version": 13285,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `by-tome`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "by-tome",
+          "parts": [],
+          "version": 13298,
+          "ops": [
+            {
+              "primitive": {
+                "name": "board_top",
+                "kind": "box",
+                "size": [
+                  0.41,
+                  0.018,
+                  0.335
+                ],
+                "translation": [
+                  0.005,
+                  0.041,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "board_bottom",
+                "kind": "box",
+                "size": [
+                  0.41,
+                  0.018,
+                  0.335
+                ],
+                "translation": [
+                  0.005,
+                  -0.041,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "spine",
+                "kind": "cylinder",
+                "size": [
+                  0.05,
+                  0.335,
+                  0.0
+                ],
+                "translation": [
+                  -0.195,
+                  0.0,
+                  0.0
+                ],
+                "rotation": [
+                  0.70710677,
+                  0.0,
+                  0.0,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "pages",
+                "kind": "box",
+                "size": [
+                  0.385,
+                  0.066,
+                  0.31
+                ],
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "emblem",
+                "kind": "box",
+                "size": [
+                  0.075,
+                  0.008,
+                  0.075
+                ],
+                "translation": [
+                  0.02,
+                  0.052,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.38268346,
+                  0.0,
+                  0.9238795
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "clasp",
+                "kind": "box",
+                "size": [
+                  0.03,
+                  0.11,
+                  0.06
+                ],
+                "translation": [
+                  0.207,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "board_top",
+                "input": "board_top",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-tome-cover",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 461,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#4f1a6e"
+                          ],
+                          [
+                            1,
+                            "#7a3399"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col",
+                        "b": 1.4,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "em",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.6,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "board_bottom",
+                "input": "board_bottom",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-tome-cover",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 461,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#4f1a6e"
+                          ],
+                          [
+                            1,
+                            "#7a3399"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col",
+                        "b": 1.4,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "em",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.6,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "spine",
+                "input": "spine",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-tome-cover",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 461,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#4f1a6e"
+                          ],
+                          [
+                            1,
+                            "#7a3399"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col",
+                        "b": 1.4,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "em",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.6,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "pages",
+                "input": "pages",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-tome-pages",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 471,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#ffcc55"
+                          ],
+                          [
+                            1,
+                            "#ffe9a0"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0004,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col",
+                        "b": 0.8,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "em",
+                        "height": "h",
+                        "metallic": 0.3,
+                        "name": "out",
+                        "roughness": 0.35,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "emblem",
+                "input": "emblem",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-tome-pages",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 471,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#ffcc55"
+                          ],
+                          [
+                            1,
+                            "#ffe9a0"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0004,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col",
+                        "b": 0.8,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "em",
+                        "height": "h",
+                        "metallic": 0.3,
+                        "name": "out",
+                        "roughness": 0.35,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "clasp",
+                "input": "clasp",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-tome-pages",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 471,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#ffcc55"
+                          ],
+                          [
+                            1,
+                            "#ffe9a0"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0004,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col",
+                        "b": 0.8,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "em",
+                        "height": "h",
+                        "metallic": 0.3,
+                        "name": "out",
+                        "roughness": 0.35,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "12 edits: primitive `board_top` (box) size=[0.41, 0.018, 0.335] at=[0.005, 0.041, 0.0] … material `clasp` <- `clasp` pbr=by-tome-pages",
+        "author": "beyond"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

@@ -1,0 +1,190 @@
+{
+  "name": "pn-needles",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 4,
+      "seed": 31,
+      "size": 0.33,
+      "type": "noise"
+    },
+    {
+      "name": "st",
+      "rotate": 0,
+      "scale": [
+        1,
+        8
+      ],
+      "type": "transform"
+    },
+    {
+      "coords": "st",
+      "mode": "ridged",
+      "name": "needle",
+      "octaves": 2,
+      "seed": 32,
+      "size": 0.125,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c0",
+      "stops": [
+        [
+          0,
+          "#1d3b1f"
+        ],
+        [
+          0.5,
+          "#2c5a2c"
+        ],
+        [
+          1,
+          "#41763a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "needle",
+      "name": "nt",
+      "to": [
+        0.8,
+        1.12
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c0",
+      "b": "nt",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "needle",
+      "b": 0.004,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.8,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pn-needles",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.33,
+              "type": "noise"
+            },
+            {
+              "name": "st",
+              "rotate": 0,
+              "scale": [
+                1,
+                8
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "st",
+              "mode": "ridged",
+              "name": "needle",
+              "octaves": 2,
+              "seed": 32,
+              "size": 0.125,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c0",
+              "stops": [
+                [
+                  0,
+                  "#1d3b1f"
+                ],
+                [
+                  0.5,
+                  "#2c5a2c"
+                ],
+                [
+                  1,
+                  "#41763a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "needle",
+              "name": "nt",
+              "to": [
+                0.8,
+                1.12
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c0",
+              "b": "nt",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "needle",
+              "b": 0.004,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.8,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +st +needle +c0 +nt +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

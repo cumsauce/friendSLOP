@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "pk-toilet-seat-up",
   "parts": [],
-  "version": 9155,
+  "version": 16507,
   "ops": [
     {
       "revolve": {
@@ -48,27 +48,10 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 20,
+        "segments": 12,
         "translation": [
           0.0,
           0.0,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "water",
-        "kind": "cylinder",
-        "size": [
-          0.15,
-          0.012,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.36,
           0.0
         ],
         "rotation": null
@@ -128,23 +111,6 @@
     },
     {
       "primitive": {
-        "name": "flush",
-        "kind": "cylinder",
-        "size": [
-          0.03,
-          0.02,
-          0.0
-        ],
-        "translation": [
-          0.15,
-          0.99,
-          -0.33
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
         "name": "neck",
         "kind": "box",
         "size": [
@@ -192,7 +158,7 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 20,
+        "segments": 12,
         "translation": [
           0.0,
           0.0,
@@ -730,6 +696,60 @@
       }
     },
     {
+      "visibility": {
+        "name": "tank_raw",
+        "input": "tank_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tlid_raw",
+        "input": "tlid_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "seat_s",
+        "input": "seat_s",
+        "visible": false
+      }
+    },
+    {
+      "revolve": {
+        "name": "water",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.006
+            ],
+            [
+              0.15,
+              -0.006
+            ],
+            [
+              0.15,
+              0.006
+            ],
+            [
+              0.0,
+              0.006
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 12,
+        "translation": [
+          0.0,
+          0.36,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
       "material": {
         "name": "water",
         "input": "water",
@@ -784,6 +804,39 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "revolve": {
+        "name": "flush",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.01
+            ],
+            [
+              0.03,
+              -0.01
+            ],
+            [
+              0.03,
+              0.01
+            ],
+            [
+              0.0,
+              0.01
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.15,
+          0.99,
+          -0.33
+        ],
+        "rotation": null
       }
     },
     {
@@ -1011,27 +1064,6 @@
           }
         }
       }
-    },
-    {
-      "visibility": {
-        "name": "tank_raw",
-        "input": "tank_raw",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "tlid_raw",
-        "input": "tlid_raw",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "seat_s",
-        "input": "seat_s",
-        "visible": false
-      }
     }
   ],
   "annotations": [],
@@ -1059,7 +1091,7 @@
           "format_version": 1,
           "name": "pk-toilet-seat-up",
           "parts": [],
-          "version": 9155,
+          "version": 16464,
           "ops": [
             {
               "revolve": {
@@ -1105,27 +1137,10 @@
                   ]
                 ],
                 "degrees": 360.0,
-                "segments": 20,
+                "segments": 12,
                 "translation": [
                   0.0,
                   0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "water",
-                "kind": "cylinder",
-                "size": [
-                  0.15,
-                  0.012,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.36,
                   0.0
                 ],
                 "rotation": null
@@ -1185,23 +1200,6 @@
             },
             {
               "primitive": {
-                "name": "flush",
-                "kind": "cylinder",
-                "size": [
-                  0.03,
-                  0.02,
-                  0.0
-                ],
-                "translation": [
-                  0.15,
-                  0.99,
-                  -0.33
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
                 "name": "neck",
                 "kind": "box",
                 "size": [
@@ -1249,7 +1247,7 @@
                   ]
                 ],
                 "degrees": 360.0,
-                "segments": 20,
+                "segments": 12,
                 "translation": [
                   0.0,
                   0.0,
@@ -1787,6 +1785,60 @@
               }
             },
             {
+              "visibility": {
+                "name": "tank_raw",
+                "input": "tank_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tlid_raw",
+                "input": "tlid_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "seat_s",
+                "input": "seat_s",
+                "visible": false
+              }
+            },
+            {
+              "revolve": {
+                "name": "water",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.006
+                    ],
+                    [
+                      0.15,
+                      -0.006
+                    ],
+                    [
+                      0.15,
+                      0.006
+                    ],
+                    [
+                      0.0,
+                      0.006
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 12,
+                "translation": [
+                  0.0,
+                  0.36,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
               "material": {
                 "name": "water",
                 "input": "water",
@@ -1841,6 +1893,39 @@
                     "params": {}
                   }
                 }
+              }
+            },
+            {
+              "revolve": {
+                "name": "flush",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.01
+                    ],
+                    [
+                      0.03,
+                      -0.01
+                    ],
+                    [
+                      0.03,
+                      0.01
+                    ],
+                    [
+                      0.0,
+                      0.01
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.15,
+                  0.99,
+                  -0.33
+                ],
+                "rotation": null
               }
             },
             {
@@ -2068,27 +2153,6 @@
                   }
                 }
               }
-            },
-            {
-              "visibility": {
-                "name": "tank_raw",
-                "input": "tank_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tlid_raw",
-                "input": "tlid_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "seat_s",
-                "input": "seat_s",
-                "visible": false
-              }
             }
           ],
           "annotations": [],
@@ -2097,7 +2161,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "20 edits: revolve `bowl` profile=[[[0.0, 0.0], [0.15, 0.0], [0.13, 0.1], [0.15, 0.2], [0.2, 0.33], [0.215, 0.4], [0.17, 0.4], [0.12, 0.3], [0.0, 0.3]]] degrees=360 segments=20 round=0 at=[0.0, 0.0, 0.0] … hidden `seat_s`"
+        "label": "8 edits: revolve `bowl` profile=[[[0.0, 0.0], [0.15, 0.0], [0.13, 0.1], [0.15, 0.2], [0.2, 0.33], [0.215, 0.4], [0.17, 0.4], [0.12, 0.3], [0.0, 0.3]]] degrees=360 segments=12 round=0 at=[0.0, 0.0, 0.0] … revolve `seat_s` profile=[[[0.12, 0.0], [0.205, 0.0], [0.215, 0.012], [0.205, 0.024], [0.12, 0.024], [0.11, 0.012]]] degrees=360 segments=12 round=0 at=[0.0, 0.0, 0.0]",
+        "author": "lite-features"
       }
     ],
     "current": 1

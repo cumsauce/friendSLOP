@@ -1,0 +1,541 @@
+{
+  "format_version": 1,
+  "name": "md-grass-tuft",
+  "parts": [],
+  "version": 13211,
+  "ops": [
+    {
+      "revolve": {
+        "name": "blade",
+        "profile": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.5,
+              0.0
+            ],
+            [
+              0.3,
+              0.55
+            ],
+            [
+              0.0,
+              1.0
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 4,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "transform": {
+        "name": "b1",
+        "input": "blade",
+        "translation": [
+          -0.07,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          -0.02116239,
+          0.17235383,
+          0.12001788,
+          0.9774671
+        ],
+        "scale": [
+          0.1,
+          0.3,
+          0.04
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "b2",
+        "input": "blade",
+        "translation": [
+          0.0,
+          0.0,
+          0.01
+        ],
+        "rotation": [
+          -0.03800377,
+          -0.12949623,
+          -0.03049093,
+          0.99038213
+        ],
+        "scale": [
+          0.11,
+          0.36,
+          0.045
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "b3",
+        "input": "blade",
+        "translation": [
+          0.07,
+          0.0,
+          -0.01
+        ],
+        "rotation": [
+          0.07486457,
+          0.33451158,
+          -0.14770252,
+          0.9277291
+        ],
+        "scale": [
+          0.1,
+          0.31,
+          0.04
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "b4",
+        "input": "blade",
+        "translation": [
+          -0.02,
+          0.0,
+          -0.05
+        ],
+        "rotation": [
+          -0.10661279,
+          0.636532,
+          0.08945874,
+          0.7585893
+        ],
+        "scale": [
+          0.09,
+          0.25,
+          0.04
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "b5",
+        "input": "blade",
+        "translation": [
+          0.02,
+          0.0,
+          0.05
+        ],
+        "rotation": [
+          0.09985858,
+          0.72917897,
+          -0.10897652,
+          0.66816944
+        ],
+        "scale": [
+          0.09,
+          0.24,
+          0.04
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "tuft",
+        "inputs": [
+          "b1",
+          "b2",
+          "b3",
+          "b4",
+          "b5"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "tuft",
+        "input": "tuft",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "md-grass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 32,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 2,
+                "seed": 31,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#3f7a35"
+                  ],
+                  [
+                    1,
+                    "#5f9a45"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "blade",
+        "input": "blade",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "b1",
+        "input": "b1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "b2",
+        "input": "b2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "b3",
+        "input": "b3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "b4",
+        "input": "b4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "b5",
+        "input": "b5",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "md-grass-tuft",
+          "parts": [],
+          "version": 13061,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `md-grass-tuft`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "md-grass-tuft",
+          "parts": [],
+          "version": 13211,
+          "ops": [
+            {
+              "revolve": {
+                "name": "blade",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      0.0
+                    ],
+                    [
+                      0.5,
+                      0.0
+                    ],
+                    [
+                      0.3,
+                      0.55
+                    ],
+                    [
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 4,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "transform": {
+                "name": "b1",
+                "input": "blade",
+                "translation": [
+                  -0.07,
+                  0.0,
+                  0.0
+                ],
+                "rotation": [
+                  -0.02116239,
+                  0.17235383,
+                  0.12001788,
+                  0.9774671
+                ],
+                "scale": [
+                  0.1,
+                  0.3,
+                  0.04
+                ]
+              }
+            },
+            {
+              "transform": {
+                "name": "b2",
+                "input": "blade",
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.01
+                ],
+                "rotation": [
+                  -0.03800377,
+                  -0.12949623,
+                  -0.03049093,
+                  0.99038213
+                ],
+                "scale": [
+                  0.11,
+                  0.36,
+                  0.045
+                ]
+              }
+            },
+            {
+              "transform": {
+                "name": "b3",
+                "input": "blade",
+                "translation": [
+                  0.07,
+                  0.0,
+                  -0.01
+                ],
+                "rotation": [
+                  0.07486457,
+                  0.33451158,
+                  -0.14770252,
+                  0.9277291
+                ],
+                "scale": [
+                  0.1,
+                  0.31,
+                  0.04
+                ]
+              }
+            },
+            {
+              "transform": {
+                "name": "b4",
+                "input": "blade",
+                "translation": [
+                  -0.02,
+                  0.0,
+                  -0.05
+                ],
+                "rotation": [
+                  -0.10661279,
+                  0.636532,
+                  0.08945874,
+                  0.7585893
+                ],
+                "scale": [
+                  0.09,
+                  0.25,
+                  0.04
+                ]
+              }
+            },
+            {
+              "transform": {
+                "name": "b5",
+                "input": "blade",
+                "translation": [
+                  0.02,
+                  0.0,
+                  0.05
+                ],
+                "rotation": [
+                  0.09985858,
+                  0.72917897,
+                  -0.10897652,
+                  0.66816944
+                ],
+                "scale": [
+                  0.09,
+                  0.24,
+                  0.04
+                ]
+              }
+            },
+            {
+              "group": {
+                "name": "tuft",
+                "inputs": [
+                  "b1",
+                  "b2",
+                  "b3",
+                  "b4",
+                  "b5"
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "tuft",
+                "input": "tuft",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "md-grass",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 32,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 2,
+                        "seed": 31,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#3f7a35"
+                          ],
+                          [
+                            1,
+                            "#5f9a45"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "blade",
+                "input": "blade",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "b1",
+                "input": "b1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "b2",
+                "input": "b2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "b3",
+                "input": "b3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "b4",
+                "input": "b4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "b5",
+                "input": "b5",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "14 edits: revolve `blade` profile=[[[0.0, 0.0], [0.5, 0.0], [0.3, 0.55], [0.0, 1.0]]] degrees=360 segments=4 round=0 at=[0.0, 0.0, 0.0] … hidden `b5`",
+        "author": "meadow"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

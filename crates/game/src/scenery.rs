@@ -1,5 +1,5 @@
 //! Dresses the shared floor: clustered groves, rock outcrops, bush thickets,
-//! fallen logs, ruins, sheds, hay bales, code-built fences and crate stacks,
+//! fallen logs, ruins, sheds, hay bales, fences and crate stacks,
 //! so there is plenty to hide behind (issue #60). Also lights a campfire
 //! beside the burnt parliament and loops a little tune.
 //!
@@ -173,14 +173,16 @@ impl Rng {
     }
 }
 
+/// Grown with the modeler's L-systems (sources in `crates/game/.modeler/`), the
+/// size of the kit trees they replaced.
 pub(crate) const TREES: &[&str] = &[
-    "CommonTree_1.gltf",
-    "CommonTree_2.gltf",
-    "CommonTree_4.gltf",
-    "Pine_1.gltf",
-    "Pine_3.gltf",
+    "tree_1.gltf",
+    "tree_2.gltf",
+    "tree_3.gltf",
+    "pine_1.gltf",
+    "pine_2.gltf",
 ];
-const DEAD_TREES: &[&str] = &["DeadTree_1.gltf", "DeadTree_3.gltf"];
+const DEAD_TREES: &[&str] = &["dead_tree_1.gltf", "dead_tree_2.gltf"];
 /// Made with the modeler (sources in `crates/game/.modeler/`), same size as the
 /// kit rocks they replaced.
 pub(crate) const ROCKS: &[&str] = &["rock_1.gltf", "rock_2.gltf", "rock_3.gltf"];
@@ -236,9 +238,7 @@ const CLUSTER_MIX: &[(Cluster, f32)] = &[
 #[derive(Clone)]
 pub(crate) struct Kit {
     pub(crate) cube: Handle<Mesh>,
-    pub(crate) stone: Handle<StandardMaterial>,
     pub(crate) mossy: Handle<StandardMaterial>,
-    pub(crate) wood: Handle<StandardMaterial>,
 }
 
 /// Spawns props with shared handles.
@@ -460,7 +460,6 @@ impl Dresser<'_, '_, '_> {
     }
 
     pub(crate) fn cluster(&mut self, rng: &mut Rng, kind: Cluster, c: Vec2) {
-        let wood = self.kit.wood.clone();
         let yaw_a = rng.f() * std::f32::consts::TAU;
         let yaw = Quat::from_rotation_y(yaw_a);
         let local = |x: f32, z: f32| c + Vec2::from_angle(-yaw_a).rotate(Vec2::new(x, z));
@@ -626,26 +625,25 @@ impl Dresser<'_, '_, '_> {
                 }
             }
             Cluster::Fence => {
-                // A wonky stretch of fence with a missing rail or two.
+                // A wonky stretch of fence with a missing rail or two. The post
+                // (0.14 × 1.1 × 0.14) and rail (1.4 × 0.1 × 0.05) are modeler
+                // models centred like the boxes they replaced (`fn-fence-*`).
                 let posts = 5 + (rng.f() * 3.0) as i32;
                 for i in 0..posts {
                     let x = (i as f32 - posts as f32 / 2.0) * 1.4;
                     let lean = yaw * Quat::from_rotation_z(rng.range(-0.1, 0.1));
-                    self.block(
-                        v3(local(x, 0.0), 0.55),
-                        Vec3::new(0.14, 1.1, 0.14),
-                        lean,
-                        &wood,
+                    self.prop(
+                        "fence_post",
+                        Transform::from_translation(v3(local(x, 0.0), 0.55)).with_rotation(lean),
                         false,
                     );
                     if i + 1 < posts {
                         for y in [0.45, 0.9] {
                             if rng.f() < 0.85 {
-                                self.block(
-                                    v3(local(x + 0.7, 0.0), y),
-                                    Vec3::new(1.4, 0.1, 0.05),
-                                    yaw,
-                                    &wood,
+                                self.prop(
+                                    "fence_rail",
+                                    Transform::from_translation(v3(local(x + 0.7, 0.0), y))
+                                        .with_rotation(yaw),
                                     false,
                                 );
                             }
@@ -721,9 +719,7 @@ pub(crate) fn make_kit(
 fn new_kit(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> Kit {
     Kit {
         cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-        stone: art::soft(materials, Color::srgb(0.58, 0.56, 0.54)),
         mossy: art::soft(materials, Color::srgb(0.45, 0.52, 0.4)),
-        wood: art::soft(materials, Color::srgb(0.45, 0.32, 0.2)),
     }
 }
 

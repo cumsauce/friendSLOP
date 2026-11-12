@@ -2,137 +2,8 @@
   "format_version": 1,
   "name": "bonfire",
   "parts": [],
-  "version": 1339,
+  "version": 17702,
   "ops": [
-    {
-      "primitive": {
-        "name": "ash",
-        "kind": "cylinder",
-        "size": [
-          0.55,
-          0.04,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.02,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "material": {
-        "name": "ash",
-        "input": "ash",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "ash",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
-            "nodes": [
-              {
-                "mode": "fbm",
-                "name": "n",
-                "octaves": 5,
-                "seed": 4,
-                "size": 0.12,
-                "type": "noise"
-              },
-              {
-                "jitter": 1.0,
-                "name": "w",
-                "size": 0.08,
-                "type": "worley"
-              },
-              {
-                "input": "n",
-                "name": "c0",
-                "stops": [
-                  [
-                    0.0,
-                    "#1b1716"
-                  ],
-                  [
-                    0.5,
-                    "#3a3330"
-                  ],
-                  [
-                    0.8,
-                    "#6a625c"
-                  ],
-                  [
-                    1.0,
-                    "#8c8580"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "gamma": 1.0,
-                "in": [
-                  0.0,
-                  0.12
-                ],
-                "input": "w.f1",
-                "name": "glow_m",
-                "type": "levels"
-              },
-              {
-                "a": 1.0,
-                "b": "glow_m",
-                "name": "glow_i",
-                "op": "sub",
-                "type": "math"
-              },
-              {
-                "a": "glow_i",
-                "b": "n",
-                "name": "glow_n",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "in": [
-                  0.45,
-                  0.7
-                ],
-                "input": "glow_n",
-                "name": "glow",
-                "type": "levels"
-              },
-              {
-                "a": "#ff5a1f",
-                "b": "glow",
-                "name": "em",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "em",
-                "b": 4.0,
-                "name": "em2",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "base_color": "c0",
-                "emissive": "em2",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {}
-          }
-        }
-      }
-    },
     {
       "primitive": {
         "name": "st0_p0",
@@ -7432,8 +7303,134 @@
       }
     },
     {
+      "visibility": {
+        "name": "log",
+        "input": "log",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "log_1",
+        "input": "log_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "log_2",
+        "input": "log_2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "log_3",
+        "input": "log_3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "log_4",
+        "input": "log_4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "lie_a",
+        "input": "lie_a",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "lie_b",
+        "input": "lie_b",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone0",
+        "input": "stone0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone1",
+        "input": "stone1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone2",
+        "input": "stone2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone3",
+        "input": "stone3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone4",
+        "input": "stone4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone5",
+        "input": "stone5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone6",
+        "input": "stone6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone7",
+        "input": "stone7",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone8",
+        "input": "stone8",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone9",
+        "input": "stone9",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stone10",
+        "input": "stone10",
+        "visible": false
+      }
+    },
+    {
       "group": {
-        "name": "stones",
+        "name": "stones_hi",
         "inputs": [
           "stone0",
           "stone1",
@@ -7450,24 +7447,253 @@
       }
     },
     {
-      "group": {
-        "name": "logs",
-        "inputs": [
-          "log",
-          "log_1",
-          "log_2",
-          "log_3",
-          "log_4"
-        ]
+      "material": {
+        "name": "stones_hi",
+        "input": "stones_hi",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "stone",
+          "params": {
+            "moss": 0.0
+          },
+          "scale": 0.3,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n_big",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.9,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n_fine",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "jitter": 1.0,
+                "name": "cracks",
+                "size": 1.1,
+                "type": "worley"
+              },
+              {
+                "gamma": 1.0,
+                "in": [
+                  0.0,
+                  0.025
+                ],
+                "input": "cracks.edge",
+                "name": "crack_m",
+                "type": "levels"
+              },
+              {
+                "input": "n_big",
+                "name": "base",
+                "stops": [
+                  [
+                    0.0,
+                    "#5d5952"
+                  ],
+                  [
+                    0.45,
+                    "#7a756b"
+                  ],
+                  [
+                    0.75,
+                    "#8c8679"
+                  ],
+                  [
+                    1.0,
+                    "#9a9384"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#3f3b36",
+                "b": "base2",
+                "c": "crack_m",
+                "name": "col_c",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n_fine",
+                "name": "fine_t",
+                "to": [
+                  0.9,
+                  1.05
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col_c",
+                "b": "fine_t",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "crack_m",
+                "b": 0.015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n_fine",
+                "name": "rough",
+                "to": [
+                  0.75,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "dir": [
+                  0,
+                  1,
+                  0
+                ],
+                "hi": 0.85,
+                "lo": 0.55,
+                "name": "up",
+                "type": "facing"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "moss_n",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.35,
+                "type": "noise"
+              },
+              {
+                "a": "up",
+                "b": "moss_n",
+                "name": "moss_raw",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "in": [
+                  0.32,
+                  0.45
+                ],
+                "input": "moss_amt",
+                "name": "moss_m",
+                "type": "levels"
+              },
+              {
+                "input": "n_fine",
+                "name": "moss_col",
+                "stops": [
+                  [
+                    0.0,
+                    "#4f6e28"
+                  ],
+                  [
+                    1.0,
+                    "#7f9f3f"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "moss_col",
+                "name": "moss_out",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "moss_m",
+                    "output": "moss_out"
+                  }
+                ],
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n_mid",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n_mid",
+                "name": "mid_t",
+                "to": [
+                  0.8,
+                  1.12
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "mid_t",
+                "name": "base2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "moss_raw",
+                "b": "$moss",
+                "name": "moss_amt",
+                "op": "mul",
+                "type": "math"
+              }
+            ],
+            "params": {
+              "moss": 1.0
+            }
+          }
+        }
       }
     },
     {
-      "group": {
-        "name": "lying_logs",
-        "inputs": [
-          "lie_a",
-          "lie_b"
-        ]
+      "decimate": {
+        "name": "stones",
+        "input": "stones_hi",
+        "tris": 450
       }
     },
     {
@@ -7714,6 +7940,135 @@
       }
     },
     {
+      "group": {
+        "name": "logs_hi",
+        "inputs": [
+          "log",
+          "log_1",
+          "log_2",
+          "log_3",
+          "log_4"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "logs_hi",
+        "input": "logs_hi",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bark",
+          "params": {
+            "burn": 0.35
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "ridged",
+                "name": "streak",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "blot",
+                "octaves": 3,
+                "seed": 9,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "streak",
+                "name": "col0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3b281a"
+                  ],
+                  [
+                    0.55,
+                    "#6b4a2f"
+                  ],
+                  [
+                    1.0,
+                    "#8a6440"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "blot",
+                "name": "blot_t",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col0",
+                "b": "blot_t",
+                "name": "col1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col1",
+                "b": "#1e1714",
+                "c": "$burn",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "streak",
+                "b": 0.006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "burn": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "logs",
+        "input": "logs_hi",
+        "tris": 250
+      }
+    },
+    {
       "material": {
         "name": "logs",
         "input": "logs",
@@ -7821,6 +8176,132 @@
             }
           }
         }
+      }
+    },
+    {
+      "group": {
+        "name": "lying_logs_hi",
+        "inputs": [
+          "lie_a",
+          "lie_b"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "lying_logs_hi",
+        "input": "lying_logs_hi",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bark",
+          "params": {
+            "burn": 0.55
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "ridged",
+                "name": "streak",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "blot",
+                "octaves": 3,
+                "seed": 9,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "streak",
+                "name": "col0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3b281a"
+                  ],
+                  [
+                    0.55,
+                    "#6b4a2f"
+                  ],
+                  [
+                    1.0,
+                    "#8a6440"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "blot",
+                "name": "blot_t",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col0",
+                "b": "blot_t",
+                "name": "col1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col1",
+                "b": "#1e1714",
+                "c": "$burn",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "streak",
+                "b": 0.006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "burn": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "lying_logs",
+        "input": "lying_logs_hi",
+        "tris": 100
       }
     },
     {
@@ -7935,128 +8416,168 @@
     },
     {
       "visibility": {
-        "name": "log",
-        "input": "log",
+        "name": "stones_hi",
+        "input": "stones_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "log_1",
-        "input": "log_1",
+        "name": "logs_hi",
+        "input": "logs_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "log_2",
-        "input": "log_2",
+        "name": "lying_logs_hi",
+        "input": "lying_logs_hi",
         "visible": false
       }
     },
     {
-      "visibility": {
-        "name": "log_3",
-        "input": "log_3",
-        "visible": false
+      "revolve": {
+        "name": "ash",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.02
+            ],
+            [
+              0.55,
+              -0.02
+            ],
+            [
+              0.55,
+              0.02
+            ],
+            [
+              0.0,
+              0.02
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 16,
+        "translation": [
+          0.0,
+          0.02,
+          0.0
+        ],
+        "rotation": null
       }
     },
     {
-      "visibility": {
-        "name": "log_4",
-        "input": "log_4",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "lie_a",
-        "input": "lie_a",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "lie_b",
-        "input": "lie_b",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone0",
-        "input": "stone0",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone1",
-        "input": "stone1",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone2",
-        "input": "stone2",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone3",
-        "input": "stone3",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone4",
-        "input": "stone4",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone5",
-        "input": "stone5",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone6",
-        "input": "stone6",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone7",
-        "input": "stone7",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone8",
-        "input": "stone8",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone9",
-        "input": "stone9",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "stone10",
-        "input": "stone10",
-        "visible": false
+      "material": {
+        "name": "ash",
+        "input": "ash",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ash",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 4,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "w",
+                "size": 0.08,
+                "type": "worley"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#1b1716"
+                  ],
+                  [
+                    0.5,
+                    "#3a3330"
+                  ],
+                  [
+                    0.8,
+                    "#6a625c"
+                  ],
+                  [
+                    1.0,
+                    "#8c8580"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "gamma": 1.0,
+                "in": [
+                  0.0,
+                  0.12
+                ],
+                "input": "w.f1",
+                "name": "glow_m",
+                "type": "levels"
+              },
+              {
+                "a": 1.0,
+                "b": "glow_m",
+                "name": "glow_i",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "glow_i",
+                "b": "n",
+                "name": "glow_n",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.7
+                ],
+                "input": "glow_n",
+                "name": "glow",
+                "type": "levels"
+              },
+              {
+                "a": "#ff5a1f",
+                "b": "glow",
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "em",
+                "b": 4.0,
+                "name": "em2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c0",
+                "emissive": "em2",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
       }
     }
   ],
@@ -8104,137 +8625,8 @@
           "format_version": 1,
           "name": "bonfire",
           "parts": [],
-          "version": 1265,
+          "version": 17702,
           "ops": [
-            {
-              "primitive": {
-                "name": "ash",
-                "kind": "cylinder",
-                "size": [
-                  0.55,
-                  0.04,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.02,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "ash",
-                "input": "ash",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "ash",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 5,
-                        "seed": 4,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "w",
-                        "size": 0.08,
-                        "type": "worley"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#1b1716"
-                          ],
-                          [
-                            0.5,
-                            "#3a3330"
-                          ],
-                          [
-                            0.8,
-                            "#6a625c"
-                          ],
-                          [
-                            1.0,
-                            "#8c8580"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "gamma": 1.0,
-                        "in": [
-                          0.0,
-                          0.12
-                        ],
-                        "input": "w.f1",
-                        "name": "glow_m",
-                        "type": "levels"
-                      },
-                      {
-                        "a": 1.0,
-                        "b": "glow_m",
-                        "name": "glow_i",
-                        "op": "sub",
-                        "type": "math"
-                      },
-                      {
-                        "a": "glow_i",
-                        "b": "n",
-                        "name": "glow_n",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.45,
-                          0.7
-                        ],
-                        "input": "glow_n",
-                        "name": "glow",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "#ff5a1f",
-                        "b": "glow",
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "em",
-                        "b": 4.0,
-                        "name": "em2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c0",
-                        "emissive": "em2",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
             {
               "primitive": {
                 "name": "st0_p0",
@@ -15534,8 +15926,134 @@
               }
             },
             {
+              "visibility": {
+                "name": "log",
+                "input": "log",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "log_1",
+                "input": "log_1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "log_2",
+                "input": "log_2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "log_3",
+                "input": "log_3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "log_4",
+                "input": "log_4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "lie_a",
+                "input": "lie_a",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "lie_b",
+                "input": "lie_b",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone0",
+                "input": "stone0",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone1",
+                "input": "stone1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone2",
+                "input": "stone2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone3",
+                "input": "stone3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone4",
+                "input": "stone4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone5",
+                "input": "stone5",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone6",
+                "input": "stone6",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone7",
+                "input": "stone7",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone8",
+                "input": "stone8",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone9",
+                "input": "stone9",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stone10",
+                "input": "stone10",
+                "visible": false
+              }
+            },
+            {
               "group": {
-                "name": "stones",
+                "name": "stones_hi",
                 "inputs": [
                   "stone0",
                   "stone1",
@@ -15552,24 +16070,253 @@
               }
             },
             {
-              "group": {
-                "name": "logs",
-                "inputs": [
-                  "log",
-                  "log_1",
-                  "log_2",
-                  "log_3",
-                  "log_4"
-                ]
+              "material": {
+                "name": "stones_hi",
+                "input": "stones_hi",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "stone",
+                  "params": {
+                    "moss": 0.0
+                  },
+                  "scale": 0.3,
+                  "graph": {
+                    "domain": "object",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "p",
+                        "of": "position",
+                        "type": "input"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "n_big",
+                        "octaves": 4,
+                        "seed": 3,
+                        "size": 0.9,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "n_fine",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "jitter": 1.0,
+                        "name": "cracks",
+                        "size": 1.1,
+                        "type": "worley"
+                      },
+                      {
+                        "gamma": 1.0,
+                        "in": [
+                          0.0,
+                          0.025
+                        ],
+                        "input": "cracks.edge",
+                        "name": "crack_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n_big",
+                        "name": "base",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5d5952"
+                          ],
+                          [
+                            0.45,
+                            "#7a756b"
+                          ],
+                          [
+                            0.75,
+                            "#8c8679"
+                          ],
+                          [
+                            1.0,
+                            "#9a9384"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "#3f3b36",
+                        "b": "base2",
+                        "c": "crack_m",
+                        "name": "col_c",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n_fine",
+                        "name": "fine_t",
+                        "to": [
+                          0.9,
+                          1.05
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "col_c",
+                        "b": "fine_t",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "crack_m",
+                        "b": 0.015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n_fine",
+                        "name": "rough",
+                        "to": [
+                          0.75,
+                          0.95
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "dir": [
+                          0,
+                          1,
+                          0
+                        ],
+                        "hi": 0.85,
+                        "lo": 0.55,
+                        "name": "up",
+                        "type": "facing"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "moss_n",
+                        "octaves": 4,
+                        "seed": 11,
+                        "size": 0.35,
+                        "type": "noise"
+                      },
+                      {
+                        "a": "up",
+                        "b": "moss_n",
+                        "name": "moss_raw",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "in": [
+                          0.32,
+                          0.45
+                        ],
+                        "input": "moss_amt",
+                        "name": "moss_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n_fine",
+                        "name": "moss_col",
+                        "stops": [
+                          [
+                            0.0,
+                            "#4f6e28"
+                          ],
+                          [
+                            1.0,
+                            "#7f9f3f"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "base_color": "moss_col",
+                        "name": "moss_out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "moss_m",
+                            "output": "moss_out"
+                          }
+                        ],
+                        "roughness": "rough",
+                        "type": "output"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "n_mid",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n_mid",
+                        "name": "mid_t",
+                        "to": [
+                          0.8,
+                          1.12
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "base",
+                        "b": "mid_t",
+                        "name": "base2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "moss_raw",
+                        "b": "$moss",
+                        "name": "moss_amt",
+                        "op": "mul",
+                        "type": "math"
+                      }
+                    ],
+                    "params": {
+                      "moss": 1.0
+                    }
+                  }
+                }
               }
             },
             {
-              "group": {
-                "name": "lying_logs",
-                "inputs": [
-                  "lie_a",
-                  "lie_b"
-                ]
+              "decimate": {
+                "name": "stones",
+                "input": "stones_hi",
+                "tris": 450
               }
             },
             {
@@ -15816,6 +16563,135 @@
               }
             },
             {
+              "group": {
+                "name": "logs_hi",
+                "inputs": [
+                  "log",
+                  "log_1",
+                  "log_2",
+                  "log_3",
+                  "log_4"
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "logs_hi",
+                "input": "logs_hi",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "bark",
+                  "params": {
+                    "burn": 0.35
+                  },
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "object",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "p",
+                        "of": "position",
+                        "type": "input"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "ridged",
+                        "name": "streak",
+                        "octaves": 4,
+                        "seed": 2,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "blot",
+                        "octaves": 3,
+                        "seed": 9,
+                        "size": 0.2,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "streak",
+                        "name": "col0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3b281a"
+                          ],
+                          [
+                            0.55,
+                            "#6b4a2f"
+                          ],
+                          [
+                            1.0,
+                            "#8a6440"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "blot",
+                        "name": "blot_t",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "col0",
+                        "b": "blot_t",
+                        "name": "col1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col1",
+                        "b": "#1e1714",
+                        "c": "$burn",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "streak",
+                        "b": 0.006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {
+                      "burn": 0.0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "decimate": {
+                "name": "logs",
+                "input": "logs_hi",
+                "tris": 250
+              }
+            },
+            {
               "material": {
                 "name": "logs",
                 "input": "logs",
@@ -15923,6 +16799,132 @@
                     }
                   }
                 }
+              }
+            },
+            {
+              "group": {
+                "name": "lying_logs_hi",
+                "inputs": [
+                  "lie_a",
+                  "lie_b"
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "lying_logs_hi",
+                "input": "lying_logs_hi",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "bark",
+                  "params": {
+                    "burn": 0.55
+                  },
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "object",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "p",
+                        "of": "position",
+                        "type": "input"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "ridged",
+                        "name": "streak",
+                        "octaves": 4,
+                        "seed": 2,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "blot",
+                        "octaves": 3,
+                        "seed": 9,
+                        "size": 0.2,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "streak",
+                        "name": "col0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3b281a"
+                          ],
+                          [
+                            0.55,
+                            "#6b4a2f"
+                          ],
+                          [
+                            1.0,
+                            "#8a6440"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "blot",
+                        "name": "blot_t",
+                        "to": [
+                          0.85,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "col0",
+                        "b": "blot_t",
+                        "name": "col1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col1",
+                        "b": "#1e1714",
+                        "c": "$burn",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "streak",
+                        "b": 0.006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {
+                      "burn": 0.0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "decimate": {
+                "name": "lying_logs",
+                "input": "lying_logs_hi",
+                "tris": 100
               }
             },
             {
@@ -16037,128 +17039,168 @@
             },
             {
               "visibility": {
-                "name": "log",
-                "input": "log",
+                "name": "stones_hi",
+                "input": "stones_hi",
                 "visible": false
               }
             },
             {
               "visibility": {
-                "name": "log_1",
-                "input": "log_1",
+                "name": "logs_hi",
+                "input": "logs_hi",
                 "visible": false
               }
             },
             {
               "visibility": {
-                "name": "log_2",
-                "input": "log_2",
+                "name": "lying_logs_hi",
+                "input": "lying_logs_hi",
                 "visible": false
               }
             },
             {
-              "visibility": {
-                "name": "log_3",
-                "input": "log_3",
-                "visible": false
+              "revolve": {
+                "name": "ash",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.02
+                    ],
+                    [
+                      0.55,
+                      -0.02
+                    ],
+                    [
+                      0.55,
+                      0.02
+                    ],
+                    [
+                      0.0,
+                      0.02
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 16,
+                "translation": [
+                  0.0,
+                  0.02,
+                  0.0
+                ],
+                "rotation": null
               }
             },
             {
-              "visibility": {
-                "name": "log_4",
-                "input": "log_4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "lie_a",
-                "input": "lie_a",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "lie_b",
-                "input": "lie_b",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone0",
-                "input": "stone0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone1",
-                "input": "stone1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone2",
-                "input": "stone2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone3",
-                "input": "stone3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone4",
-                "input": "stone4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone5",
-                "input": "stone5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone6",
-                "input": "stone6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone7",
-                "input": "stone7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone8",
-                "input": "stone8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone9",
-                "input": "stone9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stone10",
-                "input": "stone10",
-                "visible": false
+              "material": {
+                "name": "ash",
+                "input": "ash",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ash",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 5,
+                        "seed": 4,
+                        "size": 0.12,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "w",
+                        "size": 0.08,
+                        "type": "worley"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#1b1716"
+                          ],
+                          [
+                            0.5,
+                            "#3a3330"
+                          ],
+                          [
+                            0.8,
+                            "#6a625c"
+                          ],
+                          [
+                            1.0,
+                            "#8c8580"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "gamma": 1.0,
+                        "in": [
+                          0.0,
+                          0.12
+                        ],
+                        "input": "w.f1",
+                        "name": "glow_m",
+                        "type": "levels"
+                      },
+                      {
+                        "a": 1.0,
+                        "b": "glow_m",
+                        "name": "glow_i",
+                        "op": "sub",
+                        "type": "math"
+                      },
+                      {
+                        "a": "glow_i",
+                        "b": "n",
+                        "name": "glow_n",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "in": [
+                          0.45,
+                          0.7
+                        ],
+                        "input": "glow_n",
+                        "name": "glow",
+                        "type": "levels"
+                      },
+                      {
+                        "a": "#ff5a1f",
+                        "b": "glow",
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "em",
+                        "b": 4.0,
+                        "name": "em2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "c0",
+                        "emissive": "em2",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
               }
             }
           ],
@@ -16188,7 +17230,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "24 edits: group `stones` = `stone0` + `stone1` + `stone2` + `stone3` + `stone4` + `stone5` + `stone6` + `stone7` + `stone8` + `stone9` + `stone10` … hidden `stone10`"
+        "label": "3 edits: op delete `ash` … material `ash` <- `ash` pbr=ash",
+        "author": "lite-nature"
       }
     ],
     "current": 1

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "fu-cupboard",
   "parts": [],
-  "version": 5695,
+  "version": 17076,
   "ops": [
     {
       "primitive": {
@@ -583,18 +583,9 @@
       }
     },
     {
-      "round": {
-        "name": "panel00_ch",
-        "input": "panel00_raw",
-        "mode": "chamfer",
-        "radius": 0.004,
-        "segments": 4
-      }
-    },
-    {
       "transform": {
         "name": "panel00",
-        "input": "panel00_ch",
+        "input": "panel00_raw",
         "translation": [
           -0.243,
           0.5,
@@ -776,18 +767,9 @@
       }
     },
     {
-      "round": {
-        "name": "panel01_ch",
-        "input": "panel01_raw",
-        "mode": "chamfer",
-        "radius": 0.004,
-        "segments": 4
-      }
-    },
-    {
       "transform": {
         "name": "panel01",
-        "input": "panel01_ch",
+        "input": "panel01_raw",
         "translation": [
           -0.243,
           1.38,
@@ -953,28 +935,6 @@
     },
     {
       "primitive": {
-        "name": "knob0",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.02,
-          0.0
-        ],
-        "translation": [
-          -0.06075,
-          1.0,
-          0.262
-        ],
-        "rotation": [
-          0.70710677,
-          0.0,
-          0.0,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
         "name": "door1_raw",
         "kind": "box",
         "size": [
@@ -1135,18 +1095,9 @@
       }
     },
     {
-      "round": {
-        "name": "panel10_ch",
-        "input": "panel10_raw",
-        "mode": "chamfer",
-        "radius": 0.004,
-        "segments": 4
-      }
-    },
-    {
       "transform": {
         "name": "panel10",
-        "input": "panel10_ch",
+        "input": "panel10_raw",
         "translation": [
           0.243,
           0.5,
@@ -1328,18 +1279,9 @@
       }
     },
     {
-      "round": {
-        "name": "panel11_ch",
-        "input": "panel11_raw",
-        "mode": "chamfer",
-        "radius": 0.004,
-        "segments": 4
-      }
-    },
-    {
       "transform": {
         "name": "panel11",
-        "input": "panel11_ch",
+        "input": "panel11_raw",
         "translation": [
           0.243,
           1.38,
@@ -1504,33 +1446,11 @@
       }
     },
     {
-      "primitive": {
-        "name": "knob1",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.02,
-          0.0
-        ],
-        "translation": [
-          0.06075,
-          1.0,
-          0.262
-        ],
-        "rotation": [
-          0.70710677,
-          0.0,
-          0.0,
-          0.70710677
-        ]
-      }
-    },
-    {
       "group": {
         "name": "knobs",
         "inputs": [
-          "knob0",
-          "knob1"
+          "knob0_rv",
+          "knob1_rv"
         ]
       }
     },
@@ -1599,20 +1519,6 @@
             "params": {}
           }
         }
-      }
-    },
-    {
-      "visibility": {
-        "name": "knob0",
-        "input": "knob0",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "knob1",
-        "input": "knob1",
-        "visible": false
       }
     },
     {
@@ -1708,36 +1614,98 @@
     },
     {
       "visibility": {
-        "name": "panel00_ch",
-        "input": "panel00_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "panel01_ch",
-        "input": "panel01_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "name": "door1_ch",
         "input": "door1_ch",
         "visible": false
       }
     },
     {
+      "revolve": {
+        "name": "knob0_rv",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.01
+            ],
+            [
+              0.022,
+              -0.01
+            ],
+            [
+              0.022,
+              0.01
+            ],
+            [
+              0.0,
+              0.01
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 6,
+        "translation": [
+          -0.06075,
+          1.0,
+          0.262
+        ],
+        "rotation": [
+          0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      }
+    },
+    {
+      "revolve": {
+        "name": "knob1_rv",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.01
+            ],
+            [
+              0.022,
+              -0.01
+            ],
+            [
+              0.022,
+              0.01
+            ],
+            [
+              0.0,
+              0.01
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 6,
+        "translation": [
+          0.06075,
+          1.0,
+          0.262
+        ],
+        "rotation": [
+          0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      }
+    },
+    {
       "visibility": {
-        "name": "panel10_ch",
-        "input": "panel10_ch",
+        "name": "knob0_rv",
+        "input": "knob0_rv",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "panel11_ch",
-        "input": "panel11_ch",
+        "name": "knob1_rv",
+        "input": "knob1_rv",
         "visible": false
       }
     }
@@ -1767,7 +1735,7 @@
           "format_version": 1,
           "name": "fu-cupboard",
           "parts": [],
-          "version": 5695,
+          "version": 17054,
           "ops": [
             {
               "primitive": {
@@ -2348,18 +2316,9 @@
               }
             },
             {
-              "round": {
-                "name": "panel00_ch",
-                "input": "panel00_raw",
-                "mode": "chamfer",
-                "radius": 0.004,
-                "segments": 4
-              }
-            },
-            {
               "transform": {
                 "name": "panel00",
-                "input": "panel00_ch",
+                "input": "panel00_raw",
                 "translation": [
                   -0.243,
                   0.5,
@@ -2541,18 +2500,9 @@
               }
             },
             {
-              "round": {
-                "name": "panel01_ch",
-                "input": "panel01_raw",
-                "mode": "chamfer",
-                "radius": 0.004,
-                "segments": 4
-              }
-            },
-            {
               "transform": {
                 "name": "panel01",
-                "input": "panel01_ch",
+                "input": "panel01_raw",
                 "translation": [
                   -0.243,
                   1.38,
@@ -2718,28 +2668,6 @@
             },
             {
               "primitive": {
-                "name": "knob0",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.02,
-                  0.0
-                ],
-                "translation": [
-                  -0.06075,
-                  1.0,
-                  0.262
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
                 "name": "door1_raw",
                 "kind": "box",
                 "size": [
@@ -2900,18 +2828,9 @@
               }
             },
             {
-              "round": {
-                "name": "panel10_ch",
-                "input": "panel10_raw",
-                "mode": "chamfer",
-                "radius": 0.004,
-                "segments": 4
-              }
-            },
-            {
               "transform": {
                 "name": "panel10",
-                "input": "panel10_ch",
+                "input": "panel10_raw",
                 "translation": [
                   0.243,
                   0.5,
@@ -3093,18 +3012,9 @@
               }
             },
             {
-              "round": {
-                "name": "panel11_ch",
-                "input": "panel11_raw",
-                "mode": "chamfer",
-                "radius": 0.004,
-                "segments": 4
-              }
-            },
-            {
               "transform": {
                 "name": "panel11",
-                "input": "panel11_ch",
+                "input": "panel11_raw",
                 "translation": [
                   0.243,
                   1.38,
@@ -3269,33 +3179,11 @@
               }
             },
             {
-              "primitive": {
-                "name": "knob1",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.02,
-                  0.0
-                ],
-                "translation": [
-                  0.06075,
-                  1.0,
-                  0.262
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
               "group": {
                 "name": "knobs",
                 "inputs": [
-                  "knob0",
-                  "knob1"
+                  "knob0_rv",
+                  "knob1_rv"
                 ]
               }
             },
@@ -3364,20 +3252,6 @@
                     "params": {}
                   }
                 }
-              }
-            },
-            {
-              "visibility": {
-                "name": "knob0",
-                "input": "knob0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "knob1",
-                "input": "knob1",
-                "visible": false
               }
             },
             {
@@ -3473,36 +3347,98 @@
             },
             {
               "visibility": {
-                "name": "panel00_ch",
-                "input": "panel00_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "panel01_ch",
-                "input": "panel01_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
                 "name": "door1_ch",
                 "input": "door1_ch",
                 "visible": false
               }
             },
             {
+              "revolve": {
+                "name": "knob0_rv",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.01
+                    ],
+                    [
+                      0.022,
+                      -0.01
+                    ],
+                    [
+                      0.022,
+                      0.01
+                    ],
+                    [
+                      0.0,
+                      0.01
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 6,
+                "translation": [
+                  -0.06075,
+                  1.0,
+                  0.262
+                ],
+                "rotation": [
+                  0.7071068,
+                  0.0,
+                  0.0,
+                  0.7071068
+                ]
+              }
+            },
+            {
+              "revolve": {
+                "name": "knob1_rv",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.01
+                    ],
+                    [
+                      0.022,
+                      -0.01
+                    ],
+                    [
+                      0.022,
+                      0.01
+                    ],
+                    [
+                      0.0,
+                      0.01
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 6,
+                "translation": [
+                  0.06075,
+                  1.0,
+                  0.262
+                ],
+                "rotation": [
+                  0.7071068,
+                  0.0,
+                  0.0,
+                  0.7071068
+                ]
+              }
+            },
+            {
               "visibility": {
-                "name": "panel10_ch",
-                "input": "panel10_ch",
+                "name": "knob0_rv",
+                "input": "knob0_rv",
                 "visible": false
               }
             },
             {
               "visibility": {
-                "name": "panel11_ch",
-                "input": "panel11_ch",
+                "name": "knob1_rv",
+                "input": "knob1_rv",
                 "visible": false
               }
             }
@@ -3513,7 +3449,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "60 edits: primitive `body_raw` (box) size=[0.96, 1.78, 0.5] at=[0.0, 0.0, 0.0] … hidden `panel11_ch`"
+        "label": "6 edits: op delete `panel00_ch` … op delete `knob1`",
+        "author": "lite-props"
       }
     ],
     "current": 1

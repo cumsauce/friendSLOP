@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "de-debris",
   "parts": [],
-  "version": 4968,
+  "version": 16330,
   "ops": [
     {
       "primitive": {
@@ -162,15 +162,6 @@
       }
     },
     {
-      "round": {
-        "name": "nut",
-        "input": "nut_raw",
-        "mode": "chamfer",
-        "radius": 0.003,
-        "segments": 0
-      }
-    },
-    {
       "revolve": {
         "name": "bolt",
         "profile": [
@@ -180,105 +171,25 @@
               0.0
             ],
             [
-              0.0028715774,
-              0.0001882147
-            ],
-            [
-              0.0056940196,
-              0.0007496327
-            ],
-            [
-              0.008419035,
-              0.0016746502
-            ],
-            [
-              0.010999999,
-              0.0029474404
-            ],
-            [
-              0.013392751,
-              0.004546227
-            ],
-            [
-              0.0155563485,
-              0.0064436514
-            ],
-            [
-              0.017453773,
-              0.008607249
-            ],
-            [
-              0.019052558,
-              0.011
-            ],
-            [
-              0.02032535,
-              0.013580964
-            ],
-            [
-              0.021250367,
-              0.016305981
-            ],
-            [
-              0.021811787,
-              0.019128423
+              0.015556,
+              0.006444
             ],
             [
               0.022,
               0.022
             ],
             [
-              0.021811787,
-              0.024871577
+              0.015556,
+              0.037556
             ],
             [
-              0.021250367,
-              0.027694019
-            ],
-            [
-              0.02032535,
-              0.030419037
-            ],
-            [
-              0.019052558,
-              0.033
-            ],
-            [
-              0.017453773,
-              0.03539275
-            ],
-            [
-              0.0155563485,
-              0.03755635
-            ],
-            [
-              0.013392751,
-              0.039453775
-            ],
-            [
-              0.010999999,
-              0.041052558
-            ],
-            [
-              0.008419035,
-              0.042325348
-            ],
-            [
-              0.0056940196,
-              0.043250367
-            ],
-            [
-              0.0028715774,
-              0.043811783
-            ],
-            [
-              -9.616505e-10,
+              0.0,
               0.044
             ]
           ]
         ],
         "degrees": 360.0,
-        "segments": 10,
+        "segments": 8,
         "translation": [
           -0.02,
           0.0,
@@ -1215,131 +1126,6 @@
     },
     {
       "material": {
-        "name": "nut",
-        "input": "nut",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
-            "nodes": [
-              {
-                "name": "n",
-                "octaves": 4,
-                "seed": 21,
-                "size": 0.03,
-                "type": "noise"
-              },
-              {
-                "name": "rn",
-                "octaves": 5,
-                "seed": 22,
-                "size": 0.08,
-                "type": "noise"
-              },
-              {
-                "jitter": 1.0,
-                "name": "wy",
-                "size": 0.05,
-                "type": "worley"
-              },
-              {
-                "in": [
-                  0.58,
-                  0.72
-                ],
-                "input": "rn",
-                "name": "rust_m",
-                "type": "levels"
-              },
-              {
-                "input": "n",
-                "name": "c0",
-                "stops": [
-                  [
-                    0.0,
-                    "#25262b"
-                  ],
-                  [
-                    1.0,
-                    "#3d3f46"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "input": "wy.f1",
-                "name": "rc",
-                "stops": [
-                  [
-                    0.0,
-                    "#5a2e18"
-                  ],
-                  [
-                    0.6,
-                    "#8a4a22"
-                  ],
-                  [
-                    1.0,
-                    "#6e3a1c"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "n",
-                "name": "r",
-                "to": [
-                  0.45,
-                  0.65
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "rust_m",
-                "b": 0.0008,
-                "name": "rh",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "base_color": "rc",
-                "height": "rh",
-                "metallic": 0.0,
-                "name": "rust",
-                "roughness": 0.95,
-                "type": "output"
-              },
-              {
-                "base_color": "c0",
-                "metallic": 0.85,
-                "name": "out",
-                "over": [
-                  {
-                    "mask": "rust_m",
-                    "output": "rust"
-                  }
-                ],
-                "roughness": "r",
-                "type": "output"
-              }
-            ],
-            "params": {}
-          }
-        }
-      }
-    },
-    {
-      "material": {
         "name": "bolt",
         "input": "bolt",
         "base_color": null,
@@ -1648,7 +1434,7 @@
       "group": {
         "name": "iron",
         "inputs": [
-          "nut",
+          "nut_raw",
           "bolt",
           "rod"
         ]
@@ -1705,13 +1491,6 @@
     },
     {
       "visibility": {
-        "name": "nut",
-        "input": "nut",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "name": "bolt",
         "input": "bolt",
         "visible": false
@@ -1722,6 +1501,131 @@
         "name": "rod",
         "input": "rod",
         "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "nut_raw",
+        "input": "nut_raw",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 5,
+                "seed": 22,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wy",
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust_m",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#25262b"
+                  ],
+                  [
+                    1.0,
+                    "#3d3f46"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "wy.f1",
+                "name": "rc",
+                "stops": [
+                  [
+                    0.0,
+                    "#5a2e18"
+                  ],
+                  [
+                    0.6,
+                    "#8a4a22"
+                  ],
+                  [
+                    1.0,
+                    "#6e3a1c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "rust_m",
+                "b": 0.0008,
+                "name": "rh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rc",
+                "height": "rh",
+                "metallic": 0.0,
+                "name": "rust",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "base_color": "c0",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rust_m",
+                    "output": "rust"
+                  }
+                ],
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
       }
     }
   ],
@@ -1769,7 +1673,7 @@
           "format_version": 1,
           "name": "de-debris",
           "parts": [],
-          "version": 4591,
+          "version": 16312,
           "ops": [
             {
               "primitive": {
@@ -1929,15 +1833,6 @@
               }
             },
             {
-              "round": {
-                "name": "nut",
-                "input": "nut_raw",
-                "mode": "chamfer",
-                "radius": 0.003,
-                "segments": 0
-              }
-            },
-            {
               "revolve": {
                 "name": "bolt",
                 "profile": [
@@ -1947,105 +1842,25 @@
                       0.0
                     ],
                     [
-                      0.0028715774,
-                      0.0001882147
-                    ],
-                    [
-                      0.0056940196,
-                      0.0007496327
-                    ],
-                    [
-                      0.008419035,
-                      0.0016746502
-                    ],
-                    [
-                      0.010999999,
-                      0.0029474404
-                    ],
-                    [
-                      0.013392751,
-                      0.004546227
-                    ],
-                    [
-                      0.0155563485,
-                      0.0064436514
-                    ],
-                    [
-                      0.017453773,
-                      0.008607249
-                    ],
-                    [
-                      0.019052558,
-                      0.011
-                    ],
-                    [
-                      0.02032535,
-                      0.013580964
-                    ],
-                    [
-                      0.021250367,
-                      0.016305981
-                    ],
-                    [
-                      0.021811787,
-                      0.019128423
+                      0.015556,
+                      0.006444
                     ],
                     [
                       0.022,
                       0.022
                     ],
                     [
-                      0.021811787,
-                      0.024871577
+                      0.015556,
+                      0.037556
                     ],
                     [
-                      0.021250367,
-                      0.027694019
-                    ],
-                    [
-                      0.02032535,
-                      0.030419037
-                    ],
-                    [
-                      0.019052558,
-                      0.033
-                    ],
-                    [
-                      0.017453773,
-                      0.03539275
-                    ],
-                    [
-                      0.0155563485,
-                      0.03755635
-                    ],
-                    [
-                      0.013392751,
-                      0.039453775
-                    ],
-                    [
-                      0.010999999,
-                      0.041052558
-                    ],
-                    [
-                      0.008419035,
-                      0.042325348
-                    ],
-                    [
-                      0.0056940196,
-                      0.043250367
-                    ],
-                    [
-                      0.0028715774,
-                      0.043811783
-                    ],
-                    [
-                      -9.616505e-10,
+                      0.0,
                       0.044
                     ]
                   ]
                 ],
                 "degrees": 360.0,
-                "segments": 10,
+                "segments": 8,
                 "translation": [
                   -0.02,
                   0.0,
@@ -2971,1768 +2786,6 @@
                         "base_color": "col",
                         "height": "h",
                         "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "nut",
-                "input": "nut",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "bolt",
-                "input": "bolt",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "rod",
-                "input": "rod",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "p1_raw",
-                "input": "p1_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "p2_raw",
-                "input": "p2_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "p3_raw",
-                "input": "p3_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c_raw",
-                "input": "c_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "nut_raw",
-                "input": "nut_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "30 edits: primitive `p1_raw` (box) size=[0.24, 0.026, 0.075] at=[-0.06, 0.013, 0.07] rot=[0.0, 0.21643962, 0.0, 0.976296] … hidden `nut_raw`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "de-debris",
-          "parts": [],
-          "version": 4968,
-          "ops": [
-            {
-              "primitive": {
-                "name": "p1_raw",
-                "kind": "box",
-                "size": [
-                  0.24,
-                  0.026,
-                  0.075
-                ],
-                "translation": [
-                  -0.06,
-                  0.013,
-                  0.07
-                ],
-                "rotation": [
-                  0.0,
-                  0.21643962,
-                  0.0,
-                  0.976296
-                ]
-              }
-            },
-            {
-              "round": {
-                "name": "plank1",
-                "input": "p1_raw",
-                "mode": "chamfer",
-                "radius": 0.006,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "p2_raw",
-                "kind": "box",
-                "size": [
-                  0.17,
-                  0.032,
-                  0.065
-                ],
-                "translation": [
-                  0.1,
-                  0.016,
-                  -0.07
-                ],
-                "rotation": [
-                  0.0,
-                  -0.34202012,
-                  0.0,
-                  0.9396926
-                ]
-              }
-            },
-            {
-              "round": {
-                "name": "plank2",
-                "input": "p2_raw",
-                "mode": "chamfer",
-                "radius": 0.006,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "p3_raw",
-                "kind": "box",
-                "size": [
-                  0.13,
-                  0.022,
-                  0.05
-                ],
-                "translation": [
-                  0.15,
-                  0.03,
-                  0.0
-                ],
-                "rotation": [
-                  -0.059955064,
-                  0.57043433,
-                  0.08562471,
-                  0.81466466
-                ]
-              }
-            },
-            {
-              "round": {
-                "name": "plank3",
-                "input": "p3_raw",
-                "mode": "chamfer",
-                "radius": 0.005,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "c_raw",
-                "kind": "box",
-                "size": [
-                  0.075,
-                  0.06,
-                  0.07
-                ],
-                "translation": [
-                  -0.15,
-                  0.03,
-                  -0.12
-                ],
-                "rotation": [
-                  0.0,
-                  0.25881904,
-                  0.0,
-                  0.9659258
-                ]
-              }
-            },
-            {
-              "round": {
-                "name": "chunk",
-                "input": "c_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 0
-              }
-            },
-            {
-              "revolve": {
-                "name": "nut_raw",
-                "profile": [
-                  [
-                    [
-                      0.012,
-                      0.0
-                    ],
-                    [
-                      0.03,
-                      0.0
-                    ],
-                    [
-                      0.03,
-                      0.02
-                    ],
-                    [
-                      0.012,
-                      0.02
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.17,
-                  0.0,
-                  0.17
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "nut",
-                "input": "nut_raw",
-                "mode": "chamfer",
-                "radius": 0.003,
-                "segments": 0
-              }
-            },
-            {
-              "revolve": {
-                "name": "bolt",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.0028715774,
-                      0.0001882147
-                    ],
-                    [
-                      0.0056940196,
-                      0.0007496327
-                    ],
-                    [
-                      0.008419035,
-                      0.0016746502
-                    ],
-                    [
-                      0.010999999,
-                      0.0029474404
-                    ],
-                    [
-                      0.013392751,
-                      0.004546227
-                    ],
-                    [
-                      0.0155563485,
-                      0.0064436514
-                    ],
-                    [
-                      0.017453773,
-                      0.008607249
-                    ],
-                    [
-                      0.019052558,
-                      0.011
-                    ],
-                    [
-                      0.02032535,
-                      0.013580964
-                    ],
-                    [
-                      0.021250367,
-                      0.016305981
-                    ],
-                    [
-                      0.021811787,
-                      0.019128423
-                    ],
-                    [
-                      0.022,
-                      0.022
-                    ],
-                    [
-                      0.021811787,
-                      0.024871577
-                    ],
-                    [
-                      0.021250367,
-                      0.027694019
-                    ],
-                    [
-                      0.02032535,
-                      0.030419037
-                    ],
-                    [
-                      0.019052558,
-                      0.033
-                    ],
-                    [
-                      0.017453773,
-                      0.03539275
-                    ],
-                    [
-                      0.0155563485,
-                      0.03755635
-                    ],
-                    [
-                      0.013392751,
-                      0.039453775
-                    ],
-                    [
-                      0.010999999,
-                      0.041052558
-                    ],
-                    [
-                      0.008419035,
-                      0.042325348
-                    ],
-                    [
-                      0.0056940196,
-                      0.043250367
-                    ],
-                    [
-                      0.0028715774,
-                      0.043811783
-                    ],
-                    [
-                      -9.616505e-10,
-                      0.044
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  -0.02,
-                  0.0,
-                  -0.2
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "sweep": {
-                "name": "rod",
-                "profile": [
-                  [
-                    -0.006,
-                    -0.006
-                  ],
-                  [
-                    0.006,
-                    -0.006
-                  ],
-                  [
-                    0.006,
-                    0.006
-                  ],
-                  [
-                    -0.006,
-                    0.006
-                  ]
-                ],
-                "path": [
-                  [
-                    -0.25,
-                    0.006,
-                    0.16
-                  ],
-                  [
-                    -0.17,
-                    0.006,
-                    0.19
-                  ],
-                  [
-                    -0.12,
-                    0.006,
-                    0.25
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "primitive": {
-                "name": "spl0",
-                "kind": "box",
-                "size": [
-                  0.07,
-                  0.012,
-                  0.016
-                ],
-                "translation": [
-                  0.02,
-                  0.006,
-                  0.2
-                ],
-                "rotation": [
-                  0.0,
-                  0.5,
-                  0.0,
-                  0.8660254
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "spl1",
-                "kind": "box",
-                "size": [
-                  0.07,
-                  0.012,
-                  0.016
-                ],
-                "translation": [
-                  0.07,
-                  0.006,
-                  0.16
-                ],
-                "rotation": [
-                  0.0,
-                  0.7372773,
-                  0.0,
-                  0.6755902
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "spl2",
-                "kind": "box",
-                "size": [
-                  0.07,
-                  0.012,
-                  0.016
-                ],
-                "translation": [
-                  0.12,
-                  0.006,
-                  0.12
-                ],
-                "rotation": [
-                  0.0,
-                  0.9063078,
-                  0.0,
-                  0.42261824
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "plank1",
-                "input": "plank1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "plank3",
-                "input": "plank3",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "spl0",
-                "input": "spl0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "spl1",
-                "input": "spl1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "spl2",
-                "input": "spl2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "plank2",
-                "input": "plank2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 13,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 18,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3e2918"
-                          ],
-                          [
-                            0.5,
-                            "#5a3c25"
-                          ],
-                          [
-                            1.0,
-                            "#6e4c32"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "chunk",
-                "input": "chunk",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 13,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 18,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3e2918"
-                          ],
-                          [
-                            0.5,
-                            "#5a3c25"
-                          ],
-                          [
-                            1.0,
-                            "#6e4c32"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "nut",
-                "input": "nut",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
                         "roughness": "r",
                         "type": "output"
                       }
@@ -5052,7 +3105,7 @@
               "group": {
                 "name": "iron",
                 "inputs": [
-                  "nut",
+                  "nut_raw",
                   "bolt",
                   "rod"
                 ]
@@ -5109,13 +3162,6 @@
             },
             {
               "visibility": {
-                "name": "nut",
-                "input": "nut",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
                 "name": "bolt",
                 "input": "bolt",
                 "visible": false
@@ -5127,18 +3173,144 @@
                 "input": "rod",
                 "visible": false
               }
+            },
+            {
+              "material": {
+                "name": "nut_raw",
+                "input": "nut_raw",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
             }
           ],
           "annotations": [],
           "next_annotation_id": 0,
           "derived_from_ops": true
         },
-        "parent": 1,
+        "parent": 0,
         "children": [],
-        "label": "13 edits: group `wood` = `plank1` + `plank3` + `spl0` + `spl1` + `spl2` … hidden `rod`"
+        "label": "op delete `nut`",
+        "author": "lite-props"
       }
     ],
-    "current": 2
+    "current": 1
   },
   "derived_from_ops": true
 }

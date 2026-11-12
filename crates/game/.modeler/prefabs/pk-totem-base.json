@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "pk-totem-base",
   "parts": [],
-  "version": 6433,
+  "version": 16362,
   "ops": [
     {
       "extrude": {
@@ -144,7 +144,7 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 16,
+        "segments": 8,
         "translation": [
           0.0,
           0.2,
@@ -185,7 +185,7 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 16,
+        "segments": 8,
         "translation": [
           0.0,
           0.45,
@@ -226,7 +226,7 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 18,
+        "segments": 12,
         "translation": [
           0.0,
           0.6,
@@ -711,7 +711,7 @@
           "format_version": 1,
           "name": "pk-totem-base",
           "parts": [],
-          "version": 6418,
+          "version": 16339,
           "ops": [
             {
               "extrude": {
@@ -822,14 +822,38 @@
               }
             },
             {
-              "primitive": {
+              "revolve": {
                 "name": "ring_lo",
-                "kind": "torus",
-                "size": [
-                  0.165,
-                  0.032,
-                  0.0
+                "profile": [
+                  [
+                    [
+                      0.197,
+                      0.0
+                    ],
+                    [
+                      0.181,
+                      0.027712813
+                    ],
+                    [
+                      0.149,
+                      0.027712813
+                    ],
+                    [
+                      0.133,
+                      3.91887e-18
+                    ],
+                    [
+                      0.149,
+                      -0.027712813
+                    ],
+                    [
+                      0.181,
+                      -0.027712813
+                    ]
+                  ]
                 ],
+                "degrees": 360.0,
+                "segments": 8,
                 "translation": [
                   0.0,
                   0.2,
@@ -839,14 +863,38 @@
               }
             },
             {
-              "primitive": {
+              "revolve": {
                 "name": "ring_hi",
-                "kind": "torus",
-                "size": [
-                  0.165,
-                  0.032,
-                  0.0
+                "profile": [
+                  [
+                    [
+                      0.197,
+                      0.0
+                    ],
+                    [
+                      0.181,
+                      0.027712813
+                    ],
+                    [
+                      0.149,
+                      0.027712813
+                    ],
+                    [
+                      0.133,
+                      3.91887e-18
+                    ],
+                    [
+                      0.149,
+                      -0.027712813
+                    ],
+                    [
+                      0.181,
+                      -0.027712813
+                    ]
+                  ]
                 ],
+                "degrees": 360.0,
+                "segments": 8,
                 "translation": [
                   0.0,
                   0.45,
@@ -856,14 +904,38 @@
               }
             },
             {
-              "primitive": {
+              "revolve": {
                 "name": "collar",
-                "kind": "torus",
-                "size": [
-                  0.15,
-                  0.035,
-                  0.0
+                "profile": [
+                  [
+                    [
+                      0.185,
+                      0.0
+                    ],
+                    [
+                      0.1675,
+                      0.03031089
+                    ],
+                    [
+                      0.1325,
+                      0.03031089
+                    ],
+                    [
+                      0.115,
+                      4.286264e-18
+                    ],
+                    [
+                      0.1325,
+                      -0.03031089
+                    ],
+                    [
+                      0.1675,
+                      -0.03031089
+                    ]
+                  ]
                 ],
+                "degrees": 360.0,
+                "segments": 12,
                 "translation": [
                   0.0,
                   0.6,
@@ -1328,710 +1400,12 @@
           "derived_from_ops": true
         },
         "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `pk-totem-base`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pk-totem-base",
-          "parts": [],
-          "version": 6433,
-          "ops": [
-            {
-              "extrude": {
-                "name": "base_raw",
-                "profile": [
-                  [
-                    [
-                      0.25,
-                      0.0
-                    ],
-                    [
-                      0.125,
-                      0.21650635
-                    ],
-                    [
-                      -0.125,
-                      0.21650635
-                    ],
-                    [
-                      -0.25,
-                      3.061617e-17
-                    ],
-                    [
-                      -0.125,
-                      -0.21650635
-                    ],
-                    [
-                      0.125,
-                      -0.21650635
-                    ]
-                  ]
-                ],
-                "height": 0.1,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "base",
-                "input": "base_raw",
-                "mode": "chamfer",
-                "radius": 0.02,
-                "segments": 0
-              }
-            },
-            {
-              "extrude": {
-                "name": "step_raw",
-                "profile": [
-                  [
-                    [
-                      0.16454482,
-                      0.095
-                    ],
-                    [
-                      1.1634145e-17,
-                      0.19
-                    ],
-                    [
-                      -0.16454482,
-                      0.095
-                    ],
-                    [
-                      -0.16454482,
-                      -0.095
-                    ],
-                    [
-                      -3.4902433e-17,
-                      -0.19
-                    ],
-                    [
-                      0.16454482,
-                      -0.095
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  0.1,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "step",
-                "input": "step_raw",
-                "mode": "chamfer",
-                "radius": 0.015,
-                "segments": 0
-              }
-            },
-            {
-              "revolve": {
-                "name": "ring_lo",
-                "profile": [
-                  [
-                    [
-                      0.197,
-                      0.0
-                    ],
-                    [
-                      0.181,
-                      0.027712813
-                    ],
-                    [
-                      0.149,
-                      0.027712813
-                    ],
-                    [
-                      0.133,
-                      3.91887e-18
-                    ],
-                    [
-                      0.149,
-                      -0.027712813
-                    ],
-                    [
-                      0.181,
-                      -0.027712813
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 16,
-                "translation": [
-                  0.0,
-                  0.2,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "ring_hi",
-                "profile": [
-                  [
-                    [
-                      0.197,
-                      0.0
-                    ],
-                    [
-                      0.181,
-                      0.027712813
-                    ],
-                    [
-                      0.149,
-                      0.027712813
-                    ],
-                    [
-                      0.133,
-                      3.91887e-18
-                    ],
-                    [
-                      0.149,
-                      -0.027712813
-                    ],
-                    [
-                      0.181,
-                      -0.027712813
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 16,
-                "translation": [
-                  0.0,
-                  0.45,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "collar",
-                "profile": [
-                  [
-                    [
-                      0.185,
-                      0.0
-                    ],
-                    [
-                      0.1675,
-                      0.03031089
-                    ],
-                    [
-                      0.1325,
-                      0.03031089
-                    ],
-                    [
-                      0.115,
-                      4.286264e-18
-                    ],
-                    [
-                      0.1325,
-                      -0.03031089
-                    ],
-                    [
-                      0.1675,
-                      -0.03031089
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 18,
-                "translation": [
-                  0.0,
-                  0.6,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "base",
-                "input": "base",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-stone",
-                  "scale": 0.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 3,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.03,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "in": [
-                          0.008,
-                          0.03
-                        ],
-                        "input": "g.edge",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 7,
-                        "type": "random"
-                      },
-                      {
-                        "name": "grit",
-                        "octaves": 3,
-                        "seed": 9,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "grit",
-                        "c": 0.4,
-                        "name": "t",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t",
-                        "name": "face",
-                        "stops": [
-                          [
-                            0,
-                            "#776e84"
-                          ],
-                          [
-                            0.6,
-                            "#8f86a0"
-                          ],
-                          [
-                            1,
-                            "#a49cb3"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#4a4452",
-                        "b": "face",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.006,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grit",
-                        "b": 0.0015,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "step",
-                "input": "step",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-stone",
-                  "scale": 0.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 3,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.03,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "in": [
-                          0.008,
-                          0.03
-                        ],
-                        "input": "g.edge",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 7,
-                        "type": "random"
-                      },
-                      {
-                        "name": "grit",
-                        "octaves": 3,
-                        "seed": 9,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "grit",
-                        "c": 0.4,
-                        "name": "t",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t",
-                        "name": "face",
-                        "stops": [
-                          [
-                            0,
-                            "#776e84"
-                          ],
-                          [
-                            0.6,
-                            "#8f86a0"
-                          ],
-                          [
-                            1,
-                            "#a49cb3"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#4a4452",
-                        "b": "face",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.006,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grit",
-                        "b": 0.0015,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "ring_hi",
-                "input": "ring_hi",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-gold",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b98a2a"
-                          ],
-                          [
-                            1,
-                            "#f0c458"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "ring_lo",
-                "input": "ring_lo",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-gold",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b98a2a"
-                          ],
-                          [
-                            1,
-                            "#f0c458"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "collar",
-                "input": "collar",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-gold",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b98a2a"
-                          ],
-                          [
-                            1,
-                            "#f0c458"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "base_raw",
-                "input": "base_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "step_raw",
-                "input": "step_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
         "children": [],
-        "label": "14 edits: extrude `base_raw` profile=[[[0.25, 0.0], [0.125, 0.21650635], [-0.125, 0.21650635], [-0.25, 3.061617e-17], [-0.125, -0.21650635], [0.125, -0.21650635]]] height=0.1 twist=0 scale_top=[1.0, 1.0] slices=0 round=0 at=[0.0, 0.0, 0.0] … hidden `step_raw`"
+        "label": "3 edits: revolve `ring_lo` profile=[[[0.197, 0.0], [0.181, 0.027712813], [0.149, 0.027712813], [0.133, 3.91887e-18], [0.149, -0.027712813], [0.181, -0.027712813]]] degrees=360 segments=8 round=0 at=[0.0, 0.2, 0.0] … revolve `collar` profile=[[[0.185, 0.0], [0.1675, 0.03031089], [0.1325, 0.03031089], [0.115, 4.286264e-18], [0.1325, -0.03031089], [0.1675, -0.03031089]]] degrees=360 segments=12 round=0 at=[0.0, 0.6, 0.0]",
+        "author": "lite-features"
       }
     ],
-    "current": 2
+    "current": 1
   },
   "derived_from_ops": true
 }

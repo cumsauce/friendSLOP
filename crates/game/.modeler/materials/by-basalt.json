@@ -1,0 +1,284 @@
+{
+  "name": "by-basalt",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "nb",
+      "octaves": 4,
+      "seed": 401,
+      "size": 0.4,
+      "type": "noise"
+    },
+    {
+      "mode": "fbm",
+      "name": "nf",
+      "octaves": 3,
+      "seed": 402,
+      "size": 0.06666666666666667,
+      "type": "noise"
+    },
+    {
+      "jitter": 1.0,
+      "name": "wc",
+      "seed": 403,
+      "size": 0.45,
+      "type": "worley"
+    },
+    {
+      "in": [
+        0.0,
+        0.03
+      ],
+      "input": "wc.edge",
+      "name": "cm",
+      "type": "levels"
+    },
+    {
+      "a": "cm",
+      "name": "cmi",
+      "op": "invert",
+      "type": "math"
+    },
+    {
+      "input": "nb",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#24110e"
+        ],
+        [
+          0.5,
+          "#381714"
+        ],
+        [
+          1,
+          "#4a221b"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "nf",
+      "name": "ft",
+      "to": [
+        0.85,
+        1.08
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "base",
+      "b": "ft",
+      "name": "b2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "#120806",
+      "b": "b2",
+      "c": "cm",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "cm",
+      "b": 0.012,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "nb",
+      "b": 0.01,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "h1",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "nf",
+      "name": "rough",
+      "to": [
+        0.78,
+        0.95
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "by-basalt",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "nb",
+              "octaves": 4,
+              "seed": 401,
+              "size": 0.4,
+              "type": "noise"
+            },
+            {
+              "mode": "fbm",
+              "name": "nf",
+              "octaves": 3,
+              "seed": 402,
+              "size": 0.06666666666666667,
+              "type": "noise"
+            },
+            {
+              "jitter": 1.0,
+              "name": "wc",
+              "seed": 403,
+              "size": 0.45,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.0,
+                0.03
+              ],
+              "input": "wc.edge",
+              "name": "cm",
+              "type": "levels"
+            },
+            {
+              "a": "cm",
+              "name": "cmi",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "input": "nb",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#24110e"
+                ],
+                [
+                  0.5,
+                  "#381714"
+                ],
+                [
+                  1,
+                  "#4a221b"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "nf",
+              "name": "ft",
+              "to": [
+                0.85,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "base",
+              "b": "ft",
+              "name": "b2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "#120806",
+              "b": "b2",
+              "c": "cm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "cm",
+              "b": 0.012,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "nb",
+              "b": 0.01,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "nf",
+              "name": "rough",
+              "to": [
+                0.78,
+                0.95
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+nb +nf +wc +cm +cmi +base +ft +b2 +col +h0 +h1 +h +rough +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -842,31 +842,19 @@ fn label_graves(
     }
 }
 
-/// Local: the tome's look, a fat purple book with gold edges.
+/// Local: the tome's look, a fat purple book with gold edges (modeler-made,
+/// prefab `by-tome`, centred on the tome's own transform; it glows).
 fn dress_tome(
     mut commands: Commands,
     new: Query<Entity, Added<Tome>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
+    assets: Option<Res<AssetServer>>,
 ) {
     if new.is_empty() {
         return;
     }
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(assets) = assets else {
         return;
     };
-    let cover = materials.add(StandardMaterial {
-        base_color: Color::srgb(0.4, 0.15, 0.55),
-        emissive: LinearRgba::rgb(0.3, 0.05, 0.5),
-        ..default()
-    });
-    let pages = materials.add(StandardMaterial {
-        base_color: Color::srgb(1.0, 0.85, 0.4),
-        emissive: LinearRgba::rgb(1.2, 0.9, 0.3),
-        ..default()
-    });
-    let book = meshes.add(Cuboid::new(0.42, 0.1, 0.32));
-    let leaves = meshes.add(Cuboid::new(0.38, 0.07, 0.34));
     for entity in &new {
         commands
             .entity(entity)
@@ -877,8 +865,7 @@ fn dress_tome(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {
-                p.spawn((Mesh3d(book.clone()), MeshMaterial3d(cover.clone())));
-                p.spawn((Mesh3d(leaves.clone()), MeshMaterial3d(pages.clone())));
+                p.spawn((model(&assets, "tome.gltf"), Transform::default()));
             });
     }
 }
@@ -949,6 +936,7 @@ fn glow_exit(time: Res<Time>, mut lights: Query<&mut Transform, With<ExitLight>>
 /// Every peer: the hell pit, a closed lava cave with stepping stones.
 fn dig_hell(
     mut commands: Commands,
+    assets: Option<Res<AssetServer>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
@@ -961,7 +949,6 @@ fn dig_hell(
         unlit: true,
         ..default()
     });
-    let basalt = crate::art::soft(&mut materials, Color::srgb(0.22, 0.09, 0.08));
     let wall = crate::art::soft(&mut materials, Color::srgb(0.3, 0.07, 0.05));
     let light = materials.add(StandardMaterial {
         base_color: Color::srgba(1.0, 1.0, 1.0, 0.7),
@@ -1019,27 +1006,42 @@ fn dig_hell(
         Transform::from_translation(centre + Vec3::Y * (PIT_HEIGHT + 0.5)),
         Collider::cuboid(roof, 1.0, roof),
     );
+    // A basalt column standing up out of the lava: the collider is the
+    // cylinder, the look a modeler-made column (prefabs `by-basalt-column`,
+    // `by-basalt-cluster`: unit radius, 4 m tall, centred) stretched to fit.
+    let spawn_basalt =
+        |commands: &mut Commands, top: Vec3, radius: f32, turn: f32| {
+            let height = top.y - LAVA_Y + 1.0;
+            let mut rock = commands.spawn((
+                Transform::from_translation(top - Vec3::Y * (height / 2.0)),
+                Visibility::default(),
+                RigidBody::Static,
+                Collider::cylinder(radius, height),
+                avian_rerecast::ExcludeColliderFromNavmesh,
+                DespawnOnExit(AppState::InGame),
+            ));
+            if let Some(assets) = &assets {
+                let file = if radius >= 1.5 {
+                    "basalt_cluster.gltf"
+                } else {
+                    "basalt_column.gltf"
+                };
+                rock.with_children(|p| {
+                    p.spawn((
+                        model(assets, file),
+                        Transform::from_rotation(Quat::from_rotation_y(turn))
+                            .with_scale(Vec3::new(radius, height / 4.0, radius)),
+                    ));
+                });
+            }
+        };
     // The stepping stones, standing up out of the lava.
-    for stone in hell_stones() {
-        let height = stone.top.y - LAVA_Y + 1.0;
-        spawn_solid(
-            &mut commands,
-            meshes.add(Cylinder::new(stone.radius, height)),
-            basalt.clone(),
-            Transform::from_translation(stone.top - Vec3::Y * (height / 2.0)),
-            Collider::cylinder(stone.radius, height),
-        );
+    for (i, stone) in hell_stones().into_iter().enumerate() {
+        spawn_basalt(&mut commands, stone.top, stone.radius, i as f32 * 2.4);
     }
     // The white light's platform and its beam.
     let exit = hell_exit();
-    let height = exit.y - LAVA_Y + 1.0;
-    spawn_solid(
-        &mut commands,
-        meshes.add(Cylinder::new(EXIT_RADIUS, height)),
-        basalt,
-        Transform::from_translation(exit - Vec3::Y * (height / 2.0)),
-        Collider::cylinder(EXIT_RADIUS, height),
-    );
+    spawn_basalt(&mut commands, exit, EXIT_RADIUS, 0.0);
     let beam = PIT_HEIGHT - (exit.y - LAVA_Y);
     commands.spawn((
         Mesh3d(meshes.add(Cylinder::new(EXIT_REACH * 0.7, beam))),

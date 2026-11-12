@@ -9,17 +9,13 @@ nothing in the gameplay depends on them.
 
 ## Models (`models/`)
 
-All by **Quaternius** ([quaternius.com](https://quaternius.com)), CC0, via
-their OpenGameArt upload pages:
+The characters are by **Quaternius** ([quaternius.com](https://quaternius.com)),
+CC0, via their OpenGameArt upload page:
 
 - `models/characters/Cowboy_Male.glb`, `Cowboy_Female.glb`
   — from the [Ultimate Animated Character Pack](https://opengameart.org/content/animated-characters-pack)
   (converted FBX → glb with FBX2glTF; the rig's 11 built-in animations come
   along and the game plays Idle/Walk/Shoot/RecieveHit).
-- `models/nature/*.gltf` — the trees, from the
-  [Stylized Nature Mega Kit](https://opengameart.org/content/stylized-nature-megakit)
-  (kept as `.gltf` + `.bin` + textures; the kit's normal-map textures were
-  stripped to save weight — this art style doesn't use them).
 
 Repack note: the cat-vision palette (#12) deliberately does not recolour
 textured materials yet, so these models keep their natural colours for now
@@ -30,12 +26,16 @@ textured materials yet, so these models keep their natural colours for now
 Built by agents with the [modeler](https://github.com/cumsauce/modeler) MCP tool and released
 as **CC0**. The editable sources (op graphs, procedural materials, the
 `friendslop` style) live in `crates/game/.modeler/`, outside `assets/`; open
-the catalog there and `export_model` again to change one. We're replacing the
-kit models above with these over time.
+the catalog there and `export_model` again to change one. They replaced the
+kit's trees and nature props.
 
 Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 `textures/` (named by material, channel and content hash).
 
+- `models/nature/tree_1..3`, `pine_1..2`, `dead_tree_1..2` — the trees,
+  grown with the modeler's L-systems at the size of the kit trees they replaced.
+- `models/nature/meadow_grass`, `meadow_flower_yellow|blue|white` — the tiny
+  meadow tufts and flowers strewn over the ground.
 - `models/nature/rock_1..3`, `pebble_1..3` — faceted stones (stone
   material: cracks, moss on top for the rocks).
 - `models/nature/mushrooms` — a cluster of four spotted mushrooms.
@@ -60,7 +60,9 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   ruin blocks, rubble, the lean-to shed, hay bales, crates, the woodcutter's
   hut and log pile, the maze statue, the castle arch, the quarry crane, the
   windmill and its sails, the jetty, log seats, string-light posts, reeds and
-  lily pads.
+  lily pads, the wonky fence's posts and rails, and the field walls (plain and
+  mossy stone) and hedgerow segments.
+- `models/menu/bunting_pole` — the title screen's bunting poles.
 - `models/features/` — the feature set-pieces and objects: the shipwreck,
   treasure chest, Wendy's shack and burger, the helicopter and its rotors,
   the burnt parliament and clock tower, the commune flag pole, the duel
@@ -70,7 +72,9 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   the magic mushroom, music box, teacup, RPG and rocket, god's tear, crow
   egg, Abuela's rocking chair and knitting, the toilets, stall doors and
   panels, and the underground's manhole, cellar door, trapdoor, grate, jar
-  shelf and ladders.
+  shelf and ladders; the Tome of Uncancelling, the hell pit's basalt stepping
+  stones, the climb's floating island and rock spire, and the warehouse's
+  cardboard boxes, shelving rack, pallet, fluorescent tube and soul crystal.
 - `textures/*.ktx2` — the baked textures of the models above, shared by
   every model using the same material.
 

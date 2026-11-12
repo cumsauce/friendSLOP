@@ -32,6 +32,7 @@ impl Plugin for MapPlugin {
             .register_type::<Hangout>()
             .register_type::<Clear>()
             .register_type::<Block>()
+            .register_type::<Entrance>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
     }
 }
@@ -113,6 +114,14 @@ pub struct Hangout;
 #[reflect(Component, Default)]
 pub struct Clear {
     pub radius: f32,
+}
+
+/// A way into the underground (`kind`: manhole, cellar_door or trapdoor);
+/// you come up facing the marker's yaw.
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Entrance {
+    pub kind: String,
 }
 
 /// A static collider filling the marker's box (`round`: an upright

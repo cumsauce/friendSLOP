@@ -7,7 +7,7 @@ use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
 use friendslop::features::fps::Walker;
-use friendslop::features::underground::{ENTRANCES, UseHatch, below, down_spot, up_spot};
+use friendslop::features::underground::{UseHatch, below, down_spot, up_spot};
 use friendslop::player::Player;
 
 fn peer() -> App {
@@ -85,5 +85,10 @@ fn down_one_manhole_and_up_another_way() {
     exchange(&mut server, &mut client, 3);
     let up = remote_body(&mut client);
     assert!(!below(up), "{up}");
-    assert!(up.xz().distance(ENTRANCES[2].at) < 2.0, "{up}");
+    assert!(
+        up.xz()
+            .distance(friendslop::features::underground::entrance(2).at)
+            < 2.0,
+        "{up}"
+    );
 }

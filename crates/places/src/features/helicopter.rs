@@ -45,8 +45,10 @@ pub const SPREAD: f32 = 2.6;
 pub const HIT_RADIUS: f32 = 0.7;
 /// It only opens fire this close (horizontally) to where it wants to be.
 const FIRING_RANGE: f32 = 25.0;
-/// Where it comes in from (and flies back to).
-const ARRIVE_FROM: Vec3 = Vec3::new(-150.0, 40.0, -150.0);
+/// Where it flies in from: the map's `helicopter_from` spot.
+fn arrive_from() -> Vec3 {
+    friendslop_world::places::layout().helicopter_from
+}
 
 /// Server -> everyone: a helicopter after player `target`.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -128,7 +130,7 @@ fn summon(
         commands.spawn((
             Helicopter {
                 target: player.id,
-                pos: ARRIVE_FROM,
+                pos: arrive_from(),
                 yaw: 0.0,
                 shots: 0,
                 aim: Vec3::ZERO,
@@ -207,10 +209,10 @@ fn fly(
             .filter(|feet| !super::warehouse::inside(*feet) && !super::underground::below(*feet));
         let goal = match (gunner.leaving, feet) {
             (false, Some(feet)) => hover_spot(feet, heli.pos),
-            _ => ARRIVE_FROM,
+            _ => arrive_from(),
         };
         let pos = fly_step(heli.pos, goal, dt);
-        if gunner.leaving && pos.distance(ARRIVE_FROM) < 1.0 {
+        if gunner.leaving && pos.distance(arrive_from()) < 1.0 {
             commands.entity(entity).despawn();
             continue;
         }

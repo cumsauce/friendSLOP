@@ -338,8 +338,24 @@ pub struct Layout {
     pub places: Vec<Vec2>,
     /// Ground the map's placed models stand on: centre and radius.
     pub props: Vec<(Vec2, f32)>,
+    /// Ways into the underground, in name order.
+    pub entrances: Vec<MapEntrance>,
+    /// Climbing islands, in name order: centre, top height and radius.
+    pub islands: Vec<(Vec2, f32, f32)>,
+    /// Where the helicopter flies in from (the `helicopter_from` spot).
+    pub helicopter_from: Vec3,
     /// Every spot's sizes, by name (see [`sizes`]).
     pub spots: std::collections::HashMap<String, Sizes>,
+}
+
+/// A way into the underground on the map.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct MapEntrance {
+    pub at: Vec2,
+    /// The way you face coming up (unit, xz).
+    pub out: Vec2,
+    /// manhole, cellar_door or trapdoor.
+    pub kind: String,
 }
 
 /// Reads the layout out of a map's entities.
@@ -453,6 +469,39 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
             .filter(|e| e.gltf.is_some())
             .map(|e| (e.at(), 1.2))
             .collect(),
+        entrances: {
+            let mut v: Vec<&MapEntity> = map.iter().filter(|e| e.has("Entrance")).collect();
+            v.sort_by(|a, b| a.name.cmp(&b.name));
+            v.into_iter()
+                .map(|e| {
+                    let yaw = e.yaw.to_radians();
+                    MapEntrance {
+                        at: e.at(),
+                        out: Vec2::new(yaw.sin(), yaw.cos()),
+                        kind: e.text("Entrance", "kind"),
+                    }
+                })
+                .collect()
+        },
+        islands: {
+            let mut v: Vec<&MapEntity> = map.iter().filter(|e| e.kind == "island").collect();
+            v.sort_by(|a, b| a.name.cmp(&b.name));
+            v.into_iter()
+                .map(|e| {
+                    (
+                        e.at(),
+                        e.num("Feature", "height"),
+                        e.num("Feature", "radius"),
+                    )
+                })
+                .collect()
+        },
+        helicopter_from: map
+            .iter()
+            .find(|e| e.spot().as_deref() == Some("helicopter_from"))
+            .map_or(Vec3::new(-150.0, 40.0, -150.0), |e| {
+                Vec3::from_array(e.translation)
+            }),
         spots: map
             .iter()
             .filter_map(|e| Some((e.spot()?, sizes(&e.spot()?))))

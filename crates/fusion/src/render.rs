@@ -158,6 +158,11 @@ pub fn audition(inst: Inst) -> Vec<f32> {
                 let note = match inst {
                     Inst::Conga => [53, 58, 64, 71][k % 4],
                     Inst::Tom => [55, 50, 45, 50][k % 4],
+                    Inst::Timbales => [65, 60, 65, 65][k % 4],
+                    Inst::Bongo => [72, 67, 72, 67][k % 4],
+                    Inst::Cajon => [36, 38, 36, 38][k % 4],
+                    Inst::Tabla => [41, 64, 64, 66][k % 4],
+                    Inst::Woodblock => [76, 77, 76, 76][k % 4],
                     _ => 60,
                 };
                 evs.push(ev(k as f32 * beat * 0.5, note, vel, 0.0, false));

@@ -422,6 +422,18 @@ pub fn place_mood(at: Vec3) -> (Mood, f32) {
     if crate::features::underground::below(at - Vec3::Y * 1.6) {
         return (Mood::Underground, Mood::Underground.base_intensity());
     }
+    // Inside Wendy's (#117): the jingle downstairs, and its creepy twin up
+    // in the attic (whose floor is 3.6 m up: the eye is past 4.2 m there).
+    if crate::features::wendys::covers(at.xz(), 0.0)
+        && at.y < crate::features::wendys::floor_y() + 9.0
+    {
+        let mood = if at.y > crate::features::wendys::floor_y() + 4.2 {
+            Mood::WendysAttic
+        } else {
+            Mood::Wendys
+        };
+        return (mood, mood.base_intensity());
+    }
     if at.y > heaven().top - 4.0 && at.xz().distance(chair.xz()) < 14.0 {
         return (Mood::Abuela, Mood::Abuela.base_intensity());
     }
@@ -544,6 +556,8 @@ fn direct(
             | Mood::Sky
             | Mood::Abuela
             | Mood::Underground
+            | Mood::Wendys
+            | Mood::WendysAttic
     );
     let intensity = if in_game && wandering {
         (intensity + movement_nudge(&motion)).clamp(0.05, 0.9)

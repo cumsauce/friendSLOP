@@ -24,7 +24,7 @@ use crate::AppState;
 use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, refuse, within};
 use crate::features::underground::{CELL, Cell, Layout, TUNNEL_Y, Tunnels, cell_centre};
-use crate::features::villagers::{COUNT, FIRST_FRIEND, NAMES};
+use crate::features::villagers::{COUNT, FIRST_FRIEND, name};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
@@ -49,7 +49,7 @@ pub fn evil_name(name: &str) -> String {
 
 /// The evil twin's name of rat `id`.
 pub fn rat_name(id: u8) -> String {
-    evil_name(NAMES[(FIRST_FRIEND as usize + id as usize % RATS) % COUNT])
+    evil_name(&name((FIRST_FRIEND as usize + id as usize % RATS) % COUNT))
 }
 
 /// What a rat says when you adopt it: the lore.
@@ -478,7 +478,7 @@ mod tests {
     fn evil_twins_have_inverted_names() {
         assert_eq!(evil_name("catherine"), "enirehtac");
         assert_eq!(evil_name("Kori.exe"), "exe.iroK");
-        assert_eq!(rat_name(0), evil_name(NAMES[FIRST_FRIEND as usize]));
+        assert_eq!(rat_name(0), evil_name(&name(FIRST_FRIEND as usize)));
         assert_eq!(rat_name(1), "enirehtac");
     }
 

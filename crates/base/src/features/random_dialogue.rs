@@ -19,48 +19,8 @@ pub const MIN_REPLACED: usize = 50;
 const SEED: u64 = 0x5EED_F00D_D1A1_0600;
 
 /// Completely random words.
-const RANDOM_WORDS: &[&str] = &[
-    "spoon",
-    "barnacle",
-    "tuesday",
-    "moist",
-    "kazoo",
-    "parliament",
-    "gravy",
-    "elbow",
-    "pamphlet",
-    "wombat",
-    "fjord",
-    "noodle",
-    "lukewarm",
-    "accordion",
-    "tax",
-    "pickle",
-    "doorknob",
-    "velvet",
-    "hamster",
-    "ointment",
-    "trombone",
-    "biscuit",
-    "llama",
-    "sprocket",
-    "custard",
-    "yodel",
-    "gazebo",
-    "thimble",
-    "cabbage",
-    "zeppelin",
-    "goblin",
-    "marmalade",
-    "socks",
-    "plinth",
-    "turnip",
-    "lasagna",
-    "wobble",
-    "chandelier",
-    "mollusc",
-    "quiche",
-];
+pub static RANDOM_WORDS: friendslop_data::Data<Vec<String>> =
+    friendslop_data::Data::ron("data/text/random_words.ron");
 
 /// Small deterministic xorshift so peers agree.
 struct Rng(u64);
@@ -83,6 +43,7 @@ impl Rng {
 /// with the given upper bound. Returns the rewritten lines and how many words
 /// were replaced.
 pub fn rewrite_once(lines: &[&str], bound: u64, seed: u64) -> (Vec<String>, usize) {
+    let words = RANDOM_WORDS.get();
     let mut rng = Rng(seed | 1);
     let mut until = rng.upto(bound);
     let mut replaced = 0;
@@ -94,7 +55,10 @@ pub fn rewrite_once(lines: &[&str], bound: u64, seed: u64) -> (Vec<String>, usiz
                     if until == 0 {
                         replaced += 1;
                         until = rng.upto(bound);
-                        RANDOM_WORDS[rng.next() as usize % RANDOM_WORDS.len()].to_string()
+                        words
+                            .get(rng.next() as usize % words.len().max(1))
+                            .cloned()
+                            .unwrap_or_else(|| word.to_string())
                     } else {
                         until -= 1;
                         word.to_string()

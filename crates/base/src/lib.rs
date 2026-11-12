@@ -45,3 +45,11 @@ pub mod features {
     pub mod whispers;
     pub mod world_seed;
 }
+
+/// This crate's data files (see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![
+        &features::random_dialogue::RANDOM_WORDS,
+        &rules::villagers::NAMES,
+    ]
+}

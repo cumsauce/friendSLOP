@@ -27,3 +27,8 @@ pub mod features {
     pub mod pets;
     pub mod totems;
 }
+
+/// This crate's data files (see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![&features::campaign::CHAPTERS, &features::abuela::LINES]
+}

@@ -43,6 +43,8 @@ If you're running in CI, also read `.github/claude/run.md`.
   entity, switch `RigClip` from its state); trees sway live through the modeler's runtime
   plugin (`modeler_bevy`, a pinned git dependency). Several agents can share one modeler daemon, but
   pass `--doc <model>` on every call or saves and exports can land on another agent's model.
+  In CI (`claude.yml`) the modeler is already an MCP server (`mcp__modeler__*`, project
+  `crates/game`, renders in software, so `agent_views` works but is slow): use it directly.
 - **List keywords (#51).** An issue may tag a list of examples with a keyword in parentheses:
   - `(strict)`: put exactly these examples in the game, no more and no fewer.
   - `(expand, x..y)`: put exactly these examples in, then invent between x and y more in the same

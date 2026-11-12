@@ -1,0 +1,196 @@
+{
+  "name": "grass",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "p",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "name": "g",
+      "to": [
+        0,
+        "$top",
+        0
+      ],
+      "type": "gradient"
+    },
+    {
+      "coords": "p",
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 31,
+      "size": 0.1,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nt",
+      "to": [
+        -0.15,
+        0.15
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "g",
+      "b": "nt",
+      "name": "gg",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "input": "gg",
+      "name": "c",
+      "stops": [
+        [
+          0.0,
+          "#2f5418"
+        ],
+        [
+          0.5,
+          "#5f8f2f"
+        ],
+        [
+          1.0,
+          "#a9c25a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "hue": "$hue",
+      "input": "c",
+      "name": "c2",
+      "type": "hsv"
+    },
+    {
+      "base_color": "c2",
+      "name": "out",
+      "roughness": 0.8,
+      "type": "output"
+    }
+  ],
+  "params": {
+    "hue": 0.0,
+    "top": 0.6
+  },
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "grass",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "p",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "from": [
+                0,
+                0,
+                0
+              ],
+              "name": "g",
+              "to": [
+                0,
+                "$top",
+                0
+              ],
+              "type": "gradient"
+            },
+            {
+              "coords": "p",
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                -0.15,
+                0.15
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "g",
+              "b": "nt",
+              "name": "gg",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "input": "gg",
+              "name": "c",
+              "stops": [
+                [
+                  0.0,
+                  "#2f5418"
+                ],
+                [
+                  0.5,
+                  "#5f8f2f"
+                ],
+                [
+                  1.0,
+                  "#a9c25a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "hue": "$hue",
+              "input": "c",
+              "name": "c2",
+              "type": "hsv"
+            },
+            {
+              "base_color": "c2",
+              "name": "out",
+              "roughness": 0.8,
+              "type": "output"
+            }
+          ],
+          "params": {
+            "hue": 0.0,
+            "top": 0.6
+          },
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+p +g +n +nt +gg +c +c2 +out"
+      }
+    ],
+    "current": 0
+  }
+}

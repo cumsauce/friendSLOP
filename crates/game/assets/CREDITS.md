@@ -16,20 +16,39 @@ their OpenGameArt upload pages:
   — from the [Ultimate Animated Character Pack](https://opengameart.org/content/animated-characters-pack)
   (converted FBX → glb with FBX2glTF; the rig's 11 built-in animations come
   along and the game plays Idle/Walk/Shoot/RecieveHit).
-- `models/props/revolver.glb`
-  — Revolver_2 from the [Survival Pack](https://opengameart.org/content/lowpoly-survival-pack),
-  converted FBX → glb (a static model; the animated gun in the separate Low
-  Poly Animated Guns pack converted with a broken rig, so we don't use it).
-- `models/props/bonfire.glb`, `bonfire_fire.glb`
-  — from the Survival Pack (converted FBX → glb).
-- `models/nature/*` — trees, bushes, grass, flowers, mushrooms, pebbles and
-  rocks from the [Stylized Nature Mega Kit](https://opengameart.org/content/stylized-nature-megakit)
+- `models/nature/*.gltf` — the trees, from the
+  [Stylized Nature Mega Kit](https://opengameart.org/content/stylized-nature-megakit)
   (kept as `.gltf` + `.bin` + textures; the kit's normal-map textures were
   stripped to save weight — this art style doesn't use them).
 
 Repack note: the cat-vision palette (#12) deliberately does not recolour
 textured materials yet, so these models keep their natural colours for now
 (see GAME_DESIGN.md open questions).
+
+### Made for friendSLOP with the modeler
+
+Built by agents with the [modeler](https://github.com/cumsauce/modeler) MCP tool and released
+as **CC0**. The editable sources (op graphs, procedural materials, the
+`friendslop` style) live in `crates/game/.modeler/`, outside `assets/`; open
+the catalog there and `export_model` again to change one. We're replacing the
+kit models above with these over time.
+
+Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
+`textures/` (named by material, channel and content hash).
+
+- `models/nature/rock_1..3`, `pebble_1..3` — faceted stones (stone
+  material: cracks, moss on top for the rocks).
+- `models/nature/mushrooms` — a cluster of four spotted mushrooms.
+- `models/nature/bush_1`, `bush_2` — bushes of faceted leaf clumps
+  (the second with white blossoms).
+- `models/nature/grass_1`, `grass_2`, `fern`, `plant_1`, `plant_7`,
+  `clover` — ground cover.
+- `models/nature/flower_1..3` — the tall meadow flowers (pink, an orange
+  group, purple).
+- `models/props/campfire`, `campfire_fire` — the commune campfire
+  (ash bed with embers, stone ring, log teepee) and its emissive flames.
+- `models/props/revolver` — the duel revolver (blued steel, walnut grips).
+- `textures/*.ktx2` — the baked textures of the models above.
 
 ## Audio (`audio/`)
 

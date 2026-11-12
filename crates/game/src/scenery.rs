@@ -180,31 +180,29 @@ pub(crate) const TREES: &[&str] = &[
     "Pine_3.gltf",
 ];
 const DEAD_TREES: &[&str] = &["DeadTree_1.gltf", "DeadTree_3.gltf"];
-pub(crate) const ROCKS: &[&str] = &[
-    "Rock_Medium_1.gltf",
-    "Rock_Medium_2.gltf",
-    "Rock_Medium_3.gltf",
-];
-pub(crate) const BUSHES: &[&str] = &["Bush_Common.gltf", "Bush_Common_Flowers.gltf"];
+/// Made with the modeler (sources in `crates/game/.modeler/`), same size as the
+/// kit rocks they replaced.
+pub(crate) const ROCKS: &[&str] = &["rock_1.gltf", "rock_2.gltf", "rock_3.gltf"];
+pub(crate) const BUSHES: &[&str] = &["bush_1.gltf", "bush_2.gltf"];
 const UNDERGROWTH: &[&str] = &[
-    "Fern_1.gltf",
-    "Grass_Common_Tall.gltf",
-    "Grass_Wispy_Tall.gltf",
-    "Plant_1.gltf",
-    "Plant_7.gltf",
-    "Clover_1.gltf",
+    "fern.gltf",
+    "grass_1.gltf",
+    "grass_2.gltf",
+    "plant_1.gltf",
+    "plant_7.gltf",
+    "clover.gltf",
 ];
 pub(crate) const FLORA: &[&str] = &[
-    "Flower_3_Single.gltf",
-    "Flower_3_Group.gltf",
-    "Flower_4_Single.gltf",
-    "Clover_1.gltf",
-    "Grass_Common_Tall.gltf",
-    "Grass_Wispy_Tall.gltf",
-    "Mushroom_Common.gltf",
-    "Pebble_Round_1.gltf",
-    "Pebble_Round_2.gltf",
-    "Pebble_Square_2.gltf",
+    "flower_1.gltf",
+    "flower_2.gltf",
+    "flower_3.gltf",
+    "clover.gltf",
+    "grass_1.gltf",
+    "grass_2.gltf",
+    "mushrooms.gltf",
+    "pebble_1.gltf",
+    "pebble_2.gltf",
+    "pebble_3.gltf",
 ];
 
 /// What a cluster is.
@@ -255,20 +253,9 @@ pub(crate) struct Dresser<'w, 's, 'a> {
     pub(crate) kit: Kit,
 }
 
-/// Some kit models are authored far bigger than the meadow (the tall grasses are
-/// ~1.8 m clumps), which made knee-high grass tower over people and the camera.
-/// Bring them down to ground-cover size.
-pub(crate) fn model_size_fix(file: &str) -> f32 {
-    match file {
-        "Grass_Common_Tall.gltf" | "Grass_Wispy_Tall.gltf" => 0.35,
-        "Plant_1.gltf" => 0.6,
-        _ => 1.0,
-    }
-}
-
 /// Stone models: nothing to sway.
 pub(crate) fn is_rigid(file: &str) -> bool {
-    file.starts_with("Rock") || file.starts_with("Pebble")
+    file.starts_with("rock_") || file.starts_with("pebble_")
 }
 
 /// The scene root for one `assets/models/nature` model (shared with the menu
@@ -288,7 +275,6 @@ impl Dresser<'_, '_, '_> {
         scale: f32,
         small: bool,
     ) -> Entity {
-        let scale = scale * model_size_fix(file);
         let mut e = self.commands.spawn((
             nature_model(self.assets, file),
             Transform::from_xyz(at.x, ground(at), at.y)
@@ -397,9 +383,9 @@ impl Dresser<'_, '_, '_> {
         for _ in 0..n {
             let p = rng.around(centre, r);
             let file = *rng.pick(UNDERGROWTH);
-            // The fern model is ~9 m across at scale 1.
-            let s = if file == "Fern_1.gltf" {
-                rng.range(0.15, 0.25)
+            // Ferns spread wider than the rest (~1.8 m across at scale 1).
+            let s = if file == "fern.gltf" {
+                rng.range(0.75, 1.25)
             } else {
                 rng.range(0.8, 1.4)
             };
@@ -758,11 +744,6 @@ pub(crate) const BONFIRE_AT: Vec3 = Vec3::new(
     friendslop_world::places::BONFIRE_AT.y,
 );
 
-/// The bonfire glbs carry a ×199 node scale (centimetre export), which made the
-/// campfire a 200 m wooden dome over the whole map. This brings it back to a
-/// ~1.6 m campfire.
-const BONFIRE_SCALE: f32 = 1.3 / 180.0;
-
 #[derive(Component)]
 struct BonfireFlame;
 
@@ -782,14 +763,15 @@ pub(crate) fn spawn_bonfire(
         assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/props/{file}")))
     };
     commands.spawn((
-        WorldAssetRoot(scene("bonfire.glb")),
-        Transform::from_translation(at).with_scale(Vec3::splat(BONFIRE_SCALE)),
+        // Modeler-made at real size (1.5 m across, sources in `.modeler/`).
+        WorldAssetRoot(scene("campfire.gltf")),
+        Transform::from_translation(at),
         DespawnOnExit(state),
     ));
     commands.spawn((
-        WorldAssetRoot(scene("bonfire_fire.glb")),
+        WorldAssetRoot(scene("campfire_fire.gltf")),
         BonfireFlame,
-        Transform::from_translation(at + Vec3::Y * 0.1).with_scale(Vec3::splat(BONFIRE_SCALE)),
+        Transform::from_translation(at + Vec3::Y * 0.05),
         DespawnOnExit(state),
     ));
     commands.spawn((

@@ -1,12 +1,13 @@
 //! Dresses the shared floor: clustered groves, rock outcrops, bush thickets,
-//! fallen logs and a few code-built ruins, sheds, hay bales, fences and crate
-//! stacks, so there is plenty to hide behind (issue #60). Also lights a
-//! campfire beside the burnt parliament and loops a little tune.
+//! fallen logs, ruins, sheds, hay bales, code-built fences and crate stacks,
+//! so there is plenty to hide behind (issue #60). Also lights a campfire
+//! beside the burnt parliament and loops a little tune.
 //!
 //! Nothing here is replicated: every peer places the same props the same way
 //! from a fixed seed. Models come from `assets/models/nature` (see CREDITS.md)
-//! and missing files simply render nothing, but the colliders and the
-//! primitive-built cover still exist, so the cover layout never depends on LFS.
+//! and the modeler-made `assets/models/scenery`; missing files simply render
+//! nothing, but every collider still exists, so the cover layout never
+//! depends on LFS.
 //! Large cover (trunks, rocks, walls, sheds, bales, crates) gets a static
 //! avian3d collider so it actually blocks.
 
@@ -235,15 +236,9 @@ const CLUSTER_MIX: &[(Cluster, f32)] = &[
 #[derive(Clone)]
 pub(crate) struct Kit {
     pub(crate) cube: Handle<Mesh>,
-    pub(crate) cylinder: Handle<Mesh>,
     pub(crate) stone: Handle<StandardMaterial>,
     pub(crate) mossy: Handle<StandardMaterial>,
     pub(crate) wood: Handle<StandardMaterial>,
-    pub(crate) plank: Handle<StandardMaterial>,
-    pub(crate) roof: Handle<StandardMaterial>,
-    pub(crate) hay: Handle<StandardMaterial>,
-    pub(crate) bark: Handle<StandardMaterial>,
-    pub(crate) crate_wood: Handle<StandardMaterial>,
 }
 
 /// Spawns props with shared handles.
@@ -257,6 +252,22 @@ pub(crate) struct Dresser<'w, 's, 'a> {
 pub(crate) fn is_rigid(file: &str) -> bool {
     file.starts_with("rock_") || file.starts_with("pebble_")
 }
+
+/// The scene root for one modeler-made `assets/models/scenery` model (logs,
+/// ruins, sheds, bales, crates and the districts' set pieces; sources in
+/// `crates/game/.modeler/`, prefabs named `zn-*`).
+pub(crate) fn scenery_model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/scenery/{file}.gltf"))),
+    )
+}
+
+/// The fallen log model is 4 m long with a 0.4 m radius (lying along X).
+const LOG_LEN: f32 = 4.0;
+const LOG_R: f32 = 0.4;
+/// The stump model is 0.5 m in radius and 0.5 m tall, base at its origin.
+const STUMP_R: f32 = 0.5;
+const STUMP_H: f32 = 0.5;
 
 /// The scene root for one `assets/models/nature` model (shared with the menu
 /// backdrop).
@@ -297,6 +308,81 @@ impl Dresser<'_, '_, '_> {
         e.id()
     }
 
+    /// A `models/scenery` model at `transform`, lifted onto the ground under
+    /// it. Purely visual: colliders are spawned separately, so the cover
+    /// never depends on the file.
+    pub(crate) fn prop(&mut self, file: &str, mut transform: Transform, small: bool) -> Entity {
+        transform.translation.y += ground(transform.translation.xz());
+        let mut e = self.commands.spawn((
+            scenery_model(self.assets, file),
+            transform,
+            DespawnOnExit(AppState::InGame),
+        ));
+        if small {
+            e.insert(SmallProp);
+        }
+        e.id()
+    }
+
+    /// The collider [`Self::block`] would give a solid box, with no mesh (the
+    /// model draws it).
+    pub(crate) fn solid_box(&mut self, centre: Vec3, size: Vec3, rot: Quat) {
+        let centre = centre + Vec3::Y * ground(centre.xz());
+        self.commands.spawn((
+            Transform::from_translation(centre)
+                .with_rotation(rot)
+                .with_scale(size),
+            RigidBody::Static,
+            Collider::cuboid(1.0, 1.0, 1.0),
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
+
+    /// A solid cylinder of `radius`/`length` along local Y, rotated by
+    /// `rot`, with no mesh (the model draws it).
+    pub(crate) fn solid_cylinder(&mut self, centre: Vec3, radius: f32, length: f32, rot: Quat) {
+        let centre = centre + Vec3::Y * ground(centre.xz());
+        self.commands.spawn((
+            Transform::from_translation(centre)
+                .with_rotation(rot)
+                .with_scale(Vec3::new(radius * 2.0, length, radius * 2.0)),
+            RigidBody::Static,
+            Collider::cylinder(0.5, 1.0),
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
+
+    /// A fallen log of `len` × `r` lying along `yaw`'s X, centred at `at`
+    /// (its axis `r` above the ground), solid.
+    pub(crate) fn log(&mut self, at: Vec2, yaw: Quat, len: f32, r: f32) {
+        let centre = Vec3::new(at.x, r, at.y);
+        let lie = yaw * Quat::from_rotation_z(std::f32::consts::FRAC_PI_2);
+        self.solid_cylinder(centre, r, len, lie);
+        self.prop(
+            "log",
+            Transform::from_translation(centre)
+                .with_rotation(yaw)
+                .with_scale(Vec3::new(len / LOG_LEN, r / LOG_R, r / LOG_R)),
+            false,
+        );
+    }
+
+    /// A solid tree stump of `radius` × `height` standing at `at`.
+    pub(crate) fn stump(&mut self, at: Vec2, radius: f32, height: f32) {
+        self.solid_cylinder(
+            Vec3::new(at.x, height / 2.0, at.y),
+            radius,
+            height,
+            Quat::IDENTITY,
+        );
+        let w = radius / STUMP_R;
+        self.prop(
+            "stump",
+            Transform::from_xyz(at.x, 0.0, at.y).with_scale(Vec3::new(w, height / STUMP_H, w)),
+            false,
+        );
+    }
+
     /// A static collider with no visuals (for model-based cover).
     pub(crate) fn blocker(&mut self, mut transform: Transform, collider: Collider) {
         transform.translation.y += ground(transform.translation.xz());
@@ -329,30 +415,6 @@ impl Dresser<'_, '_, '_> {
         if solid {
             // The collider is in local (unit-cube) space; the scale stretches it.
             e.insert((RigidBody::Static, Collider::cuboid(1.0, 1.0, 1.0)));
-        }
-    }
-
-    /// A cylinder of `radius`/`length` along local Y, rotated by `rot`.
-    pub(crate) fn cylinder(
-        &mut self,
-        centre: Vec3,
-        radius: f32,
-        length: f32,
-        rot: Quat,
-        mat: &Handle<StandardMaterial>,
-        solid: bool,
-    ) {
-        let centre = centre + Vec3::Y * ground(centre.xz());
-        let mut e = self.commands.spawn((
-            Mesh3d(self.kit.cylinder.clone()),
-            MeshMaterial3d(mat.clone()),
-            Transform::from_translation(centre)
-                .with_rotation(rot)
-                .with_scale(Vec3::new(radius * 2.0, length, radius * 2.0)),
-            DespawnOnExit(AppState::InGame),
-        ));
-        if solid {
-            e.insert((RigidBody::Static, Collider::cylinder(0.5, 1.0)));
         }
     }
 
@@ -398,17 +460,7 @@ impl Dresser<'_, '_, '_> {
     }
 
     pub(crate) fn cluster(&mut self, rng: &mut Rng, kind: Cluster, c: Vec2) {
-        let k = &self.kit;
-        let (stone, mossy, wood, plank, roof, hay, bark, crate_wood) = (
-            k.stone.clone(),
-            k.mossy.clone(),
-            k.wood.clone(),
-            k.plank.clone(),
-            k.roof.clone(),
-            k.hay.clone(),
-            k.bark.clone(),
-            k.crate_wood.clone(),
-        );
+        let wood = self.kit.wood.clone();
         let yaw_a = rng.f() * std::f32::consts::TAU;
         let yaw = Quat::from_rotation_y(yaw_a);
         let local = |x: f32, z: f32| c + Vec2::from_angle(-yaw_a).rotate(Vec2::new(x, z));
@@ -470,11 +522,10 @@ impl Dresser<'_, '_, '_> {
             Cluster::Log => {
                 let len = rng.range(3.0, 4.5);
                 let r = rng.range(0.3, 0.42);
-                let lie = yaw * Quat::from_rotation_z(std::f32::consts::FRAC_PI_2);
-                self.cylinder(v3(c, r), r, len, lie, &bark, true);
+                self.log(c, yaw, len, r);
                 // A stump where it fell from.
                 let stump = local(len / 2.0 + 0.6, 0.0);
-                self.cylinder(v3(stump, 0.25), r * 1.2, 0.5, Quat::IDENTITY, &bark, true);
+                self.stump(stump, r * 1.2, 0.5);
                 self.undergrowth(rng, c, 2.5, 4);
             }
             Cluster::RuinWall => {
@@ -483,7 +534,12 @@ impl Dresser<'_, '_, '_> {
                 let corner = rng.f() < 0.5;
                 for i in 0..segs {
                     let h = rng.range(0.9, 2.3);
-                    let mat = if rng.f() < 0.3 { &mossy } else { &stone };
+                    // The model is a 1 m tall segment, stretched to `h`.
+                    let file = if rng.f() < 0.3 {
+                        "ruin_block_mossy"
+                    } else {
+                        "ruin_block"
+                    };
                     let (x, z, rot) = if corner && i > segs / 2 {
                         let j = (i - segs / 2) as f32;
                         (
@@ -495,81 +551,78 @@ impl Dresser<'_, '_, '_> {
                         ((i as f32 - segs as f32 / 2.0) * 1.0, 0.0, yaw)
                     };
                     let p = local(x, z);
-                    self.block(v3(p, h / 2.0), Vec3::new(1.0, h, 0.6), rot, mat, true);
+                    self.solid_box(v3(p, h / 2.0), Vec3::new(1.0, h, 0.6), rot);
+                    self.prop(
+                        file,
+                        Transform::from_translation(v3(p, h / 2.0))
+                            .with_rotation(rot)
+                            .with_scale(Vec3::new(1.0, h, 1.0)),
+                        false,
+                    );
                 }
                 // Rubble.
                 for _ in 0..4 {
                     let p = rng.around(c, 2.5);
                     let s = rng.range(0.25, 0.5);
                     let tumble = rng.yaw() * Quat::from_rotation_x(rng.range(-0.4, 0.4));
-                    self.block(v3(p, s * 0.4), Vec3::splat(s), tumble, &stone, false);
+                    self.prop(
+                        "rubble",
+                        Transform::from_translation(v3(p, s * 0.4))
+                            .with_rotation(tumble)
+                            .with_scale(Vec3::splat(s)),
+                        true,
+                    );
                 }
                 self.undergrowth(rng, c, 3.0, 3);
             }
             Cluster::Shed => {
-                // A little lean-to shed with an open front you can duck into.
+                // A little lean-to shed with an open front you can duck into
+                // (modeler model: walls, posts and roof). The walls block.
                 let (w, d, h) = (3.0, 2.4, 2.2);
-                self.block(
+                self.prop(
+                    "shed",
+                    Transform::from_translation(v3(c, 0.0)).with_rotation(yaw),
+                    false,
+                );
+                self.solid_box(
                     v3(local(0.0, -d / 2.0), h / 2.0),
                     Vec3::new(w, h, 0.15),
                     yaw,
-                    &plank,
-                    true,
                 );
                 for sx in [-1.0, 1.0] {
-                    self.block(
+                    self.solid_box(
                         v3(local(sx * w / 2.0, 0.0), h / 2.0 - 0.2),
                         Vec3::new(0.15, h - 0.4, d),
                         yaw,
-                        &plank,
-                        true,
                     );
                 }
                 // Half-wall at the front with a doorway gap.
-                self.block(
+                self.solid_box(
                     v3(local(-w / 4.0 - 0.2, d / 2.0), 0.6),
                     Vec3::new(w / 2.0 - 0.4, 1.2, 0.15),
                     yaw,
-                    &plank,
-                    true,
                 );
-                let tilt = yaw * Quat::from_rotation_x(-0.25);
-                self.block(
-                    v3(local(0.0, 0.0), h + 0.05),
-                    Vec3::new(w + 0.5, 0.12, d + 0.6),
-                    tilt,
-                    &roof,
-                    false,
-                );
-                for (x, z) in [
-                    (-w / 2.0, -d / 2.0),
-                    (w / 2.0, -d / 2.0),
-                    (-w / 2.0, d / 2.0),
-                    (w / 2.0, d / 2.0),
-                ] {
-                    // A touch taller than the back wall: no coplanar tops.
-                    self.block(
-                        v3(local(x, z), (h + 0.04) / 2.0),
-                        Vec3::new(0.2, h + 0.04, 0.2),
-                        yaw,
-                        &wood,
-                        false,
-                    );
-                }
                 self.undergrowth(rng, c, 3.2, 4);
             }
             Cluster::Hay => {
                 // Round bales, a couple stacked.
                 let n = 2 + (rng.f() * 3.0) as i32;
+                // The bale model lies along its Z, like the rolled cylinder.
+                let roll = yaw * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2);
+                let bale = |d: &mut Self, centre: Vec3| {
+                    d.solid_cylinder(centre, 0.6, 1.1, roll);
+                    d.prop(
+                        "hay_bale",
+                        Transform::from_translation(centre).with_rotation(yaw),
+                        false,
+                    );
+                };
                 for i in 0..n {
                     let p = local((i as f32 - n as f32 / 2.0) * 1.3, rng.range(-0.3, 0.3));
-                    let roll = yaw * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2);
-                    self.cylinder(v3(p, 0.6), 0.6, 1.1, roll, &hay, true);
+                    bale(self, v3(p, 0.6));
                 }
                 if n >= 3 {
-                    let p = local(-0.65, 0.0);
-                    let roll = yaw * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2);
-                    self.cylinder(v3(p, 1.75), 0.6, 1.1, roll, &hay, true);
+                    bale(self, v3(local(-0.65, 0.0), 1.75));
                 }
             }
             Cluster::Fence => {
@@ -628,7 +681,15 @@ impl Dresser<'_, '_, '_> {
                     };
                     let p = local(x, z);
                     let rot = yaw * Quat::from_rotation_y(rng.range(-0.3, 0.3));
-                    self.block(v3(p, y), Vec3::splat(s), rot, &crate_wood, true);
+                    // The crate model is a 1 m cube, scaled like the block was.
+                    self.solid_box(v3(p, y), Vec3::splat(s), rot);
+                    self.prop(
+                        "crate",
+                        Transform::from_translation(v3(p, y))
+                            .with_rotation(rot)
+                            .with_scale(Vec3::splat(s)),
+                        false,
+                    );
                 }
             }
         }
@@ -641,7 +702,7 @@ pub(crate) fn ground(p: Vec2) -> f32 {
 }
 
 /// The one [`Kit`] the commune and the districts both dress with, so their
-/// stone, wood and hay draw in the same batches (#151: each used to make its
+/// stone and wood draw in the same batches (#151: each used to make its
 /// own identical copies).
 #[derive(Resource, Default)]
 pub(crate) struct KitCache(Option<Kit>);
@@ -660,15 +721,9 @@ pub(crate) fn make_kit(
 fn new_kit(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> Kit {
     Kit {
         cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-        cylinder: meshes.add(Cylinder::new(0.5, 1.0)),
         stone: art::soft(materials, Color::srgb(0.58, 0.56, 0.54)),
         mossy: art::soft(materials, Color::srgb(0.45, 0.52, 0.4)),
         wood: art::soft(materials, Color::srgb(0.45, 0.32, 0.2)),
-        plank: art::soft(materials, Color::srgb(0.6, 0.44, 0.3)),
-        roof: art::soft(materials, Color::srgb(0.55, 0.25, 0.2)),
-        hay: art::soft(materials, Color::srgb(0.88, 0.74, 0.38)),
-        bark: art::soft(materials, Color::srgb(0.4, 0.3, 0.22)),
-        crate_wood: art::soft(materials, Color::srgb(0.72, 0.55, 0.34)),
     }
 }
 

@@ -1,0 +1,120 @@
+{
+  "name": "pk-exhaust",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 11,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#ff7a1a"
+        ],
+        [
+          1,
+          "#ffd27a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "n",
+      "b": 0.0006,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "col",
+      "b": 3.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pk-exhaust",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 11,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#ff7a1a"
+                ],
+                [
+                  1,
+                  "#ffd27a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "n",
+              "b": 0.0006,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col",
+              "b": 3.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +h +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -1,0 +1,620 @@
+{
+  "name": "sf-leaves",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "angle_jitter": 180,
+      "cell": 0.1,
+      "name": "lf",
+      "per_cell": 3,
+      "scale": [
+        0.75,
+        1.2
+      ],
+      "seed": 3,
+      "shape": "leaf",
+      "size": [
+        0.075,
+        0.15
+      ],
+      "type": "scatter"
+    },
+    {
+      "id": "lf.id",
+      "max": 1.0,
+      "min": 0.84,
+      "name": "tone",
+      "seed": 5,
+      "type": "random"
+    },
+    {
+      "input": "lf.local",
+      "name": "lc",
+      "type": "split"
+    },
+    {
+      "a": "lc.x",
+      "name": "ax",
+      "op": "abs",
+      "type": "math"
+    },
+    {
+      "in": [
+        0.03,
+        0.12
+      ],
+      "input": "ax",
+      "name": "rib",
+      "type": "levels"
+    },
+    {
+      "in": [
+        0.0,
+        0.006
+      ],
+      "input": "lf.edge",
+      "name": "edgein",
+      "type": "levels"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "rib",
+      "name": "ribv",
+      "to": [
+        0.9,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "lf.height",
+      "name": "shade",
+      "to": [
+        0.9,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "tone",
+      "b": "ribv",
+      "name": "l1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "l1",
+      "b": "shade",
+      "name": "l2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "edgein",
+      "name": "edv",
+      "to": [
+        0.86,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "l2",
+      "b": "edv",
+      "name": "l3",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": 0.71,
+      "b": "l3",
+      "c": "lf.mask",
+      "name": "v0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "v0",
+      "b": 0.7,
+      "c": 1.0,
+      "name": "v",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "a": "v",
+      "b": 2.2,
+      "name": "albedo",
+      "op": "pow",
+      "type": "math"
+    },
+    {
+      "a": "lf.height",
+      "b": 0.008,
+      "name": "hh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "rib",
+      "b": 0.0015,
+      "name": "hr",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hr",
+      "b": "lf.mask",
+      "name": "hm",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hh",
+      "b": "hm",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "id": "lf.id",
+      "max": 0.9,
+      "min": 0.72,
+      "name": "rl",
+      "seed": 9,
+      "type": "random"
+    },
+    {
+      "a": 1.0,
+      "b": "rl",
+      "c": "lf.mask",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "albedo",
+      "height": "h",
+      "metallic": 0,
+      "name": "out",
+      "normal_strength": 1.0,
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-leaves",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "angle_jitter": 180,
+              "cell": 0.1,
+              "name": "lf",
+              "per_cell": 3,
+              "scale": [
+                0.75,
+                1.2
+              ],
+              "seed": 3,
+              "shape": "leaf",
+              "size": [
+                0.075,
+                0.15
+              ],
+              "type": "scatter"
+            },
+            {
+              "id": "lf.id",
+              "max": 1.0,
+              "min": 0.84,
+              "name": "tone",
+              "seed": 5,
+              "type": "random"
+            },
+            {
+              "input": "lf.local",
+              "name": "lc",
+              "type": "split"
+            },
+            {
+              "a": "lc.x",
+              "name": "ax",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.03,
+                0.12
+              ],
+              "input": "ax",
+              "name": "rib",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.0,
+                0.006
+              ],
+              "input": "lf.edge",
+              "name": "edgein",
+              "type": "levels"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "rib",
+              "name": "ribv",
+              "to": [
+                0.9,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "lf.height",
+              "name": "shade",
+              "to": [
+                0.9,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "ribv",
+              "name": "l1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "l1",
+              "b": "shade",
+              "name": "l2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "edgein",
+              "name": "edv",
+              "to": [
+                0.86,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "l2",
+              "b": "edv",
+              "name": "l3",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.71,
+              "b": "l3",
+              "c": "lf.mask",
+              "name": "v0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.7,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "lf.height",
+              "b": 0.012,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "rib",
+              "b": 0.0015,
+              "name": "hr",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hr",
+              "b": "lf.mask",
+              "name": "hm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hh",
+              "b": "hm",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "id": "lf.id",
+              "max": 0.9,
+              "min": 0.72,
+              "name": "rl",
+              "seed": 9,
+              "type": "random"
+            },
+            {
+              "a": 1.0,
+              "b": "rl",
+              "c": "lf.mask",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+lf +tone +lc +ax +rib +edgein +ribv +shade +l1 +l2 +edv +l3 +v0 +v +albedo +hh +hr +hm +h +rl +rough +out"
+      },
+      {
+        "model": {
+          "name": "sf-leaves",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "angle_jitter": 180,
+              "cell": 0.1,
+              "name": "lf",
+              "per_cell": 3,
+              "scale": [
+                0.75,
+                1.2
+              ],
+              "seed": 3,
+              "shape": "leaf",
+              "size": [
+                0.075,
+                0.15
+              ],
+              "type": "scatter"
+            },
+            {
+              "id": "lf.id",
+              "max": 1.0,
+              "min": 0.84,
+              "name": "tone",
+              "seed": 5,
+              "type": "random"
+            },
+            {
+              "input": "lf.local",
+              "name": "lc",
+              "type": "split"
+            },
+            {
+              "a": "lc.x",
+              "name": "ax",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.03,
+                0.12
+              ],
+              "input": "ax",
+              "name": "rib",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.0,
+                0.006
+              ],
+              "input": "lf.edge",
+              "name": "edgein",
+              "type": "levels"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "rib",
+              "name": "ribv",
+              "to": [
+                0.9,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "lf.height",
+              "name": "shade",
+              "to": [
+                0.9,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "ribv",
+              "name": "l1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "l1",
+              "b": "shade",
+              "name": "l2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "edgein",
+              "name": "edv",
+              "to": [
+                0.86,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "l2",
+              "b": "edv",
+              "name": "l3",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.71,
+              "b": "l3",
+              "c": "lf.mask",
+              "name": "v0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.7,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "lf.height",
+              "b": 0.008,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "rib",
+              "b": 0.0015,
+              "name": "hr",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hr",
+              "b": "lf.mask",
+              "name": "hm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hh",
+              "b": "hm",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "id": "lf.id",
+              "max": 0.9,
+              "min": 0.72,
+              "name": "rl",
+              "seed": 9,
+              "type": "random"
+            },
+            {
+              "a": 1.0,
+              "b": "rl",
+              "c": "lf.mask",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~hh"
+      }
+    ],
+    "current": 1
+  }
+}

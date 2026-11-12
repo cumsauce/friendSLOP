@@ -222,10 +222,9 @@ pub fn plugin(app: &mut App) {
 /// The shared look of a tear.
 #[derive(Clone)]
 struct TearKit {
-    gem: Handle<StandardMaterial>,
+    /// The modeler-made faceted gem (`models/features/gods_tear.gltf`).
+    gem: Handle<bevy::world_serialization::WorldAsset>,
     halo: Handle<StandardMaterial>,
-    ball: Handle<Mesh>,
-    tip: Handle<Mesh>,
     ring: Handle<Mesh>,
 }
 
@@ -233,6 +232,7 @@ struct TearKit {
 fn dress_tears(
     mut commands: Commands,
     new: Query<(Entity, &GodsTear), Added<GodsTear>>,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut kit: Local<Option<TearKit>>,
@@ -243,11 +243,7 @@ fn dress_tears(
     // Every tear shares one set of meshes and materials, so they draw in a
     // batch (#151).
     let kit = kit.get_or_insert_with(|| TearKit {
-        gem: materials.add(StandardMaterial {
-            base_color: Color::srgb(0.45, 0.75, 1.0),
-            emissive: LinearRgba::rgb(0.6, 1.2, 2.4),
-            ..default()
-        }),
+        gem: assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/gods_tear.gltf")),
         halo: materials.add(StandardMaterial {
             base_color: Color::srgba(0.6, 0.85, 1.0, 0.55),
             emissive: LinearRgba::rgb(0.3, 0.6, 1.2),
@@ -255,18 +251,10 @@ fn dress_tears(
             unlit: true,
             ..default()
         }),
-        ball: meshes.add(Sphere::new(0.11)),
-        tip: meshes.add(Cone::new(0.1, 0.22)),
         ring: meshes.add(Annulus::new(0.18, 0.26)),
     });
     for (entity, tear) in &new {
-        let TearKit {
-            gem,
-            halo,
-            ball,
-            tip,
-            ring,
-        } = kit.clone();
+        let TearKit { gem, halo, ring } = kit.clone();
         commands
             .entity(entity)
             .insert((
@@ -278,16 +266,7 @@ fn dress_tears(
             .with_children(|p| {
                 // A small gem, not a beach ball: it sits in a faint glowing
                 // ring on the grass so it reads as treasure, not clutter.
-                p.spawn((
-                    Mesh3d(ball),
-                    MeshMaterial3d(gem.clone()),
-                    Transform::from_xyz(0.0, 0.11, 0.0),
-                ));
-                p.spawn((
-                    Mesh3d(tip),
-                    MeshMaterial3d(gem),
-                    Transform::from_xyz(0.0, 0.26, 0.0),
-                ));
+                p.spawn((WorldAssetRoot(gem), Transform::default()));
                 p.spawn((
                     Mesh3d(ring),
                     MeshMaterial3d(halo),

@@ -1,0 +1,922 @@
+{
+  "name": "sf-wood",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.5,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "name": "rot",
+      "rotate": 90,
+      "type": "transform"
+    },
+    {
+      "coords": "rot",
+      "name": "g",
+      "size": [
+        0.75,
+        0.25
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1.0,
+      "min": 0.84,
+      "name": "tone",
+      "seed": 3,
+      "type": "random"
+    },
+    {
+      "id": "g.id",
+      "max": 7.0,
+      "min": 0.0,
+      "name": "phase",
+      "seed": 4,
+      "type": "random"
+    },
+    {
+      "name": "wn",
+      "octaves": 2,
+      "seed": 5,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "input": "uv",
+      "name": "sp",
+      "type": "split"
+    },
+    {
+      "a": "sp.x",
+      "b": 12.0,
+      "name": "a1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "wnl",
+      "b": 0.9,
+      "name": "wn2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "a1",
+      "b": "wn2",
+      "name": "a2",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "a2",
+      "b": "phase",
+      "name": "a3",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "a3",
+      "b": 6.2831853,
+      "name": "a4",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "a4",
+      "name": "s",
+      "op": "sin",
+      "type": "math"
+    },
+    {
+      "from": [
+        -1,
+        1
+      ],
+      "input": "s",
+      "name": "ring",
+      "to": [
+        0,
+        1
+      ],
+      "type": "remap"
+    },
+    {
+      "in": [
+        0.55,
+        0.95
+      ],
+      "input": "ring",
+      "name": "ringk",
+      "type": "levels"
+    },
+    {
+      "name": "fn",
+      "octaves": 2,
+      "seed": 8,
+      "size": 0.006,
+      "type": "noise"
+    },
+    {
+      "angle": 90,
+      "input": "fn",
+      "length": 0.12,
+      "name": "fib",
+      "type": "dir_blur"
+    },
+    {
+      "in": [
+        0.35,
+        0.65
+      ],
+      "input": "fib",
+      "name": "fibl",
+      "type": "levels"
+    },
+    {
+      "in": [
+        0.003,
+        0.01
+      ],
+      "input": "g.edge",
+      "name": "gap",
+      "type": "levels"
+    },
+    {
+      "in": [
+        0.003,
+        0.03
+      ],
+      "input": "g.edge",
+      "name": "bev",
+      "type": "levels"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "ringk",
+      "name": "ringv",
+      "to": [
+        1.0,
+        0.86
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fibl",
+      "name": "fibv",
+      "to": [
+        0.93,
+        1.03
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "tone",
+      "b": "ringv",
+      "name": "w1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "w1",
+      "b": "fibv",
+      "name": "w2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": 0.67,
+      "b": "w2",
+      "c": "gap",
+      "name": "v0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "v0",
+      "b": 0.66,
+      "c": 1.0,
+      "name": "v",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "a": "v",
+      "b": 2.2,
+      "name": "albedo",
+      "op": "pow",
+      "type": "math"
+    },
+    {
+      "a": "bev",
+      "b": 0.008,
+      "name": "hb",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "ringk",
+      "b": -0.0012,
+      "name": "hr",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "fibl",
+      "b": 0.0012,
+      "name": "hfb",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hb",
+      "b": "hr",
+      "name": "h1",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "h1",
+      "b": "hfb",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "ringk",
+      "name": "rr",
+      "to": [
+        0.8,
+        0.95
+      ],
+      "type": "remap"
+    },
+    {
+      "a": 1.0,
+      "b": "rr",
+      "c": "gap",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "albedo",
+      "height": "h",
+      "metallic": 0,
+      "name": "out",
+      "normal_strength": 1.0,
+      "roughness": "rough",
+      "type": "output"
+    },
+    {
+      "angle": 90,
+      "input": "wn",
+      "length": 0.3,
+      "name": "wnb",
+      "type": "dir_blur"
+    },
+    {
+      "in": [
+        0.4,
+        0.6
+      ],
+      "input": "wnb",
+      "name": "wnl",
+      "type": "levels"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.5,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "name": "rot",
+              "rotate": 90,
+              "type": "transform"
+            },
+            {
+              "coords": "rot",
+              "name": "g",
+              "size": [
+                0.75,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1.0,
+              "min": 0.84,
+              "name": "tone",
+              "seed": 3,
+              "type": "random"
+            },
+            {
+              "id": "g.id",
+              "max": 7.0,
+              "min": 0.0,
+              "name": "phase",
+              "seed": 4,
+              "type": "random"
+            },
+            {
+              "name": "wn",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "input": "uv",
+              "name": "sp",
+              "type": "split"
+            },
+            {
+              "a": "sp.x",
+              "b": 16.0,
+              "name": "a1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wn",
+              "b": 3.0,
+              "name": "wn2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "a1",
+              "b": "wn2",
+              "name": "a2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "a2",
+              "b": "phase",
+              "name": "a3",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "a3",
+              "b": 6.2831853,
+              "name": "a4",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "a4",
+              "name": "s",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "from": [
+                -1,
+                1
+              ],
+              "input": "s",
+              "name": "ring",
+              "to": [
+                0,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "in": [
+                0.55,
+                0.95
+              ],
+              "input": "ring",
+              "name": "ringk",
+              "type": "levels"
+            },
+            {
+              "name": "fn",
+              "octaves": 2,
+              "seed": 8,
+              "size": 0.006,
+              "type": "noise"
+            },
+            {
+              "angle": 90,
+              "input": "fn",
+              "length": 0.12,
+              "name": "fib",
+              "type": "dir_blur"
+            },
+            {
+              "in": [
+                0.35,
+                0.65
+              ],
+              "input": "fib",
+              "name": "fibl",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.003,
+                0.01
+              ],
+              "input": "g.edge",
+              "name": "gap",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.003,
+                0.03
+              ],
+              "input": "g.edge",
+              "name": "bev",
+              "type": "levels"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ringk",
+              "name": "ringv",
+              "to": [
+                1.0,
+                0.86
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fibl",
+              "name": "fibv",
+              "to": [
+                0.93,
+                1.03
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "ringv",
+              "name": "w1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "w1",
+              "b": "fibv",
+              "name": "w2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.67,
+              "b": "w2",
+              "c": "gap",
+              "name": "v0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.66,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "bev",
+              "b": 0.008,
+              "name": "hb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "ringk",
+              "b": -0.0012,
+              "name": "hr",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fibl",
+              "b": 0.0012,
+              "name": "hfb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hb",
+              "b": "hr",
+              "name": "h1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "hfb",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ringk",
+              "name": "rr",
+              "to": [
+                0.8,
+                0.95
+              ],
+              "type": "remap"
+            },
+            {
+              "a": 1.0,
+              "b": "rr",
+              "c": "gap",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +rot +g +tone +phase +wn +sp +a1 +wn2 +a2 +a3 +a4 +s +ring +ringk +fn +fib +fibl +gap +bev +ringv +fibv +w1 +w2 +v0 +v +albedo +hb +hr +hfb +h1 +h +rr +rough +out"
+      },
+      {
+        "model": {
+          "name": "sf-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.5,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "name": "rot",
+              "rotate": 90,
+              "type": "transform"
+            },
+            {
+              "coords": "rot",
+              "name": "g",
+              "size": [
+                0.75,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1.0,
+              "min": 0.84,
+              "name": "tone",
+              "seed": 3,
+              "type": "random"
+            },
+            {
+              "id": "g.id",
+              "max": 7.0,
+              "min": 0.0,
+              "name": "phase",
+              "seed": 4,
+              "type": "random"
+            },
+            {
+              "name": "wn",
+              "octaves": 2,
+              "seed": 5,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "input": "uv",
+              "name": "sp",
+              "type": "split"
+            },
+            {
+              "a": "sp.x",
+              "b": 12.0,
+              "name": "a1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wnl",
+              "b": 0.9,
+              "name": "wn2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "a1",
+              "b": "wn2",
+              "name": "a2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "a2",
+              "b": "phase",
+              "name": "a3",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "a3",
+              "b": 6.2831853,
+              "name": "a4",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "a4",
+              "name": "s",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "from": [
+                -1,
+                1
+              ],
+              "input": "s",
+              "name": "ring",
+              "to": [
+                0,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "in": [
+                0.55,
+                0.95
+              ],
+              "input": "ring",
+              "name": "ringk",
+              "type": "levels"
+            },
+            {
+              "name": "fn",
+              "octaves": 2,
+              "seed": 8,
+              "size": 0.006,
+              "type": "noise"
+            },
+            {
+              "angle": 90,
+              "input": "fn",
+              "length": 0.12,
+              "name": "fib",
+              "type": "dir_blur"
+            },
+            {
+              "in": [
+                0.35,
+                0.65
+              ],
+              "input": "fib",
+              "name": "fibl",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.003,
+                0.01
+              ],
+              "input": "g.edge",
+              "name": "gap",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.003,
+                0.03
+              ],
+              "input": "g.edge",
+              "name": "bev",
+              "type": "levels"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ringk",
+              "name": "ringv",
+              "to": [
+                1.0,
+                0.86
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fibl",
+              "name": "fibv",
+              "to": [
+                0.93,
+                1.03
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "ringv",
+              "name": "w1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "w1",
+              "b": "fibv",
+              "name": "w2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.67,
+              "b": "w2",
+              "c": "gap",
+              "name": "v0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.66,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "bev",
+              "b": 0.008,
+              "name": "hb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "ringk",
+              "b": -0.0012,
+              "name": "hr",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fibl",
+              "b": 0.0012,
+              "name": "hfb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hb",
+              "b": "hr",
+              "name": "h1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "hfb",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ringk",
+              "name": "rr",
+              "to": [
+                0.8,
+                0.95
+              ],
+              "type": "remap"
+            },
+            {
+              "a": 1.0,
+              "b": "rr",
+              "c": "gap",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "angle": 90,
+              "input": "wn",
+              "length": 0.3,
+              "name": "wnb",
+              "type": "dir_blur"
+            },
+            {
+              "in": [
+                0.4,
+                0.6
+              ],
+              "input": "wnb",
+              "name": "wnl",
+              "type": "levels"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+wnb +wnl ~wn ~wn2 ~a1"
+      }
+    ],
+    "current": 1
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "name": "zn-canvas",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.01,
+        0.01
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 121,
+      "size": 0.1,
+      "type": "noise"
+    },
+    {
+      "a": "g.edge",
+      "b": 0.0,
+      "c": 0.004,
+      "name": "w",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "a": "fn",
+      "b": "w",
+      "c": 0.3,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#cfc4a8"
+        ],
+        [
+          1,
+          "#eee7d4"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-canvas",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.01,
+                0.01
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 121,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "a": "g.edge",
+              "b": 0.0,
+              "c": 0.004,
+              "name": "w",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": "fn",
+              "b": "w",
+              "c": 0.3,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#cfc4a8"
+                ],
+                [
+                  1,
+                  "#eee7d4"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+g +fn +w +t0 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

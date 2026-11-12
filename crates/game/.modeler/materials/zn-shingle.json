@@ -1,0 +1,293 @@
+{
+  "name": "zn-shingle",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.25,
+        0.25
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "tone",
+      "seed": 81,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 82,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "a": "tone",
+      "b": "fn",
+      "c": 0.35,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "sc",
+      "stops": [
+        [
+          0,
+          "#6f2e22"
+        ],
+        [
+          0.5,
+          "#8c3f2e"
+        ],
+        [
+          1,
+          "#a5543a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "g.edge",
+      "b": 0.004,
+      "c": 0.016,
+      "name": "gv",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "a": "#3a1a12",
+      "b": "sc",
+      "c": "gv",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "gv",
+      "b": 0.006,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h0",
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-shingle",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.25,
+                0.18
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "tone",
+              "seed": 81,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 82,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "tone",
+              "b": "fn",
+              "c": 0.35,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "sc",
+              "stops": [
+                [
+                  0,
+                  "#6f2e22"
+                ],
+                [
+                  0.5,
+                  "#8c3f2e"
+                ],
+                [
+                  1,
+                  "#a5543a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "g.edge",
+              "b": 0.004,
+              "c": 0.016,
+              "name": "gv",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": "#3a1a12",
+              "b": "sc",
+              "c": "gv",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "gv",
+              "b": 0.006,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h0",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+g +tone +fn +t0 +sc +gv +col +h0 +out"
+      },
+      {
+        "model": {
+          "name": "zn-shingle",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.25,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "tone",
+              "seed": 81,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 82,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "tone",
+              "b": "fn",
+              "c": 0.35,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "sc",
+              "stops": [
+                [
+                  0,
+                  "#6f2e22"
+                ],
+                [
+                  0.5,
+                  "#8c3f2e"
+                ],
+                [
+                  1,
+                  "#a5543a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "g.edge",
+              "b": 0.004,
+              "c": 0.016,
+              "name": "gv",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": "#3a1a12",
+              "b": "sc",
+              "c": "gv",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "gv",
+              "b": 0.006,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h0",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~g"
+      }
+    ],
+    "current": 1
+  }
+}

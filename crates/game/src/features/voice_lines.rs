@@ -136,69 +136,22 @@ fn spawn_subtitle(mut commands: Commands) {
     ));
 }
 
+/// The singing music box: a modeler-made model
+/// (`models/features/music_box.gltf`), lid open and orb glowing.
 fn dress_music_boxes(
     mut commands: Commands,
     new: Query<(Entity, &MusicBox), Added<MusicBox>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
 ) {
     for (entity, b) in &new {
-        let wood = crate::art::glossy(&mut materials, Color::srgb(0.45, 0.2, 0.5));
-        let gold = materials.add(StandardMaterial {
-            base_color: Color::srgb(1.0, 0.8, 0.3),
-            metallic: 0.9,
-            perceptual_roughness: 0.3,
-            ..default()
-        });
-        let glow = materials.add(StandardMaterial {
-            base_color: Color::srgb(1.0, 0.85, 0.3),
-            emissive: LinearRgba::rgb(2.0, 1.6, 0.4),
-            ..default()
-        });
-        commands
-            .entity(entity)
-            .insert((
-                Transform::from_xyz(b.at.x, 0.0, b.at.y),
-                Visibility::default(),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(0.6, 0.35, 0.4))),
-                    MeshMaterial3d(wood.clone()),
-                    Transform::from_xyz(0.0, 0.2, 0.0),
-                ));
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.12))),
-                    MeshMaterial3d(glow.clone()),
-                    Transform::from_xyz(0.0, 0.55, 0.0),
-                ));
-                // Open lid tilted back, gold trim, a wind-up key and little feet.
-                p.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(0.62, 0.05, 0.42))),
-                    MeshMaterial3d(wood.clone()),
-                    Transform::from_xyz(0.0, 0.55, 0.3).with_rotation(Quat::from_rotation_x(1.2)),
-                ));
-                p.spawn((
-                    Mesh3d(meshes.add(Cuboid::new(0.64, 0.05, 0.44))),
-                    MeshMaterial3d(gold.clone()),
-                    Transform::from_xyz(0.0, 0.38, 0.0),
-                ));
-                p.spawn((
-                    Mesh3d(meshes.add(Torus::new(0.03, 0.07))),
-                    MeshMaterial3d(gold.clone()),
-                    Transform::from_xyz(0.36, 0.22, 0.0)
-                        .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
-                ));
-                let foot = meshes.add(Sphere::new(0.05));
-                for (x, z) in [(-0.25, -0.15), (0.25, -0.15), (-0.25, 0.15), (0.25, 0.15)] {
-                    p.spawn((
-                        Mesh3d(foot.clone()),
-                        MeshMaterial3d(gold.clone()),
-                        Transform::from_xyz(x, 0.02, z),
-                    ));
-                }
-            });
+        commands.entity(entity).insert((
+            WorldAssetRoot(
+                assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/music_box.gltf")),
+            ),
+            Transform::from_xyz(b.at.x, 0.0, b.at.y),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+        ));
     }
 }
 

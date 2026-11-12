@@ -1,0 +1,90 @@
+{
+  "name": "de-glaze-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 43,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0.0,
+          "#9a302a"
+        ],
+        [
+          1.0,
+          "#c8473c"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "clearcoat": 0.5,
+      "name": "out",
+      "roughness": 0.22,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "de-glaze-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 43,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0.0,
+                  "#9a302a"
+                ],
+                [
+                  1.0,
+                  "#c8473c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "clearcoat": 0.5,
+              "name": "out",
+              "roughness": 0.22,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

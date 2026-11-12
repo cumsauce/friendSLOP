@@ -1,0 +1,2857 @@
+{
+  "format_version": 1,
+  "name": "de-wall-lamp",
+  "parts": [],
+  "version": 5974,
+  "ops": [
+    {
+      "primitive": {
+        "name": "plate_raw",
+        "kind": "box",
+        "size": [
+          0.1,
+          0.15,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          1.76,
+          -0.115
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "round": {
+        "name": "plate",
+        "input": "plate_raw",
+        "mode": "chamfer",
+        "radius": 0.006,
+        "segments": 0
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm",
+        "kind": "box",
+        "size": [
+          0.03,
+          0.03,
+          0.115
+        ],
+        "translation": [
+          0.0,
+          1.815,
+          -0.0525
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "shade",
+        "profile": [
+          [
+            [
+              0.112,
+              1.735
+            ],
+            [
+              0.118,
+              1.742
+            ],
+            [
+              0.05,
+              1.835
+            ],
+            [
+              0.0,
+              1.835
+            ],
+            [
+              0.0,
+              1.815
+            ],
+            [
+              0.042,
+              1.815
+            ],
+            [
+              0.1,
+              1.742
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "plate",
+        "input": "plate",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 5,
+                "seed": 22,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wy",
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust_m",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#25262b"
+                  ],
+                  [
+                    1.0,
+                    "#3d3f46"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "wy.f1",
+                "name": "rc",
+                "stops": [
+                  [
+                    0.0,
+                    "#5a2e18"
+                  ],
+                  [
+                    0.6,
+                    "#8a4a22"
+                  ],
+                  [
+                    1.0,
+                    "#6e3a1c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "rust_m",
+                "b": 0.0008,
+                "name": "rh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rc",
+                "height": "rh",
+                "metallic": 0.0,
+                "name": "rust",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "base_color": "c0",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rust_m",
+                    "output": "rust"
+                  }
+                ],
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "arm",
+        "input": "arm",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 5,
+                "seed": 22,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wy",
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust_m",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#25262b"
+                  ],
+                  [
+                    1.0,
+                    "#3d3f46"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "wy.f1",
+                "name": "rc",
+                "stops": [
+                  [
+                    0.0,
+                    "#5a2e18"
+                  ],
+                  [
+                    0.6,
+                    "#8a4a22"
+                  ],
+                  [
+                    1.0,
+                    "#6e3a1c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "rust_m",
+                "b": 0.0008,
+                "name": "rh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rc",
+                "height": "rh",
+                "metallic": 0.0,
+                "name": "rust",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "base_color": "c0",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rust_m",
+                    "output": "rust"
+                  }
+                ],
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shade",
+        "input": "shade",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 5,
+                "seed": 22,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wy",
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust_m",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#25262b"
+                  ],
+                  [
+                    1.0,
+                    "#3d3f46"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "wy.f1",
+                "name": "rc",
+                "stops": [
+                  [
+                    0.0,
+                    "#5a2e18"
+                  ],
+                  [
+                    0.6,
+                    "#8a4a22"
+                  ],
+                  [
+                    1.0,
+                    "#6e3a1c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "rust_m",
+                "b": 0.0008,
+                "name": "rh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rc",
+                "height": "rh",
+                "metallic": 0.0,
+                "name": "rust",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "base_color": "c0",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rust_m",
+                    "output": "rust"
+                  }
+                ],
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "plate_raw",
+        "input": "plate_raw",
+        "visible": false
+      }
+    },
+    {
+      "revolve": {
+        "name": "bulb",
+        "profile": [
+          [
+            [
+              0.0,
+              1.615
+            ],
+            [
+              -3.496911e-9,
+              1.625
+            ],
+            [
+              0.0104420995,
+              1.6256845
+            ],
+            [
+              0.020705525,
+              1.627726
+            ],
+            [
+              0.030614674,
+              1.6310897
+            ],
+            [
+              0.039999995,
+              1.635718
+            ],
+            [
+              0.048700914,
+              1.6415318
+            ],
+            [
+              0.05656854,
+              1.6484315
+            ],
+            [
+              0.06346826,
+              1.6562991
+            ],
+            [
+              0.06928203,
+              1.6650001
+            ],
+            [
+              0.073910356,
+              1.6743853
+            ],
+            [
+              0.07727406,
+              1.6842945
+            ],
+            [
+              0.07931559,
+              1.6945579
+            ],
+            [
+              0.08,
+              1.705
+            ],
+            [
+              0.07931559,
+              1.7154422
+            ],
+            [
+              0.07727406,
+              1.7257056
+            ],
+            [
+              0.073910356,
+              1.7356148
+            ],
+            [
+              0.06928203,
+              1.745
+            ],
+            [
+              0.06346826,
+              1.753701
+            ],
+            [
+              0.05656854,
+              1.7615685
+            ],
+            [
+              0.048700914,
+              1.7684683
+            ],
+            [
+              0.039999995,
+              1.7742821
+            ],
+            [
+              0.030614674,
+              1.7789104
+            ],
+            [
+              0.020705525,
+              1.7822741
+            ],
+            [
+              0.0104420995,
+              1.7843156
+            ],
+            [
+              -3.496911e-9,
+              1.7850001
+            ],
+            [
+              0.0,
+              1.795
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 12,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "knob",
+        "profile": [
+          [
+            [
+              0.0,
+              1.81
+            ],
+            [
+              -6.993822e-10,
+              1.808
+            ],
+            [
+              0.00208842,
+              1.8081369
+            ],
+            [
+              0.0041411053,
+              1.8085452
+            ],
+            [
+              0.006122935,
+              1.8092179
+            ],
+            [
+              0.007999999,
+              1.8101436
+            ],
+            [
+              0.009740183,
+              1.8113064
+            ],
+            [
+              0.0113137085,
+              1.8126863
+            ],
+            [
+              0.012693654,
+              1.8142598
+            ],
+            [
+              0.013856407,
+              1.816
+            ],
+            [
+              0.014782073,
+              1.817877
+            ],
+            [
+              0.015454814,
+              1.8198589
+            ],
+            [
+              0.015863119,
+              1.8219116
+            ],
+            [
+              0.016,
+              1.824
+            ],
+            [
+              0.015863119,
+              1.8260884
+            ],
+            [
+              0.015454814,
+              1.8281411
+            ],
+            [
+              0.014782073,
+              1.830123
+            ],
+            [
+              0.013856407,
+              1.832
+            ],
+            [
+              0.012693654,
+              1.8337402
+            ],
+            [
+              0.0113137085,
+              1.8353137
+            ],
+            [
+              0.009740183,
+              1.8366936
+            ],
+            [
+              0.007999999,
+              1.8378564
+            ],
+            [
+              0.006122935,
+              1.8387821
+            ],
+            [
+              0.0041411053,
+              1.8394548
+            ],
+            [
+              0.00208842,
+              1.8398631
+            ],
+            [
+              -6.993822e-10,
+              1.84
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "knob",
+        "input": "knob",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 5,
+                "seed": 22,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wy",
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust_m",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#25262b"
+                  ],
+                  [
+                    1.0,
+                    "#3d3f46"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "wy.f1",
+                "name": "rc",
+                "stops": [
+                  [
+                    0.0,
+                    "#5a2e18"
+                  ],
+                  [
+                    0.6,
+                    "#8a4a22"
+                  ],
+                  [
+                    1.0,
+                    "#6e3a1c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "rust_m",
+                "b": 0.0008,
+                "name": "rh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rc",
+                "height": "rh",
+                "metallic": 0.0,
+                "name": "rust",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "base_color": "c0",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rust_m",
+                    "output": "rust"
+                  }
+                ],
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bulb",
+        "input": "bulb",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#ffc870"
+                  ],
+                  [
+                    1.0,
+                    "#ffe7a8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c",
+                "b": 1.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "emissive": "em",
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "group": {
+        "name": "iron",
+        "inputs": [
+          "plate",
+          "arm",
+          "shade",
+          "knob"
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "plate",
+        "input": "plate",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arm",
+        "input": "arm",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "shade",
+        "input": "shade",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob",
+        "input": "knob",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "model",
+          "parts": [],
+          "version": 1,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "style": {
+            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
+            "colors": {
+              "bark": "#6b4a2f",
+              "brass": "#b8893a",
+              "char": "#2a2220",
+              "ember": "#ff5a1f",
+              "flame": "#ffb347",
+              "gunmetal": "#3a3d44",
+              "leaf": "#5f8f2f",
+              "moss": "#6f8f3a",
+              "stone": "#8f8a80",
+              "stone_dark": "#5e5a54",
+              "wood": "#9a6a3e"
+            },
+            "numbers": {
+              "segments": 12.0
+            }
+          }
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "style"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "de-wall-lamp",
+          "parts": [],
+          "version": 3765,
+          "ops": [
+            {
+              "primitive": {
+                "name": "plate_raw",
+                "kind": "box",
+                "size": [
+                  0.1,
+                  0.15,
+                  0.02
+                ],
+                "translation": [
+                  0.0,
+                  1.76,
+                  -0.115
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "round": {
+                "name": "plate",
+                "input": "plate_raw",
+                "mode": "chamfer",
+                "radius": 0.006,
+                "segments": 0
+              }
+            },
+            {
+              "primitive": {
+                "name": "arm",
+                "kind": "box",
+                "size": [
+                  0.03,
+                  0.03,
+                  0.115
+                ],
+                "translation": [
+                  0.0,
+                  1.815,
+                  -0.0525
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "shade",
+                "profile": [
+                  [
+                    [
+                      0.112,
+                      1.735
+                    ],
+                    [
+                      0.118,
+                      1.742
+                    ],
+                    [
+                      0.05,
+                      1.835
+                    ],
+                    [
+                      0.0,
+                      1.835
+                    ],
+                    [
+                      0.0,
+                      1.815
+                    ],
+                    [
+                      0.042,
+                      1.815
+                    ],
+                    [
+                      0.1,
+                      1.742
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 10,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "plate",
+                "input": "plate",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "arm",
+                "input": "arm",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "shade",
+                "input": "shade",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "plate_raw",
+                "input": "plate_raw",
+                "visible": false
+              }
+            },
+            {
+              "revolve": {
+                "name": "bulb",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      1.615
+                    ],
+                    [
+                      -3.496911e-9,
+                      1.625
+                    ],
+                    [
+                      0.0104420995,
+                      1.6256845
+                    ],
+                    [
+                      0.020705525,
+                      1.627726
+                    ],
+                    [
+                      0.030614674,
+                      1.6310897
+                    ],
+                    [
+                      0.039999995,
+                      1.635718
+                    ],
+                    [
+                      0.048700914,
+                      1.6415318
+                    ],
+                    [
+                      0.05656854,
+                      1.6484315
+                    ],
+                    [
+                      0.06346826,
+                      1.6562991
+                    ],
+                    [
+                      0.06928203,
+                      1.6650001
+                    ],
+                    [
+                      0.073910356,
+                      1.6743853
+                    ],
+                    [
+                      0.07727406,
+                      1.6842945
+                    ],
+                    [
+                      0.07931559,
+                      1.6945579
+                    ],
+                    [
+                      0.08,
+                      1.705
+                    ],
+                    [
+                      0.07931559,
+                      1.7154422
+                    ],
+                    [
+                      0.07727406,
+                      1.7257056
+                    ],
+                    [
+                      0.073910356,
+                      1.7356148
+                    ],
+                    [
+                      0.06928203,
+                      1.745
+                    ],
+                    [
+                      0.06346826,
+                      1.753701
+                    ],
+                    [
+                      0.05656854,
+                      1.7615685
+                    ],
+                    [
+                      0.048700914,
+                      1.7684683
+                    ],
+                    [
+                      0.039999995,
+                      1.7742821
+                    ],
+                    [
+                      0.030614674,
+                      1.7789104
+                    ],
+                    [
+                      0.020705525,
+                      1.7822741
+                    ],
+                    [
+                      0.0104420995,
+                      1.7843156
+                    ],
+                    [
+                      -3.496911e-9,
+                      1.7850001
+                    ],
+                    [
+                      0.0,
+                      1.795
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 12,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "knob",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      1.81
+                    ],
+                    [
+                      -6.993822e-10,
+                      1.808
+                    ],
+                    [
+                      0.00208842,
+                      1.8081369
+                    ],
+                    [
+                      0.0041411053,
+                      1.8085452
+                    ],
+                    [
+                      0.006122935,
+                      1.8092179
+                    ],
+                    [
+                      0.007999999,
+                      1.8101436
+                    ],
+                    [
+                      0.009740183,
+                      1.8113064
+                    ],
+                    [
+                      0.0113137085,
+                      1.8126863
+                    ],
+                    [
+                      0.012693654,
+                      1.8142598
+                    ],
+                    [
+                      0.013856407,
+                      1.816
+                    ],
+                    [
+                      0.014782073,
+                      1.817877
+                    ],
+                    [
+                      0.015454814,
+                      1.8198589
+                    ],
+                    [
+                      0.015863119,
+                      1.8219116
+                    ],
+                    [
+                      0.016,
+                      1.824
+                    ],
+                    [
+                      0.015863119,
+                      1.8260884
+                    ],
+                    [
+                      0.015454814,
+                      1.8281411
+                    ],
+                    [
+                      0.014782073,
+                      1.830123
+                    ],
+                    [
+                      0.013856407,
+                      1.832
+                    ],
+                    [
+                      0.012693654,
+                      1.8337402
+                    ],
+                    [
+                      0.0113137085,
+                      1.8353137
+                    ],
+                    [
+                      0.009740183,
+                      1.8366936
+                    ],
+                    [
+                      0.007999999,
+                      1.8378564
+                    ],
+                    [
+                      0.006122935,
+                      1.8387821
+                    ],
+                    [
+                      0.0041411053,
+                      1.8394548
+                    ],
+                    [
+                      0.00208842,
+                      1.8398631
+                    ],
+                    [
+                      -6.993822e-10,
+                      1.84
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 10,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "knob",
+                "input": "knob",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "bulb",
+                "input": "bulb",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-lamp",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 31,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c",
+                        "stops": [
+                          [
+                            0.0,
+                            "#ffc870"
+                          ],
+                          [
+                            1.0,
+                            "#ffe7a8"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c",
+                        "b": 1.0,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "c",
+                        "emissive": "em",
+                        "name": "out",
+                        "roughness": 0.3,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "7 edits: op delete `bulb` … material `bulb` <- `bulb` pbr=de-lamp"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "de-wall-lamp",
+          "parts": [],
+          "version": 5974,
+          "ops": [
+            {
+              "primitive": {
+                "name": "plate_raw",
+                "kind": "box",
+                "size": [
+                  0.1,
+                  0.15,
+                  0.02
+                ],
+                "translation": [
+                  0.0,
+                  1.76,
+                  -0.115
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "round": {
+                "name": "plate",
+                "input": "plate_raw",
+                "mode": "chamfer",
+                "radius": 0.006,
+                "segments": 0
+              }
+            },
+            {
+              "primitive": {
+                "name": "arm",
+                "kind": "box",
+                "size": [
+                  0.03,
+                  0.03,
+                  0.115
+                ],
+                "translation": [
+                  0.0,
+                  1.815,
+                  -0.0525
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "shade",
+                "profile": [
+                  [
+                    [
+                      0.112,
+                      1.735
+                    ],
+                    [
+                      0.118,
+                      1.742
+                    ],
+                    [
+                      0.05,
+                      1.835
+                    ],
+                    [
+                      0.0,
+                      1.835
+                    ],
+                    [
+                      0.0,
+                      1.815
+                    ],
+                    [
+                      0.042,
+                      1.815
+                    ],
+                    [
+                      0.1,
+                      1.742
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 10,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "plate",
+                "input": "plate",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "arm",
+                "input": "arm",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "shade",
+                "input": "shade",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "plate_raw",
+                "input": "plate_raw",
+                "visible": false
+              }
+            },
+            {
+              "revolve": {
+                "name": "bulb",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      1.615
+                    ],
+                    [
+                      -3.496911e-9,
+                      1.625
+                    ],
+                    [
+                      0.0104420995,
+                      1.6256845
+                    ],
+                    [
+                      0.020705525,
+                      1.627726
+                    ],
+                    [
+                      0.030614674,
+                      1.6310897
+                    ],
+                    [
+                      0.039999995,
+                      1.635718
+                    ],
+                    [
+                      0.048700914,
+                      1.6415318
+                    ],
+                    [
+                      0.05656854,
+                      1.6484315
+                    ],
+                    [
+                      0.06346826,
+                      1.6562991
+                    ],
+                    [
+                      0.06928203,
+                      1.6650001
+                    ],
+                    [
+                      0.073910356,
+                      1.6743853
+                    ],
+                    [
+                      0.07727406,
+                      1.6842945
+                    ],
+                    [
+                      0.07931559,
+                      1.6945579
+                    ],
+                    [
+                      0.08,
+                      1.705
+                    ],
+                    [
+                      0.07931559,
+                      1.7154422
+                    ],
+                    [
+                      0.07727406,
+                      1.7257056
+                    ],
+                    [
+                      0.073910356,
+                      1.7356148
+                    ],
+                    [
+                      0.06928203,
+                      1.745
+                    ],
+                    [
+                      0.06346826,
+                      1.753701
+                    ],
+                    [
+                      0.05656854,
+                      1.7615685
+                    ],
+                    [
+                      0.048700914,
+                      1.7684683
+                    ],
+                    [
+                      0.039999995,
+                      1.7742821
+                    ],
+                    [
+                      0.030614674,
+                      1.7789104
+                    ],
+                    [
+                      0.020705525,
+                      1.7822741
+                    ],
+                    [
+                      0.0104420995,
+                      1.7843156
+                    ],
+                    [
+                      -3.496911e-9,
+                      1.7850001
+                    ],
+                    [
+                      0.0,
+                      1.795
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 12,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "knob",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      1.81
+                    ],
+                    [
+                      -6.993822e-10,
+                      1.808
+                    ],
+                    [
+                      0.00208842,
+                      1.8081369
+                    ],
+                    [
+                      0.0041411053,
+                      1.8085452
+                    ],
+                    [
+                      0.006122935,
+                      1.8092179
+                    ],
+                    [
+                      0.007999999,
+                      1.8101436
+                    ],
+                    [
+                      0.009740183,
+                      1.8113064
+                    ],
+                    [
+                      0.0113137085,
+                      1.8126863
+                    ],
+                    [
+                      0.012693654,
+                      1.8142598
+                    ],
+                    [
+                      0.013856407,
+                      1.816
+                    ],
+                    [
+                      0.014782073,
+                      1.817877
+                    ],
+                    [
+                      0.015454814,
+                      1.8198589
+                    ],
+                    [
+                      0.015863119,
+                      1.8219116
+                    ],
+                    [
+                      0.016,
+                      1.824
+                    ],
+                    [
+                      0.015863119,
+                      1.8260884
+                    ],
+                    [
+                      0.015454814,
+                      1.8281411
+                    ],
+                    [
+                      0.014782073,
+                      1.830123
+                    ],
+                    [
+                      0.013856407,
+                      1.832
+                    ],
+                    [
+                      0.012693654,
+                      1.8337402
+                    ],
+                    [
+                      0.0113137085,
+                      1.8353137
+                    ],
+                    [
+                      0.009740183,
+                      1.8366936
+                    ],
+                    [
+                      0.007999999,
+                      1.8378564
+                    ],
+                    [
+                      0.006122935,
+                      1.8387821
+                    ],
+                    [
+                      0.0041411053,
+                      1.8394548
+                    ],
+                    [
+                      0.00208842,
+                      1.8398631
+                    ],
+                    [
+                      -6.993822e-10,
+                      1.84
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 10,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "knob",
+                "input": "knob",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-iron",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 5,
+                        "seed": 22,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wy",
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust_m",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#25262b"
+                          ],
+                          [
+                            1.0,
+                            "#3d3f46"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "wy.f1",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0.0,
+                            "#5a2e18"
+                          ],
+                          [
+                            0.6,
+                            "#8a4a22"
+                          ],
+                          [
+                            1.0,
+                            "#6e3a1c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "r",
+                        "to": [
+                          0.45,
+                          0.65
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "rust_m",
+                        "b": 0.0008,
+                        "name": "rh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "rc",
+                        "height": "rh",
+                        "metallic": 0.0,
+                        "name": "rust",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "base_color": "c0",
+                        "metallic": 0.85,
+                        "name": "out",
+                        "over": [
+                          {
+                            "mask": "rust_m",
+                            "output": "rust"
+                          }
+                        ],
+                        "roughness": "r",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "bulb",
+                "input": "bulb",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-lamp",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 31,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c",
+                        "stops": [
+                          [
+                            0.0,
+                            "#ffc870"
+                          ],
+                          [
+                            1.0,
+                            "#ffe7a8"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c",
+                        "b": 1.0,
+                        "name": "em",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "c",
+                        "emissive": "em",
+                        "name": "out",
+                        "roughness": 0.3,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "group": {
+                "name": "iron",
+                "inputs": [
+                  "plate",
+                  "arm",
+                  "shade",
+                  "knob"
+                ]
+              }
+            },
+            {
+              "visibility": {
+                "name": "plate",
+                "input": "plate",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "arm",
+                "input": "arm",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "shade",
+                "input": "shade",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob",
+                "input": "knob",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 1,
+        "children": [],
+        "label": "5 edits: group `iron` = `plate` + `arm` + `shade` + `knob` … hidden `knob`"
+      }
+    ],
+    "current": 2
+  },
+  "derived_from_ops": true
+}

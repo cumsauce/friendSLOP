@@ -1,0 +1,244 @@
+{
+  "name": "sp-masonry",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 2,
+      "seed": 131,
+      "size": 0.5,
+      "type": "noise"
+    },
+    {
+      "amount": 0.01,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "name": "bk",
+      "size": [
+        0.5,
+        0.25
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "id": "bk.id",
+      "max": 1,
+      "min": 0,
+      "name": "tone",
+      "seed": 132,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 133,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.008,
+        0.02
+      ],
+      "input": "bk.edge",
+      "name": "stone_m",
+      "type": "levels"
+    },
+    {
+      "a": "tone",
+      "b": "fn",
+      "c": 0.4,
+      "name": "t",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t",
+      "name": "sc",
+      "stops": [
+        [
+          0,
+          "#b4ada0"
+        ],
+        [
+          1,
+          "#dcd6ca"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#6a655e",
+      "b": "sc",
+      "c": "stone_m",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "stone_m",
+      "b": 0.006,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "fn",
+      "b": 0.002,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "h1",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.9,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sp-masonry",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 131,
+              "size": 0.5,
+              "type": "noise"
+            },
+            {
+              "amount": 0.01,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "bk",
+              "size": [
+                0.5,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "bk.id",
+              "max": 1,
+              "min": 0,
+              "name": "tone",
+              "seed": 132,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 133,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.008,
+                0.02
+              ],
+              "input": "bk.edge",
+              "name": "stone_m",
+              "type": "levels"
+            },
+            {
+              "a": "tone",
+              "b": "fn",
+              "c": 0.4,
+              "name": "t",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t",
+              "name": "sc",
+              "stops": [
+                [
+                  0,
+                  "#b4ada0"
+                ],
+                [
+                  1,
+                  "#dcd6ca"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#6a655e",
+              "b": "sc",
+              "c": "stone_m",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "stone_m",
+              "b": 0.006,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fn",
+              "b": 0.002,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.9,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+wv +wp +bk +tone +fn +stone_m +t +sc +col +h0 +h1 +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

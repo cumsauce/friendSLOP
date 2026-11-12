@@ -194,8 +194,7 @@ fn summon_teacup(
     mut commands: Commands,
     players: Query<&Stats>,
     cups: Query<Entity, With<Teacup>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
 ) {
     let want = players.iter().map(|s| s.glimbo).max().unwrap_or(0) >= TEACUP_GLIMBO;
     if !want {
@@ -207,21 +206,15 @@ fn summon_teacup(
     if !cups.is_empty() {
         return;
     }
-    let china = materials.add(Color::srgb(0.95, 0.95, 1.0));
-    commands
-        .spawn((
-            Mesh3d(meshes.add(Cylinder::new(0.2, 0.25))),
-            MeshMaterial3d(china.clone()),
-            Transform::from_xyz(6.0, 2.5, 0.0),
-            Teacup,
-            DespawnOnExit(AppState::InGame),
-        ))
-        .with_child((
-            Mesh3d(meshes.add(Torus::new(0.04, 0.09))),
-            MeshMaterial3d(china),
-            Transform::from_xyz(0.24, 0.0, 0.0)
-                .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-        ));
+    // A modeler-made china cup (origin at its centre).
+    commands.spawn((
+        WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/teacup.gltf")),
+        ),
+        Transform::from_xyz(6.0, 2.5, 0.0),
+        Teacup,
+        DespawnOnExit(AppState::InGame),
+    ));
 }
 
 fn orbit_teacup(time: Res<Time>, mut cups: Query<&mut Transform, With<Teacup>>) {

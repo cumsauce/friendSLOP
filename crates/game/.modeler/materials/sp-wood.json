@@ -1,0 +1,920 @@
+{
+  "name": "sp-wood",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 2,
+      "seed": 101,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "amount": 0.04,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "name": "pl",
+      "size": [
+        1.0,
+        0.25
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "coords": "wp",
+      "name": "gr",
+      "size": [
+        1.0,
+        0.02
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "id": "pl.id",
+      "max": 1,
+      "min": 0,
+      "name": "pr",
+      "seed": 102,
+      "type": "random"
+    },
+    {
+      "id": "gr.id",
+      "max": 1,
+      "min": 0,
+      "name": "grr",
+      "seed": 103,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 104,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "a": "pr",
+      "b": "grr",
+      "c": 0.3,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "t0",
+      "b": "fn",
+      "c": 0.3,
+      "name": "t1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "in": [
+        0.0,
+        0.008
+      ],
+      "input": "pl.edge",
+      "name": "seam",
+      "type": "levels"
+    },
+    {
+      "input": "t1",
+      "name": "col0",
+      "stops": [
+        [
+          0,
+          "#7a5232"
+        ],
+        [
+          0.55,
+          "#a0703f"
+        ],
+        [
+          1,
+          "#c08e58"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#3a2616",
+      "b": "col0",
+      "c": "seam",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "t1",
+      "b": 0.0008,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "seam",
+      "b": 0.002,
+      "name": "hs",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "hs",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.75,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 5,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sp-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 101,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.04,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "pl",
+              "size": [
+                1.0,
+                0.2
+              ],
+              "stagger": 0.43,
+              "type": "tile_grid"
+            },
+            {
+              "coords": "wp",
+              "name": "gr",
+              "size": [
+                1.0,
+                0.015
+              ],
+              "stagger": 0.37,
+              "type": "tile_grid"
+            },
+            {
+              "id": "pl.id",
+              "max": 1,
+              "min": 0,
+              "name": "pr",
+              "seed": 102,
+              "type": "random"
+            },
+            {
+              "id": "gr.id",
+              "max": 1,
+              "min": 0,
+              "name": "grr",
+              "seed": 103,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 104,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "pr",
+              "b": "grr",
+              "c": 0.3,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": "fn",
+              "c": 0.3,
+              "name": "t1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.0,
+                0.008
+              ],
+              "input": "pl.edge",
+              "name": "seam",
+              "type": "levels"
+            },
+            {
+              "input": "t1",
+              "name": "col0",
+              "stops": [
+                [
+                  0,
+                  "#7a5232"
+                ],
+                [
+                  0.55,
+                  "#a0703f"
+                ],
+                [
+                  1,
+                  "#c08e58"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#3a2616",
+              "b": "col0",
+              "c": "seam",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t1",
+              "b": 0.0008,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "seam",
+              "b": 0.002,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "hs",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+wv +wp +pl +gr +pr +grr +fn +t0 +t1 +seam +col0 +col +h0 +hs +h +out"
+      },
+      {
+        "model": {
+          "name": "sp-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 101,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.04,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "pl",
+              "size": [
+                1.0,
+                0.2
+              ],
+              "stagger": 0.43,
+              "type": "tile_grid"
+            },
+            {
+              "coords": "wp",
+              "name": "gr",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.37,
+              "type": "tile_grid"
+            },
+            {
+              "id": "pl.id",
+              "max": 1,
+              "min": 0,
+              "name": "pr",
+              "seed": 102,
+              "type": "random"
+            },
+            {
+              "id": "gr.id",
+              "max": 1,
+              "min": 0,
+              "name": "grr",
+              "seed": 103,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 104,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "pr",
+              "b": "grr",
+              "c": 0.3,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": "fn",
+              "c": 0.3,
+              "name": "t1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.0,
+                0.008
+              ],
+              "input": "pl.edge",
+              "name": "seam",
+              "type": "levels"
+            },
+            {
+              "input": "t1",
+              "name": "col0",
+              "stops": [
+                [
+                  0,
+                  "#7a5232"
+                ],
+                [
+                  0.55,
+                  "#a0703f"
+                ],
+                [
+                  1,
+                  "#c08e58"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#3a2616",
+              "b": "col0",
+              "c": "seam",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t1",
+              "b": 0.0008,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "seam",
+              "b": 0.002,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "hs",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "~gr"
+      },
+      {
+        "model": {
+          "name": "sp-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 101,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.04,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "pl",
+              "size": [
+                1.0,
+                0.2
+              ],
+              "stagger": 0.4,
+              "type": "tile_grid"
+            },
+            {
+              "coords": "wp",
+              "name": "gr",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.38,
+              "type": "tile_grid"
+            },
+            {
+              "id": "pl.id",
+              "max": 1,
+              "min": 0,
+              "name": "pr",
+              "seed": 102,
+              "type": "random"
+            },
+            {
+              "id": "gr.id",
+              "max": 1,
+              "min": 0,
+              "name": "grr",
+              "seed": 103,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 104,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "pr",
+              "b": "grr",
+              "c": 0.3,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": "fn",
+              "c": 0.3,
+              "name": "t1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.0,
+                0.008
+              ],
+              "input": "pl.edge",
+              "name": "seam",
+              "type": "levels"
+            },
+            {
+              "input": "t1",
+              "name": "col0",
+              "stops": [
+                [
+                  0,
+                  "#7a5232"
+                ],
+                [
+                  0.55,
+                  "#a0703f"
+                ],
+                [
+                  1,
+                  "#c08e58"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#3a2616",
+              "b": "col0",
+              "c": "seam",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t1",
+              "b": 0.0008,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "seam",
+              "b": 0.002,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "hs",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [
+          3
+        ],
+        "label": "~pl ~gr"
+      },
+      {
+        "model": {
+          "name": "sp-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 101,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.04,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "pl",
+              "size": [
+                0.5,
+                0.2
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "coords": "wp",
+              "name": "gr",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "pl.id",
+              "max": 1,
+              "min": 0,
+              "name": "pr",
+              "seed": 102,
+              "type": "random"
+            },
+            {
+              "id": "gr.id",
+              "max": 1,
+              "min": 0,
+              "name": "grr",
+              "seed": 103,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 104,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "pr",
+              "b": "grr",
+              "c": 0.3,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": "fn",
+              "c": 0.3,
+              "name": "t1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.0,
+                0.008
+              ],
+              "input": "pl.edge",
+              "name": "seam",
+              "type": "levels"
+            },
+            {
+              "input": "t1",
+              "name": "col0",
+              "stops": [
+                [
+                  0,
+                  "#7a5232"
+                ],
+                [
+                  0.55,
+                  "#a0703f"
+                ],
+                [
+                  1,
+                  "#c08e58"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#3a2616",
+              "b": "col0",
+              "c": "seam",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t1",
+              "b": 0.0008,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "seam",
+              "b": 0.002,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "hs",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 4
+        },
+        "parent": 2,
+        "children": [
+          4
+        ],
+        "label": "~pl ~gr"
+      },
+      {
+        "model": {
+          "name": "sp-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 101,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.04,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "pl",
+              "size": [
+                1.0,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "coords": "wp",
+              "name": "gr",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "id": "pl.id",
+              "max": 1,
+              "min": 0,
+              "name": "pr",
+              "seed": 102,
+              "type": "random"
+            },
+            {
+              "id": "gr.id",
+              "max": 1,
+              "min": 0,
+              "name": "grr",
+              "seed": 103,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 104,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "pr",
+              "b": "grr",
+              "c": 0.3,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": "fn",
+              "c": 0.3,
+              "name": "t1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.0,
+                0.008
+              ],
+              "input": "pl.edge",
+              "name": "seam",
+              "type": "levels"
+            },
+            {
+              "input": "t1",
+              "name": "col0",
+              "stops": [
+                [
+                  0,
+                  "#7a5232"
+                ],
+                [
+                  0.55,
+                  "#a0703f"
+                ],
+                [
+                  1,
+                  "#c08e58"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#3a2616",
+              "b": "col0",
+              "c": "seam",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t1",
+              "b": 0.0008,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "seam",
+              "b": 0.002,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "hs",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 5
+        },
+        "parent": 3,
+        "children": [],
+        "label": "~pl"
+      }
+    ],
+    "current": 4
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "name": "zn-plaster",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.5,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 101,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "name": "bn",
+      "octaves": 2,
+      "seed": 102,
+      "size": 0.4,
+      "type": "noise"
+    },
+    {
+      "a": "fn",
+      "b": "bn",
+      "c": 0.5,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#cfc6b6"
+        ],
+        [
+          0.5,
+          "#e4dccd"
+        ],
+        [
+          1,
+          "#f1ebdf"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "fn",
+      "b": 0.003,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.9,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-plaster",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.5,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 101,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "name": "bn",
+              "octaves": 2,
+              "seed": 102,
+              "size": 0.4,
+              "type": "noise"
+            },
+            {
+              "a": "fn",
+              "b": "bn",
+              "c": 0.5,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#cfc6b6"
+                ],
+                [
+                  0.5,
+                  "#e4dccd"
+                ],
+                [
+                  1,
+                  "#f1ebdf"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "fn",
+              "b": 0.003,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.9,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +bn +t0 +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

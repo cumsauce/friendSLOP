@@ -1,0 +1,221 @@
+{
+  "name": "zn-reed",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.25,
+        0.0078125
+      ],
+      "stagger": 0.25,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "gr",
+      "seed": 141,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 2,
+      "seed": 142,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "a": "gr",
+      "b": "fn",
+      "c": 0.5,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#4b6e24"
+        ],
+        [
+          0.5,
+          "#5f8f2f"
+        ],
+        [
+          1,
+          "#7fa846"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.7,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-reed",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.25,
+                0.008
+              ],
+              "stagger": 0.25,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 141,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 2,
+              "seed": 142,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.5,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#4b6e24"
+                ],
+                [
+                  0.5,
+                  "#5f8f2f"
+                ],
+                [
+                  1,
+                  "#7fa846"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.7,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+g +gr +fn +t0 +col +out"
+      },
+      {
+        "model": {
+          "name": "zn-reed",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.25,
+                0.0078125
+              ],
+              "stagger": 0.25,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 141,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 2,
+              "seed": 142,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.5,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#4b6e24"
+                ],
+                [
+                  0.5,
+                  "#5f8f2f"
+                ],
+                [
+                  1,
+                  "#7fa846"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.7,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~g"
+      }
+    ],
+    "current": 1
+  }
+}

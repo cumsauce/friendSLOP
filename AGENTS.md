@@ -35,7 +35,12 @@ If you're running in CI, also read `.github/claude/run.md`.
   shared KTX2 files in `assets/textures/` (the web build decodes them to PNG for phones). Model
   at real size (1 unit = 1 m), group parts that share a material so they share one texture
   atlas, use tile-domain materials where models can share a bake, and `history_prune` before
-  saving so the sources stay small.
+  saving so the sources stay small. Swap a code-built object for a model by spawning the glTF
+  where its meshes were and keeping its colliders as mesh-less entities (gameplay never
+  depends on the file). Building props are marked by `Kit::begin_prop` and drawn from
+  `models/props/` when listed in `buildings::PROP_MODELS`; the six building surfaces take
+  their textures from `models/surfaces/`. Several agents can share one modeler daemon, but
+  pass `--doc <model>` on every call or saves and exports can land on another agent's model.
 - **List keywords (#51).** An issue may tag a list of examples with a keyword in parentheses:
   - `(strict)`: put exactly these examples in the game, no more and no fewer.
   - `(expand, x..y)`: put exactly these examples in, then invent between x and y more in the same

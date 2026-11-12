@@ -96,6 +96,22 @@ pub struct Piece<M> {
     pub small: bool,
     /// Which `place` call laid it: meshes are merged per group.
     pub group: u32,
+    /// The prop it belongs to, an index into [`Kit::props`]: a game that has
+    /// a model for that prop draws the model instead (the piece still
+    /// collides).
+    pub prop: Option<u32>,
+}
+
+/// A prop drawn from kit pieces, which a game may draw from a model instead:
+/// the model's name (`models/props/<name>.gltf`), and where it stands in
+/// world space. Props are built base-centred at y = 0, back at -z, front at
+/// +z (see [`props`]), and `scale` stretches the model to the size drawn.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct PropMark {
+    pub name: &'static str,
+    pub at: Vec3,
+    pub rot: Quat,
+    pub scale: Vec3,
 }
 
 /// A doorway (or gate): floor-level centre, the way through, and its size.
@@ -151,11 +167,15 @@ pub struct Kit<M> {
     pub doors: Vec<Door>,
     pub ramps: Vec<Ramp>,
     pub lights: Vec<Vec3>,
+    /// Props laid with [`Kit::begin_prop`], which their pieces point at.
+    pub props: Vec<PropMark>,
     /// Outer wall thickness used by [`Kit::walls`] and gable ends.
     pub thick: f32,
     origin: Vec3,
     yaw: Quat,
     group: u32,
+    /// The prop being drawn, if any.
+    prop: Option<u32>,
 }
 
 impl<M> Default for Kit<M> {
@@ -165,10 +185,12 @@ impl<M> Default for Kit<M> {
             doors: Vec::new(),
             ramps: Vec::new(),
             lights: Vec::new(),
+            props: Vec::new(),
             thick: 0.25,
             origin: Vec3::ZERO,
             yaw: Quat::IDENTITY,
             group: 0,
+            prop: None,
         }
     }
 }
@@ -211,7 +233,33 @@ impl<M: Palette> Kit<M> {
             solid,
             small,
             group: self.group,
+            prop: self.prop,
         });
+    }
+
+    /// Start drawing the prop `name` standing at local `base` (turned with
+    /// the kit), `scale` times its model's size. Pieces laid until
+    /// [`Kit::end_prop`] belong to it. Nested calls keep the outer prop.
+    /// Returns whether this call started one (pass it to `end_prop`).
+    pub fn begin_prop(&mut self, name: &'static str, base: Vec3, scale: Vec3) -> bool {
+        if self.prop.is_some() {
+            return false;
+        }
+        self.prop = Some(self.props.len() as u32);
+        self.props.push(PropMark {
+            name,
+            at: self.world(base),
+            rot: self.yaw,
+            scale,
+        });
+        true
+    }
+
+    /// Stop drawing the prop `begin_prop` started (if `started`).
+    pub fn end_prop(&mut self, started: bool) {
+        if started {
+            self.prop = None;
+        }
     }
 
     /// An axis-aligned box from `min` to `max` (local).
@@ -499,9 +547,11 @@ impl<M: Palette> Kit<M> {
 
     /// A hanging lamp (glowing ball on a cord).
     pub fn lamp(&mut self, at: Vec3) {
+        let p = self.begin_prop("hanging_lamp", at, Vec3::ONE);
         let cord = Vec3::new(0.03, 0.8, 0.03);
         self.trinket(Shape::Cube, at + Vec3::Y * 0.5, cord, M::IRON);
         self.trinket(Shape::Ball, at, Vec3::splat(0.32), M::LAMP);
+        self.end_prop(p);
     }
 }
 

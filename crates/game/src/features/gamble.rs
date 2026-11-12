@@ -618,6 +618,7 @@ fn wedge_angle(wedge: u8) -> f32 {
 
 fn spawn_booth(
     mut commands: Commands,
+    assets: Option<Res<AssetServer>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
@@ -635,39 +636,29 @@ fn spawn_booth(
         wizard_look(),
         DespawnOnExit(AppState::InGame),
     ));
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let (Some(assets), Some(mut meshes), Some(mut materials)) = (assets, meshes, materials) else {
         return;
     };
-    let cloth = crate::art::soft(&mut materials, Color::srgb(0.35, 0.2, 0.55));
-    let wood = crate::art::soft(&mut materials, Color::srgb(0.45, 0.3, 0.18));
-    let gold = crate::art::glossy(&mut materials, Color::srgb(0.95, 0.78, 0.3));
-    let disc = meshes.add(Cylinder::new(1.0, 1.0));
-    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
+    // Modeler-made props (sources in `.modeler/`).
+    let model = |file: &str| {
+        WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+        )
+    };
     // A round table with a purple cloth.
     commands.spawn((
-        Mesh3d(disc.clone()),
-        MeshMaterial3d(cloth.clone()),
-        Transform::from_translation(at + Vec3::Y * 0.25).with_scale(Vec3::new(0.55, 0.5, 0.55)),
+        model("gamble_table.gltf"),
+        Transform::from_translation(at).with_rotation(rot),
         DespawnOnExit(AppState::InGame),
     ));
-    // The wheel on a post beside him.
+    // The wheel on a post beside him, the pointer over its top.
     let side = at + rot * Vec3::new(1.5, 0.0, 0.4);
     commands.spawn((
-        Mesh3d(cube.clone()),
-        MeshMaterial3d(wood.clone()),
-        Transform::from_translation(side + Vec3::Y * 0.8).with_scale(Vec3::new(0.12, 1.6, 0.12)),
+        model("wheel_stand.gltf"),
+        Transform::from_translation(side).with_rotation(rot),
         DespawnOnExit(AppState::InGame),
     ));
     let hub = side + Vec3::Y * 1.75 + rot * Vec3::new(0.0, 0.0, -0.1);
-    // Pointer at the top.
-    commands.spawn((
-        Mesh3d(cube.clone()),
-        MeshMaterial3d(gold.clone()),
-        Transform::from_translation(hub + Vec3::Y * 0.78 + rot * Vec3::new(0.0, 0.0, -0.06))
-            .with_rotation(rot * Quat::from_rotation_z(std::f32::consts::FRAC_PI_4))
-            .with_scale(Vec3::splat(0.12)),
-        DespawnOnExit(AppState::InGame),
-    ));
     let wedges = Knob::ALL.len() + 1;
     let face = commands
         .spawn((
@@ -680,20 +671,11 @@ fn spawn_booth(
             DespawnOnExit(AppState::InGame),
         ))
         .id();
-    let rim = meshes.add(Torus::new(0.68, 0.74));
-    let back = crate::art::soft(&mut materials, Color::srgb(0.15, 0.1, 0.25));
+    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     commands.entity(face).with_children(|w| {
-        w.spawn((
-            Mesh3d(disc.clone()),
-            MeshMaterial3d(back),
-            Transform::from_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
-                .with_scale(Vec3::new(0.72, 0.04, 0.72)),
-        ));
-        w.spawn((
-            Mesh3d(rim),
-            MeshMaterial3d(gold.clone()),
-            Transform::from_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-        ));
+        // The back disc, gold rim, hub and pegs; the wedges (one per knob,
+        // plus the blank) stay here since their count comes from the game.
+        w.spawn((model("wheel_face.gltf"), Transform::default()));
         for i in 0..wedges {
             let a = i as f32 * std::f32::consts::TAU / wedges as f32;
             let color = if i == wedges - 1 {

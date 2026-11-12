@@ -4,6 +4,12 @@ version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 
+[features]
+# Faster rebuilds on desktop: Bevy as a shared library, so a small change
+# relinks in seconds (`cargo dev host`, see .cargo/config.toml). Never for
+# release, CI or the web build.
+dev = ["bevy/dynamic_linking"]
+
 [dependencies]
 bevy.workspace = true
 bevy_replicon.workspace = true
@@ -29,6 +35,9 @@ friendslop-wire = { path = "../wire" }
 friendslop-wfc = { path = "../wfc" }
 friendslop-structures = { path = "../structures" }
 friendslop-world = { path = "../world" }
+# The modeler's runtime: live wind sway for rigged trees (`extras.sway`), each
+# instance with its own phase (lod.rs, scenery.rs).
+modeler_bevy = { git = "https://github.com/cumsauce/modeler", rev = "ba0fd6ad741e26bb65f76e10e52f64b16b6c4bac" }
 
 # Native only: the iroh transport (a tokio runtime plus `block_on` every tick),
 # and the clipboard can't run on a

@@ -1,0 +1,1549 @@
+{
+  "format_version": 1,
+  "name": "np-abuela-hair",
+  "parts": [],
+  "version": 19071,
+  "ops": [
+    {
+      "sdf": {
+        "name": "hair_hi",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.0798,
+              0.0665
+            ],
+            "size": [
+              0.27664,
+              0.2128,
+              0.266
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.2128,
+              0.1995
+            ],
+            "radius": [
+              0.11172
+            ]
+          }
+        ],
+        "blend": 0.03,
+        "warps": [
+          {
+            "mode": "displace",
+            "amount": 0.004,
+            "scale": 0.03,
+            "seed": 3
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "hair",
+        "input": "hair_hi",
+        "tris": 520
+      }
+    },
+    {
+      "primitive": {
+        "name": "rim_l_src",
+        "kind": "torus",
+        "size": [
+          0.076608,
+          0.012236,
+          0.0
+        ],
+        "translation": [
+          0.09576,
+          0.03192,
+          -0.27132
+        ],
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "rim_l",
+        "input": "rim_l_src",
+        "tris": 160
+      }
+    },
+    {
+      "mirror": {
+        "name": "rim_r",
+        "input": "rim_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "sweep": {
+        "name": "bridge_src",
+        "profile": [
+          [
+            0.01197,
+            0.0
+          ],
+          [
+            0.011867596,
+            0.0015623986
+          ],
+          [
+            0.011562132,
+            0.003098064
+          ],
+          [
+            0.011058838,
+            0.0045807213
+          ],
+          [
+            0.010366324,
+            0.005985
+          ],
+          [
+            0.009496439,
+            0.0072868746
+          ],
+          [
+            0.008464068,
+            0.008464068
+          ],
+          [
+            0.0072868746,
+            0.009496439
+          ],
+          [
+            0.0059849997,
+            0.010366325
+          ],
+          [
+            0.004580721,
+            0.011058838
+          ],
+          [
+            0.0030980643,
+            0.011562132
+          ],
+          [
+            0.0015623992,
+            0.011867595
+          ],
+          [
+            -5.2322535e-10,
+            0.01197
+          ],
+          [
+            -0.0015623989,
+            0.011867596
+          ],
+          [
+            -0.003098064,
+            0.011562132
+          ],
+          [
+            -0.0045807203,
+            0.011058839
+          ],
+          [
+            -0.005985001,
+            0.010366324
+          ],
+          [
+            -0.0072868746,
+            0.009496439
+          ],
+          [
+            -0.008464068,
+            0.008464068
+          ],
+          [
+            -0.009496439,
+            0.0072868746
+          ],
+          [
+            -0.010366324,
+            0.005985001
+          ],
+          [
+            -0.011058838,
+            0.0045807213
+          ],
+          [
+            -0.011562132,
+            0.003098065
+          ],
+          [
+            -0.011867595,
+            0.0015624001
+          ],
+          [
+            -0.01197,
+            -1.0464507e-9
+          ],
+          [
+            -0.011867595,
+            -0.0015623993
+          ],
+          [
+            -0.011562132,
+            -0.0030980643
+          ],
+          [
+            -0.011058838,
+            -0.004580721
+          ],
+          [
+            -0.010366324,
+            -0.0059849997
+          ],
+          [
+            -0.00949644,
+            -0.0072868736
+          ],
+          [
+            -0.008464069,
+            -0.008464067
+          ],
+          [
+            -0.007286875,
+            -0.009496439
+          ],
+          [
+            -0.0059849992,
+            -0.010366325
+          ],
+          [
+            -0.0045807227,
+            -0.011058838
+          ],
+          [
+            -0.0030980634,
+            -0.011562133
+          ],
+          [
+            -0.001562401,
+            -0.011867595
+          ],
+          [
+            1.4274082e-10,
+            -0.01197
+          ],
+          [
+            0.0015623956,
+            -0.011867596
+          ],
+          [
+            0.0030980636,
+            -0.011562132
+          ],
+          [
+            0.0045807227,
+            -0.011058837
+          ],
+          [
+            0.0059849992,
+            -0.010366325
+          ],
+          [
+            0.007286876,
+            -0.009496439
+          ],
+          [
+            0.008464067,
+            -0.00846407
+          ],
+          [
+            0.00949644,
+            -0.0072868736
+          ],
+          [
+            0.010366323,
+            -0.0059850025
+          ],
+          [
+            0.011058839,
+            -0.004580721
+          ],
+          [
+            0.011562131,
+            -0.003098067
+          ],
+          [
+            0.011867596,
+            -0.001562399
+          ]
+        ],
+        "path": [
+          [
+            -0.01995,
+            0.03724,
+            -0.27398
+          ],
+          [
+            0.0,
+            0.0532,
+            -0.28196
+          ],
+          [
+            0.01995,
+            0.03724,
+            -0.27398
+          ]
+        ],
+        "closed": false,
+        "smooth": true
+      }
+    },
+    {
+      "decimate": {
+        "name": "bridge",
+        "input": "bridge_src",
+        "tris": 40
+      }
+    },
+    {
+      "visibility": {
+        "name": "rim_l_src",
+        "input": "rim_l_src",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bridge_src",
+        "input": "bridge_src",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hair_hi",
+        "input": "hair_hi",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "hair",
+        "input": "hair",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "np-knit-silver",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.24,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.012,
+                  0.01
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "input": "g.cell",
+                "name": "c",
+                "type": "split"
+              },
+              {
+                "a": "c.x",
+                "b": 0.5,
+                "name": "dx",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "dx",
+                "name": "d",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "a": "d",
+                "b": 0.25,
+                "name": "leg0",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "leg0",
+                "name": "leg1",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "a": "leg1",
+                "b": 4.0,
+                "name": "leg2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "leg2",
+                "b": "leg2",
+                "name": "leg3",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "leg3",
+                "name": "across",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "a": "d",
+                "b": 1.2,
+                "name": "a0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c.y",
+                "b": "a0",
+                "name": "a1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "a1",
+                "name": "a2",
+                "op": "fract",
+                "type": "math"
+              },
+              {
+                "a": "a2",
+                "b": 3.14159,
+                "name": "a3",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "a3",
+                "name": "along",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "across",
+                "b": "along",
+                "name": "st0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "st0",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "st",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.07
+                ],
+                "type": "remap"
+              },
+              {
+                "input": "st",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#b8b8c4"
+                  ],
+                  [
+                    1,
+                    "#e4e4ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "st",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.94,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rim_l",
+        "input": "rim_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "np-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b98a2a"
+                  ],
+                  [
+                    1,
+                    "#f5cc5c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rim_l_src",
+        "input": "rim_l_src",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "np-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b98a2a"
+                  ],
+                  [
+                    1,
+                    "#f5cc5c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rim_r",
+        "input": "rim_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "np-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b98a2a"
+                  ],
+                  [
+                    1,
+                    "#f5cc5c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bridge",
+        "input": "bridge",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "np-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b98a2a"
+                  ],
+                  [
+                    1,
+                    "#f5cc5c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "np-abuela-hair",
+          "parts": [],
+          "version": 18884,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `np-abuela-hair`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "np-abuela-hair",
+          "parts": [],
+          "version": 18992,
+          "ops": [
+            {
+              "sdf": {
+                "name": "hair_hi",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.0,
+                      0.0798,
+                      0.0665
+                    ],
+                    "size": [
+                      0.27664,
+                      0.2128,
+                      0.266
+                    ]
+                  },
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0,
+                      0.2128,
+                      0.1995
+                    ],
+                    "radius": [
+                      0.11172
+                    ]
+                  }
+                ],
+                "blend": 0.03,
+                "warps": [
+                  {
+                    "mode": "displace",
+                    "amount": 0.004,
+                    "scale": 0.03,
+                    "seed": 3
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "hair",
+                "input": "hair_hi",
+                "tris": 520
+              }
+            },
+            {
+              "primitive": {
+                "name": "rim_l_src",
+                "kind": "torus",
+                "size": [
+                  0.076608,
+                  0.012236,
+                  0.0
+                ],
+                "translation": [
+                  0.09576,
+                  0.03192,
+                  -0.27132
+                ],
+                "rotation": [
+                  0.70710677,
+                  0.0,
+                  0.0,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "rim_l",
+                "input": "rim_l_src",
+                "tris": 160
+              }
+            },
+            {
+              "mirror": {
+                "name": "rim_r",
+                "input": "rim_l",
+                "axis": "x",
+                "offset": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "sweep": {
+                "name": "bridge_src",
+                "profile": [
+                  [
+                    0.01197,
+                    0.0
+                  ],
+                  [
+                    0.011867596,
+                    0.0015623986
+                  ],
+                  [
+                    0.011562132,
+                    0.003098064
+                  ],
+                  [
+                    0.011058838,
+                    0.0045807213
+                  ],
+                  [
+                    0.010366324,
+                    0.005985
+                  ],
+                  [
+                    0.009496439,
+                    0.0072868746
+                  ],
+                  [
+                    0.008464068,
+                    0.008464068
+                  ],
+                  [
+                    0.0072868746,
+                    0.009496439
+                  ],
+                  [
+                    0.0059849997,
+                    0.010366325
+                  ],
+                  [
+                    0.004580721,
+                    0.011058838
+                  ],
+                  [
+                    0.0030980643,
+                    0.011562132
+                  ],
+                  [
+                    0.0015623992,
+                    0.011867595
+                  ],
+                  [
+                    -5.2322535e-10,
+                    0.01197
+                  ],
+                  [
+                    -0.0015623989,
+                    0.011867596
+                  ],
+                  [
+                    -0.003098064,
+                    0.011562132
+                  ],
+                  [
+                    -0.0045807203,
+                    0.011058839
+                  ],
+                  [
+                    -0.005985001,
+                    0.010366324
+                  ],
+                  [
+                    -0.0072868746,
+                    0.009496439
+                  ],
+                  [
+                    -0.008464068,
+                    0.008464068
+                  ],
+                  [
+                    -0.009496439,
+                    0.0072868746
+                  ],
+                  [
+                    -0.010366324,
+                    0.005985001
+                  ],
+                  [
+                    -0.011058838,
+                    0.0045807213
+                  ],
+                  [
+                    -0.011562132,
+                    0.003098065
+                  ],
+                  [
+                    -0.011867595,
+                    0.0015624001
+                  ],
+                  [
+                    -0.01197,
+                    -1.0464507e-9
+                  ],
+                  [
+                    -0.011867595,
+                    -0.0015623993
+                  ],
+                  [
+                    -0.011562132,
+                    -0.0030980643
+                  ],
+                  [
+                    -0.011058838,
+                    -0.004580721
+                  ],
+                  [
+                    -0.010366324,
+                    -0.0059849997
+                  ],
+                  [
+                    -0.00949644,
+                    -0.0072868736
+                  ],
+                  [
+                    -0.008464069,
+                    -0.008464067
+                  ],
+                  [
+                    -0.007286875,
+                    -0.009496439
+                  ],
+                  [
+                    -0.0059849992,
+                    -0.010366325
+                  ],
+                  [
+                    -0.0045807227,
+                    -0.011058838
+                  ],
+                  [
+                    -0.0030980634,
+                    -0.011562133
+                  ],
+                  [
+                    -0.001562401,
+                    -0.011867595
+                  ],
+                  [
+                    1.4274082e-10,
+                    -0.01197
+                  ],
+                  [
+                    0.0015623956,
+                    -0.011867596
+                  ],
+                  [
+                    0.0030980636,
+                    -0.011562132
+                  ],
+                  [
+                    0.0045807227,
+                    -0.011058837
+                  ],
+                  [
+                    0.0059849992,
+                    -0.010366325
+                  ],
+                  [
+                    0.007286876,
+                    -0.009496439
+                  ],
+                  [
+                    0.008464067,
+                    -0.00846407
+                  ],
+                  [
+                    0.00949644,
+                    -0.0072868736
+                  ],
+                  [
+                    0.010366323,
+                    -0.0059850025
+                  ],
+                  [
+                    0.011058839,
+                    -0.004580721
+                  ],
+                  [
+                    0.011562131,
+                    -0.003098067
+                  ],
+                  [
+                    0.011867596,
+                    -0.001562399
+                  ]
+                ],
+                "path": [
+                  [
+                    -0.01995,
+                    0.03724,
+                    -0.27398
+                  ],
+                  [
+                    0.0,
+                    0.0532,
+                    -0.28196
+                  ],
+                  [
+                    0.01995,
+                    0.03724,
+                    -0.27398
+                  ]
+                ],
+                "closed": false,
+                "smooth": true
+              }
+            },
+            {
+              "decimate": {
+                "name": "bridge",
+                "input": "bridge_src",
+                "tris": 40
+              }
+            },
+            {
+              "visibility": {
+                "name": "rim_l_src",
+                "input": "rim_l_src",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "bridge_src",
+                "input": "bridge_src",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "hair_hi",
+                "input": "hair_hi",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "hair",
+                "input": "hair",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "np-knit-silver",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.24,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "g",
+                        "size": [
+                          0.012,
+                          0.01
+                        ],
+                        "type": "tile_grid"
+                      },
+                      {
+                        "input": "g.cell",
+                        "name": "c",
+                        "type": "split"
+                      },
+                      {
+                        "a": "c.x",
+                        "b": 0.5,
+                        "name": "dx",
+                        "op": "sub",
+                        "type": "math"
+                      },
+                      {
+                        "a": "dx",
+                        "name": "d",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "a": "d",
+                        "b": 0.25,
+                        "name": "leg0",
+                        "op": "sub",
+                        "type": "math"
+                      },
+                      {
+                        "a": "leg0",
+                        "name": "leg1",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "a": "leg1",
+                        "b": 4.0,
+                        "name": "leg2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "leg2",
+                        "b": "leg2",
+                        "name": "leg3",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "leg3",
+                        "name": "across",
+                        "op": "invert",
+                        "type": "math"
+                      },
+                      {
+                        "a": "d",
+                        "b": 1.2,
+                        "name": "a0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "c.y",
+                        "b": "a0",
+                        "name": "a1",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "a1",
+                        "name": "a2",
+                        "op": "fract",
+                        "type": "math"
+                      },
+                      {
+                        "a": "a2",
+                        "b": 3.14159,
+                        "name": "a3",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "a3",
+                        "name": "along",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "across",
+                        "b": "along",
+                        "name": "st0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "st0",
+                        "b": 0.0,
+                        "c": 1.0,
+                        "name": "st",
+                        "op": "clamp",
+                        "type": "math"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.07
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "input": "st",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#b8b8c4"
+                          ],
+                          [
+                            1,
+                            "#e4e4ec"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "st",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.94,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rim_l",
+                "input": "rim_l",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "np-gold",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#b98a2a"
+                          ],
+                          [
+                            1,
+                            "#f5cc5c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": 1.0,
+                        "name": "out",
+                        "roughness": 0.3,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rim_l_src",
+                "input": "rim_l_src",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "np-gold",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#b98a2a"
+                          ],
+                          [
+                            1,
+                            "#f5cc5c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": 1.0,
+                        "name": "out",
+                        "roughness": 0.3,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rim_r",
+                "input": "rim_r",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "np-gold",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#b98a2a"
+                          ],
+                          [
+                            1,
+                            "#f5cc5c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": 1.0,
+                        "name": "out",
+                        "roughness": 0.3,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "bridge",
+                "input": "bridge",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "np-gold",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#b98a2a"
+                          ],
+                          [
+                            1,
+                            "#f5cc5c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": 1.0,
+                        "name": "out",
+                        "roughness": 0.3,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "5 edits: material `hair` <- `hair` pbr=np-knit-silver … material `bridge` <- `bridge` pbr=np-gold",
+        "author": "npcs"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

@@ -22,6 +22,7 @@ pub use friendslop_world::landmarks;
 pub mod loading;
 pub mod lod;
 pub mod menu;
+pub mod rigged;
 // The browser has its own iroh transport (relay-only, async), same API (#106).
 #[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
 pub mod net;
@@ -110,6 +111,9 @@ impl Plugin for GamePlugin {
             ui::plugin,
             textures::plugin,
             lod::plugin,
+            rigged::plugin,
+            // Live wind sway for the rigged trees (lod.rs steers it).
+            modeler_bevy::ModelerPlugin,
         ));
     }
 }

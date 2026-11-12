@@ -1,0 +1,265 @@
+{
+  "format_version": 1,
+  "name": "pp-horns-nubs",
+  "parts": [],
+  "version": 20875,
+  "ops": [
+    {
+      "sdf": {
+        "name": "horns_raw",
+        "shapes": [
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.110646576,
+                0.22469766,
+                -0.028,
+                0.0308
+              ],
+              [
+                0.1176,
+                0.259,
+                -0.028,
+                0.021
+              ],
+              [
+                0.12205343,
+                0.29330233,
+                -0.028,
+                0.00336
+              ]
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "horns",
+        "input": "horns_raw",
+        "tris": 90
+      }
+    },
+    {
+      "visibility": {
+        "name": "horns_raw",
+        "input": "horns_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "horns",
+        "input": "horns",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-horn",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.94,
+                  1.03
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#f2e6c7",
+                "b": "nv",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0008,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.55,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-horns-nubs",
+          "parts": [],
+          "version": 20458,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pp-horns-nubs`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-horns-nubs",
+          "parts": [],
+          "version": 20467,
+          "ops": [
+            {
+              "sdf": {
+                "name": "horns_raw",
+                "shapes": [
+                  {
+                    "shape": "chain",
+                    "points": [
+                      [
+                        0.110646576,
+                        0.22469766,
+                        -0.028,
+                        0.0308
+                      ],
+                      [
+                        0.1176,
+                        0.259,
+                        -0.028,
+                        0.021
+                      ],
+                      [
+                        0.12205343,
+                        0.29330233,
+                        -0.028,
+                        0.00336
+                      ]
+                    ]
+                  }
+                ],
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "horns",
+                "input": "horns_raw",
+                "tris": 90
+              }
+            },
+            {
+              "visibility": {
+                "name": "horns_raw",
+                "input": "horns_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "horns",
+                "input": "horns",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-horn",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 3,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nv",
+                        "to": [
+                          0.94,
+                          1.03
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#f2e6c7",
+                        "b": "nv",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0008,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.55,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "material `horns` <- `horns` pbr=pp-horn",
+        "author": "people"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

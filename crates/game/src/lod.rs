@@ -16,6 +16,14 @@
 //! [`modeler_lods`] turns those into a [`VisibilityRange`] on the node's
 //! meshes, crossfading over [`FADE`] metres, so every such model swaps to
 //! its lighter meshes with distance on its own.
+//!
+//! Trees sway in the wind: the modeler rigs each one along its L-system
+//! branches and `modeler_bevy` bends the bones live, every tree with its own
+//! phase. The far twins are skinned to the same joints, so they bend with
+//! the tree. Only trees within [`SWAY_RANGE`] move ([`sway_near`]): past it a
+//! breeze is invisible and each moving tree re-propagates its joints. The
+//! wind blows harder in the great storm's gusts and stops in the Stillness
+//! ([`steer_wind`]).
 
 use std::collections::HashMap;
 use std::ops::Range;
@@ -24,6 +32,7 @@ use bevy::asset::RenderAssetUsages;
 use bevy::camera::visibility::VisibilityRange;
 use bevy::gltf::GltfExtras;
 use bevy::light::NotShadowCaster;
+use bevy::mesh::skinning::SkinnedMesh;
 use bevy::mesh::{Indices, VertexAttributeValues};
 use bevy::prelude::*;
 use bevy::world_serialization::WorldInstanceReady;
@@ -47,7 +56,53 @@ pub struct TreeLod {
 pub fn plugin(app: &mut App) {
     app.init_resource::<FarMeshes>()
         .add_observer(add_lods)
-        .add_observer(modeler_lods);
+        .add_observer(modeler_lods)
+        .add_systems(Update, (sway_near, steer_wind));
+}
+
+/// Trees further than this from the camera hold still (metres).
+pub const SWAY_RANGE: f32 = 40.0;
+/// The wind's strength between gusts (0.5 is the breeze the trees were
+/// rigged with) and at the height of a great-storm gust.
+const BREEZE: f32 = 0.5;
+const GALE: f32 = 1.6;
+
+/// Whether a tree at `distance` metres from the camera sways.
+pub fn sways(distance: f32) -> bool {
+    distance < SWAY_RANGE
+}
+
+/// The wind strength for a great-storm gust of `gust` (0 calm .. 1 peak).
+pub fn wind_strength(gust: f32) -> f32 {
+    BREEZE + (GALE - BREEZE) * gust.clamp(0.0, 1.0)
+}
+
+fn sway_near(
+    camera: Query<&GlobalTransform, (With<Camera3d>, With<crate::world::MainCamera>)>,
+    mut rigs: Query<(&mut modeler_bevy::Sway, &GlobalTransform)>,
+) {
+    let Some(eye) = camera.iter().next().map(GlobalTransform::translation) else {
+        return;
+    };
+    for (mut sway, at) in &mut rigs {
+        let live = sways(eye.distance(at.translation()));
+        if sway.live != live {
+            sway.live = live;
+        }
+    }
+}
+
+fn steer_wind(
+    gusts: Option<Res<crate::features::great_storm::Gusts>>,
+    still: Query<&crate::features::stillness::Stillness>,
+    mut wind: ResMut<modeler_bevy::Wind>,
+) {
+    let strength = wind_strength(gusts.map_or(0.0, |g| g.strength()));
+    let enabled = !crate::features::stillness::is_frozen(&still);
+    if wind.strength != Some(strength) || wind.enabled != enabled {
+        wind.strength = Some(strength);
+        wind.enabled = enabled;
+    }
 }
 
 /// Far meshes already built, by detailed mesh: one per [`LEVELS`] entry
@@ -140,6 +195,7 @@ fn add_lods(
         &MeshMaterial3d<StandardMaterial>,
         &Transform,
         &ChildOf,
+        Option<&SkinnedMesh>,
     )>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut far: ResMut<FarMeshes>,
@@ -148,7 +204,7 @@ fn add_lods(
         return;
     };
     for child in children.iter_descendants(ready.entity) {
-        let Ok((mesh, material, transform, parent)) = parts.get(child) else {
+        let Ok((mesh, material, transform, parent, skin)) = parts.get(child) else {
             continue;
         };
         if !tree.shadows {
@@ -185,6 +241,11 @@ fn add_lods(
             ));
             if !tree.shadows {
                 twin.insert(NotShadowCaster);
+            }
+            // A rigged tree's twins keep its joints and weights (`pick`
+            // copies them) and bend with it.
+            if let Some(skin) = skin {
+                twin.insert(skin.clone());
             }
         }
     }
@@ -293,6 +354,34 @@ mod tests {
         assert!(far.attribute(Mesh::ATTRIBUTE_NORMAL).is_some());
         let tris = |m: &Mesh| m.indices().map_or(0, |i| i.len() / 3);
         assert!(tris(&far) * 3 <= tris(&mesh) * 2);
+    }
+
+    #[test]
+    fn far_meshes_keep_their_skin_weights() {
+        let mut mesh = Sphere::new(1.0).mesh().uv(64, 48);
+        let n = mesh.count_vertices();
+        mesh.insert_attribute(
+            Mesh::ATTRIBUTE_JOINT_INDEX,
+            VertexAttributeValues::Uint16x4(vec![[0, 1, 0, 0]; n]),
+        );
+        mesh.insert_attribute(
+            Mesh::ATTRIBUTE_JOINT_WEIGHT,
+            vec![[0.5f32, 0.5, 0.0, 0.0]; n],
+        );
+        let Some(far) = far_mesh(&mesh, 40.0, 2) else {
+            panic!("a skinned sphere still simplifies");
+        };
+        assert!(far.attribute(Mesh::ATTRIBUTE_JOINT_INDEX).is_some());
+        assert!(far.attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT).is_some());
+    }
+
+    #[test]
+    fn near_trees_sway_and_gusts_blow_harder() {
+        assert!(sways(5.0));
+        assert!(!sways(SWAY_RANGE + 1.0));
+        assert_eq!(wind_strength(0.0), BREEZE);
+        assert!(wind_strength(1.0) > wind_strength(0.5));
+        assert_eq!(wind_strength(3.0), GALE);
     }
 
     #[test]

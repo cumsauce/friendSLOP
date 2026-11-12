@@ -1,0 +1,627 @@
+{
+  "name": "fa-knit",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.12,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "name": "st",
+      "size": [
+        0.012,
+        0.01
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "input": "st.cell",
+      "name": "l",
+      "type": "split"
+    },
+    {
+      "a": "lx",
+      "name": "ax",
+      "op": "abs",
+      "type": "math"
+    },
+    {
+      "a": "ax",
+      "b": 0.9,
+      "name": "vv",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "ly",
+      "b": "vv",
+      "name": "yy",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "yy",
+      "b": 3.14159,
+      "name": "sy0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "sy0",
+      "b": 1.5708,
+      "name": "sy",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "sy",
+      "name": "cy",
+      "op": "sin",
+      "type": "math"
+    },
+    {
+      "a": "lx",
+      "b": 3.14159,
+      "name": "sx0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "sx0",
+      "b": 1.5708,
+      "name": "sx",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "sx",
+      "name": "cx",
+      "op": "sin",
+      "type": "math"
+    },
+    {
+      "a": "cy",
+      "b": "cx",
+      "name": "bump0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        -1,
+        1
+      ],
+      "input": "bump0",
+      "name": "bump",
+      "to": [
+        0,
+        1
+      ],
+      "type": "remap"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 7,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "id": "st.id",
+      "max": 1.03,
+      "min": 0.93,
+      "name": "sr",
+      "seed": 5,
+      "type": "random"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "bump",
+      "name": "sh",
+      "to": [
+        0.72,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nt",
+      "to": [
+        0.92,
+        1.04
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "sh",
+      "b": "nt",
+      "name": "v0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "v0",
+      "b": "sr",
+      "name": "v1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "#f4f2ee",
+      "b": "v1",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "bump",
+      "b": 0.0016,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "normal_strength": 1.5,
+      "roughness": 0.95,
+      "type": "output"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "l.x",
+      "name": "lx",
+      "to": [
+        -1,
+        1
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "l.y",
+      "name": "ly",
+      "to": [
+        -1,
+        1
+      ],
+      "type": "remap"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fa-knit",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.12,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "name": "st",
+              "size": [
+                0.012,
+                0.01
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "input": "st.local",
+              "name": "l",
+              "type": "split"
+            },
+            {
+              "a": "l.x",
+              "name": "ax",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "a": "ax",
+              "b": 0.9,
+              "name": "vv",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "l.y",
+              "b": "vv",
+              "name": "yy",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "yy",
+              "b": 3.14159,
+              "name": "sy0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sy0",
+              "b": 1.5708,
+              "name": "sy",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "sy",
+              "name": "cy",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "l.x",
+              "b": 3.14159,
+              "name": "sx0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sx0",
+              "b": 1.5708,
+              "name": "sx",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "sx",
+              "name": "cx",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "cy",
+              "b": "cx",
+              "name": "bump0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                -1,
+                1
+              ],
+              "input": "bump0",
+              "name": "bump",
+              "to": [
+                0,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "id": "st.id",
+              "max": 1.03,
+              "min": 0.93,
+              "name": "sr",
+              "seed": 5,
+              "type": "random"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "bump",
+              "name": "sh",
+              "to": [
+                0.72,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                0.92,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "sh",
+              "b": "nt",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": "sr",
+              "name": "v1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "#f4f2ee",
+              "b": "v1",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "bump",
+              "b": 0.0016,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "normal_strength": 1.5,
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +st +l +ax +vv +yy +sy0 +sy +cy +sx0 +sx +cx +bump0 +bump +n +sr +sh +nt +v0 +v1 +col +h +out"
+      },
+      {
+        "model": {
+          "name": "fa-knit",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.12,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "name": "st",
+              "size": [
+                0.012,
+                0.01
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "input": "st.cell",
+              "name": "l",
+              "type": "split"
+            },
+            {
+              "a": "lx",
+              "name": "ax",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "a": "ax",
+              "b": 0.9,
+              "name": "vv",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "ly",
+              "b": "vv",
+              "name": "yy",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "yy",
+              "b": 3.14159,
+              "name": "sy0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sy0",
+              "b": 1.5708,
+              "name": "sy",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "sy",
+              "name": "cy",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "lx",
+              "b": 3.14159,
+              "name": "sx0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sx0",
+              "b": 1.5708,
+              "name": "sx",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "sx",
+              "name": "cx",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "cy",
+              "b": "cx",
+              "name": "bump0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                -1,
+                1
+              ],
+              "input": "bump0",
+              "name": "bump",
+              "to": [
+                0,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "id": "st.id",
+              "max": 1.03,
+              "min": 0.93,
+              "name": "sr",
+              "seed": 5,
+              "type": "random"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "bump",
+              "name": "sh",
+              "to": [
+                0.72,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                0.92,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "sh",
+              "b": "nt",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": "sr",
+              "name": "v1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "#f4f2ee",
+              "b": "v1",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "bump",
+              "b": 0.0016,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "normal_strength": 1.5,
+              "roughness": 0.95,
+              "type": "output"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "l.x",
+              "name": "lx",
+              "to": [
+                -1,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "l.y",
+              "name": "ly",
+              "to": [
+                -1,
+                1
+              ],
+              "type": "remap"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+lx +ly ~l ~ax ~yy ~sx0"
+      }
+    ],
+    "current": 1
+  }
+}

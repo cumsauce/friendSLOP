@@ -1,0 +1,551 @@
+{
+  "format_version": 1,
+  "name": "pp-foot",
+  "parts": [],
+  "version": 20883,
+  "ops": [
+    {
+      "sdf": {
+        "name": "foot_raw",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.1,
+              0.065,
+              0.145
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.03,
+            "at": [
+              0.0,
+              0.01,
+              -0.06
+            ],
+            "size": [
+              0.085,
+              0.06,
+              0.085
+            ]
+          },
+          {
+            "shape": "box",
+            "op": "subtract",
+            "blend": 0.01,
+            "at": [
+              0.0,
+              -0.55,
+              0.0
+            ],
+            "size": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "round": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "foot",
+        "input": "foot_raw",
+        "tris": 90
+      }
+    },
+    {
+      "visibility": {
+        "name": "foot_raw",
+        "input": "foot_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "foot",
+        "input": "foot",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-knit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.16,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.02,
+                  0.016
+                ],
+                "stagger": 0,
+                "type": "tile_grid"
+              },
+              {
+                "a": [
+                  -0.005200000000000001,
+                  -0.0041600000000000005
+                ],
+                "b": [
+                  -0.002,
+                  0.00384
+                ],
+                "coords": "g.local",
+                "name": "l1",
+                "type": "segment",
+                "width": 0.0072
+              },
+              {
+                "a": [
+                  0.005200000000000001,
+                  -0.0041600000000000005
+                ],
+                "b": [
+                  0.002,
+                  0.00384
+                ],
+                "coords": "g.local",
+                "name": "l2",
+                "type": "segment",
+                "width": 0.0072
+              },
+              {
+                "a": "l1",
+                "b": "l2",
+                "name": "v",
+                "op": "union",
+                "type": "sdf_op"
+              },
+              {
+                "from": [
+                  -0.0036,
+                  0.0002
+                ],
+                "input": "v",
+                "name": "vr",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "vr",
+                "b": 0,
+                "c": 1,
+                "name": "vc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "vc",
+                "b": 0.6,
+                "name": "pill",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 2,
+                "seed": 5,
+                "size": 0.003,
+                "type": "noise"
+              },
+              {
+                "name": "tone",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "tone",
+                "name": "tv",
+                "to": [
+                  0.93,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fz",
+                "name": "fv",
+                "to": [
+                  0.94,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "pill",
+                "name": "pv",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "pv",
+                "b": "tv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c1",
+                "b": "fv",
+                "name": "c2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": [
+                  0.97,
+                  0.97,
+                  0.97
+                ],
+                "b": "c2",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pill",
+                "b": 0.0016,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "normal_strength": 1.0,
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-foot",
+          "parts": [],
+          "version": 20625,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pp-foot`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-foot",
+          "parts": [],
+          "version": 20634,
+          "ops": [
+            {
+              "sdf": {
+                "name": "foot_raw",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ],
+                    "size": [
+                      0.1,
+                      0.065,
+                      0.145
+                    ]
+                  },
+                  {
+                    "shape": "ellipsoid",
+                    "blend": 0.03,
+                    "at": [
+                      0.0,
+                      0.01,
+                      -0.06
+                    ],
+                    "size": [
+                      0.085,
+                      0.06,
+                      0.085
+                    ]
+                  },
+                  {
+                    "shape": "box",
+                    "op": "subtract",
+                    "blend": 0.01,
+                    "at": [
+                      0.0,
+                      -0.55,
+                      0.0
+                    ],
+                    "size": [
+                      1.0,
+                      1.0,
+                      1.0
+                    ],
+                    "round": 0.0
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "foot",
+                "input": "foot_raw",
+                "tris": 90
+              }
+            },
+            {
+              "visibility": {
+                "name": "foot_raw",
+                "input": "foot_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "foot",
+                "input": "foot",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-knit",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.16,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "g",
+                        "size": [
+                          0.02,
+                          0.016
+                        ],
+                        "stagger": 0,
+                        "type": "tile_grid"
+                      },
+                      {
+                        "a": [
+                          -0.005200000000000001,
+                          -0.0041600000000000005
+                        ],
+                        "b": [
+                          -0.002,
+                          0.00384
+                        ],
+                        "coords": "g.local",
+                        "name": "l1",
+                        "type": "segment",
+                        "width": 0.0072
+                      },
+                      {
+                        "a": [
+                          0.005200000000000001,
+                          -0.0041600000000000005
+                        ],
+                        "b": [
+                          0.002,
+                          0.00384
+                        ],
+                        "coords": "g.local",
+                        "name": "l2",
+                        "type": "segment",
+                        "width": 0.0072
+                      },
+                      {
+                        "a": "l1",
+                        "b": "l2",
+                        "name": "v",
+                        "op": "union",
+                        "type": "sdf_op"
+                      },
+                      {
+                        "from": [
+                          -0.0036,
+                          0.0002
+                        ],
+                        "input": "v",
+                        "name": "vr",
+                        "to": [
+                          1,
+                          0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "vr",
+                        "b": 0,
+                        "c": 1,
+                        "name": "vc",
+                        "op": "clamp",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vc",
+                        "b": 0.6,
+                        "name": "pill",
+                        "op": "pow",
+                        "type": "math"
+                      },
+                      {
+                        "name": "fz",
+                        "octaves": 2,
+                        "seed": 5,
+                        "size": 0.003,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "tone",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "tone",
+                        "name": "tv",
+                        "to": [
+                          0.93,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "fz",
+                        "name": "fv",
+                        "to": [
+                          0.94,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "pill",
+                        "name": "pv",
+                        "to": [
+                          0.6,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "pv",
+                        "b": "tv",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "c1",
+                        "b": "fv",
+                        "name": "c2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": [
+                          0.97,
+                          0.97,
+                          0.97
+                        ],
+                        "b": "c2",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "pill",
+                        "b": 0.0016,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "normal_strength": 1.0,
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "material `foot` <- `foot` pbr=pp-knit",
+        "author": "people"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

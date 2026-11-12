@@ -28,8 +28,7 @@ If you're running in CI, also read `.github/claude/run.md`.
   equally permissive) with entries in `assets/CREDITS.md`. Prefer generating procedurally or
   keeping it tiny when an asset isn't really needed, and never let gameplay *depend* on asset
   files: they must degrade quietly if LFS data is missing.
-- **Models come from the modeler** when you can make them there (only the kit's animated
-  characters are left). Run it with `crates/game` as the project so editable sources land in
+- **Models come from the modeler** (every model in the game is made there now). Run it with `crates/game` as the project so editable sources land in
   `crates/game/.modeler/` (prefabs, procedural materials, the `friendslop` style) and
   `export_model("models/....gltf", optimize: "game")` writes into `assets/`, its textures as
   shared KTX2 files in `assets/textures/` (the web build decodes them to PNG for phones). Model
@@ -39,7 +38,10 @@ If you're running in CI, also read `.github/claude/run.md`.
   where its meshes were and keeping its colliders as mesh-less entities (gameplay never
   depends on the file). Building props are marked by `Kit::begin_prop` and drawn from
   `models/props/` when listed in `buildings::PROP_MODELS`; the six building surfaces take
-  their textures from `models/surfaces/`. Several agents can share one modeler daemon, but
+  their textures from `models/surfaces/`. Creatures and characters are rigged
+  in the modeler (skeleton, bind, clips) and drawn with `crate::rigged` (put `Rigged` on the
+  entity, switch `RigClip` from its state); trees sway live through the modeler's runtime
+  plugin (`modeler_bevy`, a pinned git dependency). Several agents can share one modeler daemon, but
   pass `--doc <model>` on every call or saves and exports can land on another agent's model.
 - **List keywords (#51).** An issue may tag a list of examples with a keyword in parentheses:
   - `(strict)`: put exactly these examples in the game, no more and no fewer.
@@ -88,7 +90,8 @@ crates/game/src/
   controls.rs   touch overlay + gamepad, fed into the same keys / WalkInput as keyboard+mouse
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
-  lod.rs        trees: lighter far meshes, dithered in by distance (#227)
+  lod.rs        trees: lighter far meshes, dithered in by distance (#227); modeler LOD nodes; tree wind
+  rigged.rs     rigged modeler models: `Rigged { path }` + `RigClip` crossfades their named clips
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
@@ -171,7 +174,7 @@ Rules for growing it:
   `ClientState`. Guard server logic with `run_if(in_state(ServerState::Running))`, and remember
   the host has `Player { id: 0 }` with no client entity.
 - Test multiplayer behavior headlessly with `bevy_replicon::test_app::ServerTestAppExt`, as in
-  `tests/replication.rs`.
+  `tests/it/replication.rs`.
 
 ### Bevy conventions
 
@@ -181,7 +184,7 @@ Rules for growing it:
 - Every use of BSN (`bsn!` macro or a `.bsn` asset) must be "salted" (#9): a nearby comment that
   mentions not needing `Cargo.lock`, x didn't set us up for success, we need more SME's, we
   haven't considered the problem space enough, BSN syntax needs more changes, `Children` sugaring
-  and Sam "Salt" Saltman. `tests/bsn_salting.rs` enforces it and has an example.
+  and Sam "Salt" Saltman. `tests/it/bsn_salting.rs` enforces it and has an example.
 - No `unwrap()`/`expect()` in systems. Use `let Ok(..) = .. else { return };`.
 - Pinned versions: `bevy =0.20.0` and `bevy_replicon =0.45.2` (required by bevy_voice_chat). Only
   bump them together, and only when every dependency supports the new version.

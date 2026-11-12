@@ -30,6 +30,7 @@ use crate::features::morality::{Act, MoralAct, Victim};
 use crate::features::organ_currency::{Organ, OrganPurse};
 use crate::features::stillness::{Stillness, is_frozen};
 use crate::player::PlayerOwner;
+use crate::rigged::{RigClip, Rigged};
 
 /// Where the landlord stands.
 pub const LANDLORD_AT: Vec3 = Vec3::new(13.0, 0.0, -4.0);
@@ -255,110 +256,38 @@ pub fn plugin(app: &mut App) {
 #[derive(Component)]
 struct LandlordBody;
 
+/// His rigged model.
+const LANDLORD_MODEL: &str = "models/creatures/landlord.gltf";
+
+/// The clip he plays in each act: shaking his fists as the boss.
+pub fn clip_for(act: Act3) -> &'static str {
+    match act {
+        Act3::Boss => "boss",
+        _ => "idle",
+    }
+}
+
 #[derive(Component)]
 struct TenancyText;
 
-fn spawn_landlord(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    let suit = materials.add(Color::srgb(0.15, 0.15, 0.2));
-    let skin = materials.add(Color::srgb(0.95, 0.75, 0.65));
-    let hat = crate::art::glossy(&mut materials, Color::srgb(0.05, 0.05, 0.05));
-    let shirt = crate::art::soft(&mut materials, Color::srgb(0.95, 0.95, 0.95));
-    let band = crate::art::soft(&mut materials, Color::srgb(0.5, 0.1, 0.4));
-    let gold = materials.add(StandardMaterial {
-        base_color: Color::srgb(1.0, 0.8, 0.3),
-        metallic: 0.9,
-        perceptual_roughness: 0.3,
-        ..default()
-    });
-    commands
-        .spawn((
-            LandlordBody,
-            Transform::from_translation(LANDLORD_AT),
-            Clickable::at_height(1.2)
-                .radius(60.0)
-                .labelled("pay the landlord"),
-            Visibility::default(),
-            DespawnOnExit(AppState::InGame),
-        ))
-        .with_children(|p| {
-            p.spawn((
-                Mesh3d(meshes.add(Capsule3d::new(0.4, 0.9))),
-                MeshMaterial3d(suit.clone()),
-                Transform::from_xyz(0.0, 0.85, 0.0),
-            ));
-            p.spawn((
-                Mesh3d(meshes.add(Sphere::new(0.3))),
-                MeshMaterial3d(skin.clone()),
-                Transform::from_xyz(0.0, 1.75, 0.0),
-            ))
-            .with_children(|h| {
-                crate::art::eyes(
-                    h,
-                    &mut meshes,
-                    &mut materials,
-                    Vec3::new(0.0, 0.05, -0.26),
-                    0.2,
-                    0.05,
-                );
-                // A smug curly moustache and a big nose.
-                let tache = meshes.add(Capsule3d::new(0.03, 0.12));
-                for x in [-0.07, 0.07] {
-                    h.spawn((
-                        Mesh3d(tache.clone()),
-                        MeshMaterial3d(hat.clone()),
-                        Transform::from_xyz(x, -0.1, -0.27)
-                            .with_rotation(Quat::from_rotation_z(1.2 * x.signum())),
-                    ));
-                }
-                h.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.06))),
-                    MeshMaterial3d(skin.clone()),
-                    Transform::from_xyz(0.0, -0.03, -0.3),
-                ));
-            });
-            // Arms, white shirt front, gold watch chain.
-            let arm = meshes.add(Capsule3d::new(0.11, 0.55));
-            for x in [-0.48, 0.48] {
-                p.spawn((
-                    Mesh3d(arm.clone()),
-                    MeshMaterial3d(suit.clone()),
-                    Transform::from_xyz(x, 1.0, 0.0)
-                        .with_rotation(Quat::from_rotation_z(0.2 * x.signum())),
-                ));
-            }
-            p.spawn((
-                Mesh3d(meshes.add(Cuboid::new(0.25, 0.5, 0.05))),
-                MeshMaterial3d(shirt),
-                Transform::from_xyz(0.0, 1.15, -0.38),
-            ));
-            p.spawn((
-                Mesh3d(meshes.add(Torus::new(0.01, 0.025))),
-                MeshMaterial3d(gold.clone()),
-                Transform::from_xyz(0.12, 0.85, -0.4)
-                    .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-            ));
-            // Hat band.
-            p.spawn((
-                Mesh3d(meshes.add(Cylinder::new(0.225, 0.08))),
-                MeshMaterial3d(band),
-                Transform::from_xyz(0.0, 2.06, 0.0),
-            ));
-            // A top hat, obviously.
-            p.spawn((
-                Mesh3d(meshes.add(Cylinder::new(0.22, 0.4))),
-                MeshMaterial3d(hat.clone()),
-                Transform::from_xyz(0.0, 2.2, 0.0),
-            ));
-            p.spawn((
-                Mesh3d(meshes.add(Cylinder::new(0.38, 0.03))),
-                MeshMaterial3d(hat),
-                Transform::from_xyz(0.0, 2.0, 0.0),
-            ));
-        });
+fn spawn_landlord(mut commands: Commands) {
+    // Modeler-made, rigged (source `.modeler/prefabs/np-landlord.json`):
+    // suit, top hat, moustache and watch chain, with `idle` and `boss` clips.
+    // A missing file only makes him invisible; clicking aims at the
+    // entity's own pick point, not at his meshes.
+    commands.spawn((
+        LandlordBody,
+        Transform::from_translation(LANDLORD_AT),
+        Clickable::at_height(1.2)
+            .radius(60.0)
+            .labelled("pay the landlord"),
+        Visibility::default(),
+        Rigged {
+            path: LANDLORD_MODEL,
+        },
+        RigClip::looping("idle"),
+        DespawnOnExit(AppState::InGame),
+    ));
     commands.spawn((
         Text::new(""),
         TenancyText,
@@ -390,7 +319,7 @@ fn show_tenancy(
     time: Res<Time>,
     tenancy: Query<&Tenancy>,
     mut text: Query<&mut Text, With<TenancyText>>,
-    mut body: Query<&mut Transform, With<LandlordBody>>,
+    mut body: Query<(&mut Transform, &mut RigClip), With<LandlordBody>>,
 ) {
     let Ok(t) = tenancy.single() else { return };
     let want = describe(t);
@@ -413,9 +342,11 @@ fn show_tenancy(
         },
         scale: Vec3::splat(scale),
     };
-    for mut tf in &mut body {
-        // Only re-propagate his ~20 parts when he actually moves (#151).
+    let clip = RigClip::looping(clip_for(t.act));
+    for (mut tf, mut playing) in &mut body {
+        // Only re-propagate his parts when he actually moves (#151).
         tf.set_if_neq(want);
+        playing.set_if_neq(clip.clone());
     }
 }
 
@@ -459,6 +390,14 @@ fn reset_tenancy(
 mod tests {
     use super::*;
     use crate::features::organ_currency::starting_purse;
+
+    #[test]
+    fn he_shakes_his_fists_only_as_the_boss() {
+        assert_eq!(clip_for(Act3::Legal), "idle");
+        assert_eq!(clip_for(Act3::Crime), "idle");
+        assert_eq!(clip_for(Act3::Boss), "boss");
+        assert_eq!(clip_for(Act3::Won), "idle");
+    }
 
     #[test]
     fn the_whole_story() {

@@ -9,10 +9,17 @@
 //! It was then made more anarchist (#57): the field is split diagonally red
 //! over black like an anarcho-syndicalist flag, the crosses are black, and a
 //! circled A is sprayed on the top hoist corner.
+//!
+//! Everything is a modeler model (sources in `.modeler/`): the ruin, tower
+//! and pole, the flag (`fa-commune-flag`, built from [`commune_flag`]'s
+//! design, fluttering with its `flutter` clip) and Dave himself
+//! (`fa-dave`, a rigged plush lad playing his `idle` clip). A missing file
+//! just draws nothing.
 
 use bevy::prelude::*;
 
 use crate::AppState;
+use crate::rigged::{RigClip, Rigged};
 
 pub fn protocol(_app: &mut App) {}
 
@@ -28,9 +35,14 @@ pub use friendslop_world::places::PARLIAMENT_AT;
 pub const DAVE_AT: Vec2 = Vec2::new(PARLIAMENT_AT.x - 1.0, PARLIAMENT_AT.y + 7.0);
 
 /// Flag size (width, height), in metres.
+#[cfg(test)]
 const FLAG_W: f32 = 2.4;
 const FLAG_H: f32 = 1.2;
 
+// The flag's design, kept as the record the model was built from (the
+// `fa-commune-flag` material paints exactly these pieces) and checked by
+// the test below.
+#[cfg(test)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum FlagColour {
     Black,
@@ -40,6 +52,8 @@ enum FlagColour {
 }
 
 /// The outline of a flag piece.
+#[cfg(test)]
+#[allow(dead_code)] // the outlines are painted by the model, not read here
 #[derive(Clone, Copy, Debug)]
 enum FlagShape {
     /// A rectangle of this size.
@@ -50,6 +64,8 @@ enum FlagShape {
 
 /// One flat piece of the flag, centred at `at` and rotated by `angle`
 /// radians. Later pieces are thicker so they sit on top (both sides).
+#[cfg(test)]
+#[allow(dead_code)] // the angles are painted by the model, not read here
 #[derive(Clone, Copy, Debug)]
 struct FlagPart {
     colour: FlagColour,
@@ -63,6 +79,7 @@ struct FlagPart {
 /// anarcho-syndicalist red-and-black field, with black crosses, a circled A,
 /// and a little Welsh flag (white over green) in the middle carrying a red
 /// dragon.
+#[cfg(test)]
 fn commune_flag() -> Vec<FlagPart> {
     use FlagColour::*;
     let mut parts = Vec::new();
@@ -151,17 +168,7 @@ fn commune_flag() -> Vec<FlagPart> {
     parts
 }
 
-fn spawn_commune(
-    mut commands: Commands,
-    assets: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    let skin = materials.add(Color::srgb(0.9, 0.7, 0.55));
-    let jumper = crate::art::soft(&mut materials, Color::srgb(0.2, 0.3, 0.6));
-    let trousers = crate::art::soft(&mut materials, Color::srgb(0.25, 0.22, 0.2));
-    let red = crate::art::soft(&mut materials, Color::srgb(0.75, 0.1, 0.1));
-
+fn spawn_commune(mut commands: Commands, assets: Res<AssetServer>) {
     let at =
         |x: f32, y: f32, z: f32| Transform::from_xyz(PARLIAMENT_AT.x + x, y, PARLIAMENT_AT.y + z);
     // Modeler-made (sources in `.modeler/`, prefabs `sp-parliament-ruin`,
@@ -193,215 +200,38 @@ fn spawn_commune(
         at(1.0, 2.5, 6.0),
         DespawnOnExit(AppState::InGame),
     ));
-    let black = materials.add(Color::srgb(0.03, 0.03, 0.03));
-    let white = materials.add(Color::srgb(1.0, 1.0, 1.0));
-    let green = materials.add(Color::srgb(0.0, 0.55, 0.25));
-    let flag_red = materials.add(Color::srgb(0.8, 0.07, 0.15));
     // The flag hangs from a hinge at the pole and swings on it in the breeze
-    // (cheap waving that can't come off the pole).
-    let hinge = commands
+    // (cheap waving that can't come off the pole); the cloth ripples with
+    // its own `flutter` clip. The model's origin is the hinge, the cloth
+    // running out along +X.
+    commands
         .spawn((
             at(1.0 + 0.06, 5.0 - FLAG_H / 2.0, 6.0),
             Visibility::default(),
             crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Y, 0.28, 1.3, 0.0),
             DespawnOnExit(AppState::InGame),
         ))
-        .id();
-    let flag = commands
-        .spawn((
-            Transform::from_xyz(FLAG_W / 2.0, 0.0, 0.0),
+        .with_child((
+            Transform::default(),
             Visibility::default(),
-            crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::X, 0.08, 2.1, 1.0),
-            ChildOf(hinge),
-        ))
-        .id();
-    for part in commune_flag() {
-        let m = match part.colour {
-            FlagColour::Black => black.clone(),
-            FlagColour::White => white.clone(),
-            FlagColour::Red => flag_red.clone(),
-            FlagColour::Green => green.clone(),
-        };
-        commands.spawn((
-            Mesh3d(match part.shape {
-                FlagShape::Rect(size) => meshes.add(Cuboid::new(size.x, size.y, part.depth)),
-                FlagShape::Tri([a, b, c]) => {
-                    meshes.add(Extrusion::new(Triangle2d::new(a, b, c), part.depth))
-                }
-            }),
-            MeshMaterial3d(m),
-            Transform::from_xyz(part.at.x, part.at.y, 0.0)
-                .with_rotation(Quat::from_rotation_z(part.angle)),
-            ChildOf(flag),
+            Rigged {
+                path: "models/features/commune_flag.gltf",
+            },
+            RigClip::looping("flutter"),
         ));
-    }
-    // Dave: a little lad in a jumper and beanie, fist raised for the commune.
-    let shoe = crate::art::soft(&mut materials, Color::srgb(0.15, 0.1, 0.08));
-    let hair = crate::art::soft(&mut materials, Color::srgb(0.35, 0.2, 0.1));
-    let cream = crate::art::soft(&mut materials, Color::srgb(0.95, 0.92, 0.85));
-    let dark = crate::art::glossy(&mut materials, Color::srgb(0.08, 0.05, 0.05));
-    commands
-        .spawn((
-            at(-1.0, 0.0, 7.0),
-            Visibility::default(),
-            DespawnOnExit(AppState::InGame),
-        ))
-        .with_children(|root| {
-            // Legs and chunky shoes.
-            let leg = meshes.add(Capsule3d::new(0.1, 0.3));
-            let shoe_mesh = meshes.add(Sphere::new(0.13));
-            for x in [-0.14, 0.14] {
-                root.spawn((
-                    Mesh3d(leg.clone()),
-                    MeshMaterial3d(trousers.clone()),
-                    Transform::from_xyz(x, 0.3, 0.0),
-                ));
-                root.spawn((
-                    Mesh3d(shoe_mesh.clone()),
-                    MeshMaterial3d(shoe.clone()),
-                    Transform::from_xyz(x, 0.07, -0.05).with_scale(Vec3::new(0.9, 0.6, 1.4)),
-                ));
-            }
-            // Breathing torso carries the arms and the head.
-            root.spawn((
-                Transform::from_xyz(0.0, 0.55, 0.0),
-                Visibility::default(),
-                crate::art::Breathe::new(Vec3::ONE, 0.03, 1.0),
-            ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(meshes.add(Capsule3d::new(0.3, 0.35))),
-                    MeshMaterial3d(jumper.clone()),
-                    Transform::from_xyz(0.0, 0.32, 0.0).with_scale(Vec3::new(1.0, 1.0, 0.85)),
-                ));
-                // Jumper stripe and hem.
-                p.spawn((
-                    Mesh3d(meshes.add(Torus::new(0.28, 0.32))),
-                    MeshMaterial3d(cream.clone()),
-                    Transform::from_xyz(0.0, 0.42, 0.0).with_scale(Vec3::new(1.0, 1.0, 0.85)),
-                ));
-                p.spawn((
-                    Mesh3d(meshes.add(Torus::new(0.27, 0.32))),
-                    MeshMaterial3d(trousers.clone()),
-                    Transform::from_xyz(0.0, 0.02, 0.0).with_scale(Vec3::new(1.0, 1.0, 0.85)),
-                ));
-                let hand = meshes.add(Sphere::new(0.09));
-                let arm = meshes.add(Capsule3d::new(0.085, 0.32));
-                // Relaxed arm, swinging a touch.
-                p.spawn((
-                    Transform::from_xyz(-0.36, 0.55, 0.0),
-                    Visibility::default(),
-                    crate::art::Wiggle::sway(Quat::from_rotation_z(-0.25), Vec3::X, 0.1, 1.6, 0.0),
-                ))
-                .with_children(|a| {
-                    a.spawn((
-                        Mesh3d(arm.clone()),
-                        MeshMaterial3d(jumper.clone()),
-                        Transform::from_xyz(0.0, -0.25, 0.0),
-                    ));
-                    a.spawn((
-                        Mesh3d(hand.clone()),
-                        MeshMaterial3d(skin.clone()),
-                        Transform::from_xyz(0.0, -0.5, 0.0),
-                    ));
-                });
-                // Raised fist, pumping gently.
-                p.spawn((
-                    Transform::from_xyz(0.36, 0.55, 0.0),
-                    Visibility::default(),
-                    crate::art::Wiggle::sway(Quat::from_rotation_z(2.9), Vec3::Z, 0.12, 2.2, 0.5),
-                ))
-                .with_children(|a| {
-                    a.spawn((
-                        Mesh3d(arm.clone()),
-                        MeshMaterial3d(jumper.clone()),
-                        Transform::from_xyz(0.0, -0.25, 0.0),
-                    ));
-                    a.spawn((
-                        Mesh3d(hand.clone()),
-                        MeshMaterial3d(skin.clone()),
-                        Transform::from_xyz(0.0, -0.52, 0.0).with_scale(Vec3::new(1.2, 1.1, 1.1)),
-                    ));
-                });
-                // Big round head with a slight determined tilt.
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.3))),
-                    MeshMaterial3d(skin.clone()),
-                    Transform::from_xyz(0.0, 0.95, 0.0),
-                    crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Z, 0.06, 0.9, 2.0),
-                ))
-                .with_children(|h| {
-                    crate::art::eyes(
-                        h,
-                        &mut meshes,
-                        &mut materials,
-                        Vec3::new(0.0, 0.02, -0.26),
-                        0.2,
-                        0.055,
-                    );
-                    crate::art::blush(
-                        h,
-                        &mut meshes,
-                        &mut materials,
-                        Vec3::new(0.0, -0.09, -0.24),
-                        0.36,
-                        0.05,
-                    );
-                    // Button nose, ears, a cheeky grin.
-                    h.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.045))),
-                        MeshMaterial3d(skin.clone()),
-                        Transform::from_xyz(0.0, -0.06, -0.3),
-                    ));
-                    let ear = meshes.add(Sphere::new(0.07));
-                    for x in [-0.29, 0.29] {
-                        h.spawn((
-                            Mesh3d(ear.clone()),
-                            MeshMaterial3d(skin.clone()),
-                            Transform::from_xyz(x, -0.02, 0.0).with_scale(Vec3::new(0.5, 1.0, 0.8)),
-                        ));
-                    }
-                    h.spawn((
-                        Mesh3d(meshes.add(Capsule3d::new(0.018, 0.08))),
-                        MeshMaterial3d(dark.clone()),
-                        Transform::from_xyz(0.0, -0.15, -0.27)
-                            .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)),
-                    ));
-                    // Scruffy fringe under a beanie with a bobble.
-                    let tuft = meshes.add(Sphere::new(0.07));
-                    for x in [-0.15, -0.05, 0.06, 0.16] {
-                        h.spawn((
-                            Mesh3d(tuft.clone()),
-                            MeshMaterial3d(hair.clone()),
-                            Transform::from_xyz(x, 0.15, -0.22),
-                        ));
-                    }
-                    h.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.31))),
-                        MeshMaterial3d(red.clone()),
-                        Transform::from_xyz(0.0, 0.12, 0.03).with_scale(Vec3::new(1.0, 0.7, 1.0)),
-                    ));
-                    h.spawn((
-                        Mesh3d(meshes.add(Torus::new(0.27, 0.33))),
-                        MeshMaterial3d(cream.clone()),
-                        Transform::from_xyz(0.0, 0.1, 0.03),
-                    ));
-                    // Pivot on the beanie so the bobble swings, not just spins.
-                    h.spawn((
-                        Transform::from_xyz(0.0, 0.24, 0.03),
-                        Visibility::default(),
-                        crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Z, 0.3, 2.2, 0.0),
-                    ))
-                    .with_children(|pivot| {
-                        pivot.spawn((
-                            Mesh3d(meshes.add(Sphere::new(0.09))),
-                            MeshMaterial3d(cream.clone()),
-                            Transform::from_xyz(0.0, 0.12, 0.0),
-                        ));
-                    });
-                });
-            });
-        });
+    // Dave: a little lad in a jumper and beanie, fist raised for the commune
+    // (faces -Z, origin at his feet). His `idle` breathes, pumps the fist,
+    // swings the other arm, tilts his head, swings the beanie's bobble and
+    // blinks.
+    commands.spawn((
+        at(-1.0, 0.0, 7.0),
+        Visibility::default(),
+        Rigged {
+            path: "models/creatures/dave.gltf",
+        },
+        RigClip::looping("idle"),
+        DespawnOnExit(AppState::InGame),
+    ));
 
     commands.spawn((
         Text::new("Commune of Dave: power generates parasites"),

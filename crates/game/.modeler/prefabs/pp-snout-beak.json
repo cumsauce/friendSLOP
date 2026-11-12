@@ -1,0 +1,369 @@
+{
+  "format_version": 1,
+  "name": "pp-snout-beak",
+  "parts": [],
+  "version": 20870,
+  "ops": [
+    {
+      "sdf": {
+        "name": "beak_raw",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.0448,
+              0.0056
+            ],
+            "from": [
+              0.0,
+              -0.042,
+              -0.2408
+            ],
+            "to": [
+              0.0,
+              -0.054,
+              -0.3752
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.02,
+            "at": [
+              0.0,
+              -0.042,
+              -0.252
+            ],
+            "size": [
+              0.0476,
+              0.0336,
+              0.0224
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "beak",
+        "input": "beak_raw",
+        "tris": 90
+      }
+    },
+    {
+      "visibility": {
+        "name": "beak_raw",
+        "input": "beak_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "beak",
+        "input": "beak",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-straw",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.16,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.02,
+                  0.02
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "name": "st",
+                "octaves": 2,
+                "seed": 21,
+                "size": 0.004,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "st",
+                "length": 0.02,
+                "name": "sb",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.003
+                ],
+                "input": "g.edge",
+                "name": "ed",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "sb",
+                "name": "sv",
+                "to": [
+                  0.8,
+                  1.05
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "ed",
+                "name": "ev",
+                "to": [
+                  0.7,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "sv",
+                "b": "ev",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#eed180",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ed",
+                "b": 0.0012,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-snout-beak",
+          "parts": [],
+          "version": 20368,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pp-snout-beak`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-snout-beak",
+          "parts": [],
+          "version": 20378,
+          "ops": [
+            {
+              "sdf": {
+                "name": "beak_raw",
+                "shapes": [
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.0448,
+                      0.0056
+                    ],
+                    "from": [
+                      0.0,
+                      -0.042,
+                      -0.2408
+                    ],
+                    "to": [
+                      0.0,
+                      -0.054,
+                      -0.3752
+                    ]
+                  },
+                  {
+                    "shape": "ellipsoid",
+                    "blend": 0.02,
+                    "at": [
+                      0.0,
+                      -0.042,
+                      -0.252
+                    ],
+                    "size": [
+                      0.0476,
+                      0.0336,
+                      0.0224
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "beak",
+                "input": "beak_raw",
+                "tris": 90
+              }
+            },
+            {
+              "visibility": {
+                "name": "beak_raw",
+                "input": "beak_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "beak",
+                "input": "beak",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-straw",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.16,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "g",
+                        "size": [
+                          0.02,
+                          0.02
+                        ],
+                        "stagger": 0.5,
+                        "type": "tile_grid"
+                      },
+                      {
+                        "name": "st",
+                        "octaves": 2,
+                        "seed": 21,
+                        "size": 0.004,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "st",
+                        "length": 0.02,
+                        "name": "sb",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.0,
+                          0.003
+                        ],
+                        "input": "g.edge",
+                        "name": "ed",
+                        "type": "levels"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "sb",
+                        "name": "sv",
+                        "to": [
+                          0.8,
+                          1.05
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "ed",
+                        "name": "ev",
+                        "to": [
+                          0.7,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "sv",
+                        "b": "ev",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "#eed180",
+                        "b": "c1",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ed",
+                        "b": 0.0012,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.85,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "material `beak` <- `beak` pbr=pp-straw",
+        "author": "people"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

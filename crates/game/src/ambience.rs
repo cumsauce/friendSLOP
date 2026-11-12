@@ -1,21 +1,70 @@
 //! Ambient life and motion: butterflies, pollen motes, fireflies, falling
 //! leaves, bonfire smoke and sparks, birds overhead and wind sway on the
 //! scenery props. Purely local visuals (nothing replicated, no colliders);
-//! every particle uses shared mesh + material handles with cheap per-frame
-//! math, and expired particles are recycled in place (no per-frame spawning).
+//! every particle uses shared mesh + material handles (or a shared modeler
+//! model) with cheap per-frame math, and expired particles are recycled in
+//! place (no per-frame spawning). Birds and butterflies are rigged modeler
+//! models flapping their `flap` clip; the leaves are little leaf-card models
+//! (`assets/models/creatures`, sources in `.modeler/`). A missing file just
+//! draws nothing.
 
+use bevy::gltf::GltfAssetLabel;
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
+use bevy::world_serialization::{WorldAssetRoot, WorldInstanceReady};
 
 use crate::AppState;
+use crate::rigged::{RigClip, Rigged};
 use crate::scenery::BONFIRE_AT;
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_ambience)
         .add_systems(
             Update,
-            (animate_particles, flap_wings, sway_props).run_if(in_state(AppState::InGame)),
-        );
+            (animate_particles, sway_props).run_if(in_state(AppState::InGame)),
+        )
+        .add_observer(no_model_shadows);
+}
+
+/// Butterfly models, one per wing colour.
+const BUTTERFLY_MODELS: [&str; 4] = [
+    "models/creatures/butterfly_orange.gltf",
+    "models/creatures/butterfly_yellow.gltf",
+    "models/creatures/butterfly_blue.gltf",
+    "models/creatures/butterfly_pink.gltf",
+];
+/// Leaf-card models, one per autumn colour.
+const LEAF_MODELS: [&str; 3] = [
+    "models/creatures/leaf_amber.gltf",
+    "models/creatures/leaf_rust.gltf",
+    "models/creatures/leaf_lime.gltf",
+];
+const BIRD_MODEL: &str = "models/creatures/bird.gltf";
+
+/// A particle drawn by a model: its meshes cast no shadow once spawned.
+#[derive(Component)]
+struct Shadowless;
+
+/// Marks the meshes of a [`Shadowless`] particle's model (its own scene, or
+/// the scene a [`Rigged`] child holds) as not casting shadows.
+fn no_model_shadows(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    marked: Query<(), With<Shadowless>>,
+    parents: Query<&ChildOf>,
+    children: Query<&Children>,
+    meshes: Query<(), With<Mesh3d>>,
+) {
+    let root = ready.entity;
+    let parent = parents.get(root).map(ChildOf::parent).ok();
+    if marked.get(root).is_err() && !parent.is_some_and(|p| marked.get(p).is_ok()) {
+        return;
+    }
+    for child in children.iter_descendants(root) {
+        if meshes.get(child).is_ok() {
+            commands.entity(child).insert(NotShadowCaster);
+        }
+    }
 }
 
 /// Marker for scenery props that bend in the wind. Captures the prop's rest
@@ -48,13 +97,6 @@ struct Particle {
     age: f32,
     life: f32,
     seed: f32,
-}
-
-/// Wing pivots on butterflies and birds flap around their local Z.
-#[derive(Component)]
-struct Wing {
-    side: f32,
-    speed: f32,
 }
 
 /// Tiny deterministic random source (local visuals only).
@@ -110,17 +152,6 @@ fn glow(
     })
 }
 
-fn flat(materials: &mut Assets<StandardMaterial>, c: Color) -> Handle<StandardMaterial> {
-    materials.add(StandardMaterial {
-        base_color: c,
-        emissive: c.to_linear() * 0.25,
-        double_sided: true,
-        cull_mode: None,
-        perceptual_roughness: 0.9,
-        ..default()
-    })
-}
-
 fn spawn_particle(
     commands: &mut Commands,
     rng: &mut Rng,
@@ -148,6 +179,7 @@ fn spawn_particle(
 
 fn spawn_ambience(
     mut commands: Commands,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     quality: Option<Res<crate::graphics::GraphicsQuality>>,
@@ -156,24 +188,9 @@ fn spawn_ambience(
     let density = crate::graphics::density(quality.as_deref());
     let n = |count: usize| (count as f32 * density).round() as usize;
     let mut rng = Rng(0xA1B1_E5CE);
-    let wing_mesh = meshes.add(Cuboid::new(0.22, 0.01, 0.16));
     let dot = meshes.add(Sphere::new(0.035).mesh().uv(6, 4));
     let puff = meshes.add(Sphere::new(0.35).mesh().uv(10, 6));
-    let leaf_mesh = meshes.add(Cuboid::new(0.16, 0.01, 0.1));
-    let bird_wing = meshes.add(Cuboid::new(0.9, 0.03, 0.3));
-    let bird_body = meshes.add(Cuboid::new(0.2, 0.15, 0.6));
-
-    let wing_mats = [
-        flat(&mut materials, Color::srgb(1.0, 0.6, 0.1)),
-        flat(&mut materials, Color::srgb(0.95, 0.95, 0.4)),
-        flat(&mut materials, Color::srgb(0.4, 0.7, 1.0)),
-        flat(&mut materials, Color::srgb(1.0, 0.5, 0.8)),
-    ];
-    let leaf_mats = [
-        flat(&mut materials, Color::srgb(0.85, 0.55, 0.15)),
-        flat(&mut materials, Color::srgb(0.7, 0.3, 0.1)),
-        flat(&mut materials, Color::srgb(0.6, 0.7, 0.2)),
-    ];
+    let leaves = LEAF_MODELS.map(|file| assets.load(GltfAssetLabel::Scene(0).from_asset(file)));
     let mote_mat = glow(
         &mut materials,
         Color::srgb(1.0, 1.0, 0.85),
@@ -195,31 +212,19 @@ fn spawn_ambience(
         unlit: true,
         ..default()
     });
-    let bird_mat = materials.add(StandardMaterial {
-        base_color: Color::srgb(0.12, 0.12, 0.15),
-        unlit: true,
-        ..default()
-    });
 
     for i in 0..BUTTERFLIES {
         let anchor = rng.ring(0.6);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Butterfly, anchor, 12.0);
-        let mat = wing_mats[i % wing_mats.len()].clone();
-        commands.entity(e).with_children(|p| {
-            for side in [-1.0, 1.0] {
-                p.spawn((
-                    Transform::default(),
-                    Visibility::default(),
-                    Wing { side, speed: 18.0 },
-                ))
-                .with_child((
-                    Mesh3d(wing_mesh.clone()),
-                    MeshMaterial3d(mat.clone()),
-                    Transform::from_xyz(side * 0.11, 0.0, 0.0),
-                    NotShadowCaster,
-                ));
-            }
-        });
+        // Faces +Z like the particle; `flap` is one 0.35 s wingbeat.
+        let speed = 0.9 + h(i as f32 + 0.5) * 0.2;
+        commands.entity(e).insert((
+            Rigged {
+                path: BUTTERFLY_MODELS[i % BUTTERFLY_MODELS.len()],
+            },
+            RigClip::looping("flap").speed(speed),
+            Shadowless,
+        ));
     }
     for _ in 0..n(MOTES) {
         let y = rng.range(0.3, 3.0);
@@ -240,10 +245,9 @@ fn spawn_ambience(
         let anchor = rng.ring(4.0);
         let life = rng.range(5.0, 9.0);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Leaf, anchor, life);
-        commands.entity(e).insert((
-            Mesh3d(leaf_mesh.clone()),
-            MeshMaterial3d(leaf_mats[i % leaf_mats.len()].clone()),
-        ));
+        commands
+            .entity(e)
+            .insert((WorldAssetRoot(leaves[i % leaves.len()].clone()), Shadowless));
     }
     for _ in 0..n(SMOKE) {
         let life = rng.range(3.5, 5.5);
@@ -259,38 +263,16 @@ fn spawn_ambience(
             .entity(e)
             .insert((Mesh3d(dot.clone()), MeshMaterial3d(spark_mat.clone())));
     }
-    for _ in 0..BIRDS {
+    for i in 0..BIRDS {
         let life = rng.range(14.0, 22.0);
         let e = spawn_particle(&mut commands, &mut rng, Kind::Bird, Vec3::ZERO, life);
-        commands.entity(e).with_children(|p| {
-            p.spawn((
-                Mesh3d(bird_body.clone()),
-                MeshMaterial3d(bird_mat.clone()),
-                Transform::default(),
-                NotShadowCaster,
-            ));
-            for side in [-1.0, 1.0] {
-                p.spawn((
-                    Transform::default(),
-                    Visibility::default(),
-                    Wing { side, speed: 6.0 },
-                ))
-                .with_child((
-                    Mesh3d(bird_wing.clone()),
-                    MeshMaterial3d(bird_mat.clone()),
-                    Transform::from_xyz(side * 0.45, 0.0, 0.0),
-                    NotShadowCaster,
-                ));
-            }
-        });
-    }
-}
-
-fn flap_wings(time: Res<Time>, mut wings: Query<(&Wing, &mut Transform)>) {
-    let t = time.elapsed_secs();
-    for (wing, mut tf) in &mut wings {
-        let flap = (t * wing.speed).sin() * 0.9;
-        tf.rotation = Quat::from_rotation_z(flap * wing.side);
+        // Faces +Z like the particle; `flap` is one ~1 s wingbeat.
+        let speed = 0.85 + h(i as f32 + 7.5) * 0.3;
+        commands.entity(e).insert((
+            Rigged { path: BIRD_MODEL },
+            RigClip::looping("flap").speed(speed),
+            Shadowless,
+        ));
     }
 }
 

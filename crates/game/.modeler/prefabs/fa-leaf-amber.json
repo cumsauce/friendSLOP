@@ -1,0 +1,385 @@
+{
+  "format_version": 1,
+  "name": "fa-leaf-amber",
+  "parts": [],
+  "version": 21078,
+  "ops": [
+    {
+      "extrude": {
+        "name": "leaf",
+        "profile": [
+          [
+            [
+              -0.085,
+              -0.004
+            ],
+            [
+              -0.06,
+              -0.004
+            ],
+            [
+              -0.035,
+              -0.034
+            ],
+            [
+              -0.005,
+              -0.048
+            ],
+            [
+              0.025,
+              -0.042
+            ],
+            [
+              0.055,
+              -0.024
+            ],
+            [
+              0.08,
+              0.0
+            ],
+            [
+              0.055,
+              0.024
+            ],
+            [
+              0.025,
+              0.042
+            ],
+            [
+              -0.005,
+              0.048
+            ],
+            [
+              -0.035,
+              0.034
+            ],
+            [
+              -0.06,
+              0.004
+            ],
+            [
+              -0.085,
+              0.004
+            ]
+          ]
+        ],
+        "height": 0.004,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          -0.002,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "leaf",
+        "input": "leaf",
+        "base_color": [
+          0.85,
+          0.55,
+          0.15,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fa-felt",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 5,
+                "seed": 11,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "name": "m",
+                "octaves": 3,
+                "seed": 12,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "a",
+                "to": [
+                  0.88,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "m",
+                "name": "b",
+                "to": [
+                  0.94,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "a",
+                "b": "b",
+                "name": "v",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#f6f4f0",
+                "b": "v",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "double_sided": true,
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "fa-leaf-amber",
+          "parts": [],
+          "version": 21075,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `fa-leaf-amber`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "fa-leaf-amber",
+          "parts": [],
+          "version": 21078,
+          "ops": [
+            {
+              "extrude": {
+                "name": "leaf",
+                "profile": [
+                  [
+                    [
+                      -0.085,
+                      -0.004
+                    ],
+                    [
+                      -0.06,
+                      -0.004
+                    ],
+                    [
+                      -0.035,
+                      -0.034
+                    ],
+                    [
+                      -0.005,
+                      -0.048
+                    ],
+                    [
+                      0.025,
+                      -0.042
+                    ],
+                    [
+                      0.055,
+                      -0.024
+                    ],
+                    [
+                      0.08,
+                      0.0
+                    ],
+                    [
+                      0.055,
+                      0.024
+                    ],
+                    [
+                      0.025,
+                      0.042
+                    ],
+                    [
+                      -0.005,
+                      0.048
+                    ],
+                    [
+                      -0.035,
+                      0.034
+                    ],
+                    [
+                      -0.06,
+                      0.004
+                    ],
+                    [
+                      -0.085,
+                      0.004
+                    ]
+                  ]
+                ],
+                "height": 0.004,
+                "scale_top": [
+                  1.0,
+                  1.0
+                ],
+                "slices": 0,
+                "translation": [
+                  0.0,
+                  -0.002,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "leaf",
+                "input": "leaf",
+                "base_color": [
+                  0.85,
+                  0.55,
+                  0.15,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "fa-felt",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 5,
+                        "seed": 11,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "m",
+                        "octaves": 3,
+                        "seed": 12,
+                        "size": 0.1,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "a",
+                        "to": [
+                          0.88,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "m",
+                        "name": "b",
+                        "to": [
+                          0.94,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "a",
+                        "b": "b",
+                        "name": "v",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "#f6f4f0",
+                        "b": "v",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "double_sided": true,
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "material `leaf` <- `leaf` color=[0.85, 0.55, 0.15, 1.0] pbr=fa-felt",
+        "author": "fauna"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

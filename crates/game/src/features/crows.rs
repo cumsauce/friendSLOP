@@ -2,8 +2,10 @@
 //!
 //! The server spawns a few replicated `Crow`s. Their hopping and cawing is
 //! pure decoration, so every peer animates them locally from the crow's id
-//! (no per-frame network traffic). A "caw" is a little puff-up, a line of
-//! text at the bottom of the screen and a caw sound (from `assets/audio`).
+//! (no per-frame network traffic). Each crow is a rigged modeler model
+//! (`models/creatures/crow.gltf`) whose `hop` and `caw` clips are kept in
+//! step with the session clock. A "caw" is a puff-up and open beak, a line
+//! of text at the bottom of the screen and a caw sound (from `assets/audio`).
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -41,7 +43,13 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_caw_text)
         .add_systems(
             Update,
-            (dress_crows, animate_crows, update_caw_text, caw_sound)
+            (
+                dress_crows,
+                animate_crows,
+                crow_clips,
+                update_caw_text,
+                caw_sound,
+            )
                 .run_if(in_state(AppState::InGame)),
         );
 }
@@ -67,134 +75,49 @@ pub fn crow_position(crow: &Crow, t: f32) -> Vec3 {
     Vec3::new(crow.home.x + wander.x, 0.3 + hop, crow.home.y + wander.y)
 }
 
-/// Give every new crow (on every peer) a body, head and beak.
-fn dress_crows(
-    mut commands: Commands,
-    new: Query<(Entity, &Crow), Added<Crow>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+/// The crow model (#2): knitted body, hop and caw clips. Its feet are at the
+/// model's origin, which sits `FEET` below the crow's own origin.
+const CROW_MODEL: &str = "models/creatures/crow.gltf";
+const FEET: f32 = 0.3;
+
+/// On a crow: the child entity drawing its rigged model.
+#[derive(Component)]
+struct CrowRig(Entity);
+
+/// Give every new crow (on every peer) its rigged model.
+fn dress_crows(mut commands: Commands, new: Query<(Entity, &Crow), Added<Crow>>) {
     for (entity, crow) in &new {
-        let feathers = materials.add(StandardMaterial {
-            base_color: Color::srgb(0.1, 0.1, 0.16),
-            perceptual_roughness: 0.45,
-            reflectance: 0.5,
-            ..default()
-        });
-        let chest = crate::art::soft(&mut materials, Color::srgb(0.2, 0.2, 0.28));
-        let beak = crate::art::glossy(&mut materials, Color::srgb(0.95, 0.7, 0.2));
-        let phase = crow.id as f32 * 1.3;
-        let body_mesh = meshes.add(Sphere::new(0.3));
-        let head_mesh = meshes.add(Sphere::new(0.2));
-        let beak_mesh = meshes.add(Cone::new(0.06, 0.2).mesh().resolution(6));
-        commands
-            .entity(entity)
-            .insert((
-                Transform::from_translation(crow_position(crow, 0.0)),
+        let rig = commands
+            .spawn((
+                crate::rigged::Rigged { path: CROW_MODEL },
+                crate::rigged::RigClip::looping("hop"),
+                Transform::from_xyz(0.0, -FEET, 0.0),
                 Visibility::default(),
-                DespawnOnExit(AppState::InGame),
+                ChildOf(entity),
             ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(body_mesh),
-                    MeshMaterial3d(feathers.clone()),
-                    Transform::from_scale(Vec3::new(1.0, 0.9, 1.3)),
-                    crate::art::Breathe::new(Vec3::new(1.0, 0.9, 1.3), 0.03, phase),
-                ));
-                // Fluffy lighter chest.
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.22))),
-                    MeshMaterial3d(chest),
-                    Transform::from_xyz(0.0, 0.02, -0.2).with_scale(Vec3::new(1.0, 1.0, 0.7)),
-                ));
-                p.spawn((
-                    Mesh3d(head_mesh),
-                    MeshMaterial3d(feathers.clone()),
-                    Transform::from_xyz(0.0, 0.3, -0.3),
-                    crate::art::Wiggle::twitch(Quat::IDENTITY, Vec3::Y, 0.5, phase),
-                ))
-                .with_children(|h| {
-                    // A cheeky head tuft.
-                    let tuft = meshes.add(Cone::new(0.04, 0.14).mesh().resolution(5));
-                    for (x, r) in [(-0.04, -0.4), (0.04, 0.4)] {
-                        h.spawn((
-                            Mesh3d(tuft.clone()),
-                            MeshMaterial3d(feathers.clone()),
-                            Transform::from_xyz(x, 0.22, 0.0)
-                                .with_rotation(Quat::from_rotation_z(r)),
-                        ));
-                    }
-                    h.spawn((
-                        Mesh3d(beak_mesh),
-                        MeshMaterial3d(beak.clone()),
-                        Transform::from_xyz(0.0, -0.02, -0.22)
-                            .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-                    ));
-                    crate::art::eyes(
-                        h,
-                        &mut meshes,
-                        &mut materials,
-                        Vec3::new(0.0, 0.06, -0.15),
-                        0.16,
-                        0.045,
-                    );
-                });
-                // Folded wings, a fanned tail and two twiggy legs.
-                let wing = meshes.add(Sphere::new(0.22));
-                for x in [-0.24, 0.24] {
-                    p.spawn((
-                        Mesh3d(wing.clone()),
-                        MeshMaterial3d(feathers.clone()),
-                        Transform::from_xyz(x, 0.05, 0.05)
-                            .with_rotation(Quat::from_rotation_z(x * 1.2))
-                            .with_scale(Vec3::new(0.35, 0.8, 1.3)),
-                        crate::art::Wiggle::twitch(
-                            Quat::from_rotation_z(x * 1.2),
-                            Vec3::Z,
-                            x.signum() * 0.5,
-                            phase + 2.0,
-                        ),
-                    ));
-                }
-                // Fanned tail: three rounded feathers.
-                let feather = meshes.add(Capsule3d::new(0.05, 0.22));
-                for (i, yaw) in [-0.35_f32, 0.0, 0.35].into_iter().enumerate() {
-                    let base = Quat::from_rotation_y(yaw) * Quat::from_rotation_x(1.2);
-                    p.spawn((
-                        Mesh3d(feather.clone()),
-                        MeshMaterial3d(feathers.clone()),
-                        Transform::from_xyz(yaw * 0.25, 0.08, 0.42)
-                            .with_rotation(base)
-                            .with_scale(Vec3::new(1.4, 1.0, 0.4)),
-                        crate::art::Wiggle::sway(base, Vec3::X, 0.15, 3.0, phase + i as f32),
-                    ));
-                }
-                let leg = meshes.add(Cylinder::new(0.018, 0.22));
-                for x in [-0.08, 0.08] {
-                    p.spawn((
-                        Mesh3d(leg.clone()),
-                        MeshMaterial3d(beak.clone()),
-                        Transform::from_xyz(x, -0.19, 0.0),
-                    ))
-                    .with_children(|l| {
-                        let toe = meshes.add(Capsule3d::new(0.014, 0.08));
-                        for yaw in [-0.5_f32, 0.0, 0.5] {
-                            l.spawn((
-                                Mesh3d(toe.clone()),
-                                MeshMaterial3d(beak.clone()),
-                                Transform::from_xyz(0.0, -0.11, -0.04).with_rotation(
-                                    Quat::from_rotation_y(yaw)
-                                        * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2),
-                                ),
-                            ));
-                        }
-                    });
-                }
-            });
+            .id();
+        commands.entity(entity).insert((
+            Transform::from_translation(crow_position(crow, 0.0)),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+            CrowRig(rig),
+        ));
     }
 }
 
-/// Hop around, face where we're going, and puff up when cawing.
+/// The clip a crow plays at time `t` and how far into it it is, so every
+/// peer shows the same hop and caw in step with `crow_position`.
+pub fn crow_clip(id: u32, t: f32) -> (&'static str, f32) {
+    if is_cawing(id, t) {
+        return ("caw", (t + id as f32 * 2.3) % caw_period(id));
+    }
+    // The hop lifts off where `crow_position`'s sine turns positive.
+    let phase = id as f32 * 1.7;
+    let cycle = (t * 3.0 + phase).rem_euclid(std::f32::consts::TAU);
+    ("hop", cycle / 3.0)
+}
+
+/// Hop around and face where we're going.
 fn animate_crows(
     time: Res<Time>,
     offset: Res<super::stillness::SessionOffset>,
@@ -209,7 +132,43 @@ fn animate_crows(
             transform.look_to(look, Vec3::Y);
         }
         transform.translation = here;
-        transform.scale = Vec3::splat(if is_cawing(crow.id, t) { 1.3 } else { 1.0 });
+    }
+}
+
+/// Pick the hop or caw clip and keep it in step with the session clock.
+fn crow_clips(
+    time: Res<Time>,
+    offset: Res<super::stillness::SessionOffset>,
+    crows: Query<(&Crow, &CrowRig)>,
+    mut rigs: Query<(
+        &mut crate::rigged::RigClip,
+        Option<&crate::rigged::RigReady>,
+    )>,
+    mut players: Query<(&mut AnimationPlayer, &AnimationTransitions)>,
+) {
+    let t = super::stillness::session_secs(&time, &offset);
+    for (crow, rig) in &crows {
+        let Ok((mut clip, ready)) = rigs.get_mut(rig.0) else {
+            continue;
+        };
+        let (name, at) = crow_clip(crow.id, t);
+        if clip.name != name {
+            *clip = if name == "caw" {
+                crate::rigged::RigClip::once("caw").fade(0.1)
+            } else {
+                crate::rigged::RigClip::looping(name)
+            };
+            continue;
+        }
+        let Some(ready) = ready else { continue };
+        let Ok((mut player, transitions)) = players.get_mut(ready.0) else {
+            continue;
+        };
+        if let Some(main) = transitions.get_main_animation()
+            && let Some(active) = player.animation_mut(main)
+        {
+            active.seek_to(at);
+        }
     }
 }
 
@@ -280,6 +239,30 @@ mod tests {
             assert!(cawing > 0, "crow {id} never caws");
             assert!(cawing < samples / 5, "crow {id} caws too much");
         }
+    }
+
+    #[test]
+    fn crow_clips_follow_the_hop_and_the_caw() {
+        for id in 0..CROW_COUNT {
+            for i in 0..2000 {
+                let t = i as f32 * 0.037;
+                let (name, at) = crow_clip(id, t);
+                assert_eq!(name == "caw", is_cawing(id, t));
+                let length = if name == "caw" { CAW_LENGTH } else { 2.1 };
+                assert!((0.0..length).contains(&at), "{name} at {at}");
+            }
+        }
+        // Airborne (hop clip's first half) exactly when crow_position lifts.
+        let crow = Crow {
+            id: 0,
+            home: Vec2::ZERO,
+        };
+        let t = 0.4;
+        let (_, at) = crow_clip(0, t);
+        assert_eq!(
+            at < std::f32::consts::FRAC_PI_3,
+            crow_position(&crow, t).y > 0.3
+        );
     }
 
     #[test]

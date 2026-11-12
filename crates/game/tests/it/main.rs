@@ -1,0 +1,21 @@
+//! All of the game's integration tests in one test binary: each file used to
+//! link the whole game and Bevy on its own, 18 links per test run.
+
+mod afterlife;
+mod bsn_salting;
+mod caught;
+mod fat_cat;
+mod gamble;
+mod helicopter;
+mod kcc;
+mod kitty_lemonade;
+mod mute_spell;
+mod navmesh;
+mod playthrough;
+mod replication;
+mod round_reset;
+mod shipwreck;
+mod skills;
+mod underground;
+mod warehouse;
+mod wendys;

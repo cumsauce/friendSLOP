@@ -287,6 +287,46 @@ bevy_ecs::hierarchy::Children [
         order: 2,
     }
     --
+    #entrance_1
+    jackdaw_scene_types::node_id::SceneNodeId(2879598127087119246)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 21.0, y: 0.0, z: 1.0 },
+        rotation: glam::Quat { x: 0.0, y: 1.0, z: 0.0, w: -0.00000004371139 },
+    }
+    friendslop_world::map::Entrance {
+        kind: "manhole",
+    }
+    --
+    #entrance_2
+    jackdaw_scene_types::node_id::SceneNodeId(2879599776354561562)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -20.0, y: 0.0, z: 22.0 },
+        rotation: glam::Quat { x: 0.0, y: 0.70710677, z: 0.0, w: 0.7071068 },
+    }
+    friendslop_world::map::Entrance {
+        kind: "manhole",
+    }
+    --
+    #entrance_3
+    jackdaw_scene_types::node_id::SceneNodeId(2879599226598747457)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 72.6, y: 0.0, z: -11.0 },
+        rotation: glam::Quat { x: 0.0, y: 0.70710677, z: 0.0, w: 0.7071068 },
+    }
+    friendslop_world::map::Entrance {
+        kind: "cellar_door",
+    }
+    --
+    #entrance_4
+    jackdaw_scene_types::node_id::SceneNodeId(2879596477819676929)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -26.8, y: 0.0, z: -62.8 },
+        rotation: glam::Quat { x: 0.0, y: 0.70710677, z: 0.0, w: 0.7071068 },
+    }
+    friendslop_world::map::Entrance {
+        kind: "trapdoor",
+    }
+    --
     #forest_clearing
     jackdaw_scene_types::node_id::SceneNodeId(3483515779395899267)
     bevy_transform::components::transform::Transform {
@@ -413,6 +453,15 @@ bevy_ecs::hierarchy::Children [
     }
     friendslop_world::map::Hangout
     --
+    #helicopter_from
+    jackdaw_scene_types::node_id::SceneNodeId(1006813223773146008)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -150.0, y: 40.0, z: -150.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "helicopter_from",
+    }
+    --
     #hell
     jackdaw_scene_types::node_id::SceneNodeId(6360425513627958708)
     bevy_transform::components::transform::Transform {
@@ -483,6 +532,36 @@ bevy_ecs::hierarchy::Children [
     }
     friendslop_world::map::Block {
         round: false,
+    }
+    --
+    #island_1
+    jackdaw_scene_types::node_id::SceneNodeId(2589088222176695401)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 55.0, y: 0.0, z: 60.0 },
+    }
+    friendslop_world::map::Feature {
+        height: 10.0,
+        radius: 7.0,
+    }
+    --
+    #island_2
+    jackdaw_scene_types::node_id::SceneNodeId(2589088771932509507)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 63.0, y: 0.0, z: 60.0 },
+    }
+    friendslop_world::map::Feature {
+        height: 16.0,
+        radius: 5.0,
+    }
+    --
+    #island_3
+    jackdaw_scene_types::node_id::SceneNodeId(2589089321688323612)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 63.0, y: 0.0, z: 67.0 },
+    }
+    friendslop_world::map::Feature {
+        height: 22.0,
+        radius: 4.0,
     }
     --
     #lake

@@ -62,6 +62,13 @@
         "on": "ref"
       },
       "doc": "A static collider filling the marker's box (round: an upright cylinder, its size x the diameter), its y above the ground; on: stand on that entity's ground instead of its own (a crane on a slope)."
+    },
+    "Entrance": {
+      "type": "friendslop_world::map::Entrance",
+      "fields": {
+        "kind": "string"
+      },
+      "doc": "A way into the underground: kind manhole, cellar_door or trapdoor; you come up facing the marker's yaw."
     }
   }
 }

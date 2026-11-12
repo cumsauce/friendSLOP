@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "commune-map",
   "parts": [],
-  "version": 15399,
+  "version": 21052,
   "ops": [
     {
       "terrain": {
@@ -2192,6 +2192,231 @@
         "components": {
           "Block": {
             "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "entrance_1",
+        "kind": "entrance",
+        "translation": [
+          21.0,
+          0.0,
+          1.0
+        ],
+        "yaw": 180.0,
+        "components": {
+          "Entrance": {
+            "kind": "manhole"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "entrance_2",
+        "kind": "entrance",
+        "translation": [
+          -20.0,
+          0.0,
+          22.0
+        ],
+        "yaw": 90.0,
+        "components": {
+          "Entrance": {
+            "kind": "manhole"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "entrance_3",
+        "kind": "entrance",
+        "translation": [
+          72.6,
+          0.0,
+          -11.0
+        ],
+        "yaw": 90.0,
+        "components": {
+          "Entrance": {
+            "kind": "cellar_door"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "entrance_4",
+        "kind": "entrance",
+        "translation": [
+          -26.8,
+          0.0,
+          -62.8
+        ],
+        "yaw": 90.0,
+        "components": {
+          "Entrance": {
+            "kind": "trapdoor"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "island_1",
+        "kind": "island",
+        "translation": [
+          55.0,
+          0.0,
+          60.0
+        ],
+        "components": {
+          "Feature": {
+            "height": 10,
+            "radius": 7
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "island_2",
+        "kind": "island",
+        "translation": [
+          63.0,
+          0.0,
+          60.0
+        ],
+        "components": {
+          "Feature": {
+            "height": 16,
+            "radius": 5
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "island_3",
+        "kind": "island",
+        "translation": [
+          63.0,
+          0.0,
+          67.0
+        ],
+        "components": {
+          "Feature": {
+            "height": 22,
+            "radius": 4
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "helicopter_from",
+        "kind": "spot",
+        "translation": [
+          -150.0,
+          40.0,
+          -150.0
+        ],
+        "components": {
+          "Spot": {
+            "name": "helicopter_from"
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ground",
+        "input": "ground",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-turf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "nb",
+                "octaves": 4,
+                "seed": 441,
+                "size": 0.5,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 442,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "nb",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#3f7a33"
+                  ],
+                  [
+                    0.5,
+                    "#5c9e4d"
+                  ],
+                  [
+                    1,
+                    "#78b35a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.8,
+                  1.12
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "ft",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "nf",
+                "b": 0.006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
           }
         }
       }

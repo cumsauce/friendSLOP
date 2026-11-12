@@ -208,16 +208,10 @@ pub mod zones {
 pub mod scenery {
     use bevy::prelude::*;
 
-    /// Where the commune keeps its campfire, beside the ruins and Dave.
-    pub const BONFIRE_AT: Vec3 = Vec3::new(
-        friendslop_world::places::BONFIRE_AT.x,
-        0.0,
-        friendslop_world::places::BONFIRE_AT.y,
-    );
-
-    /// The campfire where the commune map puts it (else [`BONFIRE_AT`]).
+    /// Where the commune keeps its campfire, beside the ruins and Dave
+    /// (its `bonfire` spot on the commune map).
     pub fn bonfire_at() -> Vec3 {
-        let p = friendslop_world::places::bonfire();
+        let p = friendslop_world::places::bonfire_at();
         Vec3::new(p.x, 0.0, p.y)
     }
 }

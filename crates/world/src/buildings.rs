@@ -148,7 +148,7 @@ const fn window(c: f32) -> Hole {
 /// The district's ground level: one height for everything, so floors, walls
 /// and ramps always line up (the terrain is flat out here).
 pub fn ground() -> f32 {
-    terrain::height_at(MARKET_AT.x, MARKET_AT.y)
+    terrain::height_at(market_at().x, market_at().y)
 }
 
 /// The whole district, in world space.
@@ -570,11 +570,11 @@ fn well(k: &mut Kit) {
     );
 }
 
+use crate::places::barn_at;
 /// Where the district's market square sits (well in the middle).
-pub const MARKET_AT: Vec2 = Vec2::new(57.0, 0.0);
+pub use crate::places::market_at;
 /// Where the watchtower stands.
-pub const TOWER_AT: Vec2 = Vec2::new(72.0, 16.0);
-const BARN_AT: Vec2 = Vec2::new(70.5, -24.0);
+pub use crate::places::tower_at;
 
 /// A house plot: centre, quarter turns (front door side faces the street),
 /// footprint, and whether its house must have an upper floor.
@@ -637,7 +637,7 @@ const PLOTS: [Plot; 6] = [
 
 /// The pinned big cottage: the underground's cellar door is just outside
 /// its east wall at about (72.6, -11).
-pub const BIG_COTTAGE_AT: Vec2 = Vec2::new(66.5, -11.0);
+pub use crate::places::big_cottage_at;
 
 fn style() -> Style<Mat> {
     Style {
@@ -681,16 +681,16 @@ pub fn village(seed: u32) -> (Kit, Vec<Room>) {
         }
     }
     // Pinned: the big split cottage by the cellar door.
-    k.site(BIG_COTTAGE_AT, 0);
+    k.site(big_cottage_at(), 0);
     cottage(&mut k, 9.0, 6.0, Mat::Plaster, slate, true);
 
-    k.site(BARN_AT, 0);
+    k.site(barn_at(), 0);
     barn(&mut k);
-    k.site(TOWER_AT, 0);
+    k.site(tower_at(), 0);
     tower(&mut k);
 
     // Market square: cobbles, the well, four stalls, a lantern.
-    k.site(MARKET_AT, 0);
+    k.site(market_at(), 0);
     k.block(
         // Just inside the low walls at its edge, so their faces don't coincide.
         Vec3::new(-6.97, 0.0, -6.97),
@@ -705,10 +705,10 @@ pub fn village(seed: u32) -> (Kit, Vec<Room>) {
         (-4.5, 5.0, 2, Mat::Blue),
         (4.5, 5.0, 2, Mat::Red),
     ] {
-        k.site(MARKET_AT + Vec2::new(x, z), turns);
+        k.site(market_at() + Vec2::new(x, z), turns);
         stall(&mut k, cloth);
     }
-    k.site(MARKET_AT, 0);
+    k.site(market_at(), 0);
     k.prop(
         Vec3::new(-3.2, 0.0, 2.6),
         Vec3::new(0.15, 3.0, 0.15),
@@ -838,7 +838,7 @@ fn village_grounds(k: &mut Kit) {
     let low = |k: &mut Kit, a: Vec2, b: Vec2| k.bar(a, b, 0.0, 0.9, 0.45, Mat::Stone, Solid::Wall);
     for sx in [-1.0, 1.0] {
         for sz in [-1.0, 1.0] {
-            let c = MARKET_AT + v(sx * 7.0, sz * 7.0);
+            let c = market_at() + v(sx * 7.0, sz * 7.0);
             low(k, c + v(sx * 0.225, 0.0), c - v(sx * 3.0, 0.0));
             low(k, c - v(0.0, sz * 0.225), c - v(0.0, sz * 3.0));
         }
@@ -1122,10 +1122,10 @@ mod tests {
                 .collect()
         };
         for (at, r) in [
-            (TOWER_AT, 6.0),
-            (BARN_AT, 8.0),
-            (MARKET_AT, 6.0),
-            (BIG_COTTAGE_AT, 5.0),
+            (tower_at(), 6.0),
+            (barn_at(), 8.0),
+            (market_at(), 6.0),
+            (big_cottage_at(), 5.0),
         ] {
             assert_eq!(near(&a, at, r), near(&b, at, r), "{at} moved");
         }

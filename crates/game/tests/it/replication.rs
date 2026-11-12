@@ -453,7 +453,11 @@ fn paying_the_landlord_takes_only_the_payers_organs() {
         }
     };
     step(&mut server, &mut client);
-    place(&mut server, 1, friendslop::features::landlord::LANDLORD_AT);
+    place(
+        &mut server,
+        1,
+        friendslop::features::landlord::landlord_at(),
+    );
     client.world_mut().client_trigger(BotherLandlord);
     step(&mut server, &mut client);
     let world = client.world_mut();

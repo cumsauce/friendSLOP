@@ -9,7 +9,7 @@ use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
 use friendslop::features::fate::FateDice;
 use friendslop::features::fps::Walker;
-use friendslop::features::gamble::{GAMBLE_AT, Gambler, HouseOdds, SpinWheel};
+use friendslop::features::gamble::{Gambler, HouseOdds, SpinWheel, gamble_at};
 use friendslop::player::Player;
 
 fn peer() -> App {
@@ -74,7 +74,10 @@ fn spinning_marmalades_wheel() {
     assert_eq!(remote_spins(&mut client), 0);
 
     // At the table: one spin counts, the second (too soon) doesn't.
-    put_remote_body(&mut server, Vec3::new(GAMBLE_AT.x, 0.0, GAMBLE_AT.y - 1.5));
+    put_remote_body(
+        &mut server,
+        Vec3::new(gamble_at().x, 0.0, gamble_at().y - 1.5),
+    );
     exchange(&mut server, &mut client, 2);
     client.world_mut().client_trigger(SpinWheel);
     client.world_mut().client_trigger(SpinWheel);

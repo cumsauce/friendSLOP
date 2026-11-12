@@ -39,7 +39,7 @@ use landmass_rerecast::{Island3dBundle, LandmassRerecastPlugin, NavMeshHandle3d}
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::duel::{ARENA_CENTER, ARENA_HALF};
+use crate::features::duel::{ARENA_HALF, arena_center};
 use crate::features::fps::{WalkSet, Walker};
 use crate::features::hide_and_seek::{HideSeek, HideSeekNews, Phase, Role};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
@@ -89,7 +89,7 @@ const POINTS: [Vec2; 15] = [
 /// [`POINTS`], which straight-line steering can always reach.
 const DISTRICTS: [Vec2; 7] = [
     Vec2::new(0.0, 0.0),     // the commune's middle
-    Vec2::new(57.0, 0.0),    // the east village market (buildings::MARKET_AT)
+    Vec2::new(57.0, 0.0),    // the east village market (buildings::market_at())
     Vec2::new(42.0, 12.0),   // a village street by the two-storey houses
     Vec2::new(-64.5, 44.0),  // beside the maze's gilded statue
     Vec2::new(-38.0, 58.0),  // the castle ruins, just inside the archway
@@ -161,7 +161,7 @@ pub fn protocol(app: &mut App) {
 
 /// Push a point out of the duel arena (plus margin), if it's inside.
 pub fn outside_arena(p: Vec2) -> Vec2 {
-    let c = ARENA_CENTER.xz();
+    let c = arena_center().xz();
     let half = ARENA_HALF + ARENA_MARGIN;
     let d = p - c;
     if d.x.abs() >= half || d.y.abs() >= half {
@@ -848,8 +848,8 @@ mod tests {
             let q = outside_arena(*p);
             assert_eq!(*p, q, "{p} is inside the arena");
         }
-        let q = outside_arena(ARENA_CENTER.xz() + Vec2::new(1.0, 0.5));
-        let d = q - ARENA_CENTER.xz();
+        let q = outside_arena(arena_center().xz() + Vec2::new(1.0, 0.5));
+        let d = q - arena_center().xz();
         assert!(d.x.abs() >= half - 1e-4 || d.y.abs() >= half - 1e-4);
     }
 
@@ -869,7 +869,7 @@ mod tests {
         // The lake stop in particular is on the shore, not in the water.
         let shore = DISTRICTS[6];
         assert!(
-            (shore - crate::terrain::LAKE_AT).length() < 13.0,
+            (shore - crate::terrain::lake_at()).length() < 13.0,
             "{shore} isn't by the lake"
         );
         assert!(

@@ -54,7 +54,7 @@ impl Magic {
 }
 
 /// Centre of the walled vault. Its west door is Wind, its east door Frost.
-pub const VAULT_AT: Vec2 = Vec2::new(13.0, -2.0);
+pub use friendslop_world::places::vault_at;
 const VAULT_HALF: f32 = 2.0;
 
 /// A totem. Lying at `at` when `holder` and `slotted` are both `None`.
@@ -160,13 +160,13 @@ fn spawn_totems_and_doors(commands: &mut Commands) {
         totem(2, Magic::Frost, Vec2::new(9.0, -8.0), false),
         Replicated,
     ));
-    commands.spawn((totem(3, Magic::Fire, VAULT_AT, true), Replicated));
+    commands.spawn((totem(3, Magic::Fire, vault_at(), true), Replicated));
     for (id, magic, dx) in [(1, Magic::Wind, -VAULT_HALF), (2, Magic::Frost, VAULT_HALF)] {
         commands.spawn((
             Door {
                 id,
                 magic,
-                at: VAULT_AT + Vec2::new(dx, 0.0),
+                at: vault_at() + Vec2::new(dx, 0.0),
                 key_side: None,
             },
             Replicated,
@@ -363,7 +363,7 @@ fn build_vault(mut commands: Commands, assets: Res<AssetServer>) {
             // Walls are solid: the vault is more than a picture of one.
             RigidBody::Static,
             Collider::cuboid(size.x, 1.6, size.y),
-            Transform::from_xyz(VAULT_AT.x + off.x, 0.8, VAULT_AT.y + off.y),
+            Transform::from_xyz(vault_at().x + off.x, 0.8, vault_at().y + off.y),
             DespawnOnExit(AppState::InGame),
         ));
     }
@@ -371,7 +371,7 @@ fn build_vault(mut commands: Commands, assets: Res<AssetServer>) {
         WorldAssetRoot(
             assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/vault.gltf")),
         ),
-        Transform::from_xyz(VAULT_AT.x, 0.0, VAULT_AT.y),
+        Transform::from_xyz(vault_at().x, 0.0, vault_at().y),
         DespawnOnExit(AppState::InGame),
     ));
 }

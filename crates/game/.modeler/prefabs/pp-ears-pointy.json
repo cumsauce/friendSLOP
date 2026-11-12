@@ -1,24 +1,26 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-ears-pointy",
-  "parts": [],
-  "version": 20872,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
+        "mirror": "x",
         "name": "ears_raw",
         "shapes": [
           {
-            "shape": "capsule",
-            "radius": [
-              0.056,
-              0.007
-            ],
             "from": [
               0.117462896,
               0.19036244,
               0.0
             ],
+            "radius": [
+              0.056,
+              0.007
+            ],
+            "shape": "capsule",
             "to": [
               0.19053711,
               0.34163755,
@@ -26,59 +28,53 @@
             ]
           },
           {
-            "shape": "box",
-            "op": "intersect",
-            "blend": 0.008,
             "at": [
               0.154,
               0.266,
               0.0
             ],
+            "blend": 0.008,
+            "op": "intersect",
             "rotation": [
               0.0,
               0.0,
               -0.22310635,
               0.9747941
             ],
+            "round": 0.0,
+            "shape": "box",
             "size": [
               0.3,
               0.3,
               0.056
-            ],
-            "round": 0.0
+            ]
           }
-        ],
-        "mirror": "x"
+        ]
       }
     },
     {
       "decimate": {
-        "name": "ears",
         "input": "ears_raw",
+        "name": "ears",
         "tris": 120
       }
     },
     {
       "visibility": {
-        "name": "ears_raw",
         "input": "ears_raw",
+        "name": "ears_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "ears",
-        "input": "ears",
         "base_color": null,
-        "roughness": null,
+        "input": "ears",
         "metalness": null,
+        "name": "ears",
         "pbr": {
-          "material": "pp-felt",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -168,220 +164,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.2
+          },
+          "material": "pp-felt",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-ears-pointy",
-          "parts": [],
-          "version": 20396,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-ears-pointy`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-ears-pointy",
-          "parts": [],
-          "version": 20401,
-          "ops": [
-            {
-              "sdf": {
-                "name": "ears_raw",
-                "shapes": [
-                  {
-                    "shape": "capsule",
-                    "radius": [
-                      0.056,
-                      0.007
-                    ],
-                    "from": [
-                      0.117462896,
-                      0.19036244,
-                      0.0
-                    ],
-                    "to": [
-                      0.19053711,
-                      0.34163755,
-                      0.0
-                    ]
-                  },
-                  {
-                    "shape": "box",
-                    "op": "intersect",
-                    "blend": 0.008,
-                    "at": [
-                      0.154,
-                      0.266,
-                      0.0
-                    ],
-                    "rotation": [
-                      0.0,
-                      0.0,
-                      -0.22310635,
-                      0.9747941
-                    ],
-                    "size": [
-                      0.3,
-                      0.3,
-                      0.056
-                    ],
-                    "round": 0.0
-                  }
-                ],
-                "mirror": "x"
-              }
-            },
-            {
-              "decimate": {
-                "name": "ears",
-                "input": "ears_raw",
-                "tris": 120
-              }
-            },
-            {
-              "visibility": {
-                "name": "ears_raw",
-                "input": "ears_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "ears",
-                "input": "ears",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-felt",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "material `ears` <- `ears` pbr=pp-felt",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20872
 }

@@ -1,20 +1,23 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pt-bunny",
-  "parts": [],
-  "version": 20247,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
+        "blend": 0.05,
+        "mirror": "x",
         "name": "body_hi",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.0,
               0.27,
               0.0
             ],
+            "shape": "ellipsoid",
             "size": [
               0.25,
               0.18,
@@ -22,7 +25,6 @@
             ]
           },
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.45,
@@ -30,19 +32,20 @@
             ],
             "radius": [
               0.17
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "capsule",
-            "radius": [
-              0.06,
-              0.05
-            ],
             "from": [
               0.11,
               0.2,
               -0.13
             ],
+            "radius": [
+              0.06,
+              0.05
+            ],
+            "shape": "capsule",
             "to": [
               0.11,
               0.06,
@@ -50,12 +53,12 @@
             ]
           },
           {
-            "shape": "ellipsoid",
             "at": [
               0.11,
               0.056,
               -0.15
             ],
+            "shape": "ellipsoid",
             "size": [
               0.055,
               0.04,
@@ -63,16 +66,16 @@
             ]
           },
           {
-            "shape": "capsule",
-            "radius": [
-              0.06,
-              0.05
-            ],
             "from": [
               0.11,
               0.2,
               0.15
             ],
+            "radius": [
+              0.06,
+              0.05
+            ],
+            "shape": "capsule",
             "to": [
               0.11,
               0.06,
@@ -80,12 +83,12 @@
             ]
           },
           {
-            "shape": "ellipsoid",
             "at": [
               0.11,
               0.056,
               0.1
             ],
+            "shape": "ellipsoid",
             "size": [
               0.055,
               0.04,
@@ -93,17 +96,17 @@
             ]
           },
           {
-            "shape": "capsule",
             "blend": 0.02,
-            "radius": [
-              0.04,
-              0.035
-            ],
             "from": [
               0.05,
               0.57,
               -0.28
             ],
+            "radius": [
+              0.04,
+              0.035
+            ],
+            "shape": "capsule",
             "to": [
               0.085,
               0.81,
@@ -111,7 +114,6 @@
             ]
           },
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.3,
@@ -119,10 +121,10 @@
             ],
             "radius": [
               0.08
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.39,
@@ -130,26 +132,25 @@
             ],
             "radius": [
               0.055
-            ]
+            ],
+            "shape": "sphere"
           }
-        ],
-        "blend": 0.05,
-        "mirror": "x"
+        ]
       }
     },
     {
       "decimate": {
-        "name": "body",
         "input": "body_hi",
+        "name": "body",
         "tris": 760
       }
     },
     {
       "sdf": {
+        "mirror": "x",
         "name": "eyes_hi",
         "shapes": [
           {
-            "shape": "sphere",
             "at": [
               0.072,
               0.49,
@@ -157,25 +158,25 @@
             ],
             "radius": [
               0.048
-            ]
+            ],
+            "shape": "sphere"
           }
-        ],
-        "mirror": "x"
+        ]
       }
     },
     {
       "decimate": {
-        "name": "eyes",
         "input": "eyes_hi",
+        "name": "eyes",
         "tris": 48
       }
     },
     {
       "sdf": {
+        "mirror": "x",
         "name": "pupils_hi",
         "shapes": [
           {
-            "shape": "sphere",
             "at": [
               0.078,
               0.492,
@@ -183,16 +184,16 @@
             ],
             "radius": [
               0.029
-            ]
+            ],
+            "shape": "sphere"
           }
-        ],
-        "mirror": "x"
+        ]
       }
     },
     {
       "decimate": {
-        "name": "pupils",
         "input": "pupils_hi",
+        "name": "pupils",
         "tris": 32
       }
     },
@@ -201,12 +202,12 @@
         "name": "nose_hi",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.0,
               0.41,
               -0.472
             ],
+            "shape": "ellipsoid",
             "size": [
               0.022,
               0.016,
@@ -218,53 +219,48 @@
     },
     {
       "decimate": {
-        "name": "nose",
         "input": "nose_hi",
+        "name": "nose",
         "tris": 24
       }
     },
     {
       "visibility": {
-        "name": "body_hi",
         "input": "body_hi",
+        "name": "body_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "eyes_hi",
         "input": "eyes_hi",
+        "name": "eyes_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "pupils_hi",
         "input": "pupils_hi",
+        "name": "pupils_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "nose_hi",
         "input": "nose_hi",
+        "name": "nose_hi",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "body",
-        "input": "body",
         "base_color": null,
-        "roughness": null,
+        "input": "body",
         "metalness": null,
+        "name": "body",
         "pbr": {
-          "material": "pt-knit-bunny",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -385,25 +381,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pt-knit-bunny",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "eyes",
-        "input": "eyes",
         "base_color": null,
-        "roughness": null,
+        "input": "eyes",
         "metalness": null,
+        "name": "eyes",
         "pbr": {
-          "material": "pt-eye-white",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -439,25 +435,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.25
+          },
+          "material": "pt-eye-white",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "pupils",
-        "input": "pupils",
         "base_color": null,
-        "roughness": null,
+        "input": "pupils",
         "metalness": null,
+        "name": "pupils",
         "pbr": {
-          "material": "pt-eye-pupil",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -493,25 +489,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.25
+          },
+          "material": "pt-eye-pupil",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "nose",
-        "input": "nose",
         "base_color": null,
-        "roughness": null,
+        "input": "nose",
         "metalness": null,
+        "name": "nose",
         "pbr": {
-          "material": "pt-knit-pink",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -632,276 +628,288 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pt-knit-pink",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "skeleton": {
-        "name": "rig",
         "bones": [
           {
-            "name": "body",
-            "parent": "root",
             "head": [
               0.0,
               0.27,
               0.02
             ],
+            "name": "body",
+            "parent": "root",
+            "radius": 0.22,
             "tail": [
               0.0,
               0.4,
               0.02
-            ],
-            "radius": 0.22
+            ]
           },
           {
-            "name": "ear_l",
-            "parent": "head",
             "head": [
               0.05,
               0.58,
               -0.28
             ],
+            "name": "ear_l",
+            "parent": "head",
+            "radius": 0.04,
             "tail": [
               0.085,
               0.83,
               -0.25
-            ],
-            "radius": 0.04
+            ]
           },
           {
-            "name": "head",
-            "parent": "body",
             "head": [
               0.0,
               0.38,
               -0.2
             ],
+            "name": "head",
+            "parent": "body",
+            "radius": 0.17,
             "tail": [
               0.0,
               0.62,
               -0.32
-            ],
-            "radius": 0.17
+            ]
           },
           {
+            "head": [
+              0.11,
+              0.15,
+              0.15
+            ],
             "name": "legb_l",
             "parent": "root",
-            "head": [
-              0.11,
-              0.15,
-              0.15
-            ],
+            "radius": 0.06,
             "tail": [
               0.11,
               0.0,
               0.15
-            ],
-            "radius": 0.06
+            ]
           },
           {
+            "head": [
+              0.11,
+              0.15,
+              -0.13
+            ],
             "name": "legf_l",
             "parent": "root",
-            "head": [
-              0.11,
-              0.15,
-              -0.13
-            ],
+            "radius": 0.06,
             "tail": [
               0.11,
               0.0,
               -0.13
-            ],
-            "radius": 0.06
+            ]
           },
           {
-            "name": "root",
             "head": [
               0.0,
               0.0,
               0.0
             ],
+            "name": "root",
+            "radius": 0.04,
             "tail": [
               0.0,
               0.1,
               0.0
-            ],
-            "radius": 0.04
+            ]
           },
           {
-            "name": "tail",
-            "parent": "body",
             "head": [
               0.0,
               0.3,
               0.28
             ],
+            "name": "tail",
+            "parent": "body",
+            "radius": 0.06,
             "tail": [
               0.0,
               0.3,
               0.41
-            ],
-            "radius": 0.06
+            ]
           }
         ],
-        "mirror": "x"
+        "mirror": "x",
+        "name": "rig"
       }
     },
     {
       "bind": {
-        "name": "bind_body",
-        "skeleton": "rig",
-        "parts": [
-          "body"
-        ],
-        "mode": "smooth",
         "blend": 0.12,
+        "mode": "smooth",
+        "name": "bind_body",
         "paint": [
           {
             "bone": "head",
-            "min": [
-              -1.0,
-              0.4,
-              -1.0
-            ],
             "max": [
               1.0,
               2.0,
               -0.26
+            ],
+            "min": [
+              -1.0,
+              0.4,
+              -1.0
             ]
           },
           {
             "bone": "legf_l",
-            "min": [
-              0.05,
-              -1.0,
-              -0.26
-            ],
             "max": [
               1.0,
               0.09,
               -0.06
+            ],
+            "min": [
+              0.05,
+              -1.0,
+              -0.26
             ]
           },
           {
             "bone": "legf_r",
-            "min": [
-              -1.0,
-              -1.0,
-              -0.26
-            ],
             "max": [
               -0.05,
               0.09,
               -0.06
+            ],
+            "min": [
+              -1.0,
+              -1.0,
+              -0.26
             ]
           },
           {
             "bone": "legb_l",
+            "max": [
+              1.0,
+              0.09,
+              0.22
+            ],
             "min": [
               0.05,
               -1.0,
               0.02
-            ],
-            "max": [
-              1.0,
-              0.09,
-              0.22
             ]
           },
           {
             "bone": "legb_r",
-            "min": [
-              -1.0,
-              -1.0,
-              0.02
-            ],
             "max": [
               -0.05,
               0.09,
               0.22
+            ],
+            "min": [
+              -1.0,
+              -1.0,
+              0.02
             ]
           },
           {
             "bone": "tail",
-            "min": [
-              -1.0,
-              0.2,
-              0.3
-            ],
             "max": [
               1.0,
               0.4,
               2.0
+            ],
+            "min": [
+              -1.0,
+              0.2,
+              0.3
             ]
           },
           {
             "bone": "ear_l",
-            "min": [
-              0.0,
-              0.61,
-              -1.0
-            ],
             "max": [
               1.0,
               2.0,
               1.0
+            ],
+            "min": [
+              0.0,
+              0.61,
+              -1.0
             ]
           },
           {
             "bone": "ear_r",
-            "min": [
-              -1.0,
-              0.61,
-              -1.0
-            ],
             "max": [
               0.0,
               2.0,
               1.0
+            ],
+            "min": [
+              -1.0,
+              0.61,
+              -1.0
             ]
           },
           {
             "bone": "body",
-            "min": [
-              -1.0,
-              0.14,
-              -0.22
-            ],
             "max": [
               1.0,
               0.36,
               0.26
+            ],
+            "min": [
+              -1.0,
+              0.14,
+              -0.22
             ]
           }
-        ]
+        ],
+        "parts": [
+          "body"
+        ],
+        "skeleton": "rig"
       }
     },
     {
       "bind": {
+        "bone": "head",
+        "mode": "rigid",
         "name": "bind_face",
-        "skeleton": "rig",
         "parts": [
           "eyes",
           "pupils",
           "nose"
         ],
-        "bone": "head",
-        "mode": "rigid"
+        "skeleton": "rig"
       }
     },
     {
       "clip": {
-        "name": "idle",
-        "skeleton": "rig",
         "duration": 3.0,
         "loop": true,
+        "mirror": {
+          "ear_r": {
+            "from": "ear_l",
+            "phase": 0.08
+          }
+        },
+        "name": "idle",
+        "skeleton": "rig",
         "tracks": {
           "body": {
             "scale": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -930,14 +938,14 @@
                       0.0
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           },
           "ear_l": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -984,14 +992,14 @@
                       1.0
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1047,30 +1055,38 @@
                       1.0
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
-          }
-        },
-        "mirror": {
-          "ear_r": {
-            "from": "ear_l",
-            "phase": 0.08
           }
         }
       }
     },
     {
       "clip": {
-        "name": "walk",
-        "skeleton": "rig",
         "duration": 0.5,
         "loop": true,
+        "mirror": {
+          "ear_r": {
+            "from": "ear_l",
+            "phase": 0.0
+          },
+          "legb_r": {
+            "from": "legb_l",
+            "phase": 0.0
+          },
+          "legf_r": {
+            "from": "legf_l",
+            "phase": 0.0
+          }
+        },
+        "name": "walk",
+        "skeleton": "rig",
         "tracks": {
           "body": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1135,14 +1151,14 @@
                       1.0
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           },
           "ear_l": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1207,14 +1223,14 @@
                       1.0
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           },
           "legb_l": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1279,14 +1295,14 @@
                       1.0
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           },
           "legf_l": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1351,14 +1367,14 @@
                       1.0
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           },
           "root": {
             "translate": {
               "keys": {
+                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -1441,1527 +1457,14 @@
                       0.0
                     ]
                   ]
-                ],
-                "interp": "linear"
+                ]
               }
             }
-          }
-        },
-        "mirror": {
-          "ear_r": {
-            "from": "ear_l",
-            "phase": 0.0
-          },
-          "legb_r": {
-            "from": "legb_l",
-            "phase": 0.0
-          },
-          "legf_r": {
-            "from": "legf_l",
-            "phase": 0.0
           }
         }
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pt-bunny",
-          "parts": [],
-          "version": 19875,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pt-bunny`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pt-bunny",
-          "parts": [],
-          "version": 20120,
-          "ops": [
-            {
-              "sdf": {
-                "name": "body_hi",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.0,
-                      0.27,
-                      0.0
-                    ],
-                    "size": [
-                      0.25,
-                      0.18,
-                      0.32
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.45,
-                      -0.3
-                    ],
-                    "radius": [
-                      0.17
-                    ]
-                  },
-                  {
-                    "shape": "capsule",
-                    "radius": [
-                      0.06,
-                      0.05
-                    ],
-                    "from": [
-                      0.11,
-                      0.2,
-                      -0.13
-                    ],
-                    "to": [
-                      0.11,
-                      0.06,
-                      -0.13
-                    ]
-                  },
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.11,
-                      0.056,
-                      -0.15
-                    ],
-                    "size": [
-                      0.055,
-                      0.04,
-                      0.075
-                    ]
-                  },
-                  {
-                    "shape": "capsule",
-                    "radius": [
-                      0.06,
-                      0.05
-                    ],
-                    "from": [
-                      0.11,
-                      0.2,
-                      0.15
-                    ],
-                    "to": [
-                      0.11,
-                      0.06,
-                      0.15
-                    ]
-                  },
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.11,
-                      0.056,
-                      0.1
-                    ],
-                    "size": [
-                      0.055,
-                      0.04,
-                      0.11
-                    ]
-                  },
-                  {
-                    "shape": "capsule",
-                    "blend": 0.02,
-                    "radius": [
-                      0.04,
-                      0.035
-                    ],
-                    "from": [
-                      0.05,
-                      0.57,
-                      -0.28
-                    ],
-                    "to": [
-                      0.085,
-                      0.81,
-                      -0.25
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.3,
-                      0.33
-                    ],
-                    "radius": [
-                      0.08
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.39,
-                      -0.42
-                    ],
-                    "radius": [
-                      0.055
-                    ]
-                  }
-                ],
-                "blend": 0.05,
-                "mirror": "x"
-              }
-            },
-            {
-              "decimate": {
-                "name": "body",
-                "input": "body_hi",
-                "tris": 760
-              }
-            },
-            {
-              "sdf": {
-                "name": "eyes_hi",
-                "shapes": [
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.072,
-                      0.49,
-                      -0.44
-                    ],
-                    "radius": [
-                      0.048
-                    ]
-                  }
-                ],
-                "mirror": "x"
-              }
-            },
-            {
-              "decimate": {
-                "name": "eyes",
-                "input": "eyes_hi",
-                "tris": 48
-              }
-            },
-            {
-              "sdf": {
-                "name": "pupils_hi",
-                "shapes": [
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.078,
-                      0.492,
-                      -0.478
-                    ],
-                    "radius": [
-                      0.029
-                    ]
-                  }
-                ],
-                "mirror": "x"
-              }
-            },
-            {
-              "decimate": {
-                "name": "pupils",
-                "input": "pupils_hi",
-                "tris": 32
-              }
-            },
-            {
-              "sdf": {
-                "name": "nose_hi",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.0,
-                      0.41,
-                      -0.472
-                    ],
-                    "size": [
-                      0.022,
-                      0.016,
-                      0.016
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "nose",
-                "input": "nose_hi",
-                "tris": 24
-              }
-            },
-            {
-              "visibility": {
-                "name": "body_hi",
-                "input": "body_hi",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "eyes_hi",
-                "input": "eyes_hi",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "pupils_hi",
-                "input": "pupils_hi",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "nose_hi",
-                "input": "nose_hi",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "body",
-                "input": "body",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pt-knit-bunny",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 402.1239,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 201.06195,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "name": "asu",
-                        "op": "abs",
-                        "type": "math"
-                      },
-                      {
-                        "a": "asu",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#aeaeae"
-                          ],
-                          [
-                            1,
-                            "#fcfcfc"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.9,
-                          1.07
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "eyes",
-                "input": "eyes",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pt-eye-white",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.94,
-                          1.04
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "#fafaf5",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.15,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "pupils",
-                "input": "pupils",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pt-eye-pupil",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.94,
-                          1.04
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "#0a0a0f",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.1,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "nose",
-                "input": "nose",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pt-knit-pink",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 402.1239,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 201.06195,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "name": "asu",
-                        "op": "abs",
-                        "type": "math"
-                      },
-                      {
-                        "a": "asu",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#ae727d"
-                          ],
-                          [
-                            1,
-                            "#fca4b4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.9,
-                          1.07
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "skeleton": {
-                "name": "rig",
-                "bones": [
-                  {
-                    "name": "body",
-                    "parent": "root",
-                    "head": [
-                      0.0,
-                      0.27,
-                      0.02
-                    ],
-                    "tail": [
-                      0.0,
-                      0.4,
-                      0.02
-                    ],
-                    "radius": 0.22
-                  },
-                  {
-                    "name": "ear_l",
-                    "parent": "head",
-                    "head": [
-                      0.05,
-                      0.58,
-                      -0.28
-                    ],
-                    "tail": [
-                      0.085,
-                      0.83,
-                      -0.25
-                    ],
-                    "radius": 0.04
-                  },
-                  {
-                    "name": "head",
-                    "parent": "body",
-                    "head": [
-                      0.0,
-                      0.38,
-                      -0.2
-                    ],
-                    "tail": [
-                      0.0,
-                      0.62,
-                      -0.32
-                    ],
-                    "radius": 0.17
-                  },
-                  {
-                    "name": "legb_l",
-                    "parent": "root",
-                    "head": [
-                      0.11,
-                      0.15,
-                      0.15
-                    ],
-                    "tail": [
-                      0.11,
-                      0.0,
-                      0.15
-                    ],
-                    "radius": 0.06
-                  },
-                  {
-                    "name": "legf_l",
-                    "parent": "root",
-                    "head": [
-                      0.11,
-                      0.15,
-                      -0.13
-                    ],
-                    "tail": [
-                      0.11,
-                      0.0,
-                      -0.13
-                    ],
-                    "radius": 0.06
-                  },
-                  {
-                    "name": "root",
-                    "head": [
-                      0.0,
-                      0.0,
-                      0.0
-                    ],
-                    "tail": [
-                      0.0,
-                      0.1,
-                      0.0
-                    ],
-                    "radius": 0.04
-                  },
-                  {
-                    "name": "tail",
-                    "parent": "body",
-                    "head": [
-                      0.0,
-                      0.3,
-                      0.28
-                    ],
-                    "tail": [
-                      0.0,
-                      0.3,
-                      0.41
-                    ],
-                    "radius": 0.06
-                  }
-                ],
-                "mirror": "x"
-              }
-            },
-            {
-              "bind": {
-                "name": "bind_body",
-                "skeleton": "rig",
-                "parts": [
-                  "body"
-                ],
-                "mode": "smooth",
-                "blend": 0.12,
-                "paint": [
-                  {
-                    "bone": "head",
-                    "min": [
-                      -1.0,
-                      0.4,
-                      -1.0
-                    ],
-                    "max": [
-                      1.0,
-                      2.0,
-                      -0.26
-                    ]
-                  },
-                  {
-                    "bone": "legf_l",
-                    "min": [
-                      0.05,
-                      -1.0,
-                      -0.26
-                    ],
-                    "max": [
-                      1.0,
-                      0.09,
-                      -0.06
-                    ]
-                  },
-                  {
-                    "bone": "legf_r",
-                    "min": [
-                      -1.0,
-                      -1.0,
-                      -0.26
-                    ],
-                    "max": [
-                      -0.05,
-                      0.09,
-                      -0.06
-                    ]
-                  },
-                  {
-                    "bone": "legb_l",
-                    "min": [
-                      0.05,
-                      -1.0,
-                      0.02
-                    ],
-                    "max": [
-                      1.0,
-                      0.09,
-                      0.22
-                    ]
-                  },
-                  {
-                    "bone": "legb_r",
-                    "min": [
-                      -1.0,
-                      -1.0,
-                      0.02
-                    ],
-                    "max": [
-                      -0.05,
-                      0.09,
-                      0.22
-                    ]
-                  },
-                  {
-                    "bone": "tail",
-                    "min": [
-                      -1.0,
-                      0.2,
-                      0.3
-                    ],
-                    "max": [
-                      1.0,
-                      0.4,
-                      2.0
-                    ]
-                  },
-                  {
-                    "bone": "ear_l",
-                    "min": [
-                      0.0,
-                      0.61,
-                      -1.0
-                    ],
-                    "max": [
-                      1.0,
-                      2.0,
-                      1.0
-                    ]
-                  },
-                  {
-                    "bone": "ear_r",
-                    "min": [
-                      -1.0,
-                      0.61,
-                      -1.0
-                    ],
-                    "max": [
-                      0.0,
-                      2.0,
-                      1.0
-                    ]
-                  },
-                  {
-                    "bone": "body",
-                    "min": [
-                      -1.0,
-                      0.14,
-                      -0.22
-                    ],
-                    "max": [
-                      1.0,
-                      0.36,
-                      0.26
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "bind": {
-                "name": "bind_face",
-                "skeleton": "rig",
-                "parts": [
-                  "eyes",
-                  "pupils",
-                  "nose"
-                ],
-                "bone": "head",
-                "mode": "rigid"
-              }
-            },
-            {
-              "clip": {
-                "name": "idle",
-                "skeleton": "rig",
-                "duration": 3.0,
-                "loop": true,
-                "tracks": {
-                  "body": {
-                    "scale": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              1.0,
-                              1.0,
-                              1.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            1.5,
-                            [
-                              1.03,
-                              1.05,
-                              1.03,
-                              0.0
-                            ]
-                          ],
-                          [
-                            3.0,
-                            [
-                              1.0,
-                              1.0,
-                              1.0,
-                              0.0
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  },
-                  "ear_l": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            1.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            1.15,
-                            [
-                              -0.1305262,
-                              0.0,
-                              0.0,
-                              0.9914449
-                            ]
-                          ],
-                          [
-                            1.35,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            3.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  },
-                  "head": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.2,
-                            [
-                              0.034899496,
-                              0.0,
-                              0.0,
-                              0.99939084
-                            ]
-                          ],
-                          [
-                            0.4,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.6,
-                            [
-                              0.034899496,
-                              0.0,
-                              0.0,
-                              0.99939084
-                            ]
-                          ],
-                          [
-                            0.8,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            3.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  }
-                },
-                "mirror": {
-                  "ear_r": {
-                    "from": "ear_l",
-                    "phase": 0.08
-                  }
-                }
-              }
-            },
-            {
-              "clip": {
-                "name": "walk",
-                "skeleton": "rig",
-                "duration": 0.5,
-                "loop": true,
-                "tracks": {
-                  "body": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.08,
-                            [
-                              0.06975647,
-                              0.0,
-                              0.0,
-                              0.9975641
-                            ]
-                          ],
-                          [
-                            0.18,
-                            [
-                              -0.05233596,
-                              0.0,
-                              0.0,
-                              0.9986295
-                            ]
-                          ],
-                          [
-                            0.25,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.33,
-                            [
-                              0.06975647,
-                              0.0,
-                              0.0,
-                              0.9975641
-                            ]
-                          ],
-                          [
-                            0.43,
-                            [
-                              -0.05233596,
-                              0.0,
-                              0.0,
-                              0.9986295
-                            ]
-                          ],
-                          [
-                            0.5,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  },
-                  "ear_l": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.1,
-                            [
-                              0.17364818,
-                              0.0,
-                              0.0,
-                              0.9848077
-                            ]
-                          ],
-                          [
-                            0.22,
-                            [
-                              -0.05233596,
-                              0.0,
-                              0.0,
-                              0.9986295
-                            ]
-                          ],
-                          [
-                            0.25,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.35,
-                            [
-                              0.17364818,
-                              0.0,
-                              0.0,
-                              0.9848077
-                            ]
-                          ],
-                          [
-                            0.47,
-                            [
-                              -0.05233596,
-                              0.0,
-                              0.0,
-                              0.9986295
-                            ]
-                          ],
-                          [
-                            0.5,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  },
-                  "legb_l": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.06,
-                            [
-                              -0.27563736,
-                              0.0,
-                              0.0,
-                              0.9612617
-                            ]
-                          ],
-                          [
-                            0.18,
-                            [
-                              -0.08715574,
-                              0.0,
-                              0.0,
-                              0.9961947
-                            ]
-                          ],
-                          [
-                            0.25,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.31,
-                            [
-                              -0.27563736,
-                              0.0,
-                              0.0,
-                              0.9612617
-                            ]
-                          ],
-                          [
-                            0.43,
-                            [
-                              -0.08715574,
-                              0.0,
-                              0.0,
-                              0.9961947
-                            ]
-                          ],
-                          [
-                            0.5,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  },
-                  "legf_l": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.1,
-                            [
-                              0.25881904,
-                              0.0,
-                              0.0,
-                              0.9659258
-                            ]
-                          ],
-                          [
-                            0.2,
-                            [
-                              0.08715574,
-                              0.0,
-                              0.0,
-                              0.9961947
-                            ]
-                          ],
-                          [
-                            0.25,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ],
-                          [
-                            0.35,
-                            [
-                              0.25881904,
-                              0.0,
-                              0.0,
-                              0.9659258
-                            ]
-                          ],
-                          [
-                            0.45,
-                            [
-                              0.08715574,
-                              0.0,
-                              0.0,
-                              0.9961947
-                            ]
-                          ],
-                          [
-                            0.5,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              1.0
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  },
-                  "root": {
-                    "translate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.0625,
-                            [
-                              0.0,
-                              0.075,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.125,
-                            [
-                              0.0,
-                              0.1,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.1875,
-                            [
-                              0.0,
-                              0.075,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.25,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.3125,
-                            [
-                              0.0,
-                              0.075,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.375,
-                            [
-                              0.0,
-                              0.1,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.4375,
-                            [
-                              0.0,
-                              0.075,
-                              0.0,
-                              0.0
-                            ]
-                          ],
-                          [
-                            0.5,
-                            [
-                              0.0,
-                              0.0,
-                              0.0,
-                              0.0
-                            ]
-                          ]
-                        ],
-                        "interp": "linear"
-                      }
-                    }
-                  }
-                },
-                "mirror": {
-                  "ear_r": {
-                    "from": "ear_l",
-                    "phase": 0.0
-                  },
-                  "legb_r": {
-                    "from": "legb_l",
-                    "phase": 0.0
-                  },
-                  "legf_r": {
-                    "from": "legf_l",
-                    "phase": 0.0
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "5 edits: skeleton `rig` bones=body,ear_l,head,legb_l,legf_l,root,tail mirror=x … clip `walk` skeleton=`rig` 0.5s loop tracks=body,ear_l,legb_l,legf_l,root mirror=ear_r<-ear_l@0,legb_r<-legb_l@0,legf_r<-legf_l@0",
-        "author": "pets"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20247
 }

@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "fa-commune-flag",
-  "parts": [],
-  "version": 20756,
+  "next_annotation_id": 0,
   "ops": [
     {
       "extrude": {
+        "height": 1.2,
         "name": "flag",
         "profile": [
           [
@@ -147,7 +149,12 @@
             ]
           ]
         ],
-        "height": 1.2,
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
         "scale_top": [
           1.0,
           1.0
@@ -157,29 +164,18 @@
           0.0,
           -0.6,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0,
-          1.0
         ]
       }
     },
     {
       "material": {
-        "name": "flag",
-        "input": "flag",
         "base_color": null,
-        "roughness": null,
+        "input": "flag",
         "metalness": null,
+        "name": "flag",
         "pbr": {
-          "material": "fa-flag",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 1024,
             "nodes": [
               {
                 "name": "pos",
@@ -1273,104 +1269,109 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 1024,
+            "tile": 1.0
+          },
+          "material": "fa-flag",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "skeleton": {
-        "name": "rig",
         "bones": [
           {
-            "name": "f0",
             "head": [
               0.0,
               0.0,
               0.0
             ],
+            "name": "f0",
+            "radius": 0.7,
             "tail": [
               0.6,
               0.0,
               0.0
-            ],
-            "radius": 0.7
+            ]
           },
           {
+            "head": [
+              0.6,
+              0.0,
+              0.0
+            ],
             "name": "f1",
             "parent": "f0",
-            "head": [
-              0.6,
-              0.0,
-              0.0
-            ],
+            "radius": 0.7,
             "tail": [
               1.2,
               0.0,
               0.0
-            ],
-            "radius": 0.7
+            ]
           },
           {
+            "head": [
+              1.2,
+              0.0,
+              0.0
+            ],
             "name": "f2",
             "parent": "f1",
-            "head": [
-              1.2,
-              0.0,
-              0.0
-            ],
+            "radius": 0.7,
             "tail": [
               1.8,
               0.0,
               0.0
-            ],
-            "radius": 0.7
+            ]
           },
           {
-            "name": "f3",
-            "parent": "f2",
             "head": [
               1.8,
               0.0,
               0.0
             ],
+            "name": "f3",
+            "parent": "f2",
+            "radius": 0.7,
             "tail": [
               2.4,
               0.0,
               0.0
-            ],
-            "radius": 0.7
+            ]
           }
-        ]
+        ],
+        "name": "rig"
       }
     },
     {
       "bind": {
+        "blend": 0.3,
+        "mode": "smooth",
         "name": "bind_flag",
-        "skeleton": "rig",
         "parts": [
           "flag"
         ],
-        "mode": "smooth",
-        "blend": 0.3
+        "skeleton": "rig"
       }
     },
     {
       "clip": {
-        "name": "flutter",
-        "skeleton": "rig",
         "duration": 3.0,
         "loop": true,
+        "name": "flutter",
+        "skeleton": "rig",
         "tracks": {
           "f0": {
             "rotate": {
               "wave": {
+                "amount": 3.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
-                "amount": 3.0,
                 "period": 1.5,
                 "phase": -0.0
               }
@@ -1379,12 +1380,12 @@
           "f1": {
             "rotate": {
               "wave": {
+                "amount": 6.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
-                "amount": 6.0,
                 "period": 1.5,
                 "phase": -0.18
               }
@@ -1393,6 +1394,7 @@
           "f2": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1493,14 +1495,14 @@
                       0.9985536
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           },
           "f3": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1601,8 +1603,7 @@
                       0.9997645
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
           }
@@ -1610,1650 +1611,6 @@
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fa-commune-flag",
-          "parts": [],
-          "version": 20296,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `fa-commune-flag`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fa-commune-flag",
-          "parts": [],
-          "version": 20737,
-          "ops": [
-            {
-              "extrude": {
-                "name": "flag",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.004
-                    ],
-                    [
-                      0.15,
-                      -0.004
-                    ],
-                    [
-                      0.3,
-                      -0.004
-                    ],
-                    [
-                      0.45,
-                      -0.004
-                    ],
-                    [
-                      0.6,
-                      -0.004
-                    ],
-                    [
-                      0.75,
-                      -0.004
-                    ],
-                    [
-                      0.9,
-                      -0.004
-                    ],
-                    [
-                      1.05,
-                      -0.004
-                    ],
-                    [
-                      1.2,
-                      -0.004
-                    ],
-                    [
-                      1.35,
-                      -0.004
-                    ],
-                    [
-                      1.5,
-                      -0.004
-                    ],
-                    [
-                      1.65,
-                      -0.004
-                    ],
-                    [
-                      1.8,
-                      -0.004
-                    ],
-                    [
-                      1.95,
-                      -0.004
-                    ],
-                    [
-                      2.1,
-                      -0.004
-                    ],
-                    [
-                      2.25,
-                      -0.004
-                    ],
-                    [
-                      2.4,
-                      -0.004
-                    ],
-                    [
-                      2.4,
-                      0.004
-                    ],
-                    [
-                      2.25,
-                      0.004
-                    ],
-                    [
-                      2.1,
-                      0.004
-                    ],
-                    [
-                      1.95,
-                      0.004
-                    ],
-                    [
-                      1.8,
-                      0.004
-                    ],
-                    [
-                      1.65,
-                      0.004
-                    ],
-                    [
-                      1.5,
-                      0.004
-                    ],
-                    [
-                      1.35,
-                      0.004
-                    ],
-                    [
-                      1.2,
-                      0.004
-                    ],
-                    [
-                      1.05,
-                      0.004
-                    ],
-                    [
-                      0.9,
-                      0.004
-                    ],
-                    [
-                      0.75,
-                      0.004
-                    ],
-                    [
-                      0.6,
-                      0.004
-                    ],
-                    [
-                      0.45,
-                      0.004
-                    ],
-                    [
-                      0.3,
-                      0.004
-                    ],
-                    [
-                      0.15,
-                      0.004
-                    ],
-                    [
-                      0.0,
-                      0.004
-                    ]
-                  ]
-                ],
-                "height": 1.2,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.6,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  1.0
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "flag",
-                "input": "flag",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fa-flag",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 1024,
-                    "nodes": [
-                      {
-                        "name": "pos",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "input": "pos",
-                        "name": "ps",
-                        "type": "split"
-                      },
-                      {
-                        "a": "ps.x",
-                        "b": 1.2,
-                        "name": "px",
-                        "op": "sub",
-                        "type": "math"
-                      },
-                      {
-                        "name": "fc",
-                        "type": "combine",
-                        "x": "px",
-                        "y": "ps.y"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t1",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t1",
-                        "name": "s1",
-                        "size": [
-                          2.4,
-                          1.2
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m0",
-                        "sdf": "s1",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "#cc1226",
-                        "b": "#cc1226",
-                        "c": "m0",
-                        "name": "c0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "s2",
-                        "points": [
-                          [
-                            -1.2,
-                            -0.6
-                          ],
-                          [
-                            1.2,
-                            -0.6
-                          ],
-                          [
-                            1.2,
-                            0.6
-                          ]
-                        ],
-                        "type": "polygon"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m1",
-                        "sdf": "s2",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#141414",
-                        "c": "m1",
-                        "name": "c1",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t3",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": -26.56505117707799,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t3",
-                        "name": "s3",
-                        "size": [
-                          2.4332815729997477,
-                          0.24
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t4",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": 26.56505117707799,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t4",
-                        "name": "s4",
-                        "size": [
-                          2.4332815729997477,
-                          0.24
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "a": "s3",
-                        "b": "s4",
-                        "name": "u2_0",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m2",
-                        "sdf": "u2_0",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#f4f2ec",
-                        "c": "m2",
-                        "name": "c2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t5",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": -26.56505117707799,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t5",
-                        "name": "s5",
-                        "size": [
-                          2.4332815729997477,
-                          0.08
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t6",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": 26.56505117707799,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t6",
-                        "name": "s6",
-                        "size": [
-                          2.4332815729997477,
-                          0.08
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "a": "s5",
-                        "b": "s6",
-                        "name": "u3_0",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m3",
-                        "sdf": "u3_0",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c2",
-                        "b": "#141414",
-                        "c": "m3",
-                        "name": "c3",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t7",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t7",
-                        "name": "s7",
-                        "size": [
-                          2.4,
-                          0.36
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t8",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t8",
-                        "name": "s8",
-                        "size": [
-                          0.36,
-                          1.2
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "a": "s7",
-                        "b": "s8",
-                        "name": "u4_0",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m4",
-                        "sdf": "u4_0",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c3",
-                        "b": "#f4f2ec",
-                        "c": "m4",
-                        "name": "c4",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t9",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t9",
-                        "name": "s9",
-                        "size": [
-                          2.4,
-                          0.22
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t10",
-                        "offset": [
-                          -0.0,
-                          -0.0
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t10",
-                        "name": "s10",
-                        "size": [
-                          0.22,
-                          1.2
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t11",
-                        "offset": [
-                          0.29,
-                          -0.46
-                        ],
-                        "rotate": -0.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t11",
-                        "name": "s11",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t12",
-                        "offset": [
-                          0.00641,
-                          -0.59837
-                        ],
-                        "rotate": -29.999999999999996,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t12",
-                        "name": "s12",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t13",
-                        "offset": [
-                          -0.30837,
-                          -0.57641
-                        ],
-                        "rotate": -59.99999999999999,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t13",
-                        "name": "s13",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t14",
-                        "offset": [
-                          -0.57,
-                          -0.4
-                        ],
-                        "rotate": -90.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t14",
-                        "name": "s14",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t15",
-                        "offset": [
-                          -0.70837,
-                          -0.11641
-                        ],
-                        "rotate": -120.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t15",
-                        "name": "s15",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t16",
-                        "offset": [
-                          -0.68641,
-                          0.19837
-                        ],
-                        "rotate": -150.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t16",
-                        "name": "s16",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t17",
-                        "offset": [
-                          -0.51,
-                          0.46
-                        ],
-                        "rotate": -180.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t17",
-                        "name": "s17",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t18",
-                        "offset": [
-                          -0.22641,
-                          0.59837
-                        ],
-                        "rotate": -210.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t18",
-                        "name": "s18",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t19",
-                        "offset": [
-                          0.08837,
-                          0.57641
-                        ],
-                        "rotate": -239.99999999999997,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t19",
-                        "name": "s19",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t20",
-                        "offset": [
-                          0.35,
-                          0.4
-                        ],
-                        "rotate": -270.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t20",
-                        "name": "s20",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t21",
-                        "offset": [
-                          0.48837,
-                          0.11641
-                        ],
-                        "rotate": -300.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t21",
-                        "name": "s21",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t22",
-                        "offset": [
-                          0.46641,
-                          -0.19837
-                        ],
-                        "rotate": -330.0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t22",
-                        "name": "s22",
-                        "size": [
-                          0.025,
-                          0.062
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t23",
-                        "offset": [
-                          0.55586,
-                          -0.30306
-                        ],
-                        "rotate": 18,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t23",
-                        "name": "s23",
-                        "size": [
-                          0.022,
-                          0.21
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t24",
-                        "offset": [
-                          0.20499,
-                          -0.55028
-                        ],
-                        "rotate": -18,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t24",
-                        "name": "s24",
-                        "size": [
-                          0.022,
-                          0.21
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t25",
-                        "offset": [
-                          0.4,
-                          -0.43
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t25",
-                        "name": "s25",
-                        "size": [
-                          0.13,
-                          0.022
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "a": "s9",
-                        "b": "s10",
-                        "name": "u5_0",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_0",
-                        "b": "s11",
-                        "name": "u5_1",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_1",
-                        "b": "s12",
-                        "name": "u5_2",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_2",
-                        "b": "s13",
-                        "name": "u5_3",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_3",
-                        "b": "s14",
-                        "name": "u5_4",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_4",
-                        "b": "s15",
-                        "name": "u5_5",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_5",
-                        "b": "s16",
-                        "name": "u5_6",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_6",
-                        "b": "s17",
-                        "name": "u5_7",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_7",
-                        "b": "s18",
-                        "name": "u5_8",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_8",
-                        "b": "s19",
-                        "name": "u5_9",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_9",
-                        "b": "s20",
-                        "name": "u5_10",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_10",
-                        "b": "s21",
-                        "name": "u5_11",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_11",
-                        "b": "s22",
-                        "name": "u5_12",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_12",
-                        "b": "s23",
-                        "name": "u5_13",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_13",
-                        "b": "s24",
-                        "name": "u5_14",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u5_14",
-                        "b": "s25",
-                        "name": "u5_15",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m5",
-                        "sdf": "u5_15",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c4",
-                        "b": "#141414",
-                        "c": "m5",
-                        "name": "c5",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t26",
-                        "offset": [
-                          -0.0,
-                          -0.125
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t26",
-                        "name": "s26",
-                        "size": [
-                          0.7,
-                          0.25
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m6",
-                        "sdf": "s26",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c5",
-                        "b": "#f4f2ec",
-                        "c": "m6",
-                        "name": "c6",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t27",
-                        "offset": [
-                          -0.0,
-                          0.125
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t27",
-                        "name": "s27",
-                        "size": [
-                          0.7,
-                          0.25
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m7",
-                        "sdf": "s27",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c6",
-                        "b": "#008c40",
-                        "c": "m7",
-                        "name": "c7",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t28",
-                        "offset": [
-                          -0.0,
-                          0.02
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t28",
-                        "name": "s28",
-                        "size": [
-                          0.28,
-                          0.1
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t29",
-                        "offset": [
-                          0.1549,
-                          0.0317
-                        ],
-                        "rotate": 30,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t29",
-                        "name": "s29",
-                        "size": [
-                          0.06,
-                          0.15
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t30",
-                        "offset": [
-                          0.21,
-                          -0.12
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t30",
-                        "name": "s30",
-                        "size": [
-                          0.1,
-                          0.06
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t31",
-                        "offset": [
-                          0.0342,
-                          -0.09397
-                        ],
-                        "rotate": 20,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t31",
-                        "name": "s31",
-                        "size": [
-                          0.06,
-                          0.18
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t32",
-                        "offset": [
-                          0.00002,
-                          -0.12207
-                        ],
-                        "rotate": 35,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t32",
-                        "name": "s32",
-                        "size": [
-                          0.05,
-                          0.15
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t33",
-                        "offset": [
-                          -0.15074,
-                          0.10038
-                        ],
-                        "rotate": -40,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t33",
-                        "name": "s33",
-                        "size": [
-                          0.16,
-                          0.04
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t34",
-                        "offset": [
-                          -0.25,
-                          -0.1
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t34",
-                        "name": "s34",
-                        "size": [
-                          0.04,
-                          0.08
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t35",
-                        "offset": [
-                          0.08,
-                          0.12
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t35",
-                        "name": "s35",
-                        "size": [
-                          0.04,
-                          0.1
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t36",
-                        "offset": [
-                          -0.08,
-                          0.12
-                        ],
-                        "rotate": 0,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t36",
-                        "name": "s36",
-                        "size": [
-                          0.04,
-                          0.1
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "coords": "fc",
-                        "name": "t37",
-                        "offset": [
-                          0.17001,
-                          -0.02995
-                        ],
-                        "rotate": -20,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "t37",
-                        "name": "s37",
-                        "size": [
-                          0.1,
-                          0.035
-                        ],
-                        "type": "rect"
-                      },
-                      {
-                        "a": "s28",
-                        "b": "s29",
-                        "name": "u8_0",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_0",
-                        "b": "s30",
-                        "name": "u8_1",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_1",
-                        "b": "s31",
-                        "name": "u8_2",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_2",
-                        "b": "s32",
-                        "name": "u8_3",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_3",
-                        "b": "s33",
-                        "name": "u8_4",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_4",
-                        "b": "s34",
-                        "name": "u8_5",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_5",
-                        "b": "s35",
-                        "name": "u8_6",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_6",
-                        "b": "s36",
-                        "name": "u8_7",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "a": "u8_7",
-                        "b": "s37",
-                        "name": "u8_8",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "m8",
-                        "sdf": "u8_8",
-                        "softness": 0.003,
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c7",
-                        "b": "#cc1226",
-                        "c": "m8",
-                        "name": "c8",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 9,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "v",
-                        "to": [
-                          0.93,
-                          1.03
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c8",
-                        "b": "v",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "double_sided": true,
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "skeleton": {
-                "name": "rig",
-                "bones": [
-                  {
-                    "name": "f0",
-                    "head": [
-                      0.0,
-                      0.0,
-                      0.0
-                    ],
-                    "tail": [
-                      0.6,
-                      0.0,
-                      0.0
-                    ],
-                    "radius": 0.7
-                  },
-                  {
-                    "name": "f1",
-                    "parent": "f0",
-                    "head": [
-                      0.6,
-                      0.0,
-                      0.0
-                    ],
-                    "tail": [
-                      1.2,
-                      0.0,
-                      0.0
-                    ],
-                    "radius": 0.7
-                  },
-                  {
-                    "name": "f2",
-                    "parent": "f1",
-                    "head": [
-                      1.2,
-                      0.0,
-                      0.0
-                    ],
-                    "tail": [
-                      1.8,
-                      0.0,
-                      0.0
-                    ],
-                    "radius": 0.7
-                  },
-                  {
-                    "name": "f3",
-                    "parent": "f2",
-                    "head": [
-                      1.8,
-                      0.0,
-                      0.0
-                    ],
-                    "tail": [
-                      2.4,
-                      0.0,
-                      0.0
-                    ],
-                    "radius": 0.7
-                  }
-                ]
-              }
-            },
-            {
-              "bind": {
-                "name": "bind_flag",
-                "skeleton": "rig",
-                "parts": [
-                  "flag"
-                ],
-                "mode": "smooth",
-                "blend": 0.3
-              }
-            },
-            {
-              "clip": {
-                "name": "flutter",
-                "skeleton": "rig",
-                "duration": 3.0,
-                "loop": true,
-                "tracks": {
-                  "f0": {
-                    "rotate": {
-                      "wave": {
-                        "axis": [
-                          0.0,
-                          1.0,
-                          0.0
-                        ],
-                        "amount": 3.0,
-                        "period": 1.5,
-                        "phase": -0.0
-                      }
-                    }
-                  },
-                  "f1": {
-                    "rotate": {
-                      "wave": {
-                        "axis": [
-                          0.0,
-                          1.0,
-                          0.0
-                        ],
-                        "amount": 6.0,
-                        "period": 1.5,
-                        "phase": -0.18
-                      }
-                    }
-                  },
-                  "f2": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              -0.05376603,
-                              0.0,
-                              0.9985536
-                            ]
-                          ],
-                          [
-                            0.3,
-                            [
-                              0.0,
-                              -0.05891108,
-                              0.0,
-                              0.99826324
-                            ]
-                          ],
-                          [
-                            0.6,
-                            [
-                              0.0,
-                              0.017360957,
-                              0.0,
-                              0.99984926
-                            ]
-                          ],
-                          [
-                            0.9,
-                            [
-                              0.0,
-                              0.069619045,
-                              0.0,
-                              0.9975737
-                            ]
-                          ],
-                          [
-                            1.2,
-                            [
-                              0.0,
-                              0.025697112,
-                              0.0,
-                              0.9996698
-                            ]
-                          ],
-                          [
-                            1.5,
-                            [
-                              0.0,
-                              -0.05376603,
-                              0.0,
-                              0.9985536
-                            ]
-                          ],
-                          [
-                            1.8,
-                            [
-                              0.0,
-                              -0.05891108,
-                              0.0,
-                              0.99826324
-                            ]
-                          ],
-                          [
-                            2.1,
-                            [
-                              0.0,
-                              0.017360957,
-                              0.0,
-                              0.99984926
-                            ]
-                          ],
-                          [
-                            2.4,
-                            [
-                              0.0,
-                              0.069619045,
-                              0.0,
-                              0.9975737
-                            ]
-                          ],
-                          [
-                            2.7,
-                            [
-                              0.0,
-                              0.025697112,
-                              0.0,
-                              0.9996698
-                            ]
-                          ],
-                          [
-                            3.0,
-                            [
-                              0.0,
-                              -0.05376603,
-                              0.0,
-                              0.9985536
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  },
-                  "f3": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.021700583,
-                              0.0,
-                              0.9997645
-                            ]
-                          ],
-                          [
-                            0.3,
-                            [
-                              0.0,
-                              -0.07361486,
-                              0.0,
-                              0.99728674
-                            ]
-                          ],
-                          [
-                            0.6,
-                            [
-                              0.0,
-                              -0.067189306,
-                              0.0,
-                              0.99774027
-                            ]
-                          ],
-                          [
-                            0.9,
-                            [
-                              0.0,
-                              0.032119405,
-                              0.0,
-                              0.99948406
-                            ]
-                          ],
-                          [
-                            1.2,
-                            [
-                              0.0,
-                              0.086984195,
-                              0.0,
-                              0.9962097
-                            ]
-                          ],
-                          [
-                            1.5,
-                            [
-                              0.0,
-                              0.021700583,
-                              0.0,
-                              0.9997645
-                            ]
-                          ],
-                          [
-                            1.8,
-                            [
-                              0.0,
-                              -0.07361486,
-                              0.0,
-                              0.99728674
-                            ]
-                          ],
-                          [
-                            2.1,
-                            [
-                              0.0,
-                              -0.067189306,
-                              0.0,
-                              0.99774027
-                            ]
-                          ],
-                          [
-                            2.4,
-                            [
-                              0.0,
-                              0.032119405,
-                              0.0,
-                              0.99948406
-                            ]
-                          ],
-                          [
-                            2.7,
-                            [
-                              0.0,
-                              0.086984195,
-                              0.0,
-                              0.9962097
-                            ]
-                          ],
-                          [
-                            3.0,
-                            [
-                              0.0,
-                              0.021700583,
-                              0.0,
-                              0.9997645
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "3 edits: skeleton `rig` bones=f0,f1,f2,f3 … clip `flutter` skeleton=`rig` 3s loop tracks=f0,f1,f2,f3",
-        "author": "fauna"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20756
 }

@@ -1,20 +1,22 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-hat-flower",
-  "parts": [],
-  "version": 20888,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
+        "blend": 0.006,
         "name": "petals_raw",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.26,
               0.12,
               0.04
             ],
+            "shape": "ellipsoid",
             "size": [
               0.012,
               0.03,
@@ -22,12 +24,12 @@
             ]
           },
           {
-            "shape": "ellipsoid",
             "at": [
               0.26,
               0.15804227,
               0.01236068
             ],
+            "shape": "ellipsoid",
             "size": [
               0.012,
               0.03,
@@ -35,12 +37,12 @@
             ]
           },
           {
-            "shape": "ellipsoid",
             "at": [
               0.26,
               0.14351141,
               -0.03236068
             ],
+            "shape": "ellipsoid",
             "size": [
               0.012,
               0.03,
@@ -48,12 +50,12 @@
             ]
           },
           {
-            "shape": "ellipsoid",
             "at": [
               0.26,
               0.09648859,
               -0.03236068
             ],
+            "shape": "ellipsoid",
             "size": [
               0.012,
               0.03,
@@ -61,26 +63,25 @@
             ]
           },
           {
-            "shape": "ellipsoid",
             "at": [
               0.26,
               0.08195774,
               0.01236068
             ],
+            "shape": "ellipsoid",
             "size": [
               0.012,
               0.03,
               0.03
             ]
           }
-        ],
-        "blend": 0.006
+        ]
       }
     },
     {
       "decimate": {
-        "name": "petals",
         "input": "petals_raw",
+        "name": "petals",
         "tris": 100
       }
     },
@@ -89,7 +90,6 @@
         "name": "centre_raw",
         "shapes": [
           {
-            "shape": "sphere",
             "at": [
               0.275,
               0.12,
@@ -97,46 +97,42 @@
             ],
             "radius": [
               0.024
-            ]
+            ],
+            "shape": "sphere"
           }
         ]
       }
     },
     {
       "decimate": {
-        "name": "centre",
         "input": "centre_raw",
+        "name": "centre",
         "tris": 30
       }
     },
     {
       "visibility": {
-        "name": "petals_raw",
         "input": "petals_raw",
+        "name": "petals_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "centre_raw",
         "input": "centre_raw",
+        "name": "centre_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "petals",
-        "input": "petals",
         "base_color": null,
-        "roughness": null,
+        "input": "petals",
         "metalness": null,
+        "name": "petals",
         "pbr": {
-          "material": "pp-petal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "fz",
@@ -222,25 +218,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.2
+          },
+          "material": "pp-petal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "centre",
-        "input": "centre",
         "base_color": null,
-        "roughness": null,
+        "input": "centre",
         "metalness": null,
+        "name": "centre",
         "pbr": {
-          "material": "pp-pollen",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "fz",
@@ -326,378 +322,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.2
+          },
+          "material": "pp-pollen",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hat-flower",
-          "parts": [],
-          "version": 20692,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-hat-flower`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hat-flower",
-          "parts": [],
-          "version": 20701,
-          "ops": [
-            {
-              "sdf": {
-                "name": "petals_raw",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.26,
-                      0.12,
-                      0.04
-                    ],
-                    "size": [
-                      0.012,
-                      0.03,
-                      0.03
-                    ]
-                  },
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.26,
-                      0.15804227,
-                      0.01236068
-                    ],
-                    "size": [
-                      0.012,
-                      0.03,
-                      0.03
-                    ]
-                  },
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.26,
-                      0.14351141,
-                      -0.03236068
-                    ],
-                    "size": [
-                      0.012,
-                      0.03,
-                      0.03
-                    ]
-                  },
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.26,
-                      0.09648859,
-                      -0.03236068
-                    ],
-                    "size": [
-                      0.012,
-                      0.03,
-                      0.03
-                    ]
-                  },
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.26,
-                      0.08195774,
-                      0.01236068
-                    ],
-                    "size": [
-                      0.012,
-                      0.03,
-                      0.03
-                    ]
-                  }
-                ],
-                "blend": 0.006
-              }
-            },
-            {
-              "decimate": {
-                "name": "petals",
-                "input": "petals_raw",
-                "tris": 100
-              }
-            },
-            {
-              "sdf": {
-                "name": "centre_raw",
-                "shapes": [
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.275,
-                      0.12,
-                      0.0
-                    ],
-                    "radius": [
-                      0.024
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "centre",
-                "input": "centre_raw",
-                "tris": 30
-              }
-            },
-            {
-              "visibility": {
-                "name": "petals_raw",
-                "input": "petals_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "centre_raw",
-                "input": "centre_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "petals",
-                "input": "petals",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-petal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#ffb3d9",
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "centre",
-                "input": "centre",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-pollen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#f2c766",
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: material `petals` <- `petals` pbr=pp-petal … material `centre` <- `centre` pbr=pp-pollen",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20888
 }

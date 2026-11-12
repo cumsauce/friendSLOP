@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "md-flower-white",
-  "parts": [],
-  "version": 13274,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "stem",
         "profile": [
           [
@@ -27,18 +29,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 5,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "petal_src",
         "profile": [
           [
@@ -60,25 +62,19 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 4,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "petal0",
         "input": "petal_src",
-        "translation": [
-          0.0,
-          0.255,
-          0.0
-        ],
+        "name": "petal0",
         "rotation": [
           0.0,
           0.0,
@@ -89,27 +85,33 @@
           0.016,
           0.085,
           0.055
+        ],
+        "translation": [
+          0.0,
+          0.255,
+          0.0
         ]
       }
     },
     {
       "radial_array": {
-        "name": "petal",
-        "input": "petal0",
-        "count": 5,
+        "axis": "y",
         "center": [
           0.0,
           0.0,
           0.0
         ],
+        "count": 5,
         "degrees": 360.0,
-        "start_degrees": 0.0,
-        "axis": "y",
-        "include_source": true
+        "include_source": true,
+        "input": "petal0",
+        "name": "petal",
+        "start_degrees": 0.0
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "heart",
         "profile": [
           [
@@ -131,42 +133,36 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "group": {
-        "name": "petals",
         "inputs": [
           "petal0",
           "petal_1",
           "petal_2",
           "petal_3",
           "petal_4"
-        ]
+        ],
+        "name": "petals"
       }
     },
     {
       "material": {
-        "name": "stem",
-        "input": "stem",
         "base_color": null,
-        "roughness": null,
+        "input": "stem",
         "metalness": null,
+        "name": "stem",
         "pbr": {
-          "material": "md-grass",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "n",
@@ -197,25 +193,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "md-grass",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "petals",
-        "input": "petals",
         "base_color": null,
-        "roughness": null,
+        "input": "petals",
         "metalness": null,
+        "name": "petals",
         "pbr": {
-          "material": "md-petal-white",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "n",
@@ -246,25 +242,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "md-petal-white",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "heart",
-        "input": "heart",
         "base_color": null,
-        "roughness": null,
+        "input": "heart",
         "metalness": null,
+        "name": "heart",
         "pbr": {
-          "material": "md-flower-heart",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "n",
@@ -295,445 +291,66 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "md-flower-heart",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "petal_src",
         "input": "petal_src",
+        "name": "petal_src",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal0",
         "input": "petal0",
+        "name": "petal0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal_1",
         "input": "petal_1",
+        "name": "petal_1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal_2",
         "input": "petal_2",
+        "name": "petal_2",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal_3",
         "input": "petal_3",
+        "name": "petal_3",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal_4",
         "input": "petal_4",
+        "name": "petal_4",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petals",
         "input": "petals",
+        "name": "petals",
         "visible": true
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "md-flower-white",
-          "parts": [],
-          "version": 13255,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `md-flower-white`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "md-flower-white",
-          "parts": [],
-          "version": 13274,
-          "ops": [
-            {
-              "revolve": {
-                "name": "stem",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.01
-                    ],
-                    [
-                      0.016,
-                      -0.01
-                    ],
-                    [
-                      0.012,
-                      0.25
-                    ],
-                    [
-                      0.0,
-                      0.25
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 5,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "petal_src",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.5,
-                      0.25
-                    ],
-                    [
-                      0.45,
-                      0.7
-                    ],
-                    [
-                      0.0,
-                      1.0
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 4,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "petal0",
-                "input": "petal_src",
-                "translation": [
-                  0.0,
-                  0.255,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  -0.58778524,
-                  0.809017
-                ],
-                "scale": [
-                  0.016,
-                  0.085,
-                  0.055
-                ]
-              }
-            },
-            {
-              "radial_array": {
-                "name": "petal",
-                "input": "petal0",
-                "count": 5,
-                "center": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "degrees": 360.0,
-                "start_degrees": 0.0,
-                "axis": "y",
-                "include_source": true
-              }
-            },
-            {
-              "revolve": {
-                "name": "heart",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.245
-                    ],
-                    [
-                      0.022,
-                      0.255
-                    ],
-                    [
-                      0.018,
-                      0.28
-                    ],
-                    [
-                      0.0,
-                      0.29
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "petals",
-                "inputs": [
-                  "petal0",
-                  "petal_1",
-                  "petal_2",
-                  "petal_3",
-                  "petal_4"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "stem",
-                "input": "stem",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "md-grass",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 2,
-                        "seed": 31,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3f7a35"
-                          ],
-                          [
-                            1,
-                            "#5f9a45"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "petals",
-                "input": "petals",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "md-petal-white",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 2,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#e8e8e2"
-                          ],
-                          [
-                            1,
-                            "#ffffff"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "heart",
-                "input": "heart",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "md-flower-heart",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 2,
-                        "seed": 14,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#e89a2a"
-                          ],
-                          [
-                            1,
-                            "#f5b84a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal_src",
-                "input": "petal_src",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal0",
-                "input": "petal0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal_1",
-                "input": "petal_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal_2",
-                "input": "petal_2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal_3",
-                "input": "petal_3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal_4",
-                "input": "petal_4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petals",
-                "input": "petals",
-                "visible": true
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "18 edits: revolve `stem` profile=[[[0.0, -0.01], [0.016, -0.01], [0.012, 0.25], [0.0, 0.25]]] degrees=360 segments=5 round=0 at=[0.0, 0.0, 0.0] … hidden `petal_src`",
-        "author": "meadow"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 13274
 }

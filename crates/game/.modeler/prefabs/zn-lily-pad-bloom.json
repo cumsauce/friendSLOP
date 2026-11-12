@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-lily-pad-bloom",
-  "parts": [],
-  "version": 8884,
+  "next_annotation_id": 0,
   "ops": [
     {
       "extrude": {
+        "height": 0.012,
         "name": "pad",
         "profile": [
           [
@@ -83,7 +85,7 @@
             ]
           ]
         ],
-        "height": 0.012,
+        "rotation": null,
         "scale_top": [
           1.0,
           1.0
@@ -93,24 +95,18 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "material": {
-        "name": "pad",
-        "input": "pad",
         "base_color": null,
-        "roughness": null,
+        "input": "pad",
         "metalness": null,
+        "name": "pad",
         "pbr": {
-          "material": "zn-lily",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "fn",
@@ -160,13 +156,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.25
+          },
+          "material": "zn-lily",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "petal0_raw",
         "profile": [
           [
@@ -192,61 +194,55 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "transform": {
-        "name": "petal0_s",
-        "input": "petal0_raw",
-        "translation": null,
-        "rotation": null,
-        "scale": [
-          1.0,
-          0.35,
-          0.55
         ]
       }
     },
     {
       "transform": {
-        "name": "petal0",
-        "input": "petal0_s",
-        "translation": [
-          0.085,
-          0.045,
-          0.0
+        "input": "petal0_raw",
+        "name": "petal0_s",
+        "rotation": null,
+        "scale": [
+          1.0,
+          0.35,
+          0.55
         ],
+        "translation": null
+      }
+    },
+    {
+      "transform": {
+        "input": "petal0_s",
+        "name": "petal0",
         "rotation": [
           0.0,
           0.0,
           0.25881904,
           0.9659258
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.085,
+          0.045,
+          0.0
+        ]
       }
     },
     {
       "material": {
-        "name": "petal0",
-        "input": "petal0",
         "base_color": null,
-        "roughness": null,
+        "input": "petal0",
         "metalness": null,
+        "name": "petal0",
         "pbr": {
-          "material": "zn-petal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "fn",
@@ -277,13 +273,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "zn-petal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "petal1_raw",
         "profile": [
           [
@@ -309,61 +311,55 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "transform": {
-        "name": "petal1_s",
-        "input": "petal1_raw",
-        "translation": null,
-        "rotation": null,
-        "scale": [
-          1.0,
-          0.35,
-          0.55
         ]
       }
     },
     {
       "transform": {
-        "name": "petal1",
-        "input": "petal1_s",
-        "translation": [
-          0.0675,
-          0.045,
-          0.03031089
+        "input": "petal1_raw",
+        "name": "petal1_s",
+        "rotation": null,
+        "scale": [
+          1.0,
+          0.35,
+          0.55
         ],
+        "translation": null
+      }
+    },
+    {
+      "transform": {
+        "input": "petal1_s",
+        "name": "petal1",
         "rotation": [
           0.12940952,
           -0.4829629,
           0.22414386,
           0.83651626
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0675,
+          0.045,
+          0.03031089
+        ]
       }
     },
     {
       "material": {
-        "name": "petal1",
-        "input": "petal1",
         "base_color": null,
-        "roughness": null,
+        "input": "petal1",
         "metalness": null,
+        "name": "petal1",
         "pbr": {
-          "material": "zn-petal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "fn",
@@ -394,13 +390,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "zn-petal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "petal2_raw",
         "profile": [
           [
@@ -426,61 +428,55 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "transform": {
-        "name": "petal2_s",
-        "input": "petal2_raw",
-        "translation": null,
-        "rotation": null,
-        "scale": [
-          1.0,
-          0.35,
-          0.55
         ]
       }
     },
     {
       "transform": {
-        "name": "petal2",
-        "input": "petal2_s",
-        "translation": [
-          0.0325,
-          0.045,
-          0.03031089
+        "input": "petal2_raw",
+        "name": "petal2_s",
+        "rotation": null,
+        "scale": [
+          1.0,
+          0.35,
+          0.55
         ],
+        "translation": null
+      }
+    },
+    {
+      "transform": {
+        "input": "petal2_s",
+        "name": "petal2",
         "rotation": [
           0.22414388,
           -0.8365163,
           0.1294095,
           0.48296288
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0325,
+          0.045,
+          0.03031089
+        ]
       }
     },
     {
       "material": {
-        "name": "petal2",
-        "input": "petal2",
         "base_color": null,
-        "roughness": null,
+        "input": "petal2",
         "metalness": null,
+        "name": "petal2",
         "pbr": {
-          "material": "zn-petal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "fn",
@@ -511,13 +507,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "zn-petal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "petal3_raw",
         "profile": [
           [
@@ -543,61 +545,55 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "transform": {
-        "name": "petal3_s",
-        "input": "petal3_raw",
-        "translation": null,
-        "rotation": null,
-        "scale": [
-          1.0,
-          0.35,
-          0.55
         ]
       }
     },
     {
       "transform": {
-        "name": "petal3",
-        "input": "petal3_s",
-        "translation": [
-          0.015,
-          0.045,
-          4.286264e-18
+        "input": "petal3_raw",
+        "name": "petal3_s",
+        "rotation": null,
+        "scale": [
+          1.0,
+          0.35,
+          0.55
         ],
+        "translation": null
+      }
+    },
+    {
+      "transform": {
+        "input": "petal3_s",
+        "name": "petal3",
         "rotation": [
           0.25881904,
           -0.9659258,
           -1.131334e-8,
           -4.222196e-8
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.015,
+          0.045,
+          4.286264e-18
+        ]
       }
     },
     {
       "material": {
-        "name": "petal3",
-        "input": "petal3",
         "base_color": null,
-        "roughness": null,
+        "input": "petal3",
         "metalness": null,
+        "name": "petal3",
         "pbr": {
-          "material": "zn-petal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "fn",
@@ -628,13 +624,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "zn-petal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "petal4_raw",
         "profile": [
           [
@@ -660,61 +662,55 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "transform": {
-        "name": "petal4_s",
-        "input": "petal4_raw",
-        "translation": null,
-        "rotation": null,
-        "scale": [
-          1.0,
-          0.35,
-          0.55
         ]
       }
     },
     {
       "transform": {
-        "name": "petal4",
-        "input": "petal4_s",
-        "translation": [
-          0.0325,
-          0.045,
-          -0.03031089
+        "input": "petal4_raw",
+        "name": "petal4_s",
+        "rotation": null,
+        "scale": [
+          1.0,
+          0.35,
+          0.55
         ],
+        "translation": null
+      }
+    },
+    {
+      "transform": {
+        "input": "petal4_s",
+        "name": "petal4",
         "rotation": [
           0.22414386,
           -0.83651626,
           -0.12940954,
           -0.48296297
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0325,
+          0.045,
+          -0.03031089
+        ]
       }
     },
     {
       "material": {
-        "name": "petal4",
-        "input": "petal4",
         "base_color": null,
-        "roughness": null,
+        "input": "petal4",
         "metalness": null,
+        "name": "petal4",
         "pbr": {
-          "material": "zn-petal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "fn",
@@ -745,13 +741,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "zn-petal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "petal5_raw",
         "profile": [
           [
@@ -777,61 +779,55 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "transform": {
-        "name": "petal5_s",
-        "input": "petal5_raw",
-        "translation": null,
-        "rotation": null,
-        "scale": [
-          1.0,
-          0.35,
-          0.55
         ]
       }
     },
     {
       "transform": {
-        "name": "petal5",
-        "input": "petal5_s",
-        "translation": [
-          0.0675,
-          0.045,
-          -0.03031089
+        "input": "petal5_raw",
+        "name": "petal5_s",
+        "rotation": null,
+        "scale": [
+          1.0,
+          0.35,
+          0.55
         ],
+        "translation": null
+      }
+    },
+    {
+      "transform": {
+        "input": "petal5_s",
+        "name": "petal5",
         "rotation": [
           0.12940954,
           -0.48296297,
           -0.22414386,
           -0.83651626
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0675,
+          0.045,
+          -0.03031089
+        ]
       }
     },
     {
       "material": {
-        "name": "petal5",
-        "input": "petal5",
         "base_color": null,
-        "roughness": null,
+        "input": "petal5",
         "metalness": null,
+        "name": "petal5",
         "pbr": {
-          "material": "zn-petal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 32,
             "nodes": [
               {
                 "name": "fn",
@@ -862,15 +858,21 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 32,
+            "tile": 0.25
+          },
+          "material": "zn-petal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "primitive": {
-        "name": "heart",
         "kind": "cylinder",
+        "name": "heart",
+        "rotation": null,
         "size": [
           0.022,
           0.03,
@@ -880,24 +882,18 @@
           0.05,
           0.06,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "material": {
-        "name": "heart",
-        "input": "heart",
         "base_color": null,
-        "roughness": null,
+        "input": "heart",
         "metalness": null,
+        "name": "heart",
         "pbr": {
-          "material": "zn-hay",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -965,1243 +961,103 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 0.5
+          },
+          "material": "zn-hay",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "petal0_s",
         "input": "petal0_s",
+        "name": "petal0_s",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal1_s",
         "input": "petal1_s",
+        "name": "petal1_s",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal2_s",
         "input": "petal2_s",
+        "name": "petal2_s",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal3_s",
         "input": "petal3_s",
+        "name": "petal3_s",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal4_s",
         "input": "petal4_s",
+        "name": "petal4_s",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal5_s",
         "input": "petal5_s",
+        "name": "petal5_s",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal0_raw",
         "input": "petal0_raw",
+        "name": "petal0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal1_raw",
         "input": "petal1_raw",
+        "name": "petal1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal2_raw",
         "input": "petal2_raw",
+        "name": "petal2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal3_raw",
         "input": "petal3_raw",
+        "name": "petal3_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal4_raw",
         "input": "petal4_raw",
+        "name": "petal4_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "petal5_raw",
         "input": "petal5_raw",
+        "name": "petal5_raw",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-lily-pad-bloom",
-          "parts": [],
-          "version": 8525,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `zn-lily-pad-bloom`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-lily-pad-bloom",
-          "parts": [],
-          "version": 8844,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-lily-pad-bloom",
-          "parts": [],
-          "version": 8884,
-          "ops": [
-            {
-              "extrude": {
-                "name": "pad",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      -0.0927,
-                      0.2853
-                    ],
-                    [
-                      -0.1857,
-                      0.2356
-                    ],
-                    [
-                      -0.2558,
-                      0.1567
-                    ],
-                    [
-                      -0.2942,
-                      0.0585
-                    ],
-                    [
-                      -0.2963,
-                      -0.0469
-                    ],
-                    [
-                      -0.2617,
-                      -0.1466
-                    ],
-                    [
-                      -0.1948,
-                      -0.2281
-                    ],
-                    [
-                      -0.1038,
-                      -0.2815
-                    ],
-                    [
-                      -0.0,
-                      -0.3
-                    ],
-                    [
-                      0.1038,
-                      -0.2815
-                    ],
-                    [
-                      0.1948,
-                      -0.2281
-                    ],
-                    [
-                      0.2617,
-                      -0.1466
-                    ],
-                    [
-                      0.2963,
-                      -0.0469
-                    ],
-                    [
-                      0.2942,
-                      0.0585
-                    ],
-                    [
-                      0.2558,
-                      0.1567
-                    ],
-                    [
-                      0.1857,
-                      0.2356
-                    ],
-                    [
-                      0.0927,
-                      0.2853
-                    ]
-                  ]
-                ],
-                "height": 0.012,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "pad",
-                "input": "pad",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-lily",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 151,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bn",
-                        "octaves": 2,
-                        "seed": 152,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "fn",
-                        "b": "bn",
-                        "c": 0.5,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3f7a2a"
-                          ],
-                          [
-                            0.5,
-                            "#4f9233"
-                          ],
-                          [
-                            1,
-                            "#6aa845"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.45,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "petal0_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.0354,
-                      -0.0354
-                    ],
-                    [
-                      0.05,
-                      -0.0
-                    ],
-                    [
-                      0.0354,
-                      0.0354
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "petal0_s",
-                "input": "petal0_raw",
-                "translation": null,
-                "rotation": null,
-                "scale": [
-                  1.0,
-                  0.35,
-                  0.55
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "petal0",
-                "input": "petal0_s",
-                "translation": [
-                  0.085,
-                  0.045,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.25881904,
-                  0.9659258
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "petal0",
-                "input": "petal0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-petal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 161,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#f28fb5"
-                          ],
-                          [
-                            1,
-                            "#ffc4da"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "petal1_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.0354,
-                      -0.0354
-                    ],
-                    [
-                      0.05,
-                      -0.0
-                    ],
-                    [
-                      0.0354,
-                      0.0354
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "petal1_s",
-                "input": "petal1_raw",
-                "translation": null,
-                "rotation": null,
-                "scale": [
-                  1.0,
-                  0.35,
-                  0.55
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "petal1",
-                "input": "petal1_s",
-                "translation": [
-                  0.0675,
-                  0.045,
-                  0.03031089
-                ],
-                "rotation": [
-                  0.12940952,
-                  -0.4829629,
-                  0.22414386,
-                  0.83651626
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "petal1",
-                "input": "petal1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-petal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 161,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#f28fb5"
-                          ],
-                          [
-                            1,
-                            "#ffc4da"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "petal2_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.0354,
-                      -0.0354
-                    ],
-                    [
-                      0.05,
-                      -0.0
-                    ],
-                    [
-                      0.0354,
-                      0.0354
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "petal2_s",
-                "input": "petal2_raw",
-                "translation": null,
-                "rotation": null,
-                "scale": [
-                  1.0,
-                  0.35,
-                  0.55
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "petal2",
-                "input": "petal2_s",
-                "translation": [
-                  0.0325,
-                  0.045,
-                  0.03031089
-                ],
-                "rotation": [
-                  0.22414388,
-                  -0.8365163,
-                  0.1294095,
-                  0.48296288
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "petal2",
-                "input": "petal2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-petal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 161,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#f28fb5"
-                          ],
-                          [
-                            1,
-                            "#ffc4da"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "petal3_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.0354,
-                      -0.0354
-                    ],
-                    [
-                      0.05,
-                      -0.0
-                    ],
-                    [
-                      0.0354,
-                      0.0354
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "petal3_s",
-                "input": "petal3_raw",
-                "translation": null,
-                "rotation": null,
-                "scale": [
-                  1.0,
-                  0.35,
-                  0.55
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "petal3",
-                "input": "petal3_s",
-                "translation": [
-                  0.015,
-                  0.045,
-                  4.286264e-18
-                ],
-                "rotation": [
-                  0.25881904,
-                  -0.9659258,
-                  -1.131334e-8,
-                  -4.222196e-8
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "petal3",
-                "input": "petal3",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-petal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 161,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#f28fb5"
-                          ],
-                          [
-                            1,
-                            "#ffc4da"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "petal4_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.0354,
-                      -0.0354
-                    ],
-                    [
-                      0.05,
-                      -0.0
-                    ],
-                    [
-                      0.0354,
-                      0.0354
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "petal4_s",
-                "input": "petal4_raw",
-                "translation": null,
-                "rotation": null,
-                "scale": [
-                  1.0,
-                  0.35,
-                  0.55
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "petal4",
-                "input": "petal4_s",
-                "translation": [
-                  0.0325,
-                  0.045,
-                  -0.03031089
-                ],
-                "rotation": [
-                  0.22414386,
-                  -0.83651626,
-                  -0.12940954,
-                  -0.48296297
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "petal4",
-                "input": "petal4",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-petal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 161,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#f28fb5"
-                          ],
-                          [
-                            1,
-                            "#ffc4da"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "petal5_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.0354,
-                      -0.0354
-                    ],
-                    [
-                      0.05,
-                      -0.0
-                    ],
-                    [
-                      0.0354,
-                      0.0354
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "petal5_s",
-                "input": "petal5_raw",
-                "translation": null,
-                "rotation": null,
-                "scale": [
-                  1.0,
-                  0.35,
-                  0.55
-                ]
-              }
-            },
-            {
-              "transform": {
-                "name": "petal5",
-                "input": "petal5_s",
-                "translation": [
-                  0.0675,
-                  0.045,
-                  -0.03031089
-                ],
-                "rotation": [
-                  0.12940954,
-                  -0.48296297,
-                  -0.22414386,
-                  -0.83651626
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "petal5",
-                "input": "petal5",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-petal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 32,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 161,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#f28fb5"
-                          ],
-                          [
-                            1,
-                            "#ffc4da"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.6,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "heart",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.03,
-                  0.0
-                ],
-                "translation": [
-                  0.05,
-                  0.06,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "heart",
-                "input": "heart",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-hay",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.0125
-                        ],
-                        "stagger": 0.25,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 91,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 92,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b08a3a"
-                          ],
-                          [
-                            0.5,
-                            "#d8b45a"
-                          ],
-                          [
-                            1,
-                            "#efd27e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "gr",
-                        "b": 0.003,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal0_s",
-                "input": "petal0_s",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal1_s",
-                "input": "petal1_s",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal2_s",
-                "input": "petal2_s",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal3_s",
-                "input": "petal3_s",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal4_s",
-                "input": "petal4_s",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal5_s",
-                "input": "petal5_s",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal0_raw",
-                "input": "petal0_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal1_raw",
-                "input": "petal1_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal2_raw",
-                "input": "petal2_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal3_raw",
-                "input": "petal3_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal4_raw",
-                "input": "petal4_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "petal5_raw",
-                "input": "petal5_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "40 edits: extrude `pad` profile=[[[0.0, 0.0], [-0.0927, 0.2853], [-0.1857, 0.2356], [-0.2558, 0.1567], [-0.2942, 0.0585], [-0.2963, -0.0469], [-0.2617, -0.1466], [-0.1948, -0.2281], [-0.1038, -0.2815], [-0.0, -0.3], [0.1038, -0.2815], [0.1948, -0.2281], [0.2617, -0.1466], [0.2963, -0.0469], [0.2942, 0.0585], [0.2558, 0.1567], [0.1857, 0.2356], [0.0927, 0.2853]]] height=0.012 twist=0 scale_top=[1.0, 1.0] slices=0 round=0 at=[0.0, 0.0, 0.0] … hidden `petal5_raw`"
-      }
-    ],
-    "current": 2
-  },
+  "parts": [],
   "style": {
-    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -2216,9 +1072,10 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
+    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "derived_from_ops": true
+  "version": 8884
 }

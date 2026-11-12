@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "sp-gravestone",
-  "parts": [],
-  "version": 6171,
+  "next_annotation_id": 0,
   "ops": [
     {
       "extrude": {
+        "height": 0.16,
         "name": "slab_raw",
         "profile": [
           [
@@ -119,7 +121,12 @@
             ]
           ]
         ],
-        "height": 0.16,
+        "rotation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ],
         "scale_top": [
           1.0,
           1.0
@@ -129,28 +136,23 @@
           0.0,
           0.0,
           0.08
-        ],
-        "rotation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
         ]
       }
     },
     {
       "round": {
-        "name": "slab",
         "input": "slab_raw",
         "mode": "chamfer",
+        "name": "slab",
         "radius": 0.02,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "name": "plinth_raw",
         "kind": "box",
+        "name": "plinth_raw",
+        "rotation": null,
         "size": [
           0.78,
           0.12,
@@ -160,23 +162,23 @@
           0.0,
           0.04,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "plinth",
         "input": "plinth_raw",
         "mode": "chamfer",
+        "name": "plinth",
         "radius": 0.02,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "name": "cross_v",
         "kind": "box",
+        "name": "cross_v",
+        "rotation": null,
         "size": [
           0.07,
           0.32,
@@ -186,14 +188,14 @@
           0.0,
           0.58,
           0.085
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cross_h",
         "kind": "box",
+        "name": "cross_h",
+        "rotation": null,
         "size": [
           0.22,
           0.07,
@@ -203,23 +205,23 @@
           0.0,
           0.64,
           0.085
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "group": {
-        "name": "stone_all",
         "inputs": [
           "slab",
           "plinth",
           "cross_v",
           "cross_h"
-        ]
+        ],
+        "name": "stone_all"
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "mound_raw",
         "profile": [
           [
@@ -249,55 +251,46 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 14,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "mound",
         "input": "mound_raw",
-        "translation": [
-          0.0,
-          0.0,
-          0.7
-        ],
+        "name": "mound",
         "rotation": null,
         "scale": [
           0.45,
           0.14,
           0.8
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.7
         ]
       }
     },
     {
       "material": {
-        "name": "stone_all",
-        "input": "stone_all",
         "base_color": [
           0.78,
           0.78,
           0.82,
           1.0
         ],
-        "roughness": null,
+        "input": "stone_all",
         "metalness": null,
+        "name": "stone_all",
         "pbr": {
-          "material": "stone",
-          "params": {
-            "moss": 0.3
-          },
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "p",
@@ -519,25 +512,28 @@
             ],
             "params": {
               "moss": 1.0
-            }
-          }
-        }
+            },
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "stone",
+          "params": {
+            "moss": 0.3
+          },
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "mound",
-        "input": "mound",
         "base_color": null,
-        "roughness": null,
+        "input": "mound",
         "metalness": null,
+        "name": "mound",
         "pbr": {
-          "material": "sp-soil",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -619,57 +615,62 @@
                 "type": "math"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-soil",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "slab_raw",
         "input": "slab_raw",
+        "name": "slab_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "plinth_raw",
         "input": "plinth_raw",
+        "name": "plinth_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "mound_raw",
         "input": "mound_raw",
+        "name": "mound_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "slab",
         "input": "slab",
+        "name": "slab",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "plinth",
         "input": "plinth",
+        "name": "plinth",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cross_v",
         "input": "cross_v",
+        "name": "cross_v",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cross_h",
         "input": "cross_h",
+        "name": "cross_h",
         "visible": false
       }
     },
@@ -679,1431 +680,21 @@
         "parts": [
           "stone_all"
         ],
-        "translation": null,
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ],
         "rotation": [
           0.0,
           0.0,
           0.034899496,
           0.99939084
         ],
-        "pivot": [
-          0.0,
-          0.0,
-          0.0
-        ]
+        "translation": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-gravestone",
-          "parts": [],
-          "version": 6042,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `sp-gravestone`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-gravestone",
-          "parts": [],
-          "version": 6151,
-          "ops": [
-            {
-              "extrude": {
-                "name": "slab_raw",
-                "profile": [
-                  [
-                    [
-                      -0.3,
-                      -0.05
-                    ],
-                    [
-                      0.3,
-                      -0.05
-                    ],
-                    [
-                      0.3,
-                      0.6
-                    ],
-                    [
-                      0.29743347,
-                      0.6391579
-                    ],
-                    [
-                      0.28977776,
-                      0.67764574
-                    ],
-                    [
-                      0.27716386,
-                      0.71480507
-                    ],
-                    [
-                      0.25980762,
-                      0.75
-                    ],
-                    [
-                      0.23800601,
-                      0.7826285
-                    ],
-                    [
-                      0.21213204,
-                      0.81213206
-                    ],
-                    [
-                      0.18262844,
-                      0.838006
-                    ],
-                    [
-                      0.14999999,
-                      0.85980767
-                    ],
-                    [
-                      0.114805035,
-                      0.8771639
-                    ],
-                    [
-                      0.07764573,
-                      0.8897778
-                    ],
-                    [
-                      0.039157875,
-                      0.8974335
-                    ],
-                    [
-                      -1.3113417e-8,
-                      0.90000004
-                    ],
-                    [
-                      -0.039157867,
-                      0.8974335
-                    ],
-                    [
-                      -0.07764572,
-                      0.8897778
-                    ],
-                    [
-                      -0.11480502,
-                      0.8771639
-                    ],
-                    [
-                      -0.15000002,
-                      0.8598076
-                    ],
-                    [
-                      -0.18262844,
-                      0.838006
-                    ],
-                    [
-                      -0.21213204,
-                      0.81213206
-                    ],
-                    [
-                      -0.23800601,
-                      0.7826285
-                    ],
-                    [
-                      -0.25980762,
-                      0.75000006
-                    ],
-                    [
-                      -0.27716386,
-                      0.71480507
-                    ],
-                    [
-                      -0.28977776,
-                      0.67764574
-                    ],
-                    [
-                      -0.29743347,
-                      0.6391579
-                    ],
-                    [
-                      -0.3,
-                      0.6
-                    ]
-                  ]
-                ],
-                "height": 0.16,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.08
-                ],
-                "rotation": [
-                  -0.7071068,
-                  0.0,
-                  0.0,
-                  0.7071068
-                ]
-              }
-            },
-            {
-              "round": {
-                "name": "slab",
-                "input": "slab_raw",
-                "mode": "fillet",
-                "radius": 0.025,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "plinth_raw",
-                "kind": "box",
-                "size": [
-                  0.78,
-                  0.12,
-                  0.32
-                ],
-                "translation": [
-                  0.0,
-                  0.04,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "plinth",
-                "input": "plinth_raw",
-                "mode": "chamfer",
-                "radius": 0.02,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "cross_v",
-                "kind": "box",
-                "size": [
-                  0.07,
-                  0.32,
-                  0.03
-                ],
-                "translation": [
-                  0.0,
-                  0.58,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cross_h",
-                "kind": "box",
-                "size": [
-                  0.22,
-                  0.07,
-                  0.03
-                ],
-                "translation": [
-                  0.0,
-                  0.64,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "stone_all",
-                "inputs": [
-                  "slab",
-                  "plinth",
-                  "cross_v",
-                  "cross_h"
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "mound_raw",
-                "kind": "sphere",
-                "size": [
-                  1.0,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "mound",
-                "input": "mound_raw",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.7
-                ],
-                "rotation": null,
-                "scale": [
-                  0.45,
-                  0.14,
-                  0.8
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "stone_all",
-                "input": "stone_all",
-                "base_color": [
-                  0.78,
-                  0.78,
-                  0.82,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "stone",
-                  "params": {
-                    "moss": 0.3
-                  },
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n_big",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.9,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n_fine",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 1.0,
-                        "name": "cracks",
-                        "size": 1.1,
-                        "type": "worley"
-                      },
-                      {
-                        "gamma": 1.0,
-                        "in": [
-                          0.0,
-                          0.025
-                        ],
-                        "input": "cracks.edge",
-                        "name": "crack_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n_big",
-                        "name": "base",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5d5952"
-                          ],
-                          [
-                            0.45,
-                            "#7a756b"
-                          ],
-                          [
-                            0.75,
-                            "#8c8679"
-                          ],
-                          [
-                            1.0,
-                            "#9a9384"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#3f3b36",
-                        "b": "base2",
-                        "c": "crack_m",
-                        "name": "col_c",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n_fine",
-                        "name": "fine_t",
-                        "to": [
-                          0.9,
-                          1.05
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "col_c",
-                        "b": "fine_t",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "crack_m",
-                        "b": 0.015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n_fine",
-                        "name": "rough",
-                        "to": [
-                          0.75,
-                          0.95
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.85,
-                        "lo": 0.55,
-                        "name": "up",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "moss_n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "up",
-                        "b": "moss_n",
-                        "name": "moss_raw",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.32,
-                          0.45
-                        ],
-                        "input": "moss_amt",
-                        "name": "moss_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n_fine",
-                        "name": "moss_col",
-                        "stops": [
-                          [
-                            0.0,
-                            "#4f6e28"
-                          ],
-                          [
-                            1.0,
-                            "#7f9f3f"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "moss_col",
-                        "name": "moss_out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "moss_m",
-                            "output": "moss_out"
-                          }
-                        ],
-                        "roughness": "rough",
-                        "type": "output"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n_mid",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n_mid",
-                        "name": "mid_t",
-                        "to": [
-                          0.8,
-                          1.12
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "base",
-                        "b": "mid_t",
-                        "name": "base2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "moss_raw",
-                        "b": "$moss",
-                        "name": "moss_amt",
-                        "op": "mul",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {
-                      "moss": 1.0
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "mound",
-                "input": "mound",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-soil",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 5,
-                        "seed": 181,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "pb",
-                        "seed": 182,
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2c1e"
-                          ],
-                          [
-                            1,
-                            "#6a4e34"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#7a7068",
-                        "c": "peb",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.004,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "peb",
-                        "b": 0.004,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "in": [
-                          0.007,
-                          0.012
-                        ],
-                        "input": "pb.f1",
-                        "name": "peb0",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "peb0",
-                        "name": "peb",
-                        "op": "invert",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "slab_raw",
-                "input": "slab_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "plinth_raw",
-                "input": "plinth_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "mound_raw",
-                "input": "mound_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "slab",
-                "input": "slab",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "plinth",
-                "input": "plinth",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cross_v",
-                "input": "cross_v",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cross_h",
-                "input": "cross_h",
-                "visible": false
-              }
-            },
-            {
-              "move": {
-                "name": "lean",
-                "parts": [
-                  "stone_all"
-                ],
-                "translation": null,
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.034899496,
-                  0.99939084
-                ],
-                "pivot": [
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `sp-gravestone`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-gravestone",
-          "parts": [],
-          "version": 6171,
-          "ops": [
-            {
-              "extrude": {
-                "name": "slab_raw",
-                "profile": [
-                  [
-                    [
-                      -0.3,
-                      -0.05
-                    ],
-                    [
-                      0.3,
-                      -0.05
-                    ],
-                    [
-                      0.3,
-                      0.6
-                    ],
-                    [
-                      0.29743347,
-                      0.6391579
-                    ],
-                    [
-                      0.28977776,
-                      0.67764574
-                    ],
-                    [
-                      0.27716386,
-                      0.71480507
-                    ],
-                    [
-                      0.25980762,
-                      0.75
-                    ],
-                    [
-                      0.23800601,
-                      0.7826285
-                    ],
-                    [
-                      0.21213204,
-                      0.81213206
-                    ],
-                    [
-                      0.18262844,
-                      0.838006
-                    ],
-                    [
-                      0.14999999,
-                      0.85980767
-                    ],
-                    [
-                      0.114805035,
-                      0.8771639
-                    ],
-                    [
-                      0.07764573,
-                      0.8897778
-                    ],
-                    [
-                      0.039157875,
-                      0.8974335
-                    ],
-                    [
-                      -1.3113417e-8,
-                      0.90000004
-                    ],
-                    [
-                      -0.039157867,
-                      0.8974335
-                    ],
-                    [
-                      -0.07764572,
-                      0.8897778
-                    ],
-                    [
-                      -0.11480502,
-                      0.8771639
-                    ],
-                    [
-                      -0.15000002,
-                      0.8598076
-                    ],
-                    [
-                      -0.18262844,
-                      0.838006
-                    ],
-                    [
-                      -0.21213204,
-                      0.81213206
-                    ],
-                    [
-                      -0.23800601,
-                      0.7826285
-                    ],
-                    [
-                      -0.25980762,
-                      0.75000006
-                    ],
-                    [
-                      -0.27716386,
-                      0.71480507
-                    ],
-                    [
-                      -0.28977776,
-                      0.67764574
-                    ],
-                    [
-                      -0.29743347,
-                      0.6391579
-                    ],
-                    [
-                      -0.3,
-                      0.6
-                    ]
-                  ]
-                ],
-                "height": 0.16,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.08
-                ],
-                "rotation": [
-                  -0.7071068,
-                  0.0,
-                  0.0,
-                  0.7071068
-                ]
-              }
-            },
-            {
-              "round": {
-                "name": "slab",
-                "input": "slab_raw",
-                "mode": "chamfer",
-                "radius": 0.02,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "plinth_raw",
-                "kind": "box",
-                "size": [
-                  0.78,
-                  0.12,
-                  0.32
-                ],
-                "translation": [
-                  0.0,
-                  0.04,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "plinth",
-                "input": "plinth_raw",
-                "mode": "chamfer",
-                "radius": 0.02,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "cross_v",
-                "kind": "box",
-                "size": [
-                  0.07,
-                  0.32,
-                  0.03
-                ],
-                "translation": [
-                  0.0,
-                  0.58,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cross_h",
-                "kind": "box",
-                "size": [
-                  0.22,
-                  0.07,
-                  0.03
-                ],
-                "translation": [
-                  0.0,
-                  0.64,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "stone_all",
-                "inputs": [
-                  "slab",
-                  "plinth",
-                  "cross_v",
-                  "cross_h"
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "mound_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.3
-                    ],
-                    [
-                      1.0,
-                      -0.3
-                    ],
-                    [
-                      1.0,
-                      0.0
-                    ],
-                    [
-                      0.85,
-                      0.55
-                    ],
-                    [
-                      0.5,
-                      0.9
-                    ],
-                    [
-                      0.0,
-                      1.0
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 14,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "mound",
-                "input": "mound_raw",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.7
-                ],
-                "rotation": null,
-                "scale": [
-                  0.45,
-                  0.14,
-                  0.8
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "stone_all",
-                "input": "stone_all",
-                "base_color": [
-                  0.78,
-                  0.78,
-                  0.82,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "stone",
-                  "params": {
-                    "moss": 0.3
-                  },
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n_big",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.9,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n_fine",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 1.0,
-                        "name": "cracks",
-                        "size": 1.1,
-                        "type": "worley"
-                      },
-                      {
-                        "gamma": 1.0,
-                        "in": [
-                          0.0,
-                          0.025
-                        ],
-                        "input": "cracks.edge",
-                        "name": "crack_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n_big",
-                        "name": "base",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5d5952"
-                          ],
-                          [
-                            0.45,
-                            "#7a756b"
-                          ],
-                          [
-                            0.75,
-                            "#8c8679"
-                          ],
-                          [
-                            1.0,
-                            "#9a9384"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#3f3b36",
-                        "b": "base2",
-                        "c": "crack_m",
-                        "name": "col_c",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n_fine",
-                        "name": "fine_t",
-                        "to": [
-                          0.9,
-                          1.05
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "col_c",
-                        "b": "fine_t",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "crack_m",
-                        "b": 0.015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n_fine",
-                        "name": "rough",
-                        "to": [
-                          0.75,
-                          0.95
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.85,
-                        "lo": 0.55,
-                        "name": "up",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "moss_n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "up",
-                        "b": "moss_n",
-                        "name": "moss_raw",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.32,
-                          0.45
-                        ],
-                        "input": "moss_amt",
-                        "name": "moss_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n_fine",
-                        "name": "moss_col",
-                        "stops": [
-                          [
-                            0.0,
-                            "#4f6e28"
-                          ],
-                          [
-                            1.0,
-                            "#7f9f3f"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "moss_col",
-                        "name": "moss_out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "moss_m",
-                            "output": "moss_out"
-                          }
-                        ],
-                        "roughness": "rough",
-                        "type": "output"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n_mid",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n_mid",
-                        "name": "mid_t",
-                        "to": [
-                          0.8,
-                          1.12
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "base",
-                        "b": "mid_t",
-                        "name": "base2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "moss_raw",
-                        "b": "$moss",
-                        "name": "moss_amt",
-                        "op": "mul",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {
-                      "moss": 1.0
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "mound",
-                "input": "mound",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-soil",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 5,
-                        "seed": 181,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "pb",
-                        "seed": 182,
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2c1e"
-                          ],
-                          [
-                            1,
-                            "#6a4e34"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#7a7068",
-                        "c": "peb",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.004,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "peb",
-                        "b": 0.004,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "in": [
-                          0.007,
-                          0.012
-                        ],
-                        "input": "pb.f1",
-                        "name": "peb0",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "peb0",
-                        "name": "peb",
-                        "op": "invert",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "slab_raw",
-                "input": "slab_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "plinth_raw",
-                "input": "plinth_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "mound_raw",
-                "input": "mound_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "slab",
-                "input": "slab",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "plinth",
-                "input": "plinth",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cross_v",
-                "input": "cross_v",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cross_h",
-                "input": "cross_h",
-                "visible": false
-              }
-            },
-            {
-              "move": {
-                "name": "lean",
-                "parts": [
-                  "stone_all"
-                ],
-                "translation": null,
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.034899496,
-                  0.99939084
-                ],
-                "pivot": [
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "19 edits: extrude `slab_raw` profile=[[[-0.3, -0.05], [0.3, -0.05], [0.3, 0.6], [0.29743347, 0.6391579], [0.28977776, 0.67764574], [0.27716386, 0.71480507], [0.25980762, 0.75], [0.23800601, 0.7826285], [0.21213204, 0.81213206], [0.18262844, 0.838006], [0.14999999, 0.85980767], [0.114805035, 0.8771639], [0.07764573, 0.8897778], [0.039157875, 0.8974335], [-1.3113417e-8, 0.90000004], [-0.039157867, 0.8974335], [-0.07764572, 0.8897778], [-0.11480502, 0.8771639], [-0.15000002, 0.8598076], [-0.18262844, 0.838006], [-0.21213204, 0.81213206], [-0.23800601, 0.7826285], [-0.25980762, 0.75000006], [-0.27716386, 0.71480507], [-0.28977776, 0.67764574], [-0.29743347, 0.6391579], [-0.3, 0.6]]] height=0.16 twist=0 scale_top=[1.0, 1.0] slices=0 round=0 at=[0.0, 0.0, 0.08] rot=[-0.7071068, 0.0, 0.0, 0.7071068] … move `lean`"
-      }
-    ],
-    "current": 2
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 6171
 }

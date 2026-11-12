@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "de-sack",
-  "parts": [],
-  "version": 16610,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
+        "kind": "sphere",
         "name": "s0_raw",
-        "kind": "sphere",
+        "rotation": null,
         "size": [
           0.09,
           0.0,
@@ -17,14 +19,14 @@
           -0.165,
           0.09,
           -0.115
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
+        "kind": "sphere",
         "name": "s1_raw",
-        "kind": "sphere",
+        "rotation": null,
         "size": [
           0.09,
           0.0,
@@ -34,14 +36,14 @@
           0.165,
           0.09,
           -0.115
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s2_raw",
         "kind": "sphere",
+        "name": "s2_raw",
+        "rotation": null,
         "size": [
           0.09,
           0.0,
@@ -51,14 +53,14 @@
           -0.165,
           0.09,
           0.115
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s3_raw",
         "kind": "sphere",
+        "name": "s3_raw",
+        "rotation": null,
         "size": [
           0.09,
           0.0,
@@ -68,14 +70,14 @@
           0.165,
           0.09,
           0.115
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s4_raw",
         "kind": "sphere",
+        "name": "s4_raw",
+        "rotation": null,
         "size": [
           0.13,
           0.0,
@@ -85,14 +87,14 @@
           -0.13,
           0.3,
           -0.06
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s5_raw",
         "kind": "sphere",
+        "name": "s5_raw",
+        "rotation": null,
         "size": [
           0.12,
           0.0,
@@ -102,14 +104,14 @@
           0.13,
           0.32,
           -0.07
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s6_raw",
         "kind": "sphere",
+        "name": "s6_raw",
+        "rotation": null,
         "size": [
           0.12,
           0.0,
@@ -119,14 +121,14 @@
           -0.12,
           0.31,
           0.08
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s7_raw",
         "kind": "sphere",
+        "name": "s7_raw",
+        "rotation": null,
         "size": [
           0.13,
           0.0,
@@ -136,14 +138,14 @@
           0.12,
           0.29,
           0.07
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s8_raw",
         "kind": "sphere",
+        "name": "s8_raw",
+        "rotation": null,
         "size": [
           0.08,
           0.0,
@@ -153,14 +155,14 @@
           0.0,
           0.53,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "s9_raw",
         "kind": "sphere",
+        "name": "s9_raw",
+        "rotation": null,
         "size": [
           0.17,
           0.0,
@@ -170,13 +172,11 @@
           0.0,
           0.4,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "hull": {
-        "name": "body_hull_raw",
         "inputs": [
           "s0_raw",
           "s1_raw",
@@ -188,11 +188,13 @@
           "s7_raw",
           "s8_raw",
           "s9_raw"
-        ]
+        ],
+        "name": "body_hull_raw"
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "tie",
         "profile": [
           [
@@ -214,18 +216,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "tuft",
         "profile": [
           [
@@ -263,21 +265,25 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 7,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "tuft_t",
         "input": "tuft",
-        "translation": null,
+        "name": "tuft_t",
+        "pivot": [
+          0.0,
+          0.58,
+          0.0
+        ],
+        "relative": true,
         "rotation": [
           -0.012113084,
           0.17322518,
@@ -285,37 +291,27 @@
           0.9824088
         ],
         "scale": null,
-        "relative": true,
-        "pivot": [
-          0.0,
-          0.58,
-          0.0
-        ]
+        "translation": null
       }
     },
     {
       "group": {
-        "name": "top",
         "inputs": [
           "tie",
           "tuft_t"
-        ]
+        ],
+        "name": "top"
       }
     },
     {
       "material": {
-        "name": "tie",
+        "base_color": null,
         "input": "tie",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "tie",
         "pbr": {
-          "material": "de-linen",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -461,25 +457,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-linen",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "tuft",
-        "input": "tuft",
         "base_color": null,
-        "roughness": null,
+        "input": "tuft",
         "metalness": null,
+        "name": "tuft",
         "pbr": {
-          "material": "de-linen",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -625,130 +621,130 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-linen",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "s0_raw",
         "input": "s0_raw",
+        "name": "s0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s1_raw",
         "input": "s1_raw",
+        "name": "s1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s2_raw",
         "input": "s2_raw",
+        "name": "s2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s3_raw",
         "input": "s3_raw",
+        "name": "s3_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s4_raw",
         "input": "s4_raw",
+        "name": "s4_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s5_raw",
         "input": "s5_raw",
+        "name": "s5_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s6_raw",
         "input": "s6_raw",
+        "name": "s6_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s7_raw",
         "input": "s7_raw",
+        "name": "s7_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s8_raw",
         "input": "s8_raw",
+        "name": "s8_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "s9_raw",
         "input": "s9_raw",
+        "name": "s9_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "body_hull_raw",
         "input": "body_hull_raw",
+        "name": "body_hull_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tie",
         "input": "tie",
+        "name": "tie",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tuft",
         "input": "tuft",
+        "name": "tuft",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tuft_t",
         "input": "tuft_t",
+        "name": "tuft_t",
         "visible": false
       }
     },
     {
       "decimate": {
-        "name": "body",
         "input": "body_hull_raw",
+        "name": "body",
         "tris": 220
       }
     },
     {
       "material": {
-        "name": "body",
-        "input": "body",
         "base_color": null,
-        "roughness": null,
+        "input": "body",
         "metalness": null,
+        "name": "body",
         "pbr": {
-          "material": "de-cloth",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -894,965 +890,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-cloth",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "model",
-          "parts": [],
-          "version": 1,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "de-sack",
-          "parts": [],
-          "version": 16504,
-          "ops": [
-            {
-              "primitive": {
-                "name": "s0_raw",
-                "kind": "sphere",
-                "size": [
-                  0.09,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  -0.165,
-                  0.09,
-                  -0.115
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s1_raw",
-                "kind": "sphere",
-                "size": [
-                  0.09,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  0.165,
-                  0.09,
-                  -0.115
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s2_raw",
-                "kind": "sphere",
-                "size": [
-                  0.09,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  -0.165,
-                  0.09,
-                  0.115
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s3_raw",
-                "kind": "sphere",
-                "size": [
-                  0.09,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  0.165,
-                  0.09,
-                  0.115
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s4_raw",
-                "kind": "sphere",
-                "size": [
-                  0.13,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  -0.13,
-                  0.3,
-                  -0.06
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s5_raw",
-                "kind": "sphere",
-                "size": [
-                  0.12,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  0.13,
-                  0.32,
-                  -0.07
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s6_raw",
-                "kind": "sphere",
-                "size": [
-                  0.12,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  -0.12,
-                  0.31,
-                  0.08
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s7_raw",
-                "kind": "sphere",
-                "size": [
-                  0.13,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  0.12,
-                  0.29,
-                  0.07
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s8_raw",
-                "kind": "sphere",
-                "size": [
-                  0.08,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.53,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "s9_raw",
-                "kind": "sphere",
-                "size": [
-                  0.17,
-                  0.0,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.4,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "hull": {
-                "name": "body_hull_raw",
-                "inputs": [
-                  "s0_raw",
-                  "s1_raw",
-                  "s2_raw",
-                  "s3_raw",
-                  "s4_raw",
-                  "s5_raw",
-                  "s6_raw",
-                  "s7_raw",
-                  "s8_raw",
-                  "s9_raw"
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "tie",
-                "profile": [
-                  [
-                    [
-                      0.048,
-                      0.585
-                    ],
-                    [
-                      0.075,
-                      0.585
-                    ],
-                    [
-                      0.075,
-                      0.615
-                    ],
-                    [
-                      0.048,
-                      0.615
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "tuft",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.56
-                    ],
-                    [
-                      0.05,
-                      0.58
-                    ],
-                    [
-                      0.055,
-                      0.62
-                    ],
-                    [
-                      0.1,
-                      0.7
-                    ],
-                    [
-                      0.125,
-                      0.755
-                    ],
-                    [
-                      0.09,
-                      0.775
-                    ],
-                    [
-                      0.04,
-                      0.74
-                    ],
-                    [
-                      0.0,
-                      0.73
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 7,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "tuft_t",
-                "input": "tuft",
-                "translation": null,
-                "rotation": [
-                  -0.012113084,
-                  0.17322518,
-                  0.068696715,
-                  0.9824088
-                ],
-                "scale": null,
-                "relative": true,
-                "pivot": [
-                  0.0,
-                  0.58,
-                  0.0
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "top",
-                "inputs": [
-                  "tie",
-                  "tuft_t"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "tie",
-                "input": "tie",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "tuft",
-                "input": "tuft",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "s0_raw",
-                "input": "s0_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s1_raw",
-                "input": "s1_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s2_raw",
-                "input": "s2_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s3_raw",
-                "input": "s3_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s4_raw",
-                "input": "s4_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s5_raw",
-                "input": "s5_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s6_raw",
-                "input": "s6_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s7_raw",
-                "input": "s7_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s8_raw",
-                "input": "s8_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "s9_raw",
-                "input": "s9_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "body_hull_raw",
-                "input": "body_hull_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tie",
-                "input": "tie",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tuft",
-                "input": "tuft",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tuft_t",
-                "input": "tuft_t",
-                "visible": false
-              }
-            },
-            {
-              "decimate": {
-                "name": "body",
-                "input": "body_hull_raw",
-                "tris": 220
-              }
-            },
-            {
-              "material": {
-                "name": "body",
-                "input": "body",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-cloth",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 1,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 21,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2f4466"
-                          ],
-                          [
-                            1.0,
-                            "#4f6f9e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#3a3a3a",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: decimate `body` <- `body_hull_raw` tris=220 … material `body` <- `body` pbr=de-cloth",
-        "author": "lite-props"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 16610
 }

@@ -1,41 +1,37 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-hay-bale",
-  "parts": [],
-  "version": 16753,
+  "next_annotation_id": 0,
   "ops": [
     {
       "transform": {
-        "name": "bale",
         "input": "bale_rv",
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
+        "name": "bale",
         "rotation": [
           0.7071068,
           0.0,
           0.0,
           0.7071068
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ]
       }
     },
     {
       "material": {
-        "name": "bale",
-        "input": "bale",
         "base_color": null,
-        "roughness": null,
+        "input": "bale",
         "metalness": null,
+        "name": "bale",
         "pbr": {
-          "material": "zn-hay",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -103,13 +99,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 0.5
+          },
+          "material": "zn-hay",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "twine0_raw",
         "profile": [
           [
@@ -131,48 +133,42 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "twine0",
         "input": "twine0_raw",
+        "name": "twine0",
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ],
+        "scale": null,
         "translation": [
           0.0,
           0.0,
           -0.3
-        ],
-        "rotation": [
-          0.70710677,
-          0.0,
-          0.0,
-          0.70710677
-        ],
-        "scale": null
+        ]
       }
     },
     {
       "material": {
-        "name": "twine0",
-        "input": "twine0",
         "base_color": null,
-        "roughness": null,
+        "input": "twine0",
         "metalness": null,
+        "name": "twine0",
         "pbr": {
-          "material": "zn-endgrain",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -230,13 +226,19 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "zn-endgrain",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "twine1_raw",
         "profile": [
           [
@@ -258,48 +260,42 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "twine1",
         "input": "twine1_raw",
-        "translation": [
-          0.0,
-          0.0,
-          0.3
-        ],
+        "name": "twine1",
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0,
+          0.0,
+          0.3
+        ]
       }
     },
     {
       "material": {
-        "name": "twine1",
-        "input": "twine1",
         "base_color": null,
-        "roughness": null,
+        "input": "twine1",
         "metalness": null,
+        "name": "twine1",
         "pbr": {
-          "material": "zn-endgrain",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -357,27 +353,33 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "zn-endgrain",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "twine0_raw",
         "input": "twine0_raw",
+        "name": "twine0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "twine1_raw",
         "input": "twine1_raw",
+        "name": "twine1_raw",
         "visible": false
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "bale_rv",
         "profile": [
           [
@@ -415,514 +417,25 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "visibility": {
-        "name": "bale_rv",
         "input": "bale_rv",
+        "name": "bale_rv",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-hay-bale",
-          "parts": [],
-          "version": 6491,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `zn-hay-bale`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-hay-bale",
-          "parts": [],
-          "version": 16723,
-          "ops": [
-            {
-              "transform": {
-                "name": "bale",
-                "input": "bale_rv",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.7071068,
-                  0.0,
-                  0.0,
-                  0.7071068
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "bale",
-                "input": "bale",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-hay",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.0125
-                        ],
-                        "stagger": 0.25,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 91,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 92,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b08a3a"
-                          ],
-                          [
-                            0.5,
-                            "#d8b45a"
-                          ],
-                          [
-                            1,
-                            "#efd27e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "gr",
-                        "b": 0.003,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "twine0_raw",
-                "profile": [
-                  [
-                    [
-                      0.6,
-                      -0.02
-                    ],
-                    [
-                      0.615,
-                      -0.02
-                    ],
-                    [
-                      0.615,
-                      0.02
-                    ],
-                    [
-                      0.6,
-                      0.02
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 12,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "twine0",
-                "input": "twine0_raw",
-                "translation": [
-                  0.0,
-                  0.0,
-                  -0.3
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "twine0",
-                "input": "twine0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-endgrain",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bn",
-                        "octaves": 2,
-                        "seed": 22,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "fn",
-                        "b": "bn",
-                        "c": 0.5,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b08354"
-                          ],
-                          [
-                            0.5,
-                            "#cfa671"
-                          ],
-                          [
-                            1,
-                            "#e0bd88"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.85,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "revolve": {
-                "name": "twine1_raw",
-                "profile": [
-                  [
-                    [
-                      0.6,
-                      -0.02
-                    ],
-                    [
-                      0.615,
-                      -0.02
-                    ],
-                    [
-                      0.615,
-                      0.02
-                    ],
-                    [
-                      0.6,
-                      0.02
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 12,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "twine1",
-                "input": "twine1_raw",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.3
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "twine1",
-                "input": "twine1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-endgrain",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bn",
-                        "octaves": 2,
-                        "seed": 22,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "fn",
-                        "b": "bn",
-                        "c": 0.5,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b08354"
-                          ],
-                          [
-                            0.5,
-                            "#cfa671"
-                          ],
-                          [
-                            1,
-                            "#e0bd88"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.85,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "twine0_raw",
-                "input": "twine0_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "twine1_raw",
-                "input": "twine1_raw",
-                "visible": false
-              }
-            },
-            {
-              "revolve": {
-                "name": "bale_rv",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.55
-                    ],
-                    [
-                      0.48,
-                      -0.55
-                    ],
-                    [
-                      0.565,
-                      -0.515
-                    ],
-                    [
-                      0.6,
-                      -0.43
-                    ],
-                    [
-                      0.6,
-                      0.43
-                    ],
-                    [
-                      0.565,
-                      0.515
-                    ],
-                    [
-                      0.48,
-                      0.55
-                    ],
-                    [
-                      0.0,
-                      0.55
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 12,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "visibility": {
-                "name": "bale_rv",
-                "input": "bale_rv",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "op delete `bale_raw`",
-        "author": "lite-nature"
-      }
-    ],
-    "current": 1
-  },
+  "parts": [],
   "style": {
-    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -937,9 +450,10 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
+    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "derived_from_ops": true
+  "version": 16753
 }

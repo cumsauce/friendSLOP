@@ -1,20 +1,22 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-hand",
-  "parts": [],
-  "version": 20881,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
+        "blend": 0.015,
         "name": "hand_raw",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.0,
               0.0,
               0.0
             ],
+            "shape": "ellipsoid",
             "size": [
               0.07315,
               0.077,
@@ -22,7 +24,6 @@
             ]
           },
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.01155,
@@ -30,40 +31,35 @@
             ],
             "radius": [
               0.02926
-            ]
+            ],
+            "shape": "sphere"
           }
-        ],
-        "blend": 0.015
+        ]
       }
     },
     {
       "decimate": {
-        "name": "hand",
         "input": "hand_raw",
+        "name": "hand",
         "tris": 60
       }
     },
     {
       "visibility": {
-        "name": "hand_raw",
         "input": "hand_raw",
+        "name": "hand_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "hand",
-        "input": "hand",
         "base_color": null,
-        "roughness": null,
+        "input": "hand",
         "metalness": null,
+        "name": "hand",
         "pbr": {
-          "material": "pp-felt",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -153,205 +149,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.2
+          },
+          "material": "pp-felt",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hand",
-          "parts": [],
-          "version": 20504,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-hand`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hand",
-          "parts": [],
-          "version": 20512,
-          "ops": [
-            {
-              "sdf": {
-                "name": "hand_raw",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.0,
-                      0.0,
-                      0.0
-                    ],
-                    "size": [
-                      0.07315,
-                      0.077,
-                      0.0693
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.01155,
-                      -0.05775
-                    ],
-                    "radius": [
-                      0.02926
-                    ]
-                  }
-                ],
-                "blend": 0.015
-              }
-            },
-            {
-              "decimate": {
-                "name": "hand",
-                "input": "hand_raw",
-                "tris": 60
-              }
-            },
-            {
-              "visibility": {
-                "name": "hand_raw",
-                "input": "hand_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "hand",
-                "input": "hand",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-felt",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "material `hand` <- `hand` pbr=pp-felt",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20881
 }

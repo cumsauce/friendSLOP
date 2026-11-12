@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-log-seat",
-  "parts": [],
-  "version": 8274,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "log_raw",
         "kind": "cylinder",
+        "name": "log_raw",
+        "rotation": null,
         "size": [
           0.2,
           1.5,
@@ -17,42 +19,36 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "log",
         "input": "log_raw",
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
+        "name": "log",
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ]
       }
     },
     {
       "material": {
-        "name": "log",
-        "input": "log",
         "base_color": null,
-        "roughness": null,
+        "input": "log",
         "metalness": null,
+        "name": "log",
         "pbr": {
-          "material": "zn-bark",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -177,15 +173,21 @@
                 "type": "dir_blur"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "zn-bark",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "primitive": {
-        "name": "enda_raw",
         "kind": "cylinder",
+        "name": "enda_raw",
+        "rotation": null,
         "size": [
           0.19,
           0.02,
@@ -195,42 +197,36 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "enda",
         "input": "enda_raw",
+        "name": "enda",
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ],
+        "scale": null,
         "translation": [
           0.0,
           0.0,
           -0.755
-        ],
-        "rotation": [
-          0.70710677,
-          0.0,
-          0.0,
-          0.70710677
-        ],
-        "scale": null
+        ]
       }
     },
     {
       "material": {
-        "name": "enda",
-        "input": "enda",
         "base_color": null,
-        "roughness": null,
+        "input": "enda",
         "metalness": null,
+        "name": "enda",
         "pbr": {
-          "material": "zn-endgrain",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -288,15 +284,21 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "zn-endgrain",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "primitive": {
-        "name": "endb_raw",
         "kind": "cylinder",
+        "name": "endb_raw",
+        "rotation": null,
         "size": [
           0.19,
           0.02,
@@ -306,42 +308,36 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "endb",
         "input": "endb_raw",
-        "translation": [
-          0.0,
-          0.0,
-          0.755
-        ],
+        "name": "endb",
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0,
+          0.0,
+          0.755
+        ]
       }
     },
     {
       "material": {
-        "name": "endb",
-        "input": "endb",
         "base_color": null,
-        "roughness": null,
+        "input": "endb",
         "metalness": null,
+        "name": "endb",
         "pbr": {
-          "material": "zn-endgrain",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -399,551 +395,40 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "zn-endgrain",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "log_raw",
         "input": "log_raw",
+        "name": "log_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "enda_raw",
         "input": "enda_raw",
+        "name": "enda_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "endb_raw",
         "input": "endb_raw",
+        "name": "endb_raw",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-log-seat",
-          "parts": [],
-          "version": 8260,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `zn-log-seat`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-log-seat",
-          "parts": [],
-          "version": 8262,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-log-seat",
-          "parts": [],
-          "version": 8274,
-          "ops": [
-            {
-              "primitive": {
-                "name": "log_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.2,
-                  1.5,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "log",
-                "input": "log_raw",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "log",
-                "input": "log",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-bark",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 5,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.04,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "id": "wo.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 7,
-                        "type": "random"
-                      },
-                      {
-                        "a": "wo.edge",
-                        "b": 0.003,
-                        "c": 0.02,
-                        "name": "fur",
-                        "op": "smoothstep",
-                        "type": "math"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.5,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "wc",
-                        "stops": [
-                          [
-                            0,
-                            "#3f2b1b"
-                          ],
-                          [
-                            0.55,
-                            "#664630"
-                          ],
-                          [
-                            1,
-                            "#86643f"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#22170e",
-                        "b": "wc",
-                        "c": "fur",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fur",
-                        "b": 0.01,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.003,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "st",
-                        "scale": [
-                          1,
-                          4
-                        ],
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "st",
-                        "name": "wo",
-                        "seed": 6,
-                        "size": 0.25,
-                        "type": "worley"
-                      },
-                      {
-                        "name": "fn0",
-                        "octaves": 3,
-                        "seed": 8,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn0",
-                        "length": 0.12,
-                        "name": "fn",
-                        "type": "dir_blur"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "enda_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.19,
-                  0.02,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "enda",
-                "input": "enda_raw",
-                "translation": [
-                  0.0,
-                  0.0,
-                  -0.755
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "enda",
-                "input": "enda",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-endgrain",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bn",
-                        "octaves": 2,
-                        "seed": 22,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "fn",
-                        "b": "bn",
-                        "c": 0.5,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b08354"
-                          ],
-                          [
-                            0.5,
-                            "#cfa671"
-                          ],
-                          [
-                            1,
-                            "#e0bd88"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.85,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "endb_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.19,
-                  0.02,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "endb",
-                "input": "endb_raw",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.755
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "endb",
-                "input": "endb",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-endgrain",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bn",
-                        "octaves": 2,
-                        "seed": 22,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "fn",
-                        "b": "bn",
-                        "c": 0.5,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b08354"
-                          ],
-                          [
-                            0.5,
-                            "#cfa671"
-                          ],
-                          [
-                            1,
-                            "#e0bd88"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.85,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "log_raw",
-                "input": "log_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "enda_raw",
-                "input": "enda_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "endb_raw",
-                "input": "endb_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "12 edits: primitive `log_raw` (cylinder) size=[0.2, 1.5, 0.0] at=[0.0, 0.0, 0.0] … hidden `endb_raw`"
-      }
-    ],
-    "current": 2
-  },
+  "parts": [],
   "style": {
-    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -958,9 +443,10 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
+    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "derived_from_ops": true
+  "version": 8274
 }

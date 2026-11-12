@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "sp-heli-rotor",
-  "parts": [],
-  "version": 10748,
+  "next_annotation_id": 0,
   "ops": [
     {
       "extrude": {
+        "height": 0.06,
         "name": "blade_0",
         "profile": [
           [
@@ -31,7 +33,12 @@
             ]
           ]
         ],
-        "height": 0.06,
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
         "scale_top": [
           1.0,
           1.0
@@ -41,17 +48,12 @@
           0.0,
           -0.03,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0,
-          1.0
         ]
       }
     },
     {
       "extrude": {
+        "height": 0.06,
         "name": "blade_0o",
         "profile": [
           [
@@ -77,7 +79,12 @@
             ]
           ]
         ],
-        "height": 0.06,
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
         "scale_top": [
           1.0,
           1.0
@@ -87,17 +94,12 @@
           0.0,
           -0.03,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.0,
-          1.0
         ]
       }
     },
     {
       "extrude": {
+        "height": 0.06,
         "name": "blade_1",
         "profile": [
           [
@@ -123,7 +125,12 @@
             ]
           ]
         ],
-        "height": 0.06,
+        "rotation": [
+          0.0,
+          0.70710677,
+          0.0,
+          0.70710677
+        ],
         "scale_top": [
           1.0,
           1.0
@@ -133,17 +140,12 @@
           0.0,
           -0.03,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.70710677,
-          0.0,
-          0.70710677
         ]
       }
     },
     {
       "extrude": {
+        "height": 0.06,
         "name": "blade_1o",
         "profile": [
           [
@@ -169,7 +171,12 @@
             ]
           ]
         ],
-        "height": 0.06,
+        "rotation": [
+          0.0,
+          0.70710677,
+          0.0,
+          0.70710677
+        ],
         "scale_top": [
           1.0,
           1.0
@@ -179,17 +186,12 @@
           0.0,
           -0.03,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.70710677,
-          0.0,
-          0.70710677
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "cap",
         "profile": [
           [
@@ -215,46 +217,40 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "group": {
-        "name": "blades",
         "inputs": [
           "blade_0",
           "blade_0o",
           "blade_1",
           "blade_1o"
-        ]
+        ],
+        "name": "blades"
       }
     },
     {
       "material": {
-        "name": "blades",
-        "input": "blades",
         "base_color": [
           0.2,
           0.2,
           0.22,
           1.0
         ],
-        "roughness": null,
+        "input": "blades",
         "metalness": null,
+        "name": "blades",
         "pbr": {
-          "material": "sp-metal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -369,30 +365,30 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-metal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap",
-        "input": "cap",
         "base_color": [
           0.3,
           0.3,
           0.33,
           1.0
         ],
-        "roughness": null,
+        "input": "cap",
         "metalness": null,
+        "name": "cap",
         "pbr": {
-          "material": "sp-metal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -507,1168 +503,45 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-metal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "blade_0",
         "input": "blade_0",
+        "name": "blade_0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "blade_0o",
         "input": "blade_0o",
+        "name": "blade_0o",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "blade_1",
         "input": "blade_1",
+        "name": "blade_1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "blade_1o",
         "input": "blade_1o",
+        "name": "blade_1o",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-heli-rotor",
-          "parts": [],
-          "version": 10616,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `sp-heli-rotor`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-heli-rotor",
-          "parts": [],
-          "version": 10735,
-          "ops": [
-            {
-              "extrude": {
-                "name": "blade_0",
-                "profile": [
-                  [
-                    [
-                      0.25,
-                      -0.2
-                    ],
-                    [
-                      4.5,
-                      -0.15
-                    ],
-                    [
-                      4.55,
-                      0.0
-                    ],
-                    [
-                      4.5,
-                      0.15
-                    ],
-                    [
-                      0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  1.0
-                ]
-              }
-            },
-            {
-              "extrude": {
-                "name": "blade_0o",
-                "profile": [
-                  [
-                    [
-                      -0.25,
-                      -0.2
-                    ],
-                    [
-                      -4.5,
-                      -0.15
-                    ],
-                    [
-                      -4.55,
-                      0.0
-                    ],
-                    [
-                      -4.5,
-                      0.15
-                    ],
-                    [
-                      -0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  1.0
-                ]
-              }
-            },
-            {
-              "extrude": {
-                "name": "blade_1",
-                "profile": [
-                  [
-                    [
-                      0.25,
-                      -0.2
-                    ],
-                    [
-                      4.5,
-                      -0.15
-                    ],
-                    [
-                      4.55,
-                      0.0
-                    ],
-                    [
-                      4.5,
-                      0.15
-                    ],
-                    [
-                      0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.70710677,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "extrude": {
-                "name": "blade_1o",
-                "profile": [
-                  [
-                    [
-                      -0.25,
-                      -0.2
-                    ],
-                    [
-                      -4.5,
-                      -0.15
-                    ],
-                    [
-                      -4.55,
-                      0.0
-                    ],
-                    [
-                      -4.5,
-                      0.15
-                    ],
-                    [
-                      -0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.70710677,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "cap",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.08
-                    ],
-                    [
-                      0.3,
-                      -0.08
-                    ],
-                    [
-                      0.28,
-                      0.06
-                    ],
-                    [
-                      0.12,
-                      0.14
-                    ],
-                    [
-                      0.0,
-                      0.15
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "blades",
-                "inputs": [
-                  "blade_0",
-                  "blade_0o",
-                  "blade_1",
-                  "blade_1o"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "blades",
-                "input": "blades",
-                "base_color": [
-                  0.2,
-                  0.2,
-                  0.22,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap",
-                "input": "cap",
-                "base_color": [
-                  0.3,
-                  0.3,
-                  0.33,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_0",
-                "input": "blade_0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_0o",
-                "input": "blade_0o",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_1",
-                "input": "blade_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_1o",
-                "input": "blade_1o",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `sp-heli-rotor`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-heli-rotor",
-          "parts": [],
-          "version": 10748,
-          "ops": [
-            {
-              "extrude": {
-                "name": "blade_0",
-                "profile": [
-                  [
-                    [
-                      0.25,
-                      -0.2
-                    ],
-                    [
-                      4.5,
-                      -0.15
-                    ],
-                    [
-                      4.55,
-                      0.0
-                    ],
-                    [
-                      4.5,
-                      0.15
-                    ],
-                    [
-                      0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  1.0
-                ]
-              }
-            },
-            {
-              "extrude": {
-                "name": "blade_0o",
-                "profile": [
-                  [
-                    [
-                      -0.25,
-                      -0.2
-                    ],
-                    [
-                      -4.5,
-                      -0.15
-                    ],
-                    [
-                      -4.55,
-                      0.0
-                    ],
-                    [
-                      -4.5,
-                      0.15
-                    ],
-                    [
-                      -0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  1.0
-                ]
-              }
-            },
-            {
-              "extrude": {
-                "name": "blade_1",
-                "profile": [
-                  [
-                    [
-                      0.25,
-                      -0.2
-                    ],
-                    [
-                      4.5,
-                      -0.15
-                    ],
-                    [
-                      4.55,
-                      0.0
-                    ],
-                    [
-                      4.5,
-                      0.15
-                    ],
-                    [
-                      0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.70710677,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "extrude": {
-                "name": "blade_1o",
-                "profile": [
-                  [
-                    [
-                      -0.25,
-                      -0.2
-                    ],
-                    [
-                      -4.5,
-                      -0.15
-                    ],
-                    [
-                      -4.55,
-                      0.0
-                    ],
-                    [
-                      -4.5,
-                      0.15
-                    ],
-                    [
-                      -0.25,
-                      0.2
-                    ]
-                  ]
-                ],
-                "height": 0.06,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.03,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.70710677,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "cap",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.08
-                    ],
-                    [
-                      0.3,
-                      -0.08
-                    ],
-                    [
-                      0.28,
-                      0.06
-                    ],
-                    [
-                      0.12,
-                      0.14
-                    ],
-                    [
-                      0.0,
-                      0.15
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "blades",
-                "inputs": [
-                  "blade_0",
-                  "blade_0o",
-                  "blade_1",
-                  "blade_1o"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "blades",
-                "input": "blades",
-                "base_color": [
-                  0.2,
-                  0.2,
-                  0.22,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap",
-                "input": "cap",
-                "base_color": [
-                  0.3,
-                  0.3,
-                  0.33,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_0",
-                "input": "blade_0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_0o",
-                "input": "blade_0o",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_1",
-                "input": "blade_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "blade_1o",
-                "input": "blade_1o",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "12 edits: extrude `blade_0` profile=[[[0.25, -0.2], [4.5, -0.15], [4.55, 0.0], [4.5, 0.15], [0.25, 0.2]]] height=0.06 twist=0 scale_top=[1.0, 1.0] slices=0 round=0 at=[0.0, -0.03, 0.0] rot=[0.0, 0.0, 0.0, 1.0] … hidden `blade_1o`"
-      }
-    ],
-    "current": 2
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 10748
 }

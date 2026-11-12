@@ -1,15 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-tail-long",
-  "parts": [],
-  "version": 20878,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
         "name": "tail_raw",
         "shapes": [
           {
-            "shape": "chain",
             "points": [
               [
                 0.0,
@@ -35,39 +35,35 @@
                 0.46,
                 0.03
               ]
-            ]
+            ],
+            "shape": "chain"
           }
         ]
       }
     },
     {
       "decimate": {
-        "name": "tail",
         "input": "tail_raw",
+        "name": "tail",
         "tris": 110
       }
     },
     {
       "visibility": {
-        "name": "tail_raw",
         "input": "tail_raw",
+        "name": "tail_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "tail",
-        "input": "tail",
         "base_color": null,
-        "roughness": null,
+        "input": "tail",
         "metalness": null,
+        "name": "tail",
         "pbr": {
-          "material": "pp-felt",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -157,209 +153,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.2
+          },
+          "material": "pp-felt",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-tail-long",
-          "parts": [],
-          "version": 20486,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-tail-long`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-tail-long",
-          "parts": [],
-          "version": 20491,
-          "ops": [
-            {
-              "sdf": {
-                "name": "tail_raw",
-                "shapes": [
-                  {
-                    "shape": "chain",
-                    "points": [
-                      [
-                        0.0,
-                        0.0,
-                        0.0,
-                        0.045
-                      ],
-                      [
-                        0.0,
-                        0.0,
-                        0.2,
-                        0.042
-                      ],
-                      [
-                        0.0,
-                        0.04,
-                        0.38,
-                        0.036
-                      ],
-                      [
-                        0.0,
-                        0.1,
-                        0.46,
-                        0.03
-                      ]
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "tail",
-                "input": "tail_raw",
-                "tris": 110
-              }
-            },
-            {
-              "visibility": {
-                "name": "tail_raw",
-                "input": "tail_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "tail",
-                "input": "tail",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-felt",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "material `tail` <- `tail` pbr=pp-felt",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20878
 }

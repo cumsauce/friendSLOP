@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-quarry-crane",
-  "parts": [],
-  "version": 7956,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "posta_raw",
         "kind": "box",
+        "name": "posta_raw",
+        "rotation": null,
         "size": [
           0.35,
           7.0,
@@ -17,46 +19,40 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "posta_ch",
         "input": "posta_raw",
         "mode": "chamfer",
+        "name": "posta_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "name": "posta",
         "input": "posta_ch",
+        "name": "posta",
+        "rotation": null,
+        "scale": null,
         "translation": [
           0.0,
           3.5,
           -1.2
-        ],
-        "rotation": null,
-        "scale": null
+        ]
       }
     },
     {
       "material": {
-        "name": "posta",
-        "input": "posta",
         "base_color": null,
-        "roughness": null,
+        "input": "posta",
         "metalness": null,
+        "name": "posta",
         "pbr": {
-          "material": "zn-timber",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -145,15 +141,21 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "zn-timber",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "primitive": {
-        "name": "postb_raw",
         "kind": "box",
+        "name": "postb_raw",
+        "rotation": null,
         "size": [
           0.35,
           7.0,
@@ -163,46 +165,40 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "postb_ch",
         "input": "postb_raw",
         "mode": "chamfer",
+        "name": "postb_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "name": "postb",
         "input": "postb_ch",
+        "name": "postb",
+        "rotation": null,
+        "scale": null,
         "translation": [
           0.0,
           3.5,
           1.2
-        ],
-        "rotation": null,
-        "scale": null
+        ]
       }
     },
     {
       "material": {
-        "name": "postb",
-        "input": "postb",
         "base_color": null,
-        "roughness": null,
+        "input": "postb",
         "metalness": null,
+        "name": "postb",
         "pbr": {
-          "material": "zn-timber",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -291,15 +287,21 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "zn-timber",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "primitive": {
-        "name": "cross_raw",
         "kind": "box",
+        "name": "cross_raw",
+        "rotation": null,
         "size": [
           0.35,
           0.35,
@@ -309,46 +311,40 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cross_ch",
         "input": "cross_raw",
         "mode": "chamfer",
+        "name": "cross_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "name": "cross",
         "input": "cross_ch",
+        "name": "cross",
+        "rotation": null,
+        "scale": null,
         "translation": [
           0.0,
           7.0,
           0.0
-        ],
-        "rotation": null,
-        "scale": null
+        ]
       }
     },
     {
       "material": {
-        "name": "cross",
-        "input": "cross",
         "base_color": null,
-        "roughness": null,
+        "input": "cross",
         "metalness": null,
+        "name": "cross",
         "pbr": {
-          "material": "zn-timber",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -437,15 +433,21 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "zn-timber",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "primitive": {
-        "name": "jib_raw",
         "kind": "box",
+        "name": "jib_raw",
+        "rotation": null,
         "size": [
           6.5,
           0.3,
@@ -455,51 +457,45 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "jib_ch",
         "input": "jib_raw",
         "mode": "chamfer",
+        "name": "jib_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "name": "jib",
         "input": "jib_ch",
-        "translation": [
-          -3.0,
-          6.8,
-          0.0
-        ],
+        "name": "jib",
         "rotation": [
           0.0,
           0.0,
           -0.059964005,
           0.99820054
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -3.0,
+          6.8,
+          0.0
+        ]
       }
     },
     {
       "material": {
-        "name": "jib",
-        "input": "jib",
         "base_color": null,
-        "roughness": null,
+        "input": "jib",
         "metalness": null,
+        "name": "jib",
         "pbr": {
-          "material": "zn-timber",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -588,15 +584,21 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "zn-timber",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "primitive": {
-        "name": "rope_raw",
         "kind": "cylinder",
+        "name": "rope_raw",
+        "rotation": null,
         "size": [
           0.03,
           2.85,
@@ -606,37 +608,31 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "rope",
         "input": "rope_raw",
+        "name": "rope",
+        "rotation": null,
+        "scale": null,
         "translation": [
           -6.0,
           5.62,
           0.0
-        ],
-        "rotation": null,
-        "scale": null
+        ]
       }
     },
     {
       "material": {
-        "name": "rope",
-        "input": "rope",
         "base_color": null,
-        "roughness": null,
+        "input": "rope",
         "metalness": null,
+        "name": "rope",
         "pbr": {
-          "material": "zn-hay",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -704,26 +700,20 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 0.5
+          },
+          "material": "zn-hay",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "prefab": {
+        "digest": 10161277117728693250,
         "name": "load",
-        "prefab": "zn-crate",
-        "translation": [
-          -6.0,
-          3.8,
-          0.0
-        ],
-        "rotation": null,
-        "scale": [
-          0.8,
-          0.8,
-          0.8
-        ],
         "parts": [
           "core",
           "bx0",
@@ -743,975 +733,86 @@
           "brace_r",
           "brace_l"
         ],
-        "digest": 10161277117728693250
+        "prefab": "zn-crate",
+        "rotation": null,
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ],
+        "translation": [
+          -6.0,
+          3.8,
+          0.0
+        ]
       }
     },
     {
       "visibility": {
-        "name": "posta_raw",
         "input": "posta_raw",
+        "name": "posta_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "postb_raw",
         "input": "postb_raw",
+        "name": "postb_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cross_raw",
         "input": "cross_raw",
+        "name": "cross_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "jib_raw",
         "input": "jib_raw",
+        "name": "jib_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "rope_raw",
         "input": "rope_raw",
+        "name": "rope_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "posta_ch",
         "input": "posta_ch",
+        "name": "posta_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "postb_ch",
         "input": "postb_ch",
+        "name": "postb_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cross_ch",
         "input": "cross_ch",
+        "name": "cross_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "jib_ch",
         "input": "jib_ch",
+        "name": "jib_ch",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-quarry-crane",
-          "parts": [],
-          "version": 7672,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `zn-quarry-crane`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-quarry-crane",
-          "parts": [],
-          "version": 7927,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-quarry-crane",
-          "parts": [],
-          "version": 7956,
-          "ops": [
-            {
-              "primitive": {
-                "name": "posta_raw",
-                "kind": "box",
-                "size": [
-                  0.35,
-                  7.0,
-                  0.35
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "posta_ch",
-                "input": "posta_raw",
-                "mode": "chamfer",
-                "radius": 0.03,
-                "segments": 2
-              }
-            },
-            {
-              "transform": {
-                "name": "posta",
-                "input": "posta_ch",
-                "translation": [
-                  0.0,
-                  3.5,
-                  -1.2
-                ],
-                "rotation": null,
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "posta",
-                "input": "posta",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 61,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.05,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.36,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 62,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 63,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.4,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "wc",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2a1a"
-                          ],
-                          [
-                            0.55,
-                            "#5a3e28"
-                          ],
-                          [
-                            1,
-                            "#6e4e33"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "wc",
-                        "b": 1.0,
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "postb_raw",
-                "kind": "box",
-                "size": [
-                  0.35,
-                  7.0,
-                  0.35
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "postb_ch",
-                "input": "postb_raw",
-                "mode": "chamfer",
-                "radius": 0.03,
-                "segments": 2
-              }
-            },
-            {
-              "transform": {
-                "name": "postb",
-                "input": "postb_ch",
-                "translation": [
-                  0.0,
-                  3.5,
-                  1.2
-                ],
-                "rotation": null,
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "postb",
-                "input": "postb",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 61,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.05,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.36,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 62,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 63,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.4,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "wc",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2a1a"
-                          ],
-                          [
-                            0.55,
-                            "#5a3e28"
-                          ],
-                          [
-                            1,
-                            "#6e4e33"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "wc",
-                        "b": 1.0,
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "cross_raw",
-                "kind": "box",
-                "size": [
-                  0.35,
-                  0.35,
-                  2.8
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cross_ch",
-                "input": "cross_raw",
-                "mode": "chamfer",
-                "radius": 0.03,
-                "segments": 2
-              }
-            },
-            {
-              "transform": {
-                "name": "cross",
-                "input": "cross_ch",
-                "translation": [
-                  0.0,
-                  7.0,
-                  0.0
-                ],
-                "rotation": null,
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "cross",
-                "input": "cross",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 61,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.05,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.36,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 62,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 63,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.4,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "wc",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2a1a"
-                          ],
-                          [
-                            0.55,
-                            "#5a3e28"
-                          ],
-                          [
-                            1,
-                            "#6e4e33"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "wc",
-                        "b": 1.0,
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "jib_raw",
-                "kind": "box",
-                "size": [
-                  6.5,
-                  0.3,
-                  0.3
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "jib_ch",
-                "input": "jib_raw",
-                "mode": "chamfer",
-                "radius": 0.03,
-                "segments": 2
-              }
-            },
-            {
-              "transform": {
-                "name": "jib",
-                "input": "jib_ch",
-                "translation": [
-                  -3.0,
-                  6.8,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  -0.059964005,
-                  0.99820054
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "jib",
-                "input": "jib",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 61,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.05,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.36,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 62,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 63,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.4,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "wc",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2a1a"
-                          ],
-                          [
-                            0.55,
-                            "#5a3e28"
-                          ],
-                          [
-                            1,
-                            "#6e4e33"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "wc",
-                        "b": 1.0,
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "rope_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.03,
-                  2.85,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "rope",
-                "input": "rope_raw",
-                "translation": [
-                  -6.0,
-                  5.62,
-                  0.0
-                ],
-                "rotation": null,
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "rope",
-                "input": "rope",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-hay",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.0125
-                        ],
-                        "stagger": 0.25,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 91,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 92,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b08a3a"
-                          ],
-                          [
-                            0.5,
-                            "#d8b45a"
-                          ],
-                          [
-                            1,
-                            "#efd27e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "gr",
-                        "b": 0.003,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "prefab": {
-                "name": "load",
-                "prefab": "zn-crate",
-                "translation": [
-                  -6.0,
-                  3.8,
-                  0.0
-                ],
-                "rotation": null,
-                "scale": [
-                  0.8,
-                  0.8,
-                  0.8
-                ],
-                "parts": [
-                  "core",
-                  "bx0",
-                  "bx1",
-                  "bz2",
-                  "bz3",
-                  "bx4",
-                  "bx5",
-                  "bz6",
-                  "bz7",
-                  "by8",
-                  "by9",
-                  "by10",
-                  "by11",
-                  "brace_f",
-                  "brace_b",
-                  "brace_r",
-                  "brace_l"
-                ],
-                "digest": 10161277117728693250
-              }
-            },
-            {
-              "visibility": {
-                "name": "posta_raw",
-                "input": "posta_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "postb_raw",
-                "input": "postb_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cross_raw",
-                "input": "cross_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "jib_raw",
-                "input": "jib_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rope_raw",
-                "input": "rope_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "posta_ch",
-                "input": "posta_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "postb_ch",
-                "input": "postb_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cross_ch",
-                "input": "cross_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "jib_ch",
-                "input": "jib_ch",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "29 edits: primitive `posta_raw` (box) size=[0.35, 7.0, 0.35] at=[0.0, 0.0, 0.0] … hidden `jib_ch`"
-      }
-    ],
-    "current": 2
-  },
+  "parts": [],
   "style": {
-    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -1726,9 +827,10 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
+    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "derived_from_ops": true
+  "version": 7956
 }

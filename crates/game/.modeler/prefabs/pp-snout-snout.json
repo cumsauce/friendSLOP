@@ -1,20 +1,21 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-snout-snout",
-  "parts": [],
-  "version": 20869,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
         "name": "muzzle_raw",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.0,
               -0.0784,
               -0.2296
             ],
+            "shape": "ellipsoid",
             "size": [
               0.1064,
               0.0784,
@@ -26,8 +27,8 @@
     },
     {
       "decimate": {
-        "name": "muzzle",
         "input": "muzzle_raw",
+        "name": "muzzle",
         "tris": 130
       }
     },
@@ -36,12 +37,12 @@
         "name": "nose_raw",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.0,
               -0.0504,
               -0.3304
             ],
+            "shape": "ellipsoid",
             "size": [
               0.0392,
               0.028,
@@ -53,39 +54,34 @@
     },
     {
       "decimate": {
-        "name": "nose",
         "input": "nose_raw",
+        "name": "nose",
         "tris": 50
       }
     },
     {
       "visibility": {
-        "name": "muzzle_raw",
         "input": "muzzle_raw",
+        "name": "muzzle_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "nose_raw",
         "input": "nose_raw",
+        "name": "nose_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "muzzle",
-        "input": "muzzle",
         "base_color": null,
-        "roughness": null,
+        "input": "muzzle",
         "metalness": null,
+        "name": "muzzle",
         "pbr": {
-          "material": "pp-felt",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -175,25 +171,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.2
+          },
+          "material": "pp-felt",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "nose",
-        "input": "nose",
         "base_color": null,
-        "roughness": null,
+        "input": "nose",
         "metalness": null,
+        "name": "nose",
         "pbr": {
-          "material": "pp-nose",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -238,290 +234,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.2
+          },
+          "material": "pp-nose",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-snout-snout",
-          "parts": [],
-          "version": 20336,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-snout-snout`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-snout-snout",
-          "parts": [],
-          "version": 20351,
-          "ops": [
-            {
-              "sdf": {
-                "name": "muzzle_raw",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.0,
-                      -0.0784,
-                      -0.2296
-                    ],
-                    "size": [
-                      0.1064,
-                      0.0784,
-                      0.1064
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "muzzle",
-                "input": "muzzle_raw",
-                "tris": 130
-              }
-            },
-            {
-              "sdf": {
-                "name": "nose_raw",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.0,
-                      -0.0504,
-                      -0.3304
-                    ],
-                    "size": [
-                      0.0392,
-                      0.028,
-                      0.028
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "nose",
-                "input": "nose_raw",
-                "tris": 50
-              }
-            },
-            {
-              "visibility": {
-                "name": "muzzle_raw",
-                "input": "muzzle_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "nose_raw",
-                "input": "nose_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "muzzle",
-                "input": "muzzle",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-felt",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "nose",
-                "input": "nose",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-nose",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 3,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nv",
-                        "to": [
-                          0.98,
-                          1.01
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "#5a3438",
-                        "b": "nv",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0,
-                        "name": "hh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.18,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: material `muzzle` <- `muzzle` pbr=pp-felt … material `nose` <- `nose` pbr=pp-nose",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20869
 }

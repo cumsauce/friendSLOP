@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "de-bucket",
-  "parts": [],
-  "version": 16755,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "body",
         "profile": [
           [
@@ -47,18 +49,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "hoop0",
         "profile": [
           [
@@ -76,18 +78,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "hoop1",
         "profile": [
           [
@@ -105,20 +107,20 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "ear0",
         "kind": "box",
+        "name": "ear0",
+        "rotation": null,
         "size": [
           0.012,
           0.045,
@@ -128,14 +130,14 @@
           0.172,
           0.31,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "ear1",
         "kind": "box",
+        "name": "ear1",
+        "rotation": null,
         "size": [
           0.012,
           0.045,
@@ -145,27 +147,13 @@
           -0.172,
           0.31,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "sweep": {
+        "closed": false,
         "name": "bail",
-        "profile": [
-          [
-            -0.005,
-            -0.0035
-          ],
-          [
-            0.005,
-            -0.0035
-          ],
-          [
-            0.0,
-            0.0055
-          ]
-        ],
         "path": [
           [
             0.172,
@@ -193,11 +181,25 @@
             0.0
           ]
         ],
-        "closed": false
+        "profile": [
+          [
+            -0.005,
+            -0.0035
+          ],
+          [
+            0.005,
+            -0.0035
+          ],
+          [
+            0.0,
+            0.0055
+          ]
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "grip",
         "profile": [
           [
@@ -219,23 +221,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 6,
-        "translation": [
-          0.0,
-          0.408,
-          0.0
-        ],
         "rotation": [
           0.0,
           0.0,
           0.7071068,
           0.7071068
+        ],
+        "segments": 6,
+        "translation": [
+          0.0,
+          0.408,
+          0.0
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "water",
         "profile": [
           [
@@ -257,19 +259,17 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "group": {
-        "name": "iron",
         "inputs": [
           "body",
           "hoop0",
@@ -277,23 +277,19 @@
           "ear0",
           "ear1",
           "bail"
-        ]
+        ],
+        "name": "iron"
       }
     },
     {
       "material": {
-        "name": "body",
-        "input": "body",
         "base_color": null,
-        "roughness": null,
+        "input": "body",
         "metalness": null,
+        "name": "body",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -400,25 +396,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "grip",
-        "input": "grip",
         "base_color": null,
-        "roughness": null,
+        "input": "grip",
         "metalness": null,
+        "name": "grip",
         "pbr": {
-          "material": "de-wood",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -517,25 +513,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "water",
-        "input": "water",
         "base_color": null,
-        "roughness": null,
+        "input": "water",
         "metalness": null,
+        "name": "water",
         "pbr": {
-          "material": "de-water",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -574,729 +570,59 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.25
+          },
+          "material": "de-water",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "body",
         "input": "body",
+        "name": "body",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "hoop0",
         "input": "hoop0",
+        "name": "hoop0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "hoop1",
         "input": "hoop1",
+        "name": "hoop1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "ear0",
         "input": "ear0",
+        "name": "ear0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "ear1",
         "input": "ear1",
+        "name": "ear1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "bail",
         "input": "bail",
+        "name": "bail",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "model",
-          "parts": [],
-          "version": 1,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "de-bucket",
-          "parts": [],
-          "version": 16726,
-          "ops": [
-            {
-              "revolve": {
-                "name": "body",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.15,
-                      0.0
-                    ],
-                    [
-                      0.1675,
-                      0.337
-                    ],
-                    [
-                      0.178,
-                      0.342
-                    ],
-                    [
-                      0.178,
-                      0.356
-                    ],
-                    [
-                      0.16,
-                      0.36
-                    ],
-                    [
-                      0.158,
-                      0.35
-                    ],
-                    [
-                      0.139,
-                      0.015
-                    ],
-                    [
-                      0.0,
-                      0.015
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "hoop0",
-                "profile": [
-                  [
-                    [
-                      0.15,
-                      0.046
-                    ],
-                    [
-                      0.161,
-                      0.06
-                    ],
-                    [
-                      0.15,
-                      0.074
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "hoop1",
-                "profile": [
-                  [
-                    [
-                      0.162,
-                      0.256
-                    ],
-                    [
-                      0.1735,
-                      0.27
-                    ],
-                    [
-                      0.162,
-                      0.284
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "ear0",
-                "kind": "box",
-                "size": [
-                  0.012,
-                  0.045,
-                  0.03
-                ],
-                "translation": [
-                  0.172,
-                  0.31,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "ear1",
-                "kind": "box",
-                "size": [
-                  0.012,
-                  0.045,
-                  0.03
-                ],
-                "translation": [
-                  -0.172,
-                  0.31,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "sweep": {
-                "name": "bail",
-                "profile": [
-                  [
-                    -0.005,
-                    -0.0035
-                  ],
-                  [
-                    0.005,
-                    -0.0035
-                  ],
-                  [
-                    0.0,
-                    0.0055
-                  ]
-                ],
-                "path": [
-                  [
-                    0.172,
-                    0.318,
-                    0.0
-                  ],
-                  [
-                    0.1216,
-                    0.3816,
-                    0.0
-                  ],
-                  [
-                    0.0,
-                    0.408,
-                    0.0
-                  ],
-                  [
-                    -0.1216,
-                    0.3816,
-                    0.0
-                  ],
-                  [
-                    -0.172,
-                    0.318,
-                    0.0
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "revolve": {
-                "name": "grip",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.04
-                    ],
-                    [
-                      0.012,
-                      -0.04
-                    ],
-                    [
-                      0.012,
-                      0.04
-                    ],
-                    [
-                      0.0,
-                      0.04
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.408,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.7071068,
-                  0.7071068
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "water",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.015
-                    ],
-                    [
-                      0.139,
-                      0.015
-                    ],
-                    [
-                      0.1545,
-                      0.24
-                    ],
-                    [
-                      0.0,
-                      0.24
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "iron",
-                "inputs": [
-                  "body",
-                  "hoop0",
-                  "hoop1",
-                  "ear0",
-                  "ear1",
-                  "bail"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "body",
-                "input": "body",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "grip",
-                "input": "grip",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "water",
-                "input": "water",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-water",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 61,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0.0,
-                            "#1f2a24"
-                          ],
-                          [
-                            1.0,
-                            "#34443a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.08,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "body",
-                "input": "body",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "hoop0",
-                "input": "hoop0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "hoop1",
-                "input": "hoop1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "ear0",
-                "input": "ear0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "ear1",
-                "input": "ear1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bail",
-                "input": "bail",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: revolve `hoop0` profile=[[[0.15, 0.046], [0.161, 0.06], [0.15, 0.074]]] degrees=360 segments=8 round=0 at=[0.0, 0.0, 0.0] … revolve `hoop1` profile=[[[0.162, 0.256], [0.1735, 0.27], [0.162, 0.284]]] degrees=360 segments=8 round=0 at=[0.0, 0.0, 0.0]",
-        "author": "lite-props"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 16755
 }

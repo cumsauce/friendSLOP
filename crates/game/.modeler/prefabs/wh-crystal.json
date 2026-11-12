@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "wh-crystal",
-  "parts": [],
-  "version": 15477,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "crystal",
         "profile": [
           [
@@ -23,30 +25,24 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 6,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "material": {
-        "name": "crystal",
-        "input": "crystal",
         "base_color": null,
-        "roughness": null,
+        "input": "crystal",
         "metalness": null,
+        "name": "crystal",
         "pbr": {
-          "material": "wh-crystal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -82,134 +78,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "wh-crystal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "wh-crystal",
-          "parts": [],
-          "version": 15234,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `wh-crystal`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "wh-crystal",
-          "parts": [],
-          "version": 15461,
-          "ops": [
-            {
-              "revolve": {
-                "name": "crystal",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.3
-                    ],
-                    [
-                      0.14,
-                      0.0
-                    ],
-                    [
-                      0.0,
-                      0.3
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "crystal",
-                "input": "crystal",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "wh-crystal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 451,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#7ec4f2"
-                          ],
-                          [
-                            0.6,
-                            "#a6dcff"
-                          ],
-                          [
-                            1,
-                            "#d8f2ff"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "emissive": "col",
-                        "name": "out",
-                        "roughness": 0.15,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: revolve `crystal` profile=[[[0.0, -0.3], [0.14, 0.0], [0.0, 0.3]]] degrees=360 segments=6 round=0 at=[0.0, 0.0, 0.0] … material `crystal` <- `crystal` pbr=wh-crystal",
-        "author": "warehouse"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 15477
 }

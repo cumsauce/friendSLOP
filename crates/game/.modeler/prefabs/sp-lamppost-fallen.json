@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "sp-lamppost-fallen",
-  "parts": [],
-  "version": 9088,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "pole",
         "profile": [
           [
@@ -27,23 +29,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 8,
-        "translation": [
-          0.0,
-          0.0,
-          -0.05
-        ],
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
+        ],
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          -0.05
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "collar_a",
         "profile": [
           [
@@ -65,23 +67,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 8,
-        "translation": [
-          0.0,
-          0.0,
-          -0.9
-        ],
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
+        ],
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          -0.9
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "collar_b",
         "profile": [
           [
@@ -103,23 +105,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 8,
-        "translation": [
-          0.0,
-          0.0,
-          0.9
-        ],
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
+        ],
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          0.9
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "foot",
         "profile": [
           [
@@ -149,25 +151,25 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 8,
-        "translation": [
-          0.0,
-          0.0,
-          -1.5
-        ],
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
+        ],
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          -1.5
         ]
       }
     },
     {
       "primitive": {
-        "name": "head_glass",
         "kind": "box",
+        "name": "head_glass",
+        "rotation": null,
         "size": [
           0.24,
           0.24,
@@ -177,14 +179,14 @@
           0.0,
           0.11,
           1.52
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "head_cap",
         "kind": "box",
+        "name": "head_cap",
+        "rotation": null,
         "size": [
           0.34,
           0.34,
@@ -194,14 +196,14 @@
           0.0,
           0.11,
           1.69
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "head_base",
         "kind": "box",
+        "name": "head_base",
+        "rotation": null,
         "size": [
           0.2,
           0.2,
@@ -211,12 +213,12 @@
           0.0,
           0.11,
           1.35
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "finial",
         "profile": [
           [
@@ -238,24 +240,22 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 6,
-        "translation": [
-          0.0,
-          0.11,
-          1.72
-        ],
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
+        ],
+        "segments": 6,
+        "translation": [
+          0.0,
+          0.11,
+          1.72
         ]
       }
     },
     {
       "group": {
-        "name": "iron",
         "inputs": [
           "pole",
           "collar_a",
@@ -264,28 +264,24 @@
           "head_cap",
           "head_base",
           "finial"
-        ]
+        ],
+        "name": "iron"
       }
     },
     {
       "material": {
-        "name": "iron",
-        "input": "iron",
         "base_color": [
           0.3,
           0.3,
           0.34,
           1.0
         ],
-        "roughness": null,
+        "input": "iron",
         "metalness": null,
+        "name": "iron",
         "pbr": {
-          "material": "sp-metal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -400,25 +396,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-metal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "head_glass",
-        "input": "head_glass",
         "base_color": null,
-        "roughness": null,
+        "input": "head_glass",
         "metalness": null,
+        "name": "head_glass",
         "pbr": {
-          "material": "sp-glass",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -463,1143 +459,66 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "sp-glass",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "pole",
         "input": "pole",
+        "name": "pole",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "collar_a",
         "input": "collar_a",
+        "name": "collar_a",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "collar_b",
         "input": "collar_b",
+        "name": "collar_b",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "foot",
         "input": "foot",
+        "name": "foot",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "head_cap",
         "input": "head_cap",
+        "name": "head_cap",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "head_base",
         "input": "head_base",
+        "name": "head_base",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "finial",
         "input": "finial",
+        "name": "finial",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-lamppost-fallen",
-          "parts": [],
-          "version": 8275,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `sp-lamppost-fallen`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-lamppost-fallen",
-          "parts": [],
-          "version": 9069,
-          "ops": [
-            {
-              "revolve": {
-                "name": "pole",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -1.35
-                    ],
-                    [
-                      0.06,
-                      -1.35
-                    ],
-                    [
-                      0.06,
-                      1.35
-                    ],
-                    [
-                      0.0,
-                      1.35
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  -0.05
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "collar_a",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      0.05
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  -0.9
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "collar_b",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      0.05
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.9
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "foot",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.17,
-                      0.0
-                    ],
-                    [
-                      0.16,
-                      0.1
-                    ],
-                    [
-                      0.1,
-                      0.18
-                    ],
-                    [
-                      0.075,
-                      0.4
-                    ],
-                    [
-                      0.0,
-                      0.4
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  -1.5
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "head_glass",
-                "kind": "box",
-                "size": [
-                  0.24,
-                  0.24,
-                  0.3
-                ],
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.52
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "head_cap",
-                "kind": "box",
-                "size": [
-                  0.34,
-                  0.34,
-                  0.06
-                ],
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.69
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "head_base",
-                "kind": "box",
-                "size": [
-                  0.2,
-                  0.2,
-                  0.06
-                ],
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.35
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "finial",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.06,
-                      0.0
-                    ],
-                    [
-                      0.02,
-                      0.1
-                    ],
-                    [
-                      0.0,
-                      0.12
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.72
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "iron",
-                "inputs": [
-                  "pole",
-                  "collar_a",
-                  "collar_b",
-                  "foot",
-                  "head_cap",
-                  "head_base",
-                  "finial"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "iron",
-                "input": "iron",
-                "base_color": [
-                  0.3,
-                  0.3,
-                  0.34,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "head_glass",
-                "input": "head_glass",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-glass",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 161,
-                        "size": 0.3,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3a5562"
-                          ],
-                          [
-                            1,
-                            "#5a7a88"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fn",
-                        "name": "r",
-                        "to": [
-                          0.05,
-                          0.2
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 0.1,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "pole",
-                "input": "pole",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "collar_a",
-                "input": "collar_a",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "collar_b",
-                "input": "collar_b",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot",
-                "input": "foot",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "head_cap",
-                "input": "head_cap",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "head_base",
-                "input": "head_base",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "finial",
-                "input": "finial",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `sp-lamppost-fallen`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-lamppost-fallen",
-          "parts": [],
-          "version": 9088,
-          "ops": [
-            {
-              "revolve": {
-                "name": "pole",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -1.35
-                    ],
-                    [
-                      0.06,
-                      -1.35
-                    ],
-                    [
-                      0.06,
-                      1.35
-                    ],
-                    [
-                      0.0,
-                      1.35
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  -0.05
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "collar_a",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      0.05
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  -0.9
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "collar_b",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      -0.05
-                    ],
-                    [
-                      0.085,
-                      0.05
-                    ],
-                    [
-                      0.0,
-                      0.05
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.9
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "foot",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.17,
-                      0.0
-                    ],
-                    [
-                      0.16,
-                      0.1
-                    ],
-                    [
-                      0.1,
-                      0.18
-                    ],
-                    [
-                      0.075,
-                      0.4
-                    ],
-                    [
-                      0.0,
-                      0.4
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  -1.5
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "head_glass",
-                "kind": "box",
-                "size": [
-                  0.24,
-                  0.24,
-                  0.3
-                ],
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.52
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "head_cap",
-                "kind": "box",
-                "size": [
-                  0.34,
-                  0.34,
-                  0.06
-                ],
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.69
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "head_base",
-                "kind": "box",
-                "size": [
-                  0.2,
-                  0.2,
-                  0.06
-                ],
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.35
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "finial",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.06,
-                      0.0
-                    ],
-                    [
-                      0.02,
-                      0.1
-                    ],
-                    [
-                      0.0,
-                      0.12
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.0,
-                  0.11,
-                  1.72
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "iron",
-                "inputs": [
-                  "pole",
-                  "collar_a",
-                  "collar_b",
-                  "foot",
-                  "head_cap",
-                  "head_base",
-                  "finial"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "iron",
-                "input": "iron",
-                "base_color": [
-                  0.3,
-                  0.3,
-                  0.34,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "head_glass",
-                "input": "head_glass",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-glass",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 161,
-                        "size": 0.3,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3a5562"
-                          ],
-                          [
-                            1,
-                            "#5a7a88"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fn",
-                        "name": "r",
-                        "to": [
-                          0.05,
-                          0.2
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 0.1,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "pole",
-                "input": "pole",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "collar_a",
-                "input": "collar_a",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "collar_b",
-                "input": "collar_b",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot",
-                "input": "foot",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "head_cap",
-                "input": "head_cap",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "head_base",
-                "input": "head_base",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "finial",
-                "input": "finial",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "18 edits: revolve `pole` profile=[[[0.0, -1.35], [0.06, -1.35], [0.06, 1.35], [0.0, 1.35]]] degrees=360 segments=8 round=0 at=[0.0, 0.0, -0.05] rot=[0.70710677, 0.0, 0.0, 0.70710677] … hidden `finial`"
-      }
-    ],
-    "current": 2
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 9088
 }

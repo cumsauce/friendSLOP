@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "mushroom-cluster",
-  "parts": [],
-  "version": 17194,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m0_stem_r",
         "profile": [
           [
@@ -31,18 +33,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 5,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m0_cap_r",
         "profile": [
           [
@@ -72,54 +74,54 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "m0_stem",
         "input": "m0_stem_r",
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
+        "name": "m0_stem",
         "rotation": [
           -0.05363286,
           -0.002476887,
           0.046066556,
           0.99749446
         ],
-        "scale": null
-      }
-    },
-    {
-      "transform": {
-        "name": "m0_cap",
-        "input": "m0_cap_r",
+        "scale": null,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
+        ]
+      }
+    },
+    {
+      "transform": {
+        "input": "m0_cap_r",
+        "name": "m0_cap",
         "rotation": [
           -0.053601883,
           0.0030751543,
           -0.057193473,
           0.9969184
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m1_stem_r",
         "profile": [
           [
@@ -145,18 +147,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 5,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m1_cap_r",
         "profile": [
           [
@@ -186,54 +188,54 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "m1_stem",
         "input": "m1_stem_r",
-        "translation": [
-          0.13,
-          0.0,
-          0.09
-        ],
+        "name": "m1_stem",
         "rotation": [
           -0.046273064,
           0.0031059585,
           -0.06689963,
           0.99668133
         ],
-        "scale": null
-      }
-    },
-    {
-      "transform": {
-        "name": "m1_cap",
-        "input": "m1_cap_r",
+        "scale": null,
         "translation": [
           0.13,
           0.0,
           0.09
-        ],
+        ]
+      }
+    },
+    {
+      "transform": {
+        "input": "m1_cap_r",
+        "name": "m1_cap",
         "rotation": [
           -0.0463526,
           0.001510025,
           -0.03252462,
           0.9983944
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.13,
+          0.0,
+          0.09
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m2_stem_r",
         "profile": [
           [
@@ -259,18 +261,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 4,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m2_cap_r",
         "profile": [
           [
@@ -300,54 +302,54 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "m2_stem",
         "input": "m2_stem_r",
-        "translation": [
-          -0.1,
-          0.0,
-          0.12
-        ],
+        "name": "m2_stem",
         "rotation": [
           -0.01608961,
           -0.0009042009,
           0.056101996,
           0.99829495
         ],
-        "scale": null
-      }
-    },
-    {
-      "transform": {
-        "name": "m2_cap",
-        "input": "m2_cap_r",
+        "scale": null,
         "translation": [
           -0.1,
           0.0,
           0.12
-        ],
+        ]
+      }
+    },
+    {
+      "transform": {
+        "input": "m2_cap_r",
+        "name": "m2_cap",
         "rotation": [
           -0.0161127,
           0.0002720768,
           -0.016881261,
           0.9997276
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.1,
+          0.0,
+          0.12
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m3_stem_r",
         "profile": [
           [
@@ -373,18 +375,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 4,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "m3_cap_r",
         "profile": [
           [
@@ -414,66 +416,60 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 8,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "m3_stem",
         "input": "m3_stem_r",
-        "translation": [
-          0.06,
-          0.0,
-          -0.14
-        ],
+        "name": "m3_stem",
         "rotation": [
           -0.06732727,
           0.002272469,
           -0.03365674,
           0.99716055
         ],
-        "scale": null
-      }
-    },
-    {
-      "transform": {
-        "name": "m3_cap",
-        "input": "m3_cap_r",
+        "scale": null,
         "translation": [
           0.06,
           0.0,
           -0.14
-        ],
+        ]
+      }
+    },
+    {
+      "transform": {
+        "input": "m3_cap_r",
+        "name": "m3_cap",
         "rotation": [
           -0.06720697,
           -0.004620388,
           0.068430945,
           0.99537885
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.06,
+          0.0,
+          -0.14
+        ]
       }
     },
     {
       "material": {
-        "name": "m0_stem",
+        "base_color": null,
         "input": "m0_stem",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "m0_stem",
         "pbr": {
-          "material": "mushroom",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -590,25 +586,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "m1_stem",
+        "base_color": null,
         "input": "m1_stem",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "m1_stem",
         "pbr": {
-          "material": "mushroom",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -725,25 +721,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "m2_stem",
+        "base_color": null,
         "input": "m2_stem",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "m2_stem",
         "pbr": {
-          "material": "mushroom",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -860,25 +856,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "m3_stem",
+        "base_color": null,
         "input": "m3_stem",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "m3_stem",
         "pbr": {
-          "material": "mushroom",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -995,25 +991,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "m0_cap",
+        "base_color": null,
         "input": "m0_cap",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "m0_cap",
         "pbr": {
-          "material": "mushroom_cap",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1094,25 +1090,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom_cap",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "m1_cap",
+        "base_color": null,
         "input": "m1_cap",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "m1_cap",
         "pbr": {
-          "material": "mushroom_cap",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1193,25 +1189,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom_cap",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "m2_cap",
+        "base_color": null,
         "input": "m2_cap",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "m2_cap",
         "pbr": {
-          "material": "mushroom_cap",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1292,25 +1288,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom_cap",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "m3_cap",
-        "input": "m3_cap",
         "base_color": null,
-        "roughness": null,
+        "input": "m3_cap",
         "metalness": null,
+        "name": "m3_cap",
         "pbr": {
-          "material": "mushroom_cap",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1391,114 +1387,114 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom_cap",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "collider": {
+        "body": "static",
         "name": "col",
         "parts": [
           "*"
         ],
-        "shape": "none",
-        "body": "static",
-        "sensor": false
+        "sensor": false,
+        "shape": "none"
       }
     },
     {
       "visibility": {
-        "name": "m0_stem_r",
         "input": "m0_stem_r",
+        "name": "m0_stem_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m0_cap_r",
         "input": "m0_cap_r",
+        "name": "m0_cap_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m1_stem_r",
         "input": "m1_stem_r",
+        "name": "m1_stem_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m1_cap_r",
         "input": "m1_cap_r",
+        "name": "m1_cap_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m2_stem_r",
         "input": "m2_stem_r",
+        "name": "m2_stem_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m2_cap_r",
         "input": "m2_cap_r",
+        "name": "m2_cap_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m3_stem_r",
         "input": "m3_stem_r",
+        "name": "m3_stem_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m3_cap_r",
         "input": "m3_cap_r",
+        "name": "m3_cap_r",
         "visible": false
       }
     },
     {
       "group": {
-        "name": "stems",
         "inputs": [
           "m0_stem",
           "m1_stem",
           "m2_stem",
           "m3_stem"
-        ]
+        ],
+        "name": "stems"
       }
     },
     {
       "group": {
-        "name": "caps",
         "inputs": [
           "m0_cap",
           "m1_cap",
           "m2_cap",
           "m3_cap"
-        ]
+        ],
+        "name": "caps"
       }
     },
     {
       "material": {
-        "name": "stems",
-        "input": "stems",
         "base_color": null,
-        "roughness": null,
+        "input": "stems",
         "metalness": null,
+        "name": "stems",
         "pbr": {
-          "material": "mushroom",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1615,25 +1611,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "caps",
-        "input": "caps",
         "base_color": null,
-        "roughness": null,
+        "input": "caps",
         "metalness": null,
+        "name": "caps",
         "pbr": {
-          "material": "mushroom_cap",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1714,1920 +1710,75 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "mushroom_cap",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "m0_stem",
         "input": "m0_stem",
+        "name": "m0_stem",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m1_stem",
         "input": "m1_stem",
+        "name": "m1_stem",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m2_stem",
         "input": "m2_stem",
+        "name": "m2_stem",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m3_stem",
         "input": "m3_stem",
+        "name": "m3_stem",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m0_cap",
         "input": "m0_cap",
+        "name": "m0_cap",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m1_cap",
         "input": "m1_cap",
+        "name": "m1_cap",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m2_cap",
         "input": "m2_cap",
+        "name": "m2_cap",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "m3_cap",
         "input": "m3_cap",
+        "name": "m3_cap",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "model",
-          "parts": [],
-          "version": 1,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "mushroom-cluster",
-          "parts": [],
-          "version": 17180,
-          "ops": [
-            {
-              "revolve": {
-                "name": "m0_stem_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.032,
-                      0.0
-                    ],
-                    [
-                      0.026,
-                      0.12
-                    ],
-                    [
-                      0.02,
-                      0.24
-                    ],
-                    [
-                      0.0,
-                      0.24
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 5,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "m0_cap_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.2
-                    ],
-                    [
-                      0.12,
-                      0.19
-                    ],
-                    [
-                      0.13,
-                      0.21
-                    ],
-                    [
-                      0.11,
-                      0.27
-                    ],
-                    [
-                      0.06,
-                      0.31
-                    ],
-                    [
-                      0.0,
-                      0.32
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m0_stem",
-                "input": "m0_stem_r",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  -0.05363286,
-                  -0.002476887,
-                  0.046066556,
-                  0.99749446
-                ],
-                "scale": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m0_cap",
-                "input": "m0_cap_r",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  -0.053601883,
-                  0.0030751543,
-                  -0.057193473,
-                  0.9969184
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "m1_stem_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.0224,
-                      0.0
-                    ],
-                    [
-                      0.0182,
-                      0.084
-                    ],
-                    [
-                      0.014,
-                      0.168
-                    ],
-                    [
-                      0.0,
-                      0.168
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 5,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "m1_cap_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.14
-                    ],
-                    [
-                      0.084,
-                      0.133
-                    ],
-                    [
-                      0.091,
-                      0.147
-                    ],
-                    [
-                      0.077,
-                      0.189
-                    ],
-                    [
-                      0.042,
-                      0.217
-                    ],
-                    [
-                      0.0,
-                      0.224
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m1_stem",
-                "input": "m1_stem_r",
-                "translation": [
-                  0.13,
-                  0.0,
-                  0.09
-                ],
-                "rotation": [
-                  -0.046273064,
-                  0.0031059585,
-                  -0.06689963,
-                  0.99668133
-                ],
-                "scale": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m1_cap",
-                "input": "m1_cap_r",
-                "translation": [
-                  0.13,
-                  0.0,
-                  0.09
-                ],
-                "rotation": [
-                  -0.0463526,
-                  0.001510025,
-                  -0.03252462,
-                  0.9983944
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "m2_stem_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.0176,
-                      0.0
-                    ],
-                    [
-                      0.0143,
-                      0.066
-                    ],
-                    [
-                      0.011,
-                      0.132
-                    ],
-                    [
-                      0.0,
-                      0.132
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 4,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "m2_cap_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.11
-                    ],
-                    [
-                      0.066,
-                      0.1045
-                    ],
-                    [
-                      0.0715,
-                      0.1155
-                    ],
-                    [
-                      0.0605,
-                      0.1485
-                    ],
-                    [
-                      0.033,
-                      0.1705
-                    ],
-                    [
-                      0.0,
-                      0.176
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m2_stem",
-                "input": "m2_stem_r",
-                "translation": [
-                  -0.1,
-                  0.0,
-                  0.12
-                ],
-                "rotation": [
-                  -0.01608961,
-                  -0.0009042009,
-                  0.056101996,
-                  0.99829495
-                ],
-                "scale": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m2_cap",
-                "input": "m2_cap_r",
-                "translation": [
-                  -0.1,
-                  0.0,
-                  0.12
-                ],
-                "rotation": [
-                  -0.0161127,
-                  0.0002720768,
-                  -0.016881261,
-                  0.9997276
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "m3_stem_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.0144,
-                      0.0
-                    ],
-                    [
-                      0.0117,
-                      0.054
-                    ],
-                    [
-                      0.009,
-                      0.108
-                    ],
-                    [
-                      0.0,
-                      0.108
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 4,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "m3_cap_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.09
-                    ],
-                    [
-                      0.054,
-                      0.0855
-                    ],
-                    [
-                      0.0585,
-                      0.0945
-                    ],
-                    [
-                      0.0495,
-                      0.1215
-                    ],
-                    [
-                      0.027,
-                      0.1395
-                    ],
-                    [
-                      0.0,
-                      0.144
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m3_stem",
-                "input": "m3_stem_r",
-                "translation": [
-                  0.06,
-                  0.0,
-                  -0.14
-                ],
-                "rotation": [
-                  -0.06732727,
-                  0.002272469,
-                  -0.03365674,
-                  0.99716055
-                ],
-                "scale": null
-              }
-            },
-            {
-              "transform": {
-                "name": "m3_cap",
-                "input": "m3_cap_r",
-                "translation": [
-                  0.06,
-                  0.0,
-                  -0.14
-                ],
-                "rotation": [
-                  -0.06720697,
-                  -0.004620388,
-                  0.068430945,
-                  0.99537885
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "m0_stem",
-                "input": "m0_stem",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.3,
-                        "lo": -0.1,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.035,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.25,
-                          0.3
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b0643a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#f1e6cf",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "n",
-                        "name": "stemc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#d8ccb2"
-                          ],
-                          [
-                            1.0,
-                            "#f2ead8"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          0.12,
-                          0
-                        ],
-                        "name": "hgt",
-                        "to": [
-                          0,
-                          0.16,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "a": "top",
-                        "b": "hgt",
-                        "name": "capmask",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "stemc",
-                        "b": "capc2",
-                        "c": "capmask",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "stemc",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "m1_stem",
-                "input": "m1_stem",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.3,
-                        "lo": -0.1,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.035,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.25,
-                          0.3
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b0643a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#f1e6cf",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "n",
-                        "name": "stemc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#d8ccb2"
-                          ],
-                          [
-                            1.0,
-                            "#f2ead8"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          0.12,
-                          0
-                        ],
-                        "name": "hgt",
-                        "to": [
-                          0,
-                          0.16,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "a": "top",
-                        "b": "hgt",
-                        "name": "capmask",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "stemc",
-                        "b": "capc2",
-                        "c": "capmask",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "stemc",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "m2_stem",
-                "input": "m2_stem",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.3,
-                        "lo": -0.1,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.035,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.25,
-                          0.3
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b0643a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#f1e6cf",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "n",
-                        "name": "stemc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#d8ccb2"
-                          ],
-                          [
-                            1.0,
-                            "#f2ead8"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          0.12,
-                          0
-                        ],
-                        "name": "hgt",
-                        "to": [
-                          0,
-                          0.16,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "a": "top",
-                        "b": "hgt",
-                        "name": "capmask",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "stemc",
-                        "b": "capc2",
-                        "c": "capmask",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "stemc",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "m3_stem",
-                "input": "m3_stem",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.3,
-                        "lo": -0.1,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.035,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.25,
-                          0.3
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b0643a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#f1e6cf",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "n",
-                        "name": "stemc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#d8ccb2"
-                          ],
-                          [
-                            1.0,
-                            "#f2ead8"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          0.12,
-                          0
-                        ],
-                        "name": "hgt",
-                        "to": [
-                          0,
-                          0.16,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "a": "top",
-                        "b": "hgt",
-                        "name": "capmask",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "stemc",
-                        "b": "capc2",
-                        "c": "capmask",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "stemc",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "m0_cap",
-                "input": "m0_cap",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom_cap",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.2,
-                        "lo": -0.3,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.04,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.006,
-                          0.009
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b8693a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#efe2c6",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#d9c7a3",
-                        "b": "capc2",
-                        "c": "top",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.55,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "m1_cap",
-                "input": "m1_cap",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom_cap",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.2,
-                        "lo": -0.3,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.04,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.006,
-                          0.009
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b8693a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#efe2c6",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#d9c7a3",
-                        "b": "capc2",
-                        "c": "top",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.55,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "m2_cap",
-                "input": "m2_cap",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom_cap",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.2,
-                        "lo": -0.3,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.04,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.006,
-                          0.009
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b8693a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#efe2c6",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#d9c7a3",
-                        "b": "capc2",
-                        "c": "top",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.55,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "m3_cap",
-                "input": "m3_cap",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom_cap",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.2,
-                        "lo": -0.3,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.04,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.006,
-                          0.009
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b8693a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#efe2c6",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#d9c7a3",
-                        "b": "capc2",
-                        "c": "top",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.55,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "collider": {
-                "name": "col",
-                "parts": [
-                  "*"
-                ],
-                "shape": "none",
-                "body": "static",
-                "sensor": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m0_stem_r",
-                "input": "m0_stem_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m0_cap_r",
-                "input": "m0_cap_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m1_stem_r",
-                "input": "m1_stem_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m1_cap_r",
-                "input": "m1_cap_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m2_stem_r",
-                "input": "m2_stem_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m2_cap_r",
-                "input": "m2_cap_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m3_stem_r",
-                "input": "m3_stem_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m3_cap_r",
-                "input": "m3_cap_r",
-                "visible": false
-              }
-            },
-            {
-              "group": {
-                "name": "stems",
-                "inputs": [
-                  "m0_stem",
-                  "m1_stem",
-                  "m2_stem",
-                  "m3_stem"
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "caps",
-                "inputs": [
-                  "m0_cap",
-                  "m1_cap",
-                  "m2_cap",
-                  "m3_cap"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "stems",
-                "input": "stems",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.3,
-                        "lo": -0.1,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.035,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.25,
-                          0.3
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b0643a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#f1e6cf",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "n",
-                        "name": "stemc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#d8ccb2"
-                          ],
-                          [
-                            1.0,
-                            "#f2ead8"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          0.12,
-                          0
-                        ],
-                        "name": "hgt",
-                        "to": [
-                          0,
-                          0.16,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "a": "top",
-                        "b": "hgt",
-                        "name": "capmask",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "stemc",
-                        "b": "capc2",
-                        "c": "capmask",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "stemc",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "caps",
-                "input": "caps",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "mushroom_cap",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "dir": [
-                          0,
-                          1,
-                          0
-                        ],
-                        "hi": 0.2,
-                        "lo": -0.3,
-                        "name": "top",
-                        "type": "facing"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 6,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "jitter": 0.8,
-                        "name": "sp",
-                        "size": 0.04,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.006,
-                          0.009
-                        ],
-                        "input": "sp.f1",
-                        "name": "spots",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "capc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#7a3f22"
-                          ],
-                          [
-                            1.0,
-                            "#b8693a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#efe2c6",
-                        "b": "capc",
-                        "c": "spots",
-                        "name": "capc2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#d9c7a3",
-                        "b": "capc2",
-                        "c": "top",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.55,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "m0_stem",
-                "input": "m0_stem",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m1_stem",
-                "input": "m1_stem",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m2_stem",
-                "input": "m2_stem",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m3_stem",
-                "input": "m3_stem",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m0_cap",
-                "input": "m0_cap",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m1_cap",
-                "input": "m1_cap",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m2_cap",
-                "input": "m2_cap",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "m3_cap",
-                "input": "m3_cap",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: revolve `m2_stem_r` profile=[[[0.0, 0.0], [0.0176, 0.0], [0.0143, 0.066], [0.011, 0.132], [0.0, 0.132]]] degrees=360 segments=4 round=0 at=[0.0, 0.0, 0.0] … revolve `m3_stem_r` profile=[[[0.0, 0.0], [0.0144, 0.0], [0.0117, 0.054], [0.009, 0.108], [0.0, 0.108]]] degrees=360 segments=4 round=0 at=[0.0, 0.0, 0.0]",
-        "author": "lite-nature"
-      }
-    ],
-    "current": 1
-  },
+  "parts": [],
   "style": {
-    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -3642,9 +1793,10 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
+    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "derived_from_ops": true
+  "version": 17194
 }

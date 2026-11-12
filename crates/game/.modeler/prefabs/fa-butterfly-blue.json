@@ -1,24 +1,27 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "fa-butterfly-blue",
-  "parts": [],
-  "version": 21054,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
+        "blend": 0.008,
+        "mirror": "x",
         "name": "body_hi",
         "shapes": [
           {
-            "shape": "capsule",
-            "radius": [
-              0.008,
-              0.014
-            ],
             "from": [
               0.0,
               0.0,
               -0.075
             ],
+            "radius": [
+              0.008,
+              0.014
+            ],
+            "shape": "capsule",
             "to": [
               0.0,
               0.0,
@@ -26,7 +29,6 @@
             ]
           },
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.002,
@@ -34,22 +36,22 @@
             ],
             "radius": [
               0.016
-            ]
+            ],
+            "shape": "sphere"
           }
-        ],
-        "blend": 0.008,
-        "mirror": "x"
+        ]
       }
     },
     {
       "decimate": {
-        "name": "body",
         "input": "body_hi",
+        "name": "body",
         "tris": 60
       }
     },
     {
       "extrude": {
+        "height": 0.004,
         "name": "fore_l",
         "profile": [
           [
@@ -83,7 +85,7 @@
             ]
           ]
         ],
-        "height": 0.004,
+        "rotation": null,
         "scale_top": [
           1.0,
           1.0
@@ -93,12 +95,12 @@
           0.0,
           -0.002,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "extrude": {
+        "height": 0.004,
         "name": "hind_l",
         "profile": [
           [
@@ -132,7 +134,7 @@
             ]
           ]
         ],
-        "height": 0.004,
+        "rotation": null,
         "scale_top": [
           1.0,
           1.0
@@ -142,15 +144,14 @@
           0.0,
           -0.002,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "mirror": {
-        "name": "fore_r",
-        "input": "fore_l",
         "axis": "x",
+        "input": "fore_l",
+        "name": "fore_r",
         "offset": [
           0.0,
           0.0,
@@ -160,9 +161,9 @@
     },
     {
       "mirror": {
-        "name": "hind_r",
-        "input": "hind_l",
         "axis": "x",
+        "input": "hind_l",
+        "name": "hind_r",
         "offset": [
           0.0,
           0.0,
@@ -172,69 +173,64 @@
     },
     {
       "group": {
-        "name": "wings",
         "inputs": [
           "fore_l",
           "hind_l",
           "fore_r",
           "hind_r"
-        ]
+        ],
+        "name": "wings"
       }
     },
     {
       "visibility": {
-        "name": "body_hi",
         "input": "body_hi",
+        "name": "body_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fore_l",
         "input": "fore_l",
+        "name": "fore_l",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "hind_l",
         "input": "hind_l",
+        "name": "hind_l",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fore_r",
         "input": "fore_r",
+        "name": "fore_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "hind_r",
         "input": "hind_r",
+        "name": "hind_r",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "body",
-        "input": "body",
         "base_color": [
           0.18,
           0.14,
           0.12,
           1.0
         ],
-        "roughness": null,
+        "input": "body",
         "metalness": null,
+        "name": "body",
         "pbr": {
-          "material": "fa-knit",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.12,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -438,30 +434,30 @@
                 "type": "remap"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.12
+          },
+          "material": "fa-knit",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wings",
-        "input": "wings",
         "base_color": [
           0.4,
           0.7,
           1.0,
           1.0
         ],
-        "roughness": null,
+        "input": "wings",
         "metalness": null,
+        "name": "wings",
         "pbr": {
-          "material": "fa-wing",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "coords": "wc",
@@ -665,114 +661,125 @@
                 "type": "math"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "fa-wing",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "skeleton": {
-        "name": "rig",
         "bones": [
           {
-            "name": "body",
             "head": [
               0.0,
               0.0,
               -0.08
             ],
+            "name": "body",
+            "radius": 0.02,
             "tail": [
               0.0,
               0.0,
               0.08
-            ],
-            "radius": 0.02
+            ]
           },
           {
-            "name": "wing_l",
-            "parent": "body",
             "head": [
               0.006,
               0.0,
               0.0
             ],
+            "name": "wing_l",
+            "parent": "body",
+            "radius": 0.05,
             "tail": [
               0.2,
               0.0,
               0.0
-            ],
-            "radius": 0.05
+            ]
           }
         ],
-        "mirror": "x"
+        "mirror": "x",
+        "name": "rig"
       }
     },
     {
       "bind": {
+        "bone": "body",
+        "mode": "rigid",
         "name": "body_bind",
-        "skeleton": "rig",
         "parts": [
           "body"
         ],
-        "bone": "body",
-        "mode": "rigid"
+        "skeleton": "rig"
       }
     },
     {
       "bind": {
-        "name": "wing_bind",
-        "skeleton": "rig",
-        "parts": [
-          "wings"
-        ],
-        "mode": "smooth",
         "blend": 0.004,
+        "mode": "smooth",
+        "name": "wing_bind",
         "paint": [
           {
             "bone": "wing_l",
-            "min": [
-              0.0,
-              -1.0,
-              -1.0
-            ],
             "max": [
               1.0,
               1.0,
               1.0
+            ],
+            "min": [
+              0.0,
+              -1.0,
+              -1.0
             ]
           },
           {
             "bone": "wing_r",
-            "min": [
-              -1.0,
-              -1.0,
-              -1.0
-            ],
             "max": [
               0.0,
               1.0,
               1.0
+            ],
+            "min": [
+              -1.0,
+              -1.0,
+              -1.0
             ]
           }
-        ]
+        ],
+        "parts": [
+          "wings"
+        ],
+        "skeleton": "rig"
       }
     },
     {
       "clip": {
-        "name": "flap",
-        "skeleton": "rig",
         "duration": 0.35,
         "loop": true,
+        "mirror": {
+          "wing_r": {
+            "from": "wing_l",
+            "phase": 0.0
+          }
+        },
+        "name": "flap",
+        "skeleton": "rig",
         "tracks": {
           "body": {
             "translate": {
               "wave": {
+                "amount": 0.012,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
-                "amount": 0.012,
                 "period": 0.35,
                 "phase": 0.5
               }
@@ -781,6 +788,7 @@
           "wing_l": {
             "rotate": {
               "keys": {
+                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -809,879 +817,14 @@
                       0.8870108
                     ]
                   ]
-                ],
-                "interp": "smooth"
+                ]
               }
             }
-          }
-        },
-        "mirror": {
-          "wing_r": {
-            "from": "wing_l",
-            "phase": 0.0
           }
         }
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fa-butterfly-blue",
-          "parts": [],
-          "version": 21035,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `fa-butterfly-blue`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fa-butterfly-blue",
-          "parts": [],
-          "version": 21054,
-          "ops": [
-            {
-              "sdf": {
-                "name": "body_hi",
-                "shapes": [
-                  {
-                    "shape": "capsule",
-                    "radius": [
-                      0.008,
-                      0.014
-                    ],
-                    "from": [
-                      0.0,
-                      0.0,
-                      -0.075
-                    ],
-                    "to": [
-                      0.0,
-                      0.0,
-                      0.05
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.002,
-                      0.065
-                    ],
-                    "radius": [
-                      0.016
-                    ]
-                  }
-                ],
-                "blend": 0.008,
-                "mirror": "x"
-              }
-            },
-            {
-              "decimate": {
-                "name": "body",
-                "input": "body_hi",
-                "tris": 60
-              }
-            },
-            {
-              "extrude": {
-                "name": "fore_l",
-                "profile": [
-                  [
-                    [
-                      0.012,
-                      0.025
-                    ],
-                    [
-                      0.07,
-                      0.095
-                    ],
-                    [
-                      0.15,
-                      0.11
-                    ],
-                    [
-                      0.215,
-                      0.075
-                    ],
-                    [
-                      0.2,
-                      0.02
-                    ],
-                    [
-                      0.12,
-                      -0.005
-                    ],
-                    [
-                      0.012,
-                      -0.003
-                    ]
-                  ]
-                ],
-                "height": 0.004,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.002,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "extrude": {
-                "name": "hind_l",
-                "profile": [
-                  [
-                    [
-                      0.012,
-                      -0.006
-                    ],
-                    [
-                      0.09,
-                      -0.02
-                    ],
-                    [
-                      0.15,
-                      -0.06
-                    ],
-                    [
-                      0.13,
-                      -0.11
-                    ],
-                    [
-                      0.07,
-                      -0.125
-                    ],
-                    [
-                      0.025,
-                      -0.08
-                    ],
-                    [
-                      0.01,
-                      -0.04
-                    ]
-                  ]
-                ],
-                "height": 0.004,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.002,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "mirror": {
-                "name": "fore_r",
-                "input": "fore_l",
-                "axis": "x",
-                "offset": [
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              }
-            },
-            {
-              "mirror": {
-                "name": "hind_r",
-                "input": "hind_l",
-                "axis": "x",
-                "offset": [
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "wings",
-                "inputs": [
-                  "fore_l",
-                  "hind_l",
-                  "fore_r",
-                  "hind_r"
-                ]
-              }
-            },
-            {
-              "visibility": {
-                "name": "body_hi",
-                "input": "body_hi",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fore_l",
-                "input": "fore_l",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "hind_l",
-                "input": "hind_l",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fore_r",
-                "input": "fore_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "hind_r",
-                "input": "hind_r",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "body",
-                "input": "body",
-                "base_color": [
-                  0.18,
-                  0.14,
-                  0.12,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fa-knit",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.12,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "name": "st",
-                        "size": [
-                          0.012,
-                          0.01
-                        ],
-                        "type": "tile_grid"
-                      },
-                      {
-                        "input": "st.cell",
-                        "name": "l",
-                        "type": "split"
-                      },
-                      {
-                        "a": "lx",
-                        "name": "ax",
-                        "op": "abs",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ax",
-                        "b": 0.9,
-                        "name": "vv",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ly",
-                        "b": "vv",
-                        "name": "yy",
-                        "op": "sub",
-                        "type": "math"
-                      },
-                      {
-                        "a": "yy",
-                        "b": 3.14159,
-                        "name": "sy0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "sy0",
-                        "b": 1.5708,
-                        "name": "sy",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "a": "sy",
-                        "name": "cy",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "lx",
-                        "b": 3.14159,
-                        "name": "sx0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "sx0",
-                        "b": 1.5708,
-                        "name": "sx",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "a": "sx",
-                        "name": "cx",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "cy",
-                        "b": "cx",
-                        "name": "bump0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "bump0",
-                        "name": "bump",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "id": "st.id",
-                        "max": 1.03,
-                        "min": 0.93,
-                        "name": "sr",
-                        "seed": 5,
-                        "type": "random"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bump",
-                        "name": "sh",
-                        "to": [
-                          0.72,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.92,
-                          1.04
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "sh",
-                        "b": "nt",
-                        "name": "v0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "v0",
-                        "b": "sr",
-                        "name": "v1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#f4f2ee",
-                        "b": "v1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bump",
-                        "b": 0.0016,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "normal_strength": 1.5,
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "l.x",
-                        "name": "lx",
-                        "to": [
-                          -1,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "l.y",
-                        "name": "ly",
-                        "to": [
-                          -1,
-                          1
-                        ],
-                        "type": "remap"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wings",
-                "input": "wings",
-                "base_color": [
-                  0.4,
-                  0.7,
-                  1.0,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fa-wing",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "coords": "wc",
-                        "from": [
-                          0.0,
-                          0.0
-                        ],
-                        "mode": "radial",
-                        "name": "rad",
-                        "to": [
-                          0.22,
-                          0.0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "in": [
-                          0.8,
-                          0.88
-                        ],
-                        "input": "rad",
-                        "name": "border",
-                        "type": "levels"
-                      },
-                      {
-                        "center": [
-                          0.135,
-                          0.06
-                        ],
-                        "coords": "wc",
-                        "name": "spot1",
-                        "radius": 0.024,
-                        "type": "circle"
-                      },
-                      {
-                        "center": [
-                          0.085,
-                          -0.075
-                        ],
-                        "coords": "wc",
-                        "name": "spot2",
-                        "radius": 0.019,
-                        "type": "circle"
-                      },
-                      {
-                        "a": "spot1",
-                        "b": "spot2",
-                        "name": "spots",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "spot_m",
-                        "sdf": "spots",
-                        "softness": 0.002,
-                        "type": "mask"
-                      },
-                      {
-                        "center": [
-                          0.135,
-                          0.06
-                        ],
-                        "coords": "wc",
-                        "name": "eye1",
-                        "radius": 0.01,
-                        "type": "circle"
-                      },
-                      {
-                        "center": [
-                          0.085,
-                          -0.075
-                        ],
-                        "coords": "wc",
-                        "name": "eye2",
-                        "radius": 0.008,
-                        "type": "circle"
-                      },
-                      {
-                        "a": "eye1",
-                        "b": "eye2",
-                        "name": "eyes",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "mode": "fill",
-                        "name": "eye_m",
-                        "sdf": "eyes",
-                        "softness": 0.002,
-                        "type": "mask"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 31,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.9,
-                          1.03
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "#f6f4f0",
-                        "b": "nt",
-                        "name": "c0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#2a2420",
-                        "c": "border",
-                        "name": "c1",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#2a2420",
-                        "c": "spot_m",
-                        "name": "c2",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c2",
-                        "b": "#fff8e8",
-                        "c": "eye_m",
-                        "name": "c3",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rootdk",
-                        "b": 0.5,
-                        "name": "rd",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c3",
-                        "b": "#3a3028",
-                        "c": "rd",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "double_sided": true,
-                        "name": "out",
-                        "roughness": 0.85,
-                        "type": "output"
-                      },
-                      {
-                        "name": "pos",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "input": "pos",
-                        "name": "ps",
-                        "type": "split"
-                      },
-                      {
-                        "a": "ps.x",
-                        "name": "ax",
-                        "op": "abs",
-                        "type": "math"
-                      },
-                      {
-                        "name": "wc",
-                        "type": "combine",
-                        "x": "ax",
-                        "y": "ps.z"
-                      },
-                      {
-                        "in": [
-                          0.05,
-                          0.25
-                        ],
-                        "input": "rad",
-                        "name": "rootlit",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "rootlit",
-                        "name": "rootdk",
-                        "op": "invert",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "skeleton": {
-                "name": "rig",
-                "bones": [
-                  {
-                    "name": "body",
-                    "head": [
-                      0.0,
-                      0.0,
-                      -0.08
-                    ],
-                    "tail": [
-                      0.0,
-                      0.0,
-                      0.08
-                    ],
-                    "radius": 0.02
-                  },
-                  {
-                    "name": "wing_l",
-                    "parent": "body",
-                    "head": [
-                      0.006,
-                      0.0,
-                      0.0
-                    ],
-                    "tail": [
-                      0.2,
-                      0.0,
-                      0.0
-                    ],
-                    "radius": 0.05
-                  }
-                ],
-                "mirror": "x"
-              }
-            },
-            {
-              "bind": {
-                "name": "body_bind",
-                "skeleton": "rig",
-                "parts": [
-                  "body"
-                ],
-                "bone": "body",
-                "mode": "rigid"
-              }
-            },
-            {
-              "bind": {
-                "name": "wing_bind",
-                "skeleton": "rig",
-                "parts": [
-                  "wings"
-                ],
-                "mode": "smooth",
-                "blend": 0.004,
-                "paint": [
-                  {
-                    "bone": "wing_l",
-                    "min": [
-                      0.0,
-                      -1.0,
-                      -1.0
-                    ],
-                    "max": [
-                      1.0,
-                      1.0,
-                      1.0
-                    ]
-                  },
-                  {
-                    "bone": "wing_r",
-                    "min": [
-                      -1.0,
-                      -1.0,
-                      -1.0
-                    ],
-                    "max": [
-                      0.0,
-                      1.0,
-                      1.0
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "clip": {
-                "name": "flap",
-                "skeleton": "rig",
-                "duration": 0.35,
-                "loop": true,
-                "tracks": {
-                  "body": {
-                    "translate": {
-                      "wave": {
-                        "axis": [
-                          0.0,
-                          1.0,
-                          0.0
-                        ],
-                        "amount": 0.012,
-                        "period": 0.35,
-                        "phase": 0.5
-                      }
-                    }
-                  },
-                  "wing_l": {
-                    "rotate": {
-                      "keys": {
-                        "keys": [
-                          [
-                            0.0,
-                            [
-                              0.0,
-                              0.0,
-                              0.4617486,
-                              0.8870108
-                            ]
-                          ],
-                          [
-                            0.175,
-                            [
-                              0.0,
-                              0.0,
-                              -0.34202012,
-                              0.9396926
-                            ]
-                          ],
-                          [
-                            0.35,
-                            [
-                              0.0,
-                              0.0,
-                              0.4617486,
-                              0.8870108
-                            ]
-                          ]
-                        ],
-                        "interp": "smooth"
-                      }
-                    }
-                  }
-                },
-                "mirror": {
-                  "wing_r": {
-                    "from": "wing_l",
-                    "phase": 0.0
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "4 edits: skeleton `rig` bones=body,wing_l mirror=x … clip `flap` skeleton=`rig` 0.35s loop tracks=body,wing_l mirror=wing_r<-wing_l@0",
-        "author": "fauna"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 21054
 }

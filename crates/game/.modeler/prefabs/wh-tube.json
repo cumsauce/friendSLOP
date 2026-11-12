@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "wh-tube",
-  "parts": [],
-  "version": 15299,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "housing",
         "kind": "box",
+        "name": "housing",
+        "rotation": null,
         "size": [
           1.46,
           0.035,
@@ -17,14 +19,14 @@
           0.0,
           0.035,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap_l",
         "kind": "box",
+        "name": "cap_l",
+        "rotation": null,
         "size": [
           0.04,
           0.05,
@@ -34,14 +36,14 @@
           -0.7,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap_r",
         "kind": "box",
+        "name": "cap_r",
+        "rotation": null,
         "size": [
           0.04,
           0.05,
@@ -51,14 +53,14 @@
           0.7,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "wire_l",
         "kind": "box",
+        "name": "wire_l",
+        "rotation": null,
         "size": [
           0.012,
           0.25,
@@ -68,14 +70,14 @@
           -0.55,
           0.175,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "wire_r",
         "kind": "box",
+        "name": "wire_r",
+        "rotation": null,
         "size": [
           0.012,
           0.25,
@@ -85,14 +87,19 @@
           0.55,
           0.175,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "tube_0",
         "kind": "cylinder",
+        "name": "tube_0",
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ],
         "size": [
           0.022,
           1.36,
@@ -102,19 +109,19 @@
           0.0,
           -0.005,
           -0.032
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
         ]
       }
     },
     {
       "primitive": {
-        "name": "tube_1",
         "kind": "cylinder",
+        "name": "tube_1",
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ],
         "size": [
           0.022,
           1.36,
@@ -124,34 +131,23 @@
           0.0,
           -0.005,
           0.032
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
         ]
       }
     },
     {
       "material": {
-        "name": "housing",
+        "base_color": [
+          0.6039216,
+          0.6039216,
+          0.5882353,
+          1.0
+        ],
         "input": "housing",
-        "base_color": [
-          0.6039216,
-          0.6039216,
-          0.5882353,
-          1.0
-        ],
-        "roughness": null,
         "metalness": null,
+        "name": "housing",
         "pbr": {
-          "material": "sp-metal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -266,30 +262,30 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-metal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap_l",
+        "base_color": [
+          0.6039216,
+          0.6039216,
+          0.5882353,
+          1.0
+        ],
         "input": "cap_l",
-        "base_color": [
-          0.6039216,
-          0.6039216,
-          0.5882353,
-          1.0
-        ],
-        "roughness": null,
         "metalness": null,
+        "name": "cap_l",
         "pbr": {
-          "material": "sp-metal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -404,30 +400,30 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-metal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap_r",
+        "base_color": [
+          0.6039216,
+          0.6039216,
+          0.5882353,
+          1.0
+        ],
         "input": "cap_r",
-        "base_color": [
-          0.6039216,
-          0.6039216,
-          0.5882353,
-          1.0
-        ],
-        "roughness": null,
         "metalness": null,
+        "name": "cap_r",
         "pbr": {
-          "material": "sp-metal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -542,25 +538,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-metal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wire_l",
+        "base_color": null,
         "input": "wire_l",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "wire_l",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -667,25 +663,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wire_r",
+        "base_color": null,
         "input": "wire_r",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "wire_r",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -792,25 +788,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "tube_0",
+        "base_color": null,
         "input": "tube_0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "tube_0",
         "pbr": {
-          "material": "wh-tube",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -842,25 +838,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "wh-tube",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "tube_1",
-        "input": "tube_1",
         "base_color": null,
-        "roughness": null,
+        "input": "tube_1",
         "metalness": null,
+        "name": "tube_1",
         "pbr": {
-          "material": "wh-tube",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -892,944 +888,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "wh-tube",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "wh-tube",
-          "parts": [],
-          "version": 15205,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `wh-tube`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "wh-tube",
-          "parts": [],
-          "version": 15286,
-          "ops": [
-            {
-              "primitive": {
-                "name": "housing",
-                "kind": "box",
-                "size": [
-                  1.46,
-                  0.035,
-                  0.15
-                ],
-                "translation": [
-                  0.0,
-                  0.035,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap_l",
-                "kind": "box",
-                "size": [
-                  0.04,
-                  0.05,
-                  0.12
-                ],
-                "translation": [
-                  -0.7,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap_r",
-                "kind": "box",
-                "size": [
-                  0.04,
-                  0.05,
-                  0.12
-                ],
-                "translation": [
-                  0.7,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "wire_l",
-                "kind": "box",
-                "size": [
-                  0.012,
-                  0.25,
-                  0.012
-                ],
-                "translation": [
-                  -0.55,
-                  0.175,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "wire_r",
-                "kind": "box",
-                "size": [
-                  0.012,
-                  0.25,
-                  0.012
-                ],
-                "translation": [
-                  0.55,
-                  0.175,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "tube_0",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  1.36,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  -0.005,
-                  -0.032
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "tube_1",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  1.36,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  -0.005,
-                  0.032
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "housing",
-                "input": "housing",
-                "base_color": [
-                  0.6039216,
-                  0.6039216,
-                  0.5882353,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap_l",
-                "input": "cap_l",
-                "base_color": [
-                  0.6039216,
-                  0.6039216,
-                  0.5882353,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap_r",
-                "input": "cap_r",
-                "base_color": [
-                  0.6039216,
-                  0.6039216,
-                  0.5882353,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wire_l",
-                "input": "wire_l",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wire_r",
-                "input": "wire_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "tube_0",
-                "input": "tube_0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "wh-tube",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 441,
-                        "size": 0.1,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#cfeaf8"
-                          ],
-                          [
-                            1,
-                            "#eef9ff"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "emissive": "col",
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "tube_1",
-                "input": "tube_1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "wh-tube",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 2,
-                        "seed": 441,
-                        "size": 0.1,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#cfeaf8"
-                          ],
-                          [
-                            1,
-                            "#eef9ff"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "emissive": "col",
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "14 edits: primitive `housing` (box) size=[1.46, 0.035, 0.15] at=[0.0, 0.035, 0.0] … material `tube_1` <- `tube_1` pbr=wh-tube",
-        "author": "warehouse"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 15299
 }

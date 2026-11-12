@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "sp-roof-slate",
-  "parts": [],
-  "version": 9094,
+  "next_annotation_id": 0,
   "ops": [
     {
       "extrude": {
+        "height": 0.05,
         "name": "slate_raw",
         "profile": [
           [
@@ -31,7 +33,7 @@
             ]
           ]
         ],
-        "height": 0.05,
+        "rotation": null,
         "scale_top": [
           1.0,
           1.0
@@ -41,38 +43,32 @@
           0.0,
           -0.025,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "slate",
         "input": "slate_raw",
         "mode": "chamfer",
+        "name": "slate",
         "radius": 0.01,
         "segments": 0
       }
     },
     {
       "material": {
-        "name": "slate",
-        "input": "slate",
         "base_color": [
           0.55,
           0.6,
           0.72,
           1.0
         ],
-        "roughness": null,
+        "input": "slate",
         "metalness": null,
+        "name": "slate",
         "pbr": {
-          "material": "sp-concrete",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -134,359 +130,24 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "sp-concrete",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "slate_raw",
         "input": "slate_raw",
+        "name": "slate_raw",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-roof-slate",
-          "parts": [],
-          "version": 8314,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `sp-roof-slate`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-roof-slate",
-          "parts": [],
-          "version": 9089,
-          "ops": [
-            {
-              "extrude": {
-                "name": "slate_raw",
-                "profile": [
-                  [
-                    [
-                      -0.25,
-                      -0.175
-                    ],
-                    [
-                      0.25,
-                      -0.175
-                    ],
-                    [
-                      0.25,
-                      0.1
-                    ],
-                    [
-                      0.17,
-                      0.175
-                    ],
-                    [
-                      -0.25,
-                      0.175
-                    ]
-                  ]
-                ],
-                "height": 0.05,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.025,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "slate",
-                "input": "slate_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 0
-              }
-            },
-            {
-              "material": {
-                "name": "slate",
-                "input": "slate",
-                "base_color": [
-                  0.55,
-                  0.6,
-                  0.72,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-concrete",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 5,
-                        "seed": 141,
-                        "size": 0.3,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "sp",
-                        "seed": 142,
-                        "size": 0.02,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.0,
-                          0.005
-                        ],
-                        "input": "sp.f1",
-                        "name": "pit",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#8e8b86"
-                          ],
-                          [
-                            1,
-                            "#b8b4ae"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#5e5b57",
-                        "b": "c0",
-                        "c": "pit",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "pit",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "slate_raw",
-                "input": "slate_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `sp-roof-slate`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-roof-slate",
-          "parts": [],
-          "version": 9094,
-          "ops": [
-            {
-              "extrude": {
-                "name": "slate_raw",
-                "profile": [
-                  [
-                    [
-                      -0.25,
-                      -0.175
-                    ],
-                    [
-                      0.25,
-                      -0.175
-                    ],
-                    [
-                      0.25,
-                      0.1
-                    ],
-                    [
-                      0.17,
-                      0.175
-                    ],
-                    [
-                      -0.25,
-                      0.175
-                    ]
-                  ]
-                ],
-                "height": 0.05,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "translation": [
-                  0.0,
-                  -0.025,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "slate",
-                "input": "slate_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 0
-              }
-            },
-            {
-              "material": {
-                "name": "slate",
-                "input": "slate",
-                "base_color": [
-                  0.55,
-                  0.6,
-                  0.72,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-concrete",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 5,
-                        "seed": 141,
-                        "size": 0.3,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "sp",
-                        "seed": 142,
-                        "size": 0.02,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.0,
-                          0.005
-                        ],
-                        "input": "sp.f1",
-                        "name": "pit",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#8e8b86"
-                          ],
-                          [
-                            1,
-                            "#b8b4ae"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "#5e5b57",
-                        "b": "c0",
-                        "c": "pit",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "pit",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "slate_raw",
-                "input": "slate_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "4 edits: extrude `slate_raw` profile=[[[-0.25, -0.175], [0.25, -0.175], [0.25, 0.1], [0.17, 0.175], [-0.25, 0.175]]] height=0.05 twist=0 scale_top=[1.0, 1.0] slices=0 round=0 at=[0.0, -0.025, 0.0] … hidden `slate_raw`"
-      }
-    ],
-    "current": 2
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 9094
 }

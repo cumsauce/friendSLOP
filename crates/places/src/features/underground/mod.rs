@@ -11,7 +11,7 @@
 //!   Paul's spot are pinned; the chambers, corridors, loops and dead ends
 //!   between them change with the seed. Every peer builds [`Tunnels`] from
 //!   the same seed, so the server's rats walk the same tunnels players see.
-//! - Four ways in ([`ENTRANCES`]): a manhole on the road east out of the
+//! - Four ways in ([`entrances`]): a manhole on the road east out of the
 //!   commune, a manhole on the road to the ruins, the cellar door beside the
 //!   big cottage in the east village, and a loose floorboard in the
 //!   woodcutter's hut in the forest clearing (no sign: it's a secret).
@@ -79,51 +79,56 @@ pub struct Entrance {
     pub name: &'static str,
 }
 
-/// Every way in. All of them join up underground.
-pub const ENTRANCES: [Entrance; 4] = [
-    Entrance {
-        at: Vec2::new(21.0, 1.0),
-        out: Vec2::new(0.0, -1.0),
+/// Every way in, from the map's `Entrance` markers (`entrance_1`..). All of
+/// them join up underground.
+pub fn entrances() -> Vec<Entrance> {
+    friendslop_world::places::layout()
+        .entrances
+        .iter()
+        .map(|e| {
+            let (kind, name) = match e.kind.as_str() {
+                "cellar_door" => (Kind::CellarDoor, "a damp cellar"),
+                "trapdoor" => (Kind::Trapdoor, "a secret passage"),
+                _ => (Kind::Manhole, "the sewers"),
+            };
+            Entrance {
+                at: e.at,
+                out: e.out,
+                kind,
+                name,
+            }
+        })
+        .collect()
+}
+
+/// Way in `i` (wrapping round; a manhole at the centre if the map has none).
+pub fn entrance(i: usize) -> Entrance {
+    let all = entrances();
+    all.get(i % all.len().max(1)).copied().unwrap_or(Entrance {
+        at: Vec2::ZERO,
+        out: Vec2::X,
         kind: Kind::Manhole,
         name: "the sewers",
-    },
-    Entrance {
-        at: Vec2::new(-20.0, 22.0),
-        out: Vec2::new(1.0, 0.0),
-        kind: Kind::Manhole,
-        name: "the sewers",
-    },
-    Entrance {
-        at: Vec2::new(72.6, -11.0),
-        out: Vec2::new(1.0, 0.0),
-        kind: Kind::CellarDoor,
-        name: "a damp cellar",
-    },
-    Entrance {
-        at: Vec2::new(-26.8, -62.8),
-        out: Vec2::new(1.0, 0.0),
-        kind: Kind::Trapdoor,
-        name: "a secret passage",
-    },
-];
+    })
+}
 
 /// Does a way in (plus `margin`) cover this map spot? Scenery keeps out.
 pub fn covers(p: Vec2, margin: f32) -> bool {
-    ENTRANCES
+    entrances()
         .iter()
         .any(|e| p.distance(e.at + e.out * 0.8) < 2.2 + margin)
 }
 
 /// Where you arrive at the bottom of entrance `i`'s ladder.
 pub fn down_spot(i: usize) -> Vec3 {
-    let e = ENTRANCES[i % ENTRANCES.len()];
+    let e = entrance(i);
     let p = e.at + e.out * 1.0;
     Vec3::new(p.x, TUNNEL_Y, p.y)
 }
 
 /// Where you step off at the top of entrance `i`.
 pub fn up_spot(i: usize) -> Vec3 {
-    let e = ENTRANCES[i % ENTRANCES.len()];
+    let e = entrance(i);
     let p = e.at + e.out * 1.4;
     Vec3::new(p.x, crate::terrain::height_at(p.x, p.y), p.y)
 }
@@ -181,7 +186,7 @@ pub fn way_up(l: &Layout, from: Vec2) -> Option<(usize, f32, Vec2)> {
     if !l.open(start) {
         return None;
     }
-    let ladders: Vec<Cell> = ENTRANCES.iter().map(|e| cell_of(e.at)).collect();
+    let ladders: Vec<Cell> = entrances().iter().map(|e| cell_of(e.at)).collect();
     // Breadth-first from where you stand, remembering each cell's first step.
     let mut first: BTreeMap<Cell, (Cell, u32)> = BTreeMap::new();
     first.insert(start, (start, 0));
@@ -194,7 +199,7 @@ pub fn way_up(l: &Layout, from: Vec2) -> Option<(usize, f32, Vec2)> {
             } else {
                 (cell_centre(step) - cell_centre(start)).normalize_or_zero()
             };
-            let at = ENTRANCES[i].at;
+            let at = entrance(i).at;
             let metres = d as f32 * CELL + if d == 0 { from.distance(at) } else { 0.0 };
             return Some((i, metres, dir));
         }
@@ -234,14 +239,14 @@ pub const SEED_SALT: u32 = 0x5E3E_0127;
 
 /// Where Sewer Paul's chamber is: halfway along the way to the first manhole.
 pub fn paul_cell() -> Cell {
-    cell_of(ENTRANCES[0].at / 2.0)
+    cell_of(entrance(0).at / 2.0)
 }
 
 /// The rooms that stay put whatever the seed: the junction, the foot of
 /// every ladder (the cellar is a whole room), and Sewer Paul's chamber. The
 /// secret passage's end is a leaf: one way in, one way out.
 fn pins() -> Vec<Room> {
-    let foot = |i: usize| (cell_of(ENTRANCES[i].at), cell_of(down_spot(i).xz()));
+    let foot = |i: usize| (cell_of(entrance(i).at), cell_of(down_spot(i).xz()));
     let tag = |p: Part| p as u8;
     let (a, b) = foot(0);
     let e0 = Room::covering(a, b, tag(Part::Sewer));
@@ -363,7 +368,9 @@ fn use_hatch(
         return;
     }
     let id = ev.id as usize;
-    let Some(e) = ENTRANCES.get(id) else { return };
+    let Some(e) = entrances().get(id).copied() else {
+        return;
+    };
     let owner = match ev.client_id {
         ClientId::Server => None,
         ClientId::Client(c) => Some(c),
@@ -405,7 +412,7 @@ mod tests {
         };
         assert!(m > 0.0 && dir != Vec2::ZERO);
         // Standing at a ladder: it's right here.
-        let at = ENTRANCES[0].at;
+        let at = entrance(0).at;
         let Some((i, m, dir)) = way_up(&l, cell_centre(cell_of(at))) else {
             panic!("no way up at a ladder")
         };
@@ -436,17 +443,17 @@ mod tests {
         assert_eq!(a.cells, layout(WorldSeed(1).for_(SEED_SALT)).cells);
         for l in [&a, &b] {
             assert_eq!(l.part((0, 0)), Some(Part::Hub));
-            assert_eq!(l.part(cell_of(ENTRANCES[2].at)), Some(Part::Cellar));
-            assert_eq!(l.part(cell_of(ENTRANCES[3].at)), Some(Part::Passage));
+            assert_eq!(l.part(cell_of(entrance(2).at)), Some(Part::Cellar));
+            assert_eq!(l.part(cell_of(entrance(3).at)), Some(Part::Passage));
             assert_eq!(l.part(paul_cell()), Some(Part::Sewer));
         }
     }
 
     fn everything_joins_up(l: &Layout) {
-        for (i, a) in ENTRANCES.iter().enumerate() {
+        for (i, a) in entrances().iter().enumerate() {
             let c = cell_of(a.at);
             assert!(l.open(c), "entrance {i} has no tunnel under it");
-            for b in &ENTRANCES {
+            for b in &entrances() {
                 assert!(l.connected(c, cell_of(b.at)), "{} to {}", a.name, b.name);
             }
             // You arrive inside the tunnel, at the foot of its ladder.

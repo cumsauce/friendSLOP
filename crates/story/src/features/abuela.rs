@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::bear::wav_bytes;
-use crate::features::climb::ISLANDS;
+use crate::features::climb::{island, islands};
 use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, within};
 use crate::features::synth_audio::{RATE, master, play_synth_at};
@@ -64,7 +64,7 @@ pub const SHOWN_SECS: f32 = 6.0;
 
 /// Where heaven is: the highest floating island.
 pub fn heaven() -> crate::features::climb::Island {
-    ISLANDS[ISLANDS.len() - 1]
+    island(islands().len().saturating_sub(1))
 }
 
 /// Her chair, on the far side of heaven from where you climb up.
@@ -734,7 +734,7 @@ mod tests {
     #[test]
     fn she_is_in_heaven() {
         let h = heaven();
-        assert!(h.top >= ISLANDS.iter().map(|i| i.top).fold(0.0, f32::max));
+        assert!(h.top >= islands().iter().map(|i| i.top).fold(0.0, f32::max));
         assert!(visiting(chair_at(), 1.0));
         assert!(!visiting(chair_at().with_y(0.0), 1.0), "not from below");
         assert!(look().clamped() == look());

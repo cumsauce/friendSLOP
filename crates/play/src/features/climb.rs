@@ -49,23 +49,22 @@ pub struct Island {
 
 /// The islands, lowest first. Each one's spire stands on the one below it
 /// (the first one's on the ground).
-pub const ISLANDS: [Island; 3] = [
-    Island {
-        at: Vec2::new(55.0, 60.0),
+pub fn islands() -> Vec<Island> {
+    friendslop_world::places::layout()
+        .islands
+        .iter()
+        .map(|&(at, top, radius)| Island { at, top, radius })
+        .collect()
+}
+
+/// Island `i` (a small one over the centre if the map has too few).
+pub fn island(i: usize) -> Island {
+    islands().get(i).copied().unwrap_or(Island {
+        at: Vec2::ZERO,
         top: 10.0,
-        radius: 7.0,
-    },
-    Island {
-        at: Vec2::new(63.0, 60.0),
-        top: 16.0,
-        radius: 5.0,
-    },
-    Island {
-        at: Vec2::new(63.0, 67.0),
-        top: 22.0,
         radius: 4.0,
-    },
-];
+    })
+}
 /// The solid slab of each island (the rocky cone below is only looks).
 const ISLAND_THICKNESS: f32 = 1.5;
 const SPIRE_WIDTH: f32 = 1.6;
@@ -76,13 +75,13 @@ const SPIRE_MODEL_HEIGHT: f32 = 8.0;
 /// Where island `i`'s spire stands (x, z): on its rim, towards the island
 /// below (or, for the first, towards the commune).
 pub fn spire_at(i: usize) -> Vec2 {
-    let island = ISLANDS[i];
+    let it = island(i);
     let towards = if i == 0 {
-        -island.at
+        -it.at
     } else {
-        ISLANDS[i - 1].at - island.at
+        island(i - 1).at - it.at
     };
-    island.at + towards.normalize_or_zero() * (island.radius - 0.3)
+    it.at + towards.normalize_or_zero() * (it.radius - 0.3)
 }
 
 /// What the spire under island `i` stands on.
@@ -91,7 +90,7 @@ pub fn spire_base(i: usize) -> f32 {
         let p = spire_at(0);
         crate::terrain::height_at(p.x, p.y) - 0.5
     } else {
-        ISLANDS[i - 1].top - ISLAND_THICKNESS
+        island(i - 1).top - ISLAND_THICKNESS
     }
 }
 
@@ -244,7 +243,7 @@ fn raise_islands(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 )
             })
         };
-    for (i, island) in ISLANDS.iter().enumerate() {
+    for (i, island) in islands().iter().enumerate() {
         // The grassy slab you stand on, with its rocky underside.
         let mut slab = commands.spawn((
             Transform::from_xyz(
@@ -311,21 +310,21 @@ mod tests {
 
     #[test]
     fn each_spire_stands_on_the_island_below() {
-        for i in 1..ISLANDS.len() {
-            let below = ISLANDS[i - 1];
+        for i in 1..islands().len() {
+            let below = island(i - 1);
             let s = spire_at(i);
             assert!(
                 s.distance(below.at) < below.radius - SPIRE_WIDTH,
                 "spire {i} is over island {}",
                 i - 1
             );
-            assert!(ISLANDS[i].top > below.top + 3.0, "each island is higher");
+            assert!(island(i).top > below.top + 3.0, "each island is higher");
         }
         // The first spire reaches from the ground in the open meadow.
         assert_eq!(
             crate::zones::zone_of(spire_at(0)),
             crate::zones::Zone::Meadow
         );
-        assert!(spire_base(0) < ISLANDS[0].top - 5.0);
+        assert!(spire_base(0) < island(0).top - 5.0);
     }
 }

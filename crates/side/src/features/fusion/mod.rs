@@ -416,7 +416,7 @@ struct Director {
 /// What the music should be doing where the camera is.
 pub fn place_mood(at: Vec3) -> (Mood, f32) {
     use crate::features::abuela::{chair_at, heaven};
-    use crate::features::climb::ISLANDS;
+    use crate::features::climb::islands;
     let chair = chair_at();
     // Down in the sewers and passages (#127): their own tune.
     if crate::features::underground::below(at - Vec3::Y * 1.6) {
@@ -425,7 +425,7 @@ pub fn place_mood(at: Vec3) -> (Mood, f32) {
     if at.y > heaven().top - 4.0 && at.xz().distance(chair.xz()) < 14.0 {
         return (Mood::Abuela, Mood::Abuela.base_intensity());
     }
-    if ISLANDS
+    if islands()
         .iter()
         .any(|i| at.y > i.top - 3.0 && at.xz().distance(i.at) < i.radius + 8.0)
     {

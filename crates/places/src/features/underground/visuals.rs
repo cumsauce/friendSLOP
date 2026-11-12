@@ -234,7 +234,7 @@ fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
 /// The ways in, up top: a manhole, a cellar door against the cottage wall
 /// (to the -x side) and a trapdoor in the floorboards, each a model.
 fn build_tops(commands: &mut Commands, assets: &AssetServer) {
-    for (i, e) in ENTRANCES.iter().enumerate() {
+    for (i, e) in entrances().iter().enumerate() {
         let h = crate::terrain::height_at(e.at.x, e.at.y);
         let at = Vec3::new(e.at.x, h, e.at.y);
         let file = match e.kind {
@@ -456,7 +456,7 @@ fn build_tunnels(
         12.0,
     );
     // The cellar: shelves of jars along its back wall and a bare bulb.
-    let cellar = cell_centre(cell_of(ENTRANCES[2].at));
+    let cellar = cell_centre(cell_of(entrance(2).at));
     let back = Vec3::new(cellar.x - CELL * 1.5 + 0.3, y, cellar.y);
     // Three shelves of 27 jars (brown, green, honey), one model.
     deep_model(
@@ -485,7 +485,7 @@ fn build_tunnels(
 
     // A ladder under every way in, and the hatch seen from below.
     let hatch_glow = glow(&mut materials, Color::srgb(1.0, 0.88, 0.45), 4.0);
-    for (i, e) in ENTRANCES.iter().enumerate() {
+    for (i, e) in entrances().iter().enumerate() {
         let base = Vec3::new(e.at.x, y, e.at.y);
         // The ladder faces you as you arrive (you arrive on its `out` side):
         // a modeler-made ladder the tunnel's height, rusty iron under the

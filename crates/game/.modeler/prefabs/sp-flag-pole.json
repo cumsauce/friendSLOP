@@ -1,0 +1,2487 @@
+{
+  "format_version": 1,
+  "name": "sp-flag-pole",
+  "parts": [],
+  "version": 12506,
+  "ops": [
+    {
+      "revolve": {
+        "name": "pole",
+        "profile": [
+          [
+            [
+              0.0,
+              -2.6
+            ],
+            [
+              0.09,
+              -2.6
+            ],
+            [
+              0.075,
+              -2.3
+            ],
+            [
+              0.06,
+              2.45
+            ],
+            [
+              0.0,
+              2.45
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p0",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.03482021,
+          2.5724192,
+          0.0042764167
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p1",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.06383303,
+          2.5692441,
+          0.023007715
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p2",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.035057172,
+          2.5502138,
+          -0.06932649
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p3",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.03796144,
+          2.5418692,
+          0.0941311
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p4",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.070769146,
+          2.520912,
+          -0.05558798
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p5",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.0799662,
+          2.5065422,
+          -0.03407874
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p6",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.05545975,
+          2.4935327,
+          0.065638535
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p7",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.007863902,
+          2.4744494,
+          -0.109670654
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p8",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.057162706,
+          2.4639325,
+          0.06615862
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p9",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.071924195,
+          2.4533045,
+          -0.006779236
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p10",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.04683001,
+          2.4389668,
+          -0.03719968
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_p11",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.0035461672,
+          2.4292634,
+          0.034082744
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "hull": {
+        "name": "knob",
+        "inputs": [
+          "knob_p0",
+          "knob_p1",
+          "knob_p2",
+          "knob_p3",
+          "knob_p4",
+          "knob_p5",
+          "knob_p6",
+          "knob_p7",
+          "knob_p8",
+          "knob_p9",
+          "knob_p10",
+          "knob_p11"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "cleat",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.25,
+          0.05
+        ],
+        "translation": [
+          0.08,
+          -1.2,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "pole",
+        "input": "pole",
+        "base_color": [
+          0.8,
+          0.75,
+          0.72,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-wood-v",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "rot",
+                "rotate": 90,
+                "type": "transform"
+              },
+              {
+                "coords": "rot",
+                "name": "wv",
+                "octaves": 2,
+                "seed": 101,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "amount": 0.04,
+                "by": "wv",
+                "coords": "rot",
+                "name": "wp",
+                "type": "warp"
+              },
+              {
+                "coords": "wp",
+                "name": "pl",
+                "size": [
+                  1.0,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "coords": "wp",
+                "name": "gr",
+                "size": [
+                  1.0,
+                  0.02
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "id": "pl.id",
+                "max": 1,
+                "min": 0,
+                "name": "pr",
+                "seed": 102,
+                "type": "random"
+              },
+              {
+                "id": "gr.id",
+                "max": 1,
+                "min": 0,
+                "name": "grr",
+                "seed": 103,
+                "type": "random"
+              },
+              {
+                "coords": "rot",
+                "name": "fn",
+                "octaves": 3,
+                "seed": 104,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "a": "pr",
+                "b": "grr",
+                "c": 0.3,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "fn",
+                "c": 0.3,
+                "name": "t1",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.008
+                ],
+                "input": "pl.edge",
+                "name": "seam",
+                "type": "levels"
+              },
+              {
+                "input": "t1",
+                "name": "col0",
+                "stops": [
+                  [
+                    0,
+                    "#7a5232"
+                  ],
+                  [
+                    0.55,
+                    "#a0703f"
+                  ],
+                  [
+                    1,
+                    "#c08e58"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#3a2616",
+                "b": "col0",
+                "c": "seam",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "t1",
+                "b": 0.0008,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "seam",
+                "b": 0.002,
+                "name": "hs",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "hs",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "knob",
+        "input": "knob",
+        "base_color": [
+          0.9,
+          0.75,
+          0.35,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cleat",
+        "input": "cleat",
+        "base_color": [
+          0.3,
+          0.3,
+          0.33,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p0",
+        "input": "knob_p0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p1",
+        "input": "knob_p1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p2",
+        "input": "knob_p2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p3",
+        "input": "knob_p3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p4",
+        "input": "knob_p4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p5",
+        "input": "knob_p5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p6",
+        "input": "knob_p6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p7",
+        "input": "knob_p7",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p8",
+        "input": "knob_p8",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p9",
+        "input": "knob_p9",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p10",
+        "input": "knob_p10",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_p11",
+        "input": "knob_p11",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "sp-flag-pole",
+          "parts": [],
+          "version": 11523,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `sp-flag-pole`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "sp-flag-pole",
+          "parts": [],
+          "version": 12475,
+          "ops": [
+            {
+              "revolve": {
+                "name": "pole",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -2.6
+                    ],
+                    [
+                      0.09,
+                      -2.6
+                    ],
+                    [
+                      0.075,
+                      -2.3
+                    ],
+                    [
+                      0.06,
+                      2.45
+                    ],
+                    [
+                      0.0,
+                      2.45
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p0",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.03482021,
+                  2.6024191,
+                  0.0042764167
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p1",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.06383303,
+                  2.599244,
+                  0.023007715
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p2",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.035057172,
+                  2.5802138,
+                  -0.06932649
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p3",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.03796144,
+                  2.5718691,
+                  0.0941311
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p4",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.070769146,
+                  2.550912,
+                  -0.05558798
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p5",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.0799662,
+                  2.5365422,
+                  -0.03407874
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p6",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.05545975,
+                  2.5235326,
+                  0.065638535
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p7",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.007863902,
+                  2.5044494,
+                  -0.109670654
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p8",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.057162706,
+                  2.4939327,
+                  0.06615862
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p9",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.071924195,
+                  2.4833045,
+                  -0.006779236
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p10",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.04683001,
+                  2.4689667,
+                  -0.03719968
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p11",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.0035461672,
+                  2.4592633,
+                  0.034082744
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "hull": {
+                "name": "knob",
+                "inputs": [
+                  "knob_p0",
+                  "knob_p1",
+                  "knob_p2",
+                  "knob_p3",
+                  "knob_p4",
+                  "knob_p5",
+                  "knob_p6",
+                  "knob_p7",
+                  "knob_p8",
+                  "knob_p9",
+                  "knob_p10",
+                  "knob_p11"
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "cleat",
+                "kind": "box",
+                "size": [
+                  0.05,
+                  0.25,
+                  0.05
+                ],
+                "translation": [
+                  0.08,
+                  -1.2,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "pole",
+                "input": "pole",
+                "base_color": [
+                  0.8,
+                  0.75,
+                  0.72,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-wood-v",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "rot",
+                        "rotate": 90,
+                        "type": "transform"
+                      },
+                      {
+                        "coords": "rot",
+                        "name": "wv",
+                        "octaves": 2,
+                        "seed": 101,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "amount": 0.04,
+                        "by": "wv",
+                        "coords": "rot",
+                        "name": "wp",
+                        "type": "warp"
+                      },
+                      {
+                        "coords": "wp",
+                        "name": "pl",
+                        "size": [
+                          1.0,
+                          0.25
+                        ],
+                        "stagger": 0.5,
+                        "type": "tile_grid"
+                      },
+                      {
+                        "coords": "wp",
+                        "name": "gr",
+                        "size": [
+                          1.0,
+                          0.02
+                        ],
+                        "stagger": 0.5,
+                        "type": "tile_grid"
+                      },
+                      {
+                        "id": "pl.id",
+                        "max": 1,
+                        "min": 0,
+                        "name": "pr",
+                        "seed": 102,
+                        "type": "random"
+                      },
+                      {
+                        "id": "gr.id",
+                        "max": 1,
+                        "min": 0,
+                        "name": "grr",
+                        "seed": 103,
+                        "type": "random"
+                      },
+                      {
+                        "coords": "rot",
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 104,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "a": "pr",
+                        "b": "grr",
+                        "c": 0.3,
+                        "name": "t0",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "t0",
+                        "b": "fn",
+                        "c": 0.3,
+                        "name": "t1",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "in": [
+                          0.0,
+                          0.008
+                        ],
+                        "input": "pl.edge",
+                        "name": "seam",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "t1",
+                        "name": "col0",
+                        "stops": [
+                          [
+                            0,
+                            "#7a5232"
+                          ],
+                          [
+                            0.55,
+                            "#a0703f"
+                          ],
+                          [
+                            1,
+                            "#c08e58"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "#3a2616",
+                        "b": "col0",
+                        "c": "seam",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "t1",
+                        "b": 0.0008,
+                        "name": "h0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "seam",
+                        "b": 0.002,
+                        "name": "hs",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h0",
+                        "b": "hs",
+                        "name": "h",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.75,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "knob",
+                "input": "knob",
+                "base_color": [
+                  0.9,
+                  0.75,
+                  0.35,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-metal",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 111,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 4,
+                        "seed": 112,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust",
+                        "type": "levels"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.05,
+                        "name": "br",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "input": "br",
+                        "name": "mc",
+                        "stops": [
+                          [
+                            0,
+                            "#8a8c90"
+                          ],
+                          [
+                            1,
+                            "#b4b6ba"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0,
+                            "#6a3a20"
+                          ],
+                          [
+                            1,
+                            "#9a5a30"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "mc",
+                        "b": "rc",
+                        "c": "rust",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.75,
+                        "b": 0.0,
+                        "c": "rust",
+                        "name": "met",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "br",
+                        "name": "r0",
+                        "to": [
+                          0.35,
+                          0.55
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "r0",
+                        "b": 0.9,
+                        "c": "rust",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "rust",
+                        "b": 0.0008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": "met",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "cleat",
+                "input": "cleat",
+                "base_color": [
+                  0.3,
+                  0.3,
+                  0.33,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-metal",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 111,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 4,
+                        "seed": 112,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust",
+                        "type": "levels"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.05,
+                        "name": "br",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "input": "br",
+                        "name": "mc",
+                        "stops": [
+                          [
+                            0,
+                            "#8a8c90"
+                          ],
+                          [
+                            1,
+                            "#b4b6ba"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0,
+                            "#6a3a20"
+                          ],
+                          [
+                            1,
+                            "#9a5a30"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "mc",
+                        "b": "rc",
+                        "c": "rust",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.75,
+                        "b": 0.0,
+                        "c": "rust",
+                        "name": "met",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "br",
+                        "name": "r0",
+                        "to": [
+                          0.35,
+                          0.55
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "r0",
+                        "b": 0.9,
+                        "c": "rust",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "rust",
+                        "b": 0.0008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": "met",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p0",
+                "input": "knob_p0",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p1",
+                "input": "knob_p1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p2",
+                "input": "knob_p2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p3",
+                "input": "knob_p3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p4",
+                "input": "knob_p4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p5",
+                "input": "knob_p5",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p6",
+                "input": "knob_p6",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p7",
+                "input": "knob_p7",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p8",
+                "input": "knob_p8",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p9",
+                "input": "knob_p9",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p10",
+                "input": "knob_p10",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p11",
+                "input": "knob_p11",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "new model `sp-flag-pole`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "sp-flag-pole",
+          "parts": [],
+          "version": 12506,
+          "ops": [
+            {
+              "revolve": {
+                "name": "pole",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -2.6
+                    ],
+                    [
+                      0.09,
+                      -2.6
+                    ],
+                    [
+                      0.075,
+                      -2.3
+                    ],
+                    [
+                      0.06,
+                      2.45
+                    ],
+                    [
+                      0.0,
+                      2.45
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p0",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.03482021,
+                  2.5724192,
+                  0.0042764167
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p1",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.06383303,
+                  2.5692441,
+                  0.023007715
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p2",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.035057172,
+                  2.5502138,
+                  -0.06932649
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p3",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.03796144,
+                  2.5418692,
+                  0.0941311
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p4",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.070769146,
+                  2.520912,
+                  -0.05558798
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p5",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.0799662,
+                  2.5065422,
+                  -0.03407874
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p6",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.05545975,
+                  2.4935327,
+                  0.065638535
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p7",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.007863902,
+                  2.4744494,
+                  -0.109670654
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p8",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.057162706,
+                  2.4639325,
+                  0.06615862
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p9",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.071924195,
+                  2.4533045,
+                  -0.006779236
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p10",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.04683001,
+                  2.4389668,
+                  -0.03719968
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "knob_p11",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.0035461672,
+                  2.4292634,
+                  0.034082744
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "hull": {
+                "name": "knob",
+                "inputs": [
+                  "knob_p0",
+                  "knob_p1",
+                  "knob_p2",
+                  "knob_p3",
+                  "knob_p4",
+                  "knob_p5",
+                  "knob_p6",
+                  "knob_p7",
+                  "knob_p8",
+                  "knob_p9",
+                  "knob_p10",
+                  "knob_p11"
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "cleat",
+                "kind": "box",
+                "size": [
+                  0.05,
+                  0.25,
+                  0.05
+                ],
+                "translation": [
+                  0.08,
+                  -1.2,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "pole",
+                "input": "pole",
+                "base_color": [
+                  0.8,
+                  0.75,
+                  0.72,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-wood-v",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "rot",
+                        "rotate": 90,
+                        "type": "transform"
+                      },
+                      {
+                        "coords": "rot",
+                        "name": "wv",
+                        "octaves": 2,
+                        "seed": 101,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "amount": 0.04,
+                        "by": "wv",
+                        "coords": "rot",
+                        "name": "wp",
+                        "type": "warp"
+                      },
+                      {
+                        "coords": "wp",
+                        "name": "pl",
+                        "size": [
+                          1.0,
+                          0.25
+                        ],
+                        "stagger": 0.5,
+                        "type": "tile_grid"
+                      },
+                      {
+                        "coords": "wp",
+                        "name": "gr",
+                        "size": [
+                          1.0,
+                          0.02
+                        ],
+                        "stagger": 0.5,
+                        "type": "tile_grid"
+                      },
+                      {
+                        "id": "pl.id",
+                        "max": 1,
+                        "min": 0,
+                        "name": "pr",
+                        "seed": 102,
+                        "type": "random"
+                      },
+                      {
+                        "id": "gr.id",
+                        "max": 1,
+                        "min": 0,
+                        "name": "grr",
+                        "seed": 103,
+                        "type": "random"
+                      },
+                      {
+                        "coords": "rot",
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 104,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "a": "pr",
+                        "b": "grr",
+                        "c": 0.3,
+                        "name": "t0",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "t0",
+                        "b": "fn",
+                        "c": 0.3,
+                        "name": "t1",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "in": [
+                          0.0,
+                          0.008
+                        ],
+                        "input": "pl.edge",
+                        "name": "seam",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "t1",
+                        "name": "col0",
+                        "stops": [
+                          [
+                            0,
+                            "#7a5232"
+                          ],
+                          [
+                            0.55,
+                            "#a0703f"
+                          ],
+                          [
+                            1,
+                            "#c08e58"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "#3a2616",
+                        "b": "col0",
+                        "c": "seam",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "t1",
+                        "b": 0.0008,
+                        "name": "h0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "seam",
+                        "b": 0.002,
+                        "name": "hs",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h0",
+                        "b": "hs",
+                        "name": "h",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.75,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "knob",
+                "input": "knob",
+                "base_color": [
+                  0.9,
+                  0.75,
+                  0.35,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-metal",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 111,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 4,
+                        "seed": 112,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust",
+                        "type": "levels"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.05,
+                        "name": "br",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "input": "br",
+                        "name": "mc",
+                        "stops": [
+                          [
+                            0,
+                            "#8a8c90"
+                          ],
+                          [
+                            1,
+                            "#b4b6ba"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0,
+                            "#6a3a20"
+                          ],
+                          [
+                            1,
+                            "#9a5a30"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "mc",
+                        "b": "rc",
+                        "c": "rust",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.75,
+                        "b": 0.0,
+                        "c": "rust",
+                        "name": "met",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "br",
+                        "name": "r0",
+                        "to": [
+                          0.35,
+                          0.55
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "r0",
+                        "b": 0.9,
+                        "c": "rust",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "rust",
+                        "b": 0.0008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": "met",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "cleat",
+                "input": "cleat",
+                "base_color": [
+                  0.3,
+                  0.3,
+                  0.33,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-metal",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 111,
+                        "size": 0.08,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "rn",
+                        "octaves": 4,
+                        "seed": 112,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.58,
+                          0.72
+                        ],
+                        "input": "rn",
+                        "name": "rust",
+                        "type": "levels"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.05,
+                        "name": "br",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "input": "br",
+                        "name": "mc",
+                        "stops": [
+                          [
+                            0,
+                            "#8a8c90"
+                          ],
+                          [
+                            1,
+                            "#b4b6ba"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "rc",
+                        "stops": [
+                          [
+                            0,
+                            "#6a3a20"
+                          ],
+                          [
+                            1,
+                            "#9a5a30"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "mc",
+                        "b": "rc",
+                        "c": "rust",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.75,
+                        "b": 0.0,
+                        "c": "rust",
+                        "name": "met",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "br",
+                        "name": "r0",
+                        "to": [
+                          0.35,
+                          0.55
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "r0",
+                        "b": 0.9,
+                        "c": "rust",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "rust",
+                        "b": 0.0008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": "met",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p0",
+                "input": "knob_p0",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p1",
+                "input": "knob_p1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p2",
+                "input": "knob_p2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p3",
+                "input": "knob_p3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p4",
+                "input": "knob_p4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p5",
+                "input": "knob_p5",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p6",
+                "input": "knob_p6",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p7",
+                "input": "knob_p7",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p8",
+                "input": "knob_p8",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p9",
+                "input": "knob_p9",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p10",
+                "input": "knob_p10",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "knob_p11",
+                "input": "knob_p11",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 1,
+        "children": [],
+        "label": "30 edits: revolve `pole` profile=[[[0.0, -2.6], [0.09, -2.6], [0.075, -2.3], [0.06, 2.45], [0.0, 2.45]]] degrees=360 segments=8 round=0 at=[0.0, 0.0, 0.0] … hidden `knob_p11`"
+      }
+    ],
+    "current": 2
+  },
+  "derived_from_ops": true
+}

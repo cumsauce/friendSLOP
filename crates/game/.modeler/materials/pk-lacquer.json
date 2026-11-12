@@ -1,0 +1,106 @@
+{
+  "name": "pk-lacquer",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 8,
+      "size": 0.1,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#43204c"
+        ],
+        [
+          1,
+          "#6a3474"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "n",
+      "b": 0.0006,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "clearcoat": 0.6,
+      "height": "h",
+      "name": "out",
+      "roughness": 0.28,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pk-lacquer",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 8,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#43204c"
+                ],
+                [
+                  1,
+                  "#6a3474"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "n",
+              "b": 0.0006,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "clearcoat": 0.6,
+              "height": "h",
+              "name": "out",
+              "roughness": 0.28,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

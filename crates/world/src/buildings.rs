@@ -18,7 +18,7 @@ use avian3d::prelude::*;
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 
-use friendslop_structures::build::{batches, bodies};
+use friendslop_structures::build::{batches, bodies, drawn};
 use friendslop_structures::furniture::{bed, crates, shelf, table};
 pub use friendslop_structures::grammar::Room;
 use friendslop_structures::grammar::{self, Style};
@@ -887,12 +887,43 @@ fn village_grounds(k: &mut Kit) {
 
 // ---------------------------------------------------------------- spawning
 
+/// Props drawn from modeler models (`models/props/<name>.gltf`, sources in
+/// `crates/game/.modeler/`) instead of their kit boxes, which still collide.
+/// A missing file just draws nothing there.
+pub const PROP_MODELS: &[&str] = &[
+    "bed",
+    "table",
+    "chair",
+    "stool",
+    "counter",
+    "cupboard",
+    "shelf",
+    "crates",
+    "crates_single",
+    "barrel",
+    "rug",
+    "wall_lamp",
+    "hanging_lamp",
+    "pipe_run",
+    "cobweb",
+    "debris",
+    "books",
+    "cup_plate",
+    "bucket",
+    "sack",
+];
+
+fn has_model(name: &str) -> bool {
+    PROP_MODELS.contains(&name)
+}
+
 fn spawn_village(
     mut commands: Commands,
     seed: Res<WorldSeed>,
     old: Query<Entity, With<VillagePart>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
 ) {
     for e in &old {
         commands.entity(e).despawn();
@@ -901,7 +932,7 @@ fn spawn_village(
     let mut mats: Vec<(Mat, Handle<StandardMaterial>)> = Vec::new();
     // One merged mesh per house and material, with UVs already in world
     // metres and tangents, so `surfaces` leaves it alone (`Surfaced`).
-    for batch in batches(&kit.pieces) {
+    for batch in batches(&drawn(&kit.pieces, &kit.props, has_model)) {
         let mat = match mats.iter().find(|(m, _)| *m == batch.mat) {
             Some((_, h)) => h.clone(),
             None => {
@@ -922,6 +953,19 @@ fn spawn_village(
         if batch.small || batch.mat == Mat::Lamp {
             e.insert(NotShadowCaster);
         }
+    }
+    for prop in kit.props.iter().filter(|p| has_model(p.name)) {
+        let path = format!("models/props/{}.gltf", prop.name);
+        commands.spawn((
+            WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset(path))),
+            Transform {
+                translation: prop.at,
+                rotation: prop.rot,
+                scale: prop.scale,
+            },
+            VillagePart,
+            DespawnOnExit(AppState::InGame),
+        ));
     }
     for body in bodies(&kit.pieces) {
         // Village architecture stays in the villagers' navmesh (see

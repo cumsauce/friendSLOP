@@ -18,7 +18,7 @@ use bevy::asset::RenderAssetUsages;
 use bevy::mesh::{Indices, PrimitiveTopology};
 use bevy::prelude::*;
 
-use crate::{Palette, Piece, Shape, Solid};
+use crate::{Palette, Piece, PropMark, Shape, Solid};
 
 /// One merged mesh. Its vertices are relative to `origin`.
 pub struct Batch<M> {
@@ -35,6 +35,25 @@ pub struct Body {
     pub rot: Quat,
     pub collider: Collider,
     pub solid: Solid,
+}
+
+/// The pieces still to draw from boxes when the props `has_model` names
+/// are drawn from models instead (their pieces still collide: pass every
+/// piece to [`bodies`]).
+pub fn drawn<M: Copy>(
+    pieces: &[Piece<M>],
+    props: &[PropMark],
+    has_model: impl Fn(&str) -> bool,
+) -> Vec<Piece<M>> {
+    pieces
+        .iter()
+        .filter(|p| {
+            p.prop
+                .and_then(|i| props.get(i as usize))
+                .is_none_or(|m| !has_model(m.name))
+        })
+        .copied()
+        .collect()
 }
 
 /// World-space UV (metres) of a point on a face with normal `n`.

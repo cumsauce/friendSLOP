@@ -484,8 +484,7 @@ struct Dressed;
 
 fn dress_rockets(
     mut commands: Commands,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
+    assets: Option<Res<AssetServer>>,
     mut new: Query<(Entity, &Rocket), Without<Dressed>>,
     mut flying: Query<(&Rocket, &mut Transform), With<Dressed>>,
 ) {
@@ -495,7 +494,7 @@ fn dress_rockets(
             tf.rotation = Quat::from_rotation_arc(Vec3::Y, dir);
         }
     }
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(assets) = assets else {
         return;
     };
     for (entity, rocket) in &mut new {
@@ -505,12 +504,10 @@ fn dress_rockets(
             .map_or(Quat::IDENTITY, |d| Quat::from_rotation_arc(Vec3::Y, d));
         commands.entity(entity).insert((
             Dressed,
-            Mesh3d(meshes.add(Capsule3d::new(0.09, 0.45))),
-            MeshMaterial3d(materials.add(StandardMaterial {
-                base_color: Color::srgb(0.35, 0.4, 0.3),
-                emissive: LinearRgba::rgb(4.0, 1.4, 0.2),
-                ..default()
-            })),
+            // Modeler-made: olive body, red nose along +y, glowing exhaust.
+            WorldAssetRoot(
+                assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/rocket.gltf")),
+            ),
             Transform::from_translation(rocket.pos).with_rotation(rotation),
             Visibility::default(),
         ));
@@ -524,8 +521,7 @@ struct RpgTube(u64);
 fn carry_rpgs(
     mut commands: Commands,
     me: Option<Res<LocalPlayer>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
+    assets: Option<Res<AssetServer>>,
     muted: Query<(&Player, &Walker), With<Silenced>>,
     mut tubes: Query<(Entity, &RpgTube, &mut Transform)>,
 ) {
@@ -539,7 +535,7 @@ fn carry_rpgs(
         tf.translation = w.pos + yaw * Vec3::new(0.3, 1.45, 0.0);
         tf.rotation = yaw * Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2);
     }
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(assets) = assets else {
         return;
     };
     for (p, w) in &muted {
@@ -550,8 +546,10 @@ fn carry_rpgs(
         let yaw = Quat::from_rotation_y(w.yaw);
         commands.spawn((
             RpgTube(p.id),
-            Mesh3d(meshes.add(Cylinder::new(0.1, 1.1))),
-            MeshMaterial3d(materials.add(Color::srgb(0.25, 0.32, 0.2))),
+            // Modeler-made launcher along its +y, grips towards its -z.
+            WorldAssetRoot(
+                assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/rpg.gltf")),
+            ),
             Transform::from_translation(w.pos + yaw * Vec3::new(0.3, 1.45, 0.0))
                 .with_rotation(yaw * Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
             DespawnOnExit(AppState::InGame),

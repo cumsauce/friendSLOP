@@ -560,6 +560,7 @@ fn reset_view(
 /// `move_duelists`, so gameplay is unchanged.
 fn spawn_arena(
     mut commands: Commands,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -584,67 +585,6 @@ fn spawn_arena(
         }),
         Transform::from_translation(ARENA_CENTER + Vec3::Y * 0.015),
     );
-    let wood = crate::art::soft(&mut materials, Color::srgb(0.55, 0.36, 0.2));
-    let wood_light = crate::art::soft(&mut materials, Color::srgb(0.72, 0.52, 0.3));
-    let wood_dark = crate::art::soft(&mut materials, Color::srgb(0.36, 0.24, 0.14));
-    let post = meshes.add(Cylinder::new(0.09, 1.0));
-    let tall = meshes.add(Cylinder::new(0.12, 2.4));
-    let cap = meshes.add(Sphere::new(0.14).mesh().uv(8, 6));
-    let plank = meshes.add(Cuboid::new(1.0, 0.16, 0.05));
-    // Fence: posts every ~1.4 m, two rails of slightly crooked planks.
-    let posts = 10;
-    for side in 0..4 {
-        let rot = Quat::from_rotation_y(FRAC_PI_2 * side as f32);
-        let along = rot * Vec3::X;
-        let out = rot * Vec3::Z * ARENA_HALF;
-        for k in 0..=posts {
-            let t = -ARENA_HALF + size * k as f32 / posts as f32;
-            let at = ARENA_CENTER + out + along * t;
-            let corner = k == 0 || k == posts;
-            if corner {
-                spawn(
-                    tall.clone(),
-                    wood_dark.clone(),
-                    Transform::from_translation(at + Vec3::Y * 1.2),
-                );
-                spawn(
-                    cap.clone(),
-                    wood_light.clone(),
-                    Transform::from_translation(at + Vec3::Y * 2.45),
-                );
-            } else {
-                let lean = (k as f32 * 1.7 + side as f32).sin() * 0.04;
-                spawn(
-                    post.clone(),
-                    wood_dark.clone(),
-                    Transform::from_translation(at + Vec3::Y * 0.45)
-                        .with_rotation(Quat::from_axis_angle(along, lean)),
-                );
-            }
-            if k < posts {
-                let seg = size / posts as f32;
-                for (row, y) in [0.28f32, 0.62].into_iter().enumerate() {
-                    let wobble = ((k * 7 + row * 3 + side * 5) % 5) as f32 * 0.012 - 0.024;
-                    let mat = if (k + row + side) % 3 == 0 {
-                        wood_light.clone()
-                    } else {
-                        wood.clone()
-                    };
-                    spawn(
-                        plank.clone(),
-                        mat,
-                        Transform::from_translation(
-                            at + along * (seg * 0.5)
-                                + Vec3::Y * (y + wobble)
-                                + rot * Vec3::Z * 0.06,
-                        )
-                        .with_rotation(rot * Quat::from_rotation_z(wobble * 2.0))
-                        .with_scale(Vec3::new(seg + 0.12, 1.0, 1.0)),
-                    );
-                }
-            }
-        }
-    }
     // Bunting: little flags hanging on a sagging string between corner poles.
     spawn(
         meshes.add(bunting_mesh()),
@@ -657,27 +597,71 @@ fn spawn_arena(
         }),
         Transform::from_translation(ARENA_CENTER),
     );
+    // Modeler-made fence, barrels and bales (sources in `.modeler/`, prefabs
+    // `sp-fence-*`, `sp-barrel`, `sp-hay-bale`), placed exactly as the old
+    // primitives were (each model is centred like the shape it replaced).
+    let model = |file: &str| -> WorldAssetRoot {
+        WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+        )
+    };
+    let post = model("fence_post.gltf");
+    let tall = model("fence_corner.gltf");
+    let plank = model("fence_plank.gltf");
+    let plank_light = model("fence_plank_light.gltf");
+    let mut place = |m: &WorldAssetRoot, t: Transform| {
+        commands.spawn((m.clone(), t, DespawnOnExit(AppState::InGame)));
+    };
+    // Fence: posts every ~1.4 m, two rails of slightly crooked planks.
+    let posts = 10;
+    for side in 0..4 {
+        let rot = Quat::from_rotation_y(FRAC_PI_2 * side as f32);
+        let along = rot * Vec3::X;
+        let out = rot * Vec3::Z * ARENA_HALF;
+        for k in 0..=posts {
+            let t = -ARENA_HALF + size * k as f32 / posts as f32;
+            let at = ARENA_CENTER + out + along * t;
+            let corner = k == 0 || k == posts;
+            if corner {
+                place(&tall, Transform::from_translation(at + Vec3::Y * 1.2));
+            } else {
+                let lean = (k as f32 * 1.7 + side as f32).sin() * 0.04;
+                place(
+                    &post,
+                    Transform::from_translation(at + Vec3::Y * 0.45)
+                        .with_rotation(Quat::from_axis_angle(along, lean)),
+                );
+            }
+            if k < posts {
+                let seg = size / posts as f32;
+                for (row, y) in [0.28f32, 0.62].into_iter().enumerate() {
+                    let wobble = ((k * 7 + row * 3 + side * 5) % 5) as f32 * 0.012 - 0.024;
+                    let m = if (k + row + side) % 3 == 0 {
+                        &plank_light
+                    } else {
+                        &plank
+                    };
+                    place(
+                        m,
+                        Transform::from_translation(
+                            at + along * (seg * 0.5)
+                                + Vec3::Y * (y + wobble)
+                                + rot * Vec3::Z * 0.06,
+                        )
+                        .with_rotation(rot * Quat::from_rotation_z(wobble * 2.0))
+                        .with_scale(Vec3::new(seg + 0.12, 1.0, 1.0)),
+                    );
+                }
+            }
+        }
+    }
     // Barrels and hay bales just outside the fence.
-    let barrel = meshes.add(Cylinder::new(0.38, 0.95));
-    let hoop = meshes.add(Cylinder::new(0.4, 0.06));
-    let iron = crate::art::soft(&mut materials, Color::srgb(0.3, 0.3, 0.34));
-    let bale = meshes.add(Cuboid::new(1.1, 0.55, 0.6));
-    let hay = crate::art::soft(&mut materials, Color::srgb(0.92, 0.8, 0.4));
+    let barrel = model("barrel.gltf");
+    let bale = model("hay_bale.gltf");
     let o = ARENA_HALF + 0.9;
     for (x, z) in [(-o, -o + 1.2), (o - 0.6, o), (o, -o + 0.4)] {
         let at = ARENA_CENTER + Vec3::new(x, 0.0, z);
-        spawn(
-            barrel.clone(),
-            wood.clone(),
-            Transform::from_translation(at + Vec3::Y * 0.475),
-        );
-        for y in [0.2, 0.75] {
-            spawn(
-                hoop.clone(),
-                iron.clone(),
-                Transform::from_translation(at + Vec3::Y * y),
-            );
-        }
+        place(&barrel, Transform::from_translation(at + Vec3::Y * 0.475));
     }
     for (x, z, yaw, stack) in [
         (-o + 0.2, o - 0.5, 0.3, true),
@@ -686,15 +670,13 @@ fn spawn_arena(
     ] {
         let at = ARENA_CENTER + Vec3::new(x, 0.0, z);
         let r = Quat::from_rotation_y(yaw);
-        spawn(
-            bale.clone(),
-            hay.clone(),
+        place(
+            &bale,
             Transform::from_translation(at + Vec3::Y * 0.275).with_rotation(r),
         );
         if stack {
-            spawn(
-                bale.clone(),
-                hay.clone(),
+            place(
+                &bale,
                 Transform::from_translation(at + Vec3::Y * 0.825)
                     .with_rotation(r * Quat::from_rotation_y(0.4)),
             );

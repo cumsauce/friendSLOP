@@ -1,0 +1,298 @@
+{
+  "name": "fu-plank",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 2,
+      "seed": 21,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "amount": 0.05,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "name": "pl",
+      "size": [
+        0.5,
+        0.125
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "coords": "wp",
+      "name": "g",
+      "size": [
+        1.0,
+        0.02
+      ],
+      "stagger": 0.37,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "gr",
+      "seed": 3,
+      "type": "random"
+    },
+    {
+      "id": "pl.id",
+      "max": 0.18,
+      "min": -0.18,
+      "name": "pt",
+      "seed": 4,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "a": "gr",
+      "b": "fn",
+      "c": 0.35,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "t0",
+      "b": "pt",
+      "name": "t1",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "input": "t1",
+      "name": "wc",
+      "stops": [
+        [
+          0,
+          "#7a5a3c"
+        ],
+        [
+          0.5,
+          "#a07a52"
+        ],
+        [
+          1,
+          "#bf9868"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "pl.edge",
+      "b": 0.002,
+      "c": 0.009,
+      "name": "gv",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "a": "#3f2a1a",
+      "b": "wc",
+      "c": "gv",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "gv",
+      "b": 0.003,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "t0",
+      "b": 0.0006,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "h1",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.75,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fu-plank",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 21,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "name": "pl",
+              "size": [
+                0.5,
+                0.125
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "coords": "wp",
+              "name": "g",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.37,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 3,
+              "type": "random"
+            },
+            {
+              "id": "pl.id",
+              "max": 0.18,
+              "min": -0.18,
+              "name": "pt",
+              "seed": 4,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.35,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": "pt",
+              "name": "t1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "input": "t1",
+              "name": "wc",
+              "stops": [
+                [
+                  0,
+                  "#7a5a3c"
+                ],
+                [
+                  0.5,
+                  "#a07a52"
+                ],
+                [
+                  1,
+                  "#bf9868"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "pl.edge",
+              "b": 0.002,
+              "c": 0.009,
+              "name": "gv",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": "#3f2a1a",
+              "b": "wc",
+              "c": "gv",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "gv",
+              "b": 0.003,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": 0.0006,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+wv +wp +pl +g +gr +pt +fn +t0 +t1 +wc +gv +col +h0 +h1 +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

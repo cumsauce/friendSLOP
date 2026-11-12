@@ -1,0 +1,656 @@
+{
+  "name": "sf-cloth",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.6,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "input": "uv",
+      "name": "sp",
+      "type": "split"
+    },
+    {
+      "a": "sp.x",
+      "b": 157.0796327,
+      "name": "pa",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "sp.y",
+      "b": 157.0796327,
+      "name": "pb",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "pa",
+      "name": "sa",
+      "op": "sin",
+      "type": "math"
+    },
+    {
+      "a": "pb",
+      "name": "sb",
+      "op": "sin",
+      "type": "math"
+    },
+    {
+      "a": "sa",
+      "b": "sb",
+      "name": "sab",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "sab",
+      "b": 0.0,
+      "name": "chk",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": "sa",
+      "name": "ta",
+      "op": "abs",
+      "type": "math"
+    },
+    {
+      "a": "sb",
+      "name": "tb",
+      "op": "abs",
+      "type": "math"
+    },
+    {
+      "a": "tb",
+      "b": "ta",
+      "c": "chk",
+      "name": "thr0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "thr0",
+      "b": 0.6,
+      "name": "thr",
+      "op": "pow",
+      "type": "math"
+    },
+    {
+      "name": "fz",
+      "octaves": 2,
+      "seed": 41,
+      "size": 0.004,
+      "type": "noise"
+    },
+    {
+      "name": "slub",
+      "octaves": 3,
+      "seed": 42,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "thr",
+      "name": "thrv",
+      "to": [
+        0.83,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fz",
+      "name": "fzv",
+      "to": [
+        0.95,
+        1.02
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "slub",
+      "name": "slv",
+      "to": [
+        0.93,
+        1.02
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "thrv",
+      "b": "fzv",
+      "name": "c1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "slv",
+      "name": "v0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "v0",
+      "b": 0.8,
+      "c": 1.0,
+      "name": "v",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "a": "v",
+      "b": 2.2,
+      "name": "albedo",
+      "op": "pow",
+      "type": "math"
+    },
+    {
+      "a": "thr",
+      "b": 0.0025,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "fz",
+      "b": 0.0003,
+      "name": "h2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h1",
+      "b": "h2",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "thr",
+      "name": "rough",
+      "to": [
+        1.0,
+        0.9
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "albedo",
+      "height": "h",
+      "metallic": 0,
+      "name": "out",
+      "normal_strength": 1.0,
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-cloth",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.6,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "input": "uv",
+              "name": "sp",
+              "type": "split"
+            },
+            {
+              "a": "sp.x",
+              "b": 251.327412,
+              "name": "pa",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sp.y",
+              "b": 251.327412,
+              "name": "pb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "pa",
+              "name": "sa",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "pb",
+              "name": "sb",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "sa",
+              "b": "sb",
+              "name": "sab",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sab",
+              "b": 0.0,
+              "name": "chk",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "sa",
+              "name": "ta",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "a": "sb",
+              "name": "tb",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "a": "tb",
+              "b": "ta",
+              "c": "chk",
+              "name": "thr0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "thr0",
+              "b": 0.6,
+              "name": "thr",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "name": "fz",
+              "octaves": 2,
+              "seed": 41,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "name": "slub",
+              "octaves": 3,
+              "seed": 42,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "thr",
+              "name": "thrv",
+              "to": [
+                0.83,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fz",
+              "name": "fzv",
+              "to": [
+                0.95,
+                1.02
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "slub",
+              "name": "slv",
+              "to": [
+                0.93,
+                1.02
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "thrv",
+              "b": "fzv",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "slv",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.8,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "thr",
+              "b": 0.0012,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fz",
+              "b": 0.0003,
+              "name": "h2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "h2",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "thr",
+              "name": "rough",
+              "to": [
+                1.0,
+                0.9
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +sp +pa +pb +sa +sb +sab +chk +ta +tb +thr0 +thr +fz +slub +thrv +fzv +slv +c1 +v0 +v +albedo +h1 +h2 +h +rough +out"
+      },
+      {
+        "model": {
+          "name": "sf-cloth",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.6,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "input": "uv",
+              "name": "sp",
+              "type": "split"
+            },
+            {
+              "a": "sp.x",
+              "b": 157.0796327,
+              "name": "pa",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sp.y",
+              "b": 157.0796327,
+              "name": "pb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "pa",
+              "name": "sa",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "pb",
+              "name": "sb",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "sa",
+              "b": "sb",
+              "name": "sab",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sab",
+              "b": 0.0,
+              "name": "chk",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "sa",
+              "name": "ta",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "a": "sb",
+              "name": "tb",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "a": "tb",
+              "b": "ta",
+              "c": "chk",
+              "name": "thr0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "thr0",
+              "b": 0.6,
+              "name": "thr",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "name": "fz",
+              "octaves": 2,
+              "seed": 41,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "name": "slub",
+              "octaves": 3,
+              "seed": 42,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "thr",
+              "name": "thrv",
+              "to": [
+                0.83,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fz",
+              "name": "fzv",
+              "to": [
+                0.95,
+                1.02
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "slub",
+              "name": "slv",
+              "to": [
+                0.93,
+                1.02
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "thrv",
+              "b": "fzv",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "slv",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.8,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "thr",
+              "b": 0.0025,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fz",
+              "b": 0.0003,
+              "name": "h2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "h2",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "thr",
+              "name": "rough",
+              "to": [
+                1.0,
+                0.9
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~pa ~pb ~h1"
+      }
+    ],
+    "current": 1
+  }
+}

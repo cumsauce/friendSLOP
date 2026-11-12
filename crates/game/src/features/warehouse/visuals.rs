@@ -233,120 +233,40 @@ fn block(
 /// The building outside, its door and lamp, and Jegg.
 fn build_outside(
     mut commands: Commands,
+    assets: Option<Res<AssetServer>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let (Some(assets), Some(mut meshes), Some(mut materials)) = (assets, meshes, materials) else {
         return;
     };
+    // Modeler-made (sources in `.modeler/`, prefabs `sp-warehouse-exterior`,
+    // `sp-oil-drum`, `sp-lantern`).
+    let model = |file: &str| -> WorldAssetRoot {
+        WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+        )
+    };
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let rust = mat(&mut materials, Color::srgb(0.36, 0.24, 0.18), 0.9);
-    let rib = mat(&mut materials, Color::srgb(0.27, 0.2, 0.17), 0.85);
-    let roof = mat(&mut materials, Color::srgb(0.2, 0.19, 0.2), 0.9);
-    let concrete = mat(&mut materials, Color::srgb(0.42, 0.41, 0.4), 1.0);
-    let black = mat(&mut materials, Color::srgb(0.03, 0.03, 0.04), 1.0);
-    let boards = mat(&mut materials, Color::srgb(0.45, 0.33, 0.2), 0.9);
-    let shutter = mat(&mut materials, Color::srgb(0.3, 0.3, 0.32), 0.6);
     let y0 = outside_floor();
     let c = Vec3::new(OUTSIDE_AT.x, y0, OUTSIDE_AT.y);
     let (sx, sz, hy) = (OUTSIDE_SIZE.x, OUTSIDE_SIZE.y, OUTSIDE_HEIGHT);
-    // Plinth (hides the slope), the shell and its roof.
-    block(
-        &mut commands,
-        &cube,
-        &concrete,
-        c - Vec3::Y * 1.4,
-        Vec3::new(sx + 0.8, 3.0, sz + 0.8),
-        false,
-    );
-    block(
-        &mut commands,
-        &cube,
-        &rust,
-        c + Vec3::Y * hy / 2.0,
-        Vec3::new(sx, hy, sz),
-        true,
-    );
-    for side in [-1.0f32, 1.0] {
-        let slab = block(
-            &mut commands,
-            &cube,
-            &roof,
-            c + Vec3::new(0.0, hy + 0.9, side * sz / 4.0),
-            Vec3::new(sx + 0.8, 0.25, sz / 2.0 + 0.9),
-            false,
-        );
-        commands.entity(slab).insert(
-            Transform::from_translation(c + Vec3::new(0.0, hy + 0.9, side * sz / 4.0))
-                .with_rotation(Quat::from_rotation_x(side * 0.27))
-                .with_scale(Vec3::new(sx + 0.8, 0.25, sz / 2.0 + 0.9)),
-        );
-    }
-    // Corrugated ribs on the long faces.
-    let ribs = (sx / 1.1) as i32;
-    for i in 0..=ribs {
-        let x = c.x - sx / 2.0 + i as f32 * sx / ribs as f32;
-        for side in [-1.0f32, 1.0] {
-            block(
-                &mut commands,
-                &cube,
-                &rib,
-                Vec3::new(x, y0 + hy / 2.0, c.z + side * (sz / 2.0 + 0.05)),
-                Vec3::new(0.18, hy, 0.12),
-                false,
-            );
-        }
-    }
-    // A high row of dead windows, some boarded up.
-    for i in 0..6 {
-        let x = c.x - sx / 2.0 + 2.0 + i as f32 * (sx - 4.0) / 5.0;
-        for side in [-1.0f32, 1.0] {
-            let z = c.z + side * (sz / 2.0 + 0.08);
-            block(
-                &mut commands,
-                &cube,
-                &black,
-                Vec3::new(x, y0 + hy - 1.6, z),
-                Vec3::new(1.6, 1.0, 0.1),
-                false,
-            );
-            if crate::art::hash(i, side as i32, 130) < 0.5 {
-                let b = block(
-                    &mut commands,
-                    &cube,
-                    &boards,
-                    Vec3::new(x, y0 + hy - 1.6, z + side * 0.06),
-                    Vec3::new(1.9, 0.18, 0.06),
-                    false,
-                );
-                commands.entity(b).insert(
-                    Transform::from_translation(Vec3::new(x, y0 + hy - 1.6, z + side * 0.06))
-                        .with_rotation(Quat::from_rotation_z(0.4 - i as f32 * 0.15))
-                        .with_scale(Vec3::new(1.9, 0.18, 0.06)),
-                );
-            }
-        }
-    }
-    // The loading door: a tall rolling shutter, slats and all.
+    // The building outside: plinth (hides the slope), rusty ribbed shell,
+    // roof, dead windows (some boarded up), the rolling shutter and the lamp
+    // over the door, all one model at the floor centre.
+    commands.spawn((
+        model("warehouse_exterior.gltf"),
+        Transform::from_translation(c),
+        DespawnOnExit(AppState::InGame),
+    ));
+    // The shell still blocks bodies (the same box as before the model).
+    commands.spawn((
+        Transform::from_translation(c + Vec3::Y * hy / 2.0).with_scale(Vec3::new(sx, hy, sz)),
+        avian3d::prelude::RigidBody::Static,
+        avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+        DespawnOnExit(AppState::InGame),
+    ));
     let d = door_at();
-    for k in 0..12 {
-        block(
-            &mut commands,
-            &cube,
-            &shutter,
-            Vec3::new(d.x, d.y + 0.2 + k as f32 * 0.38, d.z - 0.1),
-            Vec3::new(4.2, 0.33, 0.1),
-            false,
-        );
-    }
-    block(
-        &mut commands,
-        &cube,
-        &black,
-        Vec3::new(d.x, d.y + 4.8, d.z - 0.14),
-        Vec3::new(4.8, 0.5, 0.18),
-        false,
-    );
     commands.spawn((
         OutsideDoor,
         Transform::from_translation(d - Vec3::Z * 0.2),
@@ -357,15 +277,6 @@ fn build_outside(
         DespawnOnExit(AppState::InGame),
     ));
     // One sick, buzzing lamp over the door.
-    let bulb = glow(&mut materials, Color::srgb(1.0, 0.8, 0.45), 4.0);
-    block(
-        &mut commands,
-        &cube,
-        &bulb,
-        Vec3::new(d.x, d.y + 5.3, d.z - 0.35),
-        Vec3::new(0.5, 0.15, 0.3),
-        false,
-    );
     commands.spawn((
         PointLight {
             color: Color::srgb(1.0, 0.75, 0.45),
@@ -383,8 +294,6 @@ fn build_outside(
     ));
     // Junk in the yard.
     let crate_mat = mat(&mut materials, Color::srgb(0.5, 0.37, 0.22), 0.9);
-    let barrel = mat(&mut materials, Color::srgb(0.28, 0.32, 0.36), 0.7);
-    let drum = meshes.add(Cylinder::new(0.35, 0.95));
     for (i, off) in [
         Vec2::new(-4.5, -1.0),
         Vec2::new(-5.4, -0.6),
@@ -406,8 +315,7 @@ fn build_outside(
             );
         } else {
             commands.spawn((
-                Mesh3d(drum.clone()),
-                MeshMaterial3d(barrel.clone()),
+                model("oil_drum.gltf"),
                 Transform::from_translation(at + Vec3::Y * 0.48),
                 avian3d::prelude::RigidBody::Static,
                 avian3d::prelude::Collider::cylinder(0.35, 0.95),
@@ -430,11 +338,7 @@ fn build_outside(
             DespawnOnExit(AppState::InGame),
         ))
         .with_children(|p| {
-            p.spawn((
-                Mesh3d(meshes.add(Cuboid::new(0.18, 0.26, 0.18))),
-                MeshMaterial3d(glow(&mut materials, Color::srgb(1.0, 0.85, 0.5), 3.0)),
-                Transform::from_xyz(0.45, 0.13, -0.2),
-            ));
+            p.spawn((model("lantern.gltf"), Transform::from_xyz(0.45, 0.13, -0.2)));
             p.spawn((
                 PointLight {
                     color: Color::srgb(1.0, 0.8, 0.5),

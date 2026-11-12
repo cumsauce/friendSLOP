@@ -392,19 +392,18 @@ fn show_stash(
 fn dress_eggs(
     mut commands: Commands,
     new: Query<(Entity, &CrowEgg), Added<CrowEgg>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
 ) {
     if new.is_empty() {
         return;
     }
-    let shell = crate::art::glossy(&mut materials, Color::srgb(0.6, 0.78, 0.72));
-    let mesh = meshes.add(Sphere::new(0.08));
+    // Modeler-made, already egg-shaped (16 x 21 cm, origin at its centre).
+    let egg_model =
+        assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/crow_egg.gltf"));
     for (e, egg) in &new {
         commands.entity(e).insert((
-            Mesh3d(mesh.clone()),
-            MeshMaterial3d(shell.clone()),
-            Transform::from_translation(egg_spot(egg.nest)).with_scale(Vec3::new(1.0, 1.3, 1.0)),
+            WorldAssetRoot(egg_model.clone()),
+            Transform::from_translation(egg_spot(egg.nest)),
             Clickable::at_height(0.0)
                 .radius(30.0)
                 .labelled("take the crow egg"),

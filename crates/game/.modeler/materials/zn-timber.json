@@ -1,0 +1,308 @@
+{
+  "name": "zn-timber",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 2,
+      "seed": 61,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "amount": 0.05,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "name": "g",
+      "size": [
+        1.0,
+        0.02
+      ],
+      "stagger": 0.36,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "gr",
+      "seed": 62,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 63,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "a": "gr",
+      "b": "fn",
+      "c": 0.4,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "wc",
+      "stops": [
+        [
+          0,
+          "#3e2a1a"
+        ],
+        [
+          0.55,
+          "#5a3e28"
+        ],
+        [
+          1,
+          "#6e4e33"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "wc",
+      "b": 1.0,
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "t0",
+      "b": 0.0012,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.7,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-timber",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 61,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "g",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.37,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 62,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 63,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.4,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "wc",
+              "stops": [
+                [
+                  0,
+                  "#3e2a1a"
+                ],
+                [
+                  0.55,
+                  "#5a3e28"
+                ],
+                [
+                  1,
+                  "#6e4e33"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "wc",
+              "b": 1.0,
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": 0.0012,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.7,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+wv +wp +g +gr +fn +t0 +wc +col +h +out"
+      },
+      {
+        "model": {
+          "name": "zn-timber",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 61,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "g",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.36,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 62,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 63,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.4,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "wc",
+              "stops": [
+                [
+                  0,
+                  "#3e2a1a"
+                ],
+                [
+                  0.55,
+                  "#5a3e28"
+                ],
+                [
+                  1,
+                  "#6e4e33"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "wc",
+              "b": 1.0,
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "t0",
+              "b": 0.0012,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.7,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~g"
+      }
+    ],
+    "current": 1
+  }
+}

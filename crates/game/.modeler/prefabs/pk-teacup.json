@@ -1,0 +1,906 @@
+{
+  "format_version": 1,
+  "name": "pk-teacup",
+  "parts": [],
+  "version": 7587,
+  "ops": [
+    {
+      "revolve": {
+        "name": "cup",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.125
+            ],
+            [
+              0.15,
+              -0.125
+            ],
+            [
+              0.17,
+              -0.105
+            ],
+            [
+              0.2,
+              -0.02
+            ],
+            [
+              0.215,
+              0.125
+            ],
+            [
+              0.19,
+              0.125
+            ],
+            [
+              0.175,
+              -0.02
+            ],
+            [
+              0.15,
+              -0.09
+            ],
+            [
+              0.0,
+              -0.09
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 20,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "foot",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.14
+            ],
+            [
+              0.13,
+              -0.14
+            ],
+            [
+              0.12,
+              -0.12
+            ],
+            [
+              0.0,
+              -0.12
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 16,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tea",
+        "kind": "cylinder",
+        "size": [
+          0.178,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.06,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "handle",
+        "profile": [
+          [
+            [
+              0.094,
+              0.0
+            ],
+            [
+              0.082,
+              0.020784609
+            ],
+            [
+              0.058,
+              0.020784609
+            ],
+            [
+              0.046,
+              2.9391522e-18
+            ],
+            [
+              0.058,
+              -0.020784609
+            ],
+            [
+              0.082,
+              -0.020784609
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 12,
+        "translation": [
+          0.235,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "cup",
+        "input": "cup",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-ceramic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "name": "sp",
+                "octaves": 2,
+                "seed": 42,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.72,
+                  0.8
+                ],
+                "input": "sp",
+                "name": "spk",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#ddd5c2"
+                  ],
+                  [
+                    1.0,
+                    "#f2ecdc"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6b5a48",
+                "c": "spk",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "foot",
+        "input": "foot",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-ceramic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "name": "sp",
+                "octaves": 2,
+                "seed": 42,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.72,
+                  0.8
+                ],
+                "input": "sp",
+                "name": "spk",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#ddd5c2"
+                  ],
+                  [
+                    1.0,
+                    "#f2ecdc"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6b5a48",
+                "c": "spk",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "handle",
+        "input": "handle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-ceramic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "name": "sp",
+                "octaves": 2,
+                "seed": 42,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.72,
+                  0.8
+                ],
+                "input": "sp",
+                "name": "spk",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#ddd5c2"
+                  ],
+                  [
+                    1.0,
+                    "#f2ecdc"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6b5a48",
+                "c": "spk",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tea",
+        "input": "tea",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-jar-brown",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 15,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#7a3c1c"
+                  ],
+                  [
+                    1,
+                    "#a35a2e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.8,
+                "height": "h",
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pk-teacup",
+          "parts": [],
+          "version": 7578,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pk-teacup`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pk-teacup",
+          "parts": [],
+          "version": 7587,
+          "ops": [
+            {
+              "revolve": {
+                "name": "cup",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.125
+                    ],
+                    [
+                      0.15,
+                      -0.125
+                    ],
+                    [
+                      0.17,
+                      -0.105
+                    ],
+                    [
+                      0.2,
+                      -0.02
+                    ],
+                    [
+                      0.215,
+                      0.125
+                    ],
+                    [
+                      0.19,
+                      0.125
+                    ],
+                    [
+                      0.175,
+                      -0.02
+                    ],
+                    [
+                      0.15,
+                      -0.09
+                    ],
+                    [
+                      0.0,
+                      -0.09
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 20,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "foot",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.14
+                    ],
+                    [
+                      0.13,
+                      -0.14
+                    ],
+                    [
+                      0.12,
+                      -0.12
+                    ],
+                    [
+                      0.0,
+                      -0.12
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 16,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tea",
+                "kind": "cylinder",
+                "size": [
+                  0.178,
+                  0.01,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  0.06,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "handle",
+                "profile": [
+                  [
+                    [
+                      0.094,
+                      0.0
+                    ],
+                    [
+                      0.082,
+                      0.020784609
+                    ],
+                    [
+                      0.058,
+                      0.020784609
+                    ],
+                    [
+                      0.046,
+                      2.9391522e-18
+                    ],
+                    [
+                      0.058,
+                      -0.020784609
+                    ],
+                    [
+                      0.082,
+                      -0.020784609
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 12,
+                "translation": [
+                  0.235,
+                  0.0,
+                  0.0
+                ],
+                "rotation": [
+                  0.70710677,
+                  0.0,
+                  0.0,
+                  0.70710677
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "cup",
+                "input": "cup",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-ceramic",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 41,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "sp",
+                        "octaves": 2,
+                        "seed": 42,
+                        "size": 0.01,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.72,
+                          0.8
+                        ],
+                        "input": "sp",
+                        "name": "spk",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#ddd5c2"
+                          ],
+                          [
+                            1.0,
+                            "#f2ecdc"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "#6b5a48",
+                        "c": "spk",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "clearcoat": 0.4,
+                        "name": "out",
+                        "roughness": 0.25,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "foot",
+                "input": "foot",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-ceramic",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 41,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "sp",
+                        "octaves": 2,
+                        "seed": 42,
+                        "size": 0.01,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.72,
+                          0.8
+                        ],
+                        "input": "sp",
+                        "name": "spk",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#ddd5c2"
+                          ],
+                          [
+                            1.0,
+                            "#f2ecdc"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "#6b5a48",
+                        "c": "spk",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "clearcoat": 0.4,
+                        "name": "out",
+                        "roughness": 0.25,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "handle",
+                "input": "handle",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "de-ceramic",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 41,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "sp",
+                        "octaves": 2,
+                        "seed": 42,
+                        "size": 0.01,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.72,
+                          0.8
+                        ],
+                        "input": "sp",
+                        "name": "spk",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#ddd5c2"
+                          ],
+                          [
+                            1.0,
+                            "#f2ecdc"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "#6b5a48",
+                        "c": "spk",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "clearcoat": 0.4,
+                        "name": "out",
+                        "roughness": 0.25,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "tea",
+                "input": "tea",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pk-jar-brown",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 15,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#7a3c1c"
+                          ],
+                          [
+                            1,
+                            "#a35a2e"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "clearcoat": 0.8,
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.2,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "8 edits: revolve `cup` profile=[[[0.0, -0.125], [0.15, -0.125], [0.17, -0.105], [0.2, -0.02], [0.215, 0.125], [0.19, 0.125], [0.175, -0.02], [0.15, -0.09], [0.0, -0.09]]] degrees=360 segments=20 round=0 at=[0.0, 0.0, 0.0] … material `tea` <- `tea` pbr=pk-jar-brown"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

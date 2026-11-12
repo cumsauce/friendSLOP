@@ -1,0 +1,104 @@
+{
+  "name": "de-water",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 61,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0.0,
+          "#1f2a24"
+        ],
+        [
+          1.0,
+          "#34443a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "n",
+      "b": 0.0006,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.08,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "de-water",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 61,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0.0,
+                  "#1f2a24"
+                ],
+                [
+                  1.0,
+                  "#34443a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "n",
+              "b": 0.0006,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.08,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

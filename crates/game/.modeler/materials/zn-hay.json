@@ -1,0 +1,245 @@
+{
+  "name": "zn-hay",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.5,
+        0.0125
+      ],
+      "stagger": 0.25,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "gr",
+      "seed": 91,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 92,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "a": "gr",
+      "b": "fn",
+      "c": 0.35,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#b08a3a"
+        ],
+        [
+          0.5,
+          "#d8b45a"
+        ],
+        [
+          1,
+          "#efd27e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "gr",
+      "b": 0.003,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-hay",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.5,
+                0.012
+              ],
+              "stagger": 0.31,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 91,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 92,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.35,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#b08a3a"
+                ],
+                [
+                  0.5,
+                  "#d8b45a"
+                ],
+                [
+                  1,
+                  "#efd27e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "gr",
+              "b": 0.003,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+g +gr +fn +t0 +col +h +out"
+      },
+      {
+        "model": {
+          "name": "zn-hay",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.5,
+                0.0125
+              ],
+              "stagger": 0.25,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 91,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 92,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.35,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#b08a3a"
+                ],
+                [
+                  0.5,
+                  "#d8b45a"
+                ],
+                [
+                  1,
+                  "#efd27e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "gr",
+              "b": 0.003,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~g"
+      }
+    ],
+    "current": 1
+  }
+}

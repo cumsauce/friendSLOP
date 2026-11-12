@@ -18,6 +18,7 @@
 //! normals are left alone. Purely local visuals: nothing is replicated.
 
 use bevy::asset::RenderAssetUsages;
+use bevy::gltf::{Gltf, GltfMaterial};
 use bevy::image::{ImageAddressMode, ImageSampler, ImageSamplerDescriptor};
 use bevy::math::Affine2;
 use bevy::mesh::{PrimitiveTopology, VertexAttributeValues};
@@ -376,9 +377,27 @@ struct SurfaceTextures {
 #[derive(Resource, Default)]
 pub struct Surfaces {
     textures: HashMap<Surface, SurfaceTextures>,
+    /// The modeler's swatches, loading; adopted ones are removed.
+    files: HashMap<Surface, Handle<Gltf>>,
     verdict: HashMap<AssetId<StandardMaterial>, Option<Surface>>,
     baked: HashMap<(AssetId<Mesh>, [i16; 3]), Handle<Mesh>>,
     generated: HashSet<AssetId<Mesh>>,
+}
+
+impl Surface {
+    /// The modeler swatch carrying this surface's textures
+    /// (`assets/models/surfaces/`, sources in `crates/game/.modeler/`:
+    /// materials `sf-<name>`, one `tile()` square each).
+    fn file(self) -> &'static str {
+        match self {
+            Surface::Stone => "models/surfaces/stone.gltf",
+            Surface::Wood => "models/surfaces/wood.gltf",
+            Surface::Leaves => "models/surfaces/leaves.gltf",
+            Surface::Cloth => "models/surfaces/cloth.gltf",
+            Surface::Metal => "models/surfaces/metal.gltf",
+            Surface::Painted => "models/surfaces/painted.gltf",
+        }
+    }
 }
 
 impl Surfaces {
@@ -422,14 +441,89 @@ pub struct SurfaceSet;
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Surfaces>()
+        .add_systems(Startup, load_surface_files)
         .add_systems(
             Update,
-            texture_new_materials
-                .in_set(SurfaceSet)
-                .run_if(on_message::<AssetEvent<StandardMaterial>>),
+            (
+                adopt_surface_files.run_if(|s: Res<Surfaces>| !s.files.is_empty()),
+                texture_new_materials.run_if(on_message::<AssetEvent<StandardMaterial>>),
+            )
+                .chain()
+                .in_set(SurfaceSet),
         )
         .add_systems(Update, forget_meshes.run_if(on_message::<AssetEvent<Mesh>>))
         .add_systems(PostUpdate, bake_surface_meshes);
+}
+
+/// Ask for the modeler's surface swatches. Until (unless) they load, the
+/// generated textures stand in, so a missing file changes nothing.
+fn load_surface_files(
+    mut surfaces: ResMut<Surfaces>,
+    assets: Option<Res<AssetServer>>,
+    gltfs: Option<Res<Assets<Gltf>>>,
+) {
+    let (Some(assets), Some(_)) = (assets, gltfs) else {
+        return;
+    };
+    for s in Surface::ALL {
+        surfaces.files.insert(s, assets.load(s.file()));
+    }
+}
+
+/// Once a swatch and its textures are in, its surface uses them: new
+/// materials get them, and materials already given the generated ones are
+/// switched over.
+fn adopt_surface_files(
+    mut surfaces: ResMut<Surfaces>,
+    assets: Option<Res<AssetServer>>,
+    gltfs: Option<Res<Assets<Gltf>>>,
+    gltf_materials: Option<Res<Assets<GltfMaterial>>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let (Some(assets), Some(gltfs), Some(gltf_materials)) = (assets, gltfs, gltf_materials) else {
+        return;
+    };
+    let mut done = Vec::new();
+    for (&s, handle) in &surfaces.files {
+        if assets.load_state(handle).is_failed() {
+            done.push((s, None));
+            continue;
+        }
+        if !assets.is_loaded_with_dependencies(handle) {
+            continue;
+        }
+        let swatch = gltfs
+            .get(handle)
+            .and_then(|g| g.materials.first())
+            .and_then(|m| gltf_materials.get(m));
+        let textures = swatch.and_then(|m| {
+            Some(SurfaceTextures {
+                albedo: m.base_color_texture.clone()?,
+                normal: m.normal_map_texture.clone()?,
+                roughness: m.metallic_roughness_texture.clone()?,
+            })
+        });
+        done.push((s, textures));
+    }
+    for (s, textures) in done {
+        surfaces.files.remove(&s);
+        let Some(t) = textures else {
+            continue;
+        };
+        surfaces.textures.insert(s, t.clone());
+        let ids: Vec<_> = (surfaces.verdict.iter())
+            .filter(|(_, v)| **v == Some(s))
+            .map(|(id, _)| *id)
+            .collect();
+        for id in ids {
+            let Some(mut mat) = materials.get_mut(id) else {
+                continue;
+            };
+            mat.base_color_texture = Some(t.albedo.clone());
+            mat.normal_map_texture = Some(t.normal.clone());
+            mat.metallic_roughness_texture = Some(t.roughness.clone());
+        }
+    }
 }
 
 /// Give each new plain material its surface's textures. Runs before the cat

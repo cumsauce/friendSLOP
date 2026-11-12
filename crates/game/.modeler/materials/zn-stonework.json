@@ -1,0 +1,306 @@
+{
+  "name": "zn-stonework",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "wn",
+      "octaves": 3,
+      "seed": 31,
+      "size": 0.4,
+      "type": "noise"
+    },
+    {
+      "amount": 0.06,
+      "by": "wn",
+      "name": "wc",
+      "type": "warp"
+    },
+    {
+      "coords": "wc",
+      "name": "g",
+      "size": [
+        0.5,
+        0.25
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "name": "chipn",
+      "octaves": 3,
+      "seed": 32,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "chipn",
+      "name": "chip",
+      "to": [
+        -0.012,
+        0.012
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "g.edge",
+      "b": "chip",
+      "name": "e2",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "in": [
+        0.01,
+        0.03
+      ],
+      "input": "e2",
+      "name": "blk",
+      "type": "levels"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "tone",
+      "seed": 33,
+      "type": "random"
+    },
+    {
+      "name": "face",
+      "octaves": 3,
+      "seed": 34,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "a": "tone",
+      "b": "face",
+      "c": 0.45,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "sc",
+      "stops": [
+        [
+          0,
+          "#6f6a62"
+        ],
+        [
+          0.5,
+          "#8f8a80"
+        ],
+        [
+          1,
+          "#a9a398"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#5a554e",
+      "b": "sc",
+      "c": "blk",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "blk",
+      "b": 0.012,
+      "name": "hb",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "face",
+      "b": 0.006,
+      "name": "hf",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hb",
+      "b": "hf",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.9,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "zn-stonework",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wn",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.4,
+              "type": "noise"
+            },
+            {
+              "amount": 0.06,
+              "by": "wn",
+              "name": "wc",
+              "type": "warp"
+            },
+            {
+              "coords": "wc",
+              "name": "g",
+              "size": [
+                0.5,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "name": "chipn",
+              "octaves": 3,
+              "seed": 32,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "chipn",
+              "name": "chip",
+              "to": [
+                -0.012,
+                0.012
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "g.edge",
+              "b": "chip",
+              "name": "e2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.01,
+                0.03
+              ],
+              "input": "e2",
+              "name": "blk",
+              "type": "levels"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "tone",
+              "seed": 33,
+              "type": "random"
+            },
+            {
+              "name": "face",
+              "octaves": 3,
+              "seed": 34,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "a": "tone",
+              "b": "face",
+              "c": 0.45,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "sc",
+              "stops": [
+                [
+                  0,
+                  "#6f6a62"
+                ],
+                [
+                  0.5,
+                  "#8f8a80"
+                ],
+                [
+                  1,
+                  "#a9a398"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#5a554e",
+              "b": "sc",
+              "c": "blk",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "blk",
+              "b": 0.012,
+              "name": "hb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "face",
+              "b": 0.006,
+              "name": "hf",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hb",
+              "b": "hf",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.9,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+wn +wc +g +chipn +chip +e2 +blk +tone +face +t0 +sc +col +hb +hf +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

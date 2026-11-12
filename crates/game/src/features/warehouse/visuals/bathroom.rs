@@ -21,6 +21,7 @@ pub fn plugin(app: &mut App) {
         (
             dress_fart_monsters,
             animate_fart_monsters,
+            load_bath_models,
             drift_clouds,
             bathroom_air.after(darkness),
         )
@@ -97,17 +98,12 @@ fn tile_texture(images: &mut Assets<Image>) -> Handle<Image> {
 pub(super) struct Kit {
     cube: Handle<Mesh>,
     floor: Handle<Mesh>,
-    bowl: Handle<Mesh>,
-    seat: Handle<Mesh>,
     blob: Handle<Mesh>,
     log: Handle<Mesh>,
     tiles: Handle<StandardMaterial>,
     pub wall: Handle<StandardMaterial>,
-    porcelain: Handle<StandardMaterial>,
     partition: Handle<StandardMaterial>,
-    door: Handle<StandardMaterial>,
     poop: Handle<StandardMaterial>,
-    water: Handle<StandardMaterial>,
     puddle: Handle<StandardMaterial>,
     chrome: Handle<StandardMaterial>,
     tube: Handle<StandardMaterial>,
@@ -129,17 +125,12 @@ pub(super) fn kit(
     Kit {
         cube: cube.clone(),
         floor: meshes.add(Cuboid::new(CELL, 0.02, CELL)),
-        bowl: meshes.add(Cylinder::new(0.2, 0.4)),
-        seat: meshes.add(Torus::new(0.12, 0.21)),
         blob: meshes.add(Sphere::new(0.07)),
         log: meshes.add(Capsule3d::new(0.045, 0.14)),
         tiles,
         wall: mat(materials, Color::srgb(0.66, 0.72, 0.66), 0.6),
-        porcelain: mat(materials, Color::srgb(0.86, 0.86, 0.8), 0.2),
         partition: mat(materials, Color::srgb(0.5, 0.56, 0.5), 0.7),
-        door: mat(materials, Color::srgb(0.45, 0.52, 0.47), 0.7),
         poop: mat(materials, Color::srgb(0.3, 0.18, 0.08), 0.5),
-        water: mat(materials, Color::srgb(0.42, 0.33, 0.12), 0.1),
         puddle: mat(materials, Color::srgb(0.36, 0.3, 0.14), 0.15),
         chrome: mat(materials, Color::srgb(0.6, 0.6, 0.62), 0.25),
         tube: glow(materials, Color::srgb(0.9, 1.0, 0.92), 4.0),
@@ -180,6 +171,53 @@ fn slab(
 
 fn at(p: Vec3, size: Vec3) -> Transform {
     Transform::from_translation(p).with_scale(size)
+}
+
+/// A modeler-made bathroom model (a file in `assets/models/features`),
+/// loaded onto its entity by [`load_bath_models`].
+#[derive(Component)]
+struct BathModel(&'static str);
+
+fn load_bath_models(
+    mut commands: Commands,
+    new: Query<(Entity, &BathModel), Added<BathModel>>,
+    assets: Option<Res<AssetServer>>,
+) {
+    let Some(assets) = assets else {
+        return;
+    };
+    for (e, m) in &new {
+        commands.entity(e).insert(WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{}", m.0))),
+        ));
+    }
+}
+
+/// One bathroom model at a transform (no collider of its own).
+fn model(commands: &mut Commands, file: &'static str, tf: Transform) {
+    commands.spawn((
+        BathModel(file),
+        tf,
+        Visibility::default(),
+        InteriorPart,
+        DespawnOnExit(AppState::InGame),
+    ));
+}
+
+/// An invisible solid box (unit cube scaled), where a model stands.
+fn solid(commands: &mut Commands, tf: Transform, collider: avian3d::prelude::Collider) {
+    commands.spawn((
+        tf,
+        avian3d::prelude::RigidBody::Static,
+        collider,
+        InteriorPart,
+        DespawnOnExit(AppState::InGame),
+    ));
+}
+
+/// The stall door model is 0.92 m wide along its x: turn that to `along`.
+fn door_turn(along: Vec3) -> Quat {
+    Quat::from_rotation_arc(Vec3::X, along)
 }
 
 /// Furnish one bathroom cell. The layout comes from the seed and which way a
@@ -315,25 +353,14 @@ fn high_door(commands: &mut Commands, kit: &Kit, cw: Vec3, dir: Vec3, layout: &m
         ),
         false,
     );
-    slab(
+    // The stall door model, stretched to this door's 0.9 x 2 m (its latch
+    // stands in for the old chrome knob).
+    model(
         commands,
-        kit,
-        &kit.door,
-        at(
-            p - dir * 0.03 + Vec3::Y * (lift + 1.0),
-            along * 0.9 + Vec3::Y * 2.0 + dir.abs() * 0.04,
-        ),
-        false,
-    );
-    slab(
-        commands,
-        kit,
-        &kit.chrome,
-        at(
-            p - dir * 0.08 + along * 0.32 + Vec3::Y * (lift + 1.0),
-            Vec3::splat(0.07),
-        ),
-        false,
+        "stall_door.gltf",
+        Transform::from_translation(p - dir * 0.03 + Vec3::Y * (lift + 1.0))
+            .with_rotation(door_turn(along))
+            .with_scale(Vec3::new(0.9 / 0.92, 2.0 / 1.7, 1.0)),
     );
 }
 
@@ -386,15 +413,21 @@ fn stalls(
                 false,
             );
         } else {
-            slab(
+            // A whole partition: the modeler-made panel (1.45 m deep along
+            // its z, on chrome feet) and the same solid box as before.
+            solid(
                 commands,
-                kit,
-                &kit.partition,
                 at(
                     line + Vec3::Y * y,
                     thin * DEPTH + along * 0.05 + Vec3::Y * TALL,
                 ),
-                true,
+                avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+            );
+            model(
+                commands,
+                "stall_panel.gltf",
+                Transform::from_translation(line + Vec3::Y * y)
+                    .with_rotation(Quat::from_rotation_arc(Vec3::Z, thin)),
             );
         }
     }
@@ -411,22 +444,14 @@ fn stalls(
     );
     for i in 0..3 {
         let mid = (i as f32 - 1.0) * WIDE;
-        door(commands, kit, front, dir, along, mid, layout);
+        door(commands, front, dir, along, mid, layout);
         toilet(commands, kit, back, dir, along, mid, dirt);
     }
 }
 
 /// A stall door: ajar, hanging off one hinge, fallen in, hung far too high,
 /// or gone.
-fn door(
-    commands: &mut Commands,
-    kit: &Kit,
-    front: Vec3,
-    dir: Vec3,
-    along: Vec3,
-    mid: f32,
-    layout: &mut Rng,
-) {
+fn door(commands: &mut Commands, front: Vec3, dir: Vec3, along: Vec3, mid: f32, layout: &mut Rng) {
     let size = along * 0.92 + Vec3::Y * 1.7 + dir.abs() * 0.04;
     let hinge = front + along * (mid - 0.46);
     // Yaw that swings the door's free edge into the stall.
@@ -461,7 +486,13 @@ fn door(
     } else {
         return;
     };
-    slab(commands, kit, &kit.door, tf, false);
+    // The modeler-made door (hinges on its -x edge) in the same pose.
+    let tf = Transform {
+        rotation: tf.rotation * door_turn(along),
+        scale: Vec3::ONE,
+        ..tf
+    };
+    model(commands, "stall_door.gltf", tf);
 }
 
 /// A dirty toilet at the back of a stall.
@@ -475,44 +506,22 @@ fn toilet(
     dirt: &mut Rng,
 ) {
     let base = back - dir * 0.45 + along * mid;
-    // Tank against the wall, bowl, seat (sometimes up), filthy water.
-    slab(
+    // The modeler-made toilet (tank, bowl, seat, filthy water), its tank
+    // towards the wall, and the bowl's solid cylinder as before.
+    solid(
         commands,
-        kit,
-        &kit.porcelain,
-        at(
-            back - dir * 0.12 + along * mid + Vec3::Y * 0.72,
-            along * 0.5 + dir.abs() * 0.2 + Vec3::Y * 0.42,
-        ),
-        false,
-    );
-    bit(
-        commands,
-        &kit.bowl,
-        &kit.porcelain,
         Transform::from_translation(base + Vec3::Y * 0.2),
-        Some(avian3d::prelude::Collider::cylinder(0.2, 0.4)),
-    );
-    bit(
-        commands,
-        &kit.bowl,
-        &kit.water,
-        Transform::from_translation(base + Vec3::Y * 0.395).with_scale(Vec3::new(0.8, 0.02, 0.8)),
-        None,
+        avian3d::prelude::Collider::cylinder(0.2, 0.4),
     );
     let up = dirt.roll() < 0.4;
-    let seat = if up {
-        Transform::from_translation(base + dir * 0.24 + Vec3::Y * 0.62)
-            .with_rotation(Quat::from_axis_angle(along, FRAC_PI_2))
-    } else {
-        Transform::from_translation(base + Vec3::Y * 0.41)
-    };
-    bit(
+    model(
         commands,
-        &kit.seat,
-        &kit.porcelain,
-        seat.with_scale(Vec3::new(1.0, 0.25, 1.0)),
-        None,
+        if up {
+            "toilet_seat_up.gltf"
+        } else {
+            "toilet.gltf"
+        },
+        Transform::from_translation(base).looking_to(dir, Vec3::Y),
     );
     // Poop: on the seat, on the floor, smeared up the wall.
     let mess = dirt.roll();

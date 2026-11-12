@@ -1,0 +1,240 @@
+{
+  "name": "de-iron",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 4,
+      "seed": 21,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "name": "rn",
+      "octaves": 5,
+      "seed": 22,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "jitter": 1.0,
+      "name": "wy",
+      "size": 0.05,
+      "type": "worley"
+    },
+    {
+      "in": [
+        0.58,
+        0.72
+      ],
+      "input": "rn",
+      "name": "rust_m",
+      "type": "levels"
+    },
+    {
+      "input": "n",
+      "name": "c0",
+      "stops": [
+        [
+          0.0,
+          "#25262b"
+        ],
+        [
+          1.0,
+          "#3d3f46"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "wy.f1",
+      "name": "rc",
+      "stops": [
+        [
+          0.0,
+          "#5a2e18"
+        ],
+        [
+          0.6,
+          "#8a4a22"
+        ],
+        [
+          1.0,
+          "#6e3a1c"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "r",
+      "to": [
+        0.45,
+        0.65
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "rust_m",
+      "b": 0.0008,
+      "name": "rh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "rc",
+      "height": "rh",
+      "metallic": 0.0,
+      "name": "rust",
+      "roughness": 0.95,
+      "type": "output"
+    },
+    {
+      "base_color": "c0",
+      "metallic": 0.85,
+      "name": "out",
+      "over": [
+        {
+          "mask": "rust_m",
+          "output": "rust"
+        }
+      ],
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "de-iron",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 21,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "name": "rn",
+              "octaves": 5,
+              "seed": 22,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "jitter": 1.0,
+              "name": "wy",
+              "size": 0.05,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.58,
+                0.72
+              ],
+              "input": "rn",
+              "name": "rust_m",
+              "type": "levels"
+            },
+            {
+              "input": "n",
+              "name": "c0",
+              "stops": [
+                [
+                  0.0,
+                  "#25262b"
+                ],
+                [
+                  1.0,
+                  "#3d3f46"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "wy.f1",
+              "name": "rc",
+              "stops": [
+                [
+                  0.0,
+                  "#5a2e18"
+                ],
+                [
+                  0.6,
+                  "#8a4a22"
+                ],
+                [
+                  1.0,
+                  "#6e3a1c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "r",
+              "to": [
+                0.45,
+                0.65
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "rust_m",
+              "b": 0.0008,
+              "name": "rh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "rc",
+              "height": "rh",
+              "metallic": 0.0,
+              "name": "rust",
+              "roughness": 0.95,
+              "type": "output"
+            },
+            {
+              "base_color": "c0",
+              "metallic": 0.85,
+              "name": "out",
+              "over": [
+                {
+                  "mask": "rust_m",
+                  "output": "rust"
+                }
+              ],
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +rn +wy +rust_m +c0 +rc +r +rh +rust +out"
+      }
+    ],
+    "current": 0
+  }
+}

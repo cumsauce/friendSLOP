@@ -1,0 +1,1166 @@
+{
+  "format_version": 1,
+  "name": "pk-gamble-table",
+  "parts": [],
+  "version": 7057,
+  "ops": [
+    {
+      "extrude": {
+        "name": "skirt",
+        "profile": [
+          [
+            [
+              0.63,
+              0.0
+            ],
+            [
+              0.5908846,
+              0.104188904
+            ],
+            [
+              0.5356248,
+              0.19495147
+            ],
+            [
+              0.51961523,
+              0.3
+            ],
+            [
+              0.482608,
+              0.4049562
+            ],
+            [
+              0.38567257,
+              0.45962667
+            ],
+            [
+              0.285,
+              0.4936345
+            ],
+            [
+              0.20521209,
+              0.5638156
+            ],
+            [
+              0.10939835,
+              0.62042886
+            ],
+            [
+              3.6739406e-17,
+              0.6
+            ],
+            [
+              -0.09897946,
+              0.5613404
+            ],
+            [
+              -0.20521209,
+              0.5638156
+            ],
+            [
+              -0.315,
+              0.545596
+            ],
+            [
+              -0.38567257,
+              0.45962667
+            ],
+            [
+              -0.43664533,
+              0.36638895
+            ],
+            [
+              -0.51961523,
+              0.3
+            ],
+            [
+              -0.5920063,
+              0.21547268
+            ],
+            [
+              -0.5908846,
+              0.104188904
+            ],
+            [
+              -0.57,
+              6.9804865e-17
+            ],
+            [
+              -0.5908846,
+              -0.104188904
+            ],
+            [
+              -0.5920063,
+              -0.21547268
+            ],
+            [
+              -0.51961523,
+              -0.3
+            ],
+            [
+              -0.43664533,
+              -0.36638895
+            ],
+            [
+              -0.38567257,
+              -0.45962667
+            ],
+            [
+              -0.315,
+              -0.545596
+            ],
+            [
+              -0.20521209,
+              -0.5638156
+            ],
+            [
+              -0.09897946,
+              -0.5613404
+            ],
+            [
+              -1.1021821e-16,
+              -0.6
+            ],
+            [
+              0.10939835,
+              -0.62042886
+            ],
+            [
+              0.20521209,
+              -0.5638156
+            ],
+            [
+              0.285,
+              -0.4936345
+            ],
+            [
+              0.38567257,
+              -0.45962667
+            ],
+            [
+              0.482608,
+              -0.4049562
+            ],
+            [
+              0.51961523,
+              -0.3
+            ],
+            [
+              0.5356248,
+              -0.19495147
+            ],
+            [
+              0.5908846,
+              -0.104188904
+            ]
+          ]
+        ],
+        "height": 0.46,
+        "scale_top": [
+          0.9,
+          0.9
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "top_raw",
+        "kind": "cylinder",
+        "size": [
+          0.56,
+          0.06,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.47,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "round": {
+        "name": "top",
+        "input": "top_raw",
+        "mode": "fillet",
+        "radius": 0.025,
+        "segments": 4
+      }
+    },
+    {
+      "revolve": {
+        "name": "trim",
+        "profile": [
+          [
+            [
+              0.573,
+              0.0
+            ],
+            [
+              0.5605623,
+              0.017119016
+            ],
+            [
+              0.5404377,
+              0.010580135
+            ],
+            [
+              0.5404377,
+              -0.010580135
+            ],
+            [
+              0.5605623,
+              -0.017119016
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 28,
+        "translation": [
+          0.0,
+          0.455,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "skirt",
+        "input": "skirt",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-velvet",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 502.6548245743669,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 502.6548245743669,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "w",
+                "name": "w01",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "w01",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#3e2260"
+                  ],
+                  [
+                    1,
+                    "#6a3f96"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.88,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "w01",
+                "b": 0.0012,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.93,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "top",
+        "input": "top",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-velvet",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 502.6548245743669,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 502.6548245743669,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "w",
+                "name": "w01",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "w01",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#3e2260"
+                  ],
+                  [
+                    1,
+                    "#6a3f96"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.88,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "w01",
+                "b": 0.0012,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.93,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "trim",
+        "input": "trim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b98a2a"
+                  ],
+                  [
+                    1,
+                    "#f0c458"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "top_raw",
+        "input": "top_raw",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pk-gamble-table",
+          "parts": [],
+          "version": 7048,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pk-gamble-table`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pk-gamble-table",
+          "parts": [],
+          "version": 7057,
+          "ops": [
+            {
+              "extrude": {
+                "name": "skirt",
+                "profile": [
+                  [
+                    [
+                      0.63,
+                      0.0
+                    ],
+                    [
+                      0.5908846,
+                      0.104188904
+                    ],
+                    [
+                      0.5356248,
+                      0.19495147
+                    ],
+                    [
+                      0.51961523,
+                      0.3
+                    ],
+                    [
+                      0.482608,
+                      0.4049562
+                    ],
+                    [
+                      0.38567257,
+                      0.45962667
+                    ],
+                    [
+                      0.285,
+                      0.4936345
+                    ],
+                    [
+                      0.20521209,
+                      0.5638156
+                    ],
+                    [
+                      0.10939835,
+                      0.62042886
+                    ],
+                    [
+                      3.6739406e-17,
+                      0.6
+                    ],
+                    [
+                      -0.09897946,
+                      0.5613404
+                    ],
+                    [
+                      -0.20521209,
+                      0.5638156
+                    ],
+                    [
+                      -0.315,
+                      0.545596
+                    ],
+                    [
+                      -0.38567257,
+                      0.45962667
+                    ],
+                    [
+                      -0.43664533,
+                      0.36638895
+                    ],
+                    [
+                      -0.51961523,
+                      0.3
+                    ],
+                    [
+                      -0.5920063,
+                      0.21547268
+                    ],
+                    [
+                      -0.5908846,
+                      0.104188904
+                    ],
+                    [
+                      -0.57,
+                      6.9804865e-17
+                    ],
+                    [
+                      -0.5908846,
+                      -0.104188904
+                    ],
+                    [
+                      -0.5920063,
+                      -0.21547268
+                    ],
+                    [
+                      -0.51961523,
+                      -0.3
+                    ],
+                    [
+                      -0.43664533,
+                      -0.36638895
+                    ],
+                    [
+                      -0.38567257,
+                      -0.45962667
+                    ],
+                    [
+                      -0.315,
+                      -0.545596
+                    ],
+                    [
+                      -0.20521209,
+                      -0.5638156
+                    ],
+                    [
+                      -0.09897946,
+                      -0.5613404
+                    ],
+                    [
+                      -1.1021821e-16,
+                      -0.6
+                    ],
+                    [
+                      0.10939835,
+                      -0.62042886
+                    ],
+                    [
+                      0.20521209,
+                      -0.5638156
+                    ],
+                    [
+                      0.285,
+                      -0.4936345
+                    ],
+                    [
+                      0.38567257,
+                      -0.45962667
+                    ],
+                    [
+                      0.482608,
+                      -0.4049562
+                    ],
+                    [
+                      0.51961523,
+                      -0.3
+                    ],
+                    [
+                      0.5356248,
+                      -0.19495147
+                    ],
+                    [
+                      0.5908846,
+                      -0.104188904
+                    ]
+                  ]
+                ],
+                "height": 0.46,
+                "scale_top": [
+                  0.9,
+                  0.9
+                ],
+                "slices": 0,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "top_raw",
+                "kind": "cylinder",
+                "size": [
+                  0.56,
+                  0.06,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  0.47,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "round": {
+                "name": "top",
+                "input": "top_raw",
+                "mode": "fillet",
+                "radius": 0.025,
+                "segments": 4
+              }
+            },
+            {
+              "revolve": {
+                "name": "trim",
+                "profile": [
+                  [
+                    [
+                      0.573,
+                      0.0
+                    ],
+                    [
+                      0.5605623,
+                      0.017119016
+                    ],
+                    [
+                      0.5404377,
+                      0.010580135
+                    ],
+                    [
+                      0.5404377,
+                      -0.010580135
+                    ],
+                    [
+                      0.5605623,
+                      -0.017119016
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 28,
+                "translation": [
+                  0.0,
+                  0.455,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "skirt",
+                "input": "skirt",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pk-velvet",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 502.6548245743669,
+                        "name": "ux",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 502.6548245743669,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "b": "sv",
+                        "name": "w",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          -1,
+                          1
+                        ],
+                        "input": "w",
+                        "name": "w01",
+                        "to": [
+                          0,
+                          1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 3,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "w01",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#3e2260"
+                          ],
+                          [
+                            1,
+                            "#6a3f96"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.88,
+                          1.08
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "w01",
+                        "b": 0.0012,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.93,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "top",
+                "input": "top",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pk-velvet",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 502.6548245743669,
+                        "name": "ux",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 502.6548245743669,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "b": "sv",
+                        "name": "w",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          -1,
+                          1
+                        ],
+                        "input": "w",
+                        "name": "w01",
+                        "to": [
+                          0,
+                          1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 3,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "w01",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#3e2260"
+                          ],
+                          [
+                            1,
+                            "#6a3f96"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.88,
+                          1.08
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "w01",
+                        "b": 0.0012,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.93,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "trim",
+                "input": "trim",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pk-gold",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.5,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#b98a2a"
+                          ],
+                          [
+                            1,
+                            "#f0c458"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": 1.0,
+                        "name": "out",
+                        "roughness": 0.3,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "top_raw",
+                "input": "top_raw",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "8 edits: extrude `skirt` profile=[[[0.63, 0.0], [0.5908846, 0.104188904], [0.5356248, 0.19495147], [0.51961523, 0.3], [0.482608, 0.4049562], [0.38567257, 0.45962667], [0.285, 0.4936345], [0.20521209, 0.5638156], [0.10939835, 0.62042886], [3.6739406e-17, 0.6], [-0.09897946, 0.5613404], [-0.20521209, 0.5638156], [-0.315, 0.545596], [-0.38567257, 0.45962667], [-0.43664533, 0.36638895], [-0.51961523, 0.3], [-0.5920063, 0.21547268], [-0.5908846, 0.104188904], [-0.57, 6.9804865e-17], [-0.5908846, -0.104188904], [-0.5920063, -0.21547268], [-0.51961523, -0.3], [-0.43664533, -0.36638895], [-0.38567257, -0.45962667], [-0.315, -0.545596], [-0.20521209, -0.5638156], [-0.09897946, -0.5613404], [-1.1021821e-16, -0.6], [0.10939835, -0.62042886], [0.20521209, -0.5638156], [0.285, -0.4936345], [0.38567257, -0.45962667], [0.482608, -0.4049562], [0.51961523, -0.3], [0.5356248, -0.19495147], [0.5908846, -0.104188904]]] height=0.46 twist=0 scale_top=[0.9, 0.9] slices=0 round=0 at=[0.0, 0.0, 0.0] … hidden `top_raw`"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

@@ -450,6 +450,8 @@ impl PropId {
         };
         let cloth = [M::CLOTH, M::RED, M::LINEN, M::CLOTH][p.variant as usize % 4];
         let s = p.scale;
+        let (name, base, scale) = self.model(p);
+        let started = k.begin_prop(name, base, scale);
         match self {
             PropId::Bed => furniture::bed(k, Vec3::ZERO),
             PropId::Table => furniture::table(k, Vec3::ZERO),
@@ -629,6 +631,25 @@ impl PropId {
                 k.trinket(Shape::Ball, top, Vec3::splat(0.32), M::LINEN);
             }
         }
+        k.end_prop(started);
+    }
+
+    /// The model that draws this prop instead of its pieces
+    /// (`models/props/<name>.gltf`): its name, where its origin sits in the
+    /// prop's frame, and how much to stretch it. Ceiling props hang from
+    /// `reach`; the hanging lamp is marked by [`Kit::lamp`] itself.
+    pub fn model(self, p: &Params) -> (&'static str, Vec3, Vec3) {
+        let s = p.scale;
+        let ceiling = Vec3::Y * p.reach;
+        match self {
+            PropId::Crates if !crates_tall(p) => ("crates_single", Vec3::ZERO, Vec3::ONE),
+            PropId::Stool => (self.name(), Vec3::ZERO, Vec3::new(1.0, s, 1.0)),
+            PropId::Rug => (self.name(), Vec3::ZERO, Vec3::new(s, 1.0, s)),
+            PropId::Sack => (self.name(), Vec3::ZERO, Vec3::new(s, 1.0, 1.0)),
+            PropId::PipeRun | PropId::Cobweb => (self.name(), ceiling, Vec3::new(s, 1.0, 1.0)),
+            PropId::HangingLamp => (self.name(), Vec3::Y * (p.reach - 0.92), Vec3::ONE),
+            _ => (self.name(), Vec3::ZERO, Vec3::ONE),
+        }
     }
 }
 
@@ -677,6 +698,27 @@ mod tests {
                 for s in id.sockets(&p) {
                     assert!(s.centre.y <= hi.y + 1e-3, "{} socket above box", id.name());
                 }
+            }
+        }
+    }
+
+    /// Every piece a prop draws belongs to its one mark, so a model can
+    /// replace all of it.
+    #[test]
+    fn props_mark_all_their_pieces() {
+        for id in PropId::ALL {
+            for v in 0..4u8 {
+                let p = Params {
+                    variant: v,
+                    reach: 2.8,
+                    ..Params::default()
+                };
+                let mut k = Kit::<M>::default();
+                id.emit(&mut k, &p);
+                assert_eq!(k.props.len(), 1, "{}", id.name());
+                assert!(k.pieces.iter().all(|piece| piece.prop == Some(0)));
+                let dropped = crate::build::drawn(&k.pieces, &k.props, |_| true);
+                assert!(dropped.is_empty(), "{}", id.name());
             }
         }
     }

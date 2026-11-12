@@ -1,0 +1,446 @@
+{
+  "format_version": 1,
+  "name": "zn-lily-pad",
+  "parts": [],
+  "version": 8841,
+  "ops": [
+    {
+      "extrude": {
+        "name": "pad",
+        "profile": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              -0.0927,
+              0.2853
+            ],
+            [
+              -0.1857,
+              0.2356
+            ],
+            [
+              -0.2558,
+              0.1567
+            ],
+            [
+              -0.2942,
+              0.0585
+            ],
+            [
+              -0.2963,
+              -0.0469
+            ],
+            [
+              -0.2617,
+              -0.1466
+            ],
+            [
+              -0.1948,
+              -0.2281
+            ],
+            [
+              -0.1038,
+              -0.2815
+            ],
+            [
+              -0.0,
+              -0.3
+            ],
+            [
+              0.1038,
+              -0.2815
+            ],
+            [
+              0.1948,
+              -0.2281
+            ],
+            [
+              0.2617,
+              -0.1466
+            ],
+            [
+              0.2963,
+              -0.0469
+            ],
+            [
+              0.2942,
+              0.0585
+            ],
+            [
+              0.2558,
+              0.1567
+            ],
+            [
+              0.1857,
+              0.2356
+            ],
+            [
+              0.0927,
+              0.2853
+            ]
+          ]
+        ],
+        "height": 0.012,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "pad",
+        "input": "pad",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-lily",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 151,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 2,
+                "seed": 152,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "a": "fn",
+                "b": "bn",
+                "c": 0.5,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#3f7a2a"
+                  ],
+                  [
+                    0.5,
+                    "#4f9233"
+                  ],
+                  [
+                    1,
+                    "#6aa845"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "zn-lily-pad",
+          "parts": [],
+          "version": 8490,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `zn-lily-pad`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "zn-lily-pad",
+          "parts": [],
+          "version": 8839,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "style": {
+            "name": "friendslop",
+            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
+            "colors": {
+              "bark": "#6b4a2f",
+              "brass": "#b8893a",
+              "char": "#2a2220",
+              "ember": "#ff5a1f",
+              "flame": "#ffb347",
+              "gunmetal": "#3a3d44",
+              "leaf": "#5f8f2f",
+              "moss": "#6f8f3a",
+              "stone": "#8f8a80",
+              "stone_dark": "#5e5a54",
+              "wood": "#9a6a3e"
+            },
+            "numbers": {
+              "segments": 12.0
+            }
+          }
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "style"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "zn-lily-pad",
+          "parts": [],
+          "version": 8841,
+          "ops": [
+            {
+              "extrude": {
+                "name": "pad",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      0.0
+                    ],
+                    [
+                      -0.0927,
+                      0.2853
+                    ],
+                    [
+                      -0.1857,
+                      0.2356
+                    ],
+                    [
+                      -0.2558,
+                      0.1567
+                    ],
+                    [
+                      -0.2942,
+                      0.0585
+                    ],
+                    [
+                      -0.2963,
+                      -0.0469
+                    ],
+                    [
+                      -0.2617,
+                      -0.1466
+                    ],
+                    [
+                      -0.1948,
+                      -0.2281
+                    ],
+                    [
+                      -0.1038,
+                      -0.2815
+                    ],
+                    [
+                      -0.0,
+                      -0.3
+                    ],
+                    [
+                      0.1038,
+                      -0.2815
+                    ],
+                    [
+                      0.1948,
+                      -0.2281
+                    ],
+                    [
+                      0.2617,
+                      -0.1466
+                    ],
+                    [
+                      0.2963,
+                      -0.0469
+                    ],
+                    [
+                      0.2942,
+                      0.0585
+                    ],
+                    [
+                      0.2558,
+                      0.1567
+                    ],
+                    [
+                      0.1857,
+                      0.2356
+                    ],
+                    [
+                      0.0927,
+                      0.2853
+                    ]
+                  ]
+                ],
+                "height": 0.012,
+                "scale_top": [
+                  1.0,
+                  1.0
+                ],
+                "slices": 0,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "pad",
+                "input": "pad",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "zn-lily",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 151,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "bn",
+                        "octaves": 2,
+                        "seed": 152,
+                        "size": 0.12,
+                        "type": "noise"
+                      },
+                      {
+                        "a": "fn",
+                        "b": "bn",
+                        "c": 0.5,
+                        "name": "t0",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "input": "t0",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#3f7a2a"
+                          ],
+                          [
+                            0.5,
+                            "#4f9233"
+                          ],
+                          [
+                            1,
+                            "#6aa845"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.45,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "style": {
+            "name": "friendslop",
+            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
+            "colors": {
+              "bark": "#6b4a2f",
+              "brass": "#b8893a",
+              "char": "#2a2220",
+              "ember": "#ff5a1f",
+              "flame": "#ffb347",
+              "gunmetal": "#3a3d44",
+              "leaf": "#5f8f2f",
+              "moss": "#6f8f3a",
+              "stone": "#8f8a80",
+              "stone_dark": "#5e5a54",
+              "wood": "#9a6a3e"
+            },
+            "numbers": {
+              "segments": 12.0
+            }
+          },
+          "derived_from_ops": true
+        },
+        "parent": 1,
+        "children": [],
+        "label": "2 edits: extrude `pad` profile=[[[0.0, 0.0], [-0.0927, 0.2853], [-0.1857, 0.2356], [-0.2558, 0.1567], [-0.2942, 0.0585], [-0.2963, -0.0469], [-0.2617, -0.1466], [-0.1948, -0.2281], [-0.1038, -0.2815], [-0.0, -0.3], [0.1038, -0.2815], [0.1948, -0.2281], [0.2617, -0.1466], [0.2963, -0.0469], [0.2942, 0.0585], [0.2558, 0.1567], [0.1857, 0.2356], [0.0927, 0.2853]]] height=0.012 twist=0 scale_top=[1.0, 1.0] slices=0 round=0 at=[0.0, 0.0, 0.0] … material `pad` <- `pad` pbr=zn-lily"
+      }
+    ],
+    "current": 2
+  },
+  "style": {
+    "name": "friendslop",
+    "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
+    "colors": {
+      "bark": "#6b4a2f",
+      "brass": "#b8893a",
+      "char": "#2a2220",
+      "ember": "#ff5a1f",
+      "flame": "#ffb347",
+      "gunmetal": "#3a3d44",
+      "leaf": "#5f8f2f",
+      "moss": "#6f8f3a",
+      "stone": "#8f8a80",
+      "stone_dark": "#5e5a54",
+      "wood": "#9a6a3e"
+    },
+    "numbers": {
+      "segments": 12.0
+    }
+  },
+  "derived_from_ops": true
+}

@@ -1,0 +1,190 @@
+{
+  "name": "fu-timber",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 2,
+      "seed": 31,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "amount": 0.06,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "name": "g",
+      "size": [
+        1.0,
+        0.02
+      ],
+      "stagger": 0.37,
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "gr",
+      "seed": 31,
+      "type": "random"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 36,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "a": "gr",
+      "b": "fn",
+      "c": 0.35,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#3a2414"
+        ],
+        [
+          0.55,
+          "#5c3d26"
+        ],
+        [
+          1,
+          "#6f4c30"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "t0",
+      "b": 0.0008,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.65,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fu-timber",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 2,
+              "seed": 31,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.06,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "g",
+              "size": [
+                1.0,
+                0.02
+              ],
+              "stagger": 0.37,
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "gr",
+              "seed": 31,
+              "type": "random"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 36,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "a": "gr",
+              "b": "fn",
+              "c": 0.35,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#3a2414"
+                ],
+                [
+                  0.55,
+                  "#5c3d26"
+                ],
+                [
+                  1,
+                  "#6f4c30"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "t0",
+              "b": 0.0008,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.65,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+wv +wp +g +gr +fn +t0 +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

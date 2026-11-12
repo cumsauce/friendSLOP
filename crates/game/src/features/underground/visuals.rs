@@ -128,7 +128,25 @@ struct Tunnel;
 
 struct Mats {
     cube: Handle<Mesh>,
-    disc: Handle<Mesh>,
+}
+
+/// A model that's part of the underground (hidden while you're up top).
+fn deep_model(
+    commands: &mut Commands,
+    assets: &AssetServer,
+    file: &str,
+    tf: Transform,
+    show: Visibility,
+) {
+    commands.spawn((
+        Deep,
+        Tunnel,
+        NotShadowCaster,
+        show,
+        model(assets, file),
+        tf,
+        DespawnOnExit(AppState::InGame),
+    ));
 }
 
 fn mat(materials: &mut Assets<StandardMaterial>, c: Color, rough: f32) -> Handle<StandardMaterial> {
@@ -199,98 +217,36 @@ fn light(commands: &mut Commands, at: Vec3, color: Color, intensity: f32, range:
     ));
 }
 
-fn build(
-    mut commands: Commands,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
-) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+fn build(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+    let Some(assets) = assets else {
         return;
     };
-    let m = Mats {
-        cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-        disc: meshes.add(Cylinder::new(1.0, 1.0)),
-    };
-    build_tops(&mut commands, &m, &mut materials);
+    build_tops(&mut commands, &assets);
 }
 
-/// The ways in, up top.
-fn build_tops(commands: &mut Commands, m: &Mats, materials: &mut Assets<StandardMaterial>) {
-    let iron = mat(materials, Color::srgb(0.16, 0.16, 0.17), 0.55);
-    let rim = mat(materials, Color::srgb(0.32, 0.31, 0.3), 0.7);
-    let slot = mat(materials, Color::srgb(0.03, 0.03, 0.03), 1.0);
-    let door = mat(materials, Color::srgb(0.36, 0.25, 0.16), 0.85);
-    let stone = mat(materials, Color::srgb(0.45, 0.44, 0.42), 0.95);
-    let board = mat(materials, Color::srgb(0.4, 0.3, 0.2), 0.9);
+/// A modeler-made model in `assets/models/features` (sources in `.modeler/`).
+fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+    )
+}
+
+/// The ways in, up top: a manhole, a cellar door against the cottage wall
+/// (to the -x side) and a trapdoor in the floorboards, each a model.
+fn build_tops(commands: &mut Commands, assets: &AssetServer) {
     for (i, e) in ENTRANCES.iter().enumerate() {
         let h = crate::terrain::height_at(e.at.x, e.at.y);
         let at = Vec3::new(e.at.x, h, e.at.y);
-        match e.kind {
-            Kind::Manhole => {
-                for (r, y, mat) in [(0.68, 0.03, &rim), (0.56, 0.05, &iron)] {
-                    commands.spawn((
-                        Mesh3d(m.disc.clone()),
-                        MeshMaterial3d(mat.clone()),
-                        Transform::from_translation(at + Vec3::Y * y / 2.0)
-                            .with_scale(Vec3::new(r, y, r)),
-                        DespawnOnExit(AppState::InGame),
-                    ));
-                }
-                for k in -2..=2 {
-                    block(
-                        commands,
-                        m,
-                        &slot,
-                        boxed(
-                            at + Vec3::new(k as f32 * 0.18, 0.052, 0.0),
-                            Vec3::new(0.05, 0.01, 0.7 - 0.1 * (k as f32).abs()),
-                        ),
-                        false,
-                        false,
-                    );
-                }
-            }
-            Kind::CellarDoor => {
-                // A stone curb and two sloping wooden leaves against the
-                // cottage wall (to the -x side).
-                block(
-                    commands,
-                    m,
-                    &stone,
-                    boxed(at + Vec3::new(0.0, 0.12, 0.0), Vec3::new(1.5, 0.24, 1.9)),
-                    false,
-                    false,
-                );
-                for z in [-0.42, 0.42] {
-                    block(
-                        commands,
-                        m,
-                        &door,
-                        Transform::from_translation(at + Vec3::new(0.0, 0.55, z))
-                            .with_rotation(Quat::from_rotation_z(-0.42))
-                            .with_scale(Vec3::new(1.5, 0.08, 0.8)),
-                        false,
-                        false,
-                    );
-                }
-            }
-            Kind::Trapdoor => {
-                // Floorboards, one a shade darker and a little proud.
-                for k in 0..3 {
-                    block(
-                        commands,
-                        m,
-                        &board,
-                        boxed(
-                            at + Vec3::new(0.0, 0.035 + 0.006 * k as f32, (k as f32 - 1.0) * 0.32),
-                            Vec3::new(1.0, 0.04, 0.28),
-                        ),
-                        false,
-                        false,
-                    );
-                }
-            }
-        }
+        let file = match e.kind {
+            Kind::Manhole => "manhole.gltf",
+            Kind::CellarDoor => "cellar_door.gltf",
+            Kind::Trapdoor => "trapdoor.gltf",
+        };
+        commands.spawn((
+            model(assets, file),
+            Transform::from_translation(at),
+            DespawnOnExit(AppState::InGame),
+        ));
         commands.spawn((
             Hatch(i as u8),
             Transform::from_translation(at),
@@ -381,10 +337,11 @@ fn build_tunnels(
     tunnels: Res<Tunnels>,
     old: Query<Entity, With<Tunnel>>,
     below: Res<Below>,
+    assets: Option<Res<AssetServer>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let (Some(assets), Some(mut meshes), Some(mut materials)) = (assets, meshes, materials) else {
         return;
     };
     for e in &old {
@@ -392,7 +349,6 @@ fn build_tunnels(
     }
     let m = Mats {
         cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
-        disc: meshes.add(Cylinder::new(1.0, 1.0)),
     };
     let l = &tunnels.0;
     let (y, top) = (TUNNEL_Y, TUNNEL_Y + TUNNEL_H);
@@ -475,12 +431,6 @@ fn build_tunnels(
     // Dressing.
     let daylight = glow(&mut materials, Color::srgb(0.8, 0.9, 1.0), 3.0);
     let bulb = glow(&mut materials, Color::srgb(1.0, 0.9, 0.6), 4.0);
-    let shelf = mat(&mut materials, Color::srgb(0.35, 0.25, 0.15), 0.9);
-    let jars = [
-        mat(&mut materials, Color::srgb(0.6, 0.35, 0.2), 0.3),
-        mat(&mut materials, Color::srgb(0.45, 0.55, 0.25), 0.3),
-        mat(&mut materials, Color::srgb(0.7, 0.6, 0.3), 0.3),
-    ];
     // The junction: daylight falls through a grate in the ceiling.
     let hub = Vec3::new(0.0, top, 0.0);
     block(
@@ -490,6 +440,13 @@ fn build_tunnels(
         boxed(hub - Vec3::Y * 0.02, Vec3::new(1.4, 0.04, 1.4)),
         false,
         true,
+    );
+    deep_model(
+        &mut commands,
+        &assets,
+        "grate.gltf",
+        Transform::from_translation(hub),
+        show,
     );
     light(
         &mut commands,
@@ -501,33 +458,14 @@ fn build_tunnels(
     // The cellar: shelves of jars along its back wall and a bare bulb.
     let cellar = cell_centre(cell_of(ENTRANCES[2].at));
     let back = Vec3::new(cellar.x - CELL * 1.5 + 0.3, y, cellar.y);
-    for k in 0..3 {
-        let sh = back + Vec3::Y * (0.5 + k as f32 * 0.7);
-        block(
-            &mut commands,
-            &m,
-            &shelf,
-            boxed(sh, Vec3::new(0.5, 0.06, 6.0)),
-            false,
-            true,
-        );
-        for j in 0..9 {
-            let jar = &jars[(j + k) % jars.len()];
-            commands.spawn((
-                Deep,
-                Tunnel,
-                NotShadowCaster,
-                show,
-                Mesh3d(m.disc.clone()),
-                MeshMaterial3d(jar.clone()),
-                Transform::from_translation(
-                    sh + Vec3::new(0.0, 0.17, -2.6 + j as f32 * 0.65 + 0.1 * k as f32),
-                )
-                .with_scale(Vec3::new(0.12, 0.28, 0.12)),
-                DespawnOnExit(AppState::InGame),
-            ));
-        }
-    }
+    // Three shelves of 27 jars (brown, green, honey), one model.
+    deep_model(
+        &mut commands,
+        &assets,
+        "jar_shelf.gltf",
+        Transform::from_translation(back),
+        show,
+    );
     let bare = Vec3::new(cellar.x, top - 0.4, cellar.y);
     block(
         &mut commands,
@@ -546,44 +484,25 @@ fn build_tunnels(
     );
 
     // A ladder under every way in, and the hatch seen from below.
-    let wood = mat(&mut materials, Color::srgb(0.32, 0.24, 0.16), 0.9);
-    let rust = mat(&mut materials, Color::srgb(0.35, 0.22, 0.14), 0.6);
     let hatch_glow = glow(&mut materials, Color::srgb(1.0, 0.88, 0.45), 4.0);
     for (i, e) in ENTRANCES.iter().enumerate() {
         let base = Vec3::new(e.at.x, y, e.at.y);
-        let rail = if e.kind == Kind::Manhole {
-            &rust
-        } else {
-            &wood
-        };
-        // The ladder faces you as you arrive (you arrive on its `out` side).
-        let across = Vec3::new(-e.out.y, 0.0, e.out.x) * 0.25;
-        for s in [-1.0, 1.0] {
-            block(
-                &mut commands,
-                &m,
-                rail,
-                boxed(
-                    base + across * s + Vec3::Y * TUNNEL_H / 2.0,
-                    Vec3::new(0.06, TUNNEL_H, 0.06),
-                ),
-                false,
-                true,
-            );
-        }
+        // The ladder faces you as you arrive (you arrive on its `out` side):
+        // a modeler-made ladder the tunnel's height, rusty iron under the
+        // manhole, wood elsewhere.
         let rung = Quat::from_rotation_y((-e.out.x).atan2(-e.out.y));
-        for k in 0..9 {
-            block(
-                &mut commands,
-                &m,
-                rail,
-                Transform::from_translation(base + Vec3::Y * (0.3 + k as f32 * 0.33))
-                    .with_rotation(rung)
-                    .with_scale(Vec3::new(0.56, 0.04, 0.04)),
-                false,
-                true,
-            );
-        }
+        let file = if e.kind == Kind::Manhole {
+            "ladder_iron.gltf"
+        } else {
+            "ladder_wood.gltf"
+        };
+        deep_model(
+            &mut commands,
+            &assets,
+            file,
+            Transform::from_translation(base).with_rotation(rung),
+            show,
+        );
         // Every ladder is lit from above, with a glowing hatch in the
         // ceiling, so the ways out stand out down the tunnels.
         let (sky, power) = if e.kind == Kind::Manhole {

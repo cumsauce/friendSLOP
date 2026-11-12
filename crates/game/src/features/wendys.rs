@@ -294,19 +294,8 @@ fn place_sign(
 fn dress_burgers(
     mut commands: Commands,
     new: Query<(Entity, &Burger), Added<Burger>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
 ) {
-    if new.is_empty() {
-        return;
-    }
-    let bun = crate::art::soft(&mut materials, Color::srgb(0.85, 0.6, 0.3));
-    let patty = crate::art::soft(&mut materials, Color::srgb(0.6, 0.28, 0.25));
-    let lettuce = crate::art::soft(&mut materials, Color::srgb(0.4, 0.75, 0.3));
-    let cheese = crate::art::soft(&mut materials, Color::srgb(0.98, 0.8, 0.2));
-    let dome = meshes.add(Sphere::new(0.13));
-    let disc = meshes.add(Cylinder::new(0.14, 0.04));
-    let slice = meshes.add(Cuboid::new(0.24, 0.015, 0.24));
     for (entity, burger) in &new {
         commands
             .entity(entity)
@@ -319,35 +308,17 @@ fn dress_burgers(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {
-                // Bottom bun.
-                p.spawn((
-                    Mesh3d(disc.clone()),
-                    MeshMaterial3d(bun.clone()),
-                    Transform::from_xyz(0.0, 0.02, 0.0),
-                ));
-                p.spawn((
-                    Mesh3d(disc.clone()),
-                    MeshMaterial3d(lettuce.clone()),
-                    Transform::from_xyz(0.0, 0.05, 0.0).with_scale(Vec3::new(1.12, 0.4, 1.12)),
-                ));
-                p.spawn((
-                    Mesh3d(disc.clone()),
-                    MeshMaterial3d(patty.clone()),
-                    Transform::from_xyz(0.0, 0.08, 0.0).with_scale(Vec3::new(1.05, 1.1, 1.05)),
-                ));
-                p.spawn((
-                    Mesh3d(slice.clone()),
-                    MeshMaterial3d(cheese.clone()),
-                    Transform::from_xyz(0.0, 0.105, 0.0).with_rotation(Quat::from_rotation_y(0.4)),
-                ));
-                // Top bun.
-                p.spawn((
-                    Mesh3d(dome.clone()),
-                    MeshMaterial3d(bun.clone()),
-                    Transform::from_xyz(0.0, 0.11, 0.0).with_scale(Vec3::new(1.05, 0.55, 1.05)),
-                ));
+                // Modeler-made (sources in `.modeler/`, prefab `sp-burger`).
+                p.spawn((model(&assets, "burger.gltf"), Transform::default()));
             });
     }
+}
+
+/// A modeler-made feature model in `assets/models/features`.
+fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+    )
 }
 
 /// The shack itself: a little cream building on a stone base, an open serving
@@ -355,23 +326,12 @@ fn dress_burgers(
 /// grill glowing inside. Local scenery; walls and counter block bodies.
 fn build_shack(
     mut commands: Commands,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let soft =
-        |m: &mut Assets<StandardMaterial>, r, g, b| crate::art::soft(m, Color::srgb(r, g, b));
-    let cream = soft(&mut materials, 0.95, 0.9, 0.78);
-    let red = soft(&mut materials, 0.8, 0.18, 0.15);
-    let white = soft(&mut materials, 0.97, 0.96, 0.94);
-    let stone = soft(&mut materials, 0.58, 0.56, 0.54);
-    let wood = soft(&mut materials, 0.55, 0.38, 0.24);
-    let steel = crate::art::glossy(&mut materials, Color::srgb(0.6, 0.62, 0.65));
-    let glow = materials.add(StandardMaterial {
-        base_color: Color::srgb(1.0, 0.5, 0.2),
-        emissive: LinearRgba::rgb(2.0, 0.7, 0.2),
-        ..default()
-    });
+    let stone = crate::art::soft(&mut materials, Color::srgb(0.58, 0.56, 0.54));
 
     let base = floor_y();
     let c = Vec3::new(WENDYS_AT.x, base, WENDYS_AT.y);
@@ -386,21 +346,13 @@ fn build_shack(
         .fold(base, f32::min);
     let front = -HALF_D;
     let lintel = WALL_H - 0.5;
-    // Striped awning over the window, sloping out and down.
-    let stripes = 8;
-    let sw = HALF_W * 2.0 / stripes as f32;
-    for i in 0..stripes {
-        let x = -HALF_W + sw * (i as f32 + 0.5);
-        let mat = if i % 2 == 0 { &red } else { &white };
-        commands.spawn((
-            Mesh3d(cube.clone()),
-            MeshMaterial3d(mat.clone()),
-            Transform::from_translation(c + Vec3::new(x, lintel - 0.05, front - 0.45))
-                .with_rotation(Quat::from_rotation_x(-0.45))
-                .with_scale(Vec3::new(sw, 0.05, 1.0)),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
+    // Everything above the floor (walls, counter, awning, roof, sign, grill)
+    // is one modeler-made model at the floor centre (prefab `sp-wendys-shack`).
+    commands.spawn((
+        model(&assets, "wendys_shack.gltf"),
+        Transform::from_translation(c),
+        DespawnOnExit(AppState::InGame),
+    ));
     commands.spawn((
         PointLight {
             color: Color::srgb(1.0, 0.7, 0.4),
@@ -411,114 +363,60 @@ fn build_shack(
         Transform::from_translation(c + Vec3::new(0.0, 2.0, 0.0)),
         DespawnOnExit(AppState::InGame),
     ));
-    let mut block = |at: Vec3, size: Vec3, mat: &Handle<StandardMaterial>, solid: bool| {
-        let mut e = commands.spawn((
-            Mesh3d(cube.clone()),
-            MeshMaterial3d(mat.clone()),
+    // The stone base follows the slope, so it stays built here.
+    let depth = base - low + 0.3;
+    commands.spawn((
+        Mesh3d(cube),
+        MeshMaterial3d(stone),
+        Transform::from_translation(c + Vec3::new(0.0, -depth / 2.0 + 0.05, 0.0)).with_scale(
+            Vec3::new(HALF_W * 2.0 + 0.3, depth + 0.1, HALF_D * 2.0 + 0.3),
+        ),
+        avian3d::prelude::RigidBody::Static,
+        avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+        DespawnOnExit(AppState::InGame),
+    ));
+    // Invisible blockers where the walls and counter stand (same boxes as
+    // before the model).
+    let mut solid = |at: Vec3, size: Vec3| {
+        commands.spawn((
             Transform::from_translation(c + at).with_scale(size),
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
             DespawnOnExit(AppState::InGame),
         ));
-        if solid {
-            e.insert((
-                avian3d::prelude::RigidBody::Static,
-                avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
-            ));
-        }
     };
-
-    // Stone base, reaching down into the slope.
-    let depth = base - low + 0.3;
-    block(
-        Vec3::new(0.0, -depth / 2.0 + 0.05, 0.0),
-        Vec3::new(HALF_W * 2.0 + 0.3, depth + 0.1, HALF_D * 2.0 + 0.3),
-        &stone,
-        true,
-    );
     // Back and side walls.
     let wy = WALL_H / 2.0;
-    block(
+    solid(
         Vec3::new(0.0, wy, HALF_D),
         Vec3::new(HALF_W * 2.0, WALL_H, 0.2),
-        &cream,
-        true,
     );
     for s in [-1.0, 1.0] {
-        block(
+        solid(
             Vec3::new(s * HALF_W, wy, 0.0),
             Vec3::new(0.2, WALL_H, HALF_D * 2.0),
-            &cream,
-            true,
         );
     }
-    // Front: a low wall up to the counter, a serving window, a lintel above.
-    block(
+    // Front: a low wall up to the counter, the counter, a lintel above.
+    solid(
         Vec3::new(0.0, COUNTER_H / 2.0, front),
         Vec3::new(HALF_W * 2.0, COUNTER_H, 0.2),
-        &red,
-        true,
     );
-    block(
+    solid(
         Vec3::new(0.0, COUNTER_H - 0.03, -COUNTER_Z + 0.15),
         Vec3::new(HALF_W * 1.6, 0.06, 0.8),
-        &white,
-        true,
     );
-    block(
+    solid(
         Vec3::new(0.0, lintel + 0.25, front),
         Vec3::new(HALF_W * 2.0, 0.5, 0.2),
-        &cream,
-        true,
     );
     // Window posts.
     for s in [-1.0, 1.0] {
-        block(
+        solid(
             Vec3::new(s * (HALF_W - 0.3), (COUNTER_H + lintel) / 2.0, front),
             Vec3::new(0.6, lintel - COUNTER_H, 0.2),
-            &cream,
-            true,
         );
     }
-    // Roof slab.
-    block(
-        Vec3::new(0.0, WALL_H + 0.1, 0.0),
-        Vec3::new(HALF_W * 2.0 + 0.4, 0.2, HALF_D * 2.0 + 0.4),
-        &red,
-        false,
-    );
-    // Roof sign: a board on two posts.
-    for s in [-1.0, 1.0] {
-        block(
-            Vec3::new(s * 1.2, WALL_H + 0.55, 0.0),
-            Vec3::new(0.12, 0.8, 0.12),
-            &wood,
-            false,
-        );
-    }
-    block(
-        Vec3::new(0.0, WALL_H + 1.2, 0.0),
-        Vec3::new(3.4, 0.8, 0.15),
-        &red,
-        false,
-    );
-    block(
-        Vec3::new(0.0, WALL_H + 1.2, -0.09),
-        Vec3::new(3.0, 0.5, 0.04),
-        &white,
-        false,
-    );
-    // Inside: a grill along the back wall with a warm glow.
-    block(
-        Vec3::new(0.0, 0.45, HALF_D - 0.5),
-        Vec3::new(2.6, 0.9, 0.7),
-        &steel,
-        false,
-    );
-    block(
-        Vec3::new(0.0, 0.92, HALF_D - 0.5),
-        Vec3::new(2.3, 0.05, 0.55),
-        &glow,
-        false,
-    );
 }
 
 #[cfg(test)]

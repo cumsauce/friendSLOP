@@ -1,0 +1,138 @@
+{
+  "name": "pk-toadstool",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 61,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "name": "sp",
+      "octaves": 2,
+      "seed": 62,
+      "size": 0.008,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.78,
+        0.84
+      ],
+      "input": "sp",
+      "name": "spk",
+      "type": "levels"
+    },
+    {
+      "input": "n",
+      "name": "c0",
+      "stops": [
+        [
+          0,
+          "#b4161c"
+        ],
+        [
+          1,
+          "#d82a2e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c0",
+      "b": "#7a0c10",
+      "c": "spk",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "clearcoat": 0.3,
+      "name": "out",
+      "roughness": 0.45,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pk-toadstool",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 61,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "name": "sp",
+              "octaves": 2,
+              "seed": 62,
+              "size": 0.008,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.78,
+                0.84
+              ],
+              "input": "sp",
+              "name": "spk",
+              "type": "levels"
+            },
+            {
+              "input": "n",
+              "name": "c0",
+              "stops": [
+                [
+                  0,
+                  "#b4161c"
+                ],
+                [
+                  1,
+                  "#d82a2e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c0",
+              "b": "#7a0c10",
+              "c": "spk",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "clearcoat": 0.3,
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +sp +spk +c0 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "name": "fu-cloth",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "w",
+      "size": [
+        0.01,
+        0.01
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 41,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "a": "w.edge",
+      "b": 0.0,
+      "c": 0.004,
+      "name": "wv",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "name": "pa",
+      "size": [
+        0.25,
+        0.25
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "a": "pa.edge",
+      "b": 0.03,
+      "c": 0.035,
+      "name": "band",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "a": 0.0,
+      "b": "fn",
+      "c": "band",
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#2f5fa8"
+        ],
+        [
+          1,
+          "#5d8fd8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c",
+      "b": "=0.85",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "col",
+      "b": "c",
+      "c": "wv",
+      "name": "col2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "wv",
+      "b": 0.0005,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col2",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.92,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fu-cloth",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "w",
+              "size": [
+                0.006,
+                0.006
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 41,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "a": "w.edge",
+              "b": 0.0,
+              "c": 0.0025,
+              "name": "wv",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "pa",
+              "size": [
+                0.25,
+                0.25
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "a": "pa.edge",
+              "b": 0.03,
+              "c": 0.035,
+              "name": "band",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": 0.0,
+              "b": "fn",
+              "c": "band",
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#2f5fa8"
+                ],
+                [
+                  1,
+                  "#5d8fd8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c",
+              "b": "=0.85",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col",
+              "b": "c",
+              "c": "wv",
+              "name": "col2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "wv",
+              "b": 0.0005,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col2",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.92,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+w +fn +wv +pa +band +t0 +c +col +col2 +h +out"
+      },
+      {
+        "model": {
+          "name": "fu-cloth",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "w",
+              "size": [
+                0.01,
+                0.01
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 41,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "a": "w.edge",
+              "b": 0.0,
+              "c": 0.004,
+              "name": "wv",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "pa",
+              "size": [
+                0.25,
+                0.25
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "a": "pa.edge",
+              "b": 0.03,
+              "c": 0.035,
+              "name": "band",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "a": 0.0,
+              "b": "fn",
+              "c": "band",
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#2f5fa8"
+                ],
+                [
+                  1,
+                  "#5d8fd8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c",
+              "b": "=0.85",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col",
+              "b": "c",
+              "c": "wv",
+              "name": "col2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "wv",
+              "b": 0.0005,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col2",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.92,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~w ~wv"
+      }
+    ],
+    "current": 1
+  }
+}

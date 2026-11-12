@@ -452,13 +452,9 @@ fn pose_pirates(
 fn dress_chest(
     mut commands: Commands,
     new: Query<Entity, Added<Treasure>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
 ) {
     for e in &new {
-        let wood = crate::art::soft(&mut materials, Color::srgb(0.45, 0.28, 0.14));
-        let gold = crate::art::glossy(&mut materials, Color::srgb(1.0, 0.82, 0.25));
-        let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
         commands
             .entity(e)
             .insert((
@@ -470,39 +466,28 @@ fn dress_chest(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|c| {
-                c.spawn((
-                    Mesh3d(cube.clone()),
-                    MeshMaterial3d(wood.clone()),
-                    Transform::from_xyz(0.0, 0.25, 0.0).with_scale(Vec3::new(0.9, 0.5, 0.6)),
-                ));
-                c.spawn((
-                    Mesh3d(cube.clone()),
-                    MeshMaterial3d(wood),
-                    Transform::from_xyz(0.0, 0.58, -0.05)
-                        .with_rotation(Quat::from_rotation_x(-0.3))
-                        .with_scale(Vec3::new(0.92, 0.16, 0.62)),
-                ));
-                for x in [-0.3f32, 0.0, 0.3] {
-                    c.spawn((
-                        Mesh3d(cube.clone()),
-                        MeshMaterial3d(gold.clone()),
-                        Transform::from_xyz(x, 0.52, 0.05).with_scale(Vec3::new(0.18, 0.08, 0.18)),
-                    ));
-                }
+                // Modeler-made (sources in `.modeler/`, prefab `sp-treasure-chest`).
+                c.spawn((model(&assets, "treasure_chest.gltf"), Transform::default()));
             });
     }
+}
+
+/// A modeler-made feature model in `assets/models/features`.
+fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+    )
 }
 
 /// The wreck: a listing hull of planks, a snapped mast, a rainbow flag.
 fn build_wreck(
     mut commands: Commands,
+    assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut exact: ResMut<super::cat_palette::ExactColors>,
 ) {
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let hull = crate::art::soft(&mut materials, Color::srgb(0.36, 0.22, 0.13));
-    let deck = crate::art::soft(&mut materials, Color::srgb(0.55, 0.38, 0.22));
     let ground = crate::terrain::height_at(WRECK_AT.x, WRECK_AT.y);
     // Listing towards the lake, bow up the beach.
     let root = commands
@@ -513,6 +498,13 @@ fn build_wreck(
             DespawnOnExit(AppState::InGame),
         ))
         .id();
+    // Hull, decks with a hole stove in, the snapped mast and its broken top:
+    // one modeler-made model in the root's frame (prefab `sp-shipwreck`).
+    commands.spawn((
+        model(&assets, "shipwreck.gltf"),
+        Transform::default(),
+        ChildOf(root),
+    ));
     let mut part = |at: Vec3, size: Vec3, rot: Quat, mat: &Handle<StandardMaterial>| {
         commands.spawn((
             Mesh3d(cube.clone()),
@@ -523,53 +515,6 @@ fn build_wreck(
             ChildOf(root),
         ));
     };
-    // Hull sides and bottom, and a deck with a hole stove in.
-    for s in [-1.0f32, 1.0] {
-        part(
-            Vec3::new(s * 1.3, 0.8, 0.0),
-            Vec3::new(0.15, 1.6, 8.0),
-            Quat::from_rotation_z(s * 0.2),
-            &hull,
-        );
-    }
-    part(
-        Vec3::new(0.0, 0.1, 0.0),
-        Vec3::new(2.4, 0.2, 7.6),
-        Quat::IDENTITY,
-        &hull,
-    );
-    part(
-        Vec3::new(0.0, 1.4, -2.0),
-        Vec3::new(2.5, 0.12, 3.5),
-        Quat::IDENTITY,
-        &deck,
-    );
-    part(
-        Vec3::new(0.0, 1.4, 2.6),
-        Vec3::new(2.5, 0.12, 2.0),
-        Quat::IDENTITY,
-        &deck,
-    );
-    // Pointed bow.
-    part(
-        Vec3::new(0.0, 0.9, -4.3),
-        Vec3::new(1.6, 1.6, 1.6),
-        Quat::from_rotation_y(std::f32::consts::FRAC_PI_4),
-        &hull,
-    );
-    // The snapped mast, and the broken top lying on the deck.
-    part(
-        Vec3::new(0.0, 3.0, -0.5),
-        Vec3::new(0.22, 3.4, 0.22),
-        Quat::from_rotation_z(0.1),
-        &deck,
-    );
-    part(
-        Vec3::new(0.6, 1.7, 1.5),
-        Vec3::new(0.18, 0.18, 3.0),
-        Quat::from_rotation_y(0.6),
-        &deck,
-    );
     // A rainbow flag: six stripes, red at the top.
     const STRIPES: [(f32, f32, f32); 6] = [
         (0.89, 0.01, 0.01),

@@ -232,17 +232,18 @@ const SEAT: f32 = 0.45;
 fn dress_abuela(
     mut commands: Commands,
     new: Query<Entity, (With<Abuela>, Without<Dressed>)>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
+    assets: Option<Res<AssetServer>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(assets) = assets else {
         return;
     };
+    // Modeler-made chair, yarn and needles (sources in `.modeler/`).
+    let model = |file: &str| {
+        WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+        )
+    };
     for entity in &new {
-        let wood = crate::art::soft(&mut materials, Color::srgb(0.55, 0.35, 0.22));
-        let yarn = crate::art::soft(&mut materials, Color::srgb(0.95, 0.55, 0.6));
-        let cushion = crate::art::soft(&mut materials, Color::srgb(0.95, 0.85, 0.6));
-        let needle = crate::art::glossy(&mut materials, Color::srgb(0.85, 0.85, 0.9));
         commands
             .entity(entity)
             .insert((
@@ -265,66 +266,15 @@ fn dress_abuela(
                     look(),
                 ))
                 .with_children(|c| {
-                    let board = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-                    let part = |c: &mut ChildSpawnerCommands,
-                                mat: &Handle<StandardMaterial>,
-                                at: Vec3,
-                                size: Vec3| {
-                        c.spawn((
-                            Mesh3d(board.clone()),
-                            MeshMaterial3d(mat.clone()),
-                            Transform::from_translation(at).with_scale(size),
-                        ));
-                    };
-                    part(
-                        c,
-                        &wood,
-                        Vec3::new(0.0, SEAT, 0.05),
-                        Vec3::new(0.8, 0.06, 0.7),
-                    );
-                    part(
-                        c,
-                        &cushion,
-                        Vec3::new(0.0, SEAT + 0.05, 0.05),
-                        Vec3::new(0.7, 0.05, 0.6),
-                    );
-                    part(
-                        c,
-                        &wood,
-                        Vec3::new(0.0, 0.95, 0.42),
-                        Vec3::new(0.8, 1.0, 0.06),
-                    );
-                    for side in [-1.0f32, 1.0] {
-                        // Rockers, legs and arm rests.
-                        part(
-                            c,
-                            &wood,
-                            Vec3::new(side * 0.38, 0.04, 0.05),
-                            Vec3::new(0.06, 0.06, 1.1),
-                        );
-                        part(
-                            c,
-                            &wood,
-                            Vec3::new(side * 0.38, SEAT / 2.0, 0.05),
-                            Vec3::new(0.06, SEAT, 0.06),
-                        );
-                        part(
-                            c,
-                            &wood,
-                            Vec3::new(side * 0.42, SEAT + 0.3, 0.05),
-                            Vec3::new(0.06, 0.05, 0.6),
-                        );
-                    }
+                    c.spawn((model("rocking_chair.gltf"), Transform::default()));
                     // Knitting in her lap: a ball of yarn and two needles.
                     c.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.1))),
-                        MeshMaterial3d(yarn.clone()),
+                        model("yarn_ball.gltf"),
                         Transform::from_xyz(0.05, SEAT + 0.32, -0.35),
                     ));
                     for side in [-1.0f32, 1.0] {
                         c.spawn((
-                            Mesh3d(meshes.add(Cylinder::new(0.01, 0.4))),
-                            MeshMaterial3d(needle.clone()),
+                            model("knitting_needle.gltf"),
                             Transform::from_xyz(side * 0.08, SEAT + 0.42, -0.38)
                                 .with_rotation(Quat::from_rotation_z(side * 0.7)),
                             Knitting(side),

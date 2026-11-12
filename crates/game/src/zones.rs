@@ -16,14 +16,14 @@
 //!
 //! The east village (x 35..80, z −35..35) is left empty for the houses.
 //! Like `scenery.rs`, nothing is replicated: every peer builds the same layout
-//! from fixed seeds, everything sits on `terrain::height_at`, models degrade
-//! to nothing without LFS while their colliders and the primitive-built cover
-//! stay.
+//! from fixed seeds, everything sits on `terrain::height_at`, models (logs,
+//! the hut, statue, archway, crane and windmill come from
+//! `assets/models/scenery`) degrade to nothing without LFS while their
+//! colliders and the primitive-built walls and hedges stay.
 
 use avian3d::prelude::*;
-use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
-use std::f32::consts::{FRAC_PI_2, PI, TAU};
+use std::f32::consts::{FRAC_PI_2, TAU};
 
 use crate::AppState;
 use crate::art;
@@ -142,9 +142,6 @@ fn scatter(rng: &mut Rng, zone: Zone, n: usize, spacing: f32, margin: f32) -> Ve
 struct Extra {
     hedge: Handle<StandardMaterial>,
     castle: Handle<StandardMaterial>,
-    gold: Handle<StandardMaterial>,
-    sail: Handle<StandardMaterial>,
-    whitewash: Handle<StandardMaterial>,
 }
 
 /// The windmill's sail hub; spins slowly around its local Z.
@@ -168,11 +165,7 @@ fn dress_zones(
     let x = Extra {
         hedge: art::soft(&mut materials, Color::srgb(0.24, 0.42, 0.2)),
         castle: art::soft(&mut materials, Color::srgb(0.62, 0.6, 0.57)),
-        gold: art::glossy(&mut materials, Color::srgb(0.9, 0.72, 0.3)),
-        sail: art::soft(&mut materials, Color::srgb(0.93, 0.9, 0.82)),
-        whitewash: art::soft(&mut materials, Color::srgb(0.9, 0.87, 0.8)),
     };
-    let cone = meshes.add(Cone::new(1.0, 1.0));
     let mut d = Dresser {
         commands,
         assets: &assets,
@@ -184,7 +177,7 @@ fn dress_zones(
     quarry(&mut d, &mut Rng(0x0_0A22));
     valley(&mut d, &mut Rng(0x7A_11E7));
     meadows(&mut d, &x, &mut Rng(0x3E_AD0));
-    windmill(&mut d, &x, cone);
+    windmill(&mut d);
 }
 
 fn v3(p: Vec2, y: f32) -> Vec3 {
@@ -203,11 +196,10 @@ fn big_tree(d: &mut Dresser, rng: &mut Rng, at: Vec2, lo: f32, hi: f32) {
 }
 
 fn fallen_log(d: &mut Dresser, rng: &mut Rng, c: Vec2) {
-    let bark = d.kit.bark.clone();
     let len = rng.range(4.0, 7.0);
     let r = rng.range(0.35, 0.55);
-    let lie = rng.yaw() * Quat::from_rotation_z(FRAC_PI_2);
-    d.cylinder(v3(c, r), r, len, lie, &bark, true);
+    let yaw = rng.yaw();
+    d.log(c, yaw, len, r);
 }
 
 fn forest(d: &mut Dresser, rng: &mut Rng) {
@@ -232,79 +224,58 @@ fn forest(d: &mut Dresser, rng: &mut Rng) {
         d.rock(rng, c, s);
     }
 
-    // The hidden clearing: a woodcutter's hut ruin, chopping stump, log pile.
+    // The hidden clearing: a woodcutter's hut ruin, chopping stump, log pile
+    // (modeler models; the walls, chimney, stump and bottom logs block).
     let c = FOREST_CLEARING;
-    let (plank, wood, bark, stone) = (
-        d.kit.plank.clone(),
-        d.kit.wood.clone(),
-        d.kit.bark.clone(),
-        d.kit.stone.clone(),
-    );
     let (w, dp) = (5.0, 4.0);
+    d.prop(
+        "woodcutter_hut",
+        Transform::from_translation(v3(c, 0.0)),
+        false,
+    );
     // Back wall, broken side walls, front with a doorway.
-    d.block(
+    d.solid_box(
         v3(c + Vec2::new(0.0, -dp / 2.0), 1.3),
         Vec3::new(w, 2.6, 0.25),
         Quat::IDENTITY,
-        &plank,
-        true,
     );
-    d.block(
+    d.solid_box(
         v3(c + Vec2::new(-w / 2.0, 0.0), 1.0),
         Vec3::new(0.25, 2.0, dp),
         Quat::IDENTITY,
-        &plank,
-        true,
     );
-    d.block(
+    d.solid_box(
         v3(c + Vec2::new(w / 2.0, -0.8), 0.7),
         Vec3::new(0.25, 1.4, dp - 1.6),
         Quat::IDENTITY,
-        &plank,
-        true,
     );
-    d.block(
+    d.solid_box(
         v3(c + Vec2::new(-1.6, dp / 2.0), 0.9),
         Vec3::new(1.8, 1.8, 0.25),
         Quat::IDENTITY,
-        &plank,
-        true,
     );
-    // Stone chimney, collapsed roof beam, chopping stump and a log pile.
-    d.block(
+    // Stone chimney.
+    d.solid_box(
         v3(c + Vec2::new(-w / 2.0 - 0.4, -1.0), 2.0),
         Vec3::new(0.9, 4.0, 0.9),
         Quat::IDENTITY,
-        &stone,
-        true,
     );
-    d.block(
-        v3(c + Vec2::new(0.4, 0.2), 1.1),
-        Vec3::new(5.6, 0.25, 0.25),
-        Quat::from_rotation_y(0.3) * Quat::from_rotation_z(0.35),
-        &wood,
+    d.stump(c + Vec2::new(3.5, 3.5), 0.5, 0.7);
+    let pile = c + Vec2::new(-4.5, 3.0);
+    d.prop(
+        "log_pile",
+        Transform::from_translation(v3(pile, 0.0)),
         false,
     );
-    d.cylinder(
-        v3(c + Vec2::new(3.5, 3.5), 0.35),
-        0.5,
-        0.7,
-        Quat::IDENTITY,
-        &bark,
-        true,
-    );
     for i in 0..3 {
-        for j in 0..(3 - i) {
-            let p = c + Vec2::new(-4.5, 3.0 + j as f32 * 0.6 + i as f32 * 0.3);
-            d.cylinder(
-                v3(p, 0.3 + i as f32 * 0.5),
-                0.25,
-                2.2,
-                Quat::from_rotation_z(FRAC_PI_2),
-                &bark,
-                j == 0,
-            );
-        }
+        // The bottom log of each row blocks.
+        let p = pile + Vec2::new(0.0, i as f32 * 0.3);
+        d.solid_cylinder(
+            v3(p, 0.3 + i as f32 * 0.5),
+            0.25,
+            2.2,
+            Quat::from_rotation_z(FRAC_PI_2),
+        );
     }
     d.undergrowth(rng, c, 7.0, 10);
 }
@@ -392,23 +363,15 @@ fn maze(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
             }
         }
     }
-    // The prize: a gilded statue on a plinth.
+    // The prize: a gilded statue on a plinth (modeler model).
     let c = MAZE_AT;
-    d.block(
-        v3(c, 0.4),
-        Vec3::new(1.6, 0.8, 1.6),
-        Quat::IDENTITY,
-        &x.castle,
-        true,
-    );
-    d.cylinder(v3(c, 1.5), 0.35, 1.4, Quat::IDENTITY, &x.gold, true);
-    d.block(
-        v3(c, 2.5),
-        Vec3::splat(0.6),
-        Quat::from_rotation_y(PI / 4.0),
-        &x.gold,
+    d.prop(
+        "maze_statue",
+        Transform::from_translation(v3(c, 0.0)),
         false,
     );
+    d.solid_box(v3(c, 0.4), Vec3::new(1.6, 0.8, 1.6), Quat::IDENTITY);
+    d.solid_cylinder(v3(c, 1.5), 0.35, 1.4, Quat::IDENTITY);
 }
 
 fn castle(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
@@ -440,22 +403,19 @@ fn castle(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
         );
         z += len;
     }
-    // The archway: two pillars and a lintel.
+    // The archway: two pillars and a lintel (modeler model).
+    d.prop("castle_arch", Transform::from_xyz(wall_x, 0.0, 58.0), false);
     for dz in [-2.2, 2.2] {
-        d.block(
+        d.solid_box(
             Vec3::new(wall_x, 4.0, 58.0 + dz),
             Vec3::new(1.8, 8.0, 1.6),
             Quat::IDENTITY,
-            &stone,
-            true,
         );
     }
-    d.block(
+    d.solid_box(
         Vec3::new(wall_x, 7.2, 58.0),
         Vec3::new(1.8, 1.6, 6.0),
         Quat::IDENTITY,
-        &stone,
-        true,
     );
     // A cross wall at the north end, with a window gap.
     for (x0, x1, h) in [(-46.0, -41.0, 7.0), (-39.5, -34.0, 9.0)] {
@@ -522,51 +482,25 @@ fn quarry(d: &mut Dresser, rng: &mut Rng) {
         let p = c + Vec2::from_angle(a) * 8.5;
         d.cluster(rng, Cluster::Crates, p);
     }
-    let wood = d.kit.wood.clone();
     let base = c + Vec2::new(9.0, -3.0);
-    // `block` snaps each part to its own ground; on the rim slope that tears
-    // the crane apart. Lift every part by the difference to the base's ground.
+    // `solid_box` snaps each collider to its own ground; on the rim slope that
+    // would tear the crane apart. Lift each by the difference to the base's.
     let g0 = ground(base);
     let v3 = |p: Vec2, y: f32| Vec3::new(p.x, y + g0 - ground(p), p.y);
+    // The modeler model: posts, crossbeam, a jib reaching out over the pit
+    // with a rope and a hanging crate. The posts block.
+    d.prop(
+        "quarry_crane",
+        Transform::from_xyz(base.x, 0.0, base.y),
+        false,
+    );
     for dz in [-1.2, 1.2] {
-        d.block(
+        d.solid_box(
             v3(base + Vec2::new(0.0, dz), 3.5),
             Vec3::new(0.35, 7.0, 0.35),
             Quat::IDENTITY,
-            &wood,
-            true,
         );
     }
-    d.block(
-        v3(base, 7.0),
-        Vec3::new(0.35, 0.35, 2.8),
-        Quat::IDENTITY,
-        &wood,
-        false,
-    );
-    // The jib, reaching out over the pit, with a rope and a hanging crate.
-    d.block(
-        v3(base + Vec2::new(-3.0, 0.0), 6.8),
-        Vec3::new(6.5, 0.3, 0.3),
-        Quat::from_rotation_z(-0.12),
-        &wood,
-        false,
-    );
-    d.block(
-        v3(base + Vec2::new(-6.0, 0.0), 5.4),
-        Vec3::new(0.06, 2.4, 0.06),
-        Quat::IDENTITY,
-        &wood,
-        false,
-    );
-    let crate_wood = d.kit.crate_wood.clone();
-    d.block(
-        v3(base + Vec2::new(-6.0, 0.0), 3.8),
-        Vec3::splat(0.8),
-        Quat::IDENTITY,
-        &crate_wood,
-        false,
-    );
 }
 
 /// A low wall (stone or hedgerow) ~1.2 m high: cover to crouch behind.
@@ -660,80 +594,25 @@ fn meadows(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
 }
 
 /// A whitewashed tower windmill (~12 m) with slowly turning sails.
-fn windmill(d: &mut Dresser, x: &Extra, cone: Handle<Mesh>) {
+fn windmill(d: &mut Dresser) {
     let c = WINDMILL_AT;
     let g = ground(c);
-    // Tapered tower: stacked cylinders.
-    for i in 0..5 {
-        let r = 2.6 - i as f32 * 0.25;
-        d.cylinder(
-            v3(c, 1.0 + i as f32 * 2.0),
-            r,
-            2.05,
-            Quat::IDENTITY,
-            &x.whitewash,
-            i == 0,
-        );
-    }
+    // Tower, door and cap are one modeler model; the sails are another, on
+    // the hub entity `turn_sails` spins.
+    d.prop("windmill", Transform::from_translation(v3(c, 0.0)), false);
+    // The bottom drum of the tapered tower blocks, as does the whole tower.
+    d.solid_cylinder(v3(c, 1.0), 2.6, 2.05, Quat::IDENTITY);
     d.blocker(
         Transform::from_xyz(c.x, 5.0, c.y),
         Collider::cylinder(2.6, 10.0),
     );
-    // Door.
-    let wood = d.kit.wood.clone();
-    d.block(
-        v3(c + Vec2::new(0.0, 2.55), 1.0),
-        Vec3::new(1.1, 2.0, 0.2),
-        Quat::IDENTITY,
-        &wood,
-        false,
-    );
-    let roof = d.kit.roof.clone();
+    // Sails on the south face (towards the commune), turning around +Z.
     d.commands.spawn((
-        Mesh3d(cone),
-        MeshMaterial3d(roof),
-        Transform::from_xyz(c.x, g + 11.2, c.y).with_scale(Vec3::new(1.9, 2.4, 1.9)),
+        crate::scenery::scenery_model(d.assets, "windmill_sails"),
+        Transform::from_xyz(c.x, g + 9.5, c.y + 2.4),
+        Sails,
         DespawnOnExit(AppState::InGame),
     ));
-    // Sails on the south face (towards the commune), turning around +Z.
-    let cube = d.kit.cube.clone();
-    let hub = d
-        .commands
-        .spawn((
-            Mesh3d(cube.clone()),
-            MeshMaterial3d(wood.clone()),
-            Transform::from_xyz(c.x, g + 9.5, c.y + 2.4).with_scale(Vec3::ONE),
-            Visibility::default(),
-            Sails,
-            DespawnOnExit(AppState::InGame),
-        ))
-        .id();
-    for k in 0..4 {
-        let a = k as f32 * FRAC_PI_2;
-        let rot = Quat::from_rotation_z(a);
-        let arm = d
-            .commands
-            .spawn((
-                Mesh3d(cube.clone()),
-                MeshMaterial3d(wood.clone()),
-                Transform::from_rotation(rot)
-                    .with_translation(rot * Vec3::Y * 3.5)
-                    .with_scale(Vec3::new(0.18, 7.0, 0.12)),
-                NotShadowCaster,
-            ))
-            .id();
-        let sail = d
-            .commands
-            .spawn((
-                Mesh3d(cube.clone()),
-                MeshMaterial3d(x.sail.clone()),
-                Transform::from_rotation(rot)
-                    .with_translation(rot * Vec3::new(0.7, 4.0, 0.0))
-                    .with_scale(Vec3::new(1.2, 5.5, 0.05)),
-            ))
-            .id();
-        d.commands.entity(hub).add_children(&[arm, sail]);
-    }
 }
 
 #[cfg(test)]

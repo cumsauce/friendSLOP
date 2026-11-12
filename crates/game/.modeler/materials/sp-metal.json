@@ -1,0 +1,256 @@
+{
+  "name": "sp-metal",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 111,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "name": "rn",
+      "octaves": 4,
+      "seed": 112,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.58,
+        0.72
+      ],
+      "input": "rn",
+      "name": "rust",
+      "type": "levels"
+    },
+    {
+      "angle": 0,
+      "input": "fn",
+      "length": 0.05,
+      "name": "br",
+      "type": "dir_blur"
+    },
+    {
+      "input": "br",
+      "name": "mc",
+      "stops": [
+        [
+          0,
+          "#8a8c90"
+        ],
+        [
+          1,
+          "#b4b6ba"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "fn",
+      "name": "rc",
+      "stops": [
+        [
+          0,
+          "#6a3a20"
+        ],
+        [
+          1,
+          "#9a5a30"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "mc",
+      "b": "rc",
+      "c": "rust",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.75,
+      "b": 0.0,
+      "c": "rust",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "br",
+      "name": "r0",
+      "to": [
+        0.35,
+        0.55
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "r0",
+      "b": 0.9,
+      "c": "rust",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "rust",
+      "b": 0.0008,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "metallic": "met",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sp-metal",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 111,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "name": "rn",
+              "octaves": 4,
+              "seed": 112,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.58,
+                0.72
+              ],
+              "input": "rn",
+              "name": "rust",
+              "type": "levels"
+            },
+            {
+              "angle": 0,
+              "input": "fn",
+              "length": 0.05,
+              "name": "br",
+              "type": "dir_blur"
+            },
+            {
+              "input": "br",
+              "name": "mc",
+              "stops": [
+                [
+                  0,
+                  "#8a8c90"
+                ],
+                [
+                  1,
+                  "#b4b6ba"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "fn",
+              "name": "rc",
+              "stops": [
+                [
+                  0,
+                  "#6a3a20"
+                ],
+                [
+                  1,
+                  "#9a5a30"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "mc",
+              "b": "rc",
+              "c": "rust",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.75,
+              "b": 0.0,
+              "c": "rust",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "br",
+              "name": "r0",
+              "to": [
+                0.35,
+                0.55
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "r0",
+              "b": 0.9,
+              "c": "rust",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rust",
+              "b": 0.0008,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "metallic": "met",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +rn +rust +br +mc +rc +col +met +r0 +rough +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

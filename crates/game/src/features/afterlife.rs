@@ -793,20 +793,14 @@ const TOME_LABEL: &str = "read the Tome of Uncancelling";
 fn dress_graves(
     mut commands: Commands,
     new: Query<(Entity, &Grave), Added<Grave>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
+    assets: Option<Res<AssetServer>>,
 ) {
     if new.is_empty() {
         return;
     }
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(assets) = assets else {
         return;
     };
-    let stone = crate::art::soft(&mut materials, Color::srgb(0.55, 0.55, 0.58));
-    let dirt = crate::art::soft(&mut materials, Color::srgb(0.35, 0.25, 0.17));
-    let slab = meshes.add(Cuboid::new(0.6, 0.6, 0.14));
-    let top = meshes.add(Cylinder::new(0.3, 0.14));
-    let mound = meshes.add(Sphere::new(1.0));
     for (entity, grave) in &new {
         commands
             .entity(entity)
@@ -817,24 +811,17 @@ fn dress_graves(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {
-                p.spawn((
-                    Mesh3d(slab.clone()),
-                    MeshMaterial3d(stone.clone()),
-                    Transform::from_xyz(0.0, 0.3, 0.0),
-                ));
-                p.spawn((
-                    Mesh3d(top.clone()),
-                    MeshMaterial3d(stone.clone()),
-                    Transform::from_xyz(0.0, 0.6, 0.0)
-                        .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-                ));
-                p.spawn((
-                    Mesh3d(mound.clone()),
-                    MeshMaterial3d(dirt.clone()),
-                    Transform::from_xyz(0.0, 0.0, 0.7).with_scale(Vec3::new(0.45, 0.12, 0.8)),
-                ));
+                // Headstone and its mound (+z): modeler-made, prefab `sp-gravestone`.
+                p.spawn((model(&assets, "gravestone.gltf"), Transform::default()));
             });
     }
+}
+
+/// A modeler-made feature model in `assets/models/features`.
+fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+    )
 }
 
 /// Local: holding the tome turns "beg" into "read the tome".
@@ -935,34 +922,15 @@ fn place_tome(
     }
 }
 
-/// Every peer: the lectern the tome lies on.
-fn build_lectern(
-    mut commands: Commands,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
-) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+/// Every peer: the lectern the tome lies on (modeler-made, prefab
+/// `sp-lectern`: its top is at `LECTERN_TOP`, turned 0.3 rad like the tome).
+fn build_lectern(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+    let Some(assets) = assets else {
         return;
     };
-    let wood = crate::art::soft(&mut materials, Color::srgb(0.45, 0.3, 0.18));
-    let g = lectern_ground();
     commands.spawn((
-        Mesh3d(meshes.add(Cylinder::new(0.12, LECTERN_TOP - 0.05))),
-        MeshMaterial3d(wood.clone()),
-        Transform::from_xyz(LECTERN_AT.x, g + (LECTERN_TOP - 0.05) / 2.0, LECTERN_AT.y),
-        DespawnOnExit(AppState::InGame),
-    ));
-    commands.spawn((
-        Mesh3d(meshes.add(Cuboid::new(0.6, 0.06, 0.45))),
-        MeshMaterial3d(wood.clone()),
-        Transform::from_xyz(LECTERN_AT.x, g + LECTERN_TOP - 0.05, LECTERN_AT.y)
-            .with_rotation(Quat::from_rotation_y(0.3)),
-        DespawnOnExit(AppState::InGame),
-    ));
-    commands.spawn((
-        Mesh3d(meshes.add(Cylinder::new(0.35, 0.08))),
-        MeshMaterial3d(wood),
-        Transform::from_xyz(LECTERN_AT.x, g + 0.04, LECTERN_AT.y),
+        model(&assets, "lectern.gltf"),
+        Transform::from_xyz(LECTERN_AT.x, lectern_ground(), LECTERN_AT.y),
         DespawnOnExit(AppState::InGame),
     ));
 }

@@ -1,0 +1,3468 @@
+{
+  "format_version": 1,
+  "name": "sp-hay-bale",
+  "parts": [],
+  "version": 7761,
+  "ops": [
+    {
+      "primitive": {
+        "name": "bale_raw",
+        "kind": "box",
+        "size": [
+          1.1,
+          0.55,
+          0.6
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "round": {
+        "name": "bale",
+        "input": "bale_raw",
+        "mode": "chamfer",
+        "radius": 0.06,
+        "segments": 0
+      }
+    },
+    {
+      "sweep": {
+        "name": "twine_a",
+        "profile": [
+          [
+            -0.012,
+            -0.02
+          ],
+          [
+            0.012,
+            -0.02
+          ],
+          [
+            0.012,
+            0.02
+          ],
+          [
+            -0.012,
+            0.02
+          ]
+        ],
+        "path": [
+          [
+            -0.3,
+            -0.287,
+            -0.235
+          ],
+          [
+            -0.3,
+            -0.287,
+            0.235
+          ],
+          [
+            -0.3,
+            -0.22,
+            0.312
+          ],
+          [
+            -0.3,
+            0.22,
+            0.312
+          ],
+          [
+            -0.3,
+            0.287,
+            0.235
+          ],
+          [
+            -0.3,
+            0.287,
+            -0.235
+          ],
+          [
+            -0.3,
+            0.22,
+            -0.312
+          ],
+          [
+            -0.3,
+            -0.22,
+            -0.312
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "sweep": {
+        "name": "twine_b",
+        "profile": [
+          [
+            -0.012,
+            -0.02
+          ],
+          [
+            0.012,
+            -0.02
+          ],
+          [
+            0.012,
+            0.02
+          ],
+          [
+            -0.012,
+            0.02
+          ]
+        ],
+        "path": [
+          [
+            0.3,
+            -0.287,
+            -0.235
+          ],
+          [
+            0.3,
+            -0.287,
+            0.235
+          ],
+          [
+            0.3,
+            -0.22,
+            0.312
+          ],
+          [
+            0.3,
+            0.22,
+            0.312
+          ],
+          [
+            0.3,
+            0.287,
+            0.235
+          ],
+          [
+            0.3,
+            0.287,
+            -0.235
+          ],
+          [
+            0.3,
+            0.22,
+            -0.312
+          ],
+          [
+            0.3,
+            -0.22,
+            -0.312
+          ]
+        ],
+        "closed": true
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p0",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.46352348,
+          0.3086113,
+          0.11365499
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p1",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.34192002,
+          0.3017166,
+          0.116918996
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p2",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.4694516,
+          0.29253396,
+          0.032707717
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p3",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.47613022,
+          0.28187624,
+          0.16072978
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p4",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.34331584,
+          0.27417877,
+          0.04386176
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p5",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.5079233,
+          0.26646414,
+          0.09816979
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p6",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.37437728,
+          0.25891232,
+          0.16033219
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p7",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.40652964,
+          0.24955635,
+          0.03000583
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p8",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.48120207,
+          0.24437948,
+          0.118318625
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_a_p9",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          0.3721893,
+          0.22950347,
+          0.10870546
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "hull": {
+        "name": "tuft_a",
+        "inputs": [
+          "tuft_a_p0",
+          "tuft_a_p1",
+          "tuft_a_p2",
+          "tuft_a_p3",
+          "tuft_a_p4",
+          "tuft_a_p5",
+          "tuft_a_p6",
+          "tuft_a_p7",
+          "tuft_a_p8",
+          "tuft_a_p9"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p0",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.111763135,
+          0.30454245,
+          -0.16466787
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p1",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.2037197,
+          0.2927479,
+          -0.15978563
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p2",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.14283092,
+          0.28835478,
+          -0.24333791
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p3",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.1163673,
+          0.28131816,
+          -0.11294275
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p4",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.23920305,
+          0.27378365,
+          -0.20924935
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p5",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.060161464,
+          0.266183,
+          -0.20978452
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p6",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.20391458,
+          0.25977087,
+          -0.13026595
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p7",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.16277386,
+          0.25154424,
+          -0.24315597
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p8",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.09165508,
+          0.24510592,
+          -0.15718007
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tuft_b_p9",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.005,
+          0.005
+        ],
+        "translation": [
+          -0.18631762,
+          0.24071583,
+          -0.18259454
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "hull": {
+        "name": "tuft_b",
+        "inputs": [
+          "tuft_b_p0",
+          "tuft_b_p1",
+          "tuft_b_p2",
+          "tuft_b_p3",
+          "tuft_b_p4",
+          "tuft_b_p5",
+          "tuft_b_p6",
+          "tuft_b_p7",
+          "tuft_b_p8",
+          "tuft_b_p9"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "bale",
+        "input": "bale",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-straw",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 151,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.12,
+                "name": "st",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "st",
+                "name": "s2",
+                "type": "levels"
+              },
+              {
+                "input": "s2",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#a88a3a"
+                  ],
+                  [
+                    0.5,
+                    "#d8bc62"
+                  ],
+                  [
+                    1,
+                    "#f0dc8a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "s2",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tuft_a",
+        "input": "tuft_a",
+        "base_color": [
+          0.95,
+          0.92,
+          0.8,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-straw",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 151,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.12,
+                "name": "st",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "st",
+                "name": "s2",
+                "type": "levels"
+              },
+              {
+                "input": "s2",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#a88a3a"
+                  ],
+                  [
+                    0.5,
+                    "#d8bc62"
+                  ],
+                  [
+                    1,
+                    "#f0dc8a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "s2",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tuft_b",
+        "input": "tuft_b",
+        "base_color": [
+          0.95,
+          0.92,
+          0.8,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-straw",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 151,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.12,
+                "name": "st",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "st",
+                "name": "s2",
+                "type": "levels"
+              },
+              {
+                "input": "s2",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#a88a3a"
+                  ],
+                  [
+                    0.5,
+                    "#d8bc62"
+                  ],
+                  [
+                    1,
+                    "#f0dc8a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "s2",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "twine_a",
+        "input": "twine_a",
+        "base_color": [
+          0.55,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "roughness": 0.9,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "twine_b",
+        "input": "twine_b",
+        "base_color": [
+          0.55,
+          0.32,
+          0.2,
+          1.0
+        ],
+        "roughness": 0.9,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "bale_raw",
+        "input": "bale_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p0",
+        "input": "tuft_a_p0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p1",
+        "input": "tuft_a_p1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p2",
+        "input": "tuft_a_p2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p3",
+        "input": "tuft_a_p3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p4",
+        "input": "tuft_a_p4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p5",
+        "input": "tuft_a_p5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p6",
+        "input": "tuft_a_p6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p7",
+        "input": "tuft_a_p7",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p8",
+        "input": "tuft_a_p8",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_a_p9",
+        "input": "tuft_a_p9",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p0",
+        "input": "tuft_b_p0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p1",
+        "input": "tuft_b_p1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p2",
+        "input": "tuft_b_p2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p3",
+        "input": "tuft_b_p3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p4",
+        "input": "tuft_b_p4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p5",
+        "input": "tuft_b_p5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p6",
+        "input": "tuft_b_p6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p7",
+        "input": "tuft_b_p7",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p8",
+        "input": "tuft_b_p8",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "tuft_b_p9",
+        "input": "tuft_b_p9",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "sp-hay-bale",
+          "parts": [],
+          "version": 6882,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `sp-hay-bale`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "sp-hay-bale",
+          "parts": [],
+          "version": 7708,
+          "ops": [
+            {
+              "primitive": {
+                "name": "bale_raw",
+                "kind": "box",
+                "size": [
+                  1.1,
+                  0.55,
+                  0.6
+                ],
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "round": {
+                "name": "bale",
+                "input": "bale_raw",
+                "mode": "chamfer",
+                "radius": 0.06,
+                "segments": 0
+              }
+            },
+            {
+              "sweep": {
+                "name": "twine_a",
+                "profile": [
+                  [
+                    -0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    0.02
+                  ],
+                  [
+                    -0.012,
+                    0.02
+                  ]
+                ],
+                "path": [
+                  [
+                    -0.3,
+                    -0.287,
+                    -0.235
+                  ],
+                  [
+                    -0.3,
+                    -0.287,
+                    0.235
+                  ],
+                  [
+                    -0.3,
+                    -0.22,
+                    0.312
+                  ],
+                  [
+                    -0.3,
+                    0.22,
+                    0.312
+                  ],
+                  [
+                    -0.3,
+                    0.287,
+                    0.235
+                  ],
+                  [
+                    -0.3,
+                    0.287,
+                    -0.235
+                  ],
+                  [
+                    -0.3,
+                    0.22,
+                    -0.312
+                  ],
+                  [
+                    -0.3,
+                    -0.22,
+                    -0.312
+                  ]
+                ],
+                "closed": true
+              }
+            },
+            {
+              "sweep": {
+                "name": "twine_b",
+                "profile": [
+                  [
+                    -0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    0.02
+                  ],
+                  [
+                    -0.012,
+                    0.02
+                  ]
+                ],
+                "path": [
+                  [
+                    0.3,
+                    -0.287,
+                    -0.235
+                  ],
+                  [
+                    0.3,
+                    -0.287,
+                    0.235
+                  ],
+                  [
+                    0.3,
+                    -0.22,
+                    0.312
+                  ],
+                  [
+                    0.3,
+                    0.22,
+                    0.312
+                  ],
+                  [
+                    0.3,
+                    0.287,
+                    0.235
+                  ],
+                  [
+                    0.3,
+                    0.287,
+                    -0.235
+                  ],
+                  [
+                    0.3,
+                    0.22,
+                    -0.312
+                  ],
+                  [
+                    0.3,
+                    -0.22,
+                    -0.312
+                  ]
+                ],
+                "closed": true
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p0",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.46352348,
+                  0.3086113,
+                  0.11365499
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p1",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.34192002,
+                  0.3017166,
+                  0.116918996
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p2",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.4694516,
+                  0.29253396,
+                  0.032707717
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p3",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.47613022,
+                  0.28187624,
+                  0.16072978
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p4",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.34331584,
+                  0.27417877,
+                  0.04386176
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p5",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.5079233,
+                  0.26646414,
+                  0.09816979
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p6",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.37437728,
+                  0.25891232,
+                  0.16033219
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p7",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.40652964,
+                  0.24955635,
+                  0.03000583
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p8",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.48120207,
+                  0.24437948,
+                  0.118318625
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p9",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.3721893,
+                  0.22950347,
+                  0.10870546
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "hull": {
+                "name": "tuft_a",
+                "inputs": [
+                  "tuft_a_p0",
+                  "tuft_a_p1",
+                  "tuft_a_p2",
+                  "tuft_a_p3",
+                  "tuft_a_p4",
+                  "tuft_a_p5",
+                  "tuft_a_p6",
+                  "tuft_a_p7",
+                  "tuft_a_p8",
+                  "tuft_a_p9"
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p0",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.111763135,
+                  0.30454245,
+                  -0.16466787
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p1",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.2037197,
+                  0.2927479,
+                  -0.15978563
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p2",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.14283092,
+                  0.28835478,
+                  -0.24333791
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p3",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.1163673,
+                  0.28131816,
+                  -0.11294275
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p4",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.23920305,
+                  0.27378365,
+                  -0.20924935
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p5",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.060161464,
+                  0.266183,
+                  -0.20978452
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p6",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.20391458,
+                  0.25977087,
+                  -0.13026595
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p7",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.16277386,
+                  0.25154424,
+                  -0.24315597
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p8",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.09165508,
+                  0.24510592,
+                  -0.15718007
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p9",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.18631762,
+                  0.24071583,
+                  -0.18259454
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "hull": {
+                "name": "tuft_b",
+                "inputs": [
+                  "tuft_b_p0",
+                  "tuft_b_p1",
+                  "tuft_b_p2",
+                  "tuft_b_p3",
+                  "tuft_b_p4",
+                  "tuft_b_p5",
+                  "tuft_b_p6",
+                  "tuft_b_p7",
+                  "tuft_b_p8",
+                  "tuft_b_p9"
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "bale",
+                "input": "bale",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-straw",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 151,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.12,
+                        "name": "st",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "st",
+                        "name": "s2",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "s2",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#a88a3a"
+                          ],
+                          [
+                            0.5,
+                            "#d8bc62"
+                          ],
+                          [
+                            1,
+                            "#f0dc8a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "s2",
+                        "b": 0.003,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "tuft_a",
+                "input": "tuft_a",
+                "base_color": [
+                  0.95,
+                  0.92,
+                  0.8,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-straw",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 151,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.12,
+                        "name": "st",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "st",
+                        "name": "s2",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "s2",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#a88a3a"
+                          ],
+                          [
+                            0.5,
+                            "#d8bc62"
+                          ],
+                          [
+                            1,
+                            "#f0dc8a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "s2",
+                        "b": 0.003,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "tuft_b",
+                "input": "tuft_b",
+                "base_color": [
+                  0.95,
+                  0.92,
+                  0.8,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-straw",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 151,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.12,
+                        "name": "st",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "st",
+                        "name": "s2",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "s2",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#a88a3a"
+                          ],
+                          [
+                            0.5,
+                            "#d8bc62"
+                          ],
+                          [
+                            1,
+                            "#f0dc8a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "s2",
+                        "b": 0.003,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "twine_a",
+                "input": "twine_a",
+                "base_color": [
+                  0.55,
+                  0.32,
+                  0.2,
+                  1.0
+                ],
+                "roughness": 0.9,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-paint",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 121,
+                        "size": 0.2,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "cn",
+                        "octaves": 3,
+                        "seed": 122,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.74,
+                          0.78
+                        ],
+                        "input": "cn",
+                        "name": "chip",
+                        "type": "levels"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "fn",
+                        "name": "v",
+                        "to": [
+                          0.86,
+                          0.96
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#ffffff",
+                        "b": "#f2f2f2",
+                        "c": "fn",
+                        "name": "base",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "base",
+                        "b": "v",
+                        "name": "col0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col0",
+                        "b": "#8a8178",
+                        "c": "chip",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "chip",
+                        "b": -0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.55,
+                        "b": 0.85,
+                        "c": "chip",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "twine_b",
+                "input": "twine_b",
+                "base_color": [
+                  0.55,
+                  0.32,
+                  0.2,
+                  1.0
+                ],
+                "roughness": 0.9,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-paint",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 121,
+                        "size": 0.2,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "cn",
+                        "octaves": 3,
+                        "seed": 122,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.74,
+                          0.78
+                        ],
+                        "input": "cn",
+                        "name": "chip",
+                        "type": "levels"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "fn",
+                        "name": "v",
+                        "to": [
+                          0.86,
+                          0.96
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#ffffff",
+                        "b": "#f2f2f2",
+                        "c": "fn",
+                        "name": "base",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "base",
+                        "b": "v",
+                        "name": "col0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col0",
+                        "b": "#8a8178",
+                        "c": "chip",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "chip",
+                        "b": -0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.55,
+                        "b": 0.85,
+                        "c": "chip",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "bale_raw",
+                "input": "bale_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p0",
+                "input": "tuft_a_p0",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p1",
+                "input": "tuft_a_p1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p2",
+                "input": "tuft_a_p2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p3",
+                "input": "tuft_a_p3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p4",
+                "input": "tuft_a_p4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p5",
+                "input": "tuft_a_p5",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p6",
+                "input": "tuft_a_p6",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p7",
+                "input": "tuft_a_p7",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p8",
+                "input": "tuft_a_p8",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p9",
+                "input": "tuft_a_p9",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p0",
+                "input": "tuft_b_p0",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p1",
+                "input": "tuft_b_p1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p2",
+                "input": "tuft_b_p2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p3",
+                "input": "tuft_b_p3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p4",
+                "input": "tuft_b_p4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p5",
+                "input": "tuft_b_p5",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p6",
+                "input": "tuft_b_p6",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p7",
+                "input": "tuft_b_p7",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p8",
+                "input": "tuft_b_p8",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p9",
+                "input": "tuft_b_p9",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "new model `sp-hay-bale`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "sp-hay-bale",
+          "parts": [],
+          "version": 7761,
+          "ops": [
+            {
+              "primitive": {
+                "name": "bale_raw",
+                "kind": "box",
+                "size": [
+                  1.1,
+                  0.55,
+                  0.6
+                ],
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "round": {
+                "name": "bale",
+                "input": "bale_raw",
+                "mode": "chamfer",
+                "radius": 0.06,
+                "segments": 0
+              }
+            },
+            {
+              "sweep": {
+                "name": "twine_a",
+                "profile": [
+                  [
+                    -0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    0.02
+                  ],
+                  [
+                    -0.012,
+                    0.02
+                  ]
+                ],
+                "path": [
+                  [
+                    -0.3,
+                    -0.287,
+                    -0.235
+                  ],
+                  [
+                    -0.3,
+                    -0.287,
+                    0.235
+                  ],
+                  [
+                    -0.3,
+                    -0.22,
+                    0.312
+                  ],
+                  [
+                    -0.3,
+                    0.22,
+                    0.312
+                  ],
+                  [
+                    -0.3,
+                    0.287,
+                    0.235
+                  ],
+                  [
+                    -0.3,
+                    0.287,
+                    -0.235
+                  ],
+                  [
+                    -0.3,
+                    0.22,
+                    -0.312
+                  ],
+                  [
+                    -0.3,
+                    -0.22,
+                    -0.312
+                  ]
+                ],
+                "closed": true
+              }
+            },
+            {
+              "sweep": {
+                "name": "twine_b",
+                "profile": [
+                  [
+                    -0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    -0.02
+                  ],
+                  [
+                    0.012,
+                    0.02
+                  ],
+                  [
+                    -0.012,
+                    0.02
+                  ]
+                ],
+                "path": [
+                  [
+                    0.3,
+                    -0.287,
+                    -0.235
+                  ],
+                  [
+                    0.3,
+                    -0.287,
+                    0.235
+                  ],
+                  [
+                    0.3,
+                    -0.22,
+                    0.312
+                  ],
+                  [
+                    0.3,
+                    0.22,
+                    0.312
+                  ],
+                  [
+                    0.3,
+                    0.287,
+                    0.235
+                  ],
+                  [
+                    0.3,
+                    0.287,
+                    -0.235
+                  ],
+                  [
+                    0.3,
+                    0.22,
+                    -0.312
+                  ],
+                  [
+                    0.3,
+                    -0.22,
+                    -0.312
+                  ]
+                ],
+                "closed": true
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p0",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.46352348,
+                  0.3086113,
+                  0.11365499
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p1",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.34192002,
+                  0.3017166,
+                  0.116918996
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p2",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.4694516,
+                  0.29253396,
+                  0.032707717
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p3",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.47613022,
+                  0.28187624,
+                  0.16072978
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p4",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.34331584,
+                  0.27417877,
+                  0.04386176
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p5",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.5079233,
+                  0.26646414,
+                  0.09816979
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p6",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.37437728,
+                  0.25891232,
+                  0.16033219
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p7",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.40652964,
+                  0.24955635,
+                  0.03000583
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p8",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.48120207,
+                  0.24437948,
+                  0.118318625
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_a_p9",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  0.3721893,
+                  0.22950347,
+                  0.10870546
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "hull": {
+                "name": "tuft_a",
+                "inputs": [
+                  "tuft_a_p0",
+                  "tuft_a_p1",
+                  "tuft_a_p2",
+                  "tuft_a_p3",
+                  "tuft_a_p4",
+                  "tuft_a_p5",
+                  "tuft_a_p6",
+                  "tuft_a_p7",
+                  "tuft_a_p8",
+                  "tuft_a_p9"
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p0",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.111763135,
+                  0.30454245,
+                  -0.16466787
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p1",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.2037197,
+                  0.2927479,
+                  -0.15978563
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p2",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.14283092,
+                  0.28835478,
+                  -0.24333791
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p3",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.1163673,
+                  0.28131816,
+                  -0.11294275
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p4",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.23920305,
+                  0.27378365,
+                  -0.20924935
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p5",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.060161464,
+                  0.266183,
+                  -0.20978452
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p6",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.20391458,
+                  0.25977087,
+                  -0.13026595
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p7",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.16277386,
+                  0.25154424,
+                  -0.24315597
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p8",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.09165508,
+                  0.24510592,
+                  -0.15718007
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "primitive": {
+                "name": "tuft_b_p9",
+                "kind": "box",
+                "size": [
+                  0.005,
+                  0.005,
+                  0.005
+                ],
+                "translation": [
+                  -0.18631762,
+                  0.24071583,
+                  -0.18259454
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "hull": {
+                "name": "tuft_b",
+                "inputs": [
+                  "tuft_b_p0",
+                  "tuft_b_p1",
+                  "tuft_b_p2",
+                  "tuft_b_p3",
+                  "tuft_b_p4",
+                  "tuft_b_p5",
+                  "tuft_b_p6",
+                  "tuft_b_p7",
+                  "tuft_b_p8",
+                  "tuft_b_p9"
+                ]
+              }
+            },
+            {
+              "material": {
+                "name": "bale",
+                "input": "bale",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-straw",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 151,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.12,
+                        "name": "st",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "st",
+                        "name": "s2",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "s2",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#a88a3a"
+                          ],
+                          [
+                            0.5,
+                            "#d8bc62"
+                          ],
+                          [
+                            1,
+                            "#f0dc8a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "s2",
+                        "b": 0.003,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "tuft_a",
+                "input": "tuft_a",
+                "base_color": [
+                  0.95,
+                  0.92,
+                  0.8,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-straw",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 151,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.12,
+                        "name": "st",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "st",
+                        "name": "s2",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "s2",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#a88a3a"
+                          ],
+                          [
+                            0.5,
+                            "#d8bc62"
+                          ],
+                          [
+                            1,
+                            "#f0dc8a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "s2",
+                        "b": 0.003,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "tuft_b",
+                "input": "tuft_b",
+                "base_color": [
+                  0.95,
+                  0.92,
+                  0.8,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-straw",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 151,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "angle": 0,
+                        "input": "fn",
+                        "length": 0.12,
+                        "name": "st",
+                        "type": "dir_blur"
+                      },
+                      {
+                        "in": [
+                          0.35,
+                          0.65
+                        ],
+                        "input": "st",
+                        "name": "s2",
+                        "type": "levels"
+                      },
+                      {
+                        "input": "s2",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#a88a3a"
+                          ],
+                          [
+                            0.5,
+                            "#d8bc62"
+                          ],
+                          [
+                            1,
+                            "#f0dc8a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "s2",
+                        "b": 0.003,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "twine_a",
+                "input": "twine_a",
+                "base_color": [
+                  0.55,
+                  0.32,
+                  0.2,
+                  1.0
+                ],
+                "roughness": 0.9,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-paint",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 121,
+                        "size": 0.2,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "cn",
+                        "octaves": 3,
+                        "seed": 122,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.74,
+                          0.78
+                        ],
+                        "input": "cn",
+                        "name": "chip",
+                        "type": "levels"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "fn",
+                        "name": "v",
+                        "to": [
+                          0.86,
+                          0.96
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#ffffff",
+                        "b": "#f2f2f2",
+                        "c": "fn",
+                        "name": "base",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "base",
+                        "b": "v",
+                        "name": "col0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col0",
+                        "b": "#8a8178",
+                        "c": "chip",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "chip",
+                        "b": -0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.55,
+                        "b": 0.85,
+                        "c": "chip",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "twine_b",
+                "input": "twine_b",
+                "base_color": [
+                  0.55,
+                  0.32,
+                  0.2,
+                  1.0
+                ],
+                "roughness": 0.9,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-paint",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 4,
+                        "seed": 121,
+                        "size": 0.2,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "cn",
+                        "octaves": 3,
+                        "seed": 122,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.74,
+                          0.78
+                        ],
+                        "input": "cn",
+                        "name": "chip",
+                        "type": "levels"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "fn",
+                        "name": "v",
+                        "to": [
+                          0.86,
+                          0.96
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#ffffff",
+                        "b": "#f2f2f2",
+                        "c": "fn",
+                        "name": "base",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "base",
+                        "b": "v",
+                        "name": "col0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "col0",
+                        "b": "#8a8178",
+                        "c": "chip",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "chip",
+                        "b": -0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": 0.55,
+                        "b": 0.85,
+                        "c": "chip",
+                        "name": "rough",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "bale_raw",
+                "input": "bale_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p0",
+                "input": "tuft_a_p0",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p1",
+                "input": "tuft_a_p1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p2",
+                "input": "tuft_a_p2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p3",
+                "input": "tuft_a_p3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p4",
+                "input": "tuft_a_p4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p5",
+                "input": "tuft_a_p5",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p6",
+                "input": "tuft_a_p6",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p7",
+                "input": "tuft_a_p7",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p8",
+                "input": "tuft_a_p8",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_a_p9",
+                "input": "tuft_a_p9",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p0",
+                "input": "tuft_b_p0",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p1",
+                "input": "tuft_b_p1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p2",
+                "input": "tuft_b_p2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p3",
+                "input": "tuft_b_p3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p4",
+                "input": "tuft_b_p4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p5",
+                "input": "tuft_b_p5",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p6",
+                "input": "tuft_b_p6",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p7",
+                "input": "tuft_b_p7",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p8",
+                "input": "tuft_b_p8",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "tuft_b_p9",
+                "input": "tuft_b_p9",
+                "visible": false
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 1,
+        "children": [],
+        "label": "52 edits: primitive `bale_raw` (box) size=[1.1, 0.55, 0.6] at=[0.0, 0.0, 0.0] … hidden `tuft_b_p9`"
+      }
+    ],
+    "current": 2
+  },
+  "derived_from_ops": true
+}

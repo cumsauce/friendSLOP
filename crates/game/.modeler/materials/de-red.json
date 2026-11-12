@@ -1,0 +1,318 @@
+{
+  "name": "de-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "input": "uv",
+      "name": "s",
+      "type": "split"
+    },
+    {
+      "a": "s.x",
+      "b": 502.6548245743669,
+      "name": "ux",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "s.y",
+      "b": 502.6548245743669,
+      "name": "vy",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "ux",
+      "name": "su",
+      "op": "sin",
+      "type": "math"
+    },
+    {
+      "a": "vy",
+      "name": "sv",
+      "op": "sin",
+      "type": "math"
+    },
+    {
+      "a": "su",
+      "b": "sv",
+      "name": "w",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        -1,
+        1
+      ],
+      "input": "w",
+      "name": "w01",
+      "to": [
+        0,
+        1
+      ],
+      "type": "remap"
+    },
+    {
+      "name": "n",
+      "octaves": 4,
+      "seed": 5,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "name": "grime",
+      "octaves": 3,
+      "seed": 25,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.55,
+        0.85
+      ],
+      "input": "grime",
+      "name": "grime_m",
+      "type": "levels"
+    },
+    {
+      "input": "w01",
+      "name": "c0",
+      "stops": [
+        [
+          0.0,
+          "#8a2c28"
+        ],
+        [
+          1.0,
+          "#c24a40"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nt",
+      "to": [
+        0.88,
+        1.08
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c0",
+      "b": "nt",
+      "name": "c1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "grime_m",
+      "b": 0.45,
+      "name": "gm",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#4a2a22",
+      "c": "gm",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "w01",
+      "b": 0.0012,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.92,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "de-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "input": "uv",
+              "name": "s",
+              "type": "split"
+            },
+            {
+              "a": "s.x",
+              "b": 502.6548245743669,
+              "name": "ux",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "s.y",
+              "b": 502.6548245743669,
+              "name": "vy",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "ux",
+              "name": "su",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "vy",
+              "name": "sv",
+              "op": "sin",
+              "type": "math"
+            },
+            {
+              "a": "su",
+              "b": "sv",
+              "name": "w",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                -1,
+                1
+              ],
+              "input": "w",
+              "name": "w01",
+              "to": [
+                0,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 5,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "name": "grime",
+              "octaves": 3,
+              "seed": 25,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.55,
+                0.85
+              ],
+              "input": "grime",
+              "name": "grime_m",
+              "type": "levels"
+            },
+            {
+              "input": "w01",
+              "name": "c0",
+              "stops": [
+                [
+                  0.0,
+                  "#8a2c28"
+                ],
+                [
+                  1.0,
+                  "#c24a40"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                0.88,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c0",
+              "b": "nt",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grime_m",
+              "b": 0.45,
+              "name": "gm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#4a2a22",
+              "c": "gm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "w01",
+              "b": 0.0012,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.92,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +s +ux +vy +su +sv +w +w01 +n +grime +grime_m +c0 +nt +c1 +gm +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

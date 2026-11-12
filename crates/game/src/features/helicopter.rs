@@ -9,7 +9,7 @@
 //! Win your morality back (harming the landlord always helps, #43) and it
 //! flies away. A new campaign resets morality, so it leaves then too.
 //!
-//! Every peer draws the helicopter (flat-colour primitives, spinning rotors),
+//! Every peer draws the helicopter (modeler-made body and spinning rotors),
 //! hears its generated rotor thump and gunfire, and sees tracers and dirt
 //! puffs where the bullets land. A hit only tells you that you've been shot:
 //! what getting shot actually does is still an open question.
@@ -312,8 +312,7 @@ struct Shown(u32);
 fn dress(
     mut commands: Commands,
     new: Query<(Entity, &Helicopter), Added<Helicopter>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
     audio: Option<ResMut<Assets<AudioSource>>>,
     mut sounds: ResMut<HeliSounds>,
 ) {
@@ -325,20 +324,6 @@ fn dress(
         sounds.ensure(audio);
     }
     for (entity, heli) in &new {
-        let paint = crate::art::soft(&mut materials, Color::srgb(0.2, 0.27, 0.18));
-        let dark = crate::art::glossy(&mut materials, Color::srgb(0.08, 0.08, 0.09));
-        let glass = crate::art::glossy(&mut materials, Color::srgb(0.25, 0.4, 0.5));
-        let blade = materials.add(Color::srgb(0.12, 0.12, 0.12));
-        let body = meshes.add(Capsule3d::new(1.1, 2.6));
-        let window = meshes.add(Sphere::new(0.95));
-        let boom = meshes.add(Cuboid::new(0.35, 0.35, 4.2));
-        let fin = meshes.add(Cuboid::new(0.12, 1.2, 0.8));
-        let skid = meshes.add(Cuboid::new(0.12, 0.12, 3.4));
-        let strut = meshes.add(Cuboid::new(0.1, 0.6, 0.1));
-        let hub = meshes.add(Cylinder::new(0.25, 0.4));
-        let main_blade = meshes.add(Cuboid::new(9.0, 0.06, 0.4));
-        let tail_blade = meshes.add(Cuboid::new(0.05, 1.6, 0.18));
-        let gun = meshes.add(Cylinder::new(0.08, 1.0));
         commands
             .entity(entity)
             .insert((
@@ -347,80 +332,19 @@ fn dress(
                 Shown(heli.shots),
             ))
             .with_children(|c| {
+                // Modeler-made body, rotor and tail rotor (prefabs `sp-heli-*`).
                 // Nose points along -Z, like everything else's forward.
-                c.spawn((
-                    Mesh3d(body),
-                    MeshMaterial3d(paint.clone()),
-                    Transform::from_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-                ));
-                c.spawn((
-                    Mesh3d(window),
-                    MeshMaterial3d(glass),
-                    Transform::from_xyz(0.0, 0.25, -1.4).with_scale(Vec3::new(1.0, 0.8, 0.9)),
-                ));
-                c.spawn((
-                    Mesh3d(boom),
-                    MeshMaterial3d(paint.clone()),
-                    Transform::from_xyz(0.0, 0.35, 3.6),
-                ));
-                c.spawn((
-                    Mesh3d(fin),
-                    MeshMaterial3d(paint.clone()),
-                    Transform::from_xyz(0.0, 0.9, 5.5),
-                ));
-                for side in [-1.0f32, 1.0] {
-                    c.spawn((
-                        Mesh3d(skid.clone()),
-                        MeshMaterial3d(dark.clone()),
-                        Transform::from_xyz(side * 0.9, -1.55, 0.0),
-                    ));
-                    for z in [-0.9, 0.9] {
-                        c.spawn((
-                            Mesh3d(strut.clone()),
-                            MeshMaterial3d(dark.clone()),
-                            Transform::from_xyz(side * 0.85, -1.2, z),
-                        ));
-                    }
-                }
-                c.spawn((
-                    Mesh3d(gun),
-                    MeshMaterial3d(dark.clone()),
-                    Transform::from_xyz(0.0, -0.9, -1.9)
-                        .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
-                ));
-                c.spawn((
-                    Mesh3d(hub),
-                    MeshMaterial3d(dark.clone()),
-                    Transform::from_xyz(0.0, 1.2, 0.0),
-                ));
+                c.spawn((model(&assets, "heli_body.gltf"), Transform::default()));
                 c.spawn((
                     Rotor(22.0),
+                    model(&assets, "heli_rotor.gltf"),
                     Transform::from_xyz(0.0, 1.45, 0.0),
-                    Visibility::default(),
-                ))
-                .with_children(|r| {
-                    for turn in [0.0, std::f32::consts::FRAC_PI_2] {
-                        r.spawn((
-                            Mesh3d(main_blade.clone()),
-                            MeshMaterial3d(blade.clone()),
-                            Transform::from_rotation(Quat::from_rotation_y(turn)),
-                        ));
-                    }
-                });
+                ));
                 c.spawn((
                     Rotor(-40.0),
+                    model(&assets, "heli_tail_rotor.gltf"),
                     Transform::from_xyz(0.25, 0.9, 5.8),
-                    Visibility::default(),
-                ))
-                .with_children(|r| {
-                    for turn in [0.0, std::f32::consts::FRAC_PI_2] {
-                        r.spawn((
-                            Mesh3d(tail_blade.clone()),
-                            MeshMaterial3d(blade.clone()),
-                            Transform::from_rotation(Quat::from_rotation_x(turn)),
-                        ));
-                    }
-                });
+                ));
             });
         if let Some(rotor) = &sounds.rotor {
             let sound = crate::spatial::loop_at(
@@ -433,6 +357,13 @@ fn dress(
             commands.entity(sound).insert(ChildOf(entity));
         }
     }
+}
+
+/// A modeler-made feature model in `assets/models/features`.
+fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
+    WorldAssetRoot(
+        assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+    )
 }
 
 /// Glide to the replicated position, lean into the flight, spin the rotors.

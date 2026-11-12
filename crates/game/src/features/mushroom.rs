@@ -276,45 +276,23 @@ fn spawn_mushroom_text(mut commands: Commands) {
     ));
 }
 
-/// Give every mushroom (on every peer) a stalk and a spotty red cap.
+/// Give every mushroom (on every peer) a stalk and a spotty red cap: a
+/// modeler-made model (`models/features/mushroom.gltf`).
 fn dress_mushrooms(
     mut commands: Commands,
     new: Query<(Entity, &Mushroom), Added<Mushroom>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    assets: Res<AssetServer>,
 ) {
     for (entity, mushroom) in &new {
-        let stalk = materials.add(Color::srgb(0.95, 0.92, 0.85));
-        let cap = materials.add(Color::srgb(0.85, 0.12, 0.15));
-        let spot_mesh = meshes.add(Sphere::new(0.05));
-        commands
-            .entity(entity)
-            .insert((
-                Transform::from_xyz(mushroom.at.x, 0.0, mushroom.at.y),
-                Clickable::at_height(0.3).labelled("eat the mushroom"),
-                Visibility::default(),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(meshes.add(Cylinder::new(0.08, 0.3))),
-                    MeshMaterial3d(stalk.clone()),
-                    Transform::from_xyz(0.0, 0.15, 0.0),
-                ));
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.25))),
-                    MeshMaterial3d(cap),
-                    Transform::from_xyz(0.0, 0.3, 0.0).with_scale(Vec3::new(1.0, 0.55, 1.0)),
-                ));
-                for i in 0..5 {
-                    let a = i as f32 / 5.0 * std::f32::consts::TAU;
-                    p.spawn((
-                        Mesh3d(spot_mesh.clone()),
-                        MeshMaterial3d(stalk.clone()),
-                        Transform::from_xyz(a.cos() * 0.16, 0.39, a.sin() * 0.16),
-                    ));
-                }
-            });
+        commands.entity(entity).insert((
+            WorldAssetRoot(
+                assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/mushroom.gltf")),
+            ),
+            Transform::from_xyz(mushroom.at.x, 0.0, mushroom.at.y),
+            Clickable::at_height(0.3).labelled("eat the mushroom"),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+        ));
     }
 }
 

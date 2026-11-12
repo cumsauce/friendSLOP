@@ -1,0 +1,224 @@
+{
+  "name": "de-timber",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 4,
+      "seed": 13,
+      "size": 0.015,
+      "type": "noise"
+    },
+    {
+      "angle": 0,
+      "input": "n",
+      "length": 0.12,
+      "name": "grain",
+      "type": "dir_blur"
+    },
+    {
+      "in": [
+        0.35,
+        0.65
+      ],
+      "input": "grain",
+      "name": "g2",
+      "type": "levels"
+    },
+    {
+      "name": "big",
+      "octaves": 3,
+      "seed": 18,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "input": "g2",
+      "name": "c0",
+      "stops": [
+        [
+          0.0,
+          "#3e2918"
+        ],
+        [
+          0.5,
+          "#5a3c25"
+        ],
+        [
+          1.0,
+          "#6e4c32"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "big",
+      "name": "bt",
+      "to": [
+        0.85,
+        1.1
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c0",
+      "b": "bt",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "g2",
+      "name": "r",
+      "to": [
+        0.8,
+        0.65
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "g2",
+      "b": 0.0015,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "de-timber",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 13,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "angle": 0,
+              "input": "n",
+              "length": 0.12,
+              "name": "grain",
+              "type": "dir_blur"
+            },
+            {
+              "in": [
+                0.35,
+                0.65
+              ],
+              "input": "grain",
+              "name": "g2",
+              "type": "levels"
+            },
+            {
+              "name": "big",
+              "octaves": 3,
+              "seed": 18,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "input": "g2",
+              "name": "c0",
+              "stops": [
+                [
+                  0.0,
+                  "#3e2918"
+                ],
+                [
+                  0.5,
+                  "#5a3c25"
+                ],
+                [
+                  1.0,
+                  "#6e4c32"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "big",
+              "name": "bt",
+              "to": [
+                0.85,
+                1.1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c0",
+              "b": "bt",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "g2",
+              "name": "r",
+              "to": [
+                0.8,
+                0.65
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "g2",
+              "b": 0.0015,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +grain +g2 +big +c0 +bt +col +r +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

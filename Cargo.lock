@@ -3642,10 +3642,17 @@ dependencies = [
  "bevy_voice_chat",
  "bytes",
  "chrono",
+ "friendslop-afterlife",
  "friendslop-art",
+ "friendslop-base",
  "friendslop-core",
  "friendslop-kcc",
+ "friendslop-places",
+ "friendslop-play",
+ "friendslop-side",
+ "friendslop-story",
  "friendslop-structures",
+ "friendslop-village",
  "friendslop-wfc",
  "friendslop-wire",
  "friendslop-world",
@@ -3665,10 +3672,67 @@ dependencies = [
 ]
 
 [[package]]
+name = "friendslop-afterlife"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "avian_rerecast",
+ "bevy",
+ "bevy_landmass",
+ "bevy_replicon",
+ "bevy_rerecast",
+ "bevy_voice_chat",
+ "friendslop-art",
+ "friendslop-base",
+ "friendslop-core",
+ "friendslop-kcc",
+ "friendslop-places",
+ "friendslop-play",
+ "friendslop-story",
+ "friendslop-structures",
+ "friendslop-village",
+ "friendslop-wfc",
+ "friendslop-world",
+ "fusion",
+ "landmass_rerecast",
+ "modeler_bevy",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "friendslop-art"
 version = "0.1.0"
 dependencies = [
  "bevy",
+]
+
+[[package]]
+name = "friendslop-base"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "avian_rerecast",
+ "bevy",
+ "bevy_landmass",
+ "bevy_replicon",
+ "bevy_rerecast",
+ "bevy_voice_chat",
+ "chrono",
+ "friendslop-art",
+ "friendslop-core",
+ "friendslop-kcc",
+ "friendslop-structures",
+ "friendslop-wfc",
+ "friendslop-world",
+ "fusion",
+ "js-sys",
+ "landmass_rerecast",
+ "modeler_bevy",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -3687,11 +3751,146 @@ dependencies = [
 ]
 
 [[package]]
+name = "friendslop-places"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "avian_rerecast",
+ "bevy",
+ "bevy_landmass",
+ "bevy_replicon",
+ "bevy_rerecast",
+ "bevy_voice_chat",
+ "friendslop-art",
+ "friendslop-base",
+ "friendslop-core",
+ "friendslop-kcc",
+ "friendslop-play",
+ "friendslop-structures",
+ "friendslop-wfc",
+ "friendslop-world",
+ "fusion",
+ "landmass_rerecast",
+ "modeler_bevy",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "friendslop-play"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "avian_rerecast",
+ "bevy",
+ "bevy_landmass",
+ "bevy_replicon",
+ "bevy_rerecast",
+ "bevy_voice_chat",
+ "friendslop-art",
+ "friendslop-base",
+ "friendslop-core",
+ "friendslop-kcc",
+ "friendslop-structures",
+ "friendslop-wfc",
+ "friendslop-world",
+ "fusion",
+ "landmass_rerecast",
+ "modeler_bevy",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "friendslop-side"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "avian_rerecast",
+ "bevy",
+ "bevy_landmass",
+ "bevy_replicon",
+ "bevy_rerecast",
+ "bevy_voice_chat",
+ "friendslop-art",
+ "friendslop-base",
+ "friendslop-core",
+ "friendslop-kcc",
+ "friendslop-places",
+ "friendslop-play",
+ "friendslop-story",
+ "friendslop-structures",
+ "friendslop-village",
+ "friendslop-wfc",
+ "friendslop-world",
+ "fusion",
+ "landmass_rerecast",
+ "modeler_bevy",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "friendslop-story"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "avian_rerecast",
+ "bevy",
+ "bevy_landmass",
+ "bevy_replicon",
+ "bevy_rerecast",
+ "bevy_voice_chat",
+ "friendslop-art",
+ "friendslop-base",
+ "friendslop-core",
+ "friendslop-kcc",
+ "friendslop-places",
+ "friendslop-play",
+ "friendslop-structures",
+ "friendslop-village",
+ "friendslop-wfc",
+ "friendslop-world",
+ "fusion",
+ "landmass_rerecast",
+ "modeler_bevy",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "friendslop-structures"
 version = "0.1.0"
 dependencies = [
  "avian3d",
  "bevy",
+]
+
+[[package]]
+name = "friendslop-village"
+version = "0.1.0"
+dependencies = [
+ "avian3d",
+ "avian_rerecast",
+ "bevy",
+ "bevy_landmass",
+ "bevy_replicon",
+ "bevy_rerecast",
+ "bevy_voice_chat",
+ "friendslop-art",
+ "friendslop-base",
+ "friendslop-core",
+ "friendslop-kcc",
+ "friendslop-places",
+ "friendslop-play",
+ "friendslop-structures",
+ "friendslop-wfc",
+ "friendslop-world",
+ "fusion",
+ "landmass_rerecast",
+ "modeler_bevy",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

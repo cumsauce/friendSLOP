@@ -1,6 +1,8 @@
 # features/
 
-Each implemented idea lives in its own module: `features/<short_name>.rs` (or a folder).
+Each implemented idea lives in its own module, `src/features/<short_name>.rs` (or a folder), in
+one of the game-layer crates (`crates/base`, `play`, `places`, `village`, `story`, `afterlife`,
+`side`; see "Crates" in AGENTS.md). A new standalone idea usually goes in `crates/side`.
 
 ```rust
 //! <one line>. From issue #N by <author>.
@@ -13,7 +15,7 @@ pub fn protocol(app: &mut App) { /* app.replicate::<Thing>(); */ }
 pub fn plugin(app: &mut App) { /* app.add_systems(...); */ }
 ```
 
-Then add it to `FeaturesProtocolPlugin` and `FeaturesPlugin` in `mod.rs`. Put it in the protocol list
+Add `pub mod <short_name>;` to that crate's `lib.rs`, then add it to `FeaturesProtocolPlugin` and `FeaturesPlugin` in `mod.rs`. Put it in the protocol list
 **at the end**, so features stay in the same order on every peer.
 
 **Loading assets.** Keep a strong handle to anything you're waiting on (in a resource or

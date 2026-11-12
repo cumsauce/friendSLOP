@@ -13,14 +13,10 @@ use crate::player::{LocalPlayer, Player};
 use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK, PERIWINKLE, RAISED};
 use crate::voice::VoiceMuted;
 use crate::voice_chat::VoiceActivity;
+pub use friendslop_base::ui::StatusMount;
 
 const W: f32 = 200.0;
 const TRACK: f32 = 172.0;
-
-/// Where the stack goes: the mount in the bottom-right slot column, so
-/// features' bottom-right lines stack up above it.
-#[derive(Component)]
-pub struct StatusMount;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
 enum Card {

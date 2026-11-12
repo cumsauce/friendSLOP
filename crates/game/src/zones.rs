@@ -28,17 +28,13 @@ use std::f32::consts::{FRAC_PI_2, TAU};
 use crate::AppState;
 use crate::art;
 use crate::scenery::{BUSHES, Cluster, Dresser, Rng, TREES, ground, make_kit};
+pub use friendslop_base::zones::*;
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<crate::scenery::KitCache>()
         .add_systems(OnEnter(AppState::InGame), dress_zones)
         .add_systems(Update, turn_sails.run_if(in_state(AppState::InGame)));
 }
-
-/// Nothing goes past this half-extent.
-const MAP_HALF: f32 = 88.0;
-/// The commune's own dressing (scenery.rs) covers this half-extent.
-const COMMUNE_HALF: f32 = 27.0;
 
 pub const FOREST_CLEARING: Vec2 = Vec2::new(-28.0, -62.0);
 pub const MAZE_AT: Vec2 = Vec2::new(-66.0, 44.0);
@@ -47,35 +43,6 @@ const MAZE_CELLS: usize = 8;
 const MAZE_CELL: f32 = 3.0;
 const QUARRY_AT: Vec2 = Vec2::new(-55.0, 65.0);
 pub const WINDMILL_AT: Vec2 = Vec2::new(-8.0, -31.0);
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Zone {
-    Commune,
-    Village,
-    Forest,
-    Ruins,
-    Valley,
-    Meadow,
-    Outside,
-}
-
-pub fn zone_of(p: Vec2) -> Zone {
-    if p.x.abs() > MAP_HALF || p.y.abs() > MAP_HALF {
-        Zone::Outside
-    } else if p.x.abs() < COMMUNE_HALF && p.y.abs() < COMMUNE_HALF {
-        Zone::Commune
-    } else if (33.0..82.0).contains(&p.x) && (-37.0..37.0).contains(&p.y) {
-        Zone::Village
-    } else if p.y < -35.0 {
-        Zone::Forest
-    } else if p.x < -30.0 && p.y > 30.0 {
-        Zone::Ruins
-    } else if p.x < -35.0 && p.y.abs() <= 30.0 {
-        Zone::Valley
-    } else {
-        Zone::Meadow
-    }
-}
 
 /// Water and the windmill's yard stay open everywhere.
 fn wet_or_taken(p: Vec2, margin: f32) -> bool {

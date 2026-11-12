@@ -14,63 +14,12 @@ use crate::AppState;
 use crate::features::duel::Duelist;
 use crate::player::LocalPlayer;
 use crate::world::MainCamera;
+pub use friendslop_base::camera::*;
 
-/// Half the walkable world (the play area is 180 m square, see terrain.rs).
-pub const FLOOR_HALF: f32 = crate::terrain::PLAY_HALF;
-/// How close to the floor edge the focus may go.
-const EDGE_MARGIN: f32 = 2.0;
 /// Pan speed in metres per second at the default zoom.
 const PAN_SPEED: f32 = 14.0;
-const MIN_DIST: f32 = 6.0;
-const MAX_DIST: f32 = 38.0;
-/// Fraction of the distance each scroll line zooms.
-const ZOOM_STEP: f32 = 0.1;
-/// How far above the focus the camera aims (keeps some sky in view).
-const LOOK_LIFT: f32 = 2.5;
 /// How fast the camera catches up with its target (per second).
 const SMOOTHING: f32 = 8.0;
-
-/// Where the camera wants to be.
-#[derive(Resource, Clone, Copy, Debug, PartialEq)]
-pub struct CameraRig {
-    pub focus: Vec3,
-    pub distance: f32,
-}
-
-impl Default for CameraRig {
-    fn default() -> Self {
-        Self {
-            focus: Vec3::ZERO,
-            distance: view_offset().length(),
-        }
-    }
-}
-
-/// The original fixed view direction.
-fn view_offset() -> Vec3 {
-    Vec3::new(0.0, 5.5, 17.0)
-}
-
-impl CameraRig {
-    /// Move the focus by `delta` (world XZ) and keep it on the floor.
-    pub fn pan(&mut self, delta: Vec2) {
-        let lim = FLOOR_HALF - EDGE_MARGIN;
-        self.focus.x = (self.focus.x + delta.x).clamp(-lim, lim);
-        self.focus.z = (self.focus.z + delta.y).clamp(-lim, lim);
-        self.focus.y = crate::terrain::height_at(self.focus.x, self.focus.z);
-    }
-
-    /// Zoom in (positive) or out (negative) by scroll lines.
-    pub fn zoom(&mut self, lines: f32) {
-        self.distance = (self.distance * (1.0 - lines * ZOOM_STEP)).clamp(MIN_DIST, MAX_DIST);
-    }
-
-    pub fn transform(&self) -> Transform {
-        let eye = self.focus + view_offset().normalize() * self.distance;
-        // Aim a little above the floor so the horizon and sky stay in frame.
-        Transform::from_translation(eye).looking_at(self.focus + Vec3::Y * LOOK_LIFT, Vec3::Y)
-    }
-}
 
 pub struct CameraPlugin;
 

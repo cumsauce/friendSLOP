@@ -15,6 +15,7 @@ use crate::features::punishment::AttackMode;
 use crate::features::stillness::Stillness;
 use crate::player::LocalPlayer;
 use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK};
+pub use friendslop_base::ui::DangerMount;
 
 /// Most warnings shown at once (no second HUD wall).
 pub const MAX_WARNINGS: usize = 3;
@@ -124,11 +125,6 @@ pub fn warnings(
     out.truncate(MAX_WARNINGS);
     out
 }
-
-/// Where the lane goes: the danger mount in the top-centre slot column,
-/// so features' top-centre lines flow in under it.
-#[derive(Component)]
-pub struct DangerMount;
 
 #[derive(Component, Clone, Copy)]
 struct Slot(usize);

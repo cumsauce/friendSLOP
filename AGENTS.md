@@ -178,6 +178,13 @@ Rules for growing it:
   feature imports it from there. Ordering hooks are system sets the world exposes (the cat
   palette runs `.after(SurfaceSet)`). Settings reach it as `core` resources (`Detail`,
   `DrawRange`), not the game's video settings.
+- **Maps from the modeler.** Lay out an area as a modeler document (prefab instances, markers
+  with `components`, a hidden `terrain` for its heights) and `export_model("maps/<area>.bsn")`
+  from `crates/game`. The vocabulary of components a map may carry is
+  `crates/game/.modeler/components.json` (each type must also be `register_type`d in the game);
+  its header is the salting. `friendslop_world::map` loads the scene (jackdaw's BSN parser, not
+  its runtime), and `terrain::BAKED` embeds each `<area>.<terrain>.heights` so `height_at` uses
+  them on every peer. The commune's picnic corner (`commune-map`) is the example.
 - **Claim ground, don't get imported.** A feature that needs clear ground calls
   `friendslop_world::footprints::claim(at, radius)` in its protocol function, and scenery and
   zones keep their trees, bushes and rocks off it (the shipwreck does this).

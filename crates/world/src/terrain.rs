@@ -152,10 +152,90 @@ fn rect_mask(p: Vec2, min: Vec2, max: Vec2, soft: f32) -> f32 {
     1.0 - smoothstep(0.0, soft, d)
 }
 
+/// Terrain heights the modeler baked from map documents
+/// (`export_model` to `.bsn` writes `<map>.<terrain>.heights`). Embedded, so
+/// every peer and the web build read them at startup, before any asset loads.
+/// Inside a grid its heights win; everywhere else the procedural ground.
+const BAKED: &[&[u8]] = &[include_bytes!(
+    "../../game/assets/maps/commune.ground.heights"
+)];
+
+/// A decoded heights grid (format: the modeler's `scene::write_heights`).
+pub struct HeightGrid {
+    nx: usize,
+    nz: usize,
+    x0: f32,
+    z0: f32,
+    cell: f32,
+    heights: Vec<f32>,
+}
+
+impl HeightGrid {
+    /// Decodes a `.heights` file (`MHT1`); `None` when it isn't one.
+    pub fn decode(bytes: &[u8]) -> Option<Self> {
+        let word = |o: usize| -> Option<[u8; 4]> { bytes.get(o..o + 4)?.try_into().ok() };
+        if bytes.get(..4)? != b"MHT1" {
+            return None;
+        }
+        let u = |o| word(o).map(u32::from_le_bytes);
+        let f = |o| word(o).map(f32::from_le_bytes);
+        let (nx, nz) = (u(4)? as usize, u(8)? as usize);
+        let (x0, z0, cell, lo, hi) = (f(12)?, f(16)?, f(20)?, f(24)?, f(28)?);
+        let raw = bytes.get(32..32 + nx * nz * 2)?;
+        let heights = raw
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .map(|c| lo + u16::from_le_bytes(*c) as f32 / 65535.0 * (hi - lo))
+            .collect();
+        (nx >= 2 && nz >= 2 && cell > 0.0).then_some(Self {
+            nx,
+            nz,
+            x0,
+            z0,
+            cell,
+            heights,
+        })
+    }
+
+    /// The height at world (x, z), bilinear; `None` outside the grid.
+    pub fn sample(&self, x: f32, z: f32) -> Option<f32> {
+        let gx = (x - self.x0) / self.cell;
+        let gz = (z - self.z0) / self.cell;
+        let (mx, mz) = ((self.nx - 1) as f32, (self.nz - 1) as f32);
+        if !(0.0..=mx).contains(&gx) || !(0.0..=mz).contains(&gz) {
+            return None;
+        }
+        let (i, j) = (
+            (gx.floor() as usize).min(self.nx - 2),
+            (gz.floor() as usize).min(self.nz - 2),
+        );
+        let (fx, fz) = (gx - i as f32, gz - j as f32);
+        let h = |i: usize, j: usize| self.heights[j * self.nx + i];
+        let a = h(i, j) + (h(i + 1, j) - h(i, j)) * fx;
+        let b = h(i, j + 1) + (h(i + 1, j + 1) - h(i, j + 1)) * fx;
+        Some(a + (b - a) * fz)
+    }
+}
+
+fn baked() -> &'static [HeightGrid] {
+    static GRIDS: std::sync::OnceLock<Vec<HeightGrid>> = std::sync::OnceLock::new();
+    GRIDS.get_or_init(|| BAKED.iter().filter_map(|b| HeightGrid::decode(b)).collect())
+}
+
+/// Ground height: a modeler-baked grid where one covers (x, z), else the
+/// procedural ground ([`procedural_height_at`]).
+pub fn height_at(x: f32, z: f32) -> f32 {
+    baked()
+        .iter()
+        .find_map(|g| g.sample(x, z))
+        .unwrap_or_else(|| procedural_height_at(x, z))
+}
+
 /// Ground height. Exactly 0 in the central commune square (±25 m) and the
 /// east village; rolling everywhere else, with the west hill, the lake, the
 /// quarry pit and hills rising beyond the edge of the world.
-pub fn height_at(x: f32, z: f32) -> f32 {
+pub fn procedural_height_at(x: f32, z: f32) -> f32 {
     let p = Vec2::new(x, z);
     let edge = x.abs().max(z.abs());
     let centre = 1.0 - smoothstep(FLAT_HALF, FLAT_HALF + 8.0, edge);
@@ -540,6 +620,21 @@ fn spawn_terrain(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_baked_commune_matches_the_ground_it_covers() {
+        let grids = baked();
+        assert!(!grids.is_empty(), "the commune heights decode");
+        for (x, z) in [(0.0, 0.0), (6.0, 20.0), (-24.0, 24.0), (24.9, -24.9)] {
+            let h = grids[0].sample(x, z);
+            assert!(
+                h.is_some_and(|h| (h - procedural_height_at(x, z)).abs() < 0.01),
+                "{x},{z}: {h:?}"
+            );
+        }
+        assert!(grids[0].sample(40.0, 0.0).is_none());
+        assert_eq!(height_at(60.0, 60.0), procedural_height_at(60.0, 60.0));
+    }
 
     #[test]
     fn commune_and_village_are_flat() {

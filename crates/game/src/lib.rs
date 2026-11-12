@@ -98,6 +98,7 @@ impl Plugin for GamePlugin {
                 footsteps::plugin,
                 spatial::plugin,
                 theme::plugin,
+                friendslop_world::map::MapPlugin,
             ));
         app.add_plugins((
             controls::plugin,

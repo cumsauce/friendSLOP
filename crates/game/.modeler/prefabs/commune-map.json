@@ -1,0 +1,219 @@
+{
+  "format_version": 1,
+  "name": "commune-map",
+  "parts": [],
+  "version": 12,
+  "ops": [
+    {
+      "terrain": {
+        "name": "ground",
+        "size": [
+          50.0,
+          50.0
+        ],
+        "resolution": 1.0,
+        "height": 0.0,
+        "scale": 20.0,
+        "octaves": 5,
+        "gain": 0.5,
+        "style": "flat",
+        "seed": 1,
+        "base": -1.0,
+        "terraces": 5,
+        "wind": 0.0,
+        "edge_falloff": 0.0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "prefab": {
+        "name": "picnic_table",
+        "prefab": "fu-table",
+        "translation": [
+          6.0,
+          0.0,
+          20.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "top",
+          "leg0",
+          "leg1",
+          "leg2",
+          "leg3",
+          "apron_l0",
+          "apron_l1",
+          "apron_s0",
+          "apron_s1",
+          "bowl",
+          "orange0",
+          "orange1",
+          "apple0",
+          "orange2"
+        ],
+        "digest": 14305294650300208808
+      }
+    },
+    {
+      "prefab": {
+        "name": "picnic_stool_1",
+        "prefab": "fu-stool",
+        "translation": [
+          5.0,
+          0.0,
+          20.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "rung",
+          "seat",
+          "leg0",
+          "leg1",
+          "leg2"
+        ],
+        "digest": 12546078169407312770
+      }
+    },
+    {
+      "prefab": {
+        "name": "picnic_stool_2",
+        "prefab": "fu-stool",
+        "translation": [
+          7.0,
+          0.0,
+          20.0
+        ],
+        "rotation": [
+          0.0,
+          1.0,
+          0.0,
+          -4.371139e-8
+        ],
+        "scale": null,
+        "parts": [
+          "rung",
+          "seat",
+          "leg0",
+          "leg1",
+          "leg2"
+        ],
+        "digest": 12546078169407312770
+      }
+    },
+    {
+      "prefab": {
+        "name": "picnic_barrel",
+        "prefab": "fu-barrel",
+        "translation": [
+          8.2,
+          0.0,
+          21.2
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "core",
+          "hoop0",
+          "hoop1",
+          "lid",
+          "body"
+        ],
+        "digest": 11802827807424183402
+      }
+    },
+    {
+      "prefab": {
+        "name": "picnic_crates",
+        "prefab": "fu-crates",
+        "translation": [
+          3.6,
+          0.0,
+          21.4
+        ],
+        "rotation": [
+          0.0,
+          0.17364818,
+          0.0,
+          0.9848077
+        ],
+        "scale": null,
+        "parts": [
+          "lo_core",
+          "lo_bx0",
+          "lo_bx1",
+          "lo_bz2",
+          "lo_bz3",
+          "lo_bx4",
+          "lo_bx5",
+          "lo_bz6",
+          "lo_bz7",
+          "lo_by8",
+          "lo_by9",
+          "lo_by10",
+          "lo_by11",
+          "lo_brace_f",
+          "lo_brace_r",
+          "top_core",
+          "top_bx0",
+          "top_bx1",
+          "top_bz2",
+          "top_bz3",
+          "top_bx4",
+          "top_bx5",
+          "top_bz6",
+          "top_bz7",
+          "top_by8",
+          "top_by9",
+          "top_by10",
+          "top_by11"
+        ],
+        "digest": 1771366912341656297
+      }
+    },
+    {
+      "marker": {
+        "name": "picnic",
+        "kind": "spot",
+        "translation": [
+          6.0,
+          0.0,
+          20.0
+        ],
+        "components": {
+          "Spot": {
+            "name": "picnic"
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "ground",
+        "input": "ground",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "templates": {
+    "terrain:ground": {
+      "height": 0,
+      "name": "ground",
+      "resolution": 1,
+      "size": [
+        50,
+        50
+      ],
+      "style": "flat",
+      "type": "terrain"
+    }
+  },
+  "derived_from_ops": true
+}

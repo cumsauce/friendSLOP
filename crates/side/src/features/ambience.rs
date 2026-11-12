@@ -39,10 +39,7 @@ fn load_ambience(
         return;
     };
     let wind = audio.add(AudioSource {
-        bytes: Arc::from(wav_bytes(
-            &wind_loop(tuning().wind_rate),
-            tuning().wind_rate,
-        )),
+        bytes: Arc::from(wav_bytes(&wind_loop(WIND_RATE), WIND_RATE)),
     });
     commands.insert_resource(AmbientSounds {
         birds: assets.load("audio/ambience/birds.ogg"),
@@ -114,11 +111,12 @@ fn district_mix(
     }
 }
 
+/// Wind is all low frequencies, so a lower rate is plenty (and cheaper).
+pub const WIND_RATE: u32 = 22050;
+
 /// Tuning numbers: `assets/data/side/ambience.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
-    /// Wind is all low frequencies, so a lower rate is plenty (and cheaper).
-    pub wind_rate: u32,
     /// Seconds per wind loop.
     pub wind_secs: f32,
 }
@@ -192,11 +190,8 @@ mod tests {
 
     #[test]
     fn wind_is_quiet_safe_and_loops() {
-        let s = wind_loop(tuning().wind_rate);
-        assert_eq!(
-            s.len(),
-            (tuning().wind_secs * tuning().wind_rate as f32) as usize
-        );
+        let s = wind_loop(WIND_RATE);
+        assert_eq!(s.len(), (tuning().wind_secs * WIND_RATE as f32) as usize);
         assert!(s.iter().all(|x| x.is_finite()));
         let peak = s.iter().fold(0.0f32, |m, x| m.max(x.abs()));
         assert!(peak > 0.3 && peak <= 0.71, "peak {peak}");

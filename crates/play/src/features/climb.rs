@@ -26,6 +26,8 @@ use crate::features::duel::Duelist;
 use crate::features::fps::{WalkInput, Walker};
 use crate::player::Player;
 
+pub const KNEES: f32 = 0.3;
+
 /// Tuning numbers: `assets/data/play/climb.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -36,7 +38,6 @@ pub struct Tuning {
     /// Faces steeper than this (normal's up part below it) are climbable; anything
     /// flatter is just ground you can walk on.
     pub max_face_up: f32,
-    pub knees: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -192,7 +193,7 @@ pub fn climb_step(
             .cast_ray(feet + Vec3::Y * height, dir, REACH, true, &filter)
             .is_some_and(|hit| hit.normal.y.abs() < tuning().max_face_up && hit.distance > 0.0)
     };
-    let h = hold(true, face_at(CHEST), face_at(tuning().knees));
+    let h = hold(true, face_at(CHEST), face_at(KNEES));
     if h == Hold::None {
         return None;
     }

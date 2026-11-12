@@ -12,24 +12,13 @@
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 
-/// Tuning numbers: `assets/data/base/babble.ron` (read at run time, edit without a rebuild).
-#[derive(serde::Deserialize, Default, Debug, Clone)]
-pub struct Tuning {
-    /// Sample rate of the bank file.
-    pub bank_rate: u32,
-    /// Grains per voice.
-    pub grains: usize,
-    /// Length of every grain.
-    pub grain_ms: u32,
-}
+/// Sample rate of the bank file.
+pub const BANK_RATE: u32 = 22050;
+/// Grains per voice.
+pub const GRAINS: usize = 10;
+/// Length of every grain.
+pub const GRAIN_MS: u32 = 90;
 
-pub static TUNING: friendslop_data::Data<Tuning> =
-    friendslop_data::Data::ron("data/base/babble.ron");
-
-/// The current tuning numbers.
-pub fn tuning() -> std::sync::Arc<Tuning> {
-    TUNING.get()
-}
 /// Voices in the bank, in file order.
 pub const VOICES: usize = 5;
 
@@ -82,11 +71,11 @@ pub fn samples(bank: &Bank, audio: &Assets<AudioSource>) -> Option<Vec<f32>> {
 
 /// Samples a complete bank has.
 pub fn bank_len() -> usize {
-    grain_len() * VOICES * tuning().grains
+    grain_len() * VOICES * GRAINS
 }
 
 fn grain_len() -> usize {
-    (tuning().bank_rate * tuning().grain_ms / 1000) as usize
+    (BANK_RATE * GRAIN_MS / 1000) as usize
 }
 
 /// 16-bit mono PCM from a WAV file's `data` chunk.
@@ -123,8 +112,8 @@ pub fn grain_for(c: char) -> Option<usize> {
         'a' => 4,
         'e' => 7,
         'i' | 'y' => 9,
-        c if c.is_ascii_alphabetic() => (c as usize * 7) % tuning().grains,
-        c if c.is_ascii_digit() => (c as usize * 3) % tuning().grains,
+        c if c.is_ascii_alphabetic() => (c as usize * 7) % GRAINS,
+        c if c.is_ascii_digit() => (c as usize * 3) % GRAINS,
         _ => return None,
     })
 }
@@ -135,7 +124,7 @@ pub fn grain_for(c: char) -> Option<usize> {
 /// "?" goes up at the end.
 pub fn speak(bank: &[f32], voice: Voice, said: &str, seed: u32, rate: u32) -> Vec<f32> {
     let glen = grain_len();
-    let base = voice.timbre as usize * tuning().grains * glen;
+    let base = voice.timbre as usize * GRAINS * glen;
     let mut rng = seed.wrapping_mul(2_654_435_761) | 1;
     let mut next = || {
         rng ^= rng << 13;
@@ -162,7 +151,7 @@ pub fn speak(bank: &[f32], voice: Voice, said: &str, seed: u32, rate: u32) -> Ve
         let lift = if question && near_end { 1.25 } else { 1.0 };
         let pitch = voice.pitch * (0.94 + next() * 0.12) * lift;
         // Read the grain at `pitch` x speed, resampled from the bank rate.
-        let step = pitch * tuning().bank_rate as f32 / rate as f32;
+        let step = pitch * BANK_RATE as f32 / rate as f32;
         let start = base + g * glen;
         let at = out.len().saturating_sub(fade);
         out.resize(at + letter, 0.0);
@@ -215,7 +204,7 @@ mod tests {
     }
 
     fn fake_bank() -> Vec<f32> {
-        (0..grain_len() * VOICES * tuning().grains)
+        (0..grain_len() * VOICES * GRAINS)
             .map(|i| (i as f32 * 0.07).sin() * 0.9)
             .collect()
     }
@@ -224,7 +213,7 @@ mod tests {
     fn letters_pick_grains_and_gaps() {
         assert_eq!(grain_for('U'), Some(0));
         assert_eq!(grain_for('i'), Some(9));
-        assert!(grain_for('k').is_some_and(|g| g < tuning().grains));
+        assert!(grain_for('k').is_some_and(|g| g < GRAINS));
         assert_eq!(grain_for(' '), None);
         assert_eq!(grain_for('!'), None);
     }

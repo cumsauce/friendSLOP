@@ -37,6 +37,9 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub static LINES: friendslop_data::Data<Vec<(String, String)>> =
     friendslop_data::Data::ron("data/text/abuela.ron");
 
+/// Seat height of the rocking chair.
+pub const SEAT: f32 = 0.45;
+
 /// Tuning numbers: `assets/data/story/abuela.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -46,8 +49,6 @@ pub struct Tuning {
     pub quiet_secs: f32,
     /// How long her words stay on screen.
     pub shown_secs: f32,
-    /// Seat height of the rocking chair.
-    pub seat: f32,
     /// Seconds per syllable: she speaks slowly.
     pub syl: f32,
 }
@@ -265,12 +266,12 @@ fn dress_abuela(
                     // Knitting in her lap: a ball of yarn and two needles.
                     c.spawn((
                         model("yarn_ball.gltf"),
-                        Transform::from_xyz(0.05, tuning().seat + 0.32, -0.35),
+                        Transform::from_xyz(0.05, SEAT + 0.32, -0.35),
                     ));
                     for side in [-1.0f32, 1.0] {
                         c.spawn((
                             model("knitting_needle.gltf"),
-                            Transform::from_xyz(side * 0.08, tuning().seat + 0.42, -0.38)
+                            Transform::from_xyz(side * 0.08, SEAT + 0.42, -0.38)
                                 .with_rotation(Quat::from_rotation_z(side * 0.7)),
                             Knitting(side),
                         ));

@@ -17,6 +17,8 @@ use crate::features::bear::{Bear, wav_bytes};
 use crate::features::crows::Crow;
 use crate::features::fart::{Farted, npc_spots};
 
+pub const AWW_RATE: u32 = 22050;
+
 /// Tuning numbers: `assets/data/village/romance.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -26,7 +28,6 @@ pub struct Tuning {
     pub heart_secs: f32,
     /// How many hearts float up.
     pub hearts: usize,
-    pub aww_rate: u32,
     /// Length of the "aww".
     pub aww_secs: f32,
 }
@@ -149,7 +150,7 @@ fn swoon(
         );
         let carry = crate::spatial::Carry::CALL;
         crate::spatial::play_wav_at(&mut commands, at, 1.0, carry, || {
-            wav_bytes(&aww(tuning().aww_rate), tuning().aww_rate)
+            wav_bytes(&aww(AWW_RATE), AWW_RATE)
         });
     }
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
@@ -310,11 +311,8 @@ mod tests {
 
     #[test]
     fn aww_is_soft_and_sane() {
-        let s = aww(tuning().aww_rate);
-        assert_eq!(
-            s.len(),
-            (tuning().aww_secs * tuning().aww_rate as f32) as usize
-        );
+        let s = aww(AWW_RATE);
+        assert_eq!(s.len(), (tuning().aww_secs * AWW_RATE as f32) as usize);
         assert!(s.iter().all(|x| x.is_finite()));
         let peak = s.iter().fold(0.0f32, |m, x| m.max(x.abs()));
         assert!(peak > 0.05 && peak <= 0.6, "peak {peak}");

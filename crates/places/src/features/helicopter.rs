@@ -29,6 +29,8 @@ use crate::rules::morality::Morality;
 pub const HUNTED_AT: i32 = -6;
 /// Height it hovers at above its target's feet.
 pub const HOVER_HEIGHT: f32 = 14.0;
+pub const SOUND_RATE: u32 = 22050;
+
 /// Tuning numbers: `assets/data/places/helicopter.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -48,7 +50,6 @@ pub struct Tuning {
     pub hit_radius: f32,
     /// It only opens fire this close (horizontally) to where it wants to be.
     pub firing_range: f32,
-    pub sound_rate: u32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -295,12 +296,12 @@ impl HeliSounds {
     fn ensure(&mut self, audio: &mut Assets<AudioSource>) {
         if self.rotor.is_none() {
             self.rotor = Some(audio.add(AudioSource {
-                bytes: wav_bytes(&rotor_loop(tuning().sound_rate), tuning().sound_rate).into(),
+                bytes: wav_bytes(&rotor_loop(SOUND_RATE), SOUND_RATE).into(),
             }));
         }
         if self.shot.is_none() {
             self.shot = Some(audio.add(AudioSource {
-                bytes: wav_bytes(&gunshot(tuning().sound_rate), tuning().sound_rate).into(),
+                bytes: wav_bytes(&gunshot(SOUND_RATE), SOUND_RATE).into(),
             }));
         }
     }
@@ -636,10 +637,7 @@ mod tests {
 
     #[test]
     fn sounds_are_sane() {
-        for s in [
-            rotor_loop(tuning().sound_rate),
-            gunshot(tuning().sound_rate),
-        ] {
+        for s in [rotor_loop(SOUND_RATE), gunshot(SOUND_RATE)] {
             assert!(s.iter().all(|x| x.is_finite() && x.abs() <= 1.0));
             assert!(s.iter().any(|x| x.abs() > 0.2));
         }

@@ -30,6 +30,8 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// One rat per Discord friend.
 pub const RATS: usize = COUNT - FIRST_FRIEND as usize;
+pub const SQUEAK_RATE: u32 = 22050;
+
 /// Tuning numbers: `assets/data/side/rats.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -42,7 +44,6 @@ pub struct Tuning {
     /// Further than this behind you (a ladder, a fall) and it just appears at
     /// your heel: rats get everywhere.
     pub catch_up: f32,
-    pub squeak_rate: u32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/rats.ron");
@@ -449,9 +450,7 @@ fn click_rat(
             at,
             0.6,
             crate::spatial::Carry::CALL,
-            move || {
-                super::bear::wav_bytes(&squeak(tuning().squeak_rate, pitch), tuning().squeak_rate)
-            },
+            move || super::bear::wav_bytes(&squeak(SQUEAK_RATE, pitch), SQUEAK_RATE),
         );
     }
 }
@@ -531,7 +530,7 @@ mod tests {
 
     #[test]
     fn squeaks_are_short_and_sane() {
-        let s = squeak(tuning().squeak_rate, 1.0);
+        let s = squeak(SQUEAK_RATE, 1.0);
         assert!(s.iter().all(|x| x.is_finite() && x.abs() <= 0.35));
         assert!(s.iter().any(|x| x.abs() > 0.1));
     }

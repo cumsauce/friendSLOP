@@ -40,6 +40,9 @@ use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::voice_chat::{DeviceState, VoiceActivity, VoiceChatState};
 
+/// Lectern top (where the tome lies), above the ground.
+pub const LECTERN_TOP: f32 = 1.05;
+
 /// Tuning numbers: `assets/data/afterlife/afterlife.ron` (read at run time, edit without a rebuild).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
@@ -51,8 +54,6 @@ pub struct Tuning {
     pub plea_gap: f32,
     /// Seconds before a used Tome of Uncancelling is back on its lectern.
     pub tome_respawn: f32,
-    /// Lectern top (where the tome lies), above the ground.
-    pub lectern_top: f32,
     /// How far from the centre the climb starts.
     pub start_ring: f32,
     /// Stepping stones: the gap between edges and how much each one rises.
@@ -902,7 +903,7 @@ fn dress_tome(
 fn lectern_top() -> Vec3 {
     Vec3::new(
         lectern_at().x,
-        lectern_ground() + tuning().lectern_top,
+        lectern_ground() + LECTERN_TOP,
         lectern_at().y,
     )
 }

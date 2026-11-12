@@ -30,7 +30,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::helicopter::TUNING,
         &features::skills::TUNING,
         &features::smoking::TUNING,
-        &features::underground::TUNING,
         &features::warehouse::TUNING,
         &features::warehouse::bathroom::TUNING,
         &features::warehouse::visuals::bathroom::TUNING,

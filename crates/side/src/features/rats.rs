@@ -30,15 +30,27 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// One rat per Discord friend.
 pub const RATS: usize = COUNT - FIRST_FRIEND as usize;
-/// How fast a stray scurries (m/s).
-const SCURRY: f32 = 1.6;
-/// How fast an adopted rat keeps up with you (m/s).
-const KEEP_UP: f32 = 5.5;
-/// Adopted rats stop this short of your feet.
-const HEEL: f32 = 0.9;
-/// Further than this behind you (a ladder, a fall) and it just appears at
-/// your heel: rats get everywhere.
-const CATCH_UP: f32 = 8.0;
+/// Tuning numbers: `assets/data/side/rats.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How fast a stray scurries (m/s).
+    pub scurry: f32,
+    /// How fast an adopted rat keeps up with you (m/s).
+    pub keep_up: f32,
+    /// Adopted rats stop this short of your feet.
+    pub heel: f32,
+    /// Further than this behind you (a ladder, a fall) and it just appears at
+    /// your heel: rats get everywhere.
+    pub catch_up: f32,
+    pub squeak_rate: u32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/rats.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// Server moves (and replicated updates) per second.
 const TICK_HZ: f32 = 10.0;
 
@@ -284,12 +296,13 @@ fn move_rats(
                 let Some(w) = walkers.iter().find(|(p, _)| p.id == o).map(|(_, w)| w) else {
                     continue;
                 };
-                if w.pos.distance(rat.at) > CATCH_UP {
-                    let behind = w.pos.xz() + Vec2::from_angle(w.yaw).rotate(Vec2::Y) * HEEL;
+                if w.pos.distance(rat.at) > tuning().catch_up {
+                    let behind =
+                        w.pos.xz() + Vec2::from_angle(w.yaw).rotate(Vec2::Y) * tuning().heel;
                     rat.at = Vec3::new(behind.x, w.pos.y, behind.y);
                     continue;
                 }
-                (w.pos.xz(), w.pos.y, KEEP_UP, HEEL)
+                (w.pos.xz(), w.pos.y, tuning().keep_up, tuning().heel)
             }
             None => {
                 if rat.at.xz().distance(scurry.to) < 0.1 {
@@ -303,7 +316,7 @@ fn move_rats(
                     }
                     scurry.to = next_stop(&tunnels, rat.at.xz(), scurry.seed >> 8);
                 }
-                (scurry.to, TUNNEL_Y, SCURRY, 0.0)
+                (scurry.to, TUNNEL_Y, tuning().scurry, 0.0)
             }
         };
         let here = rat.at.xz();
@@ -374,7 +387,7 @@ fn glide_rats(
     let k = (time.delta_secs() * 12.0).min(1.0);
     for (rat, mut tf, mut clip) in &mut rats {
         let gap = rat.at - tf.translation;
-        if gap.length() > CATCH_UP {
+        if gap.length() > tuning().catch_up {
             tf.translation = rat.at; // popped up somewhere new
         }
         let moving = gap.xz().length() > 0.02;
@@ -436,12 +449,12 @@ fn click_rat(
             at,
             0.6,
             crate::spatial::Carry::CALL,
-            move || super::bear::wav_bytes(&squeak(SQUEAK_RATE, pitch), SQUEAK_RATE),
+            move || {
+                super::bear::wav_bytes(&squeak(tuning().squeak_rate, pitch), tuning().squeak_rate)
+            },
         );
     }
 }
-
-const SQUEAK_RATE: u32 = 22_050;
 
 /// Two quick, high chirps sliding up: a rat squeak. `pitch` scales it.
 pub fn squeak(rate: u32, pitch: f32) -> Vec<f32> {
@@ -518,7 +531,7 @@ mod tests {
 
     #[test]
     fn squeaks_are_short_and_sane() {
-        let s = squeak(SQUEAK_RATE, 1.0);
+        let s = squeak(tuning().squeak_rate, 1.0);
         assert!(s.iter().all(|x| x.is_finite() && x.abs() <= 0.35));
         assert!(s.iter().any(|x| x.abs() > 0.1));
     }

@@ -40,18 +40,41 @@ use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::voice_chat::{DeviceState, VoiceActivity, VoiceChatState};
 
-/// Seconds heaven waits before it judges you.
-pub const JUDGEMENT_SECS: f32 = 60.0;
-/// Pleas it takes to prove you innocent.
-pub const PLEAS_NEEDED: u32 = 12;
-/// Seconds between one player's pleas (no auto-clickers in heaven).
-pub const PLEA_GAP: f32 = 0.4;
-/// Seconds before a used Tome of Uncancelling is back on its lectern.
-pub const TOME_RESPAWN: f32 = 180.0;
+/// Tuning numbers: `assets/data/afterlife/afterlife.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds heaven waits before it judges you.
+    pub judgement_secs: f32,
+    /// Pleas it takes to prove you innocent.
+    pub pleas_needed: u32,
+    /// Seconds between one player's pleas (no auto-clickers in heaven).
+    pub plea_gap: f32,
+    /// Seconds before a used Tome of Uncancelling is back on its lectern.
+    pub tome_respawn: f32,
+    /// Lectern top (where the tome lies), above the ground.
+    pub lectern_top: f32,
+    /// How far from the centre the climb starts.
+    pub start_ring: f32,
+    /// Stepping stones: the gap between edges and how much each one rises.
+    pub stone_gap: f32,
+    pub stone_rise: f32,
+    /// The first stone's top above the lava.
+    pub start_top: f32,
+    /// The white light's platform in the middle.
+    pub exit_radius: f32,
+    /// Stand this close to the white light to get out.
+    pub exit_reach: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/afterlife/afterlife.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// The lectern the tome sits on, in the commune by the spawn.
 pub use friendslop_world::places::lectern_at;
-/// Lectern top (where the tome lies), above the ground.
-const LECTERN_TOP: f32 = 1.05;
 
 /// The hell pit: centre (x, z) far under the forest, and its lava level.
 pub use friendslop_world::places::hell_at;
@@ -67,17 +90,6 @@ pub fn pit_radius() -> f32 {
 fn pit_height() -> f32 {
     friendslop_world::places::sizes("hell").height
 }
-/// How far from the centre the climb starts.
-const START_RING: f32 = 11.0;
-/// Stepping stones: the gap between edges and how much each one rises.
-const STONE_GAP: f32 = 1.1;
-const STONE_RISE: f32 = 0.3;
-/// The first stone's top above the lava.
-const START_TOP: f32 = 2.0;
-/// The white light's platform in the middle.
-const EXIT_RADIUS: f32 = 1.8;
-/// Stand this close to the white light to get out.
-pub const EXIT_REACH: f32 = 1.4;
 
 /// On a dead player's `Player` entity. Replicated.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -199,7 +211,7 @@ pub fn plea_worth(aloud: bool) -> u32 {
 /// Heaven's verdict, if it has one yet: `Some(true)` innocent, `Some(false)`
 /// guilty, `None` still waiting.
 pub fn verdict(pleas: u32, secs_left: f32) -> Option<bool> {
-    if pleas >= PLEAS_NEEDED {
+    if pleas >= tuning().pleas_needed {
         Some(true)
     } else if secs_left <= 0.0 {
         Some(false)
@@ -233,24 +245,30 @@ pub struct Stone {
 pub fn hell_stones() -> Vec<Stone> {
     let at = |ring: f32, angle: f32| hell_at() + Vec2::new(angle.cos(), angle.sin()) * ring;
     let mut stones = vec![Stone {
-        top: at(START_RING, 0.0).extend(lava_y() + START_TOP).xzy(),
+        top: at(tuning().start_ring, 0.0)
+            .extend(lava_y() + tuning().start_top)
+            .xzy(),
         radius: 2.5,
     }];
-    let mut last = (at(START_RING, 0.0), 2.5);
+    let mut last = (at(tuning().start_ring, 0.0), 2.5);
     let mut angle = 0.0f32;
     loop {
         angle += 0.002;
-        let ring = START_RING - angle * 0.75;
+        let ring = tuning().start_ring - angle * 0.75;
         if ring < 4.0 {
             break;
         }
         let p = at(ring, angle);
         // Every third stone is a small one.
         let radius = if stones.len() % 3 == 0 { 0.8 } else { 1.1 };
-        if p.distance(last.0) >= last.1 + radius + STONE_GAP {
+        if p.distance(last.0) >= last.1 + radius + tuning().stone_gap {
             let n = stones.len() as f32;
             stones.push(Stone {
-                top: Vec3::new(p.x, lava_y() + START_TOP + n * STONE_RISE, p.y),
+                top: Vec3::new(
+                    p.x,
+                    lava_y() + tuning().start_top + n * tuning().stone_rise,
+                    p.y,
+                ),
                 radius,
             });
             last = (p, radius);
@@ -268,8 +286,8 @@ pub fn hell_start() -> Vec3 {
 pub fn hell_exit() -> Vec3 {
     let top = hell_stones()
         .last()
-        .map_or(lava_y() + START_TOP, |s| s.top.y)
-        + STONE_RISE;
+        .map_or(lava_y() + tuning().start_top, |s| s.top.y)
+        + tuning().stone_rise;
     Vec3::new(hell_at().x, top, hell_at().y)
 }
 
@@ -284,7 +302,7 @@ pub fn burnt(feet: Vec3) -> bool {
 /// Has a body in hell with feet at `feet` reached the white light?
 pub fn escaped(feet: Vec3) -> bool {
     let exit = hell_exit();
-    feet.xz().distance(exit.xz()) <= EXIT_REACH && (feet.y - exit.y).abs() < 1.5
+    feet.xz().distance(exit.xz()) <= tuning().exit_reach && (feet.y - exit.y).abs() < 1.5
 }
 
 // ---------------------------------------------------------------- server side
@@ -348,10 +366,10 @@ fn on_die(
     ));
     commands.entity(entity).insert((
         Dead::Heaven {
-            secs_left: JUDGEMENT_SECS as u32,
+            secs_left: tuning().judgement_secs as u32,
             pleas: 0,
         },
-        Judgement(JUDGEMENT_SECS),
+        Judgement(tuning().judgement_secs),
     ));
     put(&mut walker, kcc, heaven_arrival());
     // You can't take it with you: the tome goes back on its lectern.
@@ -412,7 +430,7 @@ fn on_plead(
     if ledger
         .last_plea
         .get(&my_id)
-        .is_some_and(|t| now - t < PLEA_GAP)
+        .is_some_and(|t| now - t < tuning().plea_gap)
     {
         return;
     }
@@ -509,7 +527,7 @@ fn on_use_tome(
     revive(&mut commands, entity, &mut walker, kcc, at);
     commands.entity(grave_entity).despawn();
     commands.entity(tome).despawn();
-    ledger.tome_back_in = TOME_RESPAWN;
+    ledger.tome_back_in = tuning().tome_respawn;
     tell(&mut commands, ev.player, Fate::Uncancelled { by: my_id });
 }
 
@@ -750,7 +768,7 @@ pub fn fate_text(player: u64, fate: Fate, me: Option<u64>) -> String {
     match fate {
         Fate::Died if mine => format!(
             "you died. Heaven judges you in {} s: your friends must beg at your grave",
-            JUDGEMENT_SECS as u32
+            tuning().judgement_secs as u32
         ),
         Fate::Died => {
             format!("{them} died and went to heaven. Beg at their grave to bring them back")
@@ -884,7 +902,7 @@ fn dress_tome(
 fn lectern_top() -> Vec3 {
     Vec3::new(
         lectern_at().x,
-        lectern_ground() + LECTERN_TOP,
+        lectern_ground() + tuning().lectern_top,
         lectern_at().y,
     )
 }
@@ -1056,10 +1074,10 @@ fn dig_hell(
     }
     // The white light's platform and its beam.
     let exit = hell_exit();
-    spawn_basalt(&mut commands, exit, EXIT_RADIUS, 0.0);
+    spawn_basalt(&mut commands, exit, tuning().exit_radius, 0.0);
     let beam = pit_height() - (exit.y - lava_y());
     commands.spawn((
-        Mesh3d(meshes.add(Cylinder::new(EXIT_REACH * 0.7, beam))),
+        Mesh3d(meshes.add(Cylinder::new(tuning().exit_reach * 0.7, beam))),
         MeshMaterial3d(light),
         Transform::from_translation(exit + Vec3::Y * (beam / 2.0)),
         ExitLight,
@@ -1119,17 +1137,18 @@ fn spawn_hud(mut commands: Commands) {
 /// The HUD lines for `me`, given everyone who's dead and the tome's holder.
 pub fn hud_lines(me: u64, dead: &[(u64, Dead)], tome_holder: Option<u64>) -> Vec<String> {
     let mut lines = Vec::new();
+    let needed = tuning().pleas_needed;
     for (id, state) in dead {
         let line = match (*id == me, state) {
-            (true, Dead::Heaven { secs_left, pleas }) => format!(
-                "DEAD. Judged in {secs_left} s. Pleas for your innocence: {pleas}/{PLEAS_NEEDED}"
-            ),
+            (true, Dead::Heaven { secs_left, pleas }) => {
+                format!("DEAD. Judged in {secs_left} s. Pleas for your innocence: {pleas}/{needed}")
+            }
             (true, Dead::Hell) => {
                 "IN HELL. Hop across the lava to the white light in the middle".to_string()
             }
-            (false, Dead::Heaven { secs_left, pleas }) => format!(
-                "player {id} is dead: beg at their grave ({pleas}/{PLEAS_NEEDED}, {secs_left} s)"
-            ),
+            (false, Dead::Heaven { secs_left, pleas }) => {
+                format!("player {id} is dead: beg at their grave ({pleas}/{needed}, {secs_left} s)")
+            }
             (false, Dead::Hell) => format!("player {id} is in hell"),
         };
         lines.push(line);
@@ -1171,9 +1190,13 @@ mod tests {
     #[test]
     fn heaven_waits_then_judges() {
         assert_eq!(verdict(0, 30.0), None);
-        assert_eq!(verdict(PLEAS_NEEDED, 30.0), Some(true));
-        assert_eq!(verdict(PLEAS_NEEDED, 0.0), Some(true), "just in time");
-        assert_eq!(verdict(PLEAS_NEEDED - 1, 0.0), Some(false));
+        assert_eq!(verdict(tuning().pleas_needed, 30.0), Some(true));
+        assert_eq!(
+            verdict(tuning().pleas_needed, 0.0),
+            Some(true),
+            "just in time"
+        );
+        assert_eq!(verdict(tuning().pleas_needed - 1, 0.0), Some(false));
     }
 
     #[test]
@@ -1195,7 +1218,7 @@ mod tests {
         }
         let last = stones[stones.len() - 1];
         let exit = hell_exit();
-        let gap = last.top.xz().distance(exit.xz()) - last.radius - EXIT_RADIUS;
+        let gap = last.top.xz().distance(exit.xz()) - last.radius - tuning().exit_radius;
         assert!(
             (0.3..=2.0).contains(&gap),
             "the light is a jump away: {gap}"

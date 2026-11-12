@@ -1,0 +1,8 @@
+// Tuning for ambience (crates/side/src/features/ambience.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Wind is all low frequencies, so a lower rate is plenty (and cheaper).
+    wind_rate: 22050,
+    // Seconds per wind loop.
+    wind_secs: 12.0,
+)

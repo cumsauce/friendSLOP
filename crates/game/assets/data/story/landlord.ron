@@ -1,0 +1,14 @@
+// Tuning for landlord (crates/story/src/features/landlord.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Rent before the inciting raise.
+    old_rent: 10,
+    // How much each raise adds.
+    raise_by: 15,
+    // Seconds between rent raises.
+    raise_secs: 60.0,
+    // Raises (after the first) until the tenants turn to crime.
+    raises_before_crime: 3,
+    // Heists until the landlord turns into a boss.
+    heists_before_boss: 3,
+)

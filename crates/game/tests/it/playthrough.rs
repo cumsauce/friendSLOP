@@ -26,7 +26,7 @@ use friendslop::features::campaign::{CHAPTERS, Campaign, Task, heaven_tiers};
 use friendslop::features::duel::{AnswerDuel, ChallengeDuel, DuelShoot, Duelist};
 use friendslop::features::fart::{Fart, Gas, npc_spots};
 use friendslop::features::fps::Walker;
-use friendslop::features::gods_tears::{GodsTear, TOTAL_TEARS, Transformation, UseGodsTear};
+use friendslop::features::gods_tears::{GodsTear, Transformation, UseGodsTear};
 use friendslop::features::halt::{Halt, Pry};
 use friendslop::features::hide_and_seek::{HideSeek, Phase, Role, StartHideSeek, TagHider};
 use friendslop::features::landlord::{Act3, BotherLandlord, Tenancy, landlord_at};
@@ -400,8 +400,9 @@ fn tears(sim: &mut Sim, n: u32) {
         .map(|(id, t)| format!("p{id}: {}", t.label()))
         .collect();
     sim.say(format!(
-        "{} gods tears used ({left} of {TOTAL_TEARS} left on the ground); {}",
+        "{} gods tears used ({left} of {} left on the ground); {}",
         start_left - left,
+        friendslop::features::gods_tears::tuning().total_tears,
         forms.join(", ")
     ));
 }
@@ -869,7 +870,10 @@ fn six_friends_free_the_commune_and_get_into_heaven() {
         |s| s.campaign().chapter == 0,
     );
     sim.run(1.0);
-    assert_eq!(sim.all::<GodsTear>().len(), TOTAL_TEARS as usize);
+    assert_eq!(
+        sim.all::<GodsTear>().len(),
+        friendslop::features::gods_tears::tuning().total_tears as usize
+    );
     assert!(
         sim.per_player::<Transformation>()
             .iter()

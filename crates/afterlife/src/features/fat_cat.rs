@@ -53,32 +53,49 @@ pub struct CatInView {
 #[derive(Component, Default, Debug)]
 pub struct Watched(pub bool);
 
-/// How much bigger (in scale units) an unwatched cat gets per second.
-pub const GROW_PER_SEC: f32 = 0.008;
+/// Tuning numbers: `assets/data/afterlife/fat_cat.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How much bigger (in scale units) an unwatched cat gets per second.
+    pub grow_per_sec: f32,
+    /// How fast the cat waddles after you (faster than you run, it's motivated).
+    pub speed: f32,
+    /// It stays this far from your feet (times its size).
+    pub heel: f32,
+    /// Further away than this (a teleport, the warehouse) it just appears behind you.
+    pub lost: f32,
+    /// At this size the fuse lights.
+    pub critical: f32,
+    /// Seconds from lit fuse to boom.
+    pub fuse_secs: f32,
+    /// How much one pet shrinks a cat.
+    pub pet_shrink: f32,
+    /// Everyone this close to an exploding cat is flung.
+    pub blast_radius: f32,
+    /// ...this far.
+    pub blast_push: f32,
+    /// Its mouth is this far in front of its feet (times its size)...
+    pub mouth_ahead: f32,
+    /// ...and swallows feet this close to it (times its size).
+    pub mouth_radius: f32,
+    /// How long the model's one-off clips run.
+    pub meow_secs: f32,
+    pub gobble_secs: f32,
+    /// Seconds between meows, at the least (#192).
+    pub meow_every: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/afterlife/fat_cat.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// It stops at this size, so the world still fits around it.
 pub const MAX_SIZE: f32 = 25.0;
-/// How fast the cat waddles after you (faster than you run, it's motivated).
-const SPEED: f32 = 7.0;
-/// It stays this far from your feet (times its size).
-const HEEL: f32 = 1.3;
-/// Further away than this (a teleport, the warehouse) it just appears behind you.
-const LOST: f32 = 30.0;
-/// At this size the fuse lights.
-pub const CRITICAL: f32 = 10.0;
-/// Seconds from lit fuse to boom.
-pub const FUSE_SECS: f32 = 30.0;
-/// How much one pet shrinks a cat.
-pub const PET_SHRINK: f32 = 0.6;
-/// Everyone this close to an exploding cat is flung.
-pub const BLAST_RADIUS: f32 = 10.0;
-/// ...this far.
-pub const BLAST_PUSH: f32 = 8.0;
 /// A hungry (lit) cat stops this close to you (times its size): mouth first.
 const HUNGRY_HEEL: f32 = 0.8;
-/// Its mouth is this far in front of its feet (times its size)...
-pub const MOUTH_AHEAD: f32 = 0.8;
-/// ...and swallows feet this close to it (times its size).
-pub const MOUTH_RADIUS: f32 = 0.4;
 
 /// Server only: the cat goes here instead of after its owner (a pee
 /// puddle, see `kitty_lemonade.rs`, #213), stopping with its head over it.
@@ -120,30 +137,30 @@ pub struct CatGobbled {
 
 /// Where a cat's mouth is: in front of its head, the way it faces.
 pub fn mouth(cat: &FatCat) -> Vec3 {
-    let ahead = Vec3::new(-cat.yaw.sin(), 0.0, -cat.yaw.cos()) * MOUTH_AHEAD * cat.size;
+    let ahead = Vec3::new(-cat.yaw.sin(), 0.0, -cat.yaw.cos()) * tuning().mouth_ahead * cat.size;
     cat.pos + ahead
 }
 
 /// Whether a hungry cat swallows someone standing at `feet`.
 pub fn gobbles(cat: &FatCat, feet: Vec3) -> bool {
     let m = mouth(cat);
-    m.xz().distance(feet.xz()) <= MOUTH_RADIUS * cat.size
-        && (feet.y - m.y).abs() <= MOUTH_RADIUS * cat.size + 1.0
+    m.xz().distance(feet.xz()) <= tuning().mouth_radius * cat.size
+        && (feet.y - m.y).abs() <= tuning().mouth_radius * cat.size + 1.0
 }
 
 /// The size after one pet.
 pub fn petted(size: f32) -> f32 {
-    (size - PET_SHRINK).max(1.0)
+    (size - tuning().pet_shrink).max(1.0)
 }
 
 /// Where someone at `pos` lands when a cat explodes at `blast` (unchanged if
 /// out of range).
 pub fn flung(pos: Vec2, blast: Vec2) -> Vec2 {
     let d = pos - blast;
-    if d.length() > BLAST_RADIUS {
+    if d.length() > tuning().blast_radius {
         return pos;
     }
-    pos + d.normalize_or(Vec2::X) * BLAST_PUSH
+    pos + d.normalize_or(Vec2::X) * tuning().blast_push
 }
 
 pub fn protocol(app: &mut App) {
@@ -230,7 +247,7 @@ pub fn waddle(from: Vec2, target: Vec2, heel: f32, dt: f32) -> Vec2 {
     if len <= heel {
         return from;
     }
-    from + gap / len * (SPEED * dt).min(len - heel)
+    from + gap / len * (tuning().speed * dt).min(len - heel)
 }
 
 /// The size after `dt` seconds, growing only while nobody's watching.
@@ -238,7 +255,7 @@ pub fn grown(size: f32, watched: bool, dt: f32) -> f32 {
     if watched {
         size
     } else {
-        (size + GROW_PER_SEC * dt).min(MAX_SIZE)
+        (size + tuning().grow_per_sec * dt).min(MAX_SIZE)
     }
 }
 
@@ -254,9 +271,9 @@ fn attach_cat_agents(
         commands.entity(e).insert((
             bevy_landmass::Agent3d::default(),
             bevy_landmass::AgentSettings {
-                radius: super::villagers::AGENT_RADIUS,
-                desired_speed: SPEED,
-                max_speed: SPEED,
+                radius: super::villagers::tuning().agent_radius,
+                desired_speed: tuning().speed,
+                max_speed: tuning().speed,
             },
             bevy_landmass::ArchipelagoRef3d::new(nav.archipelago),
             bevy_landmass::AgentTarget3d::Point(cat.pos),
@@ -294,10 +311,10 @@ fn follow_and_grow(
             Some(l) => (l.0, LAP_HEEL * next.size),
             // A hungry cat comes for you, mouth first (#238).
             None if hungry => (walker.pos, HUNGRY_HEEL * next.size),
-            None => (walker.pos, HEEL * next.size),
+            None => (walker.pos, tuning().heel * next.size),
         };
         let here = cat.pos.xz();
-        let flat = if lured.is_none() && here.distance(owner.xz()) > LOST + heel {
+        let flat = if lured.is_none() && here.distance(owner.xz()) > tuning().lost + heel {
             // Lost you: pop up behind you.
             let behind = Vec2::new(walker.yaw.sin(), walker.yaw.cos()) * heel;
             owner.xz() + behind
@@ -315,7 +332,7 @@ fn follow_and_grow(
                 .filter(|v| v.length() > 1e-3);
             match path {
                 Some(v) if here.distance(owner.xz()) > heel => {
-                    let step = (SPEED * dt).min(here.distance(owner.xz()) - heel);
+                    let step = (tuning().speed * dt).min(here.distance(owner.xz()) - heel);
                     here + v.normalize() * step
                 }
                 _ => waddle(here, owner.xz(), heel, dt),
@@ -354,11 +371,11 @@ fn burn_fuses(
     }
     for (e, mut cat, fuse) in &mut cats {
         match fuse {
-            None if cat.size >= CRITICAL => {
-                commands.entity(e).insert(Fuse(FUSE_SECS));
+            None if cat.size >= tuning().critical => {
+                commands.entity(e).insert(Fuse(tuning().fuse_secs));
             }
             None => {}
-            Some(_) if cat.size < CRITICAL => {
+            Some(_) if cat.size < tuning().critical => {
                 commands.entity(e).remove::<Fuse>();
             }
             Some(mut f) => {
@@ -495,7 +512,7 @@ struct Beep(bool);
 
 /// How fast a lit cat blinks (Hz): faster as the fuse burns down.
 pub fn blink_rate(left: f32) -> f32 {
-    1.5 + 8.0 * (1.0 - (left / FUSE_SECS).clamp(0.0, 1.0))
+    1.5 + 8.0 * (1.0 - (left / tuning().fuse_secs).clamp(0.0, 1.0))
 }
 
 /// A lit cat flashes red and beeps on each flash, faster as the fuse runs out.
@@ -578,7 +595,7 @@ fn gulp(
     // Chomp.
     for (cat, mut act) in &mut cats {
         if cat.owner == ev.owner {
-            act.0 = Some(("gobble", GOBBLE_SECS));
+            act.0 = Some(("gobble", tuning().gobble_secs));
         }
     }
     if let Some(mut toast) = toast {
@@ -642,7 +659,7 @@ fn fade_blasts(
         if b.0 > 0.8 {
             commands.entity(e).despawn();
         } else {
-            tf.scale = Vec3::splat(1.0 + b.0 * BLAST_RADIUS);
+            tf.scale = Vec3::splat(1.0 + b.0 * tuning().blast_radius);
         }
     }
 }
@@ -668,10 +685,6 @@ const FUR_MATERIAL: &str = "ct-cat-fur";
 #[derive(Component, Default)]
 struct CatAct(Option<(&'static str, f32)>);
 
-/// How long the model's one-off clips run.
-const MEOW_SECS: f32 = 1.6;
-const GOBBLE_SECS: f32 = 1.4;
-
 fn dress_cats(mut commands: Commands, new: Query<(Entity, &FatCat), Added<FatCat>>) {
     for (entity, cat) in &new {
         commands.entity(entity).insert((
@@ -688,7 +701,7 @@ fn dress_cats(mut commands: Commands, new: Query<(Entity, &FatCat), Added<FatCat
             CatFur::default(),
             Beep::default(),
             MeowIn {
-                secs: MEOW_EVERY,
+                secs: tuning().meow_every,
                 count: 0,
             },
             DespawnOnExit(AppState::InGame),
@@ -851,20 +864,17 @@ fn report_in_view(
     }
 }
 
-/// Seconds between meows, at the least (#192).
-pub const MEOW_EVERY: f32 = 30.0;
-
 /// The meow countdown after `dt` seconds: looking at the cat puts it back to
 /// the full [`MEOW_EVERY`] (#192, corvy: "only when you're not looking at it.
 /// looking should reset the timer"). Returns the new countdown and whether it
 /// meows now.
 pub fn meow_tick(left: f32, seen: bool, dt: f32) -> (f32, bool) {
     if seen {
-        return (MEOW_EVERY, false);
+        return (tuning().meow_every, false);
     }
     let left = left - dt;
     if left <= 0.0 {
-        (MEOW_EVERY, true)
+        (tuning().meow_every, true)
     } else {
         (left, false)
     }
@@ -893,7 +903,7 @@ fn meow(
         next.count += 1;
         // Mouth wide open (unless it's busy gobbling someone).
         if act.0.is_none() {
-            act.0 = Some(("meow", MEOW_SECS));
+            act.0 = Some(("meow", tuning().meow_secs));
         }
         let seed = (cat.owner as u32).wrapping_mul(2_654_435_761) ^ next.count;
         let size = cat.size;
@@ -978,14 +988,22 @@ mod tests {
             owner: 0,
             pos: Vec3::ZERO,
             yaw: 0.0, // facing -Z
-            size: CRITICAL,
+            size: tuning().critical,
         };
         let m = mouth(&cat);
-        assert!((m - Vec3::new(0.0, 0.0, -MOUTH_AHEAD * CRITICAL)).length() < 1e-4);
+        assert!(
+            (m - Vec3::new(0.0, 0.0, -tuning().mouth_ahead * tuning().critical)).length() < 1e-4
+        );
         // A hungry cat parks you right in its mouth...
-        assert!(gobbles(&cat, Vec3::new(0.0, 0.0, -HUNGRY_HEEL * CRITICAL)));
+        assert!(gobbles(
+            &cat,
+            Vec3::new(0.0, 0.0, -HUNGRY_HEEL * tuning().critical)
+        ));
         // ...but where a calm cat heels, and behind it, you're safe.
-        assert!(!gobbles(&cat, Vec3::new(0.0, 0.0, -HEEL * CRITICAL)));
+        assert!(!gobbles(
+            &cat,
+            Vec3::new(0.0, 0.0, -tuning().heel * tuning().critical)
+        ));
         assert!(!gobbles(&cat, Vec3::new(0.0, 0.0, 5.0)));
         // Not from a floor far above.
         assert!(!gobbles(&cat, m + Vec3::Y * 20.0));
@@ -1007,7 +1025,7 @@ mod tests {
     #[test]
     fn cat_waddles_to_heel() {
         let p = waddle(Vec2::ZERO, Vec2::new(10.0, 0.0), 1.0, 0.5);
-        assert!((p.x - SPEED * 0.5).abs() < 1e-4);
+        assert!((p.x - tuning().speed * 0.5).abs() < 1e-4);
         let p = waddle(Vec2::ZERO, Vec2::new(3.0, 0.0), 1.0, 5.0);
         assert!((p.x - 2.0).abs() < 1e-4, "stops at heel: {p}");
         assert_eq!(
@@ -1025,13 +1043,15 @@ mod tests {
 
     #[test]
     fn petting_shrinks_and_blasts_fling_only_the_nearby() {
-        assert!((petted(CRITICAL) - (CRITICAL - PET_SHRINK)).abs() < 1e-5);
+        assert!(
+            (petted(tuning().critical) - (tuning().critical - tuning().pet_shrink)).abs() < 1e-5
+        );
         assert_eq!(petted(1.2), 1.0);
         let near = flung(Vec2::new(2.0, 0.0), Vec2::ZERO);
-        assert!((near.x - (2.0 + BLAST_PUSH)).abs() < 1e-4);
-        let far = Vec2::new(BLAST_RADIUS + 1.0, 0.0);
+        assert!((near.x - (2.0 + tuning().blast_push)).abs() < 1e-4);
+        let far = Vec2::new(tuning().blast_radius + 1.0, 0.0);
         assert_eq!(flung(far, Vec2::ZERO), far);
-        assert!(blink_rate(1.0) > blink_rate(FUSE_SECS));
+        assert!(blink_rate(1.0) > blink_rate(tuning().fuse_secs));
     }
 
     #[test]
@@ -1047,12 +1067,12 @@ mod tests {
 
     #[test]
     fn meows_wait_thirty_seconds_and_looking_resets_the_wait() {
-        let (left, now) = meow_tick(MEOW_EVERY, false, 29.0);
+        let (left, now) = meow_tick(tuning().meow_every, false, 29.0);
         assert!(!now && (left - 1.0).abs() < 1e-4);
-        assert_eq!(meow_tick(left, true, 0.1), (MEOW_EVERY, false));
+        assert_eq!(meow_tick(left, true, 0.1), (tuning().meow_every, false));
         let (left, now) = meow_tick(0.5, false, 1.0);
         assert!(now);
-        assert_eq!(left, MEOW_EVERY);
+        assert_eq!(left, tuning().meow_every);
     }
 
     #[test]

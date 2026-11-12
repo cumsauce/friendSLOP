@@ -1,0 +1,12 @@
+// Tuning for climb (crates/play/src/features/climb.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Climbing speed up a face (m/s).
+    climb_speed: 2.5,
+    // Sideways shuffle speed on a face (m/s).
+    shuffle_speed: 1.5,
+    // Faces steeper than this (normal's up part below it) are climbable; anything
+    // flatter is just ground you can walk on.
+    max_face_up: 0.5,
+    knees: 0.3,
+)

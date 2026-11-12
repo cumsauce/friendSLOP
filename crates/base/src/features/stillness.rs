@@ -14,10 +14,22 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 
-/// Seconds of normal play between freezes (was 60; less often, asked by the owner).
-pub const ACTIVE_SECS: f32 = 240.0;
-/// How long a freeze lasts.
-pub const FROZEN_SECS: f32 = 20.0;
+/// Tuning numbers: `assets/data/base/stillness.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds of normal play between freezes (was 60; less often, asked by the owner).
+    pub active_secs: f32,
+    /// How long a freeze lasts.
+    pub frozen_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/base/stillness.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Server-authoritative freeze state, replicated to everyone.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -54,12 +66,12 @@ pub struct StillClock {
 
 /// Where in the 80 s cycle we are, `t` seconds after the server started.
 pub fn phase_at(t: f32) -> Stillness {
-    let cycle = ACTIVE_SECS + FROZEN_SECS;
+    let cycle = tuning().active_secs + tuning().frozen_secs;
     let p = t.rem_euclid(cycle);
-    if p < ACTIVE_SECS {
+    if p < tuning().active_secs {
         Stillness {
             frozen: false,
-            secs_left: (ACTIVE_SECS - p).ceil() as u32,
+            secs_left: (tuning().active_secs - p).ceil() as u32,
         }
     } else {
         Stillness {

@@ -115,8 +115,9 @@ impl<T: Default> Data<T> {
         {
             return v.clone();
         }
-        if disk::refresh(self)
-            && let Ok(slot) = self.value.read()
+        // Another thread may have loaded it meanwhile, so look either way.
+        disk::refresh(self);
+        if let Ok(slot) = self.value.read()
             && let Some(v) = slot.as_ref()
         {
             return v.clone();

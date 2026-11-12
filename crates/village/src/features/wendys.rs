@@ -22,8 +22,20 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub use friendslop_world::places::wendys_at;
 /// Burgers on the counter at once.
 pub const SLOTS: u8 = 3;
-/// Seconds until a taken burger is replaced.
-pub const RESTOCK_SECS: f32 = 15.0;
+/// Tuning numbers: `assets/data/village/wendys.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds until a taken burger is replaced.
+    pub restock_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/village/wendys.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Shack size: half width (x), half depth (z), wall height.
 const HALF_W: f32 = 2.6;

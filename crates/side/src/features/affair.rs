@@ -31,14 +31,26 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// Where Officer Mei waits (x, z): the east edge of the commune.
 pub use friendslop_world::places::officer_at;
-/// The wife catches a flirt within this distance of you.
-pub const WIFE_SIGHT: f32 = 10.0;
-/// During an affair she smells the perfume this close.
-pub const PERFUME_RANGE: f32 = 2.5;
-/// Flirts until it's an affair.
-pub const FLIRTS_FOR_AFFAIR: u32 = 3;
-/// The wife's walking speed, m/s.
-pub const WIFE_SPEED: f32 = 1.1;
+/// Tuning numbers: `assets/data/side/affair.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// The wife catches a flirt within this distance of you.
+    pub wife_sight: f32,
+    /// During an affair she smells the perfume this close.
+    pub perfume_range: f32,
+    /// Flirts until it's an affair.
+    pub flirts_for_affair: u32,
+    /// The wife's walking speed, m/s.
+    pub wife_speed: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/side/affair.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// Replicated wife moves per second.
 const WIFE_HZ: f32 = 5.0;
 
@@ -65,7 +77,7 @@ pub struct Affair {
 
 impl Affair {
     pub fn on(self) -> bool {
-        self.flirts >= FLIRTS_FOR_AFFAIR
+        self.flirts >= tuning().flirts_for_affair
     }
 }
 
@@ -88,7 +100,7 @@ fn path_len() -> f32 {
 /// She walks the path there and back, forever.
 pub fn wife_at(t: f32) -> (Vec2, f32) {
     let len = path_len();
-    let mut d = (t * WIFE_SPEED).rem_euclid(2.0 * len);
+    let mut d = (t * tuning().wife_speed).rem_euclid(2.0 * len);
     let back = d > len;
     if back {
         d = 2.0 * len - d;
@@ -122,15 +134,15 @@ pub enum Outcome {
 
 /// Flirt once, with your wife `wife_dist` metres away. Pure, so it's tested.
 pub fn flirt(affair: &mut Affair, wife_dist: f32) -> Outcome {
-    if wife_dist <= WIFE_SIGHT {
+    if wife_dist <= tuning().wife_sight {
         affair.flirts = 0;
         return Outcome::Caught;
     }
     affair.flirts += 1;
     match affair.flirts {
-        n if n < FLIRTS_FOR_AFFAIR => Outcome::Courting(n - 1),
-        n if n == FLIRTS_FOR_AFFAIR => Outcome::Begins,
-        n => Outcome::Secret(n - FLIRTS_FOR_AFFAIR - 1),
+        n if n < tuning().flirts_for_affair => Outcome::Courting(n - 1),
+        n if n == tuning().flirts_for_affair => Outcome::Begins,
+        n => Outcome::Secret(n - tuning().flirts_for_affair - 1),
     }
 }
 
@@ -280,7 +292,7 @@ fn smell_perfume(
     mut players: Query<(Entity, &Player, &Walker, &mut Affair)>,
 ) {
     for (entity, player, walker, mut affair) in &mut players {
-        if !affair.on() || wife_distance(&wives, walker.pos) > PERFUME_RANGE {
+        if !affair.on() || wife_distance(&wives, walker.pos) > tuning().perfume_range {
             continue;
         }
         affair.flirts = 0;
@@ -531,7 +543,7 @@ mod tests {
     #[test]
     fn the_wife_catches_flirts_she_can_see() {
         let mut a = Affair { flirts: 5 };
-        assert_eq!(flirt(&mut a, WIFE_SIGHT - 1.0), Outcome::Caught);
+        assert_eq!(flirt(&mut a, tuning().wife_sight - 1.0), Outcome::Caught);
         assert!(!a.on());
         assert_eq!(a.flirts, 0);
     }
@@ -540,14 +552,14 @@ mod tests {
     fn the_wife_walks_there_and_back() {
         let len = path_len();
         let (start, _) = wife_at(0.0);
-        let (far, _) = wife_at(len / WIFE_SPEED);
-        let (home, _) = wife_at(2.0 * len / WIFE_SPEED);
+        let (far, _) = wife_at(len / tuning().wife_speed);
+        let (home, _) = wife_at(2.0 * len / tuning().wife_speed);
         assert!(start.distance(PATH[0]) < 0.01);
         assert!(far.distance(PATH[PATH.len() - 1]) < 0.01);
         assert!(home.distance(PATH[0]) < 0.01);
         // Her far end brings her within sight of Mei, so flirting is timing.
-        assert!(far.distance(officer_at()) < WIFE_SIGHT);
-        assert!(start.distance(officer_at()) > WIFE_SIGHT);
+        assert!(far.distance(officer_at()) < tuning().wife_sight);
+        assert!(start.distance(officer_at()) > tuning().wife_sight);
     }
 
     #[test]

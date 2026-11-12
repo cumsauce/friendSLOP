@@ -25,10 +25,22 @@ use crate::features::villagers::{PokeVillager, Villager, is_friend};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
-/// Chats it takes for a friend to start dating you.
-pub const HEARTS_TO_DATE: u8 = 5;
-/// A friend only counts one chat from you this often (seconds).
-pub const CHAT_COOLDOWN: f32 = 1.5;
+/// Tuning numbers: `assets/data/side/discord_friends.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Chats it takes for a friend to start dating you.
+    pub hearts_to_date: u8,
+    /// A friend only counts one chat from you this often (seconds).
+    pub chat_cooldown: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/side/discord_friends.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// What each friend says as you win them over, one line per heart before
 /// the last, in the order of `villagers::NAMES` from `FIRST_FRIEND`.
@@ -65,7 +77,7 @@ pub fn court(hearts: u8, partner: Option<u64>, me: u64) -> Chat {
     match partner {
         Some(p) if p == me => Chat::Smitten,
         Some(p) => Chat::Taken(p),
-        None if hearts + 1 >= HEARTS_TO_DATE => Chat::Dating,
+        None if hearts + 1 >= tuning().hearts_to_date => Chat::Dating,
         None => Chat::Warmer(hearts + 1),
     }
 }
@@ -134,7 +146,7 @@ fn chat_up(
     if court_state
         .last
         .get(&key)
-        .is_some_and(|t| now - t < CHAT_COOLDOWN)
+        .is_some_and(|t| now - t < tuning().chat_cooldown)
     {
         return;
     }
@@ -146,7 +158,7 @@ fn chat_up(
             court_state.hearts.insert(key, h);
         }
         Chat::Dating => {
-            court_state.hearts.insert(key, HEARTS_TO_DATE);
+            court_state.hearts.insert(key, tuning().hearts_to_date);
             court_state.partner.insert(v.id, player.id);
         }
         Chat::Smitten | Chat::Taken(_) => {}
@@ -240,7 +252,7 @@ fn hear_chat(
 
 /// "<3 <3 . . ." for `hearts` out of `HEARTS_TO_DATE`.
 pub fn hearts_meter(hearts: u8) -> String {
-    (0..HEARTS_TO_DATE)
+    (0..tuning().hearts_to_date)
         .map(|i| if i < hearts { "<3" } else { "." })
         .collect::<Vec<_>>()
         .join(" ")
@@ -255,7 +267,7 @@ mod tests {
     fn five_chats_and_they_are_yours() {
         let mut hearts = 0;
         let mut partner = None;
-        for _ in 0..HEARTS_TO_DATE - 1 {
+        for _ in 0..tuning().hearts_to_date - 1 {
             match court(hearts, partner, 7) {
                 Chat::Warmer(h) => hearts = h,
                 other => panic!("{other:?}"),
@@ -272,7 +284,7 @@ mod tests {
         assert_eq!(COUNT - FIRST_FRIEND as usize, LINES.get().len());
         for id in FIRST_FRIEND..COUNT as u8 {
             assert!(is_friend(id), "{}", name(id as usize));
-            for h in 1..HEARTS_TO_DATE {
+            for h in 1..tuning().hearts_to_date {
                 assert!(!line(id, h).is_empty());
             }
         }

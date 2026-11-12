@@ -24,14 +24,26 @@ use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, in_reach};
 use crate::player::{Player, PlayerOwner};
 
-/// The whole, limited supply of tears. They all fall once, at the start.
-pub const TOTAL_TEARS: u32 = 12;
+/// Tuning numbers: `assets/data/story/gods_tears.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// The whole, limited supply of tears. They all fall once, at the start.
+    pub total_tears: u32,
+    /// Height a new tear falls from.
+    pub fall_from: f32,
+    /// How fast it falls (units per second).
+    pub fall_speed: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/story/gods_tears.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// Uses after which you are an Abduction.
 pub const ABDUCTION_AT: u32 = 7;
-/// Height a new tear falls from.
-const FALL_FROM: f32 = 12.0;
-/// How fast it falls (units per second).
-const FALL_SPEED: f32 = 6.0;
 
 /// A tear on the floor at (x, z).
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -108,7 +120,7 @@ impl TearSky {
 /// When humans came into existence, the tears rained down. Once.
 fn the_one_rain(mut commands: Commands, mut sky: ResMut<TearSky>) {
     sky.seed = 0x7ea2_0016;
-    for _ in 0..TOTAL_TEARS {
+    for _ in 0..tuning().total_tears {
         let tear = sky.tear();
         commands.spawn((tear, Replicated));
     }
@@ -258,7 +270,7 @@ fn dress_tears(
         commands
             .entity(entity)
             .insert((
-                Transform::from_xyz(tear.at.x, FALL_FROM, tear.at.y),
+                Transform::from_xyz(tear.at.x, tuning().fall_from, tear.at.y),
                 Clickable::at_height(0.3).labelled("use the tear"),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
@@ -287,7 +299,7 @@ fn fall_and_glint(time: Res<Time>, mut tears: Query<(&GodsTear, &mut Transform)>
         let rest = 0.12 + 0.04 * (t * 2.0 + tear.id as f32).sin();
         let y = transform.translation.y;
         transform.translation.y = if y > rest + 0.2 {
-            (y - FALL_SPEED * time.delta_secs()).max(rest)
+            (y - tuning().fall_speed * time.delta_secs()).max(rest)
         } else {
             rest
         };
@@ -323,7 +335,8 @@ fn update_tears_hud(
     rows.sort_by_key(|(p, _)| p.id);
     let left = tears.iter().count();
     let mut lines = vec![format!(
-        "gods tears: {left} of {TOTAL_TEARS} left, no more will fall (click one to use it)"
+        "gods tears: {left} of {} left, no more will fall (click one to use it)",
+        tuning().total_tears
     )];
     for (player, t) in rows {
         lines.push(format!(
@@ -369,7 +382,7 @@ mod tests {
         assert_eq!(recovered(ABDUCTION_AT - 1), 0);
         assert_eq!(recovered(ABDUCTION_AT), 1);
         assert_eq!(recovered(12), 3);
-        assert!(recovered(TOTAL_TEARS) < TOTAL_TEARS);
+        assert!(recovered(tuning().total_tears) < tuning().total_tears);
     }
 
     #[test]

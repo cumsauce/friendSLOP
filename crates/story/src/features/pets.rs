@@ -74,12 +74,24 @@ pub struct PetLure {
     pub at: Vec2,
 }
 
-/// Pets closer than this are connected.
-pub const LINK_DIST: f32 = 2.5;
-/// How fast a pet trots after its owner.
-const SPEED: f32 = 4.0;
-/// Pets stop this short of the pointer.
-const HEEL: f32 = 0.8;
+/// Tuning numbers: `assets/data/story/pets.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Pets closer than this are connected.
+    pub link_dist: f32,
+    /// How fast a pet trots after its owner.
+    pub speed: f32,
+    /// Pets stop this short of the pointer.
+    pub heel: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/story/pets.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Pet>()
@@ -217,10 +229,10 @@ fn release_on_leave(
 pub fn trot(from: Vec2, target: Vec2, dt: f32) -> Vec2 {
     let gap = target - from;
     let len = gap.length();
-    if len <= HEEL {
+    if len <= tuning().heel {
         return from;
     }
-    from + gap / len * (SPEED * dt).min(len - HEEL)
+    from + gap / len * (tuning().speed * dt).min(len - tuning().heel)
 }
 
 fn follow(
@@ -258,7 +270,7 @@ pub fn biggest_pack(points: &[Vec2]) -> usize {
         while let Some(i) = stack.pop() {
             size += 1;
             for j in 0..points.len() {
-                if !seen[j] && points[i].distance(points[j]) < LINK_DIST {
+                if !seen[j] && points[i].distance(points[j]) < tuning().link_dist {
                     seen[j] = true;
                     stack.push(j);
                 }
@@ -387,7 +399,7 @@ fn draw_links(mut gizmos: Gizmos, pets: Query<(&Pet, &Transform)>) {
         .collect();
     for (i, a) in owned.iter().enumerate() {
         for b in &owned[i + 1..] {
-            if a.distance(*b) < LINK_DIST {
+            if a.distance(*b) < tuning().link_dist {
                 gizmos.line(*a, *b, Color::srgb(1.0, 0.5, 0.9));
             }
         }
@@ -445,9 +457,12 @@ mod tests {
     #[test]
     fn pets_trot_towards_the_pointer_and_stop_at_heel() {
         let p = trot(Vec2::ZERO, Vec2::new(10.0, 0.0), 0.5);
-        assert!((p.x - SPEED * 0.5).abs() < 1e-4);
+        assert!((p.x - tuning().speed * 0.5).abs() < 1e-4);
         let p = trot(Vec2::ZERO, Vec2::new(1.0, 0.0), 5.0);
-        assert!((p.x - (1.0 - HEEL)).abs() < 1e-4, "stops short: {p}");
+        assert!(
+            (p.x - (1.0 - tuning().heel)).abs() < 1e-4,
+            "stops short: {p}"
+        );
         assert_eq!(trot(Vec2::ZERO, Vec2::new(0.1, 0.0), 1.0), Vec2::ZERO);
     }
 

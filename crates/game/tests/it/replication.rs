@@ -174,9 +174,7 @@ fn clients_learn_who_they_are() {
 #[test]
 fn challenge_accept_and_shoot_to_win_a_duel() {
     use bevy_replicon::prelude::ClientTriggerExt;
-    use friendslop::features::duel::{
-        AnswerDuel, ChallengeDuel, DuelShoot, Duelist, LIVES, spawn_points,
-    };
+    use friendslop::features::duel::{AnswerDuel, ChallengeDuel, DuelShoot, Duelist, spawn_points};
 
     let (mut server, mut client) = (peer(), peer());
     server.connect_client(&mut client);
@@ -208,16 +206,22 @@ fn challenge_accept_and_shoot_to_win_a_duel() {
     step(&mut server, &mut client);
     let both = duelists(&mut client);
     assert_eq!(both.len(), 2, "both duelists replicate");
-    assert!(both.iter().all(|d| d.lives == LIVES && d.bullets == 1));
+    assert!(
+        both.iter()
+            .all(|d| d.lives == friendslop::features::duel::tuning().lives && d.bullets == 1)
+    );
 
     // Both start facing each other, so every shot from the host lands. Each
     // kill refunds the bullet, so the host can win with three shots.
-    for shot in 1..=LIVES {
+    for shot in 1..=friendslop::features::duel::tuning().lives {
         server.world_mut().client_trigger(DuelShoot);
         step(&mut server, &mut client);
         let left = duelists(&mut client);
-        if shot < LIVES {
-            assert_eq!(left[1].lives, LIVES - shot);
+        if shot < friendslop::features::duel::tuning().lives {
+            assert_eq!(
+                left[1].lives,
+                friendslop::features::duel::tuning().lives - shot
+            );
             assert_eq!(left[0].bullets, 1, "kill refunds the bullet");
             // Put the victim back in the host's sights for the next shot.
             let world = server.world_mut();
@@ -254,7 +258,7 @@ fn everyone_starts_morally_neutral() {
 
 #[test]
 fn music_boxes_replicate() {
-    use friendslop::features::voice_lines::{MUSIC_BOX_COUNT, MusicBox};
+    use friendslop::features::voice_lines::MusicBox;
     let (mut server, mut client) = (peer(), peer());
     server.connect_client(&mut client);
     for _ in 0..3 {
@@ -264,7 +268,10 @@ fn music_boxes_replicate() {
     }
     let world = client.world_mut();
     let n = world.query::<&MusicBox>().iter(world).count();
-    assert_eq!(n, MUSIC_BOX_COUNT as usize);
+    assert_eq!(
+        n,
+        friendslop::features::voice_lines::tuning().music_box_count as usize
+    );
 }
 
 #[test]
@@ -285,7 +292,7 @@ fn client_sees_the_freeze_clock() {
 
 #[test]
 fn using_a_gods_tear_transforms_the_user() {
-    use friendslop::features::gods_tears::{GodsTear, TOTAL_TEARS, Transformation, UseGodsTear};
+    use friendslop::features::gods_tears::{GodsTear, Transformation, UseGodsTear};
     let (mut server, mut client) = (peer(), peer());
     server.connect_client(&mut client);
     let step = |server: &mut App, client: &mut App| {
@@ -305,7 +312,7 @@ fn using_a_gods_tear_transforms_the_user() {
         .collect();
     assert_eq!(
         ids.len() as u32,
-        TOTAL_TEARS,
+        friendslop::features::gods_tears::tuning().total_tears,
         "the whole supply rained down"
     );
     let world = server.world_mut();
@@ -659,7 +666,7 @@ fn adopting_a_pet_gives_one_pet_each() {
 #[test]
 fn prying_at_halt_is_shared() {
     use bevy_replicon::prelude::ClientTriggerExt;
-    use friendslop::features::halt::{Halt, PRY_ESCAPE, Pry};
+    use friendslop::features::halt::{Halt, Pry};
 
     let (mut server, mut client) = (peer(), peer());
     server.connect_client(&mut client);
@@ -677,7 +684,11 @@ fn prying_at_halt_is_shared() {
     let world = client.world_mut();
     let halts: Vec<Halt> = world.query::<&Halt>().iter(world).copied().collect();
     assert_eq!(halts.len(), 1);
-    assert_eq!(halts[0].escape, PRY_ESCAPE * 2, "both pries count");
+    assert_eq!(
+        halts[0].escape,
+        friendslop::features::halt::tuning().pry_escape * 2,
+        "both pries count"
+    );
 }
 
 #[test]
@@ -710,7 +721,7 @@ fn everyone_gets_the_newer_stats_too() {
 fn requests_are_ignored_while_the_world_stands_still() {
     use bevy_replicon::prelude::ClientTriggerExt;
     use friendslop::features::fart::{Fart, Farted, Gas};
-    use friendslop::features::stillness::{ACTIVE_SECS, StillClock};
+    use friendslop::features::stillness::StillClock;
 
     #[derive(Resource, Default)]
     struct Heard(usize);
@@ -731,7 +742,8 @@ fn requests_are_ignored_while_the_world_stands_still() {
     step(&mut server, &mut client);
 
     // Freeze the world, with everyone full of gas.
-    server.world_mut().resource_mut::<StillClock>().elapsed = ACTIVE_SECS + 1.0;
+    server.world_mut().resource_mut::<StillClock>().elapsed =
+        friendslop::features::stillness::tuning().active_secs + 1.0;
     let world = server.world_mut();
     for mut gas in world.query::<&mut Gas>().iter_mut(world) {
         gas.0 = 50;
@@ -983,9 +995,7 @@ fn villagers_replicate_and_fool_seekers() {
 
 #[test]
 fn hide_and_seek_hides_name_labels_and_heartbeats_near_seekers() {
-    use friendslop::features::hide_and_seek::{
-        HEARTBEAT_RANGE, Phase, Role, heartbeat_interval, label_hidden,
-    };
+    use friendslop::features::hide_and_seek::{Phase, Role, heartbeat_interval, label_hidden};
     let (h, s, f) = (Some(Role::Hider), Some(Role::Seeker), Some(Role::Found));
     // Outside a round every label shows.
     for phase in [Phase::Idle, Phase::Results] {
@@ -1002,7 +1012,10 @@ fn hide_and_seek_hides_name_labels_and_heartbeats_near_seekers() {
         assert!(!label_hidden(phase, true, h, h));
     }
     // Heartbeat only within range, faster when closer.
-    assert_eq!(heartbeat_interval(HEARTBEAT_RANGE + 0.1), None);
+    assert_eq!(
+        heartbeat_interval(friendslop::features::hide_and_seek::tuning().heartbeat_range + 0.1),
+        None
+    );
     assert_eq!(heartbeat_interval(f32::INFINITY), None);
     let (Some(near), Some(far)) = (heartbeat_interval(1.0), heartbeat_interval(5.5)) else {
         panic!("seekers in range should thump");

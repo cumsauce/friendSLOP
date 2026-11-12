@@ -17,13 +17,25 @@ use crate::AppState;
 use crate::features::fps::Walker;
 use crate::player::{LocalPlayer, Player};
 
-/// How long you may stand perfectly still before PID 1 kills you.
-pub const WATCHDOG_SECS: f32 = 180.0;
-/// The warning comes this long before the kill.
-pub const WARN_SECS: f32 = 20.0;
-/// Moving less than this (metres) or turning less than this (radians) isn't a ping.
-const STIR: f32 = 0.05;
-const TURN: f32 = 0.02;
+/// Tuning numbers: `assets/data/afterlife/systemd.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How long you may stand perfectly still before PID 1 kills you.
+    pub watchdog_secs: f32,
+    /// The warning comes this long before the kill.
+    pub warn_secs: f32,
+    /// Moving less than this (metres) or turning less than this (radians) isn't a ping.
+    pub stir: f32,
+    pub turn: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/afterlife/systemd.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// What systemd has to say.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -67,16 +79,16 @@ impl Watchdog {
     pub fn tick(&mut self, pos: Vec3, yaw: f32, dt: f32) -> Option<Bark> {
         let turned = (yaw - self.yaw + std::f32::consts::PI).rem_euclid(std::f32::consts::TAU)
             - std::f32::consts::PI;
-        if pos.distance(self.pos) > STIR || turned.abs() > TURN {
+        if pos.distance(self.pos) > tuning().stir || turned.abs() > tuning().turn {
             *self = Self::new(pos, yaw);
             return None;
         }
         self.idle += dt;
-        if self.idle >= WATCHDOG_SECS {
+        if self.idle >= tuning().watchdog_secs {
             *self = Self::new(pos, yaw);
             return Some(Bark::Killed);
         }
-        if !self.warned && self.idle >= WATCHDOG_SECS - WARN_SECS {
+        if !self.warned && self.idle >= tuning().watchdog_secs - tuning().warn_secs {
             self.warned = true;
             return Some(Bark::Overdue);
         }
@@ -142,14 +154,14 @@ pub fn journal_text(player: u64, bark: Bark, me: Option<u64>) -> String {
     match (bark, me == Some(player)) {
         (Bark::Overdue, true) => format!(
             "systemd[1]: {unit}: watchdog ping overdue. MOVE, or PID 1 kills you in {} s",
-            WARN_SECS as u32
+            tuning().warn_secs as u32
         ),
         (Bark::Overdue, false) => format!("systemd[1]: {unit}: watchdog ping overdue"),
         (Bark::Killed, mine) => {
             let tail = if mine { " (that was you)" } else { "" };
             format!(
                 "systemd[1]: {unit}: Watchdog timeout (limit {}min)! Killing process with signal SIGKILL{tail}",
-                (WATCHDOG_SECS / 60.0) as u32
+                (tuning().watchdog_secs / 60.0) as u32
             )
         }
     }
@@ -182,7 +194,7 @@ mod tests {
     fn standing_still_warns_then_kills() {
         let mut dog = Watchdog::new(Vec3::ZERO, 0.0);
         let mut barks = Vec::new();
-        for _ in 0..(WATCHDOG_SECS as usize + 1) {
+        for _ in 0..(tuning().watchdog_secs as usize + 1) {
             if let Some(b) = dog.tick(Vec3::ZERO, 0.0, 1.0) {
                 barks.push(b);
             }
@@ -194,13 +206,21 @@ mod tests {
     fn moving_or_looking_around_pings() {
         let mut dog = Watchdog::new(Vec3::ZERO, 0.0);
         assert_eq!(
-            dog.tick(Vec3::ZERO, 0.0, WATCHDOG_SECS - WARN_SECS - 1.0),
+            dog.tick(
+                Vec3::ZERO,
+                0.0,
+                tuning().watchdog_secs - tuning().warn_secs - 1.0
+            ),
             None
         );
         assert_eq!(dog.tick(Vec3::ZERO, 0.5, 0.5), None);
         assert_eq!(dog.idle, 0.0);
         assert_eq!(
-            dog.tick(Vec3::ZERO, 0.5, WATCHDOG_SECS - WARN_SECS - 1.0),
+            dog.tick(
+                Vec3::ZERO,
+                0.5,
+                tuning().watchdog_secs - tuning().warn_secs - 1.0
+            ),
             None
         );
         assert_eq!(dog.tick(Vec3::X, 0.5, 0.5), None);

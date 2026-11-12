@@ -661,7 +661,19 @@ struct FartBody;
 #[derive(Component)]
 struct FartCloud(f32);
 
-const CLOUD_SECS: f32 = 3.0;
+/// Tuning numbers: `assets/data/places/warehouse_visuals_bathroom.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub cloud_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/warehouse_visuals_bathroom.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 fn dress_fart_monsters(
     mut commands: Commands,
@@ -836,11 +848,11 @@ fn drift_clouds(
     let dt = time.delta_secs();
     for (e, mut cloud, mut tf) in &mut clouds {
         cloud.0 += dt;
-        if cloud.0 > CLOUD_SECS {
+        if cloud.0 > tuning().cloud_secs {
             commands.entity(e).despawn();
             continue;
         }
-        let f = cloud.0 / CLOUD_SECS;
+        let f = cloud.0 / tuning().cloud_secs;
         tf.scale = Vec3::splat(0.3 + 1.1 * f.sqrt() * (1.0 - f * f).max(0.05).sqrt());
         tf.translation.y += dt * 0.25;
     }

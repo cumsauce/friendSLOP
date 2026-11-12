@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::campaign::{CHAPTERS, Campaign, ending};
 use crate::features::halt::Halt;
-use crate::features::landlord::{Act3, HEISTS_BEFORE_BOSS, RAISES_BEFORE_CRIME, Tenancy};
+use crate::features::landlord::{Act3, Tenancy};
 pub use crate::rules::campaign::*;
 
 /// Server -> everyone: where the shared goal stands.
@@ -63,8 +63,12 @@ fn spawn_objective(mut commands: Commands) {
 /// Progress through the current act, 0..=100.
 pub fn act_progress(t: &Tenancy) -> u8 {
     let frac = match t.act {
-        Act3::Legal => t.raises as f32 / RAISES_BEFORE_CRIME as f32,
-        Act3::Crime => t.heists as f32 / HEISTS_BEFORE_BOSS as f32,
+        Act3::Legal => {
+            t.raises as f32 / crate::features::landlord::tuning().raises_before_crime as f32
+        }
+        Act3::Crime => {
+            t.heists as f32 / crate::features::landlord::tuning().heists_before_boss as f32
+        }
         Act3::Boss => 1.0 - t.hp as f32 / crate::features::landlord::BOSS_HP as f32,
         Act3::Won => 1.0,
     };
@@ -234,7 +238,7 @@ mod tests {
     fn progress_follows_the_acts() {
         let mut t = Tenancy::default();
         assert_eq!(act_progress(&t), 0);
-        t.raises = RAISES_BEFORE_CRIME;
+        t.raises = crate::features::landlord::tuning().raises_before_crime;
         assert_eq!(act_progress(&t), 100);
         t.act = Act3::Boss;
         t.hp = crate::features::landlord::BOSS_HP / 2;

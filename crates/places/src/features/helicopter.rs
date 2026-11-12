@@ -29,22 +29,35 @@ use crate::rules::morality::Morality;
 pub const HUNTED_AT: i32 = -6;
 /// Height it hovers at above its target's feet.
 pub const HOVER_HEIGHT: f32 = 14.0;
-/// How far off to one side it hovers (so it can see you past its own nose).
-pub const HOVER_RADIUS: f32 = 9.0;
-/// Top speed (running is 5 m/s or so: you can't outrun it).
-pub const FLY_SPEED: f32 = 11.0;
-/// Shots in a burst.
-pub const BURST: u32 = 5;
-/// Seconds between shots in a burst.
-pub const SHOT_GAP: f32 = 0.18;
-/// Seconds of quiet between bursts.
-pub const BURST_GAP: f32 = 2.4;
-/// How far a bullet can land from you.
-pub const SPREAD: f32 = 2.6;
-/// A bullet this close to your feet (on the ground) hits you.
-pub const HIT_RADIUS: f32 = 0.7;
-/// It only opens fire this close (horizontally) to where it wants to be.
-const FIRING_RANGE: f32 = 25.0;
+/// Tuning numbers: `assets/data/places/helicopter.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How far off to one side it hovers (so it can see you past its own nose).
+    pub hover_radius: f32,
+    /// Top speed (running is 5 m/s or so: you can't outrun it).
+    pub fly_speed: f32,
+    /// Shots in a burst.
+    pub burst: u32,
+    /// Seconds between shots in a burst.
+    pub shot_gap: f32,
+    /// Seconds of quiet between bursts.
+    pub burst_gap: f32,
+    /// How far a bullet can land from you.
+    pub spread: f32,
+    /// A bullet this close to your feet (on the ground) hits you.
+    pub hit_radius: f32,
+    /// It only opens fire this close (horizontally) to where it wants to be.
+    pub firing_range: f32,
+    pub sound_rate: u32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/helicopter.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// Where it flies in from: the map's `helicopter_from` spot.
 fn arrive_from() -> Vec3 {
     friendslop_world::places::layout().helicopter_from
@@ -137,7 +150,7 @@ fn summon(
                 hit: false,
             },
             Gunner {
-                wait: BURST_GAP,
+                wait: tuning().burst_gap,
                 left: 0,
                 dice: 0x4e11_c0b7 ^ (player.id as u32).wrapping_mul(2_654_435_761),
                 leaving: false,
@@ -157,9 +170,9 @@ pub fn hover_spot(feet: Vec3, from: Vec3) -> Vec3 {
     };
     let ground = crate::terrain::height_at(feet.x, feet.z).max(feet.y);
     Vec3::new(
-        feet.x + side.x * HOVER_RADIUS,
+        feet.x + side.x * tuning().hover_radius,
         ground + HOVER_HEIGHT,
-        feet.z + side.y * HOVER_RADIUS,
+        feet.z + side.y * tuning().hover_radius,
     )
 }
 
@@ -170,14 +183,14 @@ pub fn fly_step(pos: Vec3, goal: Vec3, dt: f32) -> Vec3 {
     if d < 1e-4 {
         return goal;
     }
-    pos + to / d * (FLY_SPEED * dt).min(d)
+    pos + to / d * (tuning().fly_speed * dt).min(d)
 }
 
 /// Where a bullet aimed at `feet` lands, given two rolls in `0.0..1.0`.
 pub fn bullet_lands(feet: Vec3, a: f32, b: f32) -> Vec3 {
     let angle = a * std::f32::consts::TAU;
     // sqrt: spread evenly over the disc, not bunched in the middle.
-    let r = b.sqrt() * SPREAD;
+    let r = b.sqrt() * tuning().spread;
     let x = feet.x + angle.cos() * r;
     let z = feet.z + angle.sin() * r;
     Vec3::new(x, crate::terrain::height_at(x, z).max(feet.y), z)
@@ -185,7 +198,7 @@ pub fn bullet_lands(feet: Vec3, a: f32, b: f32) -> Vec3 {
 
 /// Does a bullet landing at `at` hit someone standing at `feet`?
 pub fn is_hit(at: Vec3, feet: Vec3) -> bool {
-    at.xz().distance(feet.xz()) <= HIT_RADIUS
+    at.xz().distance(feet.xz()) <= tuning().hit_radius
 }
 
 /// Server: follow, aim and shoot (paused during the stillness, like the NPCs).
@@ -231,7 +244,7 @@ fn fly(
         let Some(feet) = feet.filter(|_| !gunner.leaving) else {
             continue;
         };
-        if pos.xz().distance(goal.xz()) > FIRING_RANGE {
+        if pos.xz().distance(goal.xz()) > tuning().firing_range {
             continue;
         }
         gunner.wait -= dt;
@@ -239,15 +252,15 @@ fn fly(
             continue;
         }
         if gunner.left == 0 {
-            gunner.left = BURST;
+            gunner.left = tuning().burst;
         }
         let (a, b) = (gunner.roll(), gunner.roll());
         let aim = bullet_lands(feet, a, b);
         gunner.left -= 1;
         gunner.wait = if gunner.left == 0 {
-            BURST_GAP
+            tuning().burst_gap
         } else {
-            SHOT_GAP
+            tuning().shot_gap
         };
         heli.shots = heli.shots.wrapping_add(1);
         heli.aim = aim;
@@ -282,12 +295,12 @@ impl HeliSounds {
     fn ensure(&mut self, audio: &mut Assets<AudioSource>) {
         if self.rotor.is_none() {
             self.rotor = Some(audio.add(AudioSource {
-                bytes: wav_bytes(&rotor_loop(SOUND_RATE), SOUND_RATE).into(),
+                bytes: wav_bytes(&rotor_loop(tuning().sound_rate), tuning().sound_rate).into(),
             }));
         }
         if self.shot.is_none() {
             self.shot = Some(audio.add(AudioSource {
-                bytes: wav_bytes(&gunshot(SOUND_RATE), SOUND_RATE).into(),
+                bytes: wav_bytes(&gunshot(tuning().sound_rate), tuning().sound_rate).into(),
             }));
         }
     }
@@ -386,7 +399,7 @@ fn animate(
         };
         let bob = (time.elapsed_secs() * 1.7).sin() * 0.15;
         tf.translation.y += bob * dt;
-        let lean = (speed / FLY_SPEED).min(1.0) * 0.25;
+        let lean = (speed / tuning().fly_speed).min(1.0) * 0.25;
         let want = Quat::from_rotation_y(heli.yaw) * Quat::from_rotation_x(-lean);
         tf.rotation = tf.rotation.slerp(want, blend);
     }
@@ -531,8 +544,6 @@ fn show_warning(
     }
 }
 
-const SOUND_RATE: u32 = 22_050;
-
 /// White-ish noise from a little xorshift.
 fn noise(s: &mut u32) -> f32 {
     *s ^= *s << 13;
@@ -595,7 +606,7 @@ mod tests {
     #[test]
     fn it_flies_fast_but_not_through_its_goal() {
         let p = fly_step(Vec3::ZERO, Vec3::new(100.0, 0.0, 0.0), 0.5);
-        assert!((p.x - FLY_SPEED * 0.5).abs() < 1e-4);
+        assert!((p.x - tuning().fly_speed * 0.5).abs() < 1e-4);
         let goal = Vec3::new(1.0, 2.0, 0.0);
         assert_eq!(fly_step(Vec3::ZERO, goal, 1.0), goal);
     }
@@ -605,7 +616,7 @@ mod tests {
         let feet = Vec3::new(3.0, 0.0, 4.0);
         let spot = hover_spot(feet, Vec3::new(100.0, 30.0, 4.0));
         assert!(spot.y >= HOVER_HEIGHT - 0.01);
-        assert!((spot.xz().distance(feet.xz()) - HOVER_RADIUS).abs() < 1e-3);
+        assert!((spot.xz().distance(feet.xz()) - tuning().hover_radius).abs() < 1e-3);
         assert!(spot.x > feet.x, "stays on the side it came from");
     }
 
@@ -616,7 +627,7 @@ mod tests {
         for i in 0..20 {
             for j in 0..20 {
                 let at = bullet_lands(feet, i as f32 / 20.0, j as f32 / 20.0);
-                assert!(at.xz().distance(feet.xz()) <= SPREAD + 1e-3);
+                assert!(at.xz().distance(feet.xz()) <= tuning().spread + 1e-3);
                 hits += is_hit(at, feet) as u32;
             }
         }
@@ -625,7 +636,10 @@ mod tests {
 
     #[test]
     fn sounds_are_sane() {
-        for s in [rotor_loop(SOUND_RATE), gunshot(SOUND_RATE)] {
+        for s in [
+            rotor_loop(tuning().sound_rate),
+            gunshot(tuning().sound_rate),
+        ] {
             assert!(s.iter().all(|x| x.is_finite() && x.abs() <= 1.0));
             assert!(s.iter().any(|x| x.abs() > 0.2));
         }

@@ -37,12 +37,28 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub static LINES: friendslop_data::Data<Vec<(String, String)>> =
     friendslop_data::Data::ron("data/text/abuela.ron");
 
-/// How close (on the island) counts as visiting her.
-pub const GREET_RADIUS: f32 = 4.0;
-/// She doesn't talk over herself.
-pub const QUIET_SECS: f32 = 3.0;
-/// How long her words stay on screen.
-pub const SHOWN_SECS: f32 = 6.0;
+/// Tuning numbers: `assets/data/story/abuela.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How close (on the island) counts as visiting her.
+    pub greet_radius: f32,
+    /// She doesn't talk over herself.
+    pub quiet_secs: f32,
+    /// How long her words stay on screen.
+    pub shown_secs: f32,
+    /// Seat height of the rocking chair.
+    pub seat: f32,
+    /// Seconds per syllable: she speaks slowly.
+    pub syl: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/story/abuela.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Where heaven is: the highest floating island.
 pub fn heaven() -> crate::features::climb::Island {
@@ -139,7 +155,7 @@ fn visit(
         return;
     }
     let now = time.elapsed_secs();
-    if greeted.last.is_some_and(|l| now - l < QUIET_SECS) {
+    if greeted.last.is_some_and(|l| now - l < tuning().quiet_secs) {
         return; // still talking
     }
     let Ok(mut abuela) = abuela.single_mut() else {
@@ -162,10 +178,10 @@ fn greet_arrivals(
     let now = time.elapsed_secs();
     let near: Vec<u64> = walkers
         .iter()
-        .filter(|(_, w)| visiting(w.pos, GREET_RADIUS))
+        .filter(|(_, w)| visiting(w.pos, tuning().greet_radius))
         .map(|(p, _)| p.id)
         .collect();
-    let quiet = greeted.last.is_none_or(|l| now - l >= QUIET_SECS);
+    let quiet = greeted.last.is_none_or(|l| now - l >= tuning().quiet_secs);
     let arrived = near.iter().copied().find(|id| !greeted.near.contains(id));
     if let (true, Some(id)) = (quiet, arrived) {
         greeted.near.push(id);
@@ -208,9 +224,6 @@ pub fn look() -> CharacterLook {
 #[derive(Component)]
 struct Dressed;
 
-/// Seat height of the rocking chair.
-const SEAT: f32 = 0.45;
-
 fn dress_abuela(
     mut commands: Commands,
     new: Query<Entity, (With<Abuela>, Without<Dressed>)>,
@@ -252,12 +265,12 @@ fn dress_abuela(
                     // Knitting in her lap: a ball of yarn and two needles.
                     c.spawn((
                         model("yarn_ball.gltf"),
-                        Transform::from_xyz(0.05, SEAT + 0.32, -0.35),
+                        Transform::from_xyz(0.05, tuning().seat + 0.32, -0.35),
                     ));
                     for side in [-1.0f32, 1.0] {
                         c.spawn((
                             model("knitting_needle.gltf"),
-                            Transform::from_xyz(side * 0.08, SEAT + 0.42, -0.38)
+                            Transform::from_xyz(side * 0.08, tuning().seat + 0.42, -0.38)
                                 .with_rotation(Quat::from_rotation_z(side * 0.7)),
                             Knitting(side),
                         ));
@@ -469,13 +482,13 @@ fn hear_abuela(
     });
     if mine && let Some(mut toast) = toast {
         toast.show("Abuela holds your hands. You feel loved.");
-        toast.secs_left = SHOWN_SECS;
+        toast.secs_left = tuning().shown_secs;
     }
     if mine || up_here {
         for mut w in &mut words {
             w.0 = Words {
                 text: format!("Abuela: \"{spanish}\"\n({english})"),
-                until: time.elapsed_secs() + SHOWN_SECS,
+                until: time.elapsed_secs() + tuning().shown_secs,
             };
         }
     }
@@ -586,9 +599,6 @@ pub fn syllables(phrase: &str) -> Vec<(Onset, char, bool)> {
     out
 }
 
-/// Seconds per syllable: she speaks slowly.
-const SYL: f32 = 0.19;
-
 /// Abuela's voice saying `phrase`: a warm, breathy older woman's voice with a
 /// gentle tremble, built from the phrase's own Spanish syllables. Pitch drifts
 /// down over a statement and lifts at the end of a question.
@@ -617,7 +627,7 @@ pub fn voice(phrase: &str, seed: u32, rate: u32) -> Vec<f32> {
         };
         let f0 = 205.0 * contour * (0.97 + next() * 0.06);
         // The last syllable of a word lingers a little.
-        let len = SYL * if end { 1.35 } else { 1.0 } * (0.9 + next() * 0.2);
+        let len = tuning().syl * if end { 1.35 } else { 1.0 } * (0.9 + next() * 0.2);
         let n = (len * rate as f32) as usize;
         let fm = formants(vowel);
         let onset_len = match onset {

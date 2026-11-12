@@ -1,0 +1,12 @@
+// Tuning for fart (crates/places/src/features/fart.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Seconds for gas to go from empty to full.
+    gas_fill_secs: 40.0,
+    // You need at least this much gas to fart.
+    min_gas: 20,
+    // NPCs closer than this (metres) to your bottom will see you fart.
+    shame_radius: 4.0,
+    // How long the shame lasts.
+    shame_secs: 20.0,
+)

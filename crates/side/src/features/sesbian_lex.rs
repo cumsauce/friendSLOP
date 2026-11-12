@@ -22,10 +22,23 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// Heat stops here. Escalation has a comedy ceiling.
 pub const MAX_HEAT: u32 = 10;
-/// How close you need to be to the pile to pile in.
-pub const JOIN_RANGE: f32 = 8.0;
-/// Wander further than this and you've peeled off.
-pub const DRIFT_RANGE: f32 = 14.0;
+/// Tuning numbers: `assets/data/side/sesbian_lex.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How close you need to be to the pile to pile in.
+    pub join_range: f32,
+    /// Wander further than this and you've peeled off.
+    pub drift_range: f32,
+    pub heart_count: usize,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/side/sesbian_lex.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// The lex pile. At most one exists at a time; the server owns it.
 #[derive(Component, Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -96,7 +109,7 @@ pub fn toggle_pile(id: u64, pos: Vec2, pile: Option<&SesbianLex>) -> PileUpdate 
             PileUpdate::Update(without)
         };
     }
-    if pos.distance(pile.at) > JOIN_RANGE {
+    if pos.distance(pile.at) > tuning().join_range {
         return PileUpdate::TooFar;
     }
     let mut with = pile.clone();
@@ -226,7 +239,7 @@ fn drift_apart(
         let stays = |id: &u64| {
             players
                 .iter()
-                .any(|(p, w)| p.id == *id && w.pos.xz().distance(at) <= DRIFT_RANGE)
+                .any(|(p, w)| p.id == *id && w.pos.xz().distance(at) <= tuning().drift_range)
         };
         if pile.participants.iter().all(stays) {
             continue;
@@ -256,8 +269,6 @@ fn lex_key(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
         commands.client_trigger(SesbianLexToggle);
     }
 }
-
-const HEART_COUNT: usize = 16;
 
 #[derive(Component)]
 struct LexHeart(usize);
@@ -294,7 +305,7 @@ fn spawn_visuals(
     });
     let lobe = meshes.add(Sphere::new(0.16));
     let tip = meshes.add(Cuboid::new(0.24, 0.24, 0.14));
-    for i in 0..HEART_COUNT {
+    for i in 0..tuning().heart_count {
         commands
             .spawn((
                 LexHeart(i),
@@ -334,7 +345,7 @@ fn spawn_visuals(
 /// Where heart `i` floats over the pile's middle, given its heat and the time.
 fn heart_placement(i: usize, heat: u32, t: f32) -> Transform {
     let fi = i as f32;
-    let layer = fi / HEART_COUNT as f32;
+    let layer = fi / tuning().heart_count as f32;
     let angle = fi * 2.4 + t * (0.4 + heat as f32 * 0.08);
     let radius = 0.8 + layer * 0.8 + heat as f32 * 0.06;
     let bob = (t * 1.6 + fi * 0.9).sin() * 0.12;
@@ -364,7 +375,7 @@ fn show_pile(
         crate::terrain::height_at(pile.at.x, pile.at.y),
         pile.at.y,
     );
-    let lit = (pile.participants.len() + pile.heat as usize).min(HEART_COUNT);
+    let lit = (pile.participants.len() + pile.heat as usize).min(tuning().heart_count);
     let t = time.elapsed_secs();
     for (heart, mut tf, mut vis) in &mut hearts {
         if heart.0 < lit {

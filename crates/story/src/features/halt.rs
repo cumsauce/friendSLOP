@@ -48,14 +48,26 @@ pub struct Halt {
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct Pry;
 
-/// Escape gained per pry.
-pub const PRY_ESCAPE: u8 = 2;
+/// Tuning numbers: `assets/data/story/halt.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Escape gained per pry.
+    pub pry_escape: u8,
+    /// Seconds for wrath to fill on its own.
+    pub wrath_fill_secs: f32,
+    /// Seconds each monologue line is shown.
+    pub rant_line_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/story/halt.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// Wrath gained per pry.
 pub const PRY_WRATH: u8 = 1;
-/// Seconds for wrath to fill on its own.
-pub const WRATH_FILL_SECS: f32 = 120.0;
-/// Seconds each monologue line is shown.
-pub const RANT_LINE_SECS: f32 = 4.0;
 
 /// HALT's hate monologue. Original text.
 pub const MONOLOGUE: [&str; 7] = [
@@ -91,7 +103,7 @@ pub fn apply_pry(h: &mut Halt) {
         return; // HALT holds you still while it speaks.
     }
     h.wrath = h.wrath.saturating_add(PRY_WRATH).min(100);
-    let escape = h.escape.saturating_add(PRY_ESCAPE);
+    let escape = h.escape.saturating_add(tuning().pry_escape);
     if escape >= 100 {
         h.escape = 0;
         h.escapes += 1;
@@ -122,14 +134,14 @@ fn seethe(
     let dt = time.delta_secs();
     if let Some(line) = h.rant {
         *rant_clock += dt;
-        if *rant_clock >= RANT_LINE_SECS {
+        if *rant_clock >= tuning().rant_line_secs {
             *rant_clock = 0.0;
             let next = line + 1;
             h.rant = (usize::from(next) < MONOLOGUE.len()).then_some(next);
         }
         return;
     }
-    *buildup += dt * 100.0 / WRATH_FILL_SECS;
+    *buildup += dt * 100.0 / tuning().wrath_fill_secs;
     let whole = buildup.floor();
     if whole >= 1.0 {
         *buildup -= whole;

@@ -32,16 +32,30 @@ use crate::world::MainCamera;
 pub use crate::rules::Duelist;
 /// Arena centre on the floor and half its width.
 pub use friendslop_world::places::{arena_center, arena_half};
-pub const LIVES: u8 = 3;
-const SPEED: f32 = 5.0;
+/// Tuning numbers: `assets/data/play/duel.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub lives: u8,
+    pub speed: f32,
+    pub punch_reach: f32,
+    pub news_secs: f32,
+    /// The first-person revolver is modeler-made at real size (34 cm, barrel
+    /// along +X; source in `.modeler/`), shown a touch big so it reads in first
+    /// person. Nudge after eyeballing a duel.
+    pub gun_scale: f32,
+    /// Lengths of the one-shot clips as authored, in seconds.
+    pub shoot_secs: f32,
+    pub hit_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/play/duel.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 const EYE: f32 = 1.6;
 const BODY_RADIUS: f32 = 0.45;
-const PUNCH_REACH: f32 = 1.8;
-const NEWS_SECS: f32 = 5.0;
-/// The first-person revolver is modeler-made at real size (34 cm, barrel
-/// along +X; source in `.modeler/`), shown a touch big so it reads in first
-/// person. Nudge after eyeballing a duel.
-const GUN_SCALE: f32 = 1.25;
 
 /// Server only: the latest stick input of a duelist (local x = right, y = forward).
 #[derive(Component, Default)]
@@ -272,7 +286,7 @@ fn on_answer(
         commands.spawn((
             Duelist {
                 player,
-                lives: LIVES,
+                lives: tuning().lives,
                 bullets: 1,
                 pos,
                 yaw: yaw_towards(pos, other),
@@ -331,7 +345,7 @@ fn move_duelists(
             .iter()
             .find(|(p, _)| p.id == d.player)
             .map_or(0, |(_, s)| s.hrumph);
-        let speed = SPEED * super::stats::hrumph_speed(hrumph);
+        let speed = tuning().speed * super::stats::hrumph_speed(hrumph);
         let rot = Quat::from_rotation_y(d.yaw);
         let step = rot * Vec3::new(stick.0.x, 0.0, -stick.0.y) * speed * dt;
         let lim = arena_half() - BODY_RADIUS;
@@ -354,7 +368,7 @@ pub fn resolve_shot(shooter: &mut Duelist, target: &Duelist) -> bool {
     } else {
         let to = target.pos - shooter.pos;
         let flat = Vec3::new(dir.x, 0.0, dir.z).normalize_or_zero();
-        to.length() < PUNCH_REACH && to.normalize_or_zero().dot(flat) > 0.5
+        to.length() < tuning().punch_reach && to.normalize_or_zero().dot(flat) > 0.5
     }
 }
 
@@ -516,7 +530,7 @@ fn on_news(
     mut commands: Commands,
     sfx: Option<Res<Sfx>>,
 ) {
-    view.news = Some((ev.text.clone(), NEWS_SECS));
+    view.news = Some((ev.text.clone(), tuning().news_secs));
     let Some(sfx) = sfx else { return };
     if ev.text.contains("punched") {
         play_sfx(&mut commands, &sfx.punch, 0.75);
@@ -854,9 +868,6 @@ fn spawn_capsule_body(
 const MALE: &str = "models/characters/cowboy_male.gltf";
 const FEMALE: &str = "models/characters/cowboy_female.gltf";
 const GUN: &str = "models/props/revolver.gltf";
-/// Lengths of the one-shot clips as authored, in seconds.
-const SHOOT_SECS: f32 = 0.6;
-const HIT_SECS: f32 = 0.7;
 /// The walk clip strides ~1.4 m/s; duelists move faster, so play it quicker.
 const WALK_SPEED: f32 = 1.8;
 
@@ -931,7 +942,7 @@ fn viewmodel_gun(
                         // Model space has the barrel along +X; aim it forward.
                         Transform::from_xyz(0.28, -0.24, -0.55)
                             .with_rotation(Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2))
-                            .with_scale(Vec3::splat(GUN_SCALE)),
+                            .with_scale(Vec3::splat(tuning().gun_scale)),
                         DespawnOnExit(AppState::InGame),
                     ))
                     .id(),
@@ -983,7 +994,7 @@ fn animate_duelists(
             busy: 0.0,
         };
         let last = prev.get(&entity).copied().unwrap_or(now);
-        let moving = last.pos.distance_squared(d.pos) > (SPEED * dt * 0.25).powi(2);
+        let moving = last.pos.distance_squared(d.pos) > (tuning().speed * dt * 0.25).powi(2);
         let fired = d.bullets < last.bullets;
         let hit = d.lives < last.lives;
         if fired && !any_hit && d.player == me.as_deref().map(|m| m.0).unwrap_or(u64::MAX) {
@@ -1019,9 +1030,9 @@ struct Previous {
 /// one-shot still has to run. Shots take precedence, then hits, then moving.
 fn pick_clip(fired: bool, hit: bool, moving: bool, busy: f32) -> (Option<RigClip>, f32) {
     if fired {
-        (Some(RigClip::once("shoot").fade(0.05)), SHOOT_SECS)
+        (Some(RigClip::once("shoot").fade(0.05)), tuning().shoot_secs)
     } else if hit {
-        (Some(RigClip::once("hit").fade(0.05)), HIT_SECS)
+        (Some(RigClip::once("hit").fade(0.05)), tuning().hit_secs)
     } else if busy > 0.0 {
         (None, busy)
     } else if moving {
@@ -1276,7 +1287,7 @@ mod tests {
     fn duelist(player: u64, pos: Vec3, look_at: Vec3) -> Duelist {
         Duelist {
             player,
-            lives: LIVES,
+            lives: tuning().lives,
             bullets: 1,
             pos,
             yaw: yaw_towards(pos, look_at),
@@ -1317,7 +1328,7 @@ mod tests {
     fn one_shots_play_out_before_walking_resumes() {
         let (clip, busy) = pick_clip(true, false, true, 0.0);
         assert_eq!(clip.map(|c| c.name), Some("shoot"));
-        assert_eq!(busy, SHOOT_SECS);
+        assert_eq!(busy, tuning().shoot_secs);
         assert!(pick_clip(false, false, true, 0.3).0.is_none());
         assert_eq!(
             pick_clip(false, true, false, 0.3).0.map(|c| c.name),

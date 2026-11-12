@@ -20,22 +20,34 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::features::fps::Walker;
-use crate::features::punishment::{ATTACK_SECS, AttackMode};
+use crate::features::punishment::AttackMode;
 
 use crate::hud::Toast;
 use crate::player::Player;
 use crate::rules::villagers::Villager;
 
-/// A chasing villager this close (on the floor) catches you.
-pub const CATCH_DIST: f32 = 1.4;
-/// How fast the catcher runs with you in its arms.
-pub const CARRY_SPEED: f32 = 4.5;
+/// Tuning numbers: `assets/data/village/caught.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// A chasing villager this close (on the floor) catches you.
+    pub catch_dist: f32,
+    /// How fast the catcher runs with you in its arms.
+    pub carry_speed: f32,
+    /// How long you're locked in the air ("x amount of time").
+    pub float_secs: f32,
+    /// Rise speed while levitating.
+    pub rise_speed: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/village/caught.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// How high the catcher levitates.
 pub const LIFT: f32 = 7.0;
-/// How long you're locked in the air ("x amount of time").
-pub const FLOAT_SECS: f32 = 20.0;
-/// Rise speed while levitating.
-const RISE_SPEED: f32 = 2.0;
 
 /// The accomplice's message, word for word from the friend.
 pub const ACCOMPLICE_TEXT: &str =
@@ -116,7 +128,7 @@ pub fn lift_of(caught: &Query<&Caught>, id: u8) -> f32 {
 pub fn catcher_near(at: Vec2, villagers: &[(u8, Vec2)]) -> Option<u8> {
     villagers
         .iter()
-        .filter(|(_, p)| p.distance(at) <= CATCH_DIST)
+        .filter(|(_, p)| p.distance(at) <= tuning().catch_dist)
         .min_by(|a, b| a.1.distance(at).total_cmp(&b.1.distance(at)))
         .map(|(id, _)| *id)
 }
@@ -212,7 +224,7 @@ fn catch(
                 held: vec![attack.target],
                 accomplice,
                 lift: 0.0,
-                secs_left: FLOAT_SECS as u8,
+                secs_left: tuning().float_secs as u8,
             },
             FloatClock::default(),
             Replicated,
@@ -253,16 +265,18 @@ fn carry(
                     // The accomplice left the game (or outran us for a whole
                     // attack): float with who we have.
                     None => true,
-                    Some(_) if clock.carrying > ATTACK_SECS => {
+                    Some(_)
+                        if clock.carrying > crate::features::punishment::tuning().attack_secs =>
+                    {
                         c.accomplice = None;
                         true
                     }
                     Some(p) => {
                         let to = p - v.pos;
                         let d = to.length();
-                        if d > CATCH_DIST {
+                        if d > tuning().catch_dist {
                             let dir = to / d;
-                            v.pos += dir * (CARRY_SPEED * dt).min(d);
+                            v.pos += dir * (tuning().carry_speed * dt).min(d);
                             v.yaw = (-dir.x).atan2(-dir.y);
                             v.sitting = false;
                             false
@@ -280,12 +294,12 @@ fn carry(
                             }
                         }
                     }
-                    clock.left = Some(FLOAT_SECS);
+                    clock.left = Some(tuning().float_secs);
                     let text = format!(
                         "{}: \"now you're being punished. you're locked up here in the air \
                          with ME for {} seconds\"",
                         v.name(),
-                        FLOAT_SECS as u32
+                        tuning().float_secs as u32
                     );
                     notice(&mut commands, SendTargets::All, text);
                 }
@@ -293,7 +307,7 @@ fn carry(
             Some(mut left) => {
                 left -= dt;
                 clock.left = Some(left);
-                let lift = (c.lift + RISE_SPEED * dt).min(LIFT);
+                let lift = (c.lift + tuning().rise_speed * dt).min(LIFT);
                 if c.lift != lift {
                     c.lift = lift;
                 }

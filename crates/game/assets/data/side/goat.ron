@@ -1,0 +1,10 @@
+// Tuning for goat (crates/side/src/features/goat.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // How long a remark stays on screen.
+    remark_secs: 5.0,
+    // How long of nobody choosing anything before the goat says so.
+    idle_secs: 40.0,
+    // How long the goat's `judge` gesture (a look, a head shake, a hoof stomp) lasts.
+    judge_secs: 2.4,
+)

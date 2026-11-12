@@ -20,19 +20,31 @@
 
 use super::*;
 
-/// Chance an expedition's warehouse has a bathroom in it.
-pub const CHANCE: f32 = 0.65;
+/// Tuning numbers: `assets/data/places/warehouse_bathroom.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Chance an expedition's warehouse has a bathroom in it.
+    pub chance: f32,
+    /// The fart monster's patrol and waddle speeds (walking is 5 m/s).
+    pub patrol_speed: f32,
+    pub waddle_speed: f32,
+    /// It notices you this close (down a clear aisle).
+    pub notice: f32,
+    /// It gasses you this close.
+    pub gas_reach: f32,
+    /// Seconds it stands there, satisfied, after gassing someone.
+    pub smug: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/warehouse_bathroom.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// The bathroom's ceiling height (the rest of the warehouse is [`INSIDE_WALL`]).
 pub const CEILING: f32 = 11.0;
-/// The fart monster's patrol and waddle speeds (walking is 5 m/s).
-pub const PATROL_SPEED: f32 = 1.4;
-pub const WADDLE_SPEED: f32 = 2.6;
-/// It notices you this close (down a clear aisle).
-pub const NOTICE: f32 = 6.0;
-/// It gasses you this close.
-pub const GAS_REACH: f32 = 1.5;
-/// Seconds it stands there, satisfied, after gassing someone.
-const SMUG: f32 = 4.0;
 
 /// A rectangle of floor-plan cells.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -62,7 +74,7 @@ impl Zone {
 /// Where the bathroom is for floor plan `seed`, if this warehouse has one.
 pub fn zone(seed: u32) -> Option<Zone> {
     let mut rng = Rng::new(seed ^ 0xba7b_0161);
-    if rng.roll() >= CHANCE {
+    if rng.roll() >= tuning().chance {
         return None;
     }
     let w = 2 + rng.below(2);
@@ -201,10 +213,10 @@ pub(super) fn shuffle(brain: &mut FartBrain, here: Vec2, prey: &[(u64, Vec2)], d
     let near = |p: &Vec2| p.distance(here);
     if let Some(&(id, _)) = prey
         .iter()
-        .filter(|(_, p)| near(p) < GAS_REACH)
+        .filter(|(_, p)| near(p) < tuning().gas_reach)
         .min_by(|a, b| near(&a.1).total_cmp(&near(&b.1)))
     {
-        brain.smug = SMUG;
+        brain.smug = tuning().smug;
         brain.next_puff = 3.0 + brain.rng.roll() * 5.0;
         return Shuffle {
             pos: here,
@@ -216,11 +228,13 @@ pub(super) fn shuffle(brain: &mut FartBrain, here: Vec2, prey: &[(u64, Vec2)], d
     // Someone close, in the bathroom, in plain sight: after them.
     let target = prey
         .iter()
-        .filter(|(_, p)| near(p) < NOTICE && brain.zone.holds(*p) && brain.plan.sees(here, *p))
+        .filter(|(_, p)| {
+            near(p) < tuning().notice && brain.zone.holds(*p) && brain.plan.sees(here, *p)
+        })
         .min_by(|a, b| near(&a.1).total_cmp(&near(&b.1)));
     if let Some(&(_, p)) = target {
         return Shuffle {
-            pos: move_to(here, p, WADDLE_SPEED * dt),
+            pos: move_to(here, p, tuning().waddle_speed * dt),
             waddling: true,
             puff,
             gassed: None,
@@ -252,7 +266,7 @@ pub(super) fn shuffle(brain: &mut FartBrain, here: Vec2, prey: &[(u64, Vec2)], d
             }
             _ => goal,
         };
-        move_to(here, towards, PATROL_SPEED * dt)
+        move_to(here, towards, tuning().patrol_speed * dt)
     };
     Shuffle {
         pos,

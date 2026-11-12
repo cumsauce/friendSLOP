@@ -14,8 +14,20 @@ use std::sync::OnceLock;
 
 use crate::features::voice_lines;
 
-pub const START_BOUND: u64 = 1_000_000;
-pub const MIN_REPLACED: usize = 50;
+/// Tuning numbers: `assets/data/base/random_dialogue.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub start_bound: u64,
+    pub min_replaced: usize,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/base/random_dialogue.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 const SEED: u64 = 0x5EED_F00D_D1A1_0600;
 
 /// Completely random words.
@@ -74,10 +86,10 @@ pub fn rewrite_once(lines: &[&str], bound: u64, seed: u64) -> (Vec<String>, usiz
 /// The full rule: start at 1,000,000 and halve until at least 50 words are
 /// replaced. Returns the lines, how many were replaced and the bound used.
 pub fn rewrite(lines: &[&str], seed: u64) -> (Vec<String>, usize, u64) {
-    let mut bound = START_BOUND;
+    let mut bound = tuning().start_bound;
     loop {
         let (out, n) = rewrite_once(lines, bound, seed);
-        if n >= MIN_REPLACED || bound <= 1 {
+        if n >= tuning().min_replaced || bound <= 1 {
             return (out, n, bound);
         }
         bound /= 2;
@@ -183,8 +195,11 @@ mod tests {
     fn at_least_fifty_words_replaced() {
         let lines = script();
         let (out, n, bound) = rewrite(&lines, SEED);
-        assert!(n >= MIN_REPLACED, "only {n} replaced at bound {bound}");
-        assert!(bound < START_BOUND);
+        assert!(
+            n >= tuning().min_replaced,
+            "only {n} replaced at bound {bound}"
+        );
+        assert!(bound < tuning().start_bound);
         assert_eq!(out.len(), lines.len());
         assert!(lines.iter().any(|l| say(l) != *l));
     }

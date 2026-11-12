@@ -34,7 +34,7 @@ use crate::AppState;
 use crate::features::fate::Fate;
 use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
-use crate::features::landlord::{RAISE_BY, Tenancy};
+use crate::features::landlord::Tenancy;
 use crate::features::synth_audio::{RATE, master, play_synth_at};
 use crate::people::{CharacterLook, Gait, HeadAnchor};
 use crate::player::{Player, PlayerOwner};
@@ -43,14 +43,26 @@ pub use crate::rules::house_odds::*;
 /// Where Marmalade keeps his wheel (x, z): south of the bonfire, off the
 /// spawn rows and the paths.
 pub use friendslop_world::places::gamble_at;
-/// Seconds between one player's spins.
-pub const COOLDOWN_SECS: f32 = 4.0;
-/// Chance the wheel lands on the blank wedge (everything back to normal).
-pub const BLANK_CHANCE: f32 = 0.08;
-/// Of the rest, the chance a spin is kind.
-pub const FAIR_CHANCE: f32 = 0.5;
-/// How long the wheel spins before it lands.
-pub const SPIN_SECS: f32 = 2.6;
+/// Tuning numbers: `assets/data/story/gamble.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds between one player's spins.
+    pub cooldown_secs: f32,
+    /// Chance the wheel lands on the blank wedge (everything back to normal).
+    pub blank_chance: f32,
+    /// Of the rest, the chance a spin is kind.
+    pub fair_chance: f32,
+    /// How long the wheel spins before it lands.
+    pub spin_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/story/gamble.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Each player's record at the wheel.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -115,14 +127,14 @@ impl Outcome {
 /// Spin: `wedge_roll` picks the wedge, `luck_roll` whether it's kind. Both in
 /// `0.0..1.0`. Pure, so it's tested.
 pub fn spin(odds: &mut HouseOdds, wedge_roll: f32, luck_roll: f32) -> Outcome {
-    if wedge_roll < BLANK_CHANCE {
+    if wedge_roll < tuning().blank_chance {
         *odds = HouseOdds::default();
         return Outcome::Blank;
     }
-    let k = (wedge_roll - BLANK_CHANCE) / (1.0 - BLANK_CHANCE);
+    let k = (wedge_roll - tuning().blank_chance) / (1.0 - tuning().blank_chance);
     let i = ((k.clamp(0.0, 0.999_999)) * Knob::ALL.len() as f32) as usize;
     let knob = Knob::ALL[i.min(Knob::ALL.len() - 1)];
-    let fairer = luck_roll < FAIR_CHANCE;
+    let fairer = luck_roll < tuning().fair_chance;
     let level = odds.level(knob);
     let next = if fairer {
         level.checked_sub(1)
@@ -312,7 +324,7 @@ fn on_spin(
     let now = time.elapsed_secs();
     let id = player.id;
     if let Some((_, at)) = wheel.last.iter().find(|(p, _)| *p == id)
-        && now - at < COOLDOWN_SECS
+        && now - at < tuning().cooldown_secs
     {
         deny(
             &mut commands,
@@ -363,10 +375,10 @@ fn scale_rent(odds_q: Query<&HouseOdds>, mut tenancy: Query<&mut Tenancy>, mut s
     let raises = t.raises - *seen;
     *seen = t.raises;
     let want = odds(&odds_q).rent_raise();
-    if want == RAISE_BY {
+    if want == crate::features::landlord::tuning().raise_by {
         return;
     }
-    let delta = (want as i64 - RAISE_BY as i64) * raises as i64;
+    let delta = (want as i64 - crate::features::landlord::tuning().raise_by as i64) * raises as i64;
     t.rent = (t.rent as i64 + delta).max(1) as u32;
 }
 
@@ -633,7 +645,7 @@ fn turn_wheel(
         if w.pending.is_none() {
             continue;
         }
-        w.t = (w.t + time.delta_secs() / SPIN_SECS).min(1.0);
+        w.t = (w.t + time.delta_secs() / tuning().spin_secs).min(1.0);
         // Ease out: fast, then clicking to a stop.
         let e = 1.0 - (1.0 - w.t).powi(3);
         w.angle = w.from + (w.to - w.from) * e;
@@ -651,7 +663,7 @@ fn turn_wheel(
 /// The wheel's clicks slowing down, then a chime (bright if kind, a sour
 /// buzz if cruel).
 fn ticks(kind: bool, rate: u32) -> Vec<f32> {
-    let total = SPIN_SECS + 0.9;
+    let total = tuning().spin_secs + 0.9;
     let n = (total * rate as f32) as usize;
     let mut out = vec![0.0f32; n];
     // Tick times follow the same ease-out as the wheel.
@@ -659,8 +671,8 @@ fn ticks(kind: bool, rate: u32) -> Vec<f32> {
     let mut last = 0usize;
     for i in 0..n {
         let t = i as f32 / rate as f32;
-        if t < SPIN_SECS {
-            let k = t / SPIN_SECS;
+        if t < tuning().spin_secs {
+            let k = t / tuning().spin_secs;
             let passed = ((1.0 - (1.0 - k).powi(3)) * ticks_total) as usize;
             if passed > last {
                 last = passed;
@@ -672,7 +684,7 @@ fn ticks(kind: bool, rate: u32) -> Vec<f32> {
                 }
             }
         } else {
-            let tt = t - SPIN_SECS;
+            let tt = t - tuning().spin_secs;
             let env = (-tt * 4.0).exp();
             let v = if kind {
                 [880.0, 1108.7, 1318.5]
@@ -765,18 +777,30 @@ mod tests {
     #[test]
     fn the_middle_step_is_the_normal_game() {
         let o = HouseOdds::default();
-        assert_eq!(o.fail_chance(), crate::features::fate::FAIL_CHANCE);
-        assert_eq!(o.shame_radius(), crate::features::fart::SHAME_RADIUS);
-        assert_eq!(o.romance_one_in(), crate::features::romance::SMITTEN_ONE_IN);
+        assert_eq!(o.fail_chance(), crate::features::fate::tuning().fail_chance);
+        assert_eq!(
+            o.shame_radius(),
+            crate::features::fart::tuning().shame_radius
+        );
+        assert_eq!(
+            o.romance_one_in(),
+            crate::features::romance::tuning().smitten_one_in
+        );
         assert_eq!(
             o.strikes_to_attack(),
             crate::features::punishment::STRIKES_TO_ATTACK
         );
         assert_eq!(o.hunted_at(), crate::features::helicopter::HUNTED_AT);
         assert_eq!(o.landlord_bonus(), 1.0);
-        assert_eq!(o.rent_raise(), RAISE_BY);
-        assert_eq!(o.hunt_speed(), crate::features::warehouse::HUNT_SPEED);
-        assert_eq!(o.restock_secs(), crate::features::wendys::RESTOCK_SECS);
+        assert_eq!(o.rent_raise(), crate::features::landlord::tuning().raise_by);
+        assert_eq!(
+            o.hunt_speed(),
+            crate::features::warehouse::tuning().hunt_speed
+        );
+        assert_eq!(
+            o.restock_secs(),
+            crate::features::wendys::tuning().restock_secs
+        );
         assert!(o.changed().is_empty());
     }
 
@@ -784,7 +808,7 @@ mod tests {
     fn spins_move_one_step_and_stop_at_the_ends() {
         let mut o = HouseOdds::default();
         // Just past the blank: the first knob. Kind roll.
-        let first = BLANK_CHANCE + 0.001;
+        let first = tuning().blank_chance + 0.001;
         assert_eq!(
             spin(&mut o, first, 0.0),
             Outcome::Moved {

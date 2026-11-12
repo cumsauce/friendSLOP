@@ -49,18 +49,30 @@ pub use crate::rules::villagers::*;
 
 /// AI decisions (and replicated moves) per second.
 pub const AI_HZ: f32 = 5.0;
-pub const PENALTY_SECS: f32 = 3.0;
-const SPEED: f32 = 1.3;
-/// How far outside the arena walls villagers stay.
-const ARENA_MARGIN: f32 = 1.5;
+/// Tuning numbers: `assets/data/village/villagers.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub penalty_secs: f32,
+    pub speed: f32,
+    /// How far outside the arena walls villagers stay.
+    pub arena_margin: f32,
+    /// The villagers' body on the navmesh (handoff #94).
+    pub agent_radius: f32,
+    /// Ledges up to this height are walkable (the hut steps, the quarry terraces).
+    pub max_climb: f32,
+    /// Steeper than this and the mesh ends (the quarry walls stay out of reach).
+    pub max_slope_degs: f32,
+}
 
-/// The villagers' body on the navmesh (handoff #94).
-pub const AGENT_RADIUS: f32 = 0.35;
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/village/villagers.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
+
 const AGENT_HEIGHT: f32 = 1.7;
-/// Ledges up to this height are walkable (the hut steps, the quarry terraces).
-const MAX_CLIMB: f32 = 0.5;
-/// Steeper than this and the mesh ends (the quarry walls stay out of reach).
-const MAX_SLOPE_DEGS: f32 = 40.0;
 
 /// Where villagers like to hang out (x, z): the map's `Hangout` markers.
 fn points() -> Vec<Vec2> {
@@ -141,7 +153,7 @@ pub fn protocol(app: &mut App) {
 /// Push a point out of the duel arena (plus margin), if it's inside.
 pub fn outside_arena(p: Vec2) -> Vec2 {
     let c = arena_center().xz();
-    let half = arena_half() + ARENA_MARGIN;
+    let half = arena_half() + tuning().arena_margin;
     let d = p - c;
     if d.x.abs() >= half || d.y.abs() >= half {
         return p;
@@ -259,7 +271,7 @@ fn think(
         }
         // Arrived (whichever way we walked)?
         let to = brain.target - v.pos;
-        let step = SPEED * dt;
+        let step = tuning().speed * dt;
         if to.length() <= step {
             v.pos = brain.target;
             brain.wait = 2.0 + rng.f() * 8.0;
@@ -331,7 +343,7 @@ fn on_poke(
         return;
     }
     commands.entity(me).insert(Fooled {
-        until: time.elapsed_secs() + PENALTY_SECS,
+        until: time.elapsed_secs() + tuning().penalty_secs,
         at: walker.pos,
     });
     deny(
@@ -340,7 +352,7 @@ fn on_poke(
         format!(
             "that's just {} from the commune. you stand there, embarrassed ({}s)",
             v.name(),
-            PENALTY_SECS as u32
+            tuning().penalty_secs as u32
         ),
     );
     commands.server_trigger(ToClients {
@@ -445,9 +457,9 @@ fn tag_navmesh_exclusions(
 
 /// The mesh settings the host builds with (and `tests/it/navmesh.rs` asserts on).
 pub fn navmesh_settings() -> NavmeshSettings {
-    let mut settings = NavmeshSettings::from_agent_3d(AGENT_RADIUS, AGENT_HEIGHT);
-    settings.walkable_climb = MAX_CLIMB;
-    settings.walkable_slope_angle = MAX_SLOPE_DEGS.to_radians();
+    let mut settings = NavmeshSettings::from_agent_3d(tuning().agent_radius, AGENT_HEIGHT);
+    settings.walkable_climb = tuning().max_climb;
+    settings.walkable_slope_angle = tuning().max_slope_degs.to_radians();
     // The recommended 2 voxels per agent radius: coarser voxels made contour
     // simplification fail ("invalid contour") on this 200x200 m map.
     settings.cell_size_fraction = 2.0;
@@ -523,7 +535,7 @@ fn build_navmesh(
     build.built = true;
     let archipelago = commands
         .spawn(Archipelago3d::new(ArchipelagoOptions::from_agent_radius(
-            AGENT_RADIUS,
+            tuning().agent_radius,
         )))
         .id();
     let mesh = generator.generate(navmesh_settings());
@@ -576,9 +588,9 @@ fn attach_agents(
         commands.entity(entity).insert((
             Agent3d::default(),
             AgentSettings {
-                radius: AGENT_RADIUS,
-                desired_speed: SPEED,
-                max_speed: SPEED,
+                radius: tuning().agent_radius,
+                desired_speed: tuning().speed,
+                max_speed: tuning().speed,
             },
             ArchipelagoRef3d::new(nav.archipelago),
             AgentTarget3d::Point(Vec3::new(
@@ -828,7 +840,7 @@ mod tests {
 
     #[test]
     fn points_and_pushes_stay_out_of_the_arena() {
-        let half = arena_half() + ARENA_MARGIN;
+        let half = arena_half() + tuning().arena_margin;
         for p in points().iter().chain(districts().iter()) {
             let q = outside_arena(*p);
             assert_eq!(*p, q, "{p} is inside the arena");

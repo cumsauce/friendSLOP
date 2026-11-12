@@ -30,5 +30,15 @@ pub mod features {
 
 /// This crate's data files (see `friendslop_data`).
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
-    vec![&features::campaign::CHAPTERS, &features::abuela::LINES]
+    vec![
+        &features::abuela::TUNING,
+        &features::gamble::TUNING,
+        &features::gods_tears::TUNING,
+        &features::halt::TUNING,
+        &features::landlord::TUNING,
+        &features::mushroom::TUNING,
+        &features::pets::TUNING,
+        &features::campaign::CHAPTERS,
+        &features::abuela::LINES,
+    ]
 }

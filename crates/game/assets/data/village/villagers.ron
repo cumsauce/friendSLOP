@@ -1,0 +1,14 @@
+// Tuning for villagers (crates/village/src/features/villagers.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    penalty_secs: 3.0,
+    speed: 1.3,
+    // How far outside the arena walls villagers stay.
+    arena_margin: 1.5,
+    // The villagers' body on the navmesh (handoff #94).
+    agent_radius: 0.35,
+    // Ledges up to this height are walkable (the hut steps, the quarry terraces).
+    max_climb: 0.5,
+    // Steeper than this and the mesh ends (the quarry walls stay out of reach).
+    max_slope_degs: 40.0,
+)

@@ -78,7 +78,19 @@ pub fn crow_position(crow: &Crow, t: f32) -> Vec3 {
 /// The crow model (#2): knitted body, hop and caw clips. Its feet are at the
 /// model's origin, which sits `FEET` below the crow's own origin.
 const CROW_MODEL: &str = "models/creatures/crow.gltf";
-const FEET: f32 = 0.3;
+/// Tuning numbers: `assets/data/base/crows.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub feet: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/base/crows.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// On a crow: the child entity drawing its rigged model.
 #[derive(Component)]
@@ -91,7 +103,7 @@ fn dress_crows(mut commands: Commands, new: Query<(Entity, &Crow), Added<Crow>>)
             .spawn((
                 crate::rigged::Rigged { path: CROW_MODEL },
                 crate::rigged::RigClip::looping("hop"),
-                Transform::from_xyz(0.0, -FEET, 0.0),
+                Transform::from_xyz(0.0, -tuning().feet, 0.0),
                 Visibility::default(),
                 ChildOf(entity),
             ))

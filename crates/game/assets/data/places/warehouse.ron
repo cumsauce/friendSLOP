@@ -1,0 +1,16 @@
+// Tuning for warehouse (crates/places/src/features/warehouse/mod.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Monster speeds: prowling, and hunting (walking is 5 m/s; run!).
+    prowl_speed: 2.0,
+    hunt_speed: 6.2,
+    // It sees you this far down a clear aisle, and hears you this close anyway.
+    sight: 13.0,
+    hearing: 3.5,
+    // Pretending to be a soul piece, it springs when you come this close.
+    lure_spring: 3.6,
+    // It gets you this close.
+    catch: 1.1,
+    // It gives up a hunt after not seeing you this long.
+    lose_after: 5.0,
+)

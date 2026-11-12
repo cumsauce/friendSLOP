@@ -26,7 +26,24 @@ pub struct MusicBox {
     pub tune: u8,
 }
 
-pub const MUSIC_BOX_COUNT: u8 = 2;
+/// Tuning numbers: `assets/data/base/voice_lines.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    pub music_box_count: u8,
+    /// Seconds between voice lines.
+    pub line_period: f32,
+    /// How long a line stays on screen.
+    pub line_shown: f32,
+    pub syllable: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/base/voice_lines.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 pub fn protocol(app: &mut App) {
     app.replicate::<MusicBox>()
@@ -91,11 +108,6 @@ pub const LINES: [&str; 10] = [
     "Welcome, friend! Please don't touch anything!",
 ];
 
-/// Seconds between voice lines.
-pub const LINE_PERIOD: f32 = 17.0;
-/// How long a line stays on screen.
-pub const LINE_SHOWN: f32 = 4.5;
-
 /// The `n`th line of the session: who says it and what.
 pub fn line(n: u32) -> (Speaker, &'static str) {
     let speaker = match n % 3 {
@@ -110,10 +122,10 @@ pub fn line(n: u32) -> (Speaker, &'static str) {
 /// Which line (if any) is showing at time `t`.
 pub fn showing(t: f32) -> Option<u32> {
     let t = t - 6.0;
-    if t < 0.0 || t % LINE_PERIOD >= LINE_SHOWN {
+    if t < 0.0 || t % tuning().line_period >= tuning().line_shown {
         return None;
     }
-    Some((t / LINE_PERIOD) as u32)
+    Some((t / tuning().line_period) as u32)
 }
 
 pub fn plugin(app: &mut App) {
@@ -212,7 +224,6 @@ fn speak(
 }
 
 use crate::features::synth_audio::RATE;
-const SYLLABLE: f32 = 0.11;
 
 /// Each speaker's gibberish voice (see [`super::babble`]).
 pub fn babble_voice(who: Speaker) -> super::babble::Voice {
@@ -288,7 +299,7 @@ pub fn voice_samples(who: Speaker, said: &str, seed: u32, rate: u32) -> Vec<f32>
     for _ in 0..syllables {
         let f = who.pitch() * (0.8 + next() * 0.5);
         let formant = 2.0 + next() * 2.0;
-        push_tone(&mut out, rate, f, SYLLABLE, move |ph| {
+        push_tone(&mut out, rate, f, tuning().syllable, move |ph| {
             let s = (ph * std::f32::consts::TAU).sin();
             (s + 0.5 * (ph * std::f32::consts::TAU * formant).sin()) * 0.6
         });

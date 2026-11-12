@@ -20,8 +20,21 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::player::Player;
 
-/// Glimbo at which the teacup appears.
-pub const TEACUP_GLIMBO: u8 = 9;
+/// Tuning numbers: `assets/data/play/stats.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Glimbo at which the teacup appears.
+    pub teacup_glimbo: u8,
+    pub hud_left: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/play/stats.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// A player's stats, each 1..=10.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -133,8 +146,6 @@ pub fn plugin(app: &mut App) {
 #[derive(Component)]
 struct StatsHud;
 
-const HUD_LEFT: f32 = 12.0;
-
 fn spawn_stats_hud(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
@@ -169,8 +180,9 @@ fn update_stats_hud(
         &Color::srgb(1.0, 0.8, 0.2),
         pelf_gold(best(&players, |s| s.pelf)),
     );
-    let left =
-        px(HUD_LEFT + 15.0 + wobble_px(best(&players, |s| s.wobblesome), time.elapsed_secs()));
+    let left = px(tuning().hud_left
+        + 15.0
+        + wobble_px(best(&players, |s| s.wobblesome), time.elapsed_secs()));
     for (mut text, mut font, mut tint, mut node) in &mut hud {
         if text.0 != want {
             text.0.clone_from(&want);
@@ -196,7 +208,7 @@ fn summon_teacup(
     cups: Query<Entity, With<Teacup>>,
     assets: Res<AssetServer>,
 ) {
-    let want = players.iter().map(|s| s.glimbo).max().unwrap_or(0) >= TEACUP_GLIMBO;
+    let want = players.iter().map(|s| s.glimbo).max().unwrap_or(0) >= tuning().teacup_glimbo;
     if !want {
         for c in &cups {
             commands.entity(c).despawn();

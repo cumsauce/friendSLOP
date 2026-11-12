@@ -1,0 +1,14 @@
+// Tuning for rats (crates/side/src/features/rats.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // How fast a stray scurries (m/s).
+    scurry: 1.6,
+    // How fast an adopted rat keeps up with you (m/s).
+    keep_up: 5.5,
+    // Adopted rats stop this short of your feet.
+    heel: 0.9,
+    // Further than this behind you (a ladder, a fall) and it just appears at
+    // your heel: rats get everywhere.
+    catch_up: 8.0,
+    squeak_rate: 22050,
+)

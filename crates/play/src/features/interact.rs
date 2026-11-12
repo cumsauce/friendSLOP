@@ -28,8 +28,20 @@ use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
-/// Default pick radius on screen, in pixels.
-pub const CLICK_RADIUS: f32 = 40.0;
+/// Tuning numbers: `assets/data/play/interact.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Default pick radius on screen, in pixels.
+    pub click_radius: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/play/interact.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// How far from your feet you can reach things (client-side check).
 pub const REACH: f32 = 3.5;
 /// The server allows a little extra for lag.
@@ -48,7 +60,7 @@ impl Clickable {
     pub fn at_height(height: f32) -> Self {
         Self {
             height,
-            radius_px: CLICK_RADIUS,
+            radius_px: tuning().click_radius,
             label: None,
         }
     }

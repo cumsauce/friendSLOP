@@ -5,7 +5,10 @@
 //! each); it then trots after your mouse pointer on the floor, since players
 //! have no bodies. Pets standing close together are connected by a glowing
 //! leash-line, and when every adopted pet is linked into one pack the whole
-//! group has "connected the pets", shown on everyone's screen.
+//! group has "connected the pets", shown on everyone's screen. Each animal
+//! is a rigged knitted modeler model (`models/creatures/<animal>.gltf`,
+//! the duck `pet_duck.gltf`)
+//! playing `idle`, or `walk` while it trots.
 
 use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
@@ -17,6 +20,7 @@ use crate::AppState;
 use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, deny, in_reach, refuse};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
+use crate::rigged::{RigClip, Rigged};
 use crate::terrain::PLAY_HALF;
 use crate::world::MainCamera;
 
@@ -38,12 +42,13 @@ impl Animal {
         }
     }
 
-    fn color(self) -> Color {
+    /// The rigged model (#15): knitted plush, `idle` and `walk` clips.
+    pub fn model(self) -> &'static str {
         match self {
-            Animal::Dog => Color::srgb(0.7, 0.5, 0.3),
-            Animal::Cat => Color::srgb(0.95, 0.6, 0.25),
-            Animal::Bunny => Color::srgb(0.95, 0.95, 0.95),
-            Animal::Duck => Color::srgb(1.0, 0.9, 0.2),
+            Animal::Dog => "models/creatures/dog.gltf",
+            Animal::Cat => "models/creatures/cat.gltf",
+            Animal::Bunny => "models/creatures/bunny.gltf",
+            Animal::Duck => "models/creatures/pet_duck.gltf",
         }
     }
 }
@@ -280,152 +285,35 @@ pub fn plugin(app: &mut App) {
         );
 }
 
-fn dress_pets(
-    mut commands: Commands,
-    new: Query<(Entity, &Pet), Added<Pet>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn dress_pets(mut commands: Commands, new: Query<(Entity, &Pet), Added<Pet>>) {
     for (entity, pet) in &new {
-        let fur = crate::art::soft(&mut materials, pet.animal.color());
-        let eye = crate::art::glossy(&mut materials, Color::srgb(0.1, 0.1, 0.1));
-        let beak = crate::art::soft(&mut materials, Color::srgb(1.0, 0.55, 0.15));
-        let eye_mesh = meshes.add(Sphere::new(0.04));
-        commands
-            .entity(entity)
-            .insert((
-                Transform::from_xyz(pet.at.x, 0.0, pet.at.y),
-                Clickable::at_height(0.3).labelled("adopt"),
-                Visibility::default(),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.25))),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.25, 0.0).with_scale(Vec3::new(1.0, 0.85, 1.3)),
-                ));
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.17))),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.45, -0.3),
-                ))
-                .with_children(|h| {
-                    crate::art::eyes(
-                        h,
-                        &mut meshes,
-                        &mut materials,
-                        Vec3::new(0.0, 0.04, -0.14),
-                        0.14,
-                        0.04,
-                    );
-                    // Each animal gets its own ears, nose or beak.
-                    match pet.animal {
-                        Animal::Bunny => {
-                            let ear = meshes.add(Capsule3d::new(0.035, 0.22));
-                            for x in [-0.06, 0.06] {
-                                h.spawn((
-                                    Mesh3d(ear.clone()),
-                                    MeshMaterial3d(fur.clone()),
-                                    Transform::from_xyz(x, 0.25, 0.02)
-                                        .with_rotation(Quat::from_rotation_z(x * 2.5)),
-                                ));
-                            }
-                        }
-                        Animal::Cat => {
-                            let ear = meshes.add(Cone::new(0.06, 0.12).mesh().resolution(4));
-                            for x in [-0.09, 0.09] {
-                                h.spawn((
-                                    Mesh3d(ear.clone()),
-                                    MeshMaterial3d(fur.clone()),
-                                    Transform::from_xyz(x, 0.15, 0.0)
-                                        .with_rotation(Quat::from_rotation_z(-x * 2.0)),
-                                ));
-                            }
-                        }
-                        Animal::Dog => {
-                            let ear = meshes.add(Sphere::new(0.07));
-                            for x in [-0.15, 0.15] {
-                                h.spawn((
-                                    Mesh3d(ear.clone()),
-                                    MeshMaterial3d(eye.clone()),
-                                    Transform::from_xyz(x, 0.02, 0.0)
-                                        .with_scale(Vec3::new(0.5, 1.4, 0.9)),
-                                ));
-                            }
-                            h.spawn((
-                                Mesh3d(meshes.add(Sphere::new(0.08))),
-                                MeshMaterial3d(fur.clone()),
-                                Transform::from_xyz(0.0, -0.05, -0.15),
-                            ));
-                            h.spawn((
-                                Mesh3d(eye_mesh.clone()),
-                                MeshMaterial3d(eye.clone()),
-                                Transform::from_xyz(0.0, -0.02, -0.23),
-                            ));
-                        }
-                        Animal::Duck => {
-                            h.spawn((
-                                Mesh3d(meshes.add(Sphere::new(0.08))),
-                                MeshMaterial3d(beak.clone()),
-                                Transform::from_xyz(0.0, -0.03, -0.17)
-                                    .with_scale(Vec3::new(1.2, 0.4, 1.4)),
-                            ));
-                        }
-                    }
-                });
-                // A tail: a fluffy puff for the bunny, a tail feather for the duck.
-                let (tail, tail_tf) = match pet.animal {
-                    Animal::Bunny => (
-                        meshes.add(Sphere::new(0.08)),
-                        Transform::from_xyz(0.0, 0.3, 0.32),
-                    ),
-                    Animal::Duck => (
-                        meshes.add(Cone::new(0.08, 0.14)),
-                        Transform::from_xyz(0.0, 0.35, 0.33)
-                            .with_rotation(Quat::from_rotation_x(0.9)),
-                    ),
-                    Animal::Dog | Animal::Cat => (
-                        meshes.add(Capsule3d::new(0.03, 0.2)),
-                        Transform::from_xyz(0.0, 0.4, 0.35)
-                            .with_rotation(Quat::from_rotation_x(0.6)),
-                    ),
-                };
-                p.spawn((Mesh3d(tail), MeshMaterial3d(fur.clone()), tail_tf));
-                // Little feet (orange webbed ones for the duck).
-                let foot = meshes.add(Sphere::new(0.06));
-                let foot_mat = if pet.animal == Animal::Duck {
-                    beak.clone()
-                } else {
-                    fur.clone()
-                };
-                for (x, z) in [(-0.1, -0.12), (0.1, -0.12), (-0.1, 0.15), (0.1, 0.15)] {
-                    p.spawn((
-                        Mesh3d(foot.clone()),
-                        MeshMaterial3d(foot_mat.clone()),
-                        Transform::from_xyz(x, 0.05, z).with_scale(Vec3::new(1.0, 0.6, 1.3)),
-                    ));
-                }
-            });
+        commands.entity(entity).insert((
+            Transform::from_xyz(pet.at.x, 0.0, pet.at.y),
+            Clickable::at_height(0.3).labelled("adopt"),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+            Rigged {
+                path: pet.animal.model(),
+            },
+            RigClip::looping("idle"),
+        ));
     }
 }
 
-/// Glide to the replicated spot with a little hop while moving.
-fn move_pets(time: Res<Time>, mut pets: Query<(&Pet, &mut Transform)>) {
-    let t = time.elapsed_secs();
-    for (pet, mut tf) in &mut pets {
+/// Glide to the replicated spot, trotting (the `walk` clip) while moving.
+fn move_pets(time: Res<Time>, mut pets: Query<(&Pet, &mut Transform, &mut RigClip)>) {
+    for (pet, mut tf, mut clip) in &mut pets {
         let here = Vec2::new(tf.translation.x, tf.translation.z);
         let gap = pet.at - here;
         let next = here + gap * (time.delta_secs() * 10.0).min(1.0);
         let moving = gap.length() > 0.02;
-        let hop = if moving {
-            (t * 12.0 + pet.id as f32).sin().abs() * 0.12
-        } else {
-            0.0
-        };
-        tf.translation = Vec3::new(next.x, hop, next.y);
+        tf.translation = Vec3::new(next.x, 0.0, next.y);
         if moving {
             tf.rotation = Quat::from_rotation_y((-gap.x).atan2(-gap.y));
+        }
+        let want = if moving { "walk" } else { "idle" };
+        if clip.name != want {
+            *clip = RigClip::looping(want);
         }
     }
 }

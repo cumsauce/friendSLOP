@@ -1,0 +1,239 @@
+{
+  "format_version": 1,
+  "name": "pp-snout-button",
+  "parts": [],
+  "version": 20868,
+  "ops": [
+    {
+      "sdf": {
+        "name": "nose_raw",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              -0.0224,
+              -0.2744
+            ],
+            "radius": [
+              0.0308
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "nose",
+        "input": "nose_raw",
+        "tris": 60
+      }
+    },
+    {
+      "visibility": {
+        "name": "nose_raw",
+        "input": "nose_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "nose",
+        "input": "nose",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-nose",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.98,
+                  1.01
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#5a3438",
+                "b": "nv",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.18,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-snout-button",
+          "parts": [],
+          "version": 20276,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pp-snout-button`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-snout-button",
+          "parts": [],
+          "version": 20295,
+          "ops": [
+            {
+              "sdf": {
+                "name": "nose_raw",
+                "shapes": [
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0,
+                      -0.0224,
+                      -0.2744
+                    ],
+                    "radius": [
+                      0.0308
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "nose",
+                "input": "nose_raw",
+                "tris": 60
+              }
+            },
+            {
+              "visibility": {
+                "name": "nose_raw",
+                "input": "nose_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "nose",
+                "input": "nose",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-nose",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 3,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nv",
+                        "to": [
+                          0.98,
+                          1.01
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#5a3438",
+                        "b": "nv",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.18,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "material `nose` <- `nose` pbr=pp-nose",
+        "author": "people"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

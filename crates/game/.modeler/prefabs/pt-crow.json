@@ -1,0 +1,3895 @@
+{
+  "format_version": 1,
+  "name": "pt-crow",
+  "parts": [],
+  "version": 18370,
+  "ops": [
+    {
+      "sdf": {
+        "name": "body_hi",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.32,
+              0.02
+            ],
+            "size": [
+              0.29,
+              0.27,
+              0.37
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.62,
+              -0.28
+            ],
+            "radius": [
+              0.2
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.05,
+            "at": [
+              0.0,
+              0.4,
+              0.48
+            ],
+            "rotation": [
+              -0.190809,
+              0.0,
+              0.0,
+              0.98162717
+            ],
+            "size": [
+              0.15,
+              0.035,
+              0.2
+            ]
+          },
+          {
+            "shape": "capsule",
+            "blend": 0.03,
+            "radius": [
+              0.03,
+              0.012
+            ],
+            "from": [
+              0.03,
+              0.78,
+              -0.27
+            ],
+            "to": [
+              0.06,
+              0.88,
+              -0.24
+            ]
+          }
+        ],
+        "blend": 0.06,
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "body",
+        "input": "body_hi",
+        "tris": 424
+      }
+    },
+    {
+      "sdf": {
+        "name": "wings_hi",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.245,
+              0.36,
+              0.07
+            ],
+            "rotation": [
+              -0.10374933,
+              0.0127388155,
+              -0.12120174,
+              0.9871089
+            ],
+            "size": [
+              0.07,
+              0.17,
+              0.28
+            ]
+          }
+        ],
+        "blend": 0.02,
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "wings",
+        "input": "wings_hi",
+        "tris": 120
+      }
+    },
+    {
+      "sdf": {
+        "name": "beak_top_hi",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.06,
+              0.008
+            ],
+            "from": [
+              0.0,
+              0.6,
+              -0.42
+            ],
+            "to": [
+              0.0,
+              0.575,
+              -0.64
+            ]
+          }
+        ],
+        "blend": 0.0
+      }
+    },
+    {
+      "decimate": {
+        "name": "beak_top",
+        "input": "beak_top_hi",
+        "tris": 40
+      }
+    },
+    {
+      "sdf": {
+        "name": "beak_bot_hi",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.038,
+              0.008
+            ],
+            "from": [
+              0.0,
+              0.555,
+              -0.42
+            ],
+            "to": [
+              0.0,
+              0.555,
+              -0.58
+            ]
+          }
+        ],
+        "blend": 0.0
+      }
+    },
+    {
+      "decimate": {
+        "name": "beak_bot",
+        "input": "beak_bot_hi",
+        "tris": 32
+      }
+    },
+    {
+      "sdf": {
+        "name": "legs_hi",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.02
+            ],
+            "from": [
+              0.08,
+              0.16,
+              0.0
+            ],
+            "to": [
+              0.08,
+              0.026,
+              0.0
+            ]
+          },
+          {
+            "shape": "capsule",
+            "radius": [
+              0.016
+            ],
+            "from": [
+              0.08,
+              0.024,
+              0.0
+            ],
+            "to": [
+              0.08,
+              0.024,
+              -0.09
+            ]
+          },
+          {
+            "shape": "capsule",
+            "radius": [
+              0.016
+            ],
+            "from": [
+              0.08,
+              0.024,
+              0.0
+            ],
+            "to": [
+              0.14,
+              0.024,
+              -0.07
+            ]
+          },
+          {
+            "shape": "capsule",
+            "radius": [
+              0.016
+            ],
+            "from": [
+              0.08,
+              0.024,
+              0.0
+            ],
+            "to": [
+              0.02,
+              0.024,
+              -0.07
+            ]
+          },
+          {
+            "shape": "capsule",
+            "radius": [
+              0.016
+            ],
+            "from": [
+              0.08,
+              0.024,
+              0.0
+            ],
+            "to": [
+              0.08,
+              0.024,
+              0.04
+            ]
+          }
+        ],
+        "blend": 0.012,
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "legs",
+        "input": "legs_hi",
+        "tris": 100
+      }
+    },
+    {
+      "sdf": {
+        "name": "eyes_hi",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.088,
+              0.67,
+              -0.425
+            ],
+            "radius": [
+              0.058
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "eyes",
+        "input": "eyes_hi",
+        "tris": 48
+      }
+    },
+    {
+      "sdf": {
+        "name": "pupils_hi",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.093,
+              0.672,
+              -0.468
+            ],
+            "radius": [
+              0.034
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "pupils",
+        "input": "pupils_hi",
+        "tris": 32
+      }
+    },
+    {
+      "visibility": {
+        "name": "body_hi",
+        "input": "body_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wings_hi",
+        "input": "wings_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "beak_top_hi",
+        "input": "beak_top_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "beak_bot_hi",
+        "input": "beak_bot_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "legs_hi",
+        "input": "legs_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "eyes_hi",
+        "input": "eyes_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "pupils_hi",
+        "input": "pupils_hi",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-knit-crow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 402.1239,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 201.06195,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "asu",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "a": "asu",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "w",
+                "name": "w01",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "w01",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#181825"
+                  ],
+                  [
+                    1,
+                    "#222235"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.07
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "w01",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wings",
+        "input": "wings",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-knit-crow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 402.1239,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 201.06195,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "asu",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "a": "asu",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "w",
+                "name": "w01",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "w01",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#181825"
+                  ],
+                  [
+                    1,
+                    "#222235"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.07
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "w01",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "beak_top",
+        "input": "beak_top",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-beak",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#f2b233",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "beak_bot",
+        "input": "beak_bot",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-beak",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#f2b233",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "legs",
+        "input": "legs",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-beak",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#f2b233",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eyes",
+        "input": "eyes",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-eye-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#fafaf5",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.15,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pupils",
+        "input": "pupils",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-eye-pupil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#0a0a0f",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.1,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "skeleton": {
+        "name": "rig",
+        "bones": [
+          {
+            "name": "body",
+            "parent": "root",
+            "head": [
+              0.0,
+              0.3,
+              0.02
+            ],
+            "tail": [
+              0.0,
+              0.45,
+              0.02
+            ],
+            "radius": 0.28
+          },
+          {
+            "name": "head",
+            "parent": "body",
+            "head": [
+              0.0,
+              0.5,
+              -0.2
+            ],
+            "tail": [
+              0.0,
+              0.82,
+              -0.3
+            ],
+            "radius": 0.2
+          },
+          {
+            "name": "jaw",
+            "parent": "head",
+            "head": [
+              0.0,
+              0.56,
+              -0.42
+            ],
+            "tail": [
+              0.0,
+              0.555,
+              -0.58
+            ],
+            "radius": 0.03
+          },
+          {
+            "name": "leg_l",
+            "parent": "root",
+            "head": [
+              0.08,
+              0.17,
+              0.0
+            ],
+            "tail": [
+              0.08,
+              0.0,
+              0.0
+            ],
+            "radius": 0.03
+          },
+          {
+            "name": "root",
+            "head": [
+              0.0,
+              0.0,
+              0.02
+            ],
+            "tail": [
+              0.0,
+              0.12,
+              0.02
+            ],
+            "radius": 0.05
+          },
+          {
+            "name": "tail",
+            "parent": "body",
+            "head": [
+              0.0,
+              0.38,
+              0.3
+            ],
+            "tail": [
+              0.0,
+              0.46,
+              0.66
+            ],
+            "radius": 0.08
+          },
+          {
+            "name": "wing_l",
+            "parent": "body",
+            "head": [
+              0.24,
+              0.48,
+              0.0
+            ],
+            "tail": [
+              0.27,
+              0.26,
+              0.25
+            ],
+            "radius": 0.08
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_body",
+        "skeleton": "rig",
+        "parts": [
+          "body"
+        ],
+        "mode": "smooth",
+        "blend": 0.14,
+        "paint": [
+          {
+            "bone": "head",
+            "min": [
+              -1.0,
+              0.7,
+              -1.0
+            ],
+            "max": [
+              1.0,
+              2.0,
+              1.0
+            ]
+          },
+          {
+            "bone": "tail",
+            "min": [
+              -1.0,
+              0.0,
+              0.42
+            ],
+            "max": [
+              1.0,
+              2.0,
+              2.0
+            ]
+          },
+          {
+            "bone": "body",
+            "min": [
+              -1.0,
+              -1.0,
+              -0.45
+            ],
+            "max": [
+              1.0,
+              0.45,
+              0.32
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_wings",
+        "skeleton": "rig",
+        "parts": [
+          "wings"
+        ],
+        "mode": "smooth",
+        "paint": [
+          {
+            "bone": "wing_l",
+            "min": [
+              0.0,
+              -1.0,
+              -2.0
+            ],
+            "max": [
+              2.0,
+              2.0,
+              2.0
+            ]
+          },
+          {
+            "bone": "wing_r",
+            "min": [
+              -2.0,
+              -1.0,
+              -2.0
+            ],
+            "max": [
+              0.0,
+              2.0,
+              2.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_legs",
+        "skeleton": "rig",
+        "parts": [
+          "legs"
+        ],
+        "mode": "smooth",
+        "paint": [
+          {
+            "bone": "leg_l",
+            "min": [
+              0.0,
+              -1.0,
+              -2.0
+            ],
+            "max": [
+              2.0,
+              2.0,
+              2.0
+            ]
+          },
+          {
+            "bone": "leg_r",
+            "min": [
+              -2.0,
+              -1.0,
+              -2.0
+            ],
+            "max": [
+              0.0,
+              2.0,
+              2.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_face",
+        "skeleton": "rig",
+        "parts": [
+          "beak_top",
+          "eyes",
+          "pupils"
+        ],
+        "bone": "head",
+        "mode": "rigid"
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_jaw",
+        "skeleton": "rig",
+        "parts": [
+          "beak_bot"
+        ],
+        "bone": "jaw",
+        "mode": "rigid"
+      }
+    },
+    {
+      "clip": {
+        "name": "idle",
+        "skeleton": "rig",
+        "duration": 3.0,
+        "loop": true,
+        "tracks": {
+          "body": {
+            "scale": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    1.5,
+                    [
+                      1.03,
+                      1.04,
+                      1.03,
+                      0.0
+                    ]
+                  ],
+                  [
+                    3.0,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "head": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.6,
+                    [
+                      0.0,
+                      0.12186935,
+                      0.0,
+                      0.99254614
+                    ]
+                  ],
+                  [
+                    1.2,
+                    [
+                      0.0,
+                      0.12186935,
+                      0.0,
+                      0.99254614
+                    ]
+                  ],
+                  [
+                    1.6,
+                    [
+                      0.052049257,
+                      -0.10438521,
+                      0.0054705977,
+                      0.99315894
+                    ]
+                  ],
+                  [
+                    2.4,
+                    [
+                      0.052049257,
+                      -0.10438521,
+                      0.0054705977,
+                      0.99315894
+                    ]
+                  ],
+                  [
+                    3.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "tail": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "amount": 6.0,
+                "period": 1.5,
+                "phase": 0.0
+              }
+            }
+          },
+          "wing_l": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "amount": 3.0,
+                "period": 3.0,
+                "phase": 0.0
+              }
+            }
+          }
+        },
+        "mirror": {
+          "wing_r": {
+            "from": "wing_l",
+            "phase": 0.0
+          }
+        }
+      }
+    },
+    {
+      "clip": {
+        "name": "hop",
+        "skeleton": "rig",
+        "duration": 2.0944,
+        "loop": true,
+        "tracks": {
+          "body": {
+            "scale": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.1,
+                    [
+                      0.96,
+                      1.05,
+                      0.96,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.95,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    1.12,
+                    [
+                      1.07,
+                      0.92,
+                      1.07,
+                      0.0
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    2.0944,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "head": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.4,
+                    [
+                      -0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      0.08715574,
+                      0.0,
+                      0.0,
+                      0.9961947
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    1.8,
+                    [
+                      0.0,
+                      0.104528464,
+                      0.0,
+                      0.9945219
+                    ]
+                  ],
+                  [
+                    2.0944,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "leg_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.15,
+                    [
+                      0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    0.85,
+                    [
+                      0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    1.05,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    2.0944,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "tail": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.3,
+                    [
+                      0.12186935,
+                      0.0,
+                      0.0,
+                      0.99254614
+                    ]
+                  ],
+                  [
+                    0.9,
+                    [
+                      -0.05233596,
+                      0.0,
+                      0.0,
+                      0.9986295
+                    ]
+                  ],
+                  [
+                    1.15,
+                    [
+                      0.08715574,
+                      0.0,
+                      0.0,
+                      0.9961947
+                    ]
+                  ],
+                  [
+                    1.5,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    2.0944,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "wing_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.2,
+                    [
+                      0.0,
+                      0.0,
+                      0.4617486,
+                      0.8870108
+                    ]
+                  ],
+                  [
+                    0.4,
+                    [
+                      0.0,
+                      0.0,
+                      0.1305262,
+                      0.9914449
+                    ]
+                  ],
+                  [
+                    0.6,
+                    [
+                      0.0,
+                      0.0,
+                      0.4617486,
+                      0.8870108
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      0.0,
+                      0.0,
+                      0.1305262,
+                      0.9914449
+                    ]
+                  ],
+                  [
+                    1.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    2.0944,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          }
+        },
+        "mirror": {
+          "leg_r": {
+            "from": "leg_l",
+            "phase": 0.0
+          },
+          "wing_r": {
+            "from": "wing_l",
+            "phase": 0.0
+          }
+        }
+      }
+    },
+    {
+      "clip": {
+        "name": "caw",
+        "skeleton": "rig",
+        "duration": 0.6,
+        "loop": false,
+        "tracks": {
+          "body": {
+            "scale": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.12,
+                    [
+                      1.12,
+                      1.1,
+                      1.12,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.45,
+                    [
+                      1.12,
+                      1.1,
+                      1.12,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.6,
+                    [
+                      1.0,
+                      1.0,
+                      1.0,
+                      0.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "head": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.12,
+                    [
+                      0.17364818,
+                      0.0,
+                      0.0,
+                      0.9848077
+                    ]
+                  ],
+                  [
+                    0.45,
+                    [
+                      0.17364818,
+                      0.0,
+                      0.0,
+                      0.9848077
+                    ]
+                  ],
+                  [
+                    0.6,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "jaw": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.1,
+                    [
+                      -0.3007058,
+                      0.0,
+                      0.0,
+                      0.95371693
+                    ]
+                  ],
+                  [
+                    0.2,
+                    [
+                      -0.08715574,
+                      0.0,
+                      0.0,
+                      0.9961947
+                    ]
+                  ],
+                  [
+                    0.3,
+                    [
+                      -0.3007058,
+                      0.0,
+                      0.0,
+                      0.95371693
+                    ]
+                  ],
+                  [
+                    0.45,
+                    [
+                      -0.17364818,
+                      0.0,
+                      0.0,
+                      0.9848077
+                    ]
+                  ],
+                  [
+                    0.6,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "tail": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.12,
+                    [
+                      0.17364818,
+                      0.0,
+                      0.0,
+                      0.9848077
+                    ]
+                  ],
+                  [
+                    0.45,
+                    [
+                      0.17364818,
+                      0.0,
+                      0.0,
+                      0.9848077
+                    ]
+                  ],
+                  [
+                    0.6,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "wing_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.12,
+                    [
+                      0.0,
+                      0.0,
+                      0.25881904,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    0.45,
+                    [
+                      0.0,
+                      0.0,
+                      0.25881904,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    0.6,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          }
+        },
+        "mirror": {
+          "wing_r": {
+            "from": "wing_l",
+            "phase": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pt-crow",
+          "parts": [],
+          "version": 17761,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pt-crow`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pt-crow",
+          "parts": [],
+          "version": 18366,
+          "ops": [
+            {
+              "sdf": {
+                "name": "body_hi",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.0,
+                      0.32,
+                      0.02
+                    ],
+                    "size": [
+                      0.29,
+                      0.27,
+                      0.37
+                    ]
+                  },
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0,
+                      0.62,
+                      -0.28
+                    ],
+                    "radius": [
+                      0.2
+                    ]
+                  },
+                  {
+                    "shape": "ellipsoid",
+                    "blend": 0.05,
+                    "at": [
+                      0.0,
+                      0.4,
+                      0.48
+                    ],
+                    "rotation": [
+                      -0.190809,
+                      0.0,
+                      0.0,
+                      0.98162717
+                    ],
+                    "size": [
+                      0.15,
+                      0.035,
+                      0.2
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "blend": 0.03,
+                    "radius": [
+                      0.03,
+                      0.012
+                    ],
+                    "from": [
+                      0.03,
+                      0.78,
+                      -0.27
+                    ],
+                    "to": [
+                      0.06,
+                      0.88,
+                      -0.24
+                    ]
+                  }
+                ],
+                "blend": 0.06,
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "body",
+                "input": "body_hi",
+                "tris": 424
+              }
+            },
+            {
+              "sdf": {
+                "name": "wings_hi",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.245,
+                      0.36,
+                      0.07
+                    ],
+                    "rotation": [
+                      -0.10374933,
+                      0.0127388155,
+                      -0.12120174,
+                      0.9871089
+                    ],
+                    "size": [
+                      0.07,
+                      0.17,
+                      0.28
+                    ]
+                  }
+                ],
+                "blend": 0.02,
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "wings",
+                "input": "wings_hi",
+                "tris": 120
+              }
+            },
+            {
+              "sdf": {
+                "name": "beak_top_hi",
+                "shapes": [
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.06,
+                      0.008
+                    ],
+                    "from": [
+                      0.0,
+                      0.6,
+                      -0.42
+                    ],
+                    "to": [
+                      0.0,
+                      0.575,
+                      -0.64
+                    ]
+                  }
+                ],
+                "blend": 0.0
+              }
+            },
+            {
+              "decimate": {
+                "name": "beak_top",
+                "input": "beak_top_hi",
+                "tris": 40
+              }
+            },
+            {
+              "sdf": {
+                "name": "beak_bot_hi",
+                "shapes": [
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.038,
+                      0.008
+                    ],
+                    "from": [
+                      0.0,
+                      0.555,
+                      -0.42
+                    ],
+                    "to": [
+                      0.0,
+                      0.555,
+                      -0.58
+                    ]
+                  }
+                ],
+                "blend": 0.0
+              }
+            },
+            {
+              "decimate": {
+                "name": "beak_bot",
+                "input": "beak_bot_hi",
+                "tris": 32
+              }
+            },
+            {
+              "sdf": {
+                "name": "legs_hi",
+                "shapes": [
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.02
+                    ],
+                    "from": [
+                      0.08,
+                      0.16,
+                      0.0
+                    ],
+                    "to": [
+                      0.08,
+                      0.026,
+                      0.0
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.016
+                    ],
+                    "from": [
+                      0.08,
+                      0.024,
+                      0.0
+                    ],
+                    "to": [
+                      0.08,
+                      0.024,
+                      -0.09
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.016
+                    ],
+                    "from": [
+                      0.08,
+                      0.024,
+                      0.0
+                    ],
+                    "to": [
+                      0.14,
+                      0.024,
+                      -0.07
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.016
+                    ],
+                    "from": [
+                      0.08,
+                      0.024,
+                      0.0
+                    ],
+                    "to": [
+                      0.02,
+                      0.024,
+                      -0.07
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "radius": [
+                      0.016
+                    ],
+                    "from": [
+                      0.08,
+                      0.024,
+                      0.0
+                    ],
+                    "to": [
+                      0.08,
+                      0.024,
+                      0.04
+                    ]
+                  }
+                ],
+                "blend": 0.012,
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "legs",
+                "input": "legs_hi",
+                "tris": 100
+              }
+            },
+            {
+              "sdf": {
+                "name": "eyes_hi",
+                "shapes": [
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.088,
+                      0.67,
+                      -0.425
+                    ],
+                    "radius": [
+                      0.058
+                    ]
+                  }
+                ],
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "eyes",
+                "input": "eyes_hi",
+                "tris": 48
+              }
+            },
+            {
+              "sdf": {
+                "name": "pupils_hi",
+                "shapes": [
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.093,
+                      0.672,
+                      -0.468
+                    ],
+                    "radius": [
+                      0.034
+                    ]
+                  }
+                ],
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "pupils",
+                "input": "pupils_hi",
+                "tris": 32
+              }
+            },
+            {
+              "visibility": {
+                "name": "body_hi",
+                "input": "body_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "wings_hi",
+                "input": "wings_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "beak_top_hi",
+                "input": "beak_top_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "beak_bot_hi",
+                "input": "beak_bot_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "legs_hi",
+                "input": "legs_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "eyes_hi",
+                "input": "eyes_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "pupils_hi",
+                "input": "pupils_hi",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "body",
+                "input": "body",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pt-knit-crow",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 402.1239,
+                        "name": "ux",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.06195,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "asu",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "a": "asu",
+                        "b": "sv",
+                        "name": "w",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          -1,
+                          1
+                        ],
+                        "input": "w",
+                        "name": "w01",
+                        "to": [
+                          0,
+                          1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 3,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "w01",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#181825"
+                          ],
+                          [
+                            1,
+                            "#222235"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.07
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "w01",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.6,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "wings",
+                "input": "wings",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pt-knit-crow",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 402.1239,
+                        "name": "ux",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.06195,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "asu",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "a": "asu",
+                        "b": "sv",
+                        "name": "w",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          -1,
+                          1
+                        ],
+                        "input": "w",
+                        "name": "w01",
+                        "to": [
+                          0,
+                          1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 3,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "w01",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#181825"
+                          ],
+                          [
+                            1,
+                            "#222235"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.07
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "w01",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.6,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "beak_top",
+                "input": "beak_top",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pt-beak",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.94,
+                          1.04
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#f2b233",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.45,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "beak_bot",
+                "input": "beak_bot",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pt-beak",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.94,
+                          1.04
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#f2b233",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.45,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "legs",
+                "input": "legs",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pt-beak",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.94,
+                          1.04
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#f2b233",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.45,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "eyes",
+                "input": "eyes",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pt-eye-white",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.94,
+                          1.04
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#fafaf5",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.15,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "pupils",
+                "input": "pupils",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pt-eye-pupil",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.94,
+                          1.04
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#0a0a0f",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.1,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "skeleton": {
+                "name": "rig",
+                "bones": [
+                  {
+                    "name": "body",
+                    "parent": "root",
+                    "head": [
+                      0.0,
+                      0.3,
+                      0.02
+                    ],
+                    "tail": [
+                      0.0,
+                      0.45,
+                      0.02
+                    ],
+                    "radius": 0.28
+                  },
+                  {
+                    "name": "head",
+                    "parent": "body",
+                    "head": [
+                      0.0,
+                      0.5,
+                      -0.2
+                    ],
+                    "tail": [
+                      0.0,
+                      0.82,
+                      -0.3
+                    ],
+                    "radius": 0.2
+                  },
+                  {
+                    "name": "jaw",
+                    "parent": "head",
+                    "head": [
+                      0.0,
+                      0.56,
+                      -0.42
+                    ],
+                    "tail": [
+                      0.0,
+                      0.555,
+                      -0.58
+                    ],
+                    "radius": 0.03
+                  },
+                  {
+                    "name": "leg_l",
+                    "parent": "root",
+                    "head": [
+                      0.08,
+                      0.17,
+                      0.0
+                    ],
+                    "tail": [
+                      0.08,
+                      0.0,
+                      0.0
+                    ],
+                    "radius": 0.03
+                  },
+                  {
+                    "name": "root",
+                    "head": [
+                      0.0,
+                      0.0,
+                      0.02
+                    ],
+                    "tail": [
+                      0.0,
+                      0.12,
+                      0.02
+                    ],
+                    "radius": 0.05
+                  },
+                  {
+                    "name": "tail",
+                    "parent": "body",
+                    "head": [
+                      0.0,
+                      0.38,
+                      0.3
+                    ],
+                    "tail": [
+                      0.0,
+                      0.46,
+                      0.66
+                    ],
+                    "radius": 0.08
+                  },
+                  {
+                    "name": "wing_l",
+                    "parent": "body",
+                    "head": [
+                      0.24,
+                      0.48,
+                      0.0
+                    ],
+                    "tail": [
+                      0.27,
+                      0.26,
+                      0.25
+                    ],
+                    "radius": 0.08
+                  }
+                ],
+                "mirror": "x"
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_body",
+                "skeleton": "rig",
+                "parts": [
+                  "body"
+                ],
+                "mode": "smooth",
+                "blend": 0.14,
+                "paint": [
+                  {
+                    "bone": "head",
+                    "min": [
+                      -1.0,
+                      0.7,
+                      -1.0
+                    ],
+                    "max": [
+                      1.0,
+                      2.0,
+                      1.0
+                    ]
+                  },
+                  {
+                    "bone": "tail",
+                    "min": [
+                      -1.0,
+                      0.0,
+                      0.42
+                    ],
+                    "max": [
+                      1.0,
+                      2.0,
+                      2.0
+                    ]
+                  },
+                  {
+                    "bone": "body",
+                    "min": [
+                      -1.0,
+                      -1.0,
+                      -0.45
+                    ],
+                    "max": [
+                      1.0,
+                      0.45,
+                      0.32
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_wings",
+                "skeleton": "rig",
+                "parts": [
+                  "wings"
+                ],
+                "mode": "smooth",
+                "paint": [
+                  {
+                    "bone": "wing_l",
+                    "min": [
+                      0.0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "max": [
+                      2.0,
+                      2.0,
+                      2.0
+                    ]
+                  },
+                  {
+                    "bone": "wing_r",
+                    "min": [
+                      -2.0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "max": [
+                      0.0,
+                      2.0,
+                      2.0
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_legs",
+                "skeleton": "rig",
+                "parts": [
+                  "legs"
+                ],
+                "mode": "smooth",
+                "paint": [
+                  {
+                    "bone": "leg_l",
+                    "min": [
+                      0.0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "max": [
+                      2.0,
+                      2.0,
+                      2.0
+                    ]
+                  },
+                  {
+                    "bone": "leg_r",
+                    "min": [
+                      -2.0,
+                      -1.0,
+                      -2.0
+                    ],
+                    "max": [
+                      0.0,
+                      2.0,
+                      2.0
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_face",
+                "skeleton": "rig",
+                "parts": [
+                  "beak_top",
+                  "eyes",
+                  "pupils"
+                ],
+                "bone": "head",
+                "mode": "rigid"
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_jaw",
+                "skeleton": "rig",
+                "parts": [
+                  "beak_bot"
+                ],
+                "bone": "jaw",
+                "mode": "rigid"
+              }
+            },
+            {
+              "clip": {
+                "name": "idle",
+                "skeleton": "rig",
+                "duration": 3.0,
+                "loop": true,
+                "tracks": {
+                  "body": {
+                    "scale": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            1.5,
+                            [
+                              1.03,
+                              1.04,
+                              1.03,
+                              0.0
+                            ]
+                          ],
+                          [
+                            3.0,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "head": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.6,
+                            [
+                              0.0,
+                              0.12186935,
+                              0.0,
+                              0.99254614
+                            ]
+                          ],
+                          [
+                            1.2,
+                            [
+                              0.0,
+                              0.12186935,
+                              0.0,
+                              0.99254614
+                            ]
+                          ],
+                          [
+                            1.6,
+                            [
+                              0.052049257,
+                              -0.10438521,
+                              0.0054705977,
+                              0.99315894
+                            ]
+                          ],
+                          [
+                            2.4,
+                            [
+                              0.052049257,
+                              -0.10438521,
+                              0.0054705977,
+                              0.99315894
+                            ]
+                          ],
+                          [
+                            3.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "tail": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          1.0,
+                          0.0,
+                          0.0
+                        ],
+                        "amount": 6.0,
+                        "period": 1.5,
+                        "phase": 0.0
+                      }
+                    }
+                  },
+                  "wing_l": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          0.0,
+                          1.0
+                        ],
+                        "amount": 3.0,
+                        "period": 3.0,
+                        "phase": 0.0
+                      }
+                    }
+                  }
+                },
+                "mirror": {
+                  "wing_r": {
+                    "from": "wing_l",
+                    "phase": 0.0
+                  }
+                }
+              }
+            },
+            {
+              "clip": {
+                "name": "hop",
+                "skeleton": "rig",
+                "duration": 2.0944,
+                "loop": true,
+                "tracks": {
+                  "body": {
+                    "scale": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.1,
+                            [
+                              0.96,
+                              1.05,
+                              0.96,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.95,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            1.12,
+                            [
+                              1.07,
+                              0.92,
+                              1.07,
+                              0.0
+                            ]
+                          ],
+                          [
+                            1.4,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            2.0944,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "head": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.4,
+                            [
+                              -0.06975647,
+                              0.0,
+                              0.0,
+                              0.9975641
+                            ]
+                          ],
+                          [
+                            1.1,
+                            [
+                              0.08715574,
+                              0.0,
+                              0.0,
+                              0.9961947
+                            ]
+                          ],
+                          [
+                            1.4,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            1.8,
+                            [
+                              0.0,
+                              0.104528464,
+                              0.0,
+                              0.9945219
+                            ]
+                          ],
+                          [
+                            2.0944,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "leg_l": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.15,
+                            [
+                              0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            0.85,
+                            [
+                              0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            1.05,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            2.0944,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "tail": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.3,
+                            [
+                              0.12186935,
+                              0.0,
+                              0.0,
+                              0.99254614
+                            ]
+                          ],
+                          [
+                            0.9,
+                            [
+                              -0.05233596,
+                              0.0,
+                              0.0,
+                              0.9986295
+                            ]
+                          ],
+                          [
+                            1.15,
+                            [
+                              0.08715574,
+                              0.0,
+                              0.0,
+                              0.9961947
+                            ]
+                          ],
+                          [
+                            1.5,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            2.0944,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "wing_l": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.2,
+                            [
+                              0.0,
+                              0.0,
+                              0.4617486,
+                              0.8870108
+                            ]
+                          ],
+                          [
+                            0.4,
+                            [
+                              0.0,
+                              0.0,
+                              0.1305262,
+                              0.9914449
+                            ]
+                          ],
+                          [
+                            0.6,
+                            [
+                              0.0,
+                              0.0,
+                              0.4617486,
+                              0.8870108
+                            ]
+                          ],
+                          [
+                            0.8,
+                            [
+                              0.0,
+                              0.0,
+                              0.1305262,
+                              0.9914449
+                            ]
+                          ],
+                          [
+                            1.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            2.0944,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  }
+                },
+                "mirror": {
+                  "leg_r": {
+                    "from": "leg_l",
+                    "phase": 0.0
+                  },
+                  "wing_r": {
+                    "from": "wing_l",
+                    "phase": 0.0
+                  }
+                }
+              }
+            },
+            {
+              "clip": {
+                "name": "caw",
+                "skeleton": "rig",
+                "duration": 0.6,
+                "loop": false,
+                "tracks": {
+                  "body": {
+                    "scale": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.12,
+                            [
+                              1.12,
+                              1.1,
+                              1.12,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.45,
+                            [
+                              1.12,
+                              1.1,
+                              1.12,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.6,
+                            [
+                              1.0,
+                              1.0,
+                              1.0,
+                              0.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "head": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.12,
+                            [
+                              0.17364818,
+                              0.0,
+                              0.0,
+                              0.9848077
+                            ]
+                          ],
+                          [
+                            0.45,
+                            [
+                              0.17364818,
+                              0.0,
+                              0.0,
+                              0.9848077
+                            ]
+                          ],
+                          [
+                            0.6,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "jaw": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.1,
+                            [
+                              -0.3007058,
+                              0.0,
+                              0.0,
+                              0.95371693
+                            ]
+                          ],
+                          [
+                            0.2,
+                            [
+                              -0.08715574,
+                              0.0,
+                              0.0,
+                              0.9961947
+                            ]
+                          ],
+                          [
+                            0.3,
+                            [
+                              -0.3007058,
+                              0.0,
+                              0.0,
+                              0.95371693
+                            ]
+                          ],
+                          [
+                            0.45,
+                            [
+                              -0.17364818,
+                              0.0,
+                              0.0,
+                              0.9848077
+                            ]
+                          ],
+                          [
+                            0.6,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "tail": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.12,
+                            [
+                              0.17364818,
+                              0.0,
+                              0.0,
+                              0.9848077
+                            ]
+                          ],
+                          [
+                            0.45,
+                            [
+                              0.17364818,
+                              0.0,
+                              0.0,
+                              0.9848077
+                            ]
+                          ],
+                          [
+                            0.6,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "wing_l": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.12,
+                            [
+                              0.0,
+                              0.0,
+                              0.25881904,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            0.45,
+                            [
+                              0.0,
+                              0.0,
+                              0.25881904,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            0.6,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  }
+                },
+                "mirror": {
+                  "wing_r": {
+                    "from": "wing_l",
+                    "phase": 0.0
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "decimate `body` <- `body_hi` tris=424",
+        "author": "pets"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

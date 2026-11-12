@@ -1,0 +1,126 @@
+{
+  "name": "fa-glossy",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 21,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "v",
+      "to": [
+        0.96,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "#f8f8f8",
+      "b": "v",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "r",
+      "to": [
+        0.18,
+        0.3
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "clearcoat": 0.4,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fa-glossy",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 21,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "v",
+              "to": [
+                0.96,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#f8f8f8",
+              "b": "v",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "r",
+              "to": [
+                0.18,
+                0.3
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "clearcoat": 0.4,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +v +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

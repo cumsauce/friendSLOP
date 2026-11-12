@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "tr-tree-3",
   "parts": [],
-  "version": 16315,
+  "version": 18084,
   "ops": [
     {
       "lsystem": {
@@ -595,6 +595,47 @@
           }
         }
       }
+    },
+    {
+      "skeleton": {
+        "name": "rig",
+        "bones": [],
+        "from": "tree_3",
+        "bone_length": 0.9,
+        "max_depth": 2,
+        "max_bones": 32
+      }
+    },
+    {
+      "bind": {
+        "name": "rig_bind",
+        "skeleton": "rig",
+        "parts": [
+          "tree_3",
+          "tree_3_leaves"
+        ],
+        "mode": "auto"
+      }
+    },
+    {
+      "sway": {
+        "name": "wind",
+        "skeleton": "rig",
+        "duration": 4.0,
+        "motion": {
+          "kind": "wind",
+          "direction": [
+            1.0,
+            0.0,
+            0.3
+          ],
+          "strength": 0.5,
+          "gust": 0.4,
+          "flutter": 0.5,
+          "frequency": 1.0,
+          "seed": 0
+        }
+      }
     }
   ],
   "annotations": [],
@@ -622,7 +663,7 @@
           "format_version": 1,
           "name": "tr-tree-3",
           "parts": [],
-          "version": 16304,
+          "version": 18084,
           "ops": [
             {
               "lsystem": {
@@ -1215,6 +1256,47 @@
                   }
                 }
               }
+            },
+            {
+              "skeleton": {
+                "name": "rig",
+                "bones": [],
+                "from": "tree_3",
+                "bone_length": 0.9,
+                "max_depth": 2,
+                "max_bones": 32
+              }
+            },
+            {
+              "bind": {
+                "name": "rig_bind",
+                "skeleton": "rig",
+                "parts": [
+                  "tree_3",
+                  "tree_3_leaves"
+                ],
+                "mode": "auto"
+              }
+            },
+            {
+              "sway": {
+                "name": "wind",
+                "skeleton": "rig",
+                "duration": 4.0,
+                "motion": {
+                  "kind": "wind",
+                  "direction": [
+                    1.0,
+                    0.0,
+                    0.3
+                  ],
+                  "strength": 0.5,
+                  "gust": 0.4,
+                  "flutter": 0.5,
+                  "frequency": 1.0,
+                  "seed": 0
+                }
+              }
             }
           ],
           "annotations": [],
@@ -1223,8 +1305,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "3 edits: lsystem `tree_3` axiom=\"!(R0)F(0.22)[/(15)&(125)!(0.13)F(0.5)][/(87)&(125)!(0.13)F(0.5)][/(159)&(125)!(0.13)F(0.5)][/(231)&(125)!(0.13)F(0.5)][/(303)&(125)!(0.13)F(0.5)]!(R1)F(h1)T(N,R2)\" rules=B(l,w,d)->C, B(l,w,d) : d > 0->!(w)F(l*0.5)[&(65)L(0.85)]/(180)[&(65)L(0.8)]!(w*0.85)F(l*0.5)[+(sp)B(l*k,w*0.6,d-1)][-(sp)B(l*k,w*0.6,d-1)]/(90)&(8)B(l*k2,w*0.65,d-1), C->[L(1)][&(60)L(0.9)]/(72)[&(60)L(0.85)]/(72)[&(60)L(0.95)]/(72)[&(60)L(0.9)]/(72)[&(60)L(0.85)], T(n,w)->!(w)F(s*0.7)[&(30)B(bl*0.75,w*0.6,2)]/(160)&(5)B(bl*0.8,w*0.7,2), T(n,w) : n > 0->!(w)F(s)[&(a+da*n)B(bl*(0.45+0.6*n/N)*(0.9+0.1*sin(n*1.7)),w*0.6,2)]/(137.5)T(n-1,w*0.88) iterations=12 angle=25 length=0.3 radius=0.08 seed=21 at=[0.0, -0.2, 0.0] … material `tree_3_leaves` <- `tree_3_leaves` pbr=tr-leaf-card",
-        "author": "trees2"
+        "label": "3 edits: skeleton `rig` from=`tree_3` … sway `wind` skeleton=`rig` wind strength=0.5 gust=0.4 flutter=0.5 dir=[1.0, 0.0, 0.3]",
+        "author": "treerig"
       }
     ],
     "current": 1

@@ -1,0 +1,812 @@
+{
+  "name": "fa-wing",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "coords": "wc",
+      "from": [
+        0.0,
+        0.0
+      ],
+      "mode": "radial",
+      "name": "rad",
+      "to": [
+        0.22,
+        0.0
+      ],
+      "type": "gradient"
+    },
+    {
+      "in": [
+        0.8,
+        0.88
+      ],
+      "input": "rad",
+      "name": "border",
+      "type": "levels"
+    },
+    {
+      "center": [
+        0.135,
+        0.06
+      ],
+      "coords": "wc",
+      "name": "spot1",
+      "radius": 0.024,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.085,
+        -0.075
+      ],
+      "coords": "wc",
+      "name": "spot2",
+      "radius": 0.019,
+      "type": "circle"
+    },
+    {
+      "a": "spot1",
+      "b": "spot2",
+      "name": "spots",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "mode": "fill",
+      "name": "spot_m",
+      "sdf": "spots",
+      "softness": 0.002,
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.135,
+        0.06
+      ],
+      "coords": "wc",
+      "name": "eye1",
+      "radius": 0.01,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.085,
+        -0.075
+      ],
+      "coords": "wc",
+      "name": "eye2",
+      "radius": 0.008,
+      "type": "circle"
+    },
+    {
+      "a": "eye1",
+      "b": "eye2",
+      "name": "eyes",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "mode": "fill",
+      "name": "eye_m",
+      "sdf": "eyes",
+      "softness": 0.002,
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 4,
+      "seed": 31,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nt",
+      "to": [
+        0.9,
+        1.03
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "#f6f4f0",
+      "b": "nt",
+      "name": "c0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#2a2420",
+      "c": "border",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#2a2420",
+      "c": "spot_m",
+      "name": "c2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "#fff8e8",
+      "c": "eye_m",
+      "name": "c3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "rootdk",
+      "b": 0.5,
+      "name": "rd",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c3",
+      "b": "#3a3028",
+      "c": "rd",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "double_sided": true,
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    },
+    {
+      "name": "pos",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "input": "pos",
+      "name": "ps",
+      "type": "split"
+    },
+    {
+      "a": "ps.x",
+      "name": "ax",
+      "op": "abs",
+      "type": "math"
+    },
+    {
+      "name": "wc",
+      "type": "combine",
+      "x": "ax",
+      "y": "ps.z"
+    },
+    {
+      "in": [
+        0.05,
+        0.25
+      ],
+      "input": "rad",
+      "name": "rootlit",
+      "type": "levels"
+    },
+    {
+      "a": "rootlit",
+      "name": "rootdk",
+      "op": "invert",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 3,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fa-wing",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "from": [
+                0.0,
+                0.45
+              ],
+              "mode": "radial",
+              "name": "rad",
+              "to": [
+                1.0,
+                0.45
+              ],
+              "type": "gradient"
+            },
+            {
+              "in": [
+                0.78,
+                0.84
+              ],
+              "input": "rad",
+              "name": "border",
+              "type": "levels"
+            },
+            {
+              "center": [
+                0.62,
+                0.3
+              ],
+              "name": "spot1",
+              "radius": 0.075,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.55,
+                0.72
+              ],
+              "name": "spot2",
+              "radius": 0.06,
+              "type": "circle"
+            },
+            {
+              "a": "spot1",
+              "b": "spot2",
+              "name": "spots",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "spot_m",
+              "sdf": "spots",
+              "softness": 0.01,
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.62,
+                0.3
+              ],
+              "name": "eye1",
+              "radius": 0.032,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.55,
+                0.72
+              ],
+              "name": "eye2",
+              "radius": 0.025,
+              "type": "circle"
+            },
+            {
+              "a": "eye1",
+              "b": "eye2",
+              "name": "eyes",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "eye_m",
+              "sdf": "eyes",
+              "softness": 0.01,
+              "type": "mask"
+            },
+            {
+              "in": [
+                0.18,
+                0.0
+              ],
+              "input": "rad",
+              "name": "rootdark",
+              "type": "levels"
+            },
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                0.9,
+                1.03
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#f6f4f0",
+              "b": "nt",
+              "name": "c0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#2a2420",
+              "c": "border",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#2a2420",
+              "c": "spot_m",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#fff8e8",
+              "c": "eye_m",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rootdark",
+              "b": 0.5,
+              "name": "rd",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#3a3028",
+              "c": "rd",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "double_sided": true,
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+rad +border +spot1 +spot2 +spots +spot_m +eye1 +eye2 +eyes +eye_m +rootdark +n +nt +c0 +c1 +c2 +c3 +rd +col +out"
+      },
+      {
+        "model": {
+          "name": "fa-wing",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "from": [
+                0.0,
+                0.45
+              ],
+              "mode": "radial",
+              "name": "rad",
+              "to": [
+                1.0,
+                0.45
+              ],
+              "type": "gradient"
+            },
+            {
+              "in": [
+                0.78,
+                0.84
+              ],
+              "input": "rad",
+              "name": "border",
+              "type": "levels"
+            },
+            {
+              "center": [
+                0.62,
+                0.3
+              ],
+              "name": "spot1",
+              "radius": 0.09,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.55,
+                0.72
+              ],
+              "name": "spot2",
+              "radius": 0.07,
+              "type": "circle"
+            },
+            {
+              "a": "spot1",
+              "b": "spot2",
+              "name": "spots",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "spot_m",
+              "sdf": "spots",
+              "softness": 0.01,
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.62,
+                0.3
+              ],
+              "name": "eye1",
+              "radius": 0.04,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.55,
+                0.72
+              ],
+              "name": "eye2",
+              "radius": 0.03,
+              "type": "circle"
+            },
+            {
+              "a": "eye1",
+              "b": "eye2",
+              "name": "eyes",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "eye_m",
+              "sdf": "eyes",
+              "softness": 0.01,
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                0.9,
+                1.03
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#f6f4f0",
+              "b": "nt",
+              "name": "c0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#2a2420",
+              "c": "border",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#2a2420",
+              "c": "spot_m",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#fff8e8",
+              "c": "eye_m",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rootdk",
+              "b": 0.5,
+              "name": "rd",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#3a3028",
+              "c": "rd",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "double_sided": true,
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            },
+            {
+              "in": [
+                0.0,
+                0.2
+              ],
+              "input": "rad",
+              "name": "rootlit",
+              "type": "levels"
+            },
+            {
+              "a": "rootlit",
+              "name": "rootdk",
+              "op": "invert",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "+rootlit +rootdk ~spot1 ~spot2 ~eye1 ~eye2 ~rd -rootdark"
+      },
+      {
+        "model": {
+          "name": "fa-wing",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "coords": "wc",
+              "from": [
+                0.0,
+                0.0
+              ],
+              "mode": "radial",
+              "name": "rad",
+              "to": [
+                0.22,
+                0.0
+              ],
+              "type": "gradient"
+            },
+            {
+              "in": [
+                0.8,
+                0.88
+              ],
+              "input": "rad",
+              "name": "border",
+              "type": "levels"
+            },
+            {
+              "center": [
+                0.135,
+                0.06
+              ],
+              "coords": "wc",
+              "name": "spot1",
+              "radius": 0.024,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.085,
+                -0.075
+              ],
+              "coords": "wc",
+              "name": "spot2",
+              "radius": 0.019,
+              "type": "circle"
+            },
+            {
+              "a": "spot1",
+              "b": "spot2",
+              "name": "spots",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "spot_m",
+              "sdf": "spots",
+              "softness": 0.002,
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.135,
+                0.06
+              ],
+              "coords": "wc",
+              "name": "eye1",
+              "radius": 0.01,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.085,
+                -0.075
+              ],
+              "coords": "wc",
+              "name": "eye2",
+              "radius": 0.008,
+              "type": "circle"
+            },
+            {
+              "a": "eye1",
+              "b": "eye2",
+              "name": "eyes",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "eye_m",
+              "sdf": "eyes",
+              "softness": 0.002,
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                0.9,
+                1.03
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#f6f4f0",
+              "b": "nt",
+              "name": "c0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#2a2420",
+              "c": "border",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#2a2420",
+              "c": "spot_m",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#fff8e8",
+              "c": "eye_m",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rootdk",
+              "b": 0.5,
+              "name": "rd",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#3a3028",
+              "c": "rd",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "double_sided": true,
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            },
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "ps",
+              "type": "split"
+            },
+            {
+              "a": "ps.x",
+              "name": "ax",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "name": "wc",
+              "type": "combine",
+              "x": "ax",
+              "y": "ps.z"
+            },
+            {
+              "in": [
+                0.05,
+                0.25
+              ],
+              "input": "rad",
+              "name": "rootlit",
+              "type": "levels"
+            },
+            {
+              "a": "rootlit",
+              "name": "rootdk",
+              "op": "invert",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [],
+        "label": "+pos +ps +ax +wc +rootlit +rootdk ~rad ~border ~spot1 ~spot2 ~spot_m ~eye1 ~eye2 ~eye_m -rootdk -rootlit"
+      }
+    ],
+    "current": 2
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "pt-eye-white",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 7,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nt",
+      "to": [
+        0.94,
+        1.04
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "#fafaf5",
+      "b": "nt",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.15,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pt-eye-white",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nt",
+              "to": [
+                0.94,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#fafaf5",
+              "b": "nt",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.15,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +nt +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

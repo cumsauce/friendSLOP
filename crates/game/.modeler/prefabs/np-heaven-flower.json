@@ -1,0 +1,893 @@
+{
+  "format_version": 1,
+  "name": "np-heaven-flower",
+  "parts": [],
+  "version": 20153,
+  "ops": [
+    {
+      "primitive": {
+        "name": "petal_src",
+        "kind": "sphere",
+        "size": [
+          0.045,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.05,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "transform": {
+        "name": "petal_s",
+        "input": "petal_src",
+        "translation": null,
+        "rotation": null,
+        "scale": [
+          1.0,
+          0.35,
+          0.7
+        ]
+      }
+    },
+    {
+      "radial_array": {
+        "name": "petals_ring",
+        "input": "petal_s",
+        "count": 5,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "group": {
+        "name": "petals_all",
+        "inputs": [
+          "petal_s",
+          "petals_ring_1",
+          "petals_ring_2",
+          "petals_ring_3",
+          "petals_ring_4"
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "petals",
+        "input": "petals_all",
+        "tris": 200
+      }
+    },
+    {
+      "primitive": {
+        "name": "eye_src",
+        "kind": "sphere",
+        "size": [
+          0.03,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.012,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "decimate": {
+        "name": "eye",
+        "input": "eye_src",
+        "tris": 48
+      }
+    },
+    {
+      "primitive": {
+        "name": "stem_src",
+        "kind": "cylinder",
+        "size": [
+          0.008,
+          0.07,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.035,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "decimate": {
+        "name": "stem",
+        "input": "stem_src",
+        "tris": 24
+      }
+    },
+    {
+      "visibility": {
+        "name": "petal_src",
+        "input": "petal_src",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "eye_src",
+        "input": "eye_src",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stem_src",
+        "input": "stem_src",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "petal_s",
+        "input": "petal_s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "petals_ring_1",
+        "input": "petals_ring_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "petals_ring_2",
+        "input": "petals_ring_2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "petals_ring_3",
+        "input": "petals_ring_3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "petals_ring_4",
+        "input": "petals_ring_4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "petals_all",
+        "input": "petals_all",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "petals",
+        "input": "petals",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "np-petal-pink",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#f4a8bf"
+                  ],
+                  [
+                    1,
+                    "#ffd0dc"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eye",
+        "input": "eye",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "np-pollen",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e0a020"
+                  ],
+                  [
+                    1,
+                    "#f8cc50"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stem",
+        "input": "stem",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3f6b22"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#8ab043"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.88,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "ft",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "ao",
+                "radius": 0.15,
+                "type": "mesh_ao"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "ao",
+                "name": "aot",
+                "to": [
+                  0.45,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c1",
+                "b": "aot",
+                "name": "c2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c2",
+                "b": "$light",
+                "name": "c3",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c4",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              },
+              {
+                "hue": "$hue",
+                "input": "c3",
+                "name": "c4",
+                "type": "hsv"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "light": 1.0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "np-heaven-flower",
+          "parts": [],
+          "version": 19343,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `np-heaven-flower`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "np-heaven-flower",
+          "parts": [],
+          "version": 20095,
+          "ops": [
+            {
+              "primitive": {
+                "name": "petal_src",
+                "kind": "sphere",
+                "size": [
+                  0.045,
+                  0.0,
+                  0.0
+                ],
+                "translation": [
+                  0.05,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "transform": {
+                "name": "petal_s",
+                "input": "petal_src",
+                "translation": null,
+                "rotation": null,
+                "scale": [
+                  1.0,
+                  0.35,
+                  0.7
+                ]
+              }
+            },
+            {
+              "radial_array": {
+                "name": "petals_ring",
+                "input": "petal_s",
+                "count": 5,
+                "center": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "degrees": 360.0,
+                "start_degrees": 0.0,
+                "axis": "y",
+                "include_source": true
+              }
+            },
+            {
+              "group": {
+                "name": "petals_all",
+                "inputs": [
+                  "petal_s",
+                  "petals_ring_1",
+                  "petals_ring_2",
+                  "petals_ring_3",
+                  "petals_ring_4"
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "petals",
+                "input": "petals_all",
+                "tris": 200
+              }
+            },
+            {
+              "primitive": {
+                "name": "eye_src",
+                "kind": "sphere",
+                "size": [
+                  0.03,
+                  0.0,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  0.012,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "decimate": {
+                "name": "eye",
+                "input": "eye_src",
+                "tris": 48
+              }
+            },
+            {
+              "primitive": {
+                "name": "stem_src",
+                "kind": "cylinder",
+                "size": [
+                  0.008,
+                  0.07,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  -0.035,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "decimate": {
+                "name": "stem",
+                "input": "stem_src",
+                "tris": 24
+              }
+            },
+            {
+              "visibility": {
+                "name": "petal_src",
+                "input": "petal_src",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "eye_src",
+                "input": "eye_src",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "stem_src",
+                "input": "stem_src",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "petal_s",
+                "input": "petal_s",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "petals_ring_1",
+                "input": "petals_ring_1",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "petals_ring_2",
+                "input": "petals_ring_2",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "petals_ring_3",
+                "input": "petals_ring_3",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "petals_ring_4",
+                "input": "petals_ring_4",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "petals_all",
+                "input": "petals_all",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "petals",
+                "input": "petals",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "np-petal-pink",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#f4a8bf"
+                          ],
+                          [
+                            1,
+                            "#ffd0dc"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": 0.0,
+                        "name": "out",
+                        "roughness": 0.85,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "eye",
+                "input": "eye",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "np-pollen",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "col",
+                        "stops": [
+                          [
+                            0,
+                            "#e0a020"
+                          ],
+                          [
+                            1,
+                            "#f8cc50"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "metallic": 0.0,
+                        "name": "out",
+                        "roughness": 0.85,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "stem",
+                "input": "stem",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "leaf",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "object",
+                    "tile": 1.0,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "p",
+                        "of": "position",
+                        "type": "input"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 22,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3f6b22"
+                          ],
+                          [
+                            0.5,
+                            "#5f8f2f"
+                          ],
+                          [
+                            1.0,
+                            "#8ab043"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.88,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "ft",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "name": "ao",
+                        "radius": 0.15,
+                        "type": "mesh_ao"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "ao",
+                        "name": "aot",
+                        "to": [
+                          0.45,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c1",
+                        "b": "aot",
+                        "name": "c2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "c2",
+                        "b": "$light",
+                        "name": "c3",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "c4",
+                        "name": "out",
+                        "roughness": 0.75,
+                        "type": "output"
+                      },
+                      {
+                        "hue": "$hue",
+                        "input": "c3",
+                        "name": "c4",
+                        "type": "hsv"
+                      }
+                    ],
+                    "params": {
+                      "hue": 0.0,
+                      "light": 1.0
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "3 edits: material `petals` <- `petals` pbr=np-petal-pink … material `stem` <- `stem` pbr=leaf",
+        "author": "npcs"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

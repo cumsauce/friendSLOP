@@ -4,8 +4,8 @@
 //! lantern bulbs along the paths between them. Purely local visuals, spawned
 //! identically on every peer; nothing here is replicated or collides. The
 //! jetty, log seats, light posts, reeds and lily pads are modeler models in
-//! `assets/models/scenery` (sources in `crates/game/.modeler/`); a missing
-//! file just draws nothing.
+//! `assets/models/scenery`, the ducks in `assets/models/creatures` (sources
+//! in `crates/game/.modeler/`); a missing file just draws nothing.
 
 use bevy::gltf::GltfAssetLabel;
 use bevy::light::NotShadowCaster;
@@ -263,67 +263,32 @@ fn dress_pond(
             ));
         });
 
-    // Two ducks paddling round.
-    let white = art::soft(&mut materials, Color::srgb(0.97, 0.96, 0.9));
-    let green = art::glossy(&mut materials, Color::srgb(0.1, 0.4, 0.2));
-    let orange = art::soft(&mut materials, Color::srgb(1.0, 0.6, 0.1));
-    let eye = art::glossy(&mut materials, Color::srgb(0.03, 0.03, 0.03));
-    let body = meshes.add(Sphere::new(0.16));
-    let head = meshes.add(Sphere::new(0.09));
-    let beak = meshes.add(Cuboid::new(0.08, 0.025, 0.06));
-    let dot = meshes.add(Sphere::new(0.015));
+    // Two ducks paddling round: a green-headed mallard and a white one,
+    // modeler models (`fa-duck`, `fa-duck-white`) facing +X with their
+    // origin at the waterline.
     for (i, (radius, speed)) in [(1.9_f32, 0.12_f32), (1.2, -0.09)].into_iter().enumerate() {
-        let head_mat = if i == 0 { green.clone() } else { white.clone() };
-        commands
-            .spawn((
-                Transform::from_xyz(c.x, WATER_Y, c.y),
-                Visibility::default(),
-                Duck {
-                    radius,
-                    speed,
-                    phase: i as f32 * 2.8 + 1.0,
-                },
-                Bob {
-                    y: WATER_Y,
-                    phase: i as f32 * 1.7,
-                },
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|d| {
-                // The duck faces +X; the paddle system yaws it along its path.
-                d.spawn((
-                    Mesh3d(body.clone()),
-                    MeshMaterial3d(white.clone()),
-                    Transform::from_xyz(0.0, 0.06, 0.0).with_scale(Vec3::new(1.4, 0.8, 1.0)),
-                    NotShadowCaster,
-                ));
-                d.spawn((
-                    Mesh3d(body.clone()),
-                    MeshMaterial3d(white.clone()),
-                    Transform::from_xyz(-0.18, 0.12, 0.0).with_scale(Vec3::new(0.35, 0.35, 0.35)),
-                    NotShadowCaster,
-                ));
-                d.spawn((
-                    Mesh3d(head.clone()),
-                    MeshMaterial3d(head_mat),
-                    Transform::from_xyz(0.15, 0.24, 0.0),
-                    NotShadowCaster,
-                ));
-                d.spawn((
-                    Mesh3d(beak.clone()),
-                    MeshMaterial3d(orange.clone()),
-                    Transform::from_xyz(0.25, 0.22, 0.0),
-                    NotShadowCaster,
-                ));
-                for z in [-0.06, 0.06] {
-                    d.spawn((
-                        Mesh3d(dot.clone()),
-                        MeshMaterial3d(eye.clone()),
-                        Transform::from_xyz(0.2, 0.27, z),
-                        NotShadowCaster,
-                    ));
-                }
-            });
+        let file = if i == 0 {
+            "models/creatures/duck.gltf"
+        } else {
+            "models/creatures/duck_white.gltf"
+        };
+        // The duck faces +X; the paddle system yaws it along its path.
+        commands.spawn((
+            WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset(file))),
+            Transform::from_xyz(c.x, WATER_Y, c.y),
+            Visibility::default(),
+            Duck {
+                radius,
+                speed,
+                phase: i as f32 * 2.8 + 1.0,
+            },
+            Bob {
+                y: WATER_Y,
+                phase: i as f32 * 1.7,
+            },
+            NoShadows,
+            DespawnOnExit(AppState::InGame),
+        ));
     }
 }
 

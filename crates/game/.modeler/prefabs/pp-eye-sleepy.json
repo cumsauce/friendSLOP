@@ -1,0 +1,935 @@
+{
+  "format_version": 1,
+  "name": "pp-eye-sleepy",
+  "parts": [],
+  "version": 20866,
+  "ops": [
+    {
+      "sdf": {
+        "name": "white_raw",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "radius": [
+              0.06
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "white",
+        "input": "white_raw",
+        "tris": 80
+      }
+    },
+    {
+      "sdf": {
+        "name": "pupil_raw",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              -0.003,
+              -0.03
+            ],
+            "radius": [
+              0.0372
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "pupil",
+        "input": "pupil_raw",
+        "tris": 50
+      }
+    },
+    {
+      "sdf": {
+        "name": "spark_raw",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.0168,
+              0.018,
+              -0.057
+            ],
+            "radius": [
+              0.0132
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "spark",
+        "input": "spark_raw",
+        "tris": 16
+      }
+    },
+    {
+      "sdf": {
+        "name": "lid_raw",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.03,
+              -0.006
+            ],
+            "size": [
+              0.0672,
+              0.039,
+              0.0672
+            ]
+          },
+          {
+            "shape": "box",
+            "op": "subtract",
+            "blend": 0.0,
+            "at": [
+              0.0,
+              -0.497,
+              0.0
+            ],
+            "size": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "round": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "lid",
+        "input": "lid_raw",
+        "tris": 50
+      }
+    },
+    {
+      "visibility": {
+        "name": "white_raw",
+        "input": "white_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "pupil_raw",
+        "input": "pupil_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "spark_raw",
+        "input": "spark_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "lid_raw",
+        "input": "lid_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "white",
+        "input": "white",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-eye-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.99,
+                  1.005
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#fafaf5",
+                "b": "nv",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.15,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pupil",
+        "input": "pupil",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-pupil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  1.0,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#0a0a10",
+                "b": "nv",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.12,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "spark",
+        "input": "spark",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-eye-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.99,
+                  1.005
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#fafaf5",
+                "b": "nv",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.15,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lid",
+        "input": "lid",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-felt",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fz",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.0025,
+                "type": "noise"
+              },
+              {
+                "name": "bl",
+                "octaves": 3,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fz",
+                "name": "fv",
+                "to": [
+                  0.88,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "bv",
+                "to": [
+                  0.94,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fv",
+                "b": "bv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": [
+                  0.97,
+                  0.97,
+                  0.97
+                ],
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.0005,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bl",
+                "b": 0.0012,
+                "name": "h2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h1",
+                "b": "h2",
+                "name": "hh",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.92,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-eye-sleepy",
+          "parts": [],
+          "version": 20154,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pp-eye-sleepy`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-eye-sleepy",
+          "parts": [],
+          "version": 20176,
+          "ops": [
+            {
+              "sdf": {
+                "name": "white_raw",
+                "shapes": [
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ],
+                    "radius": [
+                      0.06
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "white",
+                "input": "white_raw",
+                "tris": 80
+              }
+            },
+            {
+              "sdf": {
+                "name": "pupil_raw",
+                "shapes": [
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0,
+                      -0.003,
+                      -0.03
+                    ],
+                    "radius": [
+                      0.0372
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "pupil",
+                "input": "pupil_raw",
+                "tris": 50
+              }
+            },
+            {
+              "sdf": {
+                "name": "spark_raw",
+                "shapes": [
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0168,
+                      0.018,
+                      -0.057
+                    ],
+                    "radius": [
+                      0.0132
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "spark",
+                "input": "spark_raw",
+                "tris": 16
+              }
+            },
+            {
+              "sdf": {
+                "name": "lid_raw",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.0,
+                      0.03,
+                      -0.006
+                    ],
+                    "size": [
+                      0.0672,
+                      0.039,
+                      0.0672
+                    ]
+                  },
+                  {
+                    "shape": "box",
+                    "op": "subtract",
+                    "blend": 0.0,
+                    "at": [
+                      0.0,
+                      -0.497,
+                      0.0
+                    ],
+                    "size": [
+                      1.0,
+                      1.0,
+                      1.0
+                    ],
+                    "round": 0.0
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "lid",
+                "input": "lid_raw",
+                "tris": 50
+              }
+            },
+            {
+              "visibility": {
+                "name": "white_raw",
+                "input": "white_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "pupil_raw",
+                "input": "pupil_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "spark_raw",
+                "input": "spark_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "lid_raw",
+                "input": "lid_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "white",
+                "input": "white",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-eye-white",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 3,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nv",
+                        "to": [
+                          0.99,
+                          1.005
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#fafaf5",
+                        "b": "nv",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.15,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "pupil",
+                "input": "pupil",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-pupil",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 3,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nv",
+                        "to": [
+                          1.0,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#0a0a10",
+                        "b": "nv",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.12,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "spark",
+                "input": "spark",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-eye-white",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 3,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nv",
+                        "to": [
+                          0.99,
+                          1.005
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#fafaf5",
+                        "b": "nv",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.15,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "lid",
+                "input": "lid",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-felt",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "fz",
+                        "octaves": 3,
+                        "seed": 11,
+                        "size": 0.0025,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "bl",
+                        "octaves": 3,
+                        "seed": 13,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "fz",
+                        "name": "fv",
+                        "to": [
+                          0.88,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "bl",
+                        "name": "bv",
+                        "to": [
+                          0.94,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "fv",
+                        "b": "bv",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": [
+                          0.97,
+                          0.97,
+                          0.97
+                        ],
+                        "b": "c1",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "fz",
+                        "b": 0.0005,
+                        "name": "h1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "bl",
+                        "b": 0.0012,
+                        "name": "h2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h1",
+                        "b": "h2",
+                        "name": "hh",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.92,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "4 edits: material `white` <- `white` pbr=pp-eye-white … material `lid` <- `lid` pbr=pp-felt",
+        "author": "people"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "pn-dead-tree-1",
   "parts": [],
-  "version": 16427,
+  "version": 18118,
   "ops": [
     {
       "lsystem": {
@@ -177,6 +177,46 @@
           }
         }
       }
+    },
+    {
+      "skeleton": {
+        "name": "rig",
+        "bones": [],
+        "from": "dead_tree",
+        "bone_length": 0.9,
+        "max_depth": 2,
+        "max_bones": 32
+      }
+    },
+    {
+      "bind": {
+        "name": "rig_bind",
+        "skeleton": "rig",
+        "parts": [
+          "dead_tree"
+        ],
+        "mode": "auto"
+      }
+    },
+    {
+      "sway": {
+        "name": "wind",
+        "skeleton": "rig",
+        "duration": 4.0,
+        "motion": {
+          "kind": "wind",
+          "direction": [
+            1.0,
+            0.0,
+            0.3
+          ],
+          "strength": 0.5,
+          "gust": 0.4,
+          "flutter": 0.5,
+          "frequency": 1.0,
+          "seed": 0
+        }
+      }
     }
   ],
   "annotations": [],
@@ -204,7 +244,7 @@
           "format_version": 1,
           "name": "pn-dead-tree-1",
           "parts": [],
-          "version": 16427,
+          "version": 18109,
           "ops": [
             {
               "lsystem": {
@@ -379,6 +419,46 @@
                   }
                 }
               }
+            },
+            {
+              "skeleton": {
+                "name": "rig",
+                "bones": [],
+                "from": "dead_tree",
+                "bone_length": 0.9,
+                "max_depth": 2,
+                "max_bones": 32
+              }
+            },
+            {
+              "bind": {
+                "name": "rig_bind",
+                "skeleton": "rig",
+                "parts": [
+                  "dead_tree"
+                ],
+                "mode": "auto"
+              }
+            },
+            {
+              "sway": {
+                "name": "wind",
+                "skeleton": "rig",
+                "duration": 4.0,
+                "motion": {
+                  "kind": "wind",
+                  "direction": [
+                    1.0,
+                    0.0,
+                    0.3
+                  ],
+                  "strength": 0.5,
+                  "gust": 0.4,
+                  "flutter": 0.5,
+                  "frequency": 1.0,
+                  "seed": 0
+                }
+              }
             }
           ],
           "annotations": [],
@@ -387,8 +467,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "lsystem `dead_tree` axiom=\"!(0.40)[/(-12)&(92)!(0.24)F(0.38)^(6)!(0.15)F(0.33)+(-1)!(0.08)F(0.29)][/(50)&(92)!(0.24)F(0.40)^(6)!(0.15)F(0.35)+(1)!(0.08)F(0.30)][/(120)&(90)!(0.24)F(0.33)^(6)!(0.15)F(0.29)+(-6)!(0.08)F(0.25)][/(183)&(92)!(0.24)F(0.31)^(6)!(0.15)F(0.27)+(-13)!(0.08)F(0.23)][/(230)&(93)!(0.24)F(0.31)^(6)!(0.15)F(0.27)+(12)!(0.08)F(0.23)][/(314)&(90)!(0.24)F(0.37)^(6)!(0.15)F(0.33)+(-9)!(0.08)F(0.28)]!(0.34)F(1.40)+(7)!(0.31)F(1.05)-(11)/(60)!(0.29)F(1.05)[&(38)A(1.64,0.203)]/(150)[&(30)A(1.54,0.189)]/(140)^(4)A(2.05,0.270)\" rules=A(l,w) : l < 1.0->!(w)F(l*0.6)-(28)!(w*0.6)F(l*0.45)[+(38)!(w*0.45)F(l*0.4)^(20)F(l*0.2)]|!(w)F(l*0.5)+(30)!(w*0.6)F(l*0.5)^(22)!(w*0.45)F(l*0.3)[-(45)!(w*0.4)F(l*0.35)], A(l,w) : l >= 1.0->!(w)F(l*0.5)+(14)F(l*0.5)[&(44)A(l*0.7,w*0.64)]/(120)[&(50)A(l*0.62,w*0.58)]/(125)-(10)A(l*0.8,w*0.76)|!(w)F(l*0.45)-(18)F(l*0.45)+(12)[&(52)A(l*0.76,w*0.7)]/(180)&(14)A(l*0.8,w*0.74)|!(w)F(l*0.4)+(22)F(l*0.4)-(26)F(l*0.3)[&(40)A(l*0.66,w*0.6)]/(200)A(l*0.76,w*0.72) iterations=8 angle=25 length=0.3 radius=0.08 seed=21 at=[0.0, -0.04, 0.0]",
-        "author": "pines2"
+        "label": "3 edits: skeleton `rig` from=`dead_tree` … sway `wind` skeleton=`rig` wind strength=0.5 gust=0.4 flutter=0.5 dir=[1.0, 0.0, 0.3]",
+        "author": "treerig"
       }
     ],
     "current": 1

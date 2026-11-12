@@ -5,8 +5,10 @@
 //! A [`CharacterLook`] is plain data (body type, proportions, palette colours,
 //! face features, an accessory). Put it next to a [`Gait`] on any moving
 //! entity and [`plugin`] builds a little bone hierarchy under it (root -> hips
-//! -> spine -> head / arms, hips -> legs / tail) with shared primitive meshes
-//! parented to the bones, and animates the bones procedurally: a walk cycle
+//! -> spine -> head / arms, hips -> legs / tail) with modeler-made plush parts
+//! (`models/people/`, tinted from the look's palette; the old primitives stand
+//! in while they load or if a file is missing) parented to the bones, and
+//! animates the bones procedurally: a walk cycle
 //! from the measured ground speed, idle breathing, idle glances and a wagging
 //! tail. Changing the look rebuilds the rig.
 //!
@@ -18,7 +20,11 @@
 
 use std::f32::consts::{FRAC_PI_2, PI, TAU};
 
+use bevy::asset::LoadState;
+use bevy::gltf::{Gltf, GltfAssetLabel, GltfMaterialName};
+use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
+use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -431,8 +437,218 @@ fn set_look(ev: On<FromClient<SetLook>>, mut players: Query<(&PlayerOwner, &mut 
     }
 }
 
+/// A modeler-made part (`models/people/<file>.gltf`). Each is modeled at the
+/// size the reference look (every proportion 0.5) gives it, in the frame the
+/// rig spawns it in, so scaling it by `actual / reference` lands it exactly
+/// where its old primitives were. Materials named `pp-felt*` take the skin
+/// colour, `pp-knit*` the part's main colour and `pp-rib*` the accent; the
+/// rest (eyes, noses, horns, straw) keep their own colours.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Part {
+    TorsoPerson,
+    TorsoCritter,
+    TorsoNoodle,
+    TorsoBeast,
+    Neck,
+    Head,
+    EyeGoogly,
+    EyeBeady,
+    EyeSleepy,
+    SnoutButton,
+    SnoutSnout,
+    SnoutBeak,
+    EarsRound,
+    EarsPointy,
+    EarsFloppy,
+    EarsBunny,
+    HornsNubs,
+    HornsSpikes,
+    TailStub,
+    TailLong,
+    TailFluffy,
+    Arm,
+    Hand,
+    Leg,
+    Foot,
+    HatBeanie,
+    HatCap,
+    HatStraw,
+    HatHeadscarf,
+    HatFlower,
+    AccScarf,
+    AccApron,
+    AccBackpack,
+}
+
+impl Part {
+    const ALL: [Part; 33] = [
+        Part::TorsoPerson,
+        Part::TorsoCritter,
+        Part::TorsoNoodle,
+        Part::TorsoBeast,
+        Part::Neck,
+        Part::Head,
+        Part::EyeGoogly,
+        Part::EyeBeady,
+        Part::EyeSleepy,
+        Part::SnoutButton,
+        Part::SnoutSnout,
+        Part::SnoutBeak,
+        Part::EarsRound,
+        Part::EarsPointy,
+        Part::EarsFloppy,
+        Part::EarsBunny,
+        Part::HornsNubs,
+        Part::HornsSpikes,
+        Part::TailStub,
+        Part::TailLong,
+        Part::TailFluffy,
+        Part::Arm,
+        Part::Hand,
+        Part::Leg,
+        Part::Foot,
+        Part::HatBeanie,
+        Part::HatCap,
+        Part::HatStraw,
+        Part::HatHeadscarf,
+        Part::HatFlower,
+        Part::AccScarf,
+        Part::AccApron,
+        Part::AccBackpack,
+    ];
+
+    fn path(self) -> &'static str {
+        match self {
+            Part::TorsoPerson => "models/people/torso-person.gltf",
+            Part::TorsoCritter => "models/people/torso-critter.gltf",
+            Part::TorsoNoodle => "models/people/torso-noodle.gltf",
+            Part::TorsoBeast => "models/people/torso-beast.gltf",
+            Part::Neck => "models/people/neck.gltf",
+            Part::Head => "models/people/head.gltf",
+            Part::EyeGoogly => "models/people/eye-googly.gltf",
+            Part::EyeBeady => "models/people/eye-beady.gltf",
+            Part::EyeSleepy => "models/people/eye-sleepy.gltf",
+            Part::SnoutButton => "models/people/snout-button.gltf",
+            Part::SnoutSnout => "models/people/snout-snout.gltf",
+            Part::SnoutBeak => "models/people/snout-beak.gltf",
+            Part::EarsRound => "models/people/ears-round.gltf",
+            Part::EarsPointy => "models/people/ears-pointy.gltf",
+            Part::EarsFloppy => "models/people/ears-floppy.gltf",
+            Part::EarsBunny => "models/people/ears-bunny.gltf",
+            Part::HornsNubs => "models/people/horns-nubs.gltf",
+            Part::HornsSpikes => "models/people/horns-spikes.gltf",
+            Part::TailStub => "models/people/tail-stub.gltf",
+            Part::TailLong => "models/people/tail-long.gltf",
+            Part::TailFluffy => "models/people/tail-fluffy.gltf",
+            Part::Arm => "models/people/arm.gltf",
+            Part::Hand => "models/people/hand.gltf",
+            Part::Leg => "models/people/leg.gltf",
+            Part::Foot => "models/people/foot.gltf",
+            Part::HatBeanie => "models/people/hat-beanie.gltf",
+            Part::HatCap => "models/people/hat-cap.gltf",
+            Part::HatStraw => "models/people/hat-straw.gltf",
+            Part::HatHeadscarf => "models/people/hat-headscarf.gltf",
+            Part::HatFlower => "models/people/hat-flower.gltf",
+            Part::AccScarf => "models/people/acc-scarf.gltf",
+            Part::AccApron => "models/people/acc-apron.gltf",
+            Part::AccBackpack => "models/people/acc-backpack.gltf",
+        }
+    }
+}
+
+/// Head parts (head, face, ears, horns, hats) are modeled on a head of this
+/// radius, centred at the head bone.
+const HEAD_REF: f32 = 0.28;
+/// Eyes are modeled with this eyeball radius, centred on the eye.
+const EYE_REF: f32 = 0.06;
+
+/// The shape every part was modeled at: body type `body` with every
+/// proportion at 0.5.
+fn reference(body: u8) -> Shape {
+    shape(&CharacterLook { body, ..default() })
+}
+
+/// A part's two handles: the file (to tell loaded from missing) and its scene.
+struct PartModel {
+    gltf: Handle<Gltf>,
+    scene: Handle<WorldAsset>,
+}
+
+/// Which palette colours a spawned part's tintable materials take.
+#[derive(Component, Clone, Copy)]
+struct PartTint {
+    skin: Color,
+    main: Color,
+    accent: Color,
+    /// The stand-in primitives to drop once the model is drawn.
+    fallback: Option<Entity>,
+}
+
+/// Tinted copies of the parts' materials, one per (material, colour), so
+/// identical looks share materials.
+#[derive(Resource, Default)]
+struct TintCache(HashMap<(AssetId<StandardMaterial>, [u8; 4]), Handle<StandardMaterial>>);
+
+/// Which colour slot a part material takes, from its name.
+fn tint_slot(material: &str, tint: &PartTint) -> Option<Color> {
+    if material.starts_with("pp-felt") {
+        Some(tint.skin)
+    } else if material.starts_with("pp-knit") {
+        Some(tint.main)
+    } else if material.starts_with("pp-rib") {
+        Some(tint.accent)
+    } else {
+        None
+    }
+}
+
+/// Once a part's scene is spawned: paint it in the look's colours and drop
+/// the stand-in primitives.
+fn tint_part(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    tints: Query<&PartTint>,
+    children: Query<&Children>,
+    meshes: Query<(&MeshMaterial3d<StandardMaterial>, &GltfMaterialName)>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut cache: ResMut<TintCache>,
+) {
+    let Ok(tint) = tints.get(ready.entity) else {
+        return;
+    };
+    for child in children.iter_descendants(ready.entity) {
+        let Ok((mat, name)) = meshes.get(child) else {
+            continue;
+        };
+        let Some(color) = tint_slot(&name.0, tint) else {
+            continue;
+        };
+        let key = (mat.0.id(), color.to_srgba().to_u8_array());
+        let handle = match cache.0.get(&key) {
+            Some(h) => h.clone(),
+            None => {
+                let Some(base) = materials.get(&mat.0) else {
+                    continue;
+                };
+                let tinted = StandardMaterial {
+                    base_color: color,
+                    ..base.clone()
+                };
+                let h = materials.add(tinted);
+                cache.0.insert(key, h.clone());
+                h
+            }
+        };
+        commands.entity(child).insert(MeshMaterial3d(handle));
+    }
+    if let Some(fallback) = tint.fallback {
+        commands.entity(fallback).try_despawn();
+    }
+}
+
 /// Shared meshes (unit primitives, scaled per part) and one material per
-/// palette colour, so a crowd costs no extra assets.
+/// palette colour: the stand-ins drawn while (or if) the part models don't
+/// load, so a character never vanishes.
 #[derive(Resource)]
 pub struct CharacterKit {
     ball: Handle<Mesh>,
@@ -452,10 +668,30 @@ pub struct CharacterKit {
     shoe: Handle<StandardMaterial>,
     straw: Handle<StandardMaterial>,
     petal: Handle<StandardMaterial>,
+    /// The modeler parts, indexed by [`Part`] (empty without an asset server).
+    models: Vec<PartModel>,
+}
+
+const SHOE: Color = Color::srgb(0.32, 0.24, 0.2);
+
+fn clothes_color(i: u8) -> Color {
+    Color::hsl((i as usize % CLOTHES) as f32 * 30.0, 0.55, 0.62)
 }
 
 impl FromWorld for CharacterKit {
     fn from_world(world: &mut World) -> Self {
+        let models = world
+            .get_resource::<AssetServer>()
+            .map(|assets| {
+                Part::ALL
+                    .iter()
+                    .map(|p| PartModel {
+                        gltf: assets.load(p.path()),
+                        scene: assets.load(GltfAssetLabel::Scene(0).from_asset(p.path())),
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
         let mut meshes = world.resource_mut::<Assets<Mesh>>();
         let ball = meshes.add(Sphere::new(1.0));
         let capsule = meshes.add(Capsule3d::new(0.5, 1.0));
@@ -465,8 +701,8 @@ impl FromWorld for CharacterKit {
         let ring = meshes.add(Torus::new(0.17, 0.27));
         let mut mats = world.resource_mut::<Assets<StandardMaterial>>();
         let skins = SKINS.iter().map(|c| art::soft(&mut mats, *c)).collect();
-        let clothes = (0..CLOTHES)
-            .map(|i| art::soft(&mut mats, Color::hsl(i as f32 * 30.0, 0.55, 0.62)))
+        let clothes = (0..CLOTHES as u8)
+            .map(|i| art::soft(&mut mats, clothes_color(i)))
             .collect();
         let accents = ACCENTS.iter().map(|c| art::soft(&mut mats, *c)).collect();
         Self {
@@ -484,9 +720,10 @@ impl FromWorld for CharacterKit {
             nose: art::glossy(&mut mats, Color::srgb(0.35, 0.2, 0.22)),
             blush: art::soft(&mut mats, Color::srgb(1.0, 0.55, 0.6)),
             horn: art::soft(&mut mats, Color::srgb(0.95, 0.9, 0.78)),
-            shoe: art::soft(&mut mats, Color::srgb(0.32, 0.24, 0.2)),
+            shoe: art::soft(&mut mats, SHOE),
             straw: art::soft(&mut mats, Color::srgb(0.93, 0.82, 0.5)),
             petal: art::soft(&mut mats, Color::srgb(1.0, 0.7, 0.85)),
+            models,
         }
     }
 }
@@ -542,6 +779,8 @@ struct Bone {
 /// Registers rig building and the procedural animator. Purely local visuals.
 pub fn plugin(app: &mut App) {
     app.init_resource::<CharacterKit>()
+        .init_resource::<TintCache>()
+        .add_observer(tint_part)
         .add_systems(Update, (build_rigs, track_gait, animate_bones).chain());
 }
 
@@ -549,6 +788,7 @@ pub fn plugin(app: &mut App) {
 fn build_rigs(
     mut commands: Commands,
     kit: Res<CharacterKit>,
+    assets: Option<Res<AssetServer>>,
     changed: Query<
         (Entity, &CharacterLook, Option<&CharacterRig>),
         (With<Gait>, Or<(Changed<CharacterLook>, Added<Gait>)>),
@@ -569,18 +809,22 @@ fn build_rigs(
         let look = look.clamped();
         commands
             .entity(rig)
-            .with_children(|p| build(p, root, &kit, &look));
+            .with_children(|p| build(p, root, &kit, assets.as_deref(), &look));
         commands.entity(root).insert(CharacterRig(rig));
     }
 }
 
 struct Ctx<'a> {
     kit: &'a CharacterKit,
+    assets: Option<&'a AssetServer>,
     look: &'a CharacterLook,
     root: Entity,
     skin: Handle<StandardMaterial>,
     clothes: Handle<StandardMaterial>,
     accent: Handle<StandardMaterial>,
+    skin_c: Color,
+    clothes_c: Color,
+    accent_c: Color,
     idle: f32,
 }
 
@@ -593,6 +837,44 @@ impl Ctx<'_> {
         tf: Transform,
     ) {
         p.spawn((Mesh3d(mesh.clone()), MeshMaterial3d(mat.clone()), tf));
+    }
+
+    /// Spawn modeler part `part` at `tf` (its knitted bits in `main`), with
+    /// `fallback` building the old primitives in the same parent frame. The
+    /// primitives stand in until the model is drawn, and for good if its
+    /// file is missing.
+    fn model(
+        &self,
+        p: &mut ChildSpawnerCommands,
+        part: Part,
+        tf: Transform,
+        main: Color,
+        fallback: impl FnOnce(&mut ChildSpawnerCommands),
+    ) {
+        let (Some(assets), Some(model)) = (self.assets, self.kit.models.get(part as usize)) else {
+            fallback(p);
+            return;
+        };
+        if matches!(assets.load_state(model.gltf.id()), LoadState::Failed(_)) {
+            fallback(p);
+            return;
+        }
+        let fallback = (!assets.is_loaded_with_dependencies(model.gltf.id())).then(|| {
+            p.spawn((Transform::IDENTITY, Visibility::default()))
+                .with_children(fallback)
+                .id()
+        });
+        p.spawn((
+            WorldAssetRoot(model.scene.clone()),
+            tf,
+            Visibility::default(),
+            PartTint {
+                skin: self.skin_c,
+                main,
+                accent: self.accent_c,
+                fallback,
+            },
+        ));
     }
 
     fn bone<'a>(
@@ -726,7 +1008,13 @@ fn layout(look: &CharacterLook, sh: &Shape) -> Layout {
 }
 
 /// Spawn the bones and parts for `look` under the rig root.
-fn build(p: &mut ChildSpawnerCommands, root: Entity, kit: &CharacterKit, look: &CharacterLook) {
+fn build(
+    p: &mut ChildSpawnerCommands,
+    root: Entity,
+    kit: &CharacterKit,
+    assets: Option<&AssetServer>,
+    look: &CharacterLook,
+) {
     let idle = art::hash(
         look.skin as i32 * 31 + look.clothes as i32,
         root.index_u32() as i32,
@@ -734,11 +1022,15 @@ fn build(p: &mut ChildSpawnerCommands, root: Entity, kit: &CharacterKit, look: &
     ) * TAU;
     let ctx = Ctx {
         kit,
+        assets,
         look,
         root,
         skin: kit.skins[look.skin as usize % kit.skins.len()].clone(),
         clothes: kit.clothes[look.clothes as usize % kit.clothes.len()].clone(),
         accent: kit.accents[look.accent as usize % kit.accents.len()].clone(),
+        skin_c: SKINS[look.skin as usize % SKINS.len()],
+        clothes_c: clothes_color(look.clothes),
+        accent_c: ACCENTS[look.accent as usize % ACCENTS.len()],
         idle,
     };
     let sh = shape(look);
@@ -804,33 +1096,50 @@ fn spine(
     let look = ctx.look;
     let beast = look.body == 3;
     let body_mat = if furry { &ctx.skin } else { &ctx.clothes };
-    let torso = Transform::from_xyz(0.0, torso_c, 0.0).with_scale(Vec3::new(sh.rx, sh.ry, sh.rz));
-    ctx.part(sp, &kit.ball, body_mat, torso);
-    if look.body == 1 {
-        // Belly patch in the clothes colour.
-        ctx.part(
-            sp,
-            &kit.ball,
-            &ctx.clothes,
-            Transform::from_xyz(0.0, torso_c - sh.ry * 0.15, -sh.rz * 0.45).with_scale(Vec3::new(
-                sh.rx * 0.65,
-                sh.ry * 0.6,
-                sh.rz * 0.6,
-            )),
-        );
-    }
+    // The torso model (with the critter's belly or the beast's blanket) is
+    // the reference torso, stretched to this look's radii.
+    let rf = reference(look.body);
+    let torso_part = match look.body {
+        1 => Part::TorsoCritter,
+        2 => Part::TorsoNoodle,
+        3 => Part::TorsoBeast,
+        _ => Part::TorsoPerson,
+    };
+    ctx.model(
+        sp,
+        torso_part,
+        Transform::from_scale(Vec3::new(sh.rx / rf.rx, sh.ry / rf.ry, sh.rz / rf.rz)),
+        ctx.clothes_c,
+        |sp| {
+            let torso =
+                Transform::from_xyz(0.0, torso_c, 0.0).with_scale(Vec3::new(sh.rx, sh.ry, sh.rz));
+            ctx.part(sp, &kit.ball, body_mat, torso);
+            if look.body == 1 {
+                // Belly patch in the clothes colour.
+                ctx.part(
+                    sp,
+                    &kit.ball,
+                    &ctx.clothes,
+                    Transform::from_xyz(0.0, torso_c - sh.ry * 0.15, -sh.rz * 0.45)
+                        .with_scale(Vec3::new(sh.rx * 0.65, sh.ry * 0.6, sh.rz * 0.6)),
+                );
+            }
+            if beast {
+                // A blanket over the back.
+                ctx.part(
+                    sp,
+                    &kit.cube,
+                    &ctx.clothes,
+                    Transform::from_xyz(0.0, sh.ry * 0.85, 0.05).with_scale(Vec3::new(
+                        sh.rx * 2.05,
+                        0.06,
+                        sh.rz * 0.9,
+                    )),
+                );
+            }
+        },
+    );
     if beast {
-        // A blanket over the back.
-        ctx.part(
-            sp,
-            &kit.cube,
-            &ctx.clothes,
-            Transform::from_xyz(0.0, sh.ry * 0.85, 0.05).with_scale(Vec3::new(
-                sh.rx * 2.05,
-                0.06,
-                sh.rz * 0.9,
-            )),
-        );
         // Front legs hang from the shoulders.
         for side in [-1.0f32, 1.0] {
             leg(
@@ -844,13 +1153,15 @@ fn spine(
         }
     }
     if neck > 0.0 {
-        ctx.part(
-            sp,
-            &kit.capsule,
-            &ctx.skin,
-            Transform::from_xyz(0.0, torso_c + sh.ry + neck * 0.4, 0.0)
-                .with_scale(Vec3::new(0.12, neck, 0.12)),
-        );
+        let at = Transform::from_xyz(0.0, torso_c + sh.ry + neck * 0.4, 0.0);
+        ctx.model(sp, Part::Neck, at, ctx.skin_c, |sp| {
+            ctx.part(
+                sp,
+                &kit.capsule,
+                &ctx.skin,
+                at.with_scale(Vec3::new(0.12, neck, 0.12)),
+            );
+        });
     }
     // Accessories worn on the body ride in a frame matching the old torso,
     // turned forward on a beast so the scarf goes round its neck.
@@ -876,6 +1187,10 @@ fn spine(
     .with_children(|h| head(h, ctx, sh.head));
 
     if !beast {
+        // Sleeve and mitten are modeled on the person's reference arm.
+        let arm_ref = reference(0);
+        let lr = sh.limb_r / arm_ref.limb_r;
+        let sleeve_c = if furry { ctx.skin_c } else { ctx.clothes_c };
         for side in [-1.0f32, 1.0] {
             let base = Transform::from_xyz(
                 side * sh.rx * 0.95,
@@ -886,22 +1201,36 @@ fn spine(
             ctx.bone(sp, BoneKind::Arm, side, 0.0, base)
                 .with_children(|a| {
                     let sleeve = if furry { &ctx.skin } else { &ctx.clothes };
-                    ctx.part(
+                    ctx.model(
                         a,
-                        &kit.capsule,
-                        sleeve,
-                        Transform::from_xyz(0.0, -sh.arm * 0.45, 0.0).with_scale(Vec3::new(
-                            sh.limb_r * 2.0,
-                            sh.arm * 0.5,
-                            sh.limb_r * 2.0,
-                        )),
+                        Part::Arm,
+                        Transform::from_scale(Vec3::new(lr, sh.arm / arm_ref.arm, lr)),
+                        sleeve_c,
+                        |a| {
+                            ctx.part(
+                                a,
+                                &kit.capsule,
+                                sleeve,
+                                Transform::from_xyz(0.0, -sh.arm * 0.45, 0.0).with_scale(
+                                    Vec3::new(sh.limb_r * 2.0, sh.arm * 0.5, sh.limb_r * 2.0),
+                                ),
+                            );
+                        },
                     );
-                    ctx.part(
+                    let hand = Transform::from_xyz(0.0, -sh.arm, 0.0);
+                    ctx.model(
                         a,
-                        &kit.ball,
-                        &ctx.skin,
-                        Transform::from_xyz(0.0, -sh.arm, 0.0)
-                            .with_scale(Vec3::splat(sh.limb_r * 1.1)),
+                        Part::Hand,
+                        hand.with_scale(Vec3::splat(lr)),
+                        ctx.skin_c,
+                        |a| {
+                            ctx.part(
+                                a,
+                                &kit.ball,
+                                &ctx.skin,
+                                hand.with_scale(Vec3::splat(sh.limb_r * 1.1)),
+                            );
+                        },
                     );
                 });
         }
@@ -923,6 +1252,9 @@ fn leg(p: &mut ChildSpawnerCommands, ctx: &Ctx, sh: &Shape, at: Vec3, side: f32,
     let kit = ctx.kit;
     let furry = ctx.look.body == 1 || ctx.look.body == 3;
     let len = sh.leg;
+    // Legs are modeled on the person's reference leg.
+    let rf = reference(0);
+    let lr = sh.limb_r / rf.limb_r;
     ctx.bone(
         p,
         BoneKind::Leg,
@@ -932,52 +1264,72 @@ fn leg(p: &mut ChildSpawnerCommands, ctx: &Ctx, sh: &Shape, at: Vec3, side: f32,
     )
     .with_children(|l| {
         let mat = if furry { &ctx.skin } else { &ctx.clothes };
+        let main = if furry { ctx.skin_c } else { ctx.clothes_c };
         if len > 0.12 {
-            ctx.part(
+            ctx.model(
                 l,
-                &kit.capsule,
-                mat,
-                Transform::from_xyz(0.0, -len * 0.5, 0.0).with_scale(Vec3::new(
-                    sh.limb_r * 2.2,
-                    len * 0.5,
-                    sh.limb_r * 2.2,
-                )),
+                Part::Leg,
+                Transform::from_scale(Vec3::new(lr, len / rf.leg, lr)),
+                main,
+                |l| {
+                    ctx.part(
+                        l,
+                        &kit.capsule,
+                        mat,
+                        Transform::from_xyz(0.0, -len * 0.5, 0.0).with_scale(Vec3::new(
+                            sh.limb_r * 2.2,
+                            len * 0.5,
+                            sh.limb_r * 2.2,
+                        )),
+                    );
+                },
             );
         }
         let foot = if furry { &ctx.skin } else { &kit.shoe };
-        ctx.part(
-            l,
-            &kit.ball,
-            foot,
-            Transform::from_xyz(0.0, -len + 0.06, -0.03).with_scale(Vec3::new(0.1, 0.065, 0.145)),
-        );
+        let foot_c = if furry { ctx.skin_c } else { SHOE };
+        let at = Transform::from_xyz(0.0, -len + 0.06, -0.03);
+        ctx.model(l, Part::Foot, at, foot_c, |l| {
+            ctx.part(
+                l,
+                &kit.ball,
+                foot,
+                at.with_scale(Vec3::new(0.1, 0.065, 0.145)),
+            );
+        });
     });
 }
 
 fn tail(t: &mut ChildSpawnerCommands, ctx: &Ctx) {
     let kit = ctx.kit;
-    match ctx.look.tail {
-        1 => ctx.part(
-            t,
-            &kit.ball,
-            &ctx.skin,
-            Transform::from_scale(Vec3::splat(0.09)),
-        ),
-        2 => ctx.part(
-            t,
-            &kit.capsule,
-            &ctx.skin,
-            Transform::from_xyz(0.0, 0.0, 0.25)
-                .with_rotation(Quat::from_rotation_x(FRAC_PI_2))
-                .with_scale(Vec3::new(0.09, 0.25, 0.09)),
-        ),
-        _ => ctx.part(
-            t,
-            &kit.ball,
-            &ctx.skin,
-            Transform::from_xyz(0.0, 0.0, 0.12).with_scale(Vec3::new(0.16, 0.16, 0.2)),
-        ),
-    }
+    let part = match ctx.look.tail {
+        1 => Part::TailStub,
+        2 => Part::TailLong,
+        _ => Part::TailFluffy,
+    };
+    ctx.model(t, part, Transform::IDENTITY, ctx.skin_c, |t| {
+        match ctx.look.tail {
+            1 => ctx.part(
+                t,
+                &kit.ball,
+                &ctx.skin,
+                Transform::from_scale(Vec3::splat(0.09)),
+            ),
+            2 => ctx.part(
+                t,
+                &kit.capsule,
+                &ctx.skin,
+                Transform::from_xyz(0.0, 0.0, 0.25)
+                    .with_rotation(Quat::from_rotation_x(FRAC_PI_2))
+                    .with_scale(Vec3::new(0.09, 0.25, 0.09)),
+            ),
+            _ => ctx.part(
+                t,
+                &kit.ball,
+                &ctx.skin,
+                Transform::from_xyz(0.0, 0.0, 0.12).with_scale(Vec3::new(0.16, 0.16, 0.2)),
+            ),
+        }
+    });
 }
 
 /// Head-local, centre at the origin, face towards -Z.
@@ -994,12 +1346,25 @@ fn head(h: &mut ChildSpawnerCommands, ctx: &Ctx, r: f32) {
             radius: r,
         },
     ));
-    ctx.part(
-        h,
-        &kit.ball,
-        &ctx.skin,
-        Transform::from_scale(Vec3::splat(r)),
-    );
+    // Every head part is modeled on a HEAD_REF head.
+    let k = Transform::from_scale(Vec3::splat(r / HEAD_REF));
+    ctx.model(h, Part::Head, k, ctx.skin_c, |h| {
+        ctx.part(
+            h,
+            &kit.ball,
+            &ctx.skin,
+            Transform::from_scale(Vec3::splat(r)),
+        );
+        for side in [-1.0f32, 1.0] {
+            ctx.part(
+                h,
+                &kit.ball,
+                &kit.blush,
+                Transform::from_xyz(side * r * 0.55, -r * 0.22, -r * 0.78)
+                    .with_scale(Vec3::splat(r * 0.15)),
+            );
+        }
+    });
 
     // Eyes.
     let eye = |h: &mut ChildSpawnerCommands, at: Vec3, er: f32, style: u8| {
@@ -1011,47 +1376,56 @@ fn head(h: &mut ChildSpawnerCommands, ctx: &Ctx, r: f32) {
             },
         ))
         .with_children(|e| {
-            if style == 1 {
+            let part = match style {
+                1 => Part::EyeBeady,
+                2 => Part::EyeSleepy,
+                _ => Part::EyeGoogly,
+            };
+            let scale = Transform::from_scale(Vec3::splat(er / EYE_REF));
+            ctx.model(e, part, scale, ctx.skin_c, |e| {
+                if style == 1 {
+                    ctx.part(
+                        e,
+                        &kit.ball,
+                        &kit.pupil,
+                        Transform::from_scale(Vec3::splat(er * 0.55)),
+                    );
+                    return;
+                }
+                ctx.part(
+                    e,
+                    &kit.ball,
+                    &kit.white,
+                    Transform::from_scale(Vec3::splat(er)),
+                );
                 ctx.part(
                     e,
                     &kit.ball,
                     &kit.pupil,
-                    Transform::from_scale(Vec3::splat(er * 0.55)),
+                    Transform::from_xyz(0.0, -er * 0.05, -er * 0.5)
+                        .with_scale(Vec3::splat(er * 0.62)),
                 );
-                return;
-            }
-            ctx.part(
-                e,
-                &kit.ball,
-                &kit.white,
-                Transform::from_scale(Vec3::splat(er)),
-            );
-            ctx.part(
-                e,
-                &kit.ball,
-                &kit.pupil,
-                Transform::from_xyz(0.0, -er * 0.05, -er * 0.5).with_scale(Vec3::splat(er * 0.62)),
-            );
-            ctx.part(
-                e,
-                &kit.ball,
-                &kit.white,
-                Transform::from_xyz(er * 0.28, er * 0.3, -er * 0.95)
-                    .with_scale(Vec3::splat(er * 0.22)),
-            );
-            if style == 2 {
-                // A heavy lid over the top half.
                 ctx.part(
                     e,
                     &kit.ball,
-                    &ctx.skin,
-                    Transform::from_xyz(0.0, er * 0.5, -er * 0.1).with_scale(Vec3::new(
-                        er * 1.12,
-                        er * 0.65,
-                        er * 1.12,
-                    )),
+                    &kit.white,
+                    Transform::from_xyz(er * 0.28, er * 0.3, -er * 0.95)
+                        .with_scale(Vec3::splat(er * 0.22)),
                 );
-            }
+                if style == 2 {
+                    // A heavy lid over the top half.
+                    ctx.part(
+                        e,
+                        &kit.ball,
+                        &ctx.skin,
+                        Transform::from_xyz(0.0, er * 0.5, -er * 0.1).with_scale(Vec3::new(
+                            er * 1.12,
+                            er * 0.65,
+                            er * 1.12,
+                        )),
+                    );
+                }
+            });
         });
     };
     let face_z = -r * 0.84;
@@ -1067,112 +1441,119 @@ fn head(h: &mut ChildSpawnerCommands, ctx: &Ctx, r: f32) {
             );
         }
     }
-    for side in [-1.0f32, 1.0] {
-        ctx.part(
-            h,
-            &kit.ball,
-            &kit.blush,
-            Transform::from_xyz(side * r * 0.55, -r * 0.22, -r * 0.78)
-                .with_scale(Vec3::splat(r * 0.15)),
-        );
-    }
 
     // Snout.
-    match look.snout {
-        1 => ctx.part(
-            h,
-            &kit.ball,
-            &kit.nose,
-            Transform::from_xyz(0.0, -r * 0.08, -r * 0.98).with_scale(Vec3::splat(r * 0.11)),
-        ),
-        2 => {
-            ctx.part(
-                h,
-                &kit.ball,
-                &ctx.skin,
-                Transform::from_xyz(0.0, -r * 0.28, -r * 0.82).with_scale(Vec3::new(
-                    r * 0.38,
-                    r * 0.28,
-                    r * 0.38,
-                )),
-            );
-            ctx.part(
+    let snout = match look.snout {
+        1 => Some(Part::SnoutButton),
+        2 => Some(Part::SnoutSnout),
+        3 => Some(Part::SnoutBeak),
+        _ => None,
+    };
+    if let Some(part) = snout {
+        ctx.model(h, part, k, ctx.skin_c, |h| match look.snout {
+            1 => ctx.part(
                 h,
                 &kit.ball,
                 &kit.nose,
-                Transform::from_xyz(0.0, -r * 0.18, -r * 1.18).with_scale(Vec3::new(
-                    r * 0.14,
-                    r * 0.1,
-                    r * 0.1,
-                )),
-            );
-        }
-        3 => ctx.part(
-            h,
-            &kit.cone,
-            &kit.straw,
-            Transform::from_xyz(0.0, -r * 0.15, -r * 1.1)
-                .with_rotation(Quat::from_rotation_x(-FRAC_PI_2))
-                .with_scale(Vec3::new(r * 0.35, r * 0.5, r * 0.25)),
-        ),
-        _ => {}
+                Transform::from_xyz(0.0, -r * 0.08, -r * 0.98).with_scale(Vec3::splat(r * 0.11)),
+            ),
+            2 => {
+                ctx.part(
+                    h,
+                    &kit.ball,
+                    &ctx.skin,
+                    Transform::from_xyz(0.0, -r * 0.28, -r * 0.82).with_scale(Vec3::new(
+                        r * 0.38,
+                        r * 0.28,
+                        r * 0.38,
+                    )),
+                );
+                ctx.part(
+                    h,
+                    &kit.ball,
+                    &kit.nose,
+                    Transform::from_xyz(0.0, -r * 0.18, -r * 1.18).with_scale(Vec3::new(
+                        r * 0.14,
+                        r * 0.1,
+                        r * 0.1,
+                    )),
+                );
+            }
+            _ => ctx.part(
+                h,
+                &kit.cone,
+                &kit.straw,
+                Transform::from_xyz(0.0, -r * 0.15, -r * 1.1)
+                    .with_rotation(Quat::from_rotation_x(-FRAC_PI_2))
+                    .with_scale(Vec3::new(r * 0.35, r * 0.5, r * 0.25)),
+            ),
+        });
     }
 
-    // Ears and horns.
-    for side in [-1.0f32, 1.0] {
-        let tf = match look.ears {
-            1 => Some((
-                &kit.ball,
-                Transform::from_xyz(side * r * 0.78, r * 0.6, 0.0).with_scale(Vec3::new(
-                    r * 0.28,
-                    r * 0.28,
-                    r * 0.12,
-                )),
-            )),
-            2 => Some((
-                &kit.cone,
-                Transform::from_xyz(side * r * 0.55, r * 0.95, 0.0)
-                    .with_rotation(Quat::from_rotation_z(-side * 0.45))
-                    .with_scale(Vec3::new(r * 0.4, r * 0.6, r * 0.2)),
-            )),
-            3 => Some((
-                &kit.ball,
-                Transform::from_xyz(side * r * 0.95, r * 0.05, 0.05)
-                    .with_rotation(Quat::from_rotation_z(side * 0.3))
-                    .with_scale(Vec3::new(r * 0.16, r * 0.5, r * 0.3)),
-            )),
-            4 => Some((
-                &kit.capsule,
-                Transform::from_xyz(side * r * 0.35, r * 1.3, 0.0)
-                    .with_rotation(Quat::from_rotation_z(-side * 0.15))
-                    .with_scale(Vec3::new(r * 0.3, r * 0.55, r * 0.16)),
-            )),
-            _ => None,
-        };
-        if let Some((mesh, tf)) = tf {
-            ctx.part(h, mesh, &ctx.skin, tf);
-        }
-        let (tall, lean) = match look.horns {
-            1 => (0.25, 0.2),
-            2 => (0.6, 0.5),
-            _ => continue,
-        };
-        ctx.part(
-            h,
-            &kit.cone,
-            &kit.horn,
-            Transform::from_xyz(side * r * 0.42, r * (0.85 + tall * 0.3), -r * 0.1)
-                .with_rotation(Quat::from_rotation_z(-side * lean))
-                .with_scale(Vec3::new(r * 0.22, r * tall, r * 0.22)),
-        );
+    // Ears and horns (each model is the pair).
+    let ears = match look.ears {
+        1 => Some(Part::EarsRound),
+        2 => Some(Part::EarsPointy),
+        3 => Some(Part::EarsFloppy),
+        4 => Some(Part::EarsBunny),
+        _ => None,
+    };
+    if let Some(part) = ears {
+        ctx.model(h, part, k, ctx.skin_c, |h| {
+            for side in [-1.0f32, 1.0] {
+                let (mesh, tf) =
+                    match look.ears {
+                        1 => (
+                            &kit.ball,
+                            Transform::from_xyz(side * r * 0.78, r * 0.6, 0.0)
+                                .with_scale(Vec3::new(r * 0.28, r * 0.28, r * 0.12)),
+                        ),
+                        2 => (
+                            &kit.cone,
+                            Transform::from_xyz(side * r * 0.55, r * 0.95, 0.0)
+                                .with_rotation(Quat::from_rotation_z(-side * 0.45))
+                                .with_scale(Vec3::new(r * 0.4, r * 0.6, r * 0.2)),
+                        ),
+                        3 => (
+                            &kit.ball,
+                            Transform::from_xyz(side * r * 0.95, r * 0.05, 0.05)
+                                .with_rotation(Quat::from_rotation_z(side * 0.3))
+                                .with_scale(Vec3::new(r * 0.16, r * 0.5, r * 0.3)),
+                        ),
+                        _ => (
+                            &kit.capsule,
+                            Transform::from_xyz(side * r * 0.35, r * 1.3, 0.0)
+                                .with_rotation(Quat::from_rotation_z(-side * 0.15))
+                                .with_scale(Vec3::new(r * 0.3, r * 0.55, r * 0.16)),
+                        ),
+                    };
+                ctx.part(h, mesh, &ctx.skin, tf);
+            }
+        });
+    }
+    let horns = match look.horns {
+        1 => Some((Part::HornsNubs, 0.25, 0.2)),
+        2 => Some((Part::HornsSpikes, 0.6, 0.5)),
+        _ => None,
+    };
+    if let Some((part, tall, lean)) = horns {
+        ctx.model(h, part, k, ctx.skin_c, |h| {
+            for side in [-1.0f32, 1.0] {
+                ctx.part(
+                    h,
+                    &kit.cone,
+                    &kit.horn,
+                    Transform::from_xyz(side * r * 0.42, r * (0.85 + tall * 0.3), -r * 0.1)
+                        .with_rotation(Quat::from_rotation_z(-side * lean))
+                        .with_scale(Vec3::new(r * 0.22, r * tall, r * 0.22)),
+                );
+            }
+        });
     }
 
     // Hats ride in a frame sized like the old 0.28 head.
-    h.spawn((
-        Transform::from_scale(Vec3::splat(r / 0.28)),
-        Visibility::default(),
-    ))
-    .with_children(|a| accessory_on_head(a, ctx));
+    h.spawn((k, Visibility::default()))
+        .with_children(|a| accessory_on_head(a, ctx));
 }
 
 /// Hats, scarves on the head and flowers (old 0.28 head, centre at origin).
@@ -1183,141 +1564,157 @@ fn accessory_on_head(h: &mut ChildSpawnerCommands, ctx: &Ctx) {
                 mesh: &Handle<Mesh>,
                 mat: &Handle<StandardMaterial>,
                 tf| { ctx.part(h, mesh, mat, tf) };
-    match ctx.look.accessory {
-        // Beanie with a pompom.
-        0 => {
-            part(
-                h,
-                &kit.ball,
-                accent,
-                Transform::from_xyz(0.0, 0.1, 0.02).with_scale(Vec3::new(0.29, 0.22, 0.29)),
-            );
-            part(
-                h,
-                &kit.ball,
-                &kit.accents[0],
-                Transform::from_xyz(0.0, 0.33, 0.02).with_scale(Vec3::splat(0.06)),
-            );
-        }
-        // Flat cap with a brim out front.
-        1 => {
-            part(
-                h,
-                &kit.disc,
-                accent,
-                Transform::from_xyz(0.0, 0.2, 0.0).with_scale(Vec3::new(0.27, 0.09, 0.27)),
-            );
-            part(
-                h,
-                &kit.disc,
-                accent,
-                Transform::from_xyz(0.0, 0.17, -0.2).with_scale(Vec3::new(0.18, 0.03, 0.14)),
-            );
-        }
-        // Straw hat with a band.
-        2 => {
-            part(
-                h,
-                &kit.disc,
-                &kit.straw,
-                Transform::from_xyz(0.0, 0.2, 0.0).with_scale(Vec3::new(0.48, 0.025, 0.48)),
-            );
-            part(
-                h,
-                &kit.disc,
-                &kit.straw,
-                Transform::from_xyz(0.0, 0.26, 0.0).with_scale(Vec3::new(0.21, 0.1, 0.21)),
-            );
-            part(
-                h,
-                &kit.disc,
-                accent,
-                Transform::from_xyz(0.0, 0.24, 0.0).with_scale(Vec3::new(0.205, 0.04, 0.205)),
-            );
-        }
-        // Headscarf over the back of the head, knot behind.
-        3 => {
-            part(
-                h,
-                &kit.ball,
-                accent,
-                Transform::from_xyz(0.0, 0.06, 0.04).with_scale(Vec3::new(0.3, 0.27, 0.29)),
-            );
-            part(
-                h,
-                &kit.ball,
-                accent,
-                Transform::from_xyz(0.0, -0.05, 0.3).with_scale(Vec3::splat(0.07)),
-            );
-        }
-        // A flower tucked by the ear.
-        7 => {
-            for k in 0..5 {
-                let a = k as f32 * TAU / 5.0;
+    let model = match ctx.look.accessory {
+        0 => Part::HatBeanie,
+        1 => Part::HatCap,
+        2 => Part::HatStraw,
+        3 => Part::HatHeadscarf,
+        7 => Part::HatFlower,
+        _ => return,
+    };
+    ctx.model(h, model, Transform::IDENTITY, ctx.accent_c, |h| {
+        match ctx.look.accessory {
+            // Beanie with a pompom.
+            0 => {
                 part(
                     h,
                     &kit.ball,
-                    &kit.petal,
-                    Transform::from_xyz(0.26, 0.12 + a.sin() * 0.04, a.cos() * 0.04)
-                        .with_scale(Vec3::splat(0.03)),
+                    accent,
+                    Transform::from_xyz(0.0, 0.1, 0.02).with_scale(Vec3::new(0.29, 0.22, 0.29)),
+                );
+                part(
+                    h,
+                    &kit.ball,
+                    &kit.accents[0],
+                    Transform::from_xyz(0.0, 0.33, 0.02).with_scale(Vec3::splat(0.06)),
                 );
             }
-            part(
-                h,
-                &kit.ball,
-                &kit.accents[3],
-                Transform::from_xyz(0.28, 0.12, 0.0).with_scale(Vec3::splat(0.025)),
-            );
+            // Flat cap with a brim out front.
+            1 => {
+                part(
+                    h,
+                    &kit.disc,
+                    accent,
+                    Transform::from_xyz(0.0, 0.2, 0.0).with_scale(Vec3::new(0.27, 0.09, 0.27)),
+                );
+                part(
+                    h,
+                    &kit.disc,
+                    accent,
+                    Transform::from_xyz(0.0, 0.17, -0.2).with_scale(Vec3::new(0.18, 0.03, 0.14)),
+                );
+            }
+            // Straw hat with a band.
+            2 => {
+                part(
+                    h,
+                    &kit.disc,
+                    &kit.straw,
+                    Transform::from_xyz(0.0, 0.2, 0.0).with_scale(Vec3::new(0.48, 0.025, 0.48)),
+                );
+                part(
+                    h,
+                    &kit.disc,
+                    &kit.straw,
+                    Transform::from_xyz(0.0, 0.26, 0.0).with_scale(Vec3::new(0.21, 0.1, 0.21)),
+                );
+                part(
+                    h,
+                    &kit.disc,
+                    accent,
+                    Transform::from_xyz(0.0, 0.24, 0.0).with_scale(Vec3::new(0.205, 0.04, 0.205)),
+                );
+            }
+            // Headscarf over the back of the head, knot behind.
+            3 => {
+                part(
+                    h,
+                    &kit.ball,
+                    accent,
+                    Transform::from_xyz(0.0, 0.06, 0.04).with_scale(Vec3::new(0.3, 0.27, 0.29)),
+                );
+                part(
+                    h,
+                    &kit.ball,
+                    accent,
+                    Transform::from_xyz(0.0, -0.05, 0.3).with_scale(Vec3::splat(0.07)),
+                );
+            }
+            // A flower tucked by the ear.
+            _ => {
+                for k in 0..5 {
+                    let a = k as f32 * TAU / 5.0;
+                    part(
+                        h,
+                        &kit.ball,
+                        &kit.petal,
+                        Transform::from_xyz(0.26, 0.12 + a.sin() * 0.04, a.cos() * 0.04)
+                            .with_scale(Vec3::splat(0.03)),
+                    );
+                }
+                part(
+                    h,
+                    &kit.ball,
+                    &kit.accents[3],
+                    Transform::from_xyz(0.28, 0.12, 0.0).with_scale(Vec3::splat(0.025)),
+                );
+            }
         }
-        _ => {}
-    }
+    });
 }
 
 /// Scarf, apron or backpack (old torso frame: centre at origin, 0.46 tall).
 fn accessory_on_body(p: &mut ChildSpawnerCommands, ctx: &Ctx) {
     let kit = ctx.kit;
     let accent = &ctx.accent;
-    match ctx.look.accessory {
-        4 => {
-            ctx.part(
-                p,
-                &kit.ring,
-                accent,
-                Transform::from_xyz(0.0, 0.5, 0.0).with_scale(Vec3::new(1.0, 1.3, 0.95)),
-            );
-            ctx.part(
+    let model = match ctx.look.accessory {
+        4 => Part::AccScarf,
+        5 => Part::AccApron,
+        6 => Part::AccBackpack,
+        _ => return,
+    };
+    ctx.model(p, model, Transform::IDENTITY, ctx.accent_c, |p| {
+        match ctx.look.accessory {
+            4 => {
+                ctx.part(
+                    p,
+                    &kit.ring,
+                    accent,
+                    Transform::from_xyz(0.0, 0.5, 0.0).with_scale(Vec3::new(1.0, 1.3, 0.95)),
+                );
+                ctx.part(
+                    p,
+                    &kit.cube,
+                    accent,
+                    Transform::from_xyz(0.12, 0.32, -0.27)
+                        .with_scale(Vec3::new(0.09, 0.26, 0.04))
+                        .with_rotation(Quat::from_rotation_z(0.15)),
+                );
+            }
+            5 => ctx.part(
                 p,
                 &kit.cube,
                 accent,
-                Transform::from_xyz(0.12, 0.32, -0.27)
-                    .with_scale(Vec3::new(0.09, 0.26, 0.04))
-                    .with_rotation(Quat::from_rotation_z(0.15)),
-            );
+                Transform::from_xyz(0.0, -0.05, -0.29)
+                    .with_scale(Vec3::new(0.38, 0.5, 0.03))
+                    .with_rotation(Quat::from_rotation_x(0.08)),
+            ),
+            _ => {
+                ctx.part(
+                    p,
+                    &kit.cube,
+                    accent,
+                    Transform::from_xyz(0.0, 0.12, 0.33).with_scale(Vec3::new(0.36, 0.42, 0.2)),
+                );
+                ctx.part(
+                    p,
+                    &kit.cube,
+                    &kit.accents[5],
+                    Transform::from_xyz(0.0, 0.02, 0.44).with_scale(Vec3::new(0.26, 0.16, 0.06)),
+                );
+            }
         }
-        5 => ctx.part(
-            p,
-            &kit.cube,
-            accent,
-            Transform::from_xyz(0.0, -0.05, -0.29)
-                .with_scale(Vec3::new(0.38, 0.5, 0.03))
-                .with_rotation(Quat::from_rotation_x(0.08)),
-        ),
-        6 => {
-            ctx.part(
-                p,
-                &kit.cube,
-                accent,
-                Transform::from_xyz(0.0, 0.12, 0.33).with_scale(Vec3::new(0.36, 0.42, 0.2)),
-            );
-            ctx.part(
-                p,
-                &kit.cube,
-                &kit.accents[5],
-                Transform::from_xyz(0.0, 0.02, 0.44).with_scale(Vec3::new(0.26, 0.16, 0.06)),
-            );
-        }
-        _ => {}
-    }
+    });
 }
 
 fn track_gait(time: Res<Time>, mut q: Query<(&GlobalTransform, &mut Gait)>) {

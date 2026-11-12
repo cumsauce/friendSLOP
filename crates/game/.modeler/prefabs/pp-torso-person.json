@@ -1,0 +1,547 @@
+{
+  "format_version": 1,
+  "name": "pp-torso-person",
+  "parts": [],
+  "version": 20859,
+  "ops": [
+    {
+      "sdf": {
+        "name": "torso_raw",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.297,
+              0.0
+            ],
+            "size": [
+              0.3,
+              0.33,
+              0.255
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.03,
+            "at": [
+              0.0,
+              0.0594,
+              0.0
+            ],
+            "size": [
+              0.22619222,
+              0.045,
+              0.19496338
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.02,
+            "at": [
+              0.0,
+              0.5808,
+              0.0
+            ],
+            "size": [
+              0.17308821,
+              0.035,
+              0.15012498
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "torso",
+        "input": "torso_raw",
+        "tris": 400
+      }
+    },
+    {
+      "visibility": {
+        "name": "torso_raw",
+        "input": "torso_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "torso",
+        "input": "torso",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-knit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.16,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.02,
+                  0.016
+                ],
+                "stagger": 0,
+                "type": "tile_grid"
+              },
+              {
+                "a": [
+                  -0.005200000000000001,
+                  -0.0041600000000000005
+                ],
+                "b": [
+                  -0.002,
+                  0.00384
+                ],
+                "coords": "g.local",
+                "name": "l1",
+                "type": "segment",
+                "width": 0.0072
+              },
+              {
+                "a": [
+                  0.005200000000000001,
+                  -0.0041600000000000005
+                ],
+                "b": [
+                  0.002,
+                  0.00384
+                ],
+                "coords": "g.local",
+                "name": "l2",
+                "type": "segment",
+                "width": 0.0072
+              },
+              {
+                "a": "l1",
+                "b": "l2",
+                "name": "v",
+                "op": "union",
+                "type": "sdf_op"
+              },
+              {
+                "from": [
+                  -0.0036,
+                  0.0002
+                ],
+                "input": "v",
+                "name": "vr",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "vr",
+                "b": 0,
+                "c": 1,
+                "name": "vc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "vc",
+                "b": 0.6,
+                "name": "pill",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 2,
+                "seed": 5,
+                "size": 0.003,
+                "type": "noise"
+              },
+              {
+                "name": "tone",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "tone",
+                "name": "tv",
+                "to": [
+                  0.93,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fz",
+                "name": "fv",
+                "to": [
+                  0.94,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "pill",
+                "name": "pv",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "pv",
+                "b": "tv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c1",
+                "b": "fv",
+                "name": "c2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": [
+                  0.97,
+                  0.97,
+                  0.97
+                ],
+                "b": "c2",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pill",
+                "b": 0.0016,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "normal_strength": 1.0,
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-torso-person",
+          "parts": [],
+          "version": 19338,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pp-torso-person`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-torso-person",
+          "parts": [],
+          "version": 19382,
+          "ops": [
+            {
+              "sdf": {
+                "name": "torso_raw",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.0,
+                      0.297,
+                      0.0
+                    ],
+                    "size": [
+                      0.3,
+                      0.33,
+                      0.255
+                    ]
+                  },
+                  {
+                    "shape": "ellipsoid",
+                    "blend": 0.03,
+                    "at": [
+                      0.0,
+                      0.0594,
+                      0.0
+                    ],
+                    "size": [
+                      0.22619222,
+                      0.045,
+                      0.19496338
+                    ]
+                  },
+                  {
+                    "shape": "ellipsoid",
+                    "blend": 0.02,
+                    "at": [
+                      0.0,
+                      0.5808,
+                      0.0
+                    ],
+                    "size": [
+                      0.17308821,
+                      0.035,
+                      0.15012498
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "torso",
+                "input": "torso_raw",
+                "tris": 400
+              }
+            },
+            {
+              "visibility": {
+                "name": "torso_raw",
+                "input": "torso_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "torso",
+                "input": "torso",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-knit",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.16,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "g",
+                        "size": [
+                          0.02,
+                          0.016
+                        ],
+                        "stagger": 0,
+                        "type": "tile_grid"
+                      },
+                      {
+                        "a": [
+                          -0.005200000000000001,
+                          -0.0041600000000000005
+                        ],
+                        "b": [
+                          -0.002,
+                          0.00384
+                        ],
+                        "coords": "g.local",
+                        "name": "l1",
+                        "type": "segment",
+                        "width": 0.0072
+                      },
+                      {
+                        "a": [
+                          0.005200000000000001,
+                          -0.0041600000000000005
+                        ],
+                        "b": [
+                          0.002,
+                          0.00384
+                        ],
+                        "coords": "g.local",
+                        "name": "l2",
+                        "type": "segment",
+                        "width": 0.0072
+                      },
+                      {
+                        "a": "l1",
+                        "b": "l2",
+                        "name": "v",
+                        "op": "union",
+                        "type": "sdf_op"
+                      },
+                      {
+                        "from": [
+                          -0.0036,
+                          0.0002
+                        ],
+                        "input": "v",
+                        "name": "vr",
+                        "to": [
+                          1,
+                          0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "vr",
+                        "b": 0,
+                        "c": 1,
+                        "name": "vc",
+                        "op": "clamp",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vc",
+                        "b": 0.6,
+                        "name": "pill",
+                        "op": "pow",
+                        "type": "math"
+                      },
+                      {
+                        "name": "fz",
+                        "octaves": 2,
+                        "seed": 5,
+                        "size": 0.003,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "tone",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "tone",
+                        "name": "tv",
+                        "to": [
+                          0.93,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "fz",
+                        "name": "fv",
+                        "to": [
+                          0.94,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "pill",
+                        "name": "pv",
+                        "to": [
+                          0.6,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "pv",
+                        "b": "tv",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "c1",
+                        "b": "fv",
+                        "name": "c2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": [
+                          0.97,
+                          0.97,
+                          0.97
+                        ],
+                        "b": "c2",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "pill",
+                        "b": 0.0016,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "normal_strength": 1.0,
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "material `torso` <- `torso` pbr=pp-knit",
+        "author": "people"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

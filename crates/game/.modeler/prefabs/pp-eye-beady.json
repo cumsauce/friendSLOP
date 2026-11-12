@@ -1,0 +1,239 @@
+{
+  "format_version": 1,
+  "name": "pp-eye-beady",
+  "parts": [],
+  "version": 20867,
+  "ops": [
+    {
+      "sdf": {
+        "name": "pupil_raw",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "radius": [
+              0.033
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "pupil",
+        "input": "pupil_raw",
+        "tris": 50
+      }
+    },
+    {
+      "visibility": {
+        "name": "pupil_raw",
+        "input": "pupil_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "pupil",
+        "input": "pupil",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-pupil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  1.0,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#0a0a10",
+                "b": "nv",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.12,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-eye-beady",
+          "parts": [],
+          "version": 20149,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `pp-eye-beady`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "pp-eye-beady",
+          "parts": [],
+          "version": 20228,
+          "ops": [
+            {
+              "sdf": {
+                "name": "pupil_raw",
+                "shapes": [
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ],
+                    "radius": [
+                      0.033
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "pupil",
+                "input": "pupil_raw",
+                "tris": 50
+              }
+            },
+            {
+              "visibility": {
+                "name": "pupil_raw",
+                "input": "pupil_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "pupil",
+                "input": "pupil",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "pp-pupil",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 3,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nv",
+                        "to": [
+                          1.0,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#0a0a10",
+                        "b": "nv",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0,
+                        "name": "hh",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "hh",
+                        "metallic": 0,
+                        "name": "out",
+                        "roughness": 0.12,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "material `pupil` <- `pupil` pbr=pp-pupil",
+        "author": "people"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

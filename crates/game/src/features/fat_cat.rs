@@ -18,7 +18,8 @@
 //! in its mouth is gobbled (they die, see `afterlife.rs`). A meal settles
 //! it: the fuse goes out and it's a merely fat cat again.
 //!
-//! The cat is built from primitives; its meows are synthesized locally on
+//! The cat is a rigged modeler model ([`CAT_MODEL`]) that waddles, meows,
+//! gobbles and laps with its own clips; its meows are synthesized locally on
 //! every peer (lower and more horrible the bigger it gets), heard in 3D, at
 //! most every 30 s and only while it's off your screen (#192).
 
@@ -463,6 +464,7 @@ pub fn plugin(app: &mut App) {
             Update,
             (
                 dress_cats,
+                own_fur,
                 move_cats,
                 report_in_view,
                 meow,
@@ -480,9 +482,12 @@ fn click_cat(ev: On<super::interact::Clicked>, mut commands: Commands, cats: Que
     }
 }
 
-/// Local: the cat's fur, so it can flash.
-#[derive(Component)]
-struct CatFur(Handle<StandardMaterial>);
+/// Local: this cat's own copy of the model's fur, so it can flash.
+#[derive(Component, Default)]
+struct CatFur {
+    material: Option<Handle<StandardMaterial>>,
+    done: bool,
+}
 
 /// Local: when this cat last beeped.
 #[derive(Component, Default)]
@@ -503,7 +508,7 @@ fn blink(
     let t = time.elapsed_secs();
     for (cat, fuse, fur, mut beep, tf) in &mut cats {
         let on = fuse.is_some_and(|f| (t * blink_rate(f.0)).fract() < 0.5);
-        if let Some(mut m) = materials.get_mut(&fur.0) {
+        if let Some(mut m) = fur.material.as_ref().and_then(|h| materials.get_mut(h)) {
             let want = if on {
                 LinearRgba::rgb(3.0, 0.2, 0.1)
             } else {
@@ -565,9 +570,16 @@ fn gulp(
     me: Option<Res<LocalPlayer>>,
     toast: Option<ResMut<crate::hud::Toast>>,
     state: Option<Res<State<AppState>>>,
+    mut cats: Query<(&FatCat, &mut CatAct)>,
 ) {
     if state.is_none_or(|s| *s.get() != AppState::InGame) {
         return;
+    }
+    // Chomp.
+    for (cat, mut act) in &mut cats {
+        if cat.owner == ev.owner {
+            act.0 = Some(("gobble", GOBBLE_SECS));
+        }
     }
     if let Some(mut toast) = toast {
         toast.show(gobble_text(ev.owner, ev.victim, me.map(|m| m.0)));
@@ -642,149 +654,145 @@ struct MeowIn {
     count: u32,
 }
 
-const FUR: Color = Color::srgb(0.95, 0.55, 0.2);
-const STRIPE: Color = Color::srgb(0.7, 0.35, 0.1);
-const BELLY: Color = Color::srgb(1.0, 0.92, 0.8);
+/// The rigged cat (#145): a fat tabby, 1 m long at size 1, facing -Z with
+/// its feet at the origin. Clips: `idle`, `walk` (the waddle), `meow`,
+/// `gobble` (#238) and `lap` (#213).
+pub const CAT_MODEL: &str = "models/creatures/fat_cat.gltf";
 
-fn dress_cats(
-    mut commands: Commands,
-    new: Query<(Entity, &FatCat), Added<FatCat>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+/// The model's fur material (its glTF name starts with this): each cat gets
+/// its own copy so it can flash on its own.
+const FUR_MATERIAL: &str = "ct-cat-fur";
+
+/// Local: a one-off clip the cat is busy with (`meow`, `gobble`) and the
+/// seconds left of it.
+#[derive(Component, Default)]
+struct CatAct(Option<(&'static str, f32)>);
+
+/// How long the model's one-off clips run.
+const MEOW_SECS: f32 = 1.6;
+const GOBBLE_SECS: f32 = 1.4;
+
+fn dress_cats(mut commands: Commands, new: Query<(Entity, &FatCat), Added<FatCat>>) {
     for (entity, cat) in &new {
-        let fur = crate::art::soft(&mut materials, FUR);
-        let stripe = crate::art::soft(&mut materials, STRIPE);
-        let belly = crate::art::soft(&mut materials, BELLY);
-        let pink = crate::art::soft(&mut materials, Color::srgb(1.0, 0.6, 0.65));
-        let whisker = crate::art::soft(&mut materials, Color::WHITE);
-        commands
-            .entity(entity)
-            .insert((
-                Transform::from_translation(cat.pos)
-                    .with_rotation(Quat::from_rotation_y(cat.yaw))
-                    .with_scale(Vec3::splat(cat.size)),
-                Visibility::default(),
-                super::interact::Clickable::at_height(0.5)
-                    .radius(80.0)
-                    .labelled("pet the cat"),
-                CatFur(fur.clone()),
-                Beep::default(),
-                MeowIn {
-                    secs: MEOW_EVERY,
-                    count: 0,
-                },
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                // The enormous body: wider than it is long.
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.4))),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.38, 0.0).with_scale(Vec3::new(1.35, 0.95, 1.4)),
-                ));
-                // Belly sagging underneath.
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.3))),
-                    MeshMaterial3d(belly.clone()),
-                    Transform::from_xyz(0.0, 0.24, -0.05).with_scale(Vec3::new(1.4, 0.7, 1.5)),
-                ));
-                // Tabby stripes across the back.
-                let band = meshes.add(Capsule3d::new(0.05, 0.6));
-                for z in [-0.2, 0.0, 0.2] {
-                    p.spawn((
-                        Mesh3d(band.clone()),
-                        MeshMaterial3d(stripe.clone()),
-                        Transform::from_xyz(0.0, 0.73, z)
-                            .with_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_2))
-                            .with_scale(Vec3::new(1.0, 1.0, 0.5)),
-                    ));
-                }
-                // Stubby legs, barely visible under all that cat.
-                let leg = meshes.add(Capsule3d::new(0.07, 0.08));
-                for (x, z) in [(-0.3, -0.3), (0.3, -0.3), (-0.3, 0.3), (0.3, 0.3)] {
-                    p.spawn((
-                        Mesh3d(leg.clone()),
-                        MeshMaterial3d(fur.clone()),
-                        Transform::from_xyz(x, 0.08, z),
-                    ));
-                }
-                // Tail curling up behind.
-                p.spawn((
-                    Mesh3d(meshes.add(Capsule3d::new(0.06, 0.4))),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.6, 0.6).with_rotation(Quat::from_rotation_x(0.7)),
-                ));
-                // Head with ears, eyes, nose and whiskers (facing -Z).
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.24))),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.7, -0.5).with_scale(Vec3::new(1.15, 0.95, 1.0)),
-                ))
-                .with_children(|h| {
-                    crate::art::eyes(
-                        h,
-                        &mut meshes,
-                        &mut materials,
-                        Vec3::new(0.0, 0.05, -0.2),
-                        0.18,
-                        0.05,
-                    );
-                    let ear = meshes.add(Cone::new(0.08, 0.16).mesh().resolution(4));
-                    for x in [-0.13, 0.13] {
-                        h.spawn((
-                            Mesh3d(ear.clone()),
-                            MeshMaterial3d(fur.clone()),
-                            Transform::from_xyz(x, 0.21, 0.0)
-                                .with_rotation(Quat::from_rotation_z(-x * 2.5)),
-                        ));
-                    }
-                    h.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.03))),
-                        MeshMaterial3d(pink.clone()),
-                        Transform::from_xyz(0.0, -0.03, -0.235),
-                    ));
-                    let hair = meshes.add(Cylinder::new(0.004, 0.22));
-                    for side in [-1.0f32, 1.0] {
-                        for tilt in [-0.15f32, 0.15] {
-                            h.spawn((
-                                Mesh3d(hair.clone()),
-                                MeshMaterial3d(whisker.clone()),
-                                Transform::from_xyz(side * 0.15, -0.05, -0.19).with_rotation(
-                                    Quat::from_rotation_z(std::f32::consts::FRAC_PI_2 + tilt),
-                                ),
-                            ));
-                        }
-                    }
-                });
-            });
+        commands.entity(entity).insert((
+            Transform::from_translation(cat.pos)
+                .with_rotation(Quat::from_rotation_y(cat.yaw))
+                .with_scale(Vec3::splat(cat.size)),
+            Visibility::default(),
+            super::interact::Clickable::at_height(0.5)
+                .radius(80.0)
+                .labelled("pet the cat"),
+            crate::rigged::Rigged { path: CAT_MODEL },
+            crate::rigged::RigClip::looping("idle"),
+            CatAct::default(),
+            CatFur::default(),
+            Beep::default(),
+            MeowIn {
+                secs: MEOW_EVERY,
+                count: 0,
+            },
+            DespawnOnExit(AppState::InGame),
+        ));
     }
 }
 
-/// Glide to the replicated spot and size, rolling side to side as it waddles.
-fn move_cats(time: Res<Time>, mut cats: Query<(&FatCat, Has<Lapping>, &mut Transform)>) {
-    let t = time.elapsed_secs();
-    let k = (time.delta_secs() * 8.0).min(1.0);
-    for (cat, lapping, mut tf) in &mut cats {
+/// Once a cat's model is in, give it its own copy of the fur material (so
+/// only this cat blinks when its fuse is lit). The copy is already in the
+/// cat palette, so it skips the filter.
+#[allow(clippy::type_complexity)]
+fn own_fur(
+    mut cats: Query<(Entity, &mut CatFur), With<crate::rigged::RigReady>>,
+    children: Query<&Children>,
+    mut meshes: Query<(
+        &mut MeshMaterial3d<StandardMaterial>,
+        &bevy::gltf::GltfMaterialName,
+    )>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut exact: Option<ResMut<super::cat_palette::ExactColors>>,
+) {
+    for (cat, mut fur) in &mut cats {
+        if fur.done {
+            continue;
+        }
+        let mut copy: Option<Handle<StandardMaterial>> = None;
+        for child in children.iter_descendants(cat) {
+            let Ok((mut mat, name)) = meshes.get_mut(child) else {
+                continue;
+            };
+            if !name.0.starts_with(FUR_MATERIAL) {
+                continue;
+            }
+            let handle = match &copy {
+                Some(h) => h.clone(),
+                None => {
+                    let Some(original) = materials.get(&mat.0).cloned() else {
+                        continue;
+                    };
+                    let h = match exact.as_deref_mut() {
+                        Some(exact) => {
+                            super::cat_palette::exact_material(&mut materials, exact, original)
+                        }
+                        None => materials.add(original),
+                    };
+                    copy = Some(h.clone());
+                    h
+                }
+            };
+            mat.0 = handle;
+        }
+        fur.done = copy.is_some();
+        fur.material = copy;
+    }
+}
+
+/// Glide to the replicated spot and size, and pick the clip: a one-off
+/// (meow, gobble) runs out first; then lapping, waddling or sitting.
+fn move_cats(
+    time: Res<Time>,
+    mut cats: Query<(
+        &FatCat,
+        Has<Lapping>,
+        &mut Transform,
+        &mut CatAct,
+        &mut crate::rigged::RigClip,
+    )>,
+) {
+    let dt = time.delta_secs();
+    let k = (dt * 8.0).min(1.0);
+    for (cat, lapping, mut tf, mut act, mut clip) in &mut cats {
         let gap = cat.pos - tf.translation;
         let moving = gap.xz().length() > 0.02 * cat.size;
         tf.translation += gap * k;
         let size = tf.scale.x + (cat.size - tf.scale.x) * k;
         tf.scale = Vec3::splat(size);
-        let roll = if moving {
-            (t * 9.0 + cat.owner as f32).sin() * 0.12
-        } else {
-            0.0
-        };
-        // Drinking: nose down, lapping away.
-        let nod = if lapping {
-            -0.18 - 0.07 * (t * 11.0).sin()
-        } else {
-            0.0
-        };
-        tf.rotation = Quat::from_rotation_y(cat.yaw)
-            * Quat::from_rotation_z(roll)
-            * Quat::from_rotation_x(nod);
+        tf.rotation = Quat::from_rotation_y(cat.yaw);
+        if let Some((_, left)) = &mut act.0 {
+            *left -= dt;
+            if *left <= 0.0 {
+                act.0 = None;
+            }
+        }
+        let want = cat_clip(act.0.map(|(name, _)| name), lapping, moving, size);
+        if clip.name != want.name || clip.once != want.once {
+            *clip = want;
+        }
+    }
+}
+
+/// The clip a cat plays: a one-off clip it's busy with, else lapping,
+/// waddling (slower the bigger it is) or sitting.
+pub fn cat_clip(
+    act: Option<&'static str>,
+    lapping: bool,
+    moving: bool,
+    size: f32,
+) -> crate::rigged::RigClip {
+    use crate::rigged::RigClip;
+    match act {
+        Some(name) => RigClip::once(name).fade(0.15),
+        None if lapping => RigClip::looping("lap"),
+        None if moving => RigClip::looping("walk").speed((1.6 / size.sqrt()).clamp(0.5, 1.6)),
+        None => RigClip::looping("idle").fade(0.3),
     }
 }
 
@@ -867,11 +875,11 @@ pub fn meow_tick(left: f32, seen: bool, dt: f32) -> (f32, bool) {
 fn meow(
     mut commands: Commands,
     time: Res<Time>,
-    mut cats: Query<(&FatCat, &Transform, &mut MeowIn)>,
+    mut cats: Query<(&FatCat, &Transform, &mut MeowIn, &mut CatAct)>,
     camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
 ) {
     let cam = camera.single().ok();
-    for (cat, tf, mut next) in &mut cats {
+    for (cat, tf, mut next, mut act) in &mut cats {
         let seen = cam.is_some_and(|(camera, cam_tf)| {
             sample_points(tf.translation, cat.size.max(tf.scale.x))
                 .iter()
@@ -883,6 +891,10 @@ fn meow(
             continue;
         }
         next.count += 1;
+        // Mouth wide open (unless it's busy gobbling someone).
+        if act.0.is_none() {
+            act.0 = Some(("meow", MEOW_SECS));
+        }
         let seed = (cat.owner as u32).wrapping_mul(2_654_435_761) ^ next.count;
         let size = cat.size;
         let mouth = cat.pos + Vec3::Y * 0.7 * size;
@@ -1020,6 +1032,17 @@ mod tests {
         let far = Vec2::new(BLAST_RADIUS + 1.0, 0.0);
         assert_eq!(flung(far, Vec2::ZERO), far);
         assert!(blink_rate(1.0) > blink_rate(FUSE_SECS));
+    }
+
+    #[test]
+    fn the_cat_plays_the_clip_for_what_it_is_doing() {
+        assert_eq!(cat_clip(None, false, false, 1.0).name, "idle");
+        assert_eq!(cat_clip(None, false, true, 1.0).name, "walk");
+        assert_eq!(cat_clip(None, true, true, 1.0).name, "lap");
+        let gulp = cat_clip(Some("gobble"), true, true, 1.0);
+        assert!(gulp.name == "gobble" && gulp.once);
+        // Giant cats waddle slower.
+        assert!(cat_clip(None, false, true, 16.0).speed < cat_clip(None, false, true, 1.0).speed);
     }
 
     #[test]

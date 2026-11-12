@@ -293,52 +293,32 @@ struct Chair;
 #[derive(Component)]
 struct Knitting(f32);
 
+/// Head radius her hair model was made for (`abuela_hair.gltf` is in
+/// head-local space: origin at the head's centre, facing -Z).
+const HAIR_FOR_HEAD: f32 = 0.266;
+
 /// Silver hair with a bun and round glasses, on her head so they turn with it.
 fn glasses_and_bun(
     mut commands: Commands,
     new: Query<(Entity, &HeadAnchor), Added<HeadAnchor>>,
     chairs: Query<(), With<Chair>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
+    assets: Option<Res<AssetServer>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(assets) = assets else {
         return;
     };
     for (anchor, head) in &new {
         if chairs.get(head.root).is_err() {
             continue;
         }
-        let r = head.radius;
-        let silver = crate::art::soft(&mut materials, Color::srgb(0.86, 0.86, 0.9));
-        let frame = crate::art::glossy(&mut materials, Color::srgb(0.75, 0.6, 0.3));
-        let ball = meshes.add(Sphere::new(1.0));
-        let rim = meshes.add(Torus::new(0.012, 0.075));
+        // Modeler-made (source `.modeler/prefabs/np-abuela-hair.json`).
+        let hair =
+            assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/abuela_hair.gltf"));
         commands.entity(anchor).with_children(|h| {
-            // Hair swept back over the top, and a bun at the back.
             h.spawn((
-                Mesh3d(ball.clone()),
-                MeshMaterial3d(silver.clone()),
-                Transform::from_xyz(0.0, r * 0.3, r * 0.25).with_scale(Vec3::new(
-                    r * 1.04,
-                    r * 0.8,
-                    r * 1.0,
-                )),
+                WorldAssetRoot(hair),
+                Transform::from_scale(Vec3::splat(head.radius / HAIR_FOR_HEAD)),
             ));
-            h.spawn((
-                Mesh3d(ball.clone()),
-                MeshMaterial3d(silver.clone()),
-                Transform::from_xyz(0.0, r * 0.8, r * 0.75).with_scale(Vec3::splat(r * 0.42)),
-            ));
-            // Round glasses, standing up in front of her eyes.
-            for side in [-1.0f32, 1.0] {
-                h.spawn((
-                    Mesh3d(rim.clone()),
-                    MeshMaterial3d(frame.clone()),
-                    Transform::from_xyz(side * r * 0.36, r * 0.12, -r * 1.02)
-                        .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
-                        .with_scale(Vec3::splat(r / 0.26)),
-                ));
-            }
         });
     }
 }
@@ -369,45 +349,41 @@ fn rock(
 /// Every peer: heaven, a soft cloudy garden with a golden glow.
 fn build_heaven(
     mut commands: Commands,
+    assets: Option<Res<AssetServer>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let (Some(assets), Some(mut meshes), Some(mut materials)) = (assets, meshes, materials) else {
         return;
     };
     let h = heaven();
-    let cloud = materials.add(StandardMaterial {
-        base_color: Color::srgba(1.0, 0.98, 0.95, 0.9),
-        emissive: LinearRgba::rgb(0.25, 0.22, 0.18),
-        alpha_mode: AlphaMode::Blend,
-        perceptual_roughness: 1.0,
-        ..default()
-    });
     let gold = materials.add(StandardMaterial {
         base_color: Color::srgb(1.0, 0.85, 0.45),
         emissive: LinearRgba::rgb(1.6, 1.2, 0.4),
         ..default()
     });
-    let petals = [
-        crate::art::soft(&mut materials, Color::srgb(1.0, 0.75, 0.85)),
-        crate::art::soft(&mut materials, Color::srgb(1.0, 0.95, 0.6)),
-        crate::art::soft(&mut materials, Color::srgb(0.85, 0.8, 1.0)),
-    ];
-    let puff = meshes.add(Sphere::new(1.0));
-    let flower = meshes.add(Sphere::new(0.08));
-    let mut spawn = |bundle: (Mesh3d, MeshMaterial3d<StandardMaterial>, Transform)| {
-        commands.spawn((bundle, DespawnOnExit(AppState::InGame)));
+    // Modeler-made cloud puff and flowers (sources `.modeler/prefabs/np-heaven-*`).
+    let model = |file: &str| {
+        WorldAssetRoot(
+            assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+        )
     };
+    let flowers = [
+        "heaven_flower_pink.gltf",
+        "heaven_flower_butter.gltf",
+        "heaven_flower_lilac.gltf",
+    ];
     // Clouds hugging the rim.
     for i in 0..14 {
         let a = i as f32 / 14.0 * std::f32::consts::TAU;
         let r = h.radius + 0.3 + crate::art::hash(i, 3, 105) * 0.6;
         let size = 0.7 + crate::art::hash(i, 7, 105) * 0.6;
-        spawn((
-            Mesh3d(puff.clone()),
-            MeshMaterial3d(cloud.clone()),
+        commands.spawn((
+            model("heaven_cloud.gltf"),
             Transform::from_xyz(h.at.x + a.cos() * r, h.top - 0.4, h.at.y + a.sin() * r)
+                .with_rotation(Quat::from_rotation_y(-a))
                 .with_scale(Vec3::new(size * 1.4, size * 0.6, size)),
+            DespawnOnExit(AppState::InGame),
         ));
     }
     // Little flowers in the grass.
@@ -418,19 +394,20 @@ fn build_heaven(
         if at.xz().distance(chair_at().xz()) < 0.9 {
             continue;
         }
-        spawn((
-            Mesh3d(flower.clone()),
-            MeshMaterial3d(petals[i as usize % petals.len()].clone()),
-            Transform::from_translation(at),
+        commands.spawn((
+            model(flowers[i as usize % flowers.len()]),
+            Transform::from_translation(at).with_rotation(Quat::from_rotation_y(a * 3.0)),
+            DespawnOnExit(AppState::InGame),
         ));
     }
-    // A golden halo arch behind her chair.
+    // A golden halo arch behind her chair: a glow, so it stays in code.
     let behind = chair_at() + Vec3::new(0.0, 0.0, 1.0);
-    spawn((
+    commands.spawn((
         Mesh3d(meshes.add(Torus::new(0.06, 1.5))),
-        MeshMaterial3d(gold.clone()),
+        MeshMaterial3d(gold),
         Transform::from_translation(behind + Vec3::Y * 1.0)
             .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
+        DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
         PointLight {

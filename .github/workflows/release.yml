@@ -1,7 +1,8 @@
 name: Release
 
 # Manual only: Actions tab -> "Release" -> Run workflow (or `gh workflow run release.yml`).
-# Publishes a "latest" build so friends can just download and play.
+# Publishes a "latest" build so friends can just download and play (desktop only;
+# the browser zip is a separate run of web-release.yml, which adds it to "latest").
 on:
   workflow_dispatch:
 
@@ -60,35 +61,8 @@ jobs:
           name: ${{ matrix.asset }}
           path: ${{ matrix.asset }}
 
-  # Browser build (#106): a static site zip (index.html + wasm + assets).
-  web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          lfs: true # the web bundle serves the real asset files
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-      - uses: Swatinem/rust-cache@v2
-        with:
-          key: release-web
-      - name: wasm-bindgen-cli + binaryen
-        run: |
-          version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
-          cargo install wasm-bindgen-cli --version "$version" --locked
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends binaryen clang llvm
-      - run: scripts/build-web.sh dist/web
-      - name: package
-        run: cd dist/web && zip -qr ../../friendslop-web.zip .
-      - uses: actions/upload-artifact@v4
-        with:
-          name: friendslop-web.zip
-          path: friendslop-web.zip
-      # (The site itself is deployed on every push to main by web.yml, #230.)
-
   publish:
-    needs: [build, web]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -103,5 +77,5 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           gh release create latest dist/* --title "Latest build" \
-            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. friendslop-web.zip is the browser version (multiplayer and voice chat; the browser asks for your mic, which needs https or localhost: unzip and serve the folder with any static web server). Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
+            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. The browser version (friendslop-web.zip) is added by the separate \"Web release\" workflow. Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
             --target ${{ github.sha }} --prerelease

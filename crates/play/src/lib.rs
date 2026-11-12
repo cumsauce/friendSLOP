@@ -20,3 +20,15 @@ pub mod features {
     pub mod interact;
     pub mod stats;
 }
+
+/// This crate's data files (see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![
+        &features::climb::TUNING,
+        &features::duel::TUNING,
+        &features::fate::TUNING,
+        &features::fps::TUNING,
+        &features::interact::TUNING,
+        &features::stats::TUNING,
+    ]
+}

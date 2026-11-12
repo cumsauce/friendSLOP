@@ -1,0 +1,31 @@
+// Tuning for fat cat (crates/afterlife/src/features/fat_cat.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // How much bigger (in scale units) an unwatched cat gets per second.
+    grow_per_sec: 0.008,
+    // How fast the cat waddles after you (faster than you run, it's motivated).
+    speed: 7.0,
+    // It stays this far from your feet (times its size).
+    heel: 1.3,
+    // Further away than this (a teleport, the warehouse) it just appears behind you.
+    lost: 30.0,
+    // At this size the fuse lights.
+    critical: 10.0,
+    // Seconds from lit fuse to boom.
+    fuse_secs: 30.0,
+    // How much one pet shrinks a cat.
+    pet_shrink: 0.6,
+    // Everyone this close to an exploding cat is flung.
+    blast_radius: 10.0,
+    // ...this far.
+    blast_push: 8.0,
+    // Its mouth is this far in front of its feet (times its size)...
+    mouth_ahead: 0.8,
+    // ...and swallows feet this close to it (times its size).
+    mouth_radius: 0.4,
+    // How long the model's one-off clips run.
+    meow_secs: 1.6,
+    gobble_secs: 1.4,
+    // Seconds between meows, at the least (#192).
+    meow_every: 30.0,
+)

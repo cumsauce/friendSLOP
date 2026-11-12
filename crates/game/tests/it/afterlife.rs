@@ -11,7 +11,7 @@ use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
 use friendslop::features::afterlife::{
-    Dead, Die, Grave, JUDGEMENT_SECS, PLEAS_NEEDED, Plead, TakeTome, Tome, UseTome, lectern_at,
+    Dead, Die, Grave, Plead, TakeTome, Tome, UseTome, lectern_at,
 };
 use friendslop::features::fps::Walker;
 use friendslop::player::Player;
@@ -98,7 +98,7 @@ fn begging_brings_you_back_and_hell_waits_for_the_rest() {
     ));
 
     // The host begs out loud (2 each) until heaven gives in.
-    for _ in 0..PLEAS_NEEDED / 2 {
+    for _ in 0..friendslop::features::afterlife::tuning().pleas_needed / 2 {
         server.world_mut().client_trigger(Plead {
             player: 1,
             aloud: true,
@@ -111,7 +111,7 @@ fn begging_brings_you_back_and_hell_waits_for_the_rest() {
 
     // Second death: nobody begs, and after the judgement it's hell.
     server.world_mut().trigger(Die { player: 1 });
-    let ticks = (JUDGEMENT_SECS / 0.05) as usize + 20;
+    let ticks = (friendslop::features::afterlife::tuning().judgement_secs / 0.05) as usize + 20;
     exchange(&mut server, &mut client, ticks);
     assert_eq!(dead(&mut client, 1), Some(Dead::Hell));
     assert_eq!(graves(&mut server).len(), 1, "the grave stays");

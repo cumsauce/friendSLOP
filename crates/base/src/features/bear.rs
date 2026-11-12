@@ -46,14 +46,25 @@ pub fn plugin(app: &mut App) {
     );
 }
 
-/// Seconds between growls.
-const GROWL_PERIOD: f32 = 13.0;
+/// Tuning numbers: `assets/data/base/bear.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds between growls.
+    pub growl_period: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/base/bear.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// How long a growl lasts (the sound is the same length).
 pub const GROWL_LENGTH: f32 = 1.2;
 
 /// Is the bear mid-growl at time `t`?
 pub fn is_growling(t: f32) -> bool {
-    (t + 4.0) % GROWL_PERIOD < GROWL_LENGTH
+    (t + 4.0) % tuning().growl_period < GROWL_LENGTH
 }
 
 /// Where the bear is at time `t`: a slow, lazy figure-eight around home.
@@ -150,7 +161,7 @@ fn growl(
     let t = super::stillness::session_secs(&time, &offset);
     let growling = !bears.is_empty() && is_growling(t);
     // Which growl window this is: robust to leaving and re-entering mid-growl.
-    let window = ((t + 4.0) / GROWL_PERIOD) as u64 + 1;
+    let window = ((t + 4.0) / tuning().growl_period) as u64 + 1;
     if growling
         && *played != window
         && let Some(sound) = &sound

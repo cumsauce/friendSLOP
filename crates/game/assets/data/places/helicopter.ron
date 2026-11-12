@@ -1,0 +1,21 @@
+// Tuning for helicopter (crates/places/src/features/helicopter.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // How far off to one side it hovers (so it can see you past its own nose).
+    hover_radius: 9.0,
+    // Top speed (running is 5 m/s or so: you can't outrun it).
+    fly_speed: 11.0,
+    // Shots in a burst.
+    burst: 5,
+    // Seconds between shots in a burst.
+    shot_gap: 0.18,
+    // Seconds of quiet between bursts.
+    burst_gap: 2.4,
+    // How far a bullet can land from you.
+    spread: 2.6,
+    // A bullet this close to your feet (on the ground) hits you.
+    hit_radius: 0.7,
+    // It only opens fire this close (horizontally) to where it wants to be.
+    firing_range: 25.0,
+    sound_rate: 22050,
+)

@@ -1,0 +1,25 @@
+// Tuning for afterlife (crates/afterlife/src/features/afterlife.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Seconds heaven waits before it judges you.
+    judgement_secs: 60.0,
+    // Pleas it takes to prove you innocent.
+    pleas_needed: 12,
+    // Seconds between one player's pleas (no auto-clickers in heaven).
+    plea_gap: 0.4,
+    // Seconds before a used Tome of Uncancelling is back on its lectern.
+    tome_respawn: 180.0,
+    // Lectern top (where the tome lies), above the ground.
+    lectern_top: 1.05,
+    // How far from the centre the climb starts.
+    start_ring: 11.0,
+    // Stepping stones: the gap between edges and how much each one rises.
+    stone_gap: 1.1,
+    stone_rise: 0.3,
+    // The first stone's top above the lava.
+    start_top: 2.0,
+    // The white light's platform in the middle.
+    exit_radius: 1.8,
+    // Stand this close to the white light to get out.
+    exit_reach: 1.4,
+)

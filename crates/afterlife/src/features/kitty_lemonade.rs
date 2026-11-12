@@ -17,12 +17,24 @@ use bevy_replicon::prelude::*;
 use super::fat_cat::{CatSet, FatCat, LAP_HEEL, Lapping, Lured};
 use super::skills::{Lapped, PeePuddle};
 
-/// A cat smells pee this far away (metres, plus its size).
-pub const NOTICE: f32 = 15.0;
-/// Shortest distraction (seconds).
-pub const MIN_SECS: f32 = 10.0;
-/// Longest distraction (seconds).
-pub const MAX_SECS: f32 = 30.0;
+/// Tuning numbers: `assets/data/afterlife/kitty_lemonade.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// A cat smells pee this far away (metres, plus its size).
+    pub notice: f32,
+    /// Shortest distraction (seconds).
+    pub min_secs: f32,
+    /// Longest distraction (seconds).
+    pub max_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/afterlife/kitty_lemonade.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Server only: on a cat going for (or drinking) `puddle`.
 #[derive(Component, Debug)]
@@ -38,7 +50,7 @@ pub fn distraction_secs(id: u32) -> f32 {
     x ^= x >> 15;
     x = x.wrapping_mul(0x2c1b_3c6d);
     x ^= x >> 12;
-    MIN_SECS + (MAX_SECS - MIN_SECS) * (x % 10_001) as f32 / 10_000.0
+    tuning().min_secs + (tuning().max_secs - tuning().min_secs) * (x % 10_001) as f32 / 10_000.0
 }
 
 /// Whether a cat of `size` at `cat` has its head over a puddle at `puddle`.
@@ -51,7 +63,7 @@ pub fn sniff<T: Copy>(cat: Vec2, size: f32, puddles: &[(T, Vec2)]) -> Option<T> 
     puddles
         .iter()
         .map(|(t, at)| (*t, cat.distance(*at)))
-        .filter(|(_, d)| *d <= NOTICE + size)
+        .filter(|(_, d)| *d <= tuning().notice + size)
         .min_by(|a, b| a.1.total_cmp(&b.1))
         .map(|(t, _)| t)
 }
@@ -154,7 +166,10 @@ mod tests {
     #[test]
     fn distractions_last_ten_to_thirty_seconds_and_vary() {
         let all: Vec<f32> = (0..500).map(distraction_secs).collect();
-        assert!(all.iter().all(|s| (MIN_SECS..=MAX_SECS).contains(s)));
+        assert!(
+            all.iter()
+                .all(|s| (tuning().min_secs..=tuning().max_secs).contains(s))
+        );
         let lo = all.iter().copied().fold(f32::MAX, f32::min);
         let hi = all.iter().copied().fold(f32::MIN, f32::max);
         assert!(lo < 13.0 && hi > 27.0, "spread {lo}..{hi}");

@@ -35,7 +35,7 @@ use crate::player::{Player, PlayerOwner};
 
 pub mod bathroom;
 pub mod sound;
-mod visuals;
+pub(crate) mod visuals;
 pub mod wfc;
 
 pub use bathroom::{FartMonster, Gassed};
@@ -58,18 +58,30 @@ pub fn outside_height() -> f32 {
 }
 /// Wall height inside.
 pub const INSIDE_WALL: f32 = 4.2;
-/// Monster speeds: prowling, and hunting (walking is 5 m/s; run!).
-pub const PROWL_SPEED: f32 = 2.0;
-pub const HUNT_SPEED: f32 = 6.2;
-/// It sees you this far down a clear aisle, and hears you this close anyway.
-pub const SIGHT: f32 = 13.0;
-pub const HEARING: f32 = 3.5;
-/// Pretending to be a soul piece, it springs when you come this close.
-pub const LURE_SPRING: f32 = 3.6;
-/// It gets you this close.
-pub const CATCH: f32 = 1.1;
-/// It gives up a hunt after not seeing you this long.
-const LOSE_AFTER: f32 = 5.0;
+/// Tuning numbers: `assets/data/places/warehouse.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Monster speeds: prowling, and hunting (walking is 5 m/s; run!).
+    pub prowl_speed: f32,
+    pub hunt_speed: f32,
+    /// It sees you this far down a clear aisle, and hears you this close anyway.
+    pub sight: f32,
+    pub hearing: f32,
+    /// Pretending to be a soul piece, it springs when you come this close.
+    pub lure_spring: f32,
+    /// It gets you this close.
+    pub catch: f32,
+    /// It gives up a hunt after not seeing you this long.
+    pub lose_after: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/warehouse.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// The loading door, on the north face (towards the commune).
 pub fn door_at() -> Vec3 {
@@ -424,7 +436,7 @@ pub fn start_expedition(commands: &mut Commands, wh: &mut Warehouse, seed: u32) 
             goal: lair,
             timer: 0.0,
             lost: 0.0,
-            hunt_speed: HUNT_SPEED,
+            hunt_speed: tuning().hunt_speed,
         },
         Replicated,
     ));
@@ -733,7 +745,7 @@ fn think(
         .copied()
         .filter(|(_, p)| {
             let d = p.distance(here);
-            d < HEARING || (d < SIGHT && brain.plan.sees(here, *p))
+            d < tuning().hearing || (d < tuning().sight && brain.plan.sees(here, *p))
         })
         .min_by(|a, b| a.1.distance(here).total_cmp(&b.1.distance(here)));
     let idle = |pos| Thought {
@@ -744,7 +756,8 @@ fn think(
     match mode {
         MonsterMode::Lure => {
             brain.timer -= dt;
-            if let Some((id, _)) = nearest.filter(|(_, p)| p.distance(here) < LURE_SPRING) {
+            if let Some((id, _)) = nearest.filter(|(_, p)| p.distance(here) < tuning().lure_spring)
+            {
                 brain.lost = 0.0;
                 return Thought {
                     mode: MonsterMode::Hunt(id),
@@ -804,9 +817,9 @@ fn think(
                     caught: None,
                 };
             };
-            let sees = brain.plan.sees(here, target) || target.distance(here) < HEARING;
+            let sees = brain.plan.sees(here, target) || target.distance(here) < tuning().hearing;
             brain.lost = if sees { 0.0 } else { brain.lost + dt };
-            if brain.lost > LOSE_AFTER {
+            if brain.lost > tuning().lose_after {
                 return Thought {
                     mode: MonsterMode::Prowl,
                     pos: here,
@@ -819,7 +832,7 @@ fn think(
                 next_waypoint(&brain.plan, here, target)
             };
             let pos = move_to(here, towards, brain.hunt_speed * dt);
-            if pos.distance(target) < CATCH {
+            if pos.distance(target) < tuning().catch {
                 brain.timer = 6.0;
                 brain.goal = far_cell(brain, pos);
                 return Thought {
@@ -890,7 +903,7 @@ fn wander(brain: &mut MonsterBrain, here: Vec2, dt: f32) -> Vec2 {
         return here;
     }
     let towards = next_waypoint(&brain.plan, here, goal);
-    move_to(here, towards, PROWL_SPEED * dt)
+    move_to(here, towards, tuning().prowl_speed * dt)
 }
 
 #[cfg(test)]
@@ -904,7 +917,7 @@ mod tests {
             goal: (0, 0),
             timer: 0.0,
             lost: 0.0,
-            hunt_speed: HUNT_SPEED,
+            hunt_speed: tuning().hunt_speed,
         }
     }
 

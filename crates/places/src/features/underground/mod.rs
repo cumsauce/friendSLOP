@@ -37,7 +37,7 @@ use crate::features::interact::{SERVER_REACH, deny, within};
 use crate::player::PlayerOwner;
 pub use friendslop_core::WorldSeed;
 
-mod visuals;
+pub(crate) mod visuals;
 
 pub use crate::rules::depths::*;
 pub use visuals::Below;
@@ -266,8 +266,20 @@ fn pins() -> Vec<Room> {
     ]
 }
 
-/// The pin index of the secret passage's end.
-const SECRET: usize = 4;
+/// Tuning numbers: `assets/data/places/underground.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// The pin index of the secret passage's end.
+    pub secret: usize,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/underground.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// The network for a tunnels sub-seed (pure, the same on every peer and the
 /// server): pinned rooms joined by sewers, with a few more chambers, loops
@@ -300,7 +312,7 @@ pub fn layout(seed: u32) -> Layout {
                 Use::Room(i) => part_of_tag(g.rooms[i].tag),
                 Use::Corridor(e) => {
                     let (a, b) = g.edges[e];
-                    if a == SECRET || b == SECRET {
+                    if a == tuning().secret || b == tuning().secret {
                         Part::Passage
                     } else {
                         Part::Sewer

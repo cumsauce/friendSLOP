@@ -9,7 +9,7 @@ use friendslop::ProtocolPlugin;
 use friendslop::features::fate::FateDice;
 use friendslop::features::fps::Walker;
 use friendslop::features::shipwreck::{
-    Attack, Doubloons, HAUL, Loot, PIRATE_HP, Pirate, chest_spot, pirate_spot,
+    Attack, Doubloons, Loot, PIRATE_HP, Pirate, chest_spot, pirate_spot,
 };
 use friendslop::player::Player;
 
@@ -88,5 +88,9 @@ fn battle_the_crew_then_plunder() {
     client.world_mut().client_trigger(Loot);
     client.world_mut().client_trigger(Loot);
     exchange(&mut server, &mut client, 3);
-    assert_eq!(purse(&mut client), HAUL, "one share each");
+    assert_eq!(
+        purse(&mut client),
+        friendslop::features::shipwreck::tuning().haul,
+        "one share each"
+    );
 }

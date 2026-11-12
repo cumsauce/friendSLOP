@@ -27,14 +27,26 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub use friendslop_world::places::wreck_at;
 /// Hits a pirate takes before he yields.
 pub const PIRATE_HP: u8 = 3;
-/// How long a beaten pirate stays down.
-pub const YIELD_SECS: f32 = 90.0;
-/// Chance a pirate's swing knocks you back.
-pub const KNOCKBACK_CHANCE: f32 = 0.35;
-/// How far a knockback sends you.
-pub const KNOCKBACK: f32 = 3.0;
-/// Doubloons from one helping of treasure.
-pub const HAUL: u32 = 25;
+/// Tuning numbers: `assets/data/side/shipwreck.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How long a beaten pirate stays down.
+    pub yield_secs: f32,
+    /// Chance a pirate's swing knocks you back.
+    pub knockback_chance: f32,
+    /// How far a knockback sends you.
+    pub knockback: f32,
+    /// Doubloons from one helping of treasure.
+    pub haul: u32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/side/shipwreck.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// The crew: name and the line he greets a challenger with.
 pub static CREW: friendslop_data::Data<Vec<(String, String)>> =
@@ -114,7 +126,7 @@ pub fn hit(p: &mut Pirate) -> bool {
     }
     p.hp = p.hp.saturating_sub(1);
     if p.hp == 0 {
-        p.down = YIELD_SECS;
+        p.down = tuning().yield_secs;
         true
     } else {
         false
@@ -275,11 +287,11 @@ fn attack(
                 p.name()
             ),
         );
-    } else if crew.roll() < KNOCKBACK_CHANCE {
+    } else if crew.roll() < tuning().knockback_chance {
         // He swings back and sends you flying.
         if let Some((_, mut w, kcc)) = bodies.iter_mut().find(|(o, ..)| o.0 == owner) {
             let away = (w.pos.xz() - pirate_spot(p.id).xz()).normalize_or(Vec2::X);
-            let to = w.pos.xz() + away * KNOCKBACK;
+            let to = w.pos.xz() + away * tuning().knockback;
             w.pos = Vec3::new(to.x, crate::terrain::height_at(to.x, to.y), to.y);
             if let Some(mut kcc) = kcc {
                 kcc.velocity = Vec3::ZERO;
@@ -326,10 +338,14 @@ fn loot(
         return;
     }
     crew.looted.push(p.id);
-    purse.0 += HAUL;
+    purse.0 += tuning().haul;
     news(
         &mut commands,
-        format!("player {} plunders {HAUL} doubloons from the wreck!", p.id),
+        format!(
+            "player {} plunders {} doubloons from the wreck!",
+            p.id,
+            tuning().haul
+        ),
     );
 }
 

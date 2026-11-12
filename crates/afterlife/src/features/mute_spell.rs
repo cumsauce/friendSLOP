@@ -28,20 +28,32 @@ use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::voice_chat::{DeviceState, TalkMode, VoiceActivity, VoiceChatState, VoiceInput};
 use crate::world::MainCamera;
 
-/// How far away you can mute someone.
-pub const CAST_RANGE: f32 = 30.0;
-/// How far off your line of sight (metres) someone can be and still count as aimed at.
-pub const AIM_SLACK: f32 = 1.2;
+/// Tuning numbers: `assets/data/afterlife/mute_spell.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How far away you can mute someone.
+    pub cast_range: f32,
+    /// How far off your line of sight (metres) someone can be and still count as aimed at.
+    pub aim_slack: f32,
+    /// Rocket speed, metres per second.
+    pub rocket_speed: f32,
+    /// A rocket gives up (fizzles) after this long.
+    pub rocket_life: f32,
+    /// A rocket this close to the caster's chest kills them.
+    pub hit_radius: f32,
+    /// Seconds between rockets.
+    pub reload: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/afterlife/mute_spell.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// You must have been sending voice this recently when you press Q.
 pub const SPOKE_WITHIN: f32 = 2.0;
-/// Rocket speed, metres per second.
-pub const ROCKET_SPEED: f32 = 30.0;
-/// A rocket gives up (fizzles) after this long.
-pub const ROCKET_LIFE: f32 = 3.0;
-/// A rocket this close to the caster's chest kills them.
-pub const HIT_RADIUS: f32 = 1.0;
-/// Seconds between rockets.
-pub const RELOAD: f32 = 1.0;
 /// Chest height above the feet.
 const CHEST: f32 = 1.0;
 
@@ -167,7 +179,7 @@ fn on_cast(
         deny(&mut commands, ev.client_id, "they're already muted");
         return;
     }
-    if me.3.pos.distance(them.3.pos) > CAST_RANGE {
+    if me.3.pos.distance(them.3.pos) > tuning().cast_range {
         deny(&mut commands, ev.client_id, "too far away for the spell");
         return;
     }
@@ -213,23 +225,23 @@ fn on_fire(
     if reload.0 > 0.0 {
         return;
     }
-    reload.0 = RELOAD;
+    reload.0 = tuning().reload;
     let eye = walker.pos + Vec3::Y * EYE;
     commands.spawn((
         Rocket {
             pos: eye + dir * 0.8,
-            vel: dir * ROCKET_SPEED,
+            vel: dir * tuning().rocket_speed,
             shooter,
             victim: silenced.by,
         },
-        Fuse(ROCKET_LIFE),
+        Fuse(tuning().rocket_life),
         Replicated,
     ));
 }
 
 /// Does a rocket at `rocket` hit someone whose feet are at `feet`?
 pub fn rocket_hits(rocket: Vec3, feet: Vec3) -> bool {
-    rocket.distance(feet + Vec3::Y * CHEST) <= HIT_RADIUS
+    rocket.distance(feet + Vec3::Y * CHEST) <= tuning().hit_radius
 }
 
 #[allow(clippy::type_complexity)]
@@ -379,11 +391,11 @@ pub fn aimed_at(eye: Vec3, dir: Vec3, players: &[(u64, Vec3)]) -> Option<u64> {
         .iter()
         .filter_map(|(id, chest)| {
             let along = (*chest - eye).dot(dir);
-            if along <= 0.0 || along > CAST_RANGE {
+            if along <= 0.0 || along > tuning().cast_range {
                 return None;
             }
             let off = (*chest - (eye + dir * along)).length();
-            (off <= AIM_SLACK).then_some((*id, along))
+            (off <= tuning().aim_slack).then_some((*id, along))
         })
         .min_by(|a, b| a.1.total_cmp(&b.1))
         .map(|(id, _)| id)
@@ -722,7 +734,7 @@ mod tests {
             "behind you is another way"
         );
         assert_eq!(aimed_at(eye, Vec3::X, &ps), None);
-        let far = [(1, Vec3::new(0.0, 1.0, -(CAST_RANGE + 5.0)))];
+        let far = [(1, Vec3::new(0.0, 1.0, -(tuning().cast_range + 5.0)))];
         assert_eq!(aimed_at(eye, Vec3::NEG_Z, &far), None);
     }
 

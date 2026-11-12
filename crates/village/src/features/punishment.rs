@@ -27,12 +27,25 @@ use crate::rules::villagers::Villager;
 
 /// Catches that set the commune on you.
 pub const STRIKES_TO_ATTACK: u8 = 4;
-/// How long attack mode lasts.
-pub const ATTACK_SECS: f32 = 60.0;
-/// How fast villagers chase (walking is 5 m/s, so you can just stay ahead).
-pub const CHASE_SPEED: f32 = 4.0;
-/// Chasers stop this close to you (they crowd you rather than stack up).
-pub const CROWD_GAP: f32 = 1.1;
+/// Tuning numbers: `assets/data/village/punishment.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How long attack mode lasts.
+    pub attack_secs: f32,
+    /// How fast villagers chase (walking is 5 m/s, so you can just stay ahead).
+    pub chase_speed: f32,
+    /// Chasers stop this close to you (they crowd you rather than stack up).
+    pub crowd_gap: f32,
+    pub jingle_rate: u32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/village/punishment.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// Times this player has been caught farting since the last attack.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -95,9 +108,9 @@ pub fn start_attack(commands: &mut Commands, target: u64) {
     commands.spawn((
         AttackMode {
             target,
-            secs_left: ATTACK_SECS as u8,
+            secs_left: tuning().attack_secs as u8,
         },
-        AttackClock(ATTACK_SECS),
+        AttackClock(tuning().attack_secs),
         Replicated,
     ));
 }
@@ -159,7 +172,7 @@ pub fn chase_step(pos: Vec2, prey: &[Vec2], dt: f32) -> Option<(Vec2, Vec2)> {
         return Some((pos, Vec2::NEG_Y));
     }
     let dir = to / d;
-    let step = (CHASE_SPEED * dt).min((d - CROWD_GAP).max(0.0));
+    let step = (tuning().chase_speed * dt).min((d - tuning().crowd_gap).max(0.0));
     Some((pos + dir * step, dir))
 }
 
@@ -220,7 +233,7 @@ fn spawn_ui(mut commands: Commands) {
         Text::new(format!(
             "punishment: get caught farting {STRIKES_TO_ATTACK} times and the villagers \
              chase you for {} s.",
-            ATTACK_SECS as u32
+            tuning().attack_secs as u32
         )),
         crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
@@ -278,7 +291,11 @@ fn jingle_keys(
         p.jingles = (0..4)
             .map(|i| {
                 audio.add(AudioSource {
-                    bytes: wav_bytes(&jingle(JINGLE_RATE, 0x6e7 + i * 977), JINGLE_RATE).into(),
+                    bytes: wav_bytes(
+                        &jingle(tuning().jingle_rate, 0x6e7 + i * 977),
+                        tuning().jingle_rate,
+                    )
+                    .into(),
                 })
             })
             .collect();
@@ -336,7 +353,6 @@ fn show_attack(
 }
 
 const SONG_RATE: u32 = 22_050;
-const JINGLE_RATE: u32 = 32_000;
 
 /// Band-limited sawtooth (polyBLEP), phase 0..1, `dt` = freq / rate.
 fn saw(phase: f32, dt: f32) -> f32 {
@@ -542,7 +558,7 @@ mod tests {
         assert_eq!(chase_step(Vec2::ZERO, &[], 0.2), None);
         let prey = [Vec2::new(10.0, 0.0), Vec2::new(-30.0, 0.0)];
         let (p, dir) = chase_step(Vec2::ZERO, &prey, 0.2).unwrap_or_default();
-        assert!((p - Vec2::new(CHASE_SPEED * 0.2, 0.0)).length() < 1e-4);
+        assert!((p - Vec2::new(tuning().chase_speed * 0.2, 0.0)).length() < 1e-4);
         assert!((dir - Vec2::X).length() < 1e-4);
         // Close up, they stop short instead of standing on you.
         let (p, _) = chase_step(Vec2::new(9.5, 0.0), &prey, 0.2).unwrap_or_default();
@@ -560,8 +576,8 @@ mod tests {
 
     #[test]
     fn jingles_ring_and_differ() {
-        let a = jingle(JINGLE_RATE, 1);
-        let b = jingle(JINGLE_RATE, 2);
+        let a = jingle(tuning().jingle_rate, 1);
+        let b = jingle(tuning().jingle_rate, 2);
         assert!(a.iter().all(|x| x.is_finite() && x.abs() <= 1.0));
         assert!(a.iter().any(|x| x.abs() > 0.5));
         assert_ne!(a, b);

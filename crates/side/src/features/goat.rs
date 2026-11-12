@@ -37,10 +37,23 @@ fn spawn_goat(mut commands: Commands) {
     ));
 }
 
-/// How long a remark stays on screen.
-const REMARK_SECS: f32 = 5.0;
-/// How long of nobody choosing anything before the goat says so.
-const IDLE_SECS: f32 = 40.0;
+/// Tuning numbers: `assets/data/side/goat.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How long a remark stays on screen.
+    pub remark_secs: f32,
+    /// How long of nobody choosing anything before the goat says so.
+    pub idle_secs: f32,
+    /// How long the goat's `judge` gesture (a look, a head shake, a hoof stomp) lasts.
+    pub judge_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/goat.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_goat_text)
@@ -52,9 +65,6 @@ pub fn plugin(app: &mut App) {
 
 /// The rigged plush goat model (clips `idle`, `judge`).
 pub const GOAT_MODEL: &str = "models/creatures/goat.gltf";
-
-/// How long the goat's `judge` gesture (a look, a head shake, a hoof stomp) lasts.
-pub const JUDGE_SECS: f32 = 2.4;
 
 /// Give the goat (on every peer) its rigged plush model. A missing file only
 /// makes it invisible: its remarks don't depend on it.
@@ -73,7 +83,7 @@ fn dress_goat(mut commands: Commands, new: Query<(Entity, &Goat), Added<Goat>>) 
 /// The goat's clip `since` seconds after its last remark: it judges while it
 /// talks, then goes back to idly chewing on its opinions.
 pub fn goat_clip(since: f32) -> crate::rigged::RigClip {
-    if (0.0..JUDGE_SECS).contains(&since) {
+    if (0.0..tuning().judge_secs).contains(&since) {
         crate::rigged::RigClip::once("judge").fade(0.2)
     } else {
         crate::rigged::RigClip::looping("idle").fade(0.4)
@@ -158,7 +168,7 @@ fn judge(
         } else {
             Choice::Unmuted
         })
-    } else if now - seen.last_choice_at > IDLE_SECS {
+    } else if now - seen.last_choice_at > tuning().idle_secs {
         Some(Choice::DidNothing)
     } else {
         None
@@ -183,7 +193,7 @@ fn judge(
     for mut text in &mut text {
         if let Some(line) = want {
             text.0 = format!("Goat: \"{}\"", random_dialogue::say(line));
-        } else if now - seen.said_at > REMARK_SECS && !text.0.is_empty() {
+        } else if now - seen.said_at > tuning().remark_secs && !text.0.is_empty() {
             text.0.clear();
         }
     }
@@ -197,7 +207,7 @@ mod tests {
     fn goat_judges_while_it_talks_then_idles() {
         assert_eq!(goat_clip(0.0).name, "judge");
         assert!(goat_clip(0.0).once);
-        assert_eq!(goat_clip(JUDGE_SECS + 0.1).name, "idle");
+        assert_eq!(goat_clip(tuning().judge_secs + 0.1).name, "idle");
         assert_eq!(goat_clip(f32::INFINITY).name, "idle");
         assert_eq!(goat_clip(f32::NEG_INFINITY).name, "idle");
     }

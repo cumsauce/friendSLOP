@@ -7,7 +7,7 @@ use bevy::prelude::*;
 
 use super::{Icons, at, body, glyph, head, mmss};
 use crate::AppState;
-use crate::features::fart::{Gas, MIN_GAS};
+use crate::features::fart::Gas;
 use crate::features::fat_cat::{FatCat, Fuse, Lapping, MAX_SIZE};
 use crate::player::{LocalPlayer, Player};
 use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK, PERIWINKLE, RAISED};
@@ -43,7 +43,7 @@ enum Part {
 /// The gas card's three lines for `gas` percent.
 pub fn gas_lines(gas: u8) -> (String, f32, &'static str) {
     let gas = gas.min(100);
-    let ready = gas >= MIN_GAS;
+    let ready = gas >= crate::features::fart::tuning().min_gas;
     let label = if ready {
         format!("{gas}% · READY")
     } else {
@@ -304,7 +304,7 @@ fn update(
     }
 
     let (gas_label, gas_frac, gas_hint) = gas_lines(gas);
-    let ready = gas >= MIN_GAS;
+    let ready = gas >= crate::features::fart::tuning().min_gas;
     for (part, mut node, text, bg) in &mut parts {
         let set = |s: String| {
             if let Some(mut t) = text
@@ -364,7 +364,7 @@ mod tests {
         assert_eq!(label, "100% · READY");
         assert_eq!(frac, 1.0);
         assert_eq!(hint, "F  to fart");
-        let (label, _, hint) = gas_lines(MIN_GAS - 1);
+        let (label, _, hint) = gas_lines(crate::features::fart::tuning().min_gas - 1);
         assert!(label.ends_with("filling"));
         assert_ne!(hint, "F  to fart");
         assert_eq!(cat_size(4.2), "4.2× / 25×");

@@ -1,0 +1,15 @@
+// Tuning for duel (crates/play/src/features/duel.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    lives: 3,
+    speed: 5.0,
+    punch_reach: 1.8,
+    news_secs: 5.0,
+    // The first-person revolver is modeler-made at real size (34 cm, barrel
+    // along +X; source in `.modeler/`), shown a touch big so it reads in first
+    // person. Nudge after eyeballing a duel.
+    gun_scale: 1.25,
+    // Lengths of the one-shot clips as authored, in seconds.
+    shoot_secs: 0.6,
+    hit_secs: 0.7,
+)

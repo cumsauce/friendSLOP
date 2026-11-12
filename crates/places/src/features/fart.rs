@@ -48,14 +48,26 @@ pub struct Farted {
     pub pressure: u8,
 }
 
-/// Seconds for gas to go from empty to full.
-pub const GAS_FILL_SECS: f32 = 40.0;
-/// You need at least this much gas to fart.
-pub const MIN_GAS: u8 = 20;
-/// NPCs closer than this (metres) to your bottom will see you fart.
-pub const SHAME_RADIUS: f32 = 4.0;
-/// How long the shame lasts.
-pub const SHAME_SECS: f32 = 20.0;
+/// Tuning numbers: `assets/data/places/fart.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds for gas to go from empty to full.
+    pub gas_fill_secs: f32,
+    /// You need at least this much gas to fart.
+    pub min_gas: u8,
+    /// NPCs closer than this (metres) to your bottom will see you fart.
+    pub shame_radius: f32,
+    /// How long the shame lasts.
+    pub shame_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/fart.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Gas>()
@@ -92,7 +104,7 @@ fn build_pressure(
     if crate::features::stillness::is_frozen(&still) {
         return;
     }
-    let per_sec = 100.0 / GAS_FILL_SECS;
+    let per_sec = 100.0 / tuning().gas_fill_secs;
     for (mut gas, mut buildup, skills) in &mut players {
         // Farting skill fills you faster (#176).
         let per_sec = per_sec * skills.map_or(1.0, |s| s.gas_rate());
@@ -126,7 +138,7 @@ pub fn npc_spots<'a>(
 
 /// Would farting at `at` be seen by an NPC standing at one of `npcs`?
 pub fn is_shameful(at: Vec2, npcs: &[Vec2]) -> bool {
-    is_shameful_within(at, npcs, SHAME_RADIUS)
+    is_shameful_within(at, npcs, tuning().shame_radius)
 }
 
 /// Like [`is_shameful`], with NPCs that see `radius` metres (Marmalade's
@@ -158,7 +170,7 @@ fn let_rip(
     let Some((player, _, mut gas)) = players.iter_mut().find(|(_, o, _)| o.0 == owner) else {
         return;
     };
-    if gas.0 < MIN_GAS {
+    if gas.0 < tuning().min_gas {
         return;
     }
     let at = duelists
@@ -310,7 +322,7 @@ fn hear_fart(
     if !(me && farted.shamed) {
         return;
     }
-    shame.remaining = SHAME_SECS;
+    shame.remaining = tuning().shame_secs;
     if let Some(old) = shame.song.take() {
         commands.entity(old).try_despawn();
     }
@@ -406,14 +418,14 @@ pub fn shame_song(rate: u32) -> Vec<f32> {
         11.0,
     ];
     const BASS: [f32; 4] = [0.0, 6.0, 1.0, 6.0];
-    let n = (SHAME_SECS * rate as f32) as usize;
+    let n = (tuning().shame_secs * rate as f32) as usize;
     let mut out = Vec::with_capacity(n);
     let (mut lead_phase, mut bass_phase) = (0.0f32, 0.0f32);
     let mut held = 0.0f32;
     for i in 0..n {
         let t = i as f32 / rate as f32;
         let step = (t * 6.0) as usize;
-        let creep = t / SHAME_SECS; // gets more out of tune as it goes
+        let creep = t / tuning().shame_secs; // gets more out of tune as it goes
         let wobble = (t * 5.3).sin() * (0.15 + 0.6 * creep);
         let lead_f = 110.0 * 2f32.powf((LEAD[step % LEAD.len()] + wobble) / 12.0);
         let bass_f = 55.0 * 2f32.powf(BASS[(step / 8) % BASS.len()] / 12.0);
@@ -431,7 +443,7 @@ pub fn shame_song(rate: u32) -> Vec<f32> {
             held = (mix * 8.0).round() / 8.0;
         }
         let driven = (held * 2.5).tanh();
-        let fade = (t * 4.0).min(1.0) * ((SHAME_SECS - t) * 2.0).min(1.0);
+        let fade = (t * 4.0).min(1.0) * ((tuning().shame_secs - t) * 2.0).min(1.0);
         out.push((driven * fade * 0.4).clamp(-1.0, 1.0));
     }
     out
@@ -464,7 +476,7 @@ mod tests {
     #[test]
     fn shame_song_is_twenty_seconds_and_sane() {
         let s = shame_song(SONG_RATE);
-        assert_eq!(s.len(), (SHAME_SECS * SONG_RATE as f32) as usize);
+        assert_eq!(s.len(), (tuning().shame_secs * SONG_RATE as f32) as usize);
         let peak = s.iter().fold(0.0f32, |m, x| m.max(x.abs()));
         assert!(peak > 0.1 && peak <= 1.0, "peak {peak}");
         assert!(s.iter().all(|x| x.is_finite()));

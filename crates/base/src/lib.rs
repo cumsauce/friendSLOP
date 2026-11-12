@@ -49,6 +49,14 @@ pub mod features {
 /// This crate's data files (see `friendslop_data`).
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
+        &features::babble::TUNING,
+        &features::bear::TUNING,
+        &features::crows::TUNING,
+        &features::great_storm::TUNING,
+        &features::random_dialogue::TUNING,
+        &features::stillness::TUNING,
+        &features::voice_lines::TUNING,
+        &features::whispers::TUNING,
         &features::random_dialogue::RANDOM_WORDS,
         &rules::villagers::NAMES,
     ]

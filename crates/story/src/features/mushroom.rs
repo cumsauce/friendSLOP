@@ -36,10 +36,24 @@ pub struct MushroomVoice {
     pub secs: f32,
 }
 
-/// How long a mushroom's effect lasts.
-pub const EFFECT_SECS: f32 = 45.0;
-/// How long until a new mushroom sprouts after one is eaten.
-const REGROW_SECS: f32 = 10.0;
+/// Tuning numbers: `assets/data/story/mushroom.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How long a mushroom's effect lasts.
+    pub effect_secs: f32,
+    /// How long until a new mushroom sprouts after one is eaten.
+    pub regrow_secs: f32,
+    pub ring: usize,
+    pub window: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/story/mushroom.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 pub fn protocol(app: &mut App) {
     app.replicate::<Mushroom>()
@@ -167,10 +181,10 @@ fn eat_mushroom(
         targets: SendTargets::Single(eat.client_id),
         message: MushroomVoice {
             pitch: pick_pitch(coin, amount),
-            secs: EFFECT_SECS,
+            secs: tuning().effect_secs,
         },
     });
-    patch.regrow_in = Some(REGROW_SECS);
+    patch.regrow_in = Some(tuning().regrow_secs);
 }
 
 pub fn plugin(app: &mut App) {
@@ -319,14 +333,11 @@ pub struct PitchShifter {
     delay: f32,
 }
 
-const RING: usize = 2048;
-const WINDOW: f32 = 800.0; // 50 ms at 16 kHz
-
 impl PitchShifter {
     pub fn new(ratio: f32) -> Self {
         Self {
             ratio,
-            buf: vec![0.0; RING],
+            buf: vec![0.0; tuning().ring],
             write: 0,
             delay: 0.0,
         }
@@ -334,9 +345,9 @@ impl PitchShifter {
 
     fn read(&self, delay: f32) -> f32 {
         let pos = self.write as f32 - 1.0 - delay;
-        let pos = pos.rem_euclid(RING as f32);
-        let i = pos as usize % RING;
-        let j = (i + 1) % RING;
+        let pos = pos.rem_euclid(tuning().ring as f32);
+        let i = pos as usize % tuning().ring;
+        let j = (i + 1) % tuning().ring;
         let frac = pos.fract();
         self.buf[i] * (1.0 - frac) + self.buf[j] * frac
     }
@@ -344,16 +355,16 @@ impl PitchShifter {
     /// Process one sample.
     pub fn tick(&mut self, x: f32) -> f32 {
         self.buf[self.write] = x;
-        self.write = (self.write + 1) % RING;
+        self.write = (self.write + 1) % tuning().ring;
         if (self.ratio - 1.0).abs() < 1e-3 {
             self.delay = 0.0;
             return x;
         }
         let d1 = self.delay;
-        let d2 = (d1 + WINDOW / 2.0) % WINDOW;
-        let gain = |d: f32| 0.5 - 0.5 * (std::f32::consts::TAU * d / WINDOW).cos();
+        let d2 = (d1 + tuning().window / 2.0) % tuning().window;
+        let gain = |d: f32| 0.5 - 0.5 * (std::f32::consts::TAU * d / tuning().window).cos();
         let y = self.read(d1) * gain(d1) + self.read(d2) * gain(d2);
-        self.delay = (self.delay + 1.0 - self.ratio).rem_euclid(WINDOW);
+        self.delay = (self.delay + 1.0 - self.ratio).rem_euclid(tuning().window);
         y
     }
 }

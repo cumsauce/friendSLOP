@@ -22,3 +22,17 @@ pub mod features {
     pub mod underground;
     pub mod warehouse;
 }
+
+/// This crate's data files (see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![
+        &features::fart::TUNING,
+        &features::helicopter::TUNING,
+        &features::skills::TUNING,
+        &features::smoking::TUNING,
+        &features::underground::TUNING,
+        &features::warehouse::TUNING,
+        &features::warehouse::bathroom::TUNING,
+        &features::warehouse::visuals::bathroom::TUNING,
+    ]
+}

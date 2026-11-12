@@ -30,8 +30,20 @@ use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub use crate::rules::skills::*;
 
-/// How long a puddle lies there.
-pub const PUDDLE_SECS: f32 = 20.0;
+/// Tuning numbers: `assets/data/places/skills.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// How long a puddle lies there.
+    pub puddle_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/skills.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// On a player while they're asleep. Replicated.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -147,7 +159,7 @@ fn piss(
             at,
             size,
         },
-        PuddleLife(PUDDLE_SECS),
+        PuddleLife(tuning().puddle_secs),
         Replicated,
     ));
     commands.server_trigger(ToClients {
@@ -341,7 +353,7 @@ struct PuddleAge(f32);
 /// The shown size of a puddle `age` seconds old: it shrinks as it dries, but
 /// never quite vanishes (the server removes it).
 pub fn puddle_scale(age: f32) -> f32 {
-    (1.0 - age / PUDDLE_SECS).max(0.1).sqrt()
+    (1.0 - age / tuning().puddle_secs).max(0.1).sqrt()
 }
 
 fn show_puddles(

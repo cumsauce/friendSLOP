@@ -1,0 +1,11 @@
+// Tuning for systemd (crates/afterlife/src/features/systemd.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // How long you may stand perfectly still before PID 1 kills you.
+    watchdog_secs: 180.0,
+    // The warning comes this long before the kill.
+    warn_secs: 20.0,
+    // Moving less than this (metres) or turning less than this (radians) isn't a ping.
+    stir: 0.05,
+    turn: 0.02,
+)

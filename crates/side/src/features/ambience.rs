@@ -39,7 +39,10 @@ fn load_ambience(
         return;
     };
     let wind = audio.add(AudioSource {
-        bytes: Arc::from(wav_bytes(&wind_loop(WIND_RATE), WIND_RATE)),
+        bytes: Arc::from(wav_bytes(
+            &wind_loop(tuning().wind_rate),
+            tuning().wind_rate,
+        )),
     });
     commands.insert_resource(AmbientSounds {
         birds: assets.load("audio/ambience/birds.ogg"),
@@ -111,16 +114,28 @@ fn district_mix(
     }
 }
 
-/// Wind is all low frequencies, so a lower rate is plenty (and cheaper).
-const WIND_RATE: u32 = 22_050;
-/// Seconds per wind loop.
-pub const WIND_SECS: f32 = 12.0;
+/// Tuning numbers: `assets/data/side/ambience.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Wind is all low frequencies, so a lower rate is plenty (and cheaper).
+    pub wind_rate: u32,
+    /// Seconds per wind loop.
+    pub wind_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/side/ambience.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// A seamlessly looping wind bed: brown noise, gently low-passed, swelling in
 /// gusts. Gust rates are whole cycles per loop and the noise tail is
 /// cross-faded into its head, so the loop point is inaudible.
 pub fn wind_loop(rate: u32) -> Vec<f32> {
-    let n = (WIND_SECS * rate as f32) as usize;
+    let n = (tuning().wind_secs * rate as f32) as usize;
     let xfade = rate as usize; // one second
     let mut rng = 0x5EED_1234u32;
     let mut brown = 0.0f32;
@@ -177,8 +192,11 @@ mod tests {
 
     #[test]
     fn wind_is_quiet_safe_and_loops() {
-        let s = wind_loop(WIND_RATE);
-        assert_eq!(s.len(), (WIND_SECS * WIND_RATE as f32) as usize);
+        let s = wind_loop(tuning().wind_rate);
+        assert_eq!(
+            s.len(),
+            (tuning().wind_secs * tuning().wind_rate as f32) as usize
+        );
         assert!(s.iter().all(|x| x.is_finite()));
         let peak = s.iter().fold(0.0f32, |m, x| m.max(x.abs()));
         assert!(peak > 0.3 && peak <= 0.71, "peak {peak}");

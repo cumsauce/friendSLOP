@@ -18,10 +18,21 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::player::{Player, PlayerOwner};
 
-/// Chance that any action fails.
-pub const FAIL_CHANCE: f32 = 0.05;
-/// How long a failure's result lasts.
-pub const RESULT_SECS: f32 = 60.0;
+/// Tuning numbers: `assets/data/play/fate.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Chance that any action fails.
+    pub fail_chance: f32,
+    /// How long a failure's result lasts.
+    pub result_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/play/fate.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// What a failed action caused.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -118,7 +129,7 @@ pub struct FateDice {
 impl Default for FateDice {
     fn default() -> Self {
         Self {
-            chance: FAIL_CHANCE,
+            chance: tuning().fail_chance,
             seed: 0x0fa7_e80d,
         }
     }
@@ -147,7 +158,7 @@ pub struct Fate<'w, 's> {
 impl Fate<'_, '_> {
     /// True if the action fails (and a random result has been applied).
     pub fn fails(&mut self, client: ClientId) -> bool {
-        let scale = crate::rules::house_odds::odds(&self.odds).fail_chance() / FAIL_CHANCE;
+        let scale = crate::rules::house_odds::odds(&self.odds).fail_chance() / tuning().fail_chance;
         if self.dice.roll() >= self.dice.chance * scale {
             return false;
         }
@@ -165,7 +176,7 @@ impl Fate<'_, '_> {
             board.mishaps.push(Mishap {
                 player,
                 outcome,
-                secs_left: RESULT_SECS,
+                secs_left: tuning().result_secs,
             });
         }
         true
@@ -311,7 +322,9 @@ mod tests {
     #[test]
     fn failure_is_rare_but_happens() {
         let mut dice = FateDice::default();
-        let fails = (0..2000).filter(|_| dice.roll() < FAIL_CHANCE).count();
+        let fails = (0..2000)
+            .filter(|_| dice.roll() < tuning().fail_chance)
+            .count();
         assert!((40..200).contains(&fails), "{fails}");
     }
 
@@ -319,6 +332,6 @@ mod tests {
     fn the_first_few_actions_succeed() {
         // Keeps other features' multiplayer tests deterministic.
         let mut dice = FateDice::default();
-        assert!((0..32).all(|_| dice.roll() >= FAIL_CHANCE));
+        assert!((0..32).all(|_| dice.roll() >= tuning().fail_chance));
     }
 }

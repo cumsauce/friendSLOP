@@ -23,3 +23,14 @@ pub mod features {
     pub mod mute_spell;
     pub mod systemd;
 }
+
+/// This crate's data files (see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![
+        &features::afterlife::TUNING,
+        &features::fat_cat::TUNING,
+        &features::kitty_lemonade::TUNING,
+        &features::mute_spell::TUNING,
+        &features::systemd::TUNING,
+    ]
+}

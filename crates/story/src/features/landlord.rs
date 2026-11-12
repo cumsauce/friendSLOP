@@ -34,16 +34,28 @@ use crate::rigged::{RigClip, Rigged};
 
 /// Where the landlord stands.
 pub use friendslop_world::places::landlord_at;
-/// Rent before the inciting raise.
-pub const OLD_RENT: u32 = 10;
-/// How much each raise adds.
-pub const RAISE_BY: u32 = 15;
-/// Seconds between rent raises.
-pub const RAISE_SECS: f32 = 60.0;
-/// Raises (after the first) until the tenants turn to crime.
-pub const RAISES_BEFORE_CRIME: u32 = 3;
-/// Heists until the landlord turns into a boss.
-pub const HEISTS_BEFORE_BOSS: u32 = 3;
+/// Tuning numbers: `assets/data/story/landlord.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Rent before the inciting raise.
+    pub old_rent: u32,
+    /// How much each raise adds.
+    pub raise_by: u32,
+    /// Seconds between rent raises.
+    pub raise_secs: f32,
+    /// Raises (after the first) until the tenants turn to crime.
+    pub raises_before_crime: u32,
+    /// Heists until the landlord turns into a boss.
+    pub heists_before_boss: u32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/story/landlord.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 /// The boss landlord's health.
 pub const BOSS_HP: u32 = 12;
 
@@ -79,13 +91,13 @@ impl Default for Tenancy {
     fn default() -> Self {
         Self {
             act: Act3::Legal,
-            rent: OLD_RENT + RAISE_BY,
+            rent: tuning().old_rent + tuning().raise_by,
             paid: 0,
             raises: 0,
             heists: 0,
             hp: BOSS_HP,
             stash: Vec::new(),
-            next_raise: RAISE_SECS,
+            next_raise: tuning().raise_secs,
         }
     }
 }
@@ -106,10 +118,10 @@ impl Tenancy {
     /// He raises the rent (and resets his clock). Enough raises and the law
     /// has failed you.
     fn raise(&mut self) {
-        self.next_raise = RAISE_SECS;
+        self.next_raise = tuning().raise_secs;
         self.raises += 1;
-        self.rent += RAISE_BY;
-        if self.raises >= RAISES_BEFORE_CRIME {
+        self.rent += tuning().raise_by;
+        if self.raises >= tuning().raises_before_crime {
             self.act = Act3::Crime;
         }
     }
@@ -135,7 +147,7 @@ impl Tenancy {
                     purse.0.push(organ);
                 }
                 self.heists += 1;
-                if self.heists >= HEISTS_BEFORE_BOSS {
+                if self.heists >= tuning().heists_before_boss {
                     self.act = Act3::Boss;
                 }
                 true
@@ -305,7 +317,9 @@ pub fn describe(t: &Tenancy) -> String {
         ),
         Act3::Crime => format!(
             "the law has failed you  |  rent {}\nclick him to pickpocket an organ  {}/{}",
-            t.rent, t.heists, HEISTS_BEFORE_BOSS
+            t.rent,
+            t.heists,
+            tuning().heists_before_boss
         ),
         Act3::Boss => format!(
             "BOSS  |  THE LANDLORD  {}/{}\nclick him to fight back",
@@ -399,18 +413,21 @@ mod tests {
     #[test]
     fn the_whole_story() {
         let mut t = Tenancy::default();
-        assert!(t.rent > OLD_RENT, "the inciting incident raises the rent");
+        assert!(
+            t.rent > tuning().old_rent,
+            "the inciting incident raises the rent"
+        );
         let mut purse = starting_purse();
         assert!(!t.bother(&mut purse), "paying rent is legal");
         assert!(purse.0.is_empty());
         assert_eq!(t.paid, 21);
-        for _ in 0..RAISES_BEFORE_CRIME {
-            t.tick(RAISE_SECS + 1.0);
+        for _ in 0..tuning().raises_before_crime {
+            t.tick(tuning().raise_secs + 1.0);
         }
         assert_eq!(t.act, Act3::Crime);
         assert!(t.bother(&mut purse), "pickpocketing harms him");
         assert_eq!(purse.0.len(), 1);
-        for _ in 1..HEISTS_BEFORE_BOSS {
+        for _ in 1..tuning().heists_before_boss {
             t.bother(&mut purse);
         }
         assert_eq!(t.act, Act3::Boss);
@@ -418,7 +435,7 @@ mod tests {
             t.bother(&mut purse);
         }
         assert_eq!(t.act, Act3::Won);
-        t.tick(RAISE_SECS * 10.0);
+        t.tick(tuning().raise_secs * 10.0);
         assert_eq!(t.act, Act3::Won);
     }
 
@@ -430,7 +447,7 @@ mod tests {
             t.bother(&mut starting_purse());
         }
         assert_eq!(t.act, Act3::Crime, "they paid off three raises");
-        assert!(t.next_raise >= RAISE_SECS - 1.0);
+        assert!(t.next_raise >= tuning().raise_secs - 1.0);
         // One tenant can't keep up: they just pay towards it.
         let mut t = Tenancy::default();
         t.bother(&mut starting_purse());

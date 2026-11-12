@@ -24,12 +24,24 @@ use crate::features::interact::{Clickable, Clicked, in_reach};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
-/// Seconds until a taken egg is laid again.
-pub const EGG_SECS: f32 = 20.0;
-/// Flirts with Paul per joint.
-pub const LOVE_FOR_JOINT: u32 = 3;
-/// How long one smoke lasts.
-pub const SMOKE_SECS: f32 = 8.0;
+/// Tuning numbers: `assets/data/places/smoking.ron` (read at run time, edit without a rebuild).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds until a taken egg is laid again.
+    pub egg_secs: f32,
+    /// Flirts with Paul per joint.
+    pub love_for_joint: u32,
+    /// How long one smoke lasts.
+    pub smoke_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/places/smoking.ron");
+
+/// The current tuning numbers.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
 
 /// What a player carries for (and from) Sewer Paul.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -82,7 +94,7 @@ pub fn visit(stash: &mut Stash) -> &'static str {
         return "Sewer Paul: \"my favourite! crow eggs!\" he slurps it and gives you a cig";
     }
     stash.love += 1;
-    if stash.love >= LOVE_FOR_JOINT {
+    if stash.love >= tuning().love_for_joint {
         stash.love = 0;
         stash.joints += 1;
         "Sewer Paul blushes under the grime: \"for you, sweetheart\" (he gives you a joint)"
@@ -227,7 +239,7 @@ fn take_egg(
     };
     stash.eggs += 1;
     commands.entity(egg).despawn();
-    *timer = Some(EGG_SECS);
+    *timer = Some(tuning().egg_secs);
     say(&mut commands, take.client_id, "you pocket a crow egg");
 }
 
@@ -270,7 +282,7 @@ fn smoke(
         return;
     };
     commands.entity(player).insert(Smoking {
-        left: SMOKE_SECS,
+        left: tuning().smoke_secs,
         joint,
     });
     let text = if joint {
@@ -494,7 +506,7 @@ mod tests {
         };
         visit(&mut s);
         assert_eq!((s.eggs, s.cigs, s.joints), (0, 1, 0));
-        for _ in 0..LOVE_FOR_JOINT {
+        for _ in 0..tuning().love_for_joint {
             visit(&mut s);
         }
         assert_eq!((s.cigs, s.joints, s.love), (1, 1, 0));

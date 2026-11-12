@@ -1,0 +1,554 @@
+{
+  "format_version": 1,
+  "name": "hs-shutter",
+  "parts": [],
+  "version": 21305,
+  "ops": [
+    {
+      "primitive": {
+        "name": "stile_l",
+        "kind": "box",
+        "size": [
+          0.05,
+          1.0,
+          0.04
+        ],
+        "translation": [
+          -0.15,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stile_r",
+        "kind": "box",
+        "size": [
+          0.05,
+          1.0,
+          0.04
+        ],
+        "translation": [
+          0.15,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail_t",
+        "kind": "box",
+        "size": [
+          0.35,
+          0.06,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          0.47,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail_m",
+        "kind": "box",
+        "size": [
+          0.35,
+          0.06,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail_b",
+        "kind": "box",
+        "size": [
+          0.35,
+          0.06,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          -0.47,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "slat",
+        "kind": "box",
+        "size": [
+          0.26,
+          0.05,
+          0.012
+        ],
+        "translation": [
+          0.0,
+          0.39,
+          0.0
+        ],
+        "rotation": [
+          0.3007058,
+          0.0,
+          0.0,
+          0.95371693
+        ]
+      }
+    },
+    {
+      "linear_array": {
+        "name": "slats_t",
+        "input": "slat",
+        "count": 7,
+        "offset": [
+          0.0,
+          -0.052,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "slat2",
+        "kind": "box",
+        "size": [
+          0.26,
+          0.05,
+          0.012
+        ],
+        "translation": [
+          0.0,
+          -0.08,
+          0.0
+        ],
+        "rotation": [
+          0.3007058,
+          0.0,
+          0.0,
+          0.95371693
+        ]
+      }
+    },
+    {
+      "linear_array": {
+        "name": "slats_b",
+        "input": "slat2",
+        "count": 7,
+        "offset": [
+          0.0,
+          -0.052,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "hinge_t",
+        "kind": "box",
+        "size": [
+          0.08,
+          0.03,
+          0.05
+        ],
+        "translation": [
+          -0.19,
+          0.38,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "hinge_b",
+        "kind": "box",
+        "size": [
+          0.08,
+          0.03,
+          0.05
+        ],
+        "translation": [
+          -0.19,
+          -0.38,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "shutter",
+        "inputs": [
+          "stile_l",
+          "stile_r",
+          "rail_t",
+          "rail_m",
+          "rail_b",
+          "slat",
+          "slats_t_1",
+          "slats_t_2",
+          "slats_t_3",
+          "slats_t_4",
+          "slats_t_5",
+          "slats_t_6",
+          "slat2",
+          "slats_b_1",
+          "slats_b_2",
+          "slats_b_3",
+          "slats_b_4",
+          "slats_b_5",
+          "slats_b_6"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "hinges",
+        "inputs": [
+          "hinge_t",
+          "hinge_b"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "shutter",
+        "input": "shutter",
+        "base_color": [
+          0.24705882,
+          0.41960785,
+          0.30980393,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "hinges",
+        "input": "hinges",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fu-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 81,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2a2a30"
+                  ],
+                  [
+                    0.6,
+                    "#3a3a42"
+                  ],
+                  [
+                    1,
+                    "#5a4a3e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.7
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "stile_l",
+        "input": "stile_l",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stile_r",
+        "input": "stile_r",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rail_t",
+        "input": "rail_t",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rail_m",
+        "input": "rail_m",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rail_b",
+        "input": "rail_b",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slat",
+        "input": "slat",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_t_1",
+        "input": "slats_t_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_t_2",
+        "input": "slats_t_2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_t_3",
+        "input": "slats_t_3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_t_4",
+        "input": "slats_t_4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_t_5",
+        "input": "slats_t_5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_t_6",
+        "input": "slats_t_6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slat2",
+        "input": "slat2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_b_1",
+        "input": "slats_b_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_b_2",
+        "input": "slats_b_2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_b_3",
+        "input": "slats_b_3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_b_4",
+        "input": "slats_b_4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_b_5",
+        "input": "slats_b_5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slats_b_6",
+        "input": "slats_b_6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hinge_t",
+        "input": "hinge_t",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hinge_b",
+        "input": "hinge_b",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

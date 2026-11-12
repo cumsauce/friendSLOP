@@ -51,7 +51,7 @@ fn wet_or_taken(p: Vec2, margin: f32) -> bool {
         || crate::terrain::is_pond(p.x + margin, p.y)
         || p.distance(windmill_at()) < 6.0 + margin
         || crate::features::warehouse::covers(p, margin)
-        || p.distance(crate::features::wendys::wendys_at()) < 6.0 + margin
+        || crate::features::wendys::covers(p, margin)
         || crate::features::underground::covers(p, margin)
         || friendslop_world::footprints::claimed(p, margin)
 }

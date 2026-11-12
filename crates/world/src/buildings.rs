@@ -861,6 +861,13 @@ pub const PROP_MODELS: &[&str] = &[
     "cup_plate",
     "bucket",
     "sack",
+    // House trim from the grammar (`hs-*` sources).
+    "window",
+    "door",
+    "shutter",
+    "shopfront",
+    "awning",
+    "chimney_cap",
 ];
 
 fn has_model(name: &str) -> bool {

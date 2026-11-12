@@ -16,6 +16,8 @@
 //! reachable by stairs, and solid boxes touching but never overlapping (the
 //! tests check all of it over many seeds). No game code.
 
+use std::f32::consts::{FRAC_PI_2, PI};
+
 use bevy::prelude::*;
 
 use crate::{Hole, Kit, Palette, Shape, Solid};
@@ -432,6 +434,35 @@ pub fn build<M: Palette>(k: &mut Kit<M>, design: &Design, style: &Style<M>) -> V
             ];
         }
         k.walls(w, d, y0, storey, [&south, &north, &east, &west], wall);
+        // Trim models in the holes: frames, doors, shop windows.
+        let sides: [(&[Hole], Quat, fn(f32, f32, f32) -> Vec2); 4] = [
+            (&south, Quat::IDENTITY, |c, _, hz| Vec2::new(c, hz)),
+            (&north, Quat::from_rotation_y(PI), |c, _, hz| {
+                Vec2::new(-c, -hz)
+            }),
+            (&east, Quat::from_rotation_y(FRAC_PI_2), |c, hx, _| {
+                Vec2::new(hx, -c)
+            }),
+            (&west, Quat::from_rotation_y(-FRAC_PI_2), |c, hx, _| {
+                Vec2::new(-hx, c)
+            }),
+        ];
+        for (holes, rot, place) in sides {
+            for hole in holes {
+                let p = place(hole.c, hx, hz);
+                let at = Vec3::new(p.x, y0 + hole.y0, p.y);
+                if hole.y0 <= 1e-3 {
+                    if (hole.w - crate::DOOR_W).abs() < 1e-3 {
+                        k.mark("door", at, rot, Vec3::ONE);
+                    }
+                } else if hole.w > 1.5 {
+                    k.mark("shopfront", at, rot, Vec3::ONE);
+                } else {
+                    let size = Vec3::new(hole.w, hole.y1 - hole.y0, 1.0);
+                    k.mark("window", at, rot, size);
+                }
+            }
+        }
         // Shutters either side of front windows.
         if design.shutters {
             for hole in south.iter().filter(|h| h.y0 > 0.5 && h.w <= 1.0) {
@@ -442,6 +473,9 @@ pub fn build<M: Palette>(k: &mut Kit<M>, design: &Design, style: &Style<M>) -> V
                         hz + t / 2.0 + 0.04,
                     );
                     let size = Vec3::new(0.35, hole.y1 - hole.y0, 0.04);
+                    // The model's hinges face the window.
+                    let turn = Quat::from_rotation_y(if s < 0.0 { PI } else { 0.0 });
+                    let p = k.begin_prop_turned("shutter", c, turn, Vec3::ONE);
                     k.put(
                         Shape::Cube,
                         c,
@@ -451,6 +485,7 @@ pub fn build<M: Palette>(k: &mut Kit<M>, design: &Design, style: &Style<M>) -> V
                         Solid::None,
                         true,
                     );
+                    k.end_prop(p);
                 }
             }
         }
@@ -526,6 +561,8 @@ pub fn build<M: Palette>(k: &mut Kit<M>, design: &Design, style: &Style<M>) -> V
             continue;
         }
         let cloth = pick(&style.awnings, design.awning, M::RED);
+        let at = Vec3::new(*bay, 2.5, hz + t / 2.0 + 0.6);
+        let p = k.begin_prop("awning", at, Vec3::ONE);
         for i in 0..4 {
             let x = bay - 0.9 + 0.6 * (i as f32 + 0.5);
             let mat = if i % 2 == 0 { cloth } else { M::LINEN };
@@ -534,6 +571,7 @@ pub fn build<M: Palette>(k: &mut Kit<M>, design: &Design, style: &Style<M>) -> V
             let size = Vec3::new(0.6, 0.04, 1.2);
             k.put(Shape::Cube, c, size, rot, mat, Solid::None, true);
         }
+        k.end_prop(p);
     }
     // Inner wall.
     if let Some(xs) = design.split {
@@ -636,6 +674,8 @@ pub fn build<M: Palette>(k: &mut Kit<M>, design: &Design, style: &Style<M>) -> V
             style.stone,
             Solid::None,
         );
+        let top = Vec3::new((xa + xb) / 2.0, roof_top + 0.8, -0.6);
+        k.mark("chimney_cap", top, Quat::IDENTITY, Vec3::ONE);
     }
 
     // ---- rooms

@@ -382,6 +382,7 @@ fn build_inside(
     built.0 = want;
     let Some(seed) = want else { return };
     let plan = Plan::generate(seed);
+    let tiles = super::wfc::TILES.get();
     let mut rng = Rng::new(seed ^ 0xdec0);
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     // The nightmare bathroom (#161), if this warehouse has one.
@@ -571,13 +572,20 @@ fn build_inside(
                 if hi - lo < 0.01 {
                     continue;
                 }
-                part(
-                    &mut commands,
-                    m,
-                    Vec3::new(at.x, y + (lo + hi) / 2.0, at.y),
-                    Vec3::new(size.x, hi - lo, size.y),
-                    true,
-                );
+                let centre = Vec3::new(at.x, y + (lo + hi) / 2.0, at.y);
+                let size = Vec3::new(size.x, hi - lo, size.y);
+                if in_bath((x, z)) || in_bath(n) {
+                    part(&mut commands, m, centre, size, true);
+                } else {
+                    // The tile pieces draw these walls: just the collider.
+                    commands.spawn((
+                        InteriorPart,
+                        Transform::from_translation(centre).with_scale(size),
+                        avian3d::prelude::RigidBody::Static,
+                        avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+                        DespawnOnExit(AppState::InGame),
+                    ));
+                }
             }
         }
     }
@@ -588,6 +596,17 @@ fn build_inside(
         for (x, &mask) in row.iter().enumerate().take(W) {
             let c = cell_centre(x, z);
             let cw = Vec3::new(c.x, y, c.y);
+            // The cell's piece of the tile kit (its walls and floor marks).
+            if !in_bath((x, z))
+                && let Some(placed) = plan.pieces[z][x]
+                && let Some(piece) = tiles.pieces.get(placed.piece as usize)
+            {
+                prop(
+                    &mut commands,
+                    &piece.model,
+                    Transform::from_translation(cw).with_rotation(placed.rotation()),
+                );
+            }
             if let Some(kit) = kit.as_ref().filter(|_| in_bath((x, z))) {
                 bathroom::furnish(&mut commands, kit, seed, (x, z), mask, hum.as_ref());
                 continue;

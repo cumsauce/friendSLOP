@@ -1,0 +1,198 @@
+{
+  "name": "wd-meat",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 3,
+      "seed": 51,
+      "size": 0.125,
+      "type": "noise"
+    },
+    {
+      "amount": 0.05,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "mode": "ridged",
+      "name": "fat",
+      "octaves": 4,
+      "seed": 52,
+      "size": 0.0625,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.7,
+        0.85
+      ],
+      "input": "fat",
+      "name": "fm",
+      "type": "levels"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 53,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "red",
+      "stops": [
+        [
+          0,
+          "#7a1c1c"
+        ],
+        [
+          1,
+          "#b8484a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "red",
+      "b": "#ead6c4",
+      "c": "fm",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.35,
+      "b": 0.6,
+      "c": "fm",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "fm",
+      "b": 0.001,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wd-meat",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 3,
+              "seed": 51,
+              "size": 0.125,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "mode": "ridged",
+              "name": "fat",
+              "octaves": 4,
+              "seed": 52,
+              "size": 0.0625,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.7,
+                0.85
+              ],
+              "input": "fat",
+              "name": "fm",
+              "type": "levels"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 53,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "red",
+              "stops": [
+                [
+                  0,
+                  "#7a1c1c"
+                ],
+                [
+                  1,
+                  "#b8484a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "red",
+              "b": "#ead6c4",
+              "c": "fm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.35,
+              "b": 0.6,
+              "c": "fm",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "fm",
+              "b": 0.001,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+wv +wp +fat +fm +fn +red +col +rough +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

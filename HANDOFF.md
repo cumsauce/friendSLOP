@@ -15,13 +15,13 @@ All three tasks from the 2026-11-08 handoff are **done and merged**: #95 (z-figh
   over this map ("Invalid contour" on any settings; upstream rerecast #59/#64, parity fix in
   their PR #60 closed unmerged), so `vendor/rerecast/` carries the one-line C++-parity skip fix
   via `[patch.crates-io]` — see `vendor/rerecast/README-friendSLOP.md`. Drop the vendored copy
-  once upstream ships the fix. `tests/navmesh.rs` is the regression test.
+  once upstream ships the fix. `tests/it/navmesh.rs` is the regression test.
 - **#98 — kinematic walking (bevy_ahoy port).** `crates/game/src/kcc/` carries the controller
   core ported from bevy_ahoy at pinned commit `630a4573` (MIT OR Apache-2.0, both licenses in
   the directory): walk 5 / sprint 10.5, jump ~0.9 m, step-up 0.5 m, 45° slope limit, ground
   snapping, wall sliding, all via avian's `MoveAndSlide` against the whole world — no
   `buildings::WALKABLE` special cases left. Host stays authoritative; headless tests fall back
-  to the old terrain-height walk. `tests/kcc.rs` covers stepping, slopes, walls and jumps.
+  to the old terrain-height walk. `tests/it/kcc.rs` covers stepping, slopes, walls and jumps.
 
 ## Other known gaps
 

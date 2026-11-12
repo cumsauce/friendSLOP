@@ -23,7 +23,7 @@ use crate::features::dave_commune::PARLIAMENT_AT;
 use crate::features::duel::{ARENA_CENTER, ARENA_HALF};
 use crate::features::landlord::LANDLORD_AT;
 use crate::features::totems::VAULT_AT;
-pub use friendslop_base::scenery::BONFIRE_AT;
+pub use friendslop_base::scenery::{BONFIRE_AT, bonfire_at};
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<KitCache>()
@@ -71,7 +71,7 @@ fn keep_clear() -> Vec<(Vec2, f32)> {
     vec![
         // Centre spawn / overview focus and the mushroom patch's inner ring.
         (Vec2::ZERO, 4.5),
-        (BONFIRE_AT.xz(), 3.5),
+        (bonfire_at().xz(), 3.5),
         (LANDLORD_AT.xz(), 3.0),
         (VAULT_AT, 4.5),
         // Totems, storm debris, animal homes.
@@ -795,7 +795,7 @@ fn dress_floor(
 struct BonfireFlame;
 
 fn light_bonfire(mut commands: Commands, assets: Res<AssetServer>) {
-    spawn_bonfire(&mut commands, &assets, BONFIRE_AT, AppState::InGame);
+    spawn_bonfire(&mut commands, &assets, bonfire_at(), AppState::InGame);
 }
 
 /// The campfire model, its flame and a flickering light at `at`, despawned on

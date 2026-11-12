@@ -76,43 +76,37 @@ pub struct Feature {
     pub radius: f32,
     pub height: f32,
     pub depth: f32,
-    pub size: Vec2,
 }
 
-/// Paths from this marker to the named markers (comma-separated names).
+/// Paths from this marker to the markers it names.
 #[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
 #[reflect(Component, Default)]
 pub struct Path {
-    pub to: String,
+    pub to: Vec<String>,
 }
 
-/// A district: a box of `size` (x, z) centred on the marker. Where boxes
-/// overlap the lower `order` wins; `kind: "bounds"` is the map's edge.
+/// A district: the marker's box. Where boxes overlap the lower `order`
+/// wins; `kind: "bounds"` is the map's edge.
 #[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
 #[reflect(Component, Default)]
 pub struct District {
     pub kind: String,
-    pub size: Vec2,
     pub order: u32,
 }
 
-/// A house plot: footprint (w, d), quarter turns and whether its house must
-/// have an upper floor.
+/// A house plot: the marker's box is the footprint and its yaw the door
+/// side; `upper`: the house must have an upper floor.
 #[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
 #[reflect(Component, Default)]
 pub struct Plot {
-    pub size: Vec2,
-    pub turns: i32,
     pub upper: bool,
 }
 
-/// Where villagers hang out; `trip` spots are far destinations they reach
-/// over the navmesh.
+/// Where villagers hang out (a marker of kind `trip`: a far destination
+/// they reach over the navmesh).
 #[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
 #[reflect(Component, Default)]
-pub struct Hangout {
-    pub trip: bool,
-}
+pub struct Hangout;
 
 /// Keep the map's dressing (trees, bushes, rocks) this far from here.
 #[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]

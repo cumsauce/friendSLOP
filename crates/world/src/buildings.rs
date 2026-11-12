@@ -576,64 +576,14 @@ pub use crate::places::market_at;
 /// Where the watchtower stands.
 pub use crate::places::tower_at;
 
-/// A house plot: centre, quarter turns (front door side faces the street),
-/// footprint, and whether its house must have an upper floor.
-struct Plot {
-    at: Vec2,
-    turns: i32,
-    w: f32,
-    d: f32,
-    upper: bool,
+/// The house plots: `Plot` markers on the commune map (the same footprints
+/// the old hand-built houses had, so terrain flattening and paths still fit).
+/// The two 8 x 7 plots are marked `upper` and always get two or three
+/// storeys: the street spot villagers walk to and the tests' "two two-storey
+/// houses" rely on them.
+fn plots() -> &'static [crate::places::HousePlot] {
+    &crate::places::layout().plots
 }
-
-/// The generated plots (the same footprints the old hand-built houses had,
-/// so terrain flattening and paths still fit). The two 8 x 7 plots always
-/// get two or three storeys: the street spot villagers walk to and the
-/// tests' "two two-storey houses" rely on them.
-const PLOTS: [Plot; 6] = [
-    Plot {
-        at: Vec2::new(40.0, -11.0),
-        turns: 0,
-        w: 7.0,
-        d: 6.0,
-        upper: false,
-    },
-    Plot {
-        at: Vec2::new(49.5, -13.0),
-        turns: 0,
-        w: 8.0,
-        d: 7.0,
-        upper: true,
-    },
-    Plot {
-        at: Vec2::new(58.0, -13.0),
-        turns: 0,
-        w: 6.0,
-        d: 6.0,
-        upper: false,
-    },
-    Plot {
-        at: Vec2::new(42.0, 13.0),
-        turns: 2,
-        w: 8.0,
-        d: 7.0,
-        upper: true,
-    },
-    Plot {
-        at: Vec2::new(51.5, 12.5),
-        turns: 2,
-        w: 6.0,
-        d: 5.0,
-        upper: false,
-    },
-    Plot {
-        at: Vec2::new(60.0, 13.0),
-        turns: 2,
-        w: 7.0,
-        d: 6.0,
-        upper: false,
-    },
-];
 
 /// The pinned big cottage: the underground's cellar door is just outside
 /// its east wall at about (72.6, -11).
@@ -664,10 +614,10 @@ pub fn village(seed: u32) -> (Kit, Vec<Room>) {
     let mut rooms = Vec::new();
     let style = style();
 
-    for (i, plot) in PLOTS.iter().enumerate() {
+    for (i, plot) in plots().iter().enumerate() {
         k.site(plot.at, plot.turns);
         let sub = WorldSeed(seed).for_(i as u32 + 1);
-        let mut design = grammar::house(plot.w, plot.d, plot.upper, sub);
+        let mut design = grammar::house(plot.size.x, plot.size.y, plot.upper, sub);
         if i == 0 {
             // Its west wall is half a metre from the village wall: no door there.
             design.west_door = false;
@@ -677,7 +627,7 @@ pub fn village(seed: u32) -> (Kit, Vec<Room>) {
         if i == 1 {
             // One warm light in the north row.
             k.lights
-                .push(k.world(Vec3::new(0.3, 2.5, -0.3 * plot.d / 2.0)));
+                .push(k.world(Vec3::new(0.3, 2.5, -0.3 * plot.size.y / 2.0)));
         }
     }
     // Pinned: the big split cottage by the cellar door.

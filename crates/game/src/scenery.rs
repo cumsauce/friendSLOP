@@ -20,9 +20,7 @@ use bevy::world_serialization::WorldInstanceReady;
 use crate::AppState;
 use crate::art;
 use crate::features::dave_commune::parliament_at;
-use crate::features::duel::{ARENA_HALF, arena_center};
-use crate::features::landlord::landlord_at;
-use crate::features::totems::vault_at;
+use crate::features::duel::{arena_center, arena_half};
 pub use friendslop_base::scenery::bonfire_at;
 
 pub fn plugin(app: &mut App) {
@@ -67,35 +65,17 @@ fn no_shadows_on_small_props(
 }
 
 /// Spots that must stay open: (centre, radius).
-fn keep_clear() -> Vec<(Vec2, f32)> {
-    vec![
-        // Centre spawn / overview focus and the mushroom patch's inner ring.
-        (Vec2::ZERO, 4.5),
-        (bonfire_at().xz(), 3.5),
-        (landlord_at().xz(), 3.0),
-        (vault_at(), 4.5),
-        // Totems, storm debris, animal homes.
-        (Vec2::new(8.0, 3.0), 2.5),
-        (Vec2::new(9.0, -8.0), 2.5),
-        (Vec2::new(10.0, -6.0), 2.0),
-        (Vec2::new(-6.0, 11.0), 2.0),
-        (Vec2::new(-6.0, -3.0), 2.5),
-        (Vec2::new(4.0, 0.0), 2.0),
-        (Vec2::new(5.0, 4.0), 2.5),
-        (Vec2::new(-4.0, 4.0), 2.0),
-        (Vec2::new(3.0, 8.0), 2.0),
-        (Vec2::new(-9.0, 2.0), 2.0),
-        (Vec2::new(7.0, -2.0), 2.0),
-        // Marmalade's wheel (#173).
-        (crate::features::gamble::gamble_at(), 5.0),
-    ]
+fn keep_clear() -> &'static [(Vec2, f32)] {
+    // The map's `Clear` markers: the spawn, bonfire, landlord, vault, wheel,
+    // totems, storm debris and animal homes.
+    &friendslop_world::places::layout().clears
 }
 
 /// Is `p` (with `margin` of footprint) clear of every landmark?
 fn is_clear(p: Vec2, margin: f32) -> bool {
     let in_rect = |c: Vec2, half: f32| (p.x - c.x).abs() < half && (p.y - c.y).abs() < half;
     // The arena keeps a wide margin so its walls sit in open grass.
-    if in_rect(arena_center().xz(), ARENA_HALF + 2.5 + margin) {
+    if in_rect(arena_center().xz(), arena_half() + 2.5 + margin) {
         return false;
     }
     // The parliament ruin is bigger than it looks (fallen tower and all).

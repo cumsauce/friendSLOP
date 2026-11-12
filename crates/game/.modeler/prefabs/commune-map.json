@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "commune-map",
   "parts": [],
-  "version": 43,
+  "version": 113,
   "ops": [
     {
       "terrain": {
@@ -209,6 +209,12 @@
           -1.5
         ],
         "components": {
+          "Clear": {
+            "radius": 3.5
+          },
+          "Path": {
+            "to": "parliament,w_valley"
+          },
           "Spot": {
             "name": "bonfire"
           }
@@ -241,6 +247,12 @@
           -12.0
         ],
         "components": {
+          "Feature": {
+            "radius": 7
+          },
+          "Path": {
+            "to": "w_north"
+          },
           "Spot": {
             "name": "arena"
           }
@@ -385,6 +397,9 @@
           9.0
         ],
         "components": {
+          "Feature": {
+            "radius": 3.2
+          },
           "Spot": {
             "name": "pond"
           }
@@ -401,6 +416,10 @@
           -6.0
         ],
         "components": {
+          "Feature": {
+            "height": 12,
+            "radius": 24
+          },
           "Spot": {
             "name": "hill"
           }
@@ -417,6 +436,11 @@
           20.0
         ],
         "components": {
+          "Feature": {
+            "depth": -1.6,
+            "height": -0.35,
+            "radius": 7
+          },
           "Spot": {
             "name": "lake"
           }
@@ -433,6 +457,10 @@
           65.0
         ],
         "components": {
+          "Feature": {
+            "depth": 5,
+            "radius": 12
+          },
           "Spot": {
             "name": "quarry"
           }
@@ -529,6 +557,9 @@
           -4.0
         ],
         "components": {
+          "Clear": {
+            "radius": 3.0
+          },
           "Spot": {
             "name": "landlord"
           }
@@ -545,6 +576,9 @@
           -2.0
         ],
         "components": {
+          "Clear": {
+            "radius": 4.5
+          },
           "Spot": {
             "name": "vault"
           }
@@ -561,8 +595,1013 @@
           9.0
         ],
         "components": {
+          "Clear": {
+            "radius": 5.0
+          },
           "Spot": {
             "name": "gamble"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "centre",
+        "kind": "spot",
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 4.5
+          },
+          "Path": {
+            "to": "arena,bonfire,pond,w_east"
+          },
+          "Spot": {
+            "name": "centre"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "village",
+        "kind": "spot",
+        "translation": [
+          57.5,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "Feature": {
+            "size": [
+              45,
+              70
+            ]
+          },
+          "Spot": {
+            "name": "village"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "forest_clearing",
+        "kind": "spot",
+        "translation": [
+          -28.0,
+          0.0,
+          -62.0
+        ],
+        "components": {
+          "Spot": {
+            "name": "forest_clearing"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "ruins_tower",
+        "kind": "spot",
+        "translation": [
+          -41.0,
+          0.0,
+          44.0
+        ],
+        "components": {
+          "Spot": {
+            "name": "ruins_tower"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "w_east",
+        "kind": "waypoint",
+        "translation": [
+          40.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "marker": {
+        "name": "w_north",
+        "kind": "waypoint",
+        "translation": [
+          -4.0,
+          0.0,
+          -40.0
+        ],
+        "components": {
+          "Path": {
+            "to": "w_north2"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "w_north2",
+        "kind": "waypoint",
+        "translation": [
+          3.0,
+          0.0,
+          -72.0
+        ]
+      }
+    },
+    {
+      "marker": {
+        "name": "w_valley",
+        "kind": "waypoint",
+        "translation": [
+          -36.0,
+          0.0,
+          2.0
+        ],
+        "components": {
+          "Path": {
+            "to": "w_lake,w_hill"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "w_lake",
+        "kind": "waypoint",
+        "translation": [
+          -41.0,
+          0.0,
+          10.0
+        ]
+      }
+    },
+    {
+      "marker": {
+        "name": "w_hill",
+        "kind": "waypoint",
+        "translation": [
+          -56.0,
+          0.0,
+          -6.0
+        ]
+      }
+    },
+    {
+      "marker": {
+        "name": "w_ruins_a",
+        "kind": "waypoint",
+        "translation": [
+          -3.0,
+          0.0,
+          5.0
+        ],
+        "components": {
+          "Path": {
+            "to": "w_ruins_b"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "w_ruins_b",
+        "kind": "waypoint",
+        "translation": [
+          -32.0,
+          0.0,
+          34.0
+        ],
+        "components": {
+          "Path": {
+            "to": "w_ruins_c"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "w_ruins_c",
+        "kind": "waypoint",
+        "translation": [
+          -44.0,
+          0.0,
+          52.0
+        ]
+      }
+    },
+    {
+      "marker": {
+        "name": "w_warehouse_a",
+        "kind": "waypoint",
+        "translation": [
+          16.0,
+          0.0,
+          14.5
+        ],
+        "components": {
+          "Path": {
+            "to": "w_warehouse_b"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "w_warehouse_b",
+        "kind": "waypoint",
+        "translation": [
+          14.0,
+          0.0,
+          33.0
+        ]
+      }
+    },
+    {
+      "marker": {
+        "name": "district_commune",
+        "kind": "zone",
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "District": {
+            "kind": "commune",
+            "order": 1,
+            "size": [
+              54,
+              54
+            ]
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "district_village",
+        "kind": "zone",
+        "translation": [
+          57.5,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "District": {
+            "kind": "village",
+            "order": 2,
+            "size": [
+              49,
+              74
+            ]
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "district_forest",
+        "kind": "zone",
+        "translation": [
+          0.0,
+          0.0,
+          -61.5
+        ],
+        "components": {
+          "District": {
+            "kind": "forest",
+            "order": 3,
+            "size": [
+              176,
+              53
+            ]
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "district_ruins",
+        "kind": "zone",
+        "translation": [
+          -59.0,
+          0.0,
+          59.0
+        ],
+        "components": {
+          "District": {
+            "kind": "ruins",
+            "order": 4,
+            "size": [
+              58,
+              58
+            ]
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "district_valley",
+        "kind": "zone",
+        "translation": [
+          -61.5,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "District": {
+            "kind": "valley",
+            "order": 5,
+            "size": [
+              53,
+              60
+            ]
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "district_bounds",
+        "kind": "zone",
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "District": {
+            "kind": "bounds",
+            "order": 0,
+            "size": [
+              176,
+              176
+            ]
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "plot_1",
+        "kind": "plot",
+        "translation": [
+          40.0,
+          0.0,
+          -11.0
+        ],
+        "components": {
+          "Plot": {
+            "size": [
+              7,
+              6
+            ],
+            "turns": 0,
+            "upper": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "plot_2",
+        "kind": "plot",
+        "translation": [
+          49.5,
+          0.0,
+          -13.0
+        ],
+        "components": {
+          "Plot": {
+            "size": [
+              8,
+              7
+            ],
+            "turns": 0,
+            "upper": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "plot_3",
+        "kind": "plot",
+        "translation": [
+          58.0,
+          0.0,
+          -13.0
+        ],
+        "components": {
+          "Plot": {
+            "size": [
+              6,
+              6
+            ],
+            "turns": 0,
+            "upper": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "plot_4",
+        "kind": "plot",
+        "translation": [
+          42.0,
+          0.0,
+          13.0
+        ],
+        "components": {
+          "Plot": {
+            "size": [
+              8,
+              7
+            ],
+            "turns": 2,
+            "upper": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "plot_5",
+        "kind": "plot",
+        "translation": [
+          51.5,
+          0.0,
+          12.5
+        ],
+        "components": {
+          "Plot": {
+            "size": [
+              6,
+              5
+            ],
+            "turns": 2,
+            "upper": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "plot_6",
+        "kind": "plot",
+        "translation": [
+          60.0,
+          0.0,
+          13.0
+        ],
+        "components": {
+          "Plot": {
+            "size": [
+              7,
+              6
+            ],
+            "turns": 2,
+            "upper": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_01",
+        "kind": "hangout",
+        "translation": [
+          -8.5,
+          0.0,
+          0.5
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_02",
+        "kind": "hangout",
+        "translation": [
+          -6.5,
+          0.0,
+          -1.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_03",
+        "kind": "hangout",
+        "translation": [
+          -12.0,
+          0.0,
+          -1.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_04",
+        "kind": "hangout",
+        "translation": [
+          -16.5,
+          0.0,
+          -4.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_05",
+        "kind": "hangout",
+        "translation": [
+          9.0,
+          0.0,
+          9.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_06",
+        "kind": "hangout",
+        "translation": [
+          13.0,
+          0.0,
+          13.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_07",
+        "kind": "hangout",
+        "translation": [
+          0.0,
+          0.0,
+          2.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_08",
+        "kind": "hangout",
+        "translation": [
+          -4.0,
+          0.0,
+          4.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_09",
+        "kind": "hangout",
+        "translation": [
+          3.0,
+          0.0,
+          8.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_10",
+        "kind": "hangout",
+        "translation": [
+          -6.0,
+          0.0,
+          11.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_11",
+        "kind": "hangout",
+        "translation": [
+          8.0,
+          0.0,
+          3.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_12",
+        "kind": "hangout",
+        "translation": [
+          15.0,
+          0.0,
+          -3.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_13",
+        "kind": "hangout",
+        "translation": [
+          -8.0,
+          0.0,
+          -24.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_14",
+        "kind": "hangout",
+        "translation": [
+          -30.0,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "hangout_15",
+        "kind": "hangout",
+        "translation": [
+          10.0,
+          0.0,
+          32.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "trip_1",
+        "kind": "hangout",
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "trip_2",
+        "kind": "hangout",
+        "translation": [
+          57.0,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "trip_3",
+        "kind": "hangout",
+        "translation": [
+          42.0,
+          0.0,
+          12.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "trip_4",
+        "kind": "hangout",
+        "translation": [
+          -64.5,
+          0.0,
+          44.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "trip_5",
+        "kind": "hangout",
+        "translation": [
+          -38.0,
+          0.0,
+          58.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "trip_6",
+        "kind": "hangout",
+        "translation": [
+          -28.0,
+          0.0,
+          -62.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "trip_7",
+        "kind": "hangout",
+        "translation": [
+          -35.0,
+          0.0,
+          13.0
+        ],
+        "components": {
+          "Hangout": {
+            "trip": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_01",
+        "kind": "clear",
+        "translation": [
+          8.0,
+          0.0,
+          3.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2.5
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_02",
+        "kind": "clear",
+        "translation": [
+          9.0,
+          0.0,
+          -8.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2.5
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_03",
+        "kind": "clear",
+        "translation": [
+          10.0,
+          0.0,
+          -6.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_04",
+        "kind": "clear",
+        "translation": [
+          -6.0,
+          0.0,
+          11.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_05",
+        "kind": "clear",
+        "translation": [
+          -6.0,
+          0.0,
+          -3.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2.5
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_06",
+        "kind": "clear",
+        "translation": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_07",
+        "kind": "clear",
+        "translation": [
+          5.0,
+          0.0,
+          4.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2.5
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_08",
+        "kind": "clear",
+        "translation": [
+          -4.0,
+          0.0,
+          4.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_09",
+        "kind": "clear",
+        "translation": [
+          3.0,
+          0.0,
+          8.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_10",
+        "kind": "clear",
+        "translation": [
+          -9.0,
+          0.0,
+          2.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "clear_11",
+        "kind": "clear",
+        "translation": [
+          7.0,
+          0.0,
+          -2.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 2
           }
         }
       }

@@ -17,7 +17,7 @@ use bevy::prelude::*;
 
 use crate::AppState;
 use crate::art;
-use crate::places::{ARENA_HALF, arena_center, bonfire_at, parliament_at};
+use crate::places::{arena_center, arena_half, bonfire_at, layout};
 use friendslop_art::palette::cat_palette;
 
 pub struct TerrainPlugin;
@@ -43,52 +43,33 @@ const COLLIDER_CELLS: usize = 110;
 
 /// Where the pond sits and how big it is (in open meadow, off every path).
 pub use crate::places::pond_at;
-const POND_RADIUS: f32 = 3.2;
-
-/// The east village district: dead flat so houses can stand anywhere in it.
-pub const VILLAGE_MIN: Vec2 = Vec2::new(35.0, -35.0);
-pub const VILLAGE_MAX: Vec2 = Vec2::new(80.0, 35.0);
 
 /// The west valley: a climbable hill, a ridge along the edge and a lake.
 pub use crate::places::hill_at;
-const HILL_HEIGHT: f32 = 12.0;
-const HILL_RADIUS: f32 = 24.0;
 pub use crate::places::lake_at;
-const LAKE_RADIUS: f32 = 7.0;
-/// Height of the lake's water surface.
-pub const LAKE_LEVEL: f32 = -0.35;
-const LAKE_BED: f32 = -1.6;
 
 /// The sunken quarry pit in the south-west ruins.
 pub use crate::places::quarry_at;
-const QUARRY_RADIUS: f32 = 12.0;
-const QUARRY_DEPTH: f32 = 5.0;
 
-/// Path segments between landmarks and out to every district.
-fn paths() -> [(Vec2, Vec2); 13] {
-    let arena = arena_center().xz();
-    let v = Vec2::new;
-    [
-        (Vec2::ZERO, arena),
-        (Vec2::ZERO, bonfire_at()),
-        (bonfire_at(), parliament_at()),
-        (Vec2::ZERO, pond_at()),
-        // East, to the village.
-        (Vec2::ZERO, v(40.0, 0.0)),
-        // North, into the forest.
-        (arena, v(-4.0, -40.0)),
-        (v(-4.0, -40.0), v(3.0, -72.0)),
-        // West: along the valley floor to the lake, and up the hill.
-        (bonfire_at(), v(-36.0, 2.0)),
-        (v(-36.0, 2.0), v(-41.0, 10.0)),
-        (v(-36.0, 2.0), hill_at() + v(6.0, 0.0)),
-        // South-west, to the ruins and quarry.
-        (v(-3.0, 5.0), v(-32.0, 34.0)),
-        (v(-32.0, 34.0), v(-44.0, 52.0)),
-        // South, past the pond to the abandoned warehouse's door (#130).
-        (v(16.0, 14.5), v(14.0, 33.0)),
-    ]
+/// Path segments between landmarks and out to every district (the map's
+/// `Path` markers).
+fn paths() -> &'static [(Vec2, Vec2)] {
+    &layout().paths
 }
+
+/// Height of the lake's water surface (the lake spot's `Feature` height).
+pub fn lake_level() -> f32 {
+    layout().lake.height
+}
+
+/// The east village's dead-flat rectangle (min, max), so houses can stand
+/// anywhere in it (the `village` spot's `Feature` size).
+pub fn village_rect() -> (Vec2, Vec2) {
+    let l = layout();
+    let c = crate::places::at("village");
+    (c - l.village.size / 2.0, c + l.village.size / 2.0)
+}
+
 fn smoothstep(e0: f32, e1: f32, x: f32) -> f32 {
     let t = ((x - e0) / (e1 - e0)).clamp(0.0, 1.0);
     t * t * (3.0 - 2.0 * t)
@@ -135,12 +116,13 @@ pub fn is_path(x: f32, z: f32) -> bool {
 
 /// Is this point in (or right at the edge of) the pond?
 pub fn is_pond(x: f32, z: f32) -> bool {
-    Vec2::new(x, z).distance(pond_at()) < POND_RADIUS + 0.6
+    Vec2::new(x, z).distance(pond_at()) < layout().pond.radius + 0.6
 }
 
 /// Is this point in (or right at the edge of) the west valley's lake?
 pub fn is_lake(x: f32, z: f32) -> bool {
-    Vec2::new(x, z).distance(lake_at()) < LAKE_RADIUS + 4.0 && height_at(x, z) < LAKE_LEVEL + 0.25
+    Vec2::new(x, z).distance(lake_at()) < layout().lake.radius + 4.0
+        && height_at(x, z) < lake_level() + 0.25
 }
 
 /// 1 inside the rectangle, fading to 0 over `soft` metres outside it.
@@ -239,7 +221,10 @@ pub fn procedural_height_at(x: f32, z: f32) -> f32 {
     let p = Vec2::new(x, z);
     let edge = x.abs().max(z.abs());
     let centre = 1.0 - smoothstep(FLAT_HALF, FLAT_HALF + 8.0, edge);
-    let village = rect_mask(p, VILLAGE_MIN, VILLAGE_MAX, 7.0);
+    let village = {
+        let (lo, hi) = village_rect();
+        rect_mask(p, lo, hi, 7.0)
+    };
     let flat = centre.max(village);
     // Beyond the play area: hills that hide the edge of the world.
     let rim = smoothstep(80.0, WORLD_HALF, edge) * (10.0 + fbm(x * 0.04, z * 0.04, 3) * 8.0);
@@ -256,17 +241,25 @@ pub fn procedural_height_at(x: f32, z: f32) -> f32 {
     h *= 1.0 - ruins * 0.8;
     // West valley: a real hill and a ridge along the far edge.
     let west = rect_mask(p, Vec2::new(-88.0, -32.0), Vec2::new(-35.0, 32.0), 10.0);
-    let t = p.distance(hill_at()) / HILL_RADIUS;
-    let hill = HILL_HEIGHT * (1.0 - smoothstep(0.0, 1.0, t));
+    let t = p.distance(hill_at()) / layout().hill.radius;
+    let hill = layout().hill.height * (1.0 - smoothstep(0.0, 1.0, t));
     let ridge = 7.0 * smoothstep(-68.0, -84.0, x) * (0.8 + fbm(z * 0.08, 5.0, 53) * 0.4);
     h += west * (hill + ridge);
     h *= 1.0 - flat;
     // The lake: a smooth bowl below the water line.
     let ld = p.distance(lake_at()) + (noise(x * 0.3, z * 0.3, 71) - 0.5) * 1.5;
-    h = h + (LAKE_BED - h) * (1.0 - smoothstep(LAKE_RADIUS - 2.0, LAKE_RADIUS + 3.5, ld));
+    h = h
+        + (layout().lake.depth - h)
+            * (1.0 - smoothstep(layout().lake.radius - 2.0, layout().lake.radius + 3.5, ld));
     // The quarry: a pit with steep, walkable sides and a flat floor.
     let qd = p.distance(quarry_at()) + (noise(x * 0.2, z * 0.2, 89) - 0.5) * 1.5;
-    h -= QUARRY_DEPTH * (1.0 - smoothstep(QUARRY_RADIUS - 9.0, QUARRY_RADIUS + 1.0, qd));
+    h -= layout().quarry.depth
+        * (1.0
+            - smoothstep(
+                layout().quarry.radius - 9.0,
+                layout().quarry.radius + 1.0,
+                qd,
+            ));
     h + rim
 }
 
@@ -310,22 +303,32 @@ fn ground_rgb(x: f32, z: f32, h: f32) -> Vec3 {
     let pd = p.distance(pond_at()) + (noise(x * 0.8, z * 0.8, 31) - 0.5) * 0.8;
     c = c.lerp(
         Vec3::new(0.35, 0.30, 0.2),
-        1.0 - smoothstep(POND_RADIUS, POND_RADIUS + 0.8, pd),
+        1.0 - smoothstep(layout().pond.radius, layout().pond.radius + 0.8, pd),
     );
     c = c.lerp(
         Vec3::new(0.12, 0.18, 0.16),
-        1.0 - smoothstep(POND_RADIUS - 1.2, POND_RADIUS, pd),
+        1.0 - smoothstep(layout().pond.radius - 1.2, layout().pond.radius, pd),
     );
     // Lake: muddy shore, dark bed (by depth, so it follows the real shoreline).
-    let near_lake = 1.0 - smoothstep(LAKE_RADIUS + 1.0, LAKE_RADIUS + 4.0, p.distance(lake_at()));
-    let shore = near_lake * smoothstep(LAKE_LEVEL + 0.8, LAKE_LEVEL, h);
+    let near_lake = 1.0
+        - smoothstep(
+            layout().lake.radius + 1.0,
+            layout().lake.radius + 4.0,
+            p.distance(lake_at()),
+        );
+    let shore = near_lake * smoothstep(lake_level() + 0.8, lake_level(), h);
     c = c.lerp(Vec3::new(0.35, 0.30, 0.2), shore);
     c = c.lerp(
         Vec3::new(0.12, 0.18, 0.16),
-        smoothstep(LAKE_LEVEL - 0.1, LAKE_LEVEL - 0.6, h),
+        smoothstep(lake_level() - 0.1, lake_level() - 0.6, h),
     );
     // Quarry: pale, dusty stone in the pit.
-    let in_pit = 1.0 - smoothstep(QUARRY_RADIUS, QUARRY_RADIUS + 3.0, p.distance(quarry_at()));
+    let in_pit = 1.0
+        - smoothstep(
+            layout().quarry.radius,
+            layout().quarry.radius + 3.0,
+            p.distance(quarry_at()),
+        );
     let pit = smoothstep(-0.6, -2.5, h) * in_pit;
     c = c.lerp(Vec3::new(0.72, 0.66, 0.58) * (0.85 + speck * 0.3), pit);
     // Darker, worn ground around the campfire.
@@ -351,12 +354,12 @@ fn ground_color(x: f32, z: f32, h: f32) -> [f32; 4] {
 /// middle of paths.
 fn tuft_blocked(x: f32, z: f32) -> bool {
     let a = arena_center().xz();
-    let in_arena = (x - a.x).abs() < ARENA_HALF + 0.6 && (z - a.y).abs() < ARENA_HALF + 0.6;
+    let in_arena = (x - a.x).abs() < arena_half() + 0.6 && (z - a.y).abs() < arena_half() + 0.6;
     in_arena
         || is_pond(x, z)
         || path_amount(Vec2::new(x, z)) > 0.5
-        || (Vec2::new(x, z).distance(lake_at()) < LAKE_RADIUS + 4.0
-            && height_at(x, z) < LAKE_LEVEL + 0.15)
+        || (Vec2::new(x, z).distance(lake_at()) < layout().lake.radius + 4.0
+            && height_at(x, z) < lake_level() + 0.15)
 }
 
 /// Push one coloured triangle (colours are pre-filter sRGB).
@@ -602,7 +605,13 @@ fn spawn_terrain(
     // Pond surface: a translucent disc just above the dark bed.
     commands.spawn((
         Name::new("Pond"),
-        Mesh3d(meshes.add(Circle::new(POND_RADIUS + 0.2).mesh().resolution(40))),
+        Mesh3d(
+            meshes.add(
+                Circle::new(layout().pond.radius + 0.2)
+                    .mesh()
+                    .resolution(40),
+            ),
+        ),
         MeshMaterial3d(materials.add(water.clone())),
         Transform::from_xyz(pond_at().x, 0.03, pond_at().y).with_rotation(flat),
         DespawnOnExit(AppState::InGame),
@@ -610,9 +619,15 @@ fn spawn_terrain(
     // Lake surface: a bigger disc; the shore rises above it all round.
     commands.spawn((
         Name::new("Lake"),
-        Mesh3d(meshes.add(Circle::new(LAKE_RADIUS + 4.0).mesh().resolution(64))),
+        Mesh3d(
+            meshes.add(
+                Circle::new(layout().lake.radius + 4.0)
+                    .mesh()
+                    .resolution(64),
+            ),
+        ),
         MeshMaterial3d(materials.add(water)),
-        Transform::from_xyz(lake_at().x, LAKE_LEVEL, lake_at().y).with_rotation(flat),
+        Transform::from_xyz(lake_at().x, lake_level(), lake_at().y).with_rotation(flat),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -663,12 +678,15 @@ mod tests {
             for j in (-88..=88).step_by(2) {
                 let p = Vec2::new(i as f32, j as f32);
                 let h = height_at(p.x, p.y);
-                let dips = p.distance(lake_at()) < LAKE_RADIUS + 4.0
-                    || p.distance(quarry_at()) < QUARRY_RADIUS + 1.0
+                let dips = p.distance(lake_at()) < layout().lake.radius + 4.0
+                    || p.distance(quarry_at()) < layout().quarry.radius + 1.0
                     || p.y < -30.0;
                 assert!(dips || h >= 0.0, "{p}: {h}");
                 let shore = p.distance(lake_at());
-                assert!(!(LAKE_RADIUS + 4.0..LAKE_RADIUS + 6.0).contains(&shore) || h > LAKE_LEVEL);
+                assert!(
+                    !(layout().lake.radius + 4.0..layout().lake.radius + 6.0).contains(&shore)
+                        || h > lake_level()
+                );
             }
         }
     }

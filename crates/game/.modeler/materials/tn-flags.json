@@ -1,0 +1,938 @@
+{
+  "name": "tn-flags",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "wn",
+      "octaves": 3,
+      "seed": 3,
+      "size": 0.4,
+      "type": "noise"
+    },
+    {
+      "amount": 0.05,
+      "by": "wn",
+      "name": "wc",
+      "type": "warp"
+    },
+    {
+      "coords": "wc",
+      "name": "g",
+      "size": [
+        0.5,
+        0.25
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "name": "chipn",
+      "octaves": 3,
+      "seed": 5,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "chipn",
+      "name": "chip",
+      "to": [
+        -0.012,
+        0.012
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "g.edge",
+      "b": "chip",
+      "name": "e2",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "in": [
+        0.012,
+        0.035
+      ],
+      "input": "e2",
+      "name": "blk",
+      "type": "levels"
+    },
+    {
+      "id": "g.id",
+      "max": 1.0,
+      "min": 0.82,
+      "name": "tone",
+      "seed": 7,
+      "type": "random"
+    },
+    {
+      "name": "grit",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.025,
+      "type": "noise"
+    },
+    {
+      "name": "face",
+      "octaves": 3,
+      "seed": 11,
+      "size": 0.18,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "grit",
+      "name": "gritv",
+      "to": [
+        0.9,
+        1.04
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "face",
+      "name": "facev",
+      "to": [
+        0.93,
+        1.03
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "tone",
+      "b": "gritv",
+      "name": "sv1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "sv1",
+      "b": "facev",
+      "name": "sv2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "grit",
+      "name": "mortv",
+      "to": [
+        0.69,
+        0.76
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "v0b",
+      "b": "crkd",
+      "name": "v0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "v0",
+      "b": 0.68,
+      "c": 1.0,
+      "name": "v",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "a": "v",
+      "b": 2.2,
+      "name": "albedo",
+      "op": "pow",
+      "type": "math"
+    },
+    {
+      "a": "face",
+      "b": 0.006,
+      "name": "hf",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "grit",
+      "b": 0.002,
+      "name": "hg",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "pillow",
+      "b": 0.016,
+      "name": "hb",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hb",
+      "b": "hf",
+      "name": "h1",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "h1",
+      "b": "hg",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "grit",
+      "name": "rs",
+      "to": [
+        0.95,
+        0.8
+      ],
+      "type": "remap"
+    },
+    {
+      "a": 1.0,
+      "b": "rs",
+      "c": "blk",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "albedo",
+      "height": "h",
+      "metallic": 0,
+      "name": "out",
+      "normal_strength": 1.0,
+      "roughness": "rough",
+      "type": "output"
+    },
+    {
+      "gamma": 0.85,
+      "in": [
+        0.008,
+        0.05
+      ],
+      "input": "e2",
+      "name": "pillow",
+      "type": "levels"
+    },
+    {
+      "name": "crk",
+      "seed": 13,
+      "size": 0.35,
+      "type": "worley"
+    },
+    {
+      "in": [
+        0.0,
+        0.012
+      ],
+      "input": "crk.edge",
+      "name": "crkm",
+      "type": "levels"
+    },
+    {
+      "a": "mortv",
+      "b": "sv2",
+      "c": "blk",
+      "name": "v0b",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "crkmask",
+      "name": "crkd",
+      "to": [
+        1.0,
+        0.86
+      ],
+      "type": "remap"
+    },
+    {
+      "name": "crksp",
+      "octaves": 2,
+      "seed": 17,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.6,
+        0.68
+      ],
+      "input": "crksp",
+      "name": "crkon",
+      "type": "levels"
+    },
+    {
+      "a": "crkm",
+      "name": "crkline",
+      "op": "invert",
+      "type": "math"
+    },
+    {
+      "a": "crkline",
+      "b": "crkon",
+      "name": "crkmask",
+      "op": "mul",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "tn-flags",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "wn",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.4,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wn",
+              "name": "wc",
+              "type": "warp"
+            },
+            {
+              "coords": "wc",
+              "name": "g",
+              "size": [
+                0.4,
+                0.3
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "name": "chipn",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "chipn",
+              "name": "chip",
+              "to": [
+                -0.012,
+                0.012
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "g.edge",
+              "b": "chip",
+              "name": "e2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.012,
+                0.035
+              ],
+              "input": "e2",
+              "name": "blk",
+              "type": "levels"
+            },
+            {
+              "id": "g.id",
+              "max": 1.0,
+              "min": 0.82,
+              "name": "tone",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "name": "grit",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.025,
+              "type": "noise"
+            },
+            {
+              "name": "face",
+              "octaves": 3,
+              "seed": 11,
+              "size": 0.18,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grit",
+              "name": "gritv",
+              "to": [
+                0.9,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "face",
+              "name": "facev",
+              "to": [
+                0.93,
+                1.03
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "gritv",
+              "name": "sv1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sv1",
+              "b": "facev",
+              "name": "sv2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grit",
+              "name": "mortv",
+              "to": [
+                0.69,
+                0.76
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "v0b",
+              "b": "crkd",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.68,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "face",
+              "b": 0.006,
+              "name": "hf",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grit",
+              "b": 0.002,
+              "name": "hg",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "pillow",
+              "b": 0.016,
+              "name": "hb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hb",
+              "b": "hf",
+              "name": "h1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "hg",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grit",
+              "name": "rs",
+              "to": [
+                0.95,
+                0.8
+              ],
+              "type": "remap"
+            },
+            {
+              "a": 1.0,
+              "b": "rs",
+              "c": "blk",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "gamma": 0.85,
+              "in": [
+                0.008,
+                0.05
+              ],
+              "input": "e2",
+              "name": "pillow",
+              "type": "levels"
+            },
+            {
+              "name": "crk",
+              "seed": 13,
+              "size": 0.35,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.0,
+                0.012
+              ],
+              "input": "crk.edge",
+              "name": "crkm",
+              "type": "levels"
+            },
+            {
+              "a": "mortv",
+              "b": "sv2",
+              "c": "blk",
+              "name": "v0b",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "crkmask",
+              "name": "crkd",
+              "to": [
+                1.0,
+                0.86
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "crksp",
+              "octaves": 2,
+              "seed": 17,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.6,
+                0.68
+              ],
+              "input": "crksp",
+              "name": "crkon",
+              "type": "levels"
+            },
+            {
+              "a": "crkm",
+              "name": "crkline",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "crkline",
+              "b": "crkon",
+              "name": "crkmask",
+              "op": "mul",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "load `tn-flags`"
+      },
+      {
+        "model": {
+          "name": "tn-flags",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "wn",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.4,
+              "type": "noise"
+            },
+            {
+              "amount": 0.05,
+              "by": "wn",
+              "name": "wc",
+              "type": "warp"
+            },
+            {
+              "coords": "wc",
+              "name": "g",
+              "size": [
+                0.5,
+                0.25
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "name": "chipn",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "chipn",
+              "name": "chip",
+              "to": [
+                -0.012,
+                0.012
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "g.edge",
+              "b": "chip",
+              "name": "e2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.012,
+                0.035
+              ],
+              "input": "e2",
+              "name": "blk",
+              "type": "levels"
+            },
+            {
+              "id": "g.id",
+              "max": 1.0,
+              "min": 0.82,
+              "name": "tone",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "name": "grit",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.025,
+              "type": "noise"
+            },
+            {
+              "name": "face",
+              "octaves": 3,
+              "seed": 11,
+              "size": 0.18,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grit",
+              "name": "gritv",
+              "to": [
+                0.9,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "face",
+              "name": "facev",
+              "to": [
+                0.93,
+                1.03
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "gritv",
+              "name": "sv1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sv1",
+              "b": "facev",
+              "name": "sv2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grit",
+              "name": "mortv",
+              "to": [
+                0.69,
+                0.76
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "v0b",
+              "b": "crkd",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.68,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "face",
+              "b": 0.006,
+              "name": "hf",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grit",
+              "b": 0.002,
+              "name": "hg",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "pillow",
+              "b": 0.016,
+              "name": "hb",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hb",
+              "b": "hf",
+              "name": "h1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "hg",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grit",
+              "name": "rs",
+              "to": [
+                0.95,
+                0.8
+              ],
+              "type": "remap"
+            },
+            {
+              "a": 1.0,
+              "b": "rs",
+              "c": "blk",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "gamma": 0.85,
+              "in": [
+                0.008,
+                0.05
+              ],
+              "input": "e2",
+              "name": "pillow",
+              "type": "levels"
+            },
+            {
+              "name": "crk",
+              "seed": 13,
+              "size": 0.35,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.0,
+                0.012
+              ],
+              "input": "crk.edge",
+              "name": "crkm",
+              "type": "levels"
+            },
+            {
+              "a": "mortv",
+              "b": "sv2",
+              "c": "blk",
+              "name": "v0b",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "crkmask",
+              "name": "crkd",
+              "to": [
+                1.0,
+                0.86
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "crksp",
+              "octaves": 2,
+              "seed": 17,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.6,
+                0.68
+              ],
+              "input": "crksp",
+              "name": "crkon",
+              "type": "levels"
+            },
+            {
+              "a": "crkm",
+              "name": "crkline",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "crkline",
+              "b": "crkon",
+              "name": "crkmask",
+              "op": "mul",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~g"
+      }
+    ],
+    "current": 1
+  }
+}

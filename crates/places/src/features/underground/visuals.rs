@@ -5,7 +5,9 @@
 use std::collections::HashMap;
 
 use avian3d::prelude::{Collider, RigidBody};
+use bevy::gltf::{Gltf, GltfMaterial};
 use bevy::light::NotShadowCaster;
+use bevy::math::Affine2;
 use friendslop_structures::build::{batches, bodies};
 use friendslop_structures::hall::{Fixture, Hall, Style, hall};
 use friendslop_structures::{Kit, Palette, Solid};
@@ -19,12 +21,14 @@ use crate::world::MainCamera;
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Below>()
+        .init_resource::<Looks>()
         .add_observer(click)
         .add_systems(OnEnter(AppState::InGame), (build, reset))
         .add_systems(OnExit(AppState::InGame), reset)
         .add_systems(
             Update,
             (
+                adopt_looks.run_if(|l: Res<Looks>| !l.waiting.is_empty()),
                 build_tunnels.run_if(resource_exists_and_changed::<Tunnels>),
                 show_new,
                 darkness,
@@ -157,6 +161,27 @@ fn mat(materials: &mut Assets<StandardMaterial>, c: Color, rough: f32) -> Handle
     })
 }
 
+/// A kit material wearing a modeler surface, tinted by its flat colour
+/// (brightened: the swatches are light grey).
+fn surfaced(
+    materials: &mut Assets<StandardMaterial>,
+    c: Color,
+    look: Look,
+    t: &Textures,
+) -> Handle<StandardMaterial> {
+    let metal = look == Look::Metal;
+    materials.add(StandardMaterial {
+        base_color: c.lighter(0.08),
+        base_color_texture: Some(t[0].clone()),
+        normal_map_texture: Some(t[1].clone()),
+        metallic_roughness_texture: Some(t[2].clone()),
+        metallic: if metal { 1.0 } else { 0.0 },
+        perceptual_roughness: 1.0,
+        uv_transform: Affine2::from_scale(Vec2::splat(1.0 / look.tile())),
+        ..default()
+    })
+}
+
 fn glow(
     materials: &mut Assets<StandardMaterial>,
     c: Color,
@@ -217,11 +242,127 @@ fn light(commands: &mut Commands, at: Vec3, color: Color, intensity: f32, range:
     ));
 }
 
-fn build(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+fn build(mut commands: Commands, assets: Option<Res<AssetServer>>, mut looks: ResMut<Looks>) {
     let Some(assets) = assets else {
         return;
     };
     build_tops(&mut commands, &assets);
+    if looks.waiting.is_empty() && looks.ready.is_empty() {
+        for l in Look::ALL {
+            looks.waiting.insert(l, assets.load(l.file()));
+        }
+    }
+}
+
+/// The modeler surfaces the tunnels wear (`assets/models/surfaces/`,
+/// sources `tn-swatch-*` / `sf-swatch-metal` in `.modeler/`). Greyscale
+/// textures, tinted by [`color`]; a missing file leaves the flat colour.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+enum Look {
+    Brick,
+    Flags,
+    Plaster,
+    Planks,
+    Metal,
+}
+
+impl Look {
+    const ALL: [Look; 5] = [
+        Look::Brick,
+        Look::Flags,
+        Look::Plaster,
+        Look::Planks,
+        Look::Metal,
+    ];
+
+    fn file(self) -> &'static str {
+        match self {
+            Look::Brick => "models/surfaces/tunnel_brick.gltf",
+            Look::Flags => "models/surfaces/tunnel_flags.gltf",
+            Look::Plaster => "models/surfaces/tunnel_plaster.gltf",
+            Look::Planks => "models/surfaces/tunnel_planks.gltf",
+            Look::Metal => "models/surfaces/metal.gltf",
+        }
+    }
+
+    /// Metres one texture covers (the material's `tile`).
+    fn tile(self) -> f32 {
+        match self {
+            Look::Brick => 1.0,
+            Look::Flags | Look::Plaster => 2.0,
+            Look::Planks => 1.5,
+            Look::Metal => 1.2,
+        }
+    }
+
+    /// Which surface a kit material wears.
+    fn of(m: M) -> Option<Look> {
+        Some(match m {
+            M::Floor(Part::Cellar) => Look::Planks,
+            M::Floor(_) => Look::Flags,
+            M::Wall(Part::Cellar) => Look::Plaster,
+            M::Wall(_) => Look::Brick,
+            M::Trim(Part::Passage | Part::Cellar) => Look::Planks,
+            M::Trim(_) => Look::Flags,
+            M::Metal => Look::Metal,
+            M::Hidden | M::Water | M::Bulb | M::Flame => return None,
+        })
+    }
+}
+
+/// A surface's textures: albedo, normal, metallic-roughness.
+type Textures = [Handle<Image>; 3];
+
+#[derive(Resource, Default)]
+struct Looks {
+    waiting: HashMap<Look, Handle<Gltf>>,
+    ready: HashMap<Look, Textures>,
+}
+
+/// Once the swatches are in, take their textures and lay the tunnels again
+/// so they wear them.
+fn adopt_looks(
+    mut looks: ResMut<Looks>,
+    assets: Option<Res<AssetServer>>,
+    gltfs: Option<Res<Assets<Gltf>>>,
+    gltf_materials: Option<Res<Assets<GltfMaterial>>>,
+    tunnels: Option<ResMut<Tunnels>>,
+) {
+    let (Some(assets), Some(gltfs), Some(gltf_materials)) = (assets, gltfs, gltf_materials) else {
+        return;
+    };
+    let mut done = Vec::new();
+    for (&l, h) in &looks.waiting {
+        if assets.load_state(h).is_failed() {
+            done.push((l, None));
+        } else if assets.is_loaded_with_dependencies(h) {
+            let t = (gltfs.get(h))
+                .and_then(|g| g.materials.first())
+                .and_then(|m| gltf_materials.get(m))
+                .and_then(|m| {
+                    Some([
+                        m.base_color_texture.clone()?,
+                        m.normal_map_texture.clone()?,
+                        m.metallic_roughness_texture.clone()?,
+                    ])
+                });
+            done.push((l, t));
+        }
+    }
+    if done.is_empty() {
+        return;
+    }
+    for (l, t) in done {
+        looks.waiting.remove(&l);
+        if let Some(t) = t {
+            looks.ready.insert(l, t);
+        }
+    }
+    if looks.waiting.is_empty()
+        && let Some(mut t) = tunnels
+    {
+        t.set_changed();
+    }
 }
 
 /// A modeler-made model in `assets/models/features` (sources in `.modeler/`).
@@ -337,6 +478,7 @@ fn build_tunnels(
     tunnels: Res<Tunnels>,
     old: Query<Entity, With<Tunnel>>,
     below: Res<Below>,
+    looks: Res<Looks>,
     assets: Option<Res<AssetServer>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
@@ -376,7 +518,10 @@ fn build_tunnels(
             .entry(batch.mat)
             .or_insert_with(|| {
                 let (c, rough, power) = color(batch.mat);
-                if power > 0.0 {
+                let look = Look::of(batch.mat).and_then(|l| Some((l, looks.ready.get(&l)?)));
+                if let Some((l, t)) = look {
+                    surfaced(&mut materials, c, l, t)
+                } else if power > 0.0 {
                     glow(&mut materials, c, power)
                 } else {
                     mat(&mut materials, c, rough)

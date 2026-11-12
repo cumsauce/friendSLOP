@@ -1,0 +1,785 @@
+{
+  "name": "tn-plaster",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "angle_jitter": 180,
+      "cell": 0.25,
+      "name": "tr",
+      "per_cell": 2,
+      "scale": [
+        0.7,
+        1.3
+      ],
+      "seed": 61,
+      "shape": "ellipse",
+      "size": [
+        0.32,
+        0.2
+      ],
+      "type": "scatter"
+    },
+    {
+      "in": [
+        0.0,
+        0.012
+      ],
+      "input": "tr.edge",
+      "name": "rim",
+      "type": "levels"
+    },
+    {
+      "a": "rim",
+      "name": "ridge0",
+      "op": "invert",
+      "type": "math"
+    },
+    {
+      "a": "ridge0",
+      "b": "tr.mask",
+      "name": "ridge",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "id": "tr.id",
+      "max": 1.0,
+      "min": 0.96,
+      "name": "tone",
+      "seed": 62,
+      "type": "random"
+    },
+    {
+      "name": "soft",
+      "octaves": 4,
+      "seed": 63,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "name": "grain",
+      "octaves": 2,
+      "seed": 64,
+      "size": 0.006,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "soft",
+      "name": "sv",
+      "to": [
+        0.95,
+        1.01
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "grain",
+      "name": "gv",
+      "to": [
+        0.97,
+        1.01
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "ridge",
+      "name": "rv",
+      "to": [
+        1.0,
+        0.97
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "tone",
+      "b": "sv",
+      "name": "p1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "p1d",
+      "b": "gv",
+      "name": "p2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "p2",
+      "b": "rv",
+      "name": "v0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "v0",
+      "b": 0.75,
+      "c": 1,
+      "name": "v",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "a": "v",
+      "b": 2.2,
+      "name": "albedo",
+      "op": "pow",
+      "type": "math"
+    },
+    {
+      "a": "soft",
+      "b": 0.003,
+      "name": "hs",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "tr.height",
+      "b": 0.002,
+      "name": "ht",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "ridge",
+      "b": 0.001,
+      "name": "hr",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "grain",
+      "b": 0.0003,
+      "name": "hg",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hs",
+      "b": "ht",
+      "name": "h1",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "h1",
+      "b": "hr",
+      "name": "h2",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "h2",
+      "b": "hg",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "tr.height",
+      "name": "r1",
+      "to": [
+        1.0,
+        0.88
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "grain",
+      "name": "r2",
+      "to": [
+        0.97,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "r1",
+      "b": "r2",
+      "name": "rough",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "albedo",
+      "height": "h",
+      "metallic": 0,
+      "name": "out",
+      "normal_strength": 1.0,
+      "roughness": "rough",
+      "type": "output"
+    },
+    {
+      "name": "damp",
+      "octaves": 4,
+      "seed": 71,
+      "size": 0.45,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "damp",
+      "name": "dv",
+      "to": [
+        0.8,
+        1.04
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "p1",
+      "b": "dv",
+      "name": "p1d",
+      "op": "mul",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "tn-plaster",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "angle_jitter": 180,
+              "cell": 0.25,
+              "name": "tr",
+              "per_cell": 2,
+              "scale": [
+                0.7,
+                1.3
+              ],
+              "seed": 61,
+              "shape": "ellipse",
+              "size": [
+                0.32,
+                0.2
+              ],
+              "type": "scatter"
+            },
+            {
+              "in": [
+                0.0,
+                0.012
+              ],
+              "input": "tr.edge",
+              "name": "rim",
+              "type": "levels"
+            },
+            {
+              "a": "rim",
+              "name": "ridge0",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "ridge0",
+              "b": "tr.mask",
+              "name": "ridge",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "tr.id",
+              "max": 1.0,
+              "min": 0.96,
+              "name": "tone",
+              "seed": 62,
+              "type": "random"
+            },
+            {
+              "name": "soft",
+              "octaves": 4,
+              "seed": 63,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "name": "grain",
+              "octaves": 2,
+              "seed": 64,
+              "size": 0.006,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "soft",
+              "name": "sv",
+              "to": [
+                0.95,
+                1.01
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grain",
+              "name": "gv",
+              "to": [
+                0.97,
+                1.01
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ridge",
+              "name": "rv",
+              "to": [
+                1.0,
+                0.97
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "sv",
+              "name": "p1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "p1",
+              "b": "gv",
+              "name": "p2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "p2",
+              "b": "rv",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.9,
+              "c": 1.0,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "soft",
+              "b": 0.003,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "tr.height",
+              "b": 0.002,
+              "name": "ht",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "ridge",
+              "b": 0.001,
+              "name": "hr",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grain",
+              "b": 0.0003,
+              "name": "hg",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hs",
+              "b": "ht",
+              "name": "h1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "hr",
+              "name": "h2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h2",
+              "b": "hg",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "tr.height",
+              "name": "r1",
+              "to": [
+                1.0,
+                0.88
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grain",
+              "name": "r2",
+              "to": [
+                0.97,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "r1",
+              "b": "r2",
+              "name": "rough",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "load `tn-plaster`"
+      },
+      {
+        "model": {
+          "name": "tn-plaster",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "angle_jitter": 180,
+              "cell": 0.25,
+              "name": "tr",
+              "per_cell": 2,
+              "scale": [
+                0.7,
+                1.3
+              ],
+              "seed": 61,
+              "shape": "ellipse",
+              "size": [
+                0.32,
+                0.2
+              ],
+              "type": "scatter"
+            },
+            {
+              "in": [
+                0.0,
+                0.012
+              ],
+              "input": "tr.edge",
+              "name": "rim",
+              "type": "levels"
+            },
+            {
+              "a": "rim",
+              "name": "ridge0",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "ridge0",
+              "b": "tr.mask",
+              "name": "ridge",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "tr.id",
+              "max": 1.0,
+              "min": 0.96,
+              "name": "tone",
+              "seed": 62,
+              "type": "random"
+            },
+            {
+              "name": "soft",
+              "octaves": 4,
+              "seed": 63,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "name": "grain",
+              "octaves": 2,
+              "seed": 64,
+              "size": 0.006,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "soft",
+              "name": "sv",
+              "to": [
+                0.95,
+                1.01
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grain",
+              "name": "gv",
+              "to": [
+                0.97,
+                1.01
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "ridge",
+              "name": "rv",
+              "to": [
+                1.0,
+                0.97
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "tone",
+              "b": "sv",
+              "name": "p1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "p1d",
+              "b": "gv",
+              "name": "p2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "p2",
+              "b": "rv",
+              "name": "v0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.75,
+              "c": 1,
+              "name": "v",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "soft",
+              "b": 0.003,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "tr.height",
+              "b": 0.002,
+              "name": "ht",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "ridge",
+              "b": 0.001,
+              "name": "hr",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grain",
+              "b": 0.0003,
+              "name": "hg",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hs",
+              "b": "ht",
+              "name": "h1",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "hr",
+              "name": "h2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "h2",
+              "b": "hg",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "tr.height",
+              "name": "r1",
+              "to": [
+                1.0,
+                0.88
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "grain",
+              "name": "r2",
+              "to": [
+                0.97,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "r1",
+              "b": "r2",
+              "name": "rough",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "normal_strength": 1.0,
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "name": "damp",
+              "octaves": 4,
+              "seed": 71,
+              "size": 0.45,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "damp",
+              "name": "dv",
+              "to": [
+                0.8,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "p1",
+              "b": "dv",
+              "name": "p1d",
+              "op": "mul",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+damp +dv +p1d ~p2 ~v"
+      }
+    ],
+    "current": 1
+  }
+}

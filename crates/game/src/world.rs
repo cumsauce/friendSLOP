@@ -34,11 +34,7 @@ impl Plugin for WorldPlugin {
 #[derive(Component)]
 pub struct MainCamera;
 
-fn spawn_world(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+fn spawn_world(mut commands: Commands, assets: Res<AssetServer>) {
     // Sky, sun, fog and post-processing live in `atmosphere.rs`.
     commands.spawn((
         Camera3d::default(),
@@ -48,32 +44,20 @@ fn spawn_world(
         DespawnOnExit(AppState::InGame),
     ));
     // The ground itself lives in `terrain.rs`.
-    scatter_ground_detail(&mut commands, &mut meshes, &mut materials);
+    scatter_ground_detail(&mut commands, &assets);
 }
 
+/// The meadow's flower models, one per petal colour (yellow, blue, white).
+const MEADOW_FLOWERS: [&str; 3] = [
+    "meadow_flower_yellow.gltf",
+    "meadow_flower_blue.gltf",
+    "meadow_flower_white.gltf",
+];
+
 /// Grass tufts, flowers and pebbles sprinkled around (purely visual, no colliders).
-/// Deterministic, so every peer sees the same meadow.
-fn scatter_ground_detail(
-    commands: &mut Commands,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
-) {
-    let blade = meshes.add(Cone::new(0.06, 0.35));
-    let petal = meshes.add(Sphere::new(0.07));
-    let stem = meshes.add(Cylinder::new(0.012, 0.25));
-    let pebble = meshes.add(
-        Sphere::new(0.18)
-            .mesh()
-            .ico(1)
-            .unwrap_or_else(|_| Sphere::new(0.18).into()),
-    );
-    let grass = art::soft(materials, Color::srgb(0.3, 0.55, 0.28));
-    let stone = art::soft(materials, Color::srgb(0.6, 0.6, 0.65));
-    let flowers = [
-        art::soft(materials, Color::srgb(1.0, 0.95, 0.4)),
-        art::soft(materials, Color::srgb(0.55, 0.6, 1.0)),
-        art::soft(materials, Color::srgb(1.0, 1.0, 1.0)),
-    ];
+/// Deterministic, so every peer sees the same meadow. Modeler models in
+/// `assets/models/nature/` (base at their origin); a missing file draws nothing.
+fn scatter_ground_detail(commands: &mut Commands, assets: &AssetServer) {
     for i in 0..260 {
         let a = art::hash(i, 0, 7) * std::f32::consts::TAU;
         let r = 2.5 + art::hash(i, 1, 7).sqrt() * 21.5;
@@ -81,47 +65,20 @@ fn scatter_ground_detail(
         let kind = art::hash(i, 2, 7);
         let yaw = Quat::from_rotation_y(a * 5.0);
         let size = 0.7 + art::hash(i, 3, 7) * 0.6;
-        let mut root = commands.spawn((
+        let file = if kind < 0.65 {
+            "meadow_grass.gltf"
+        } else if kind < 0.88 {
+            MEADOW_FLOWERS[i as usize % MEADOW_FLOWERS.len()]
+        } else {
+            "pebble_1.gltf"
+        };
+        commands.spawn((
+            crate::scenery::nature_model(assets, file),
             Transform::from_translation(at)
                 .with_rotation(yaw)
                 .with_scale(Vec3::splat(size)),
-            Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));
-        if kind < 0.65 {
-            root.with_children(|p| {
-                for (dx, tilt) in [(-0.07, -0.25), (0.0, 0.05), (0.07, 0.3)] {
-                    p.spawn((
-                        Mesh3d(blade.clone()),
-                        MeshMaterial3d(grass.clone()),
-                        Transform::from_xyz(dx, 0.15, 0.0)
-                            .with_rotation(Quat::from_rotation_z(tilt)),
-                    ));
-                }
-            });
-        } else if kind < 0.88 {
-            let colour = flowers[i as usize % flowers.len()].clone();
-            root.with_children(|p| {
-                p.spawn((
-                    Mesh3d(stem.clone()),
-                    MeshMaterial3d(grass.clone()),
-                    Transform::from_xyz(0.0, 0.12, 0.0),
-                ));
-                p.spawn((
-                    Mesh3d(petal.clone()),
-                    MeshMaterial3d(colour),
-                    Transform::from_xyz(0.0, 0.27, 0.0).with_scale(Vec3::new(1.2, 0.5, 1.2)),
-                ));
-            });
-        } else {
-            root.with_children(|p| {
-                p.spawn((
-                    Mesh3d(pebble.clone()),
-                    MeshMaterial3d(stone.clone()),
-                    Transform::from_xyz(0.0, 0.04, 0.0).with_scale(Vec3::new(1.3, 0.5, 1.0)),
-                ));
-            });
-        }
     }
 }
 

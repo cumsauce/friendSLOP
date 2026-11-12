@@ -1,0 +1,226 @@
+{
+  "name": "wh-cardboard",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 401,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "name": "bn",
+      "octaves": 3,
+      "seed": 402,
+      "size": 0.35,
+      "type": "noise"
+    },
+    {
+      "name": "sn",
+      "octaves": 2,
+      "seed": 403,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.55,
+        0.8
+      ],
+      "input": "bn",
+      "name": "grime",
+      "type": "levels"
+    },
+    {
+      "in": [
+        0.62,
+        0.7
+      ],
+      "input": "sn",
+      "name": "spot",
+      "type": "levels"
+    },
+    {
+      "a": "grime",
+      "b": 0.55,
+      "name": "gm0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "spot",
+      "b": 0.25,
+      "name": "sp",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "gm0",
+      "b": "sp",
+      "name": "gm",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "input": "fn",
+      "name": "col0",
+      "stops": [
+        [
+          0,
+          "#73593b"
+        ],
+        [
+          1,
+          "#8f714e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col0",
+      "b": "#2a2119",
+      "c": "gm",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "fn",
+      "b": 0.0006,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wh-cardboard",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 401,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "name": "bn",
+              "octaves": 3,
+              "seed": 402,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "name": "sn",
+              "octaves": 2,
+              "seed": 403,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.55,
+                0.8
+              ],
+              "input": "bn",
+              "name": "grime",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.62,
+                0.7
+              ],
+              "input": "sn",
+              "name": "spot",
+              "type": "levels"
+            },
+            {
+              "a": "grime",
+              "b": 0.55,
+              "name": "gm0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "spot",
+              "b": 0.25,
+              "name": "sp",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "gm0",
+              "b": "sp",
+              "name": "gm",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "input": "fn",
+              "name": "col0",
+              "stops": [
+                [
+                  0,
+                  "#73593b"
+                ],
+                [
+                  1,
+                  "#8f714e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col0",
+              "b": "#2a2119",
+              "c": "gm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "fn",
+              "b": 0.0006,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +bn +sn +grime +spot +gm0 +sp +gm +col0 +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

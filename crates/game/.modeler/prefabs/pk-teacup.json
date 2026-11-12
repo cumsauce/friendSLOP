@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "pk-teacup",
   "parts": [],
-  "version": 7587,
+  "version": 16144,
   "ops": [
     {
       "revolve": {
@@ -48,7 +48,7 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 20,
+        "segments": 16,
         "translation": [
           0.0,
           0.0,
@@ -81,27 +81,10 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 16,
+        "segments": 8,
         "translation": [
           0.0,
           0.0,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "tea",
-        "kind": "cylinder",
-        "size": [
-          0.178,
-          0.01,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.06,
           0.0
         ],
         "rotation": null
@@ -139,17 +122,17 @@
           ]
         ],
         "degrees": 360.0,
-        "segments": 12,
+        "segments": 8,
         "translation": [
           0.235,
           0.0,
           0.0
         ],
         "rotation": [
-          0.70710677,
+          0.7071068,
           0.0,
           0.0,
-          0.70710677
+          0.7071068
         ]
       }
     },
@@ -376,6 +359,39 @@
       }
     },
     {
+      "revolve": {
+        "name": "tea",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.005
+            ],
+            [
+              0.178,
+              -0.005
+            ],
+            [
+              0.178,
+              0.005
+            ],
+            [
+              0.0,
+              0.005
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 12,
+        "translation": [
+          0.0,
+          0.06,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
       "material": {
         "name": "tea",
         "input": "tea",
@@ -459,7 +475,7 @@
           "format_version": 1,
           "name": "pk-teacup",
           "parts": [],
-          "version": 7587,
+          "version": 16116,
           "ops": [
             {
               "revolve": {
@@ -505,7 +521,7 @@
                   ]
                 ],
                 "degrees": 360.0,
-                "segments": 20,
+                "segments": 16,
                 "translation": [
                   0.0,
                   0.0,
@@ -538,27 +554,10 @@
                   ]
                 ],
                 "degrees": 360.0,
-                "segments": 16,
+                "segments": 8,
                 "translation": [
                   0.0,
                   0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "tea",
-                "kind": "cylinder",
-                "size": [
-                  0.178,
-                  0.01,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.06,
                   0.0
                 ],
                 "rotation": null
@@ -596,17 +595,17 @@
                   ]
                 ],
                 "degrees": 360.0,
-                "segments": 12,
+                "segments": 8,
                 "translation": [
                   0.235,
                   0.0,
                   0.0
                 ],
                 "rotation": [
-                  0.70710677,
+                  0.7071068,
                   0.0,
                   0.0,
-                  0.70710677
+                  0.7071068
                 ]
               }
             },
@@ -833,6 +832,39 @@
               }
             },
             {
+              "revolve": {
+                "name": "tea",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.005
+                    ],
+                    [
+                      0.178,
+                      -0.005
+                    ],
+                    [
+                      0.178,
+                      0.005
+                    ],
+                    [
+                      0.0,
+                      0.005
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 12,
+                "translation": [
+                  0.0,
+                  0.06,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
               "material": {
                 "name": "tea",
                 "input": "tea",
@@ -897,7 +929,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "8 edits: revolve `cup` profile=[[[0.0, -0.125], [0.15, -0.125], [0.17, -0.105], [0.2, -0.02], [0.215, 0.125], [0.19, 0.125], [0.175, -0.02], [0.15, -0.09], [0.0, -0.09]]] degrees=360 segments=20 round=0 at=[0.0, 0.0, 0.0] … material `tea` <- `tea` pbr=pk-jar-brown"
+        "label": "6 edits: revolve `cup` profile=[[[0.0, -0.125], [0.15, -0.125], [0.17, -0.105], [0.2, -0.02], [0.215, 0.125], [0.19, 0.125], [0.175, -0.02], [0.15, -0.09], [0.0, -0.09]]] degrees=360 segments=16 round=0 at=[0.0, 0.0, 0.0] … revolve `handle` profile=[[[0.094, 0.0], [0.082, 0.020784609], [0.058, 0.020784609], [0.046, 2.9391522e-18], [0.058, -0.020784609], [0.082, -0.020784609]]] degrees=360 segments=8 round=0 at=[0.235, 0.0, 0.0] rot=[0.7071068, 0.0, 0.0, 0.7071068]",
+        "author": "lite-features"
       }
     ],
     "current": 1

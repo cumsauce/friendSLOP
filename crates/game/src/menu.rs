@@ -461,16 +461,15 @@ fn spawn_backdrop(
         Transform::from_xyz(0.0, 0.8, 0.0),
         out.clone(),
     ));
-    let log = meshes.add(Cylinder::new(0.18, 1.4));
-    let bark = crate::art::soft(&mut materials, Color::srgb(0.45, 0.32, 0.22));
+    // The scenery log seat (r 0.2 x 1.5 m, lying along its Z, origin at its
+    // centre), scaled down to the old 0.18 x 1.4 m seat.
     for yaw in [0.6f32, 2.9] {
         let p = Vec2::from_angle(yaw) * 2.0;
         commands.spawn((
-            Mesh3d(log.clone()),
-            MeshMaterial3d(bark.clone()),
-            Transform::from_xyz(p.x, 0.18, p.y).with_rotation(
-                Quat::from_rotation_y(-yaw) * Quat::from_rotation_x(std::f32::consts::FRAC_PI_2),
-            ),
+            scenery::scenery_model(&assets, "log_seat"),
+            Transform::from_xyz(p.x, 0.18, p.y)
+                .with_rotation(Quat::from_rotation_y(-yaw))
+                .with_scale(Vec3::splat(0.92)),
             out.clone(),
         ));
     }
@@ -488,8 +487,6 @@ fn spawn_backdrop(
     }
 
     // Bunting between two poles behind the fire.
-    let pole = meshes.add(Cylinder::new(0.05, 2.6));
-    let pole_mat = crate::art::soft(&mut materials, Color::srgb(0.36, 0.25, 0.15));
     let flag = meshes.add(Triangle3d::new(
         Vec3::new(-0.16, 0.0, 0.0),
         Vec3::new(0.16, 0.0, 0.0),
@@ -513,10 +510,12 @@ fn spawn_backdrop(
     });
     let (l, r) = (Vec2::new(-4.0, -3.0), Vec2::new(3.5, -4.5));
     for p in [l, r] {
+        // Modeler pole (`models/menu/`), base at its origin.
         commands.spawn((
-            Mesh3d(pole.clone()),
-            MeshMaterial3d(pole_mat.clone()),
-            Transform::from_xyz(p.x, 1.3, p.y),
+            WorldAssetRoot(
+                assets.load(GltfAssetLabel::Scene(0).from_asset("models/menu/bunting_pole.gltf")),
+            ),
+            Transform::from_xyz(p.x, 0.0, p.y),
             out.clone(),
         ));
     }

@@ -2,38 +2,12 @@
   "format_version": 1,
   "name": "fu-stool",
   "parts": [],
-  "version": 3388,
+  "version": 16957,
   "ops": [
-    {
-      "primitive": {
-        "name": "seat_raw",
-        "kind": "cylinder",
-        "size": [
-          0.172,
-          0.07,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "round": {
-        "name": "seat_ch",
-        "input": "seat_raw",
-        "mode": "fillet",
-        "radius": 0.018,
-        "segments": 6
-      }
-    },
     {
       "transform": {
         "name": "seat",
-        "input": "seat_ch",
+        "input": "seat_rv",
         "translation": [
           0.0,
           0.415,
@@ -144,26 +118,9 @@
       }
     },
     {
-      "primitive": {
-        "name": "leg0_raw",
-        "kind": "cylinder",
-        "size": [
-          0.026,
-          0.4,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
       "transform": {
         "name": "leg0",
-        "input": "leg0_raw",
+        "input": "leg0_rv",
         "translation": [
           7.225416e-18,
           0.2017,
@@ -279,26 +236,9 @@
       }
     },
     {
-      "primitive": {
-        "name": "leg1_raw",
-        "kind": "cylinder",
-        "size": [
-          0.026,
-          0.4,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
       "transform": {
         "name": "leg1",
-        "input": "leg1_raw",
+        "input": "leg1_rv",
         "translation": [
           -0.102191,
           0.2017,
@@ -414,26 +354,9 @@
       }
     },
     {
-      "primitive": {
-        "name": "leg2_raw",
-        "kind": "cylinder",
-        "size": [
-          0.026,
-          0.4,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
       "transform": {
         "name": "leg2",
-        "input": "leg2_raw",
+        "input": "leg2_rv",
         "translation": [
           0.102191,
           0.2017,
@@ -690,37 +613,178 @@
       }
     },
     {
+      "revolve": {
+        "name": "seat_rv",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.035
+            ],
+            [
+              0.154,
+              -0.035
+            ],
+            [
+              0.1667278,
+              -0.0297278
+            ],
+            [
+              0.172,
+              -0.017
+            ],
+            [
+              0.172,
+              0.017
+            ],
+            [
+              0.1667278,
+              0.0297278
+            ],
+            [
+              0.154,
+              0.035
+            ],
+            [
+              0.0,
+              0.035
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 14,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "leg0_rv",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.2
+            ],
+            [
+              0.026,
+              -0.2
+            ],
+            [
+              0.026,
+              0.2
+            ],
+            [
+              0.0,
+              0.2
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "leg1_rv",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.2
+            ],
+            [
+              0.026,
+              -0.2
+            ],
+            [
+              0.026,
+              0.2
+            ],
+            [
+              0.0,
+              0.2
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "leg2_rv",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.2
+            ],
+            [
+              0.026,
+              -0.2
+            ],
+            [
+              0.026,
+              0.2
+            ],
+            [
+              0.0,
+              0.2
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
       "visibility": {
-        "name": "seat_raw",
-        "input": "seat_raw",
+        "name": "seat_rv",
+        "input": "seat_rv",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "leg0_raw",
-        "input": "leg0_raw",
+        "name": "leg0_rv",
+        "input": "leg0_rv",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "leg1_raw",
-        "input": "leg1_raw",
+        "name": "leg1_rv",
+        "input": "leg1_rv",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "leg2_raw",
-        "input": "leg2_raw",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "seat_ch",
-        "input": "seat_ch",
+        "name": "leg2_rv",
+        "input": "leg2_rv",
         "visible": false
       }
     }
@@ -769,29 +833,12 @@
           "format_version": 1,
           "name": "fu-stool",
           "parts": [],
-          "version": 3367,
+          "version": 16923,
           "ops": [
-            {
-              "primitive": {
-                "name": "seat_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.172,
-                  0.07,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
             {
               "transform": {
                 "name": "seat",
-                "input": "seat_raw",
+                "input": "seat_rv",
                 "translation": [
                   0.0,
                   0.415,
@@ -902,29 +949,12 @@
               }
             },
             {
-              "primitive": {
-                "name": "leg0_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.026,
-                  0.4,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
               "transform": {
                 "name": "leg0",
-                "input": "leg0_raw",
+                "input": "leg0_rv",
                 "translation": [
                   7.225416e-18,
-                  0.203,
+                  0.2017,
                   0.118
                 ],
                 "rotation": [
@@ -1037,29 +1067,12 @@
               }
             },
             {
-              "primitive": {
-                "name": "leg1_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.026,
-                  0.4,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
               "transform": {
                 "name": "leg1",
-                "input": "leg1_raw",
+                "input": "leg1_rv",
                 "translation": [
                   -0.102191,
-                  0.203,
+                  0.2017,
                   -0.059
                 ],
                 "rotation": [
@@ -1172,29 +1185,12 @@
               }
             },
             {
-              "primitive": {
-                "name": "leg2_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.026,
-                  0.4,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
               "transform": {
                 "name": "leg2",
-                "input": "leg2_raw",
+                "input": "leg2_rv",
                 "translation": [
                   0.102191,
-                  0.203,
+                  0.2017,
                   -0.059
                 ],
                 "rotation": [
@@ -1448,30 +1444,178 @@
               }
             },
             {
+              "revolve": {
+                "name": "seat_rv",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.035
+                    ],
+                    [
+                      0.154,
+                      -0.035
+                    ],
+                    [
+                      0.1667278,
+                      -0.0297278
+                    ],
+                    [
+                      0.172,
+                      -0.017
+                    ],
+                    [
+                      0.172,
+                      0.017
+                    ],
+                    [
+                      0.1667278,
+                      0.0297278
+                    ],
+                    [
+                      0.154,
+                      0.035
+                    ],
+                    [
+                      0.0,
+                      0.035
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 14,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "leg0_rv",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.2
+                    ],
+                    [
+                      0.026,
+                      -0.2
+                    ],
+                    [
+                      0.026,
+                      0.2
+                    ],
+                    [
+                      0.0,
+                      0.2
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "leg1_rv",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.2
+                    ],
+                    [
+                      0.026,
+                      -0.2
+                    ],
+                    [
+                      0.026,
+                      0.2
+                    ],
+                    [
+                      0.0,
+                      0.2
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "revolve": {
+                "name": "leg2_rv",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.2
+                    ],
+                    [
+                      0.026,
+                      -0.2
+                    ],
+                    [
+                      0.026,
+                      0.2
+                    ],
+                    [
+                      0.0,
+                      0.2
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
               "visibility": {
-                "name": "seat_raw",
-                "input": "seat_raw",
+                "name": "seat_rv",
+                "input": "seat_rv",
                 "visible": false
               }
             },
             {
               "visibility": {
-                "name": "leg0_raw",
-                "input": "leg0_raw",
+                "name": "leg0_rv",
+                "input": "leg0_rv",
                 "visible": false
               }
             },
             {
               "visibility": {
-                "name": "leg1_raw",
-                "input": "leg1_raw",
+                "name": "leg1_rv",
+                "input": "leg1_rv",
                 "visible": false
               }
             },
             {
               "visibility": {
-                "name": "leg2_raw",
-                "input": "leg2_raw",
+                "name": "leg2_rv",
+                "input": "leg2_rv",
                 "visible": false
               }
             }
@@ -1481,749 +1625,12 @@
           "derived_from_ops": true
         },
         "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `fu-stool`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fu-stool",
-          "parts": [],
-          "version": 3388,
-          "ops": [
-            {
-              "primitive": {
-                "name": "seat_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.172,
-                  0.07,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "seat_ch",
-                "input": "seat_raw",
-                "mode": "fillet",
-                "radius": 0.018,
-                "segments": 6
-              }
-            },
-            {
-              "transform": {
-                "name": "seat",
-                "input": "seat_ch",
-                "translation": [
-                  0.0,
-                  0.415,
-                  0.0
-                ],
-                "rotation": null,
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "seat",
-                "input": "seat",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fu-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 11,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.37,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 11,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#6e4826"
-                          ],
-                          [
-                            0.55,
-                            "#99693e"
-                          ],
-                          [
-                            1,
-                            "#b4834f"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "leg0_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.026,
-                  0.4,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "leg0",
-                "input": "leg0_raw",
-                "translation": [
-                  7.225416e-18,
-                  0.2017,
-                  0.118
-                ],
-                "rotation": [
-                  -0.06975647,
-                  0.0,
-                  4.2713522e-18,
-                  0.9975641
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "leg0",
-                "input": "leg0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fu-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 31,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.37,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 31,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 36,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3a2414"
-                          ],
-                          [
-                            0.55,
-                            "#5c3d26"
-                          ],
-                          [
-                            1,
-                            "#6f4c30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.65,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "leg1_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.026,
-                  0.4,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "leg1",
-                "input": "leg1_raw",
-                "translation": [
-                  -0.102191,
-                  0.2017,
-                  -0.059
-                ],
-                "rotation": [
-                  0.034878235,
-                  0.0,
-                  -0.060410876,
-                  0.9975641
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "leg1",
-                "input": "leg1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fu-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 31,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.37,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 31,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 36,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3a2414"
-                          ],
-                          [
-                            0.55,
-                            "#5c3d26"
-                          ],
-                          [
-                            1,
-                            "#6f4c30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.65,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "primitive": {
-                "name": "leg2_raw",
-                "kind": "cylinder",
-                "size": [
-                  0.026,
-                  0.4,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "leg2",
-                "input": "leg2_raw",
-                "translation": [
-                  0.102191,
-                  0.2017,
-                  -0.059
-                ],
-                "rotation": [
-                  0.034878235,
-                  0.0,
-                  0.060410876,
-                  0.9975641
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "leg2",
-                "input": "leg2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fu-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 31,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.37,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 31,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 36,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3a2414"
-                          ],
-                          [
-                            0.55,
-                            "#5c3d26"
-                          ],
-                          [
-                            1,
-                            "#6f4c30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.65,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "sweep": {
-                "name": "rung",
-                "profile": [
-                  [
-                    0.012,
-                    0.012
-                  ],
-                  [
-                    -0.012,
-                    0.012
-                  ],
-                  [
-                    -0.012,
-                    -0.012
-                  ],
-                  [
-                    0.012,
-                    -0.012
-                  ]
-                ],
-                "path": [
-                  [
-                    7.83774e-18,
-                    0.14,
-                    0.128
-                  ],
-                  [
-                    -0.11085125,
-                    0.14,
-                    -0.064
-                  ],
-                  [
-                    0.11085125,
-                    0.14,
-                    -0.064
-                  ]
-                ],
-                "closed": true
-              }
-            },
-            {
-              "material": {
-                "name": "rung",
-                "input": "rung",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fu-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 31,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wv",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.37,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 31,
-                        "type": "random"
-                      },
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 36,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.35,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#3a2414"
-                          ],
-                          [
-                            0.55,
-                            "#5c3d26"
-                          ],
-                          [
-                            1,
-                            "#6f4c30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.65,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "seat_raw",
-                "input": "seat_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leg0_raw",
-                "input": "leg0_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leg1_raw",
-                "input": "leg1_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "leg2_raw",
-                "input": "leg2_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "seat_ch",
-                "input": "seat_ch",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
         "children": [],
-        "label": "20 edits: primitive `seat_raw` (cylinder) size=[0.172, 0.07, 0.0] at=[0.0, 0.0, 0.0] … hidden `seat_ch`"
+        "label": "revolve `seat_rv` profile=[[[0.0, -0.035], [0.154, -0.035], [0.1667278, -0.0297278], [0.172, -0.017], [0.172, 0.017], [0.1667278, 0.0297278], [0.154, 0.035], [0.0, 0.035]]] degrees=360 segments=14 round=0 at=[0.0, 0.0, 0.0]",
+        "author": "lite-props"
       }
     ],
-    "current": 2
+    "current": 1
   },
   "derived_from_ops": true
 }

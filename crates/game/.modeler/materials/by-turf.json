@@ -1,0 +1,170 @@
+{
+  "name": "by-turf",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "nb",
+      "octaves": 4,
+      "seed": 441,
+      "size": 0.5,
+      "type": "noise"
+    },
+    {
+      "mode": "fbm",
+      "name": "nf",
+      "octaves": 3,
+      "seed": 442,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "input": "nb",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#3f7a33"
+        ],
+        [
+          0.5,
+          "#5c9e4d"
+        ],
+        [
+          1,
+          "#78b35a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "nf",
+      "name": "ft",
+      "to": [
+        0.8,
+        1.12
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "base",
+      "b": "ft",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "nf",
+      "b": 0.006,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "by-turf",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "nb",
+              "octaves": 4,
+              "seed": 441,
+              "size": 0.5,
+              "type": "noise"
+            },
+            {
+              "mode": "fbm",
+              "name": "nf",
+              "octaves": 3,
+              "seed": 442,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "nb",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#3f7a33"
+                ],
+                [
+                  0.5,
+                  "#5c9e4d"
+                ],
+                [
+                  1,
+                  "#78b35a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "nf",
+              "name": "ft",
+              "to": [
+                0.8,
+                1.12
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "base",
+              "b": "ft",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "nf",
+              "b": 0.006,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+nb +nf +base +ft +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "zn-crate",
   "parts": [],
-  "version": 6993,
+  "version": 16899,
   "ops": [
     {
       "primitive": {
@@ -22,18 +22,9 @@
       }
     },
     {
-      "round": {
-        "name": "core_ch",
-        "input": "core_raw",
-        "mode": "chamfer",
-        "radius": 0.005,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "core",
-        "input": "core_ch",
+        "input": "core_raw",
         "translation": [
           0.0,
           0.0,
@@ -215,18 +206,9 @@
       }
     },
     {
-      "round": {
-        "name": "bx0_ch",
-        "input": "bx0_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bx0",
-        "input": "bx0_ch",
+        "input": "bx0_raw",
         "translation": [
           0.0,
           -0.45,
@@ -361,18 +343,9 @@
       }
     },
     {
-      "round": {
-        "name": "bx1_ch",
-        "input": "bx1_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bx1",
-        "input": "bx1_ch",
+        "input": "bx1_raw",
         "translation": [
           0.0,
           -0.45,
@@ -507,18 +480,9 @@
       }
     },
     {
-      "round": {
-        "name": "bz2_ch",
-        "input": "bz2_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bz2",
-        "input": "bz2_ch",
+        "input": "bz2_raw",
         "translation": [
           -0.45,
           -0.45,
@@ -653,18 +617,9 @@
       }
     },
     {
-      "round": {
-        "name": "bz3_ch",
-        "input": "bz3_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bz3",
-        "input": "bz3_ch",
+        "input": "bz3_raw",
         "translation": [
           0.45,
           -0.45,
@@ -799,18 +754,9 @@
       }
     },
     {
-      "round": {
-        "name": "bx4_ch",
-        "input": "bx4_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bx4",
-        "input": "bx4_ch",
+        "input": "bx4_raw",
         "translation": [
           0.0,
           0.45,
@@ -945,18 +891,9 @@
       }
     },
     {
-      "round": {
-        "name": "bx5_ch",
-        "input": "bx5_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bx5",
-        "input": "bx5_ch",
+        "input": "bx5_raw",
         "translation": [
           0.0,
           0.45,
@@ -1091,18 +1028,9 @@
       }
     },
     {
-      "round": {
-        "name": "bz6_ch",
-        "input": "bz6_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bz6",
-        "input": "bz6_ch",
+        "input": "bz6_raw",
         "translation": [
           -0.45,
           0.45,
@@ -1237,18 +1165,9 @@
       }
     },
     {
-      "round": {
-        "name": "bz7_ch",
-        "input": "bz7_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "bz7",
-        "input": "bz7_ch",
+        "input": "bz7_raw",
         "translation": [
           0.45,
           0.45,
@@ -1380,15 +1299,6 @@
           0.0
         ],
         "rotation": null
-      }
-    },
-    {
-      "round": {
-        "name": "by8_ch",
-        "input": "by8_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
       }
     },
     {
@@ -1529,15 +1439,6 @@
       }
     },
     {
-      "round": {
-        "name": "by9_ch",
-        "input": "by9_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "by9",
         "input": "by9_ch",
@@ -1672,15 +1573,6 @@
           0.0
         ],
         "rotation": null
-      }
-    },
-    {
-      "round": {
-        "name": "by10_ch",
-        "input": "by10_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
       }
     },
     {
@@ -1821,15 +1713,6 @@
       }
     },
     {
-      "round": {
-        "name": "by11_ch",
-        "input": "by11_raw",
-        "mode": "chamfer",
-        "radius": 0.01,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "by11",
         "input": "by11_ch",
@@ -1967,18 +1850,9 @@
       }
     },
     {
-      "round": {
-        "name": "brace_f_ch",
-        "input": "brace_f_raw",
-        "mode": "chamfer",
-        "radius": 0.005,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "brace_f",
-        "input": "brace_f_ch",
+        "input": "brace_f_raw",
         "translation": [
           0.0,
           0.0,
@@ -2118,18 +1992,9 @@
       }
     },
     {
-      "round": {
-        "name": "brace_b_ch",
-        "input": "brace_b_raw",
-        "mode": "chamfer",
-        "radius": 0.005,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "brace_b",
-        "input": "brace_b_ch",
+        "input": "brace_b_raw",
         "translation": [
           0.0,
           0.0,
@@ -2269,18 +2134,9 @@
       }
     },
     {
-      "round": {
-        "name": "brace_r_ch",
-        "input": "brace_r_raw",
-        "mode": "chamfer",
-        "radius": 0.005,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "brace_r",
-        "input": "brace_r_ch",
+        "input": "brace_r_raw",
         "translation": [
           0.485,
           0.0,
@@ -2420,18 +2276,9 @@
       }
     },
     {
-      "round": {
-        "name": "brace_l_ch",
-        "input": "brace_l_raw",
-        "mode": "chamfer",
-        "radius": 0.005,
-        "segments": 2
-      }
-    },
-    {
       "transform": {
         "name": "brace_l",
-        "input": "brace_l_ch",
+        "input": "brace_l_raw",
         "translation": [
           -0.485,
           0.0,
@@ -2673,66 +2520,39 @@
       }
     },
     {
-      "visibility": {
-        "name": "core_ch",
-        "input": "core_ch",
-        "visible": false
+      "round": {
+        "name": "by8_ch",
+        "input": "by8_raw",
+        "mode": "chamfer",
+        "radius": 0.01,
+        "segments": 2
       }
     },
     {
-      "visibility": {
-        "name": "bx0_ch",
-        "input": "bx0_ch",
-        "visible": false
+      "round": {
+        "name": "by9_ch",
+        "input": "by9_raw",
+        "mode": "chamfer",
+        "radius": 0.01,
+        "segments": 2
       }
     },
     {
-      "visibility": {
-        "name": "bx1_ch",
-        "input": "bx1_ch",
-        "visible": false
+      "round": {
+        "name": "by10_ch",
+        "input": "by10_raw",
+        "mode": "chamfer",
+        "radius": 0.01,
+        "segments": 2
       }
     },
     {
-      "visibility": {
-        "name": "bz2_ch",
-        "input": "bz2_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "bz3_ch",
-        "input": "bz3_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "bx4_ch",
-        "input": "bx4_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "bx5_ch",
-        "input": "bx5_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "bz6_ch",
-        "input": "bz6_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "bz7_ch",
-        "input": "bz7_ch",
-        "visible": false
+      "round": {
+        "name": "by11_ch",
+        "input": "by11_raw",
+        "mode": "chamfer",
+        "radius": 0.01,
+        "segments": 2
       }
     },
     {
@@ -2762,34 +2582,6 @@
         "input": "by11_ch",
         "visible": false
       }
-    },
-    {
-      "visibility": {
-        "name": "brace_f_ch",
-        "input": "brace_f_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "brace_b_ch",
-        "input": "brace_b_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "brace_r_ch",
-        "input": "brace_r_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "brace_l_ch",
-        "input": "brace_l_ch",
-        "visible": false
-      }
     }
   ],
   "annotations": [],
@@ -2817,43 +2609,7 @@
           "format_version": 1,
           "name": "zn-crate",
           "parts": [],
-          "version": 6891,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "zn-crate",
-          "parts": [],
-          "version": 6993,
+          "version": 16894,
           "ops": [
             {
               "primitive": {
@@ -2873,18 +2629,9 @@
               }
             },
             {
-              "round": {
-                "name": "core_ch",
-                "input": "core_raw",
-                "mode": "chamfer",
-                "radius": 0.005,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "core",
-                "input": "core_ch",
+                "input": "core_raw",
                 "translation": [
                   0.0,
                   0.0,
@@ -3066,18 +2813,9 @@
               }
             },
             {
-              "round": {
-                "name": "bx0_ch",
-                "input": "bx0_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bx0",
-                "input": "bx0_ch",
+                "input": "bx0_raw",
                 "translation": [
                   0.0,
                   -0.45,
@@ -3212,18 +2950,9 @@
               }
             },
             {
-              "round": {
-                "name": "bx1_ch",
-                "input": "bx1_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bx1",
-                "input": "bx1_ch",
+                "input": "bx1_raw",
                 "translation": [
                   0.0,
                   -0.45,
@@ -3358,18 +3087,9 @@
               }
             },
             {
-              "round": {
-                "name": "bz2_ch",
-                "input": "bz2_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bz2",
-                "input": "bz2_ch",
+                "input": "bz2_raw",
                 "translation": [
                   -0.45,
                   -0.45,
@@ -3504,18 +3224,9 @@
               }
             },
             {
-              "round": {
-                "name": "bz3_ch",
-                "input": "bz3_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bz3",
-                "input": "bz3_ch",
+                "input": "bz3_raw",
                 "translation": [
                   0.45,
                   -0.45,
@@ -3650,18 +3361,9 @@
               }
             },
             {
-              "round": {
-                "name": "bx4_ch",
-                "input": "bx4_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bx4",
-                "input": "bx4_ch",
+                "input": "bx4_raw",
                 "translation": [
                   0.0,
                   0.45,
@@ -3796,18 +3498,9 @@
               }
             },
             {
-              "round": {
-                "name": "bx5_ch",
-                "input": "bx5_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bx5",
-                "input": "bx5_ch",
+                "input": "bx5_raw",
                 "translation": [
                   0.0,
                   0.45,
@@ -3942,18 +3635,9 @@
               }
             },
             {
-              "round": {
-                "name": "bz6_ch",
-                "input": "bz6_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bz6",
-                "input": "bz6_ch",
+                "input": "bz6_raw",
                 "translation": [
                   -0.45,
                   0.45,
@@ -4088,18 +3772,9 @@
               }
             },
             {
-              "round": {
-                "name": "bz7_ch",
-                "input": "bz7_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "bz7",
-                "input": "bz7_ch",
+                "input": "bz7_raw",
                 "translation": [
                   0.45,
                   0.45,
@@ -4231,15 +3906,6 @@
                   0.0
                 ],
                 "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "by8_ch",
-                "input": "by8_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
               }
             },
             {
@@ -4380,15 +4046,6 @@
               }
             },
             {
-              "round": {
-                "name": "by9_ch",
-                "input": "by9_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "by9",
                 "input": "by9_ch",
@@ -4523,15 +4180,6 @@
                   0.0
                 ],
                 "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "by10_ch",
-                "input": "by10_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
               }
             },
             {
@@ -4672,15 +4320,6 @@
               }
             },
             {
-              "round": {
-                "name": "by11_ch",
-                "input": "by11_raw",
-                "mode": "chamfer",
-                "radius": 0.01,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "by11",
                 "input": "by11_ch",
@@ -4818,18 +4457,9 @@
               }
             },
             {
-              "round": {
-                "name": "brace_f_ch",
-                "input": "brace_f_raw",
-                "mode": "chamfer",
-                "radius": 0.005,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "brace_f",
-                "input": "brace_f_ch",
+                "input": "brace_f_raw",
                 "translation": [
                   0.0,
                   0.0,
@@ -4969,18 +4599,9 @@
               }
             },
             {
-              "round": {
-                "name": "brace_b_ch",
-                "input": "brace_b_raw",
-                "mode": "chamfer",
-                "radius": 0.005,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "brace_b",
-                "input": "brace_b_ch",
+                "input": "brace_b_raw",
                 "translation": [
                   0.0,
                   0.0,
@@ -5120,18 +4741,9 @@
               }
             },
             {
-              "round": {
-                "name": "brace_r_ch",
-                "input": "brace_r_raw",
-                "mode": "chamfer",
-                "radius": 0.005,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "brace_r",
-                "input": "brace_r_ch",
+                "input": "brace_r_raw",
                 "translation": [
                   0.485,
                   0.0,
@@ -5271,18 +4883,9 @@
               }
             },
             {
-              "round": {
-                "name": "brace_l_ch",
-                "input": "brace_l_raw",
-                "mode": "chamfer",
-                "radius": 0.005,
-                "segments": 2
-              }
-            },
-            {
               "transform": {
                 "name": "brace_l",
-                "input": "brace_l_ch",
+                "input": "brace_l_raw",
                 "translation": [
                   -0.485,
                   0.0,
@@ -5524,66 +5127,39 @@
               }
             },
             {
-              "visibility": {
-                "name": "core_ch",
-                "input": "core_ch",
-                "visible": false
+              "round": {
+                "name": "by8_ch",
+                "input": "by8_raw",
+                "mode": "chamfer",
+                "radius": 0.01,
+                "segments": 2
               }
             },
             {
-              "visibility": {
-                "name": "bx0_ch",
-                "input": "bx0_ch",
-                "visible": false
+              "round": {
+                "name": "by9_ch",
+                "input": "by9_raw",
+                "mode": "chamfer",
+                "radius": 0.01,
+                "segments": 2
               }
             },
             {
-              "visibility": {
-                "name": "bx1_ch",
-                "input": "bx1_ch",
-                "visible": false
+              "round": {
+                "name": "by10_ch",
+                "input": "by10_raw",
+                "mode": "chamfer",
+                "radius": 0.01,
+                "segments": 2
               }
             },
             {
-              "visibility": {
-                "name": "bz2_ch",
-                "input": "bz2_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bz3_ch",
-                "input": "bz3_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bx4_ch",
-                "input": "bx4_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bx5_ch",
-                "input": "bx5_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bz6_ch",
-                "input": "bz6_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bz7_ch",
-                "input": "bz7_ch",
-                "visible": false
+              "round": {
+                "name": "by11_ch",
+                "input": "by11_raw",
+                "mode": "chamfer",
+                "radius": 0.01,
+                "segments": 2
               }
             },
             {
@@ -5613,34 +5189,6 @@
                 "input": "by11_ch",
                 "visible": false
               }
-            },
-            {
-              "visibility": {
-                "name": "brace_f_ch",
-                "input": "brace_f_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "brace_b_ch",
-                "input": "brace_b_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "brace_r_ch",
-                "input": "brace_r_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "brace_l_ch",
-                "input": "brace_l_ch",
-                "visible": false
-              }
             }
           ],
           "annotations": [],
@@ -5667,12 +5215,13 @@
           },
           "derived_from_ops": true
         },
-        "parent": 1,
+        "parent": 0,
         "children": [],
-        "label": "102 edits: primitive `core_raw` (box) size=[0.96, 0.96, 0.96] at=[0.0, 0.0, 0.0] … hidden `brace_l_ch`"
+        "label": "12 edits: round `by8_ch` <- `by8_raw` chamfer radius=0.01 segments=2 … hidden `by11_ch`",
+        "author": "lite-nature"
       }
     ],
-    "current": 2
+    "current": 1
   },
   "style": {
     "name": "friendslop",

@@ -69,6 +69,9 @@ pub const ISLANDS: [Island; 3] = [
 /// The solid slab of each island (the rocky cone below is only looks).
 const ISLAND_THICKNESS: f32 = 1.5;
 const SPIRE_WIDTH: f32 = 1.6;
+/// The island model's radius and the spire model's height (see `raise_islands`).
+const ISLAND_MODEL_RADIUS: f32 = 5.0;
+const SPIRE_MODEL_HEIGHT: f32 = 8.0;
 
 /// Where island `i`'s spire stands (x, z): on its rim, towards the island
 /// below (or, for the first, towards the commune).
@@ -224,47 +227,43 @@ fn climb(
     }
 }
 
-/// Every peer: the floating islands and their spires, with colliders.
-fn raise_islands(
-    mut commands: Commands,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
-) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
-        return;
-    };
-    let grass = crate::art::soft(&mut materials, Color::srgb(0.36, 0.62, 0.3));
-    let rock = crate::art::soft(&mut materials, Color::srgb(0.5, 0.46, 0.42));
+/// Every peer: the floating islands and their spires, with colliders. The
+/// looks are modeler-made: prefab `by-sky-island` (radius 5, origin at the
+/// slab's centre, the rocky underside hanging below) scaled out to each
+/// island's radius, and `by-sky-spire` (1.6 m square, 8 m tall, centred)
+/// stretched up to each spire's height.
+fn raise_islands(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+    let model =
+        |file: &str, tf: Transform| {
+            assets.as_ref().map(|assets| {
+                (
+                    WorldAssetRoot(assets.load(
+                        GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}")),
+                    )),
+                    tf,
+                )
+            })
+        };
     for (i, island) in ISLANDS.iter().enumerate() {
-        // The grassy slab you stand on.
-        commands.spawn((
-            Mesh3d(meshes.add(Cylinder::new(island.radius, ISLAND_THICKNESS))),
-            MeshMaterial3d(grass.clone()),
+        // The grassy slab you stand on, with its rocky underside.
+        let mut slab = commands.spawn((
             Transform::from_xyz(
                 island.at.x,
                 island.top - ISLAND_THICKNESS / 2.0,
                 island.at.y,
             ),
+            Visibility::default(),
             RigidBody::Static,
             Collider::cylinder(island.radius, ISLAND_THICKNESS),
             DespawnOnExit(AppState::InGame),
         ));
-        // The rocky underside, hanging below like a turnip.
-        let depth = 3.0;
-        commands.spawn((
-            Mesh3d(meshes.add(Cone {
-                radius: island.radius * 0.95,
-                height: depth,
-            })),
-            MeshMaterial3d(rock.clone()),
-            Transform::from_xyz(
-                island.at.x,
-                island.top - ISLAND_THICKNESS - depth / 2.0,
-                island.at.y,
-            )
-            .with_rotation(Quat::from_rotation_x(std::f32::consts::PI)),
-            DespawnOnExit(AppState::InGame),
-        ));
+        let r = island.radius / ISLAND_MODEL_RADIUS;
+        if let Some(look) = model(
+            "sky_island.gltf",
+            Transform::from_scale(Vec3::new(r, 1.0, r)),
+        ) {
+            slab.with_child(look);
+        }
         // The spire up to its rim.
         let at = spire_at(i);
         let base = spire_base(i);
@@ -272,14 +271,19 @@ fn raise_islands(
         let out = (at - island.at).normalize_or_zero();
         let turn = Quat::from_rotation_y((-out.y).atan2(out.x));
         let height = island.top - base;
-        commands.spawn((
-            Mesh3d(meshes.add(Cuboid::new(SPIRE_WIDTH, height, SPIRE_WIDTH))),
-            MeshMaterial3d(rock.clone()),
+        let mut spire = commands.spawn((
             Transform::from_xyz(at.x, base + height / 2.0, at.y).with_rotation(turn),
+            Visibility::default(),
             RigidBody::Static,
             Collider::cuboid(SPIRE_WIDTH, height, SPIRE_WIDTH),
             DespawnOnExit(AppState::InGame),
         ));
+        if let Some(look) = model(
+            "sky_spire.gltf",
+            Transform::from_scale(Vec3::new(1.0, height / SPIRE_MODEL_HEIGHT, 1.0)),
+        ) {
+            spire.with_child(look);
+        }
     }
 }
 

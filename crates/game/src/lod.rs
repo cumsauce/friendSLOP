@@ -9,12 +9,20 @@
 //! and the last draws all the way to the fog. Trees used to vanish at 35 m
 //! when they were tagged as small props (#151); now they never pop. Purely
 //! local.
+//!
+//! Models exported by the modeler with `lods` carry their own lighter
+//! levels: sibling nodes `<part>.lod1`, `.lod2` whose glTF extras say the
+//! camera distances each is for (`{"lod": {"level", "near", "far"}}`).
+//! [`modeler_lods`] turns those into a [`VisibilityRange`] on the node's
+//! meshes, crossfading over [`FADE`] metres, so every such model swaps to
+//! its lighter meshes with distance on its own.
 
 use std::collections::HashMap;
 use std::ops::Range;
 
 use bevy::asset::RenderAssetUsages;
 use bevy::camera::visibility::VisibilityRange;
+use bevy::gltf::GltfExtras;
 use bevy::light::NotShadowCaster;
 use bevy::mesh::{Indices, VertexAttributeValues};
 use bevy::prelude::*;
@@ -37,7 +45,9 @@ pub struct TreeLod {
 }
 
 pub fn plugin(app: &mut App) {
-    app.init_resource::<FarMeshes>().add_observer(add_lods);
+    app.init_resource::<FarMeshes>()
+        .add_observer(add_lods)
+        .add_observer(modeler_lods);
 }
 
 /// Far meshes already built, by detailed mesh: one per [`LEVELS`] entry
@@ -180,9 +190,95 @@ fn add_lods(
     }
 }
 
+/// How far (metres) a modeler LOD level crossfades into the next.
+pub const FADE: f32 = 4.0;
+
+/// The distances a modeler-exported node is drawn over, from its glTF extras
+/// (`{"lod": {"level": 1, "near": 20, "far": 60}}`): `None` for a node
+/// without LOD extras. `far` of the last level is effectively forever.
+pub fn modeler_lod(extras: &str) -> Option<VisibilityRange> {
+    let value: serde_json::Value = serde_json::from_str(extras).ok()?;
+    let lod = value.get("lod")?;
+    let near = lod
+        .get("near")
+        .and_then(serde_json::Value::as_f64)
+        .unwrap_or(0.0) as f32;
+    let far = lod
+        .get("far")
+        .and_then(serde_json::Value::as_f64)
+        .map_or(FOREVER, |f| f as f32);
+    let far = if far.is_finite() && far > near {
+        far
+    } else {
+        FOREVER
+    };
+    // Each level starts fading in where the previous one starts fading out,
+    // so the two overlap over FADE metres and never leave a gap.
+    let start = if near > 0.0 {
+        near..near + FADE
+    } else {
+        0.0..0.0
+    };
+    let end = if far >= FOREVER {
+        FOREVER..FOREVER
+    } else {
+        far..far + FADE
+    };
+    Some(VisibilityRange {
+        start_margin: start,
+        end_margin: end,
+        use_aabb: false,
+    })
+}
+
+/// Gives the meshes of every modeler LOD node in a freshly spawned model
+/// the distances they're drawn over.
+fn modeler_lods(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    children: Query<&Children>,
+    nodes: Query<&GltfExtras>,
+    meshes: Query<(), With<Mesh3d>>,
+) {
+    for node in children.iter_descendants(ready.entity) {
+        let Some(range) = nodes.get(node).ok().and_then(|e| modeler_lod(&e.value)) else {
+            continue;
+        };
+        if meshes.contains(node) {
+            commands.entity(node).insert(range.clone());
+        }
+        for part in children.iter_descendants(node) {
+            if meshes.contains(part) {
+                commands.entity(part).insert(range.clone());
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn modeler_lod_extras_become_ranges() {
+        let full = r#"{"part":"bed","lod":{"level":0,"near":0,"far":20}}"#;
+        let Some(r0) = modeler_lod(full) else {
+            panic!("level 0 has a range");
+        };
+        assert_eq!(r0.start_margin, 0.0..0.0);
+        assert_eq!(r0.end_margin, 20.0..20.0 + FADE);
+        let Some(r1) = modeler_lod(r#"{"lod":{"level":1,"near":20,"far":60}}"#) else {
+            panic!("level 1 has a range");
+        };
+        // Level 1 fades in exactly while level 0 fades out.
+        assert_eq!(r1.start_margin, r0.end_margin);
+        let Some(r2) = modeler_lod(r#"{"lod":{"level":2,"near":60}}"#) else {
+            panic!("the last level has a range");
+        };
+        assert!(r2.end_margin.start >= FOREVER);
+        assert!(modeler_lod(r#"{"part":"bed"}"#).is_none());
+        assert!(modeler_lod("not json").is_none());
+    }
 
     #[test]
     fn far_meshes_keep_their_attributes() {

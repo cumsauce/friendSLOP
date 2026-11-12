@@ -8,6 +8,11 @@
 //! entity's colliders and gameplay never depend on it.
 //!
 //! Clip names match exactly or after a `skeleton|` prefix (`rig|walk`).
+//!
+//! Dynamic motion on top of the clips: once a rig is wired, its soft bones
+//! (tails, ears, Dave's bobble; see [`springy`]) get a spring from the
+//! modeler's simulation (`modeler_anim`), so they lag, swing and settle as
+//! the clip moves the body. `modeler_bevy` runs it after the animation.
 
 use std::collections::HashMap;
 use std::time::Duration;
@@ -117,7 +122,144 @@ pub fn clip_node<V: Copy>(nodes: &HashMap<String, V>, clip: &str) -> Option<V> {
 pub fn plugin(app: &mut App) {
     app.init_resource::<RigLibrary>()
         .add_observer(spawn_scene)
-        .add_systems(Update, (build_graphs, attach_players, play_clips).chain());
+        .add_systems(
+            Update,
+            (build_graphs, attach_players, play_clips, add_springs).chain(),
+        );
+}
+
+/// Soft bones that get a spring: tails, ears and bobbles.
+pub fn springy(bone: &str) -> bool {
+    bone.starts_with("tail") || bone.starts_with("ear") || bone == "bobble"
+}
+
+/// How the soft bones move: a loose, slightly bouncy spring.
+pub const SPRING: modeler_anim::Spring = modeler_anim::Spring {
+    stiffness: 60.0,
+    damping: 6.0,
+    gravity: 0.15,
+    wind: None,
+};
+
+/// One joint of a rest pose: name, parent (index), local translation and
+/// rotation. Parents come before children.
+pub type RestJoint = (String, Option<usize>, Vec3, Quat);
+
+/// The spring rig for a rest pose, or `None` if no bone is springy. Every
+/// joint is a bone (so the chain's maths matches the skeleton), but only
+/// springy ones move: the rest follow their animation. A soft bone points
+/// at its child, or on along its parent's direction.
+pub fn spring_rig(pose: &[RestJoint]) -> Option<modeler_anim::SwayRig> {
+    if !pose.iter().any(|(name, ..)| springy(name)) {
+        return None;
+    }
+    let mut world: Vec<(Vec3, Quat)> = Vec::with_capacity(pose.len());
+    for (_, parent, t, r) in pose {
+        let w = match parent.and_then(|p| world.get(p).copied()) {
+            Some((pp, pr)) => (pp + pr * *t, pr * *r),
+            None => (*t, *r),
+        };
+        world.push(w);
+    }
+    let bones = pose
+        .iter()
+        .enumerate()
+        .map(|(i, (name, parent, ..))| {
+            let head = world[i].0;
+            let child = pose.iter().position(|(_, p, ..)| *p == Some(i));
+            let from_parent = parent.map(|p| head - world[p].0).unwrap_or(Vec3::Y);
+            let tail = match child {
+                Some(c) => world[c].0,
+                None => {
+                    let len = (from_parent.length() * 0.6).clamp(0.05, 0.6);
+                    head + from_parent.normalize_or(Vec3::Y) * len
+                }
+            };
+            modeler_anim::SwayBone {
+                name: name.clone(),
+                parent: parent.map(|p| p as u32),
+                head: head.to_array(),
+                tail: tail.to_array(),
+                radius: 0.05,
+                weight: if springy(name) { 1.0 } else { 0.0 },
+            }
+        })
+        .collect();
+    Some(modeler_anim::SwayRig {
+        bones,
+        kind: modeler_anim::SwayKind::Spring(SPRING),
+        period: None,
+        clip: None,
+    })
+}
+
+/// Marks a rig whose springs have been looked for.
+#[derive(Component)]
+struct Springs;
+
+/// Gives a wired rig's soft bones springs (once).
+fn add_springs(
+    mut commands: Commands,
+    rigs: Query<Entity, (With<RigReady>, Without<Springs>)>,
+    children: Query<&Children>,
+    skins: Query<&bevy::mesh::skinning::SkinnedMesh>,
+    joints: Query<(&Name, &Transform, Option<&ChildOf>)>,
+) {
+    for rig in &rigs {
+        commands.entity(rig).insert(Springs);
+        let Some(skin) = children
+            .iter_descendants(rig)
+            .find_map(|c| skins.get(c).ok())
+        else {
+            continue;
+        };
+        // Parents before children.
+        let set = &skin.joints;
+        let parent_of = |j: Entity| {
+            joints
+                .get(j)
+                .ok()
+                .and_then(|(_, _, p)| p.map(ChildOf::parent))
+        };
+        let mut order: Vec<Entity> = Vec::with_capacity(set.len());
+        let mut left: Vec<Entity> = set.clone();
+        while !left.is_empty() {
+            let before = left.len();
+            let mut next = Vec::new();
+            for j in left {
+                let ready = parent_of(j).is_none_or(|p| !set.contains(&p) || order.contains(&p));
+                if ready {
+                    order.push(j);
+                } else {
+                    next.push(j);
+                }
+            }
+            if next.len() == before {
+                break;
+            }
+            left = next;
+        }
+        let pose: Vec<RestJoint> = order
+            .iter()
+            .filter_map(|&j| {
+                let (name, tf, _) = joints.get(j).ok()?;
+                let parent = parent_of(j).and_then(|p| order.iter().position(|&o| o == p));
+                Some((
+                    name.as_str().to_string(),
+                    parent,
+                    tf.translation,
+                    tf.rotation,
+                ))
+            })
+            .collect();
+        let Some(spring) = spring_rig(&pose) else {
+            continue;
+        };
+        let entities = order.iter().map(|&j| Some(j)).collect();
+        commands
+            .entity(rig)
+            .insert(modeler_bevy::Sway::new(spring, entities, 0.0));
+    }
 }
 
 fn spawn_scene(
@@ -243,6 +385,36 @@ fn play_clips(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_soft_bones_spring() {
+        let pose = vec![
+            ("root".to_string(), None, Vec3::ZERO, Quat::IDENTITY),
+            ("body".to_string(), Some(0), Vec3::Y * 0.3, Quat::IDENTITY),
+            (
+                "tail1".to_string(),
+                Some(1),
+                Vec3::NEG_Z * 0.2,
+                Quat::IDENTITY,
+            ),
+            (
+                "tail2".to_string(),
+                Some(2),
+                Vec3::NEG_Z * 0.15,
+                Quat::IDENTITY,
+            ),
+        ];
+        let Some(rig) = spring_rig(&pose) else {
+            panic!("rig")
+        };
+        let w: Vec<f32> = rig.bones.iter().map(|b| b.weight).collect();
+        assert_eq!(w, vec![0.0, 0.0, 1.0, 1.0]);
+        // tail1 points at tail2; tail2 carries on backwards.
+        assert_eq!(rig.bones[2].tail, rig.bones[3].head);
+        assert!(rig.bones[3].tail[2] < rig.bones[3].head[2]);
+        let stiff = vec![("root".to_string(), None, Vec3::ZERO, Quat::IDENTITY)];
+        assert!(spring_rig(&stiff).is_none());
+    }
 
     #[test]
     fn clips_match_with_or_without_a_skeleton_prefix() {

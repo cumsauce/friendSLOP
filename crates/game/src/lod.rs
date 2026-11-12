@@ -57,6 +57,7 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<FarMeshes>()
         .add_observer(add_lods)
         .add_observer(modeler_lods)
+        .add_observer(calm_trees)
         .add_systems(Update, (sway_near, steer_wind));
 }
 
@@ -75,6 +76,31 @@ pub fn sways(distance: f32) -> bool {
 /// The wind strength for a great-storm gust of `gust` (0 calm .. 1 peak).
 pub fn wind_strength(gust: f32) -> f32 {
     BREEZE + (GALE - BREEZE) * gust.clamp(0.0, 1.0)
+}
+
+/// Tree wind as rigged swings each bone at about 1 Hz and flutters the
+/// twigs at 3-6 Hz, which reads as vibration at game scale. Slow it to a
+/// lazy sway with a soft leaf flutter.
+pub const TREE_TEMPO: f32 = 0.4;
+pub const TREE_FLUTTER: f32 = 0.3;
+
+/// The wind settings a tree actually sways with (tempo and flutter tamed).
+pub fn calm(w: &modeler_anim::Wind) -> modeler_anim::Wind {
+    modeler_anim::Wind {
+        frequency: w.frequency * TREE_TEMPO,
+        flutter: w.flutter * TREE_FLUTTER,
+        ..w.clone()
+    }
+}
+
+fn calm_trees(add: On<Add<modeler_bevy::Sway>>, mut rigs: Query<&mut modeler_bevy::Sway>) {
+    let Ok(mut sway) = rigs.get_mut(add.entity) else {
+        return;
+    };
+    if let modeler_anim::SwayKind::Wind(w) = &sway.rig.kind {
+        let calmer = calm(w);
+        sway.rig.kind = modeler_anim::SwayKind::Wind(calmer);
+    }
 }
 
 fn sway_near(
@@ -319,6 +345,14 @@ fn modeler_lods(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn trees_sway_slower_and_flutter_less() {
+        let w = modeler_anim::Wind::default();
+        let c = calm(&w);
+        assert!(c.frequency < w.frequency && c.flutter <= w.flutter);
+        assert_eq!(c.strength, w.strength);
+    }
 
     #[test]
     fn modeler_lod_extras_become_ranges() {

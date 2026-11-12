@@ -54,6 +54,9 @@ friendslop-afterlife = { path = "../afterlife" }
 friendslop-side = { path = "../side" }
 # The modeler's runtime: live wind sway for rigged trees (`extras.sway`), each
 # instance with its own phase (lod.rs, scenery.rs).
+# The modeler's wind and spring maths (tree tempo in lod.rs, creature springs
+# in rigged.rs); the same revision modeler_bevy uses.
+modeler_anim = { git = "https://github.com/cumsauce/modeler", rev = "ba0fd6ad741e26bb65f76e10e52f64b16b6c4bac" }
 modeler_bevy = { git = "https://github.com/cumsauce/modeler", rev = "ba0fd6ad741e26bb65f76e10e52f64b16b6c4bac" }
 
 # Native only: the iroh transport (a tokio runtime plus `block_on` every tick),

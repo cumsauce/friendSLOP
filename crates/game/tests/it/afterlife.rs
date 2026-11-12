@@ -11,7 +11,7 @@ use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
 use friendslop::features::afterlife::{
-    Dead, Die, Grave, JUDGEMENT_SECS, LECTERN_AT, PLEAS_NEEDED, Plead, TakeTome, Tome, UseTome,
+    Dead, Die, Grave, JUDGEMENT_SECS, PLEAS_NEEDED, Plead, TakeTome, Tome, UseTome, lectern_at,
 };
 use friendslop::features::fps::Walker;
 use friendslop::player::Player;
@@ -118,7 +118,7 @@ fn begging_brings_you_back_and_hell_waits_for_the_rest() {
 
     // Too late to beg; the tome still works. The host fetches it.
     assert_eq!(tome(&mut client), Some(Tome { holder: None }));
-    put(&mut server, 0, LECTERN_AT.extend(0.0).xzy());
+    put(&mut server, 0, lectern_at().extend(0.0).xzy());
     exchange(&mut server, &mut client, 2);
     server.world_mut().client_trigger(TakeTome);
     exchange(&mut server, &mut client, 2);

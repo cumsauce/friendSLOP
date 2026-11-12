@@ -24,7 +24,7 @@ use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// Where the wreck lies (x, z): beached on the lake's east shore.
-pub const WRECK_AT: Vec2 = Vec2::new(-34.5, 21.0);
+pub use friendslop_world::places::wreck_at;
 /// Hits a pirate takes before he yields.
 pub const PIRATE_HP: u8 = 3;
 /// How long a beaten pirate stays down.
@@ -97,13 +97,13 @@ pub struct WreckNews {
 
 /// Where pirate `id` stands, and the chest, on the sand (feet positions).
 pub fn pirate_spot(id: u8) -> Vec3 {
-    let x = WRECK_AT.x + 3.2;
-    let z = WRECK_AT.y - 2.0 + id as f32 * 2.0;
+    let x = wreck_at().x + 3.2;
+    let z = wreck_at().y - 2.0 + id as f32 * 2.0;
     Vec3::new(x, crate::terrain::height_at(x, z), z)
 }
 
 pub fn chest_spot() -> Vec3 {
-    let (x, z) = (WRECK_AT.x + 1.8, WRECK_AT.y);
+    let (x, z) = (wreck_at().x + 1.8, wreck_at().y);
     Vec3::new(x, crate::terrain::height_at(x, z), z)
 }
 
@@ -128,7 +128,7 @@ pub fn hit(p: &mut Pirate) -> bool {
 
 pub fn protocol(app: &mut App) {
     // Keep trees and bushes off the beach (see world::footprints).
-    friendslop_world::footprints::claim(WRECK_AT + Vec2::X * 1.5, 7.5);
+    friendslop_world::footprints::claim(wreck_at() + Vec2::X * 1.5, 7.5);
     app.replicate::<Pirate>()
         .replicate::<Treasure>()
         .replicate::<Doubloons>()
@@ -488,11 +488,11 @@ fn build_wreck(
     mut exact: ResMut<super::cat_palette::ExactColors>,
 ) {
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let ground = crate::terrain::height_at(WRECK_AT.x, WRECK_AT.y);
+    let ground = crate::terrain::height_at(wreck_at().x, wreck_at().y);
     // Listing towards the lake, bow up the beach.
     let root = commands
         .spawn((
-            Transform::from_translation(Vec3::new(WRECK_AT.x, ground - 0.3, WRECK_AT.y))
+            Transform::from_translation(Vec3::new(wreck_at().x, ground - 0.3, wreck_at().y))
                 .with_rotation(Quat::from_rotation_y(0.25) * Quat::from_rotation_x(0.18)),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
@@ -569,8 +569,8 @@ mod tests {
 
     #[test]
     fn the_wreck_is_on_the_lake_shore() {
-        let lake = crate::terrain::LAKE_AT;
-        assert!(WRECK_AT.distance(lake) < 13.0);
+        let lake = crate::terrain::lake_at();
+        assert!(wreck_at().distance(lake) < 13.0);
         for id in 0..3 {
             let p = pirate_spot(id);
             assert!(

@@ -28,11 +28,11 @@ pub fn plugin(app: &mut App) {
 }
 
 /// Where the burnt-out parliament stands (x, z).
-pub use friendslop_world::places::PARLIAMENT_AT;
+pub use friendslop_world::places::parliament_at;
 
 /// Where Dave himself stands, 7 m from the parliament; the fart-shame check
 /// looks for him here.
-pub const DAVE_AT: Vec2 = Vec2::new(PARLIAMENT_AT.x - 1.0, PARLIAMENT_AT.y + 7.0);
+pub use friendslop_world::places::dave_at;
 
 /// Flag size (width, height), in metres.
 #[cfg(test)]
@@ -169,8 +169,9 @@ fn commune_flag() -> Vec<FlagPart> {
 }
 
 fn spawn_commune(mut commands: Commands, assets: Res<AssetServer>) {
-    let at =
-        |x: f32, y: f32, z: f32| Transform::from_xyz(PARLIAMENT_AT.x + x, y, PARLIAMENT_AT.y + z);
+    let at = |x: f32, y: f32, z: f32| {
+        Transform::from_xyz(parliament_at().x + x, y, parliament_at().y + z)
+    };
     // Modeler-made (sources in `.modeler/`, prefabs `sp-parliament-ruin`,
     // `sp-clock-tower`, `sp-flag-pole`).
     let model = |file: &str| {

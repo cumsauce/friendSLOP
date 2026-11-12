@@ -19,7 +19,7 @@ use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// Where the shack stands (x, z). Its counter faces north (-z), towards the road.
-pub const WENDYS_AT: Vec2 = Vec2::new(30.0, 9.0);
+pub use friendslop_world::places::wendys_at;
 /// Burgers on the counter at once.
 pub const SLOTS: u8 = 3;
 /// Seconds until a taken burger is replaced.
@@ -73,7 +73,7 @@ pub fn floor_y() -> f32 {
     let (w, d) = (HALF_W + 0.5, COUNTER_Z + 0.5);
     [(-w, -d), (w, -d), (-w, d), (w, d), (0.0, 0.0)]
         .iter()
-        .map(|(x, z)| crate::terrain::height_at(WENDYS_AT.x + x, WENDYS_AT.y + z))
+        .map(|(x, z)| crate::terrain::height_at(wendys_at().x + x, wendys_at().y + z))
         .fold(0.0, f32::max)
 }
 
@@ -82,9 +82,9 @@ pub fn burger_spot(slot: u8) -> Vec3 {
     let x = (slot as f32 - (SLOTS as f32 - 1.0) / 2.0) * 0.9;
     // The counter is on the north (-z) side, facing the road.
     Vec3::new(
-        WENDYS_AT.x + x,
+        wendys_at().x + x,
         floor_y() + COUNTER_H,
-        WENDYS_AT.y - COUNTER_Z,
+        wendys_at().y - COUNTER_Z,
     )
 }
 
@@ -272,7 +272,7 @@ fn place_sign(
     let Ok((camera, cam_tf)) = camera.single() else {
         return;
     };
-    let at = Vec3::new(WENDYS_AT.x, floor_y() + WALL_H + 1.2, WENDYS_AT.y);
+    let at = Vec3::new(wendys_at().x, floor_y() + WALL_H + 1.2, wendys_at().y);
     let near = cam_tf.translation().distance(at) < 45.0;
     let screen = camera.world_to_viewport(cam_tf, at).ok().filter(|_| near);
     for (mut node, mut vis) in &mut label {
@@ -334,13 +334,13 @@ fn build_shack(
     let stone = crate::art::soft(&mut materials, Color::srgb(0.58, 0.56, 0.54));
 
     let base = floor_y();
-    let c = Vec3::new(WENDYS_AT.x, base, WENDYS_AT.y);
+    let c = Vec3::new(wendys_at().x, base, wendys_at().y);
     let low = [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)]
         .iter()
         .map(|(x, z)| {
             crate::terrain::height_at(
-                WENDYS_AT.x + x * (HALF_W + 0.5),
-                WENDYS_AT.y + z * (COUNTER_Z + 0.5),
+                wendys_at().x + x * (HALF_W + 0.5),
+                wendys_at().y + z * (COUNTER_Z + 0.5),
             )
         })
         .fold(base, f32::min);
@@ -427,8 +427,8 @@ mod tests {
     fn burgers_sit_on_the_counter_in_front_of_the_shack() {
         for slot in 0..SLOTS {
             let p = burger_spot(slot);
-            assert!(p.z < WENDYS_AT.y, "counter faces the road (north)");
-            assert!((p.x - WENDYS_AT.x).abs() < HALF_W);
+            assert!(p.z < wendys_at().y, "counter faces the road (north)");
+            assert!((p.x - wendys_at().x).abs() < HALF_W);
             assert!(p.y >= COUNTER_H);
         }
     }
@@ -436,10 +436,10 @@ mod tests {
     #[test]
     fn the_shack_is_in_the_open_meadow_off_the_road() {
         use crate::zones::{Zone, zone_of};
-        assert_eq!(zone_of(WENDYS_AT), Zone::Meadow);
+        assert_eq!(zone_of(wendys_at()), Zone::Meadow);
         for dx in [-HALF_W, 0.0, HALF_W] {
             for dz in [-COUNTER_Z, 0.0, HALF_D] {
-                let (x, z) = (WENDYS_AT.x + dx, WENDYS_AT.y + dz);
+                let (x, z) = (wendys_at().x + dx, wendys_at().y + dz);
                 assert!(
                     !crate::terrain::is_path(x, z),
                     "shack on the road at {x},{z}"

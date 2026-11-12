@@ -1,15 +1,12 @@
-//! Where the map's fixed places stand. The map shapes the ground around them
-//! (flattened arenas, paths between them), so they live down here; the
-//! features that use those places import them from here.
+//! Where the map's fixed places stand: each is a `Spot` marker in the
+//! modeler's `commune-map` document, exported to `assets/maps/commune.bsn`
+//! and embedded here, so every peer reads the same spots before any asset
+//! loads. Move a place in the modeler, re-export, and the ground, scenery
+//! and features follow. A new place: add a marker with a `Spot` component,
+//! its name to [`PLACES`] and a `<name>_at()` function below.
 
 use bevy::prelude::*;
 
-/// The commune's parliament (burned down; Dave's revolt, #3).
-pub const PARLIAMENT_AT: Vec2 = Vec2::new(-12.0, -10.0);
-/// The commune bonfire, in front of the parliament.
-pub const BONFIRE_AT: Vec2 = Vec2::new(PARLIAMENT_AT.x + 3.5, PARLIAMENT_AT.y + 8.5);
-/// The duel arena: centre and half its width (a flat square, #20 and on).
-pub const ARENA_CENTER: Vec3 = Vec3::new(0.0, 0.0, -12.0);
 pub const ARENA_HALF: f32 = 7.0;
 
 /// The commune's map as the modeler exported it (embedded, so every peer
@@ -87,14 +84,163 @@ pub fn spot(name: &str) -> Option<Vec2> {
         .map(|e| e.at.xz())
 }
 
-/// The bonfire: its spot on the commune map, else [`BONFIRE_AT`].
-pub fn bonfire() -> Vec2 {
-    spot("bonfire").unwrap_or(BONFIRE_AT)
+/// Every place the game needs a spot for (the map test checks them all).
+pub const PLACES: &[&str] = &[
+    "parliament",
+    "bonfire",
+    "lectern",
+    "hell",
+    "warehouse",
+    "wendys",
+    "market",
+    "tower",
+    "barn",
+    "big_cottage",
+    "pond",
+    "hill",
+    "lake",
+    "quarry",
+    "wreck",
+    "officer",
+    "maze",
+    "windmill",
+    "dave",
+    "vault",
+    "gamble",
+    "arena",
+    "landlord",
+];
+
+/// Where a place is: its spot on the commune map. A missing spot (the map
+/// test catches it) puts the place at the origin.
+pub fn at(name: &str) -> Vec2 {
+    spot(name).unwrap_or_default()
 }
 
-/// The parliament: its spot on the commune map, else [`PARLIAMENT_AT`].
-pub fn parliament() -> Vec2 {
-    spot("parliament").unwrap_or(PARLIAMENT_AT)
+/// [`PLACES`]`[i]`, looked up once (the terrain asks per height sample).
+fn placed(i: usize) -> Vec2 {
+    static TABLE: std::sync::OnceLock<Vec<Vec2>> = std::sync::OnceLock::new();
+    TABLE
+        .get_or_init(|| PLACES.iter().map(|p| at(p)).collect())
+        .get(i)
+        .copied()
+        .unwrap_or_default()
+}
+
+/// The `parliament` spot on the commune map.
+pub fn parliament_at() -> Vec2 {
+    placed(0)
+}
+
+/// The `bonfire` spot on the commune map.
+pub fn bonfire_at() -> Vec2 {
+    placed(1)
+}
+
+/// The `lectern` spot on the commune map.
+pub fn lectern_at() -> Vec2 {
+    placed(2)
+}
+
+/// The `hell` spot on the commune map.
+pub fn hell_at() -> Vec2 {
+    placed(3)
+}
+
+/// The `warehouse` spot on the commune map.
+pub fn outside_at() -> Vec2 {
+    placed(4)
+}
+
+/// The `wendys` spot on the commune map.
+pub fn wendys_at() -> Vec2 {
+    placed(5)
+}
+
+/// The `market` spot on the commune map.
+pub fn market_at() -> Vec2 {
+    placed(6)
+}
+
+/// The `tower` spot on the commune map.
+pub fn tower_at() -> Vec2 {
+    placed(7)
+}
+
+/// The `barn` spot on the commune map.
+pub fn barn_at() -> Vec2 {
+    placed(8)
+}
+
+/// The `big_cottage` spot on the commune map.
+pub fn big_cottage_at() -> Vec2 {
+    placed(9)
+}
+
+/// The `pond` spot on the commune map.
+pub fn pond_at() -> Vec2 {
+    placed(10)
+}
+
+/// The `hill` spot on the commune map.
+pub fn hill_at() -> Vec2 {
+    placed(11)
+}
+
+/// The `lake` spot on the commune map.
+pub fn lake_at() -> Vec2 {
+    placed(12)
+}
+
+/// The `quarry` spot on the commune map.
+pub fn quarry_at() -> Vec2 {
+    placed(13)
+}
+
+/// The `wreck` spot on the commune map.
+pub fn wreck_at() -> Vec2 {
+    placed(14)
+}
+
+/// The `officer` spot on the commune map.
+pub fn officer_at() -> Vec2 {
+    placed(15)
+}
+
+/// The `maze` spot on the commune map.
+pub fn maze_at() -> Vec2 {
+    placed(16)
+}
+
+/// The `windmill` spot on the commune map.
+pub fn windmill_at() -> Vec2 {
+    placed(17)
+}
+
+/// The `dave` spot on the commune map.
+pub fn dave_at() -> Vec2 {
+    placed(18)
+}
+
+/// The `vault` spot on the commune map.
+pub fn vault_at() -> Vec2 {
+    placed(19)
+}
+
+/// The `gamble` spot on the commune map.
+pub fn gamble_at() -> Vec2 {
+    placed(20)
+}
+/// The `arena` spot on the commune map, on the ground plane.
+pub fn arena_center() -> Vec3 {
+    let p = placed(21);
+    Vec3::new(p.x, 0.0, p.y)
+}
+
+/// The `landlord` spot on the commune map, on the ground plane.
+pub fn landlord_at() -> Vec3 {
+    let p = placed(22);
+    Vec3::new(p.x, 0.0, p.y)
 }
 
 /// Keeps the dressing off the models the commune map places.
@@ -111,8 +257,12 @@ mod map_tests {
     #[test]
     fn the_commune_map_has_its_spots() {
         assert_eq!(spot("picnic"), Some(Vec2::new(6.0, 20.0)));
-        assert!(bonfire().distance(BONFIRE_AT) < 0.01);
-        assert!(parliament().distance(PARLIAMENT_AT) < 0.01);
+        for p in PLACES {
+            assert!(spot(p).is_some(), "no `{p}` spot on the commune map");
+        }
+        assert_eq!(bonfire_at(), Vec2::new(-8.5, -1.5));
+        assert_eq!(wendys_at(), at("wendys"));
+        assert_eq!(landlord_at(), Vec3::new(13.0, 0.0, -4.0));
         let crates = commune().iter().find(|e| e.name == "picnic_crates");
         assert_eq!(
             crates.and_then(|e| e.model.as_deref()),

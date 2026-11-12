@@ -6,7 +6,7 @@
 //!
 //! - **Marmalade the Magnificent**, a round orange tabby in a starry wizard
 //!   hat and robe, keeps a wheel of fortune at the edge of the commune
-//!   ([`GAMBLE_AT`]). Click him (or the wheel) to spin. It's free: the stake
+//!   ([`gamble_at()`]). Click him (or the wheel) to spin. It's free: the stake
 //!   is the game's balance.
 //! - The wheel has one wedge per [`Knob`] (a setting another feature reads)
 //!   plus one blank wedge. A knob wedge nudges that setting one step fairer
@@ -42,7 +42,7 @@ pub use crate::rules::house_odds::*;
 
 /// Where Marmalade keeps his wheel (x, z): south of the bonfire, off the
 /// spawn rows and the paths.
-pub const GAMBLE_AT: Vec2 = Vec2::new(-10.0, 9.0);
+pub use friendslop_world::places::gamble_at;
 /// Seconds between one player's spins.
 pub const COOLDOWN_SECS: f32 = 4.0;
 /// Chance the wheel lands on the blank wedge (everything back to normal).
@@ -298,7 +298,7 @@ fn on_spin(
     if super::stillness::is_frozen(&still) {
         return;
     }
-    let target = Vec3::new(GAMBLE_AT.x, 0.0, GAMBLE_AT.y);
+    let target = Vec3::new(gamble_at().x, 0.0, gamble_at().y);
     if !in_reach(&mut commands, ev.client_id, &walkers, target) {
         return;
     }
@@ -428,13 +428,13 @@ fn wizard_look() -> CharacterLook {
 }
 
 fn booth_at() -> Vec3 {
-    let y = crate::terrain::height_at(GAMBLE_AT.x, GAMBLE_AT.y);
-    Vec3::new(GAMBLE_AT.x, y, GAMBLE_AT.y)
+    let y = crate::terrain::height_at(gamble_at().x, gamble_at().y);
+    Vec3::new(gamble_at().x, y, gamble_at().y)
 }
 
 /// Facing towards the commune centre.
 fn booth_facing() -> Quat {
-    let face = -GAMBLE_AT;
+    let face = -gamble_at();
     Quat::from_rotation_y(f32::atan2(-face.x, -face.y))
 }
 
@@ -867,13 +867,13 @@ mod tests {
 
     #[test]
     fn the_booth_is_somewhere_open() {
-        let p = GAMBLE_AT;
+        let p = gamble_at();
         assert!(!crate::terrain::is_pond(p.x, p.y));
         assert!(!crate::terrain::is_path(p.x, p.y));
         assert_eq!(super::super::villagers::outside_arena(p), p);
-        assert!(p.distance(crate::scenery::BONFIRE_AT.xz()) > 5.0);
+        assert!(p.distance(crate::scenery::bonfire_at().xz()) > 5.0);
         assert!(
-            p.distance(crate::features::dave_commune::PARLIAMENT_AT) > 12.0,
+            p.distance(crate::features::dave_commune::parliament_at()) > 12.0,
             "clear of the parliament ruin"
         );
     }

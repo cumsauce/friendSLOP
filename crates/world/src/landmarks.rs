@@ -14,13 +14,8 @@ use bevy::world_serialization::WorldInstanceReady;
 
 use crate::AppState;
 use crate::art;
-/// The bonfire on the floor plane.
-const BONFIRE_AT: Vec3 = Vec3::new(
-    crate::places::BONFIRE_AT.x,
-    0.0,
-    crate::places::BONFIRE_AT.y,
-);
-use crate::terrain::POND_AT;
+use crate::places::bonfire_at;
+use crate::terrain::pond_at;
 
 pub fn plugin(app: &mut App) {
     app.add_systems(
@@ -121,7 +116,7 @@ fn glow(
 
 /// Where the jetty points from: the side facing the middle of the map.
 fn jetty_dir() -> Vec2 {
-    (-POND_AT).normalize_or(Vec2::NEG_X)
+    (-pond_at()).normalize_or(Vec2::NEG_X)
 }
 
 fn dress_pond(
@@ -130,7 +125,7 @@ fn dress_pond(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let c = POND_AT;
+    let c = pond_at();
     let jd = jetty_dir();
     // Angle of the jetty around the pond, so the reeds can leave it room.
     let jetty_angle = jd.y.atan2(jd.x);
@@ -298,7 +293,7 @@ fn dress_campfire(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let c = BONFIRE_AT.xz();
+    let c = bonfire_at();
     // Stone ring.
     let stone = art::soft(&mut materials, Color::srgb(0.5, 0.48, 0.46));
     let sooty = art::soft(&mut materials, Color::srgb(0.3, 0.28, 0.27));
@@ -362,8 +357,8 @@ fn string_lights(
     let wire = meshes.add(Cylinder::new(0.008, 1.0));
     const TOP: f32 = 2.3;
     for (a, b, side) in [
-        (Vec2::ZERO, BONFIRE_AT.xz(), 1.0),
-        (Vec2::ZERO, POND_AT, -1.0),
+        (Vec2::ZERO, bonfire_at(), 1.0),
+        (Vec2::ZERO, pond_at(), -1.0),
     ] {
         let dir = (b - a).normalize_or(Vec2::X);
         let perp = Vec2::new(-dir.y, dir.x) * side * 1.3;
@@ -449,7 +444,7 @@ fn paddle(time: Res<Time>, mut q: Query<(&Duck, &mut Transform)>) {
     let t = time.elapsed_secs();
     for (d, mut tr) in &mut q {
         let a = t * d.speed + d.phase;
-        let p = POND_AT + Vec2::new(a.cos(), a.sin()) * d.radius;
+        let p = pond_at() + Vec2::new(a.cos(), a.sin()) * d.radius;
         tr.translation.x = p.x;
         tr.translation.z = p.y;
         // Heading along the circle (the duck's nose is +X).

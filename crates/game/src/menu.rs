@@ -394,7 +394,7 @@ fn spawn_backdrop(
         bevy::light::NotShadowCaster,
         out.clone(),
     ));
-    let pond = crate::terrain::POND_AT;
+    let pond = crate::terrain::pond_at();
     commands.spawn((
         Mesh3d(meshes.add(Circle::new(3.4).mesh().resolution(40))),
         MeshMaterial3d(materials.add(StandardMaterial {

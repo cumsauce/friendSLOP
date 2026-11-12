@@ -117,7 +117,7 @@ pub fn npc_spots<'a>(
     crows: impl IntoIterator<Item = &'a Crow>,
     villagers: impl IntoIterator<Item = &'a Villager>,
 ) -> Vec<Vec2> {
-    let mut spots = vec![super::dave_commune::DAVE_AT];
+    let mut spots = vec![super::dave_commune::dave_at()];
     spots.extend(bears.into_iter().map(|b| bear_position(b, t).xz()));
     spots.extend(crows.into_iter().map(|c| crow_position(c, t).xz()));
     spots.extend(villagers.into_iter().map(|v| v.pos));
@@ -453,9 +453,9 @@ mod tests {
     #[test]
     fn dave_is_always_watching_where_he_stands() {
         let spots = npc_spots(0.0, [], [], []);
-        assert!(is_shameful(super::super::dave_commune::DAVE_AT, &spots));
+        assert!(is_shameful(super::super::dave_commune::dave_at(), &spots));
         assert!(!is_shameful(
-            super::super::dave_commune::PARLIAMENT_AT,
+            super::super::dave_commune::parliament_at(),
             &spots
         ));
         assert!(!is_shameful(Vec2::new(15.0, 15.0), &spots));

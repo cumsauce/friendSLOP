@@ -184,15 +184,16 @@ Rules for growing it:
   `crates/game/.modeler/components.json` (each type must also be `register_type`d in the game);
   its header is the salting. `friendslop_world::map` loads the scene (jackdaw's BSN parser, not
   its runtime), and `terrain::BAKED` embeds each `<area>.<terrain>.heights` so `height_at` uses
-  them on every peer. The commune's picnic corner (`commune-map`) is the example. Fixed spots read the embedded scene through `places::spot(name)` with
-  their old const as the fallback (`places::bonfire()`, `places::parliament()`), and the props a
-  map places claim their ground (`places::claim_map_props`).
+  them on every peer. The commune's picnic corner (`commune-map`) is the example. Every fixed place (arena, Wendy's, vault, pond, ...) is a `Spot` there:
+  `friendslop_world::places` embeds the scene and gives each a `<name>_at()` (no position
+  constants in code; a test checks every name in `places::PLACES` has its spot), the terrain
+  shapes the ground around them, and the props a map places claim their ground.
 - **Claim ground, don't get imported.** A feature that needs clear ground calls
   `friendslop_world::footprints::claim(at, radius)` in its protocol function, and scenery and
   zones keep their trees, bushes and rocks off it (the shipwreck does this).
 - **Next split (not done yet): scenery and zones.** `scenery.rs` and `zones.rs` still import
-  older features' spots (`warehouse::covers`, `WENDYS_AT`, `underground::covers`,
-  `totems::VAULT_AT`, ...) and lean on the camera and ambience. Move those features over to
+  older features' spots (`warehouse::covers`, `underground::covers`,
+  ...) and lean on the camera and ambience. Move those features over to
   `claim`, then scenery and zones can join `friendslop-world`.
 
 ### Networking rules (bevy_replicon 0.45)

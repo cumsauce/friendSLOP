@@ -49,12 +49,12 @@ pub const PLEA_GAP: f32 = 0.4;
 /// Seconds before a used Tome of Uncancelling is back on its lectern.
 pub const TOME_RESPAWN: f32 = 180.0;
 /// The lectern the tome sits on, in the commune by the spawn.
-pub const LECTERN_AT: Vec2 = Vec2::new(-4.5, 13.0);
+pub use friendslop_world::places::lectern_at;
 /// Lectern top (where the tome lies), above the ground.
 const LECTERN_TOP: f32 = 1.05;
 
 /// The hell pit: centre (x, z) far under the forest, and its lava level.
-pub const HELL_AT: Vec2 = Vec2::new(-60.0, -60.0);
+pub use friendslop_world::places::hell_at;
 pub const LAVA_Y: f32 = -150.0;
 /// The pit's wall radius and ceiling height above the lava.
 pub const PIT_RADIUS: f32 = 16.0;
@@ -160,7 +160,7 @@ struct Ledger {
 }
 
 pub fn protocol(app: &mut App) {
-    friendslop_world::footprints::claim(LECTERN_AT, 1.2);
+    friendslop_world::footprints::claim(lectern_at(), 1.2);
     app.replicate::<Dead>()
         .replicate::<Grave>()
         .replicate::<Tome>()
@@ -223,7 +223,7 @@ pub struct Stone {
 /// towards the white light in the middle. A pure function of nothing, so
 /// every peer builds the same pit.
 pub fn hell_stones() -> Vec<Stone> {
-    let at = |ring: f32, angle: f32| HELL_AT + Vec2::new(angle.cos(), angle.sin()) * ring;
+    let at = |ring: f32, angle: f32| hell_at() + Vec2::new(angle.cos(), angle.sin()) * ring;
     let mut stones = vec![Stone {
         top: at(START_RING, 0.0).extend(LAVA_Y + START_TOP).xzy(),
         radius: 2.5,
@@ -259,7 +259,7 @@ pub fn hell_start() -> Vec3 {
 /// The white light's platform in the middle, a step above the last stone.
 pub fn hell_exit() -> Vec3 {
     let top = hell_stones().last().map_or(LAVA_Y + START_TOP, |s| s.top.y) + STONE_RISE;
-    Vec3::new(HELL_AT.x, top, HELL_AT.y)
+    Vec3::new(hell_at().x, top, hell_at().y)
 }
 
 /// Has a body in hell with feet at `feet` touched the lava (or got out of
@@ -267,7 +267,7 @@ pub fn hell_exit() -> Vec3 {
 pub fn burnt(feet: Vec3) -> bool {
     feet.y < LAVA_Y + 0.2
         || feet.y > LAVA_Y + PIT_HEIGHT
-        || feet.xz().distance(HELL_AT) > PIT_RADIUS + 1.0
+        || feet.xz().distance(hell_at()) > PIT_RADIUS + 1.0
 }
 
 /// Has a body in hell with feet at `feet` reached the white light?
@@ -445,7 +445,7 @@ fn on_take_tome(
         }
         return;
     }
-    let lectern = LECTERN_AT.extend(0.0).xzy().with_y(lectern_ground());
+    let lectern = lectern_at().extend(0.0).xzy().with_y(lectern_ground());
     if !in_reach(&mut commands, ev.client_id, &bodies, lectern) {
         return;
     }
@@ -637,7 +637,7 @@ fn shelve_tome(
 }
 
 fn lectern_ground() -> f32 {
-    crate::terrain::height_at(LECTERN_AT.x, LECTERN_AT.y)
+    crate::terrain::height_at(lectern_at().x, lectern_at().y)
 }
 
 // ---------------------------------------------------------------- client side
@@ -871,7 +871,11 @@ fn dress_tome(
 }
 
 fn lectern_top() -> Vec3 {
-    Vec3::new(LECTERN_AT.x, lectern_ground() + LECTERN_TOP, LECTERN_AT.y)
+    Vec3::new(
+        lectern_at().x,
+        lectern_ground() + LECTERN_TOP,
+        lectern_at().y,
+    )
 }
 
 /// Local: the tome lies on its lectern, or floats at its holder's side.
@@ -917,7 +921,7 @@ fn build_lectern(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     };
     commands.spawn((
         model(&assets, "lectern.gltf"),
-        Transform::from_xyz(LECTERN_AT.x, lectern_ground(), LECTERN_AT.y),
+        Transform::from_xyz(lectern_at().x, lectern_ground(), lectern_at().y),
         DespawnOnExit(AppState::InGame),
     ));
 }
@@ -957,7 +961,7 @@ fn dig_hell(
         unlit: true,
         ..default()
     });
-    let centre = HELL_AT.extend(LAVA_Y).xzy();
+    let centre = hell_at().extend(LAVA_Y).xzy();
     let spawn_solid = |commands: &mut Commands,
                        mesh: Handle<Mesh>,
                        mat: Handle<StandardMaterial>,
@@ -1187,7 +1191,7 @@ mod tests {
         );
         for s in &stones {
             assert!(
-                s.top.xz().distance(HELL_AT) + s.radius < PIT_RADIUS,
+                s.top.xz().distance(hell_at()) + s.radius < PIT_RADIUS,
                 "inside the walls"
             );
             assert!(!burnt(s.top), "standing on a stone is safe");
@@ -1200,7 +1204,7 @@ mod tests {
     #[test]
     fn hell_is_far_under_everything() {
         const { assert!(LAVA_Y + PIT_HEIGHT < super::super::underground::TUNNEL_Y - 50.0) };
-        const { assert!(HELL_AT.x.abs() + PIT_RADIUS < crate::camera::FLOOR_HALF) };
+        assert!(hell_at().x.abs() + PIT_RADIUS < crate::camera::FLOOR_HALF);
     }
 
     #[test]

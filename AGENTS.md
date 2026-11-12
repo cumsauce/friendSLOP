@@ -184,7 +184,9 @@ Rules for growing it:
   `crates/game/.modeler/components.json` (each type must also be `register_type`d in the game);
   its header is the salting. `friendslop_world::map` loads the scene (jackdaw's BSN parser, not
   its runtime), and `terrain::BAKED` embeds each `<area>.<terrain>.heights` so `height_at` uses
-  them on every peer. The commune's picnic corner (`commune-map`) is the example.
+  them on every peer. The commune's picnic corner (`commune-map`) is the example. Fixed spots read the embedded scene through `places::spot(name)` with
+  their old const as the fallback (`places::bonfire()`, `places::parliament()`), and the props a
+  map places claim their ground (`places::claim_map_props`).
 - **Claim ground, don't get imported.** A feature that needs clear ground calls
   `friendslop_world::footprints::claim(at, radius)` in its protocol function, and scenery and
   zones keep their trees, bushes and rocks off it (the shipwreck does this).

@@ -1182,7 +1182,7 @@ impl PluckVoice {
         let nail = 0.03 + 0.07 * vel;
         self.buf.fill(0.0);
         let mut mean = 0.0;
-        for k in 0..n {
+        for (k, slot) in self.buf.iter_mut().enumerate().take(n) {
             let tri = if k < peak {
                 k as f32 / peak as f32
             } else {
@@ -1193,16 +1193,16 @@ impl PluckVoice {
             *noise ^= *noise << 5;
             let r = *noise as f32 / u32::MAX as f32 * 2.0 - 1.0;
             let x = tri + nail * r;
-            self.buf[k] = x;
+            *slot = x;
             mean += x;
         }
         mean /= n as f32;
         let passes = if vel > 0.8 { 2 } else { 3 };
         for _ in 0..passes {
             let mut prev = self.buf[n - 1] - mean;
-            for k in 0..n {
-                let x = self.buf[k] - mean;
-                self.buf[k] = 0.5 * x + 0.5 * prev;
+            for slot in self.buf.iter_mut().take(n) {
+                let x = *slot - mean;
+                *slot = 0.5 * x + 0.5 * prev;
                 prev = x;
             }
             mean = 0.0;

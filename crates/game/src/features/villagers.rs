@@ -510,7 +510,7 @@ fn tag_navmesh_exclusions(
     debug!("navmesh: leaving {tagged} scattered colliders out of the mesh");
 }
 
-/// The mesh settings the host builds with (and `tests/navmesh.rs` asserts on).
+/// The mesh settings the host builds with (and `tests/it/navmesh.rs` asserts on).
 pub fn navmesh_settings() -> NavmeshSettings {
     let mut settings = NavmeshSettings::from_agent_3d(AGENT_RADIUS, AGENT_HEIGHT);
     settings.walkable_climb = MAX_CLIMB;

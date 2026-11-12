@@ -138,7 +138,7 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   (everyone hears about it). Nearby villagers sometimes mutter a line (toast). On the host they
   sweep a ball along each step and veer around trees, rocks and walls (or pick a new spot if boxed
   in). Once the host is in the game it builds a navigation mesh (rerecast, off the main thread,
-  ~3 s; see `tests/navmesh.rs`) over the terrain and the village architecture, and most trips then
+  ~3 s; see `tests/it/navmesh.rs`) over the terrain and the village architecture, and most trips then
   go overland between the districts — commune centre, east village market, the maze's statue, the
   castle ruins, the forest clearing and the lake shore — via a landmass agent per villager. Until
   the mesh is ready they fall back to straight-line steering between the local spots. Scattered
@@ -707,10 +707,10 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   test plays all of it, the warehouse monster included (`campaign.rs`).
 - **Simulated 6-player playthrough** (#135, just meat and cheese: "simulate a full 6-player
   playthrough ... fix game design and make the rules cohesive. Keep every idea").
-  `tests/playthrough.rs` has a host and five friends play all five chapters through the real
+  `tests/it/playthrough.rs` has a host and five friends play all five chapters through the real
   network requests (walking, clicking, keys), Stillness, failed actions and the landlord's clock
   included, plus the off-checklist stuff (farting by Dave, the lex pile, Abuela, spells), then
-  start a new campaign. `cargo test -p friendslop --test playthrough -- --nocapture` prints the
+  start a new campaign. `cargo test -p friendslop --test it playthrough -- --nocapture` prints the
   play log. What it changed: paying rent now moves Act I along (it used to be a 3-minute wait
   whatever you paid); the beaten landlord's stash is shared by everyone (it all went to whoever
   landed the last hit); the tears no longer fall again every chapter (that contradicted #43), so

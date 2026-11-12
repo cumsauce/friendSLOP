@@ -3,7 +3,7 @@
 This is an unmodified copy of the `rerecast` 0.5.0 crate
 (https://crates.io/crates/rerecast, MIT OR Apache-2.0 — see `LICENSE-MIT` and
 `LICENSE-APACHE`) with one local fix, applied because the stock crate cannot
-build a navmesh over our 200x200 m map (see `tests/navmesh.rs`).
+build a navmesh over our 200x200 m map (see `tests/it/navmesh.rs`).
 
 ## The patch
 

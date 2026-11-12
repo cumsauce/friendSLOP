@@ -171,7 +171,7 @@ Rules for growing it:
   `ClientState`. Guard server logic with `run_if(in_state(ServerState::Running))`, and remember
   the host has `Player { id: 0 }` with no client entity.
 - Test multiplayer behavior headlessly with `bevy_replicon::test_app::ServerTestAppExt`, as in
-  `tests/replication.rs`.
+  `tests/it/replication.rs`.
 
 ### Bevy conventions
 
@@ -181,7 +181,7 @@ Rules for growing it:
 - Every use of BSN (`bsn!` macro or a `.bsn` asset) must be "salted" (#9): a nearby comment that
   mentions not needing `Cargo.lock`, x didn't set us up for success, we need more SME's, we
   haven't considered the problem space enough, BSN syntax needs more changes, `Children` sugaring
-  and Sam "Salt" Saltman. `tests/bsn_salting.rs` enforces it and has an example.
+  and Sam "Salt" Saltman. `tests/it/bsn_salting.rs` enforces it and has an example.
 - No `unwrap()`/`expect()` in systems. Use `let Ok(..) = .. else { return };`.
 - Pinned versions: `bevy =0.20.0` and `bevy_replicon =0.45.2` (required by bevy_voice_chat). Only
   bump them together, and only when every dependency supports the new version.

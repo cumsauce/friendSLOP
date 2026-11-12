@@ -91,6 +91,13 @@ jobs:
         run: |
           git config --global user.name "friendslop-bot"
           git config --global user.email "friendslop-bot@users.noreply.github.com"
+      # The modeler (every model in the game is made there, see AGENTS.md) as an
+      # MCP server: mcp__modeler__* tools, software-rendered agent views, saves
+      # in crates/game/.modeler/ and exports in crates/game/assets/.
+      - uses: cumsauce/modeler@main
+        with:
+          project: ${{ github.workspace }}/crates/game
+          render: "true"
       - uses: anthropics/claude-code-action@v1
         env:
           GH_TOKEN: ${{ secrets.BOT_PAT }}
@@ -102,7 +109,8 @@ jobs:
           claude_args: >-
             --model claude-opus-5-5
             --max-turns 200
-            --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Skill,Task,TodoWrite"
+            --mcp-config .mcp.json
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch,Skill,Task,TodoWrite,mcp__modeler__*"
           prompt: |
             You are the sole developer of friendSLOP. Read AGENTS.md first, then .github/claude/run.md, and follow it.
 

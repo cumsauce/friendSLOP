@@ -205,13 +205,23 @@ fn baked() -> &'static [HeightGrid] {
     GRIDS.get_or_init(|| BAKED.iter().filter_map(|b| HeightGrid::decode(b)).collect())
 }
 
-/// Ground height: a modeler-baked grid where one covers (x, z), else the
-/// procedural ground ([`procedural_height_at`]).
+/// Ground height: the map's terrain, shaped in the modeler and baked to a
+/// grid (`commune-map`'s `ground`), plus the edge-of-world [`rim`]; where no
+/// grid covers (x, z), or the file is missing, the procedural ground
+/// ([`procedural_height_at`]).
 pub fn height_at(x: f32, z: f32) -> f32 {
     baked()
         .iter()
         .find_map(|g| g.sample(x, z))
+        .map(|h| h + rim(x, z))
         .unwrap_or_else(|| procedural_height_at(x, z))
+}
+
+/// Beyond the play area: hills that hide the edge of the world (added on
+/// top of the map's own ground, which eases flat at its edge).
+fn rim(x: f32, z: f32) -> f32 {
+    let edge = x.abs().max(z.abs());
+    smoothstep(80.0, WORLD_HALF, edge) * (10.0 + fbm(x * 0.04, z * 0.04, 3) * 8.0)
 }
 
 /// Ground height. Exactly 0 in the central commune square (±25 m) and the
@@ -226,8 +236,7 @@ pub fn procedural_height_at(x: f32, z: f32) -> f32 {
         rect_mask(p, lo, hi, 7.0)
     };
     let flat = centre.max(village);
-    // Beyond the play area: hills that hide the edge of the world.
-    let rim = smoothstep(80.0, WORLD_HALF, edge) * (10.0 + fbm(x * 0.04, z * 0.04, 3) * 8.0);
+    let rim = rim(x, z);
     if flat >= 1.0 {
         return rim;
     }
@@ -637,30 +646,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn the_baked_commune_matches_the_ground_it_covers() {
+    fn the_map_terrain_covers_the_world() {
         let grids = baked();
         assert!(!grids.is_empty(), "the commune heights decode");
-        for (x, z) in [(0.0, 0.0), (6.0, 20.0), (-24.0, 24.0), (24.9, -24.9)] {
-            let h = grids[0].sample(x, z);
-            assert!(
-                h.is_some_and(|h| (h - procedural_height_at(x, z)).abs() < 0.01),
-                "{x},{z}: {h:?}"
-            );
+        for (x, z) in [(0.0, 0.0), (-62.0, -6.0), (109.0, -109.0), (-109.0, 109.0)] {
+            assert!(grids[0].sample(x, z).is_some(), "{x},{z} is covered");
         }
-        assert!(grids[0].sample(40.0, 0.0).is_none());
-        assert_eq!(height_at(60.0, 60.0), procedural_height_at(60.0, 60.0));
+        // The baked ground plus the edge hills.
+        let (x, z) = (100.0, 100.0);
+        let baked = grids[0].sample(x, z).unwrap_or_default();
+        assert_eq!(height_at(x, z), baked + rim(x, z));
     }
 
     #[test]
     fn commune_and_village_are_flat() {
         for i in -25..=25 {
             for j in -25..=25 {
-                assert_eq!(height_at(i as f32, j as f32), 0.0);
+                let h = height_at(i as f32, j as f32);
+                assert!(h.abs() < 0.02, "commune {i},{j}: {h}");
             }
         }
         for i in 35..=80 {
             for j in -35..=35 {
-                assert_eq!(height_at(i as f32, j as f32), 0.0, "village {i},{j}");
+                let h = height_at(i as f32, j as f32);
+                assert!(h.abs() < 0.02, "village {i},{j}: {h}");
             }
         }
         assert!(height_at(100.0, 100.0) > 5.0, "edge hills");

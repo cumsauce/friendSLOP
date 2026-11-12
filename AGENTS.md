@@ -184,7 +184,10 @@ Rules for growing it:
   `crates/game/.modeler/components.json` (each type must also be `register_type`d in the game);
   its header is the salting. `friendslop_world::map` loads the scene (jackdaw's BSN parser, not
   its runtime), and `terrain::BAKED` embeds each `<area>.<terrain>.heights` so `height_at` uses
-  them on every peer. The commune's picnic corner (`commune-map`) is the example. The map's whole layout is markers there, read by
+  them on every peer. The whole world's ground is `commune-map`'s hidden `ground` terrain (hills
+  noise, flat pads for the commune, village and ruins, pads that raise the hill and ridge and sink
+  the lake and quarry): reshape it there. Only the edge-of-world rim hills are added in code, and
+  `procedural_height_at` is the fallback when the heights file is missing. The commune's picnic corner (`commune-map`) is the example. The map's whole layout is markers there, read by
   `friendslop_world::places` from the embedded scene: `Spot` (every fixed place, `<name>_at()`;
   a test checks each name in `places::PLACES`), `Feature` (a spot's sizes: pond, hill, lake,
   quarry, arena, village flat), `Path` (the ground's paths), `District` (zone boxes),

@@ -2,26 +2,106 @@
   "format_version": 1,
   "name": "commune-map",
   "parts": [],
-  "version": 1645,
+  "version": 15399,
   "ops": [
     {
       "terrain": {
         "name": "ground",
         "size": [
-          50.0,
-          50.0
+          220.0,
+          220.0
         ],
         "resolution": 1.0,
-        "height": 0.0,
-        "scale": 20.0,
-        "octaves": 5,
-        "gain": 0.5,
-        "style": "flat",
-        "seed": 1,
-        "base": -1.0,
+        "height": 2.4,
+        "scale": 32.0,
+        "octaves": 4,
+        "gain": 0.45,
+        "style": "hills",
+        "seed": 11,
+        "base": -8.0,
         "terraces": 5,
         "wind": 0.0,
         "edge_falloff": 0.0,
+        "flatten": [
+          {
+            "at": [
+              0.0,
+              0.0
+            ],
+            "radius": 0.0,
+            "size": [
+              50.0,
+              50.0
+            ],
+            "height": 0.0,
+            "falloff": 8.0
+          },
+          {
+            "at": [
+              57.5,
+              0.0
+            ],
+            "radius": 0.0,
+            "size": [
+              45.0,
+              70.0
+            ],
+            "height": 0.0,
+            "falloff": 7.0
+          },
+          {
+            "at": [
+              -55.0,
+              57.5
+            ],
+            "radius": 0.0,
+            "size": [
+              50.0,
+              55.0
+            ],
+            "falloff": 8.0
+          },
+          {
+            "at": [
+              -62.0,
+              -6.0
+            ],
+            "radius": 2.0,
+            "height": 12.0,
+            "falloff": 22.0
+          },
+          {
+            "at": [
+              -86.0,
+              0.0
+            ],
+            "radius": 0.0,
+            "size": [
+              8.0,
+              64.0
+            ],
+            "height": 7.0,
+            "falloff": 14.0
+          },
+          {
+            "at": [
+              -44.0,
+              20.0
+            ],
+            "radius": 5.0,
+            "height": -1.6,
+            "falloff": 5.5
+          },
+          {
+            "at": [
+              -55.0,
+              65.0
+            ],
+            "radius": 3.0,
+            "height": -5.0,
+            "falloff": 10.0
+          }
+        ],
         "translation": [
           0.0,
           0.0,
@@ -2121,14 +2201,95 @@
   "next_annotation_id": 0,
   "templates": {
     "terrain:ground": {
-      "height": 0,
-      "name": "ground",
-      "resolution": 1,
-      "size": [
-        50,
-        50
+      "base": -8,
+      "flatten": [
+        {
+          "at": [
+            0,
+            0
+          ],
+          "falloff": 8,
+          "height": 0,
+          "size": [
+            50,
+            50
+          ]
+        },
+        {
+          "at": [
+            57.5,
+            0
+          ],
+          "falloff": 7,
+          "height": 0,
+          "size": [
+            45,
+            70
+          ]
+        },
+        {
+          "at": [
+            -55,
+            57.5
+          ],
+          "falloff": 8,
+          "size": [
+            50,
+            55
+          ]
+        },
+        {
+          "at": [
+            -62,
+            -6
+          ],
+          "falloff": 22,
+          "height": 12,
+          "radius": 2
+        },
+        {
+          "at": [
+            -86,
+            0
+          ],
+          "falloff": 14,
+          "height": 7,
+          "size": [
+            8,
+            64
+          ]
+        },
+        {
+          "at": [
+            -44,
+            20
+          ],
+          "falloff": 5.5,
+          "height": -1.6,
+          "radius": 5
+        },
+        {
+          "at": [
+            -55,
+            65
+          ],
+          "falloff": 10,
+          "height": -5,
+          "radius": 3
+        }
       ],
-      "style": "flat",
+      "gain": 0.45,
+      "height": 2.4,
+      "name": "ground",
+      "octaves": 4,
+      "resolution": 1.0,
+      "scale": 32,
+      "seed": 11,
+      "size": [
+        220,
+        220
+      ],
+      "style": "hills",
       "type": "terrain"
     }
   },

@@ -2,3 +2,8 @@
 # Note: a RUSTFLAGS env var replaces this; CI/scripts pass the flag themselves.
 [target.wasm32-unknown-unknown]
 rustflags = ["--cfg", "getrandom_backend=\"wasm_js\""]
+
+# `cargo dev host` / `cargo dev join <code>`: run the game with Bevy dynamically
+# linked (the `dev` feature) for quick edit-run loops on desktop.
+[alias]
+dev = "run --features dev --"

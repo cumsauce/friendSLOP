@@ -4,6 +4,11 @@ version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 
+[features]
+# Faster rebuilds on desktop: Bevy as a shared library, so a small change
+# relinks in seconds (`cargo dev host`, see .cargo/config.toml). Never for
+# release, CI or the web build.
+dev = ["bevy/dynamic_linking"]
 [dependencies]
 bevy.workspace = true
 bevy_replicon.workspace = true

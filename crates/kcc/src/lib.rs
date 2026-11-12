@@ -302,7 +302,7 @@ fn step_move(
     // over a small gap): commit to it and let gravity bring us down.
     // (Deliberate divergence from upstream, which reverts to the blocked
     // slide here: committing is what makes kerb crossing work at 60 Hz, see
-    // #98. Don't "fix" it without re-running tests/kcc.rs.)
+    // #98. Don't "fix" it without re-running tests/it/kcc.rs.)
     let hit = hit.filter(|hit| hit.normal1.y >= MIN_WALK_COS);
     let up_position = match hit {
         Some(hit) => translation - Vec3::Y * hit.distance,

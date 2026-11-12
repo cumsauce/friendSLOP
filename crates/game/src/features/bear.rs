@@ -63,200 +63,53 @@ pub fn bear_position(bear: &Bear, t: f32) -> Vec3 {
     Vec3::new(bear.home.x + wander.x, 0.0, bear.home.y + wander.y)
 }
 
-/// Give the bear (on every peer) a round body, head, ears, snout and stubby arms.
-fn dress_bear(
-    mut commands: Commands,
-    new: Query<(Entity, &Bear), Added<Bear>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+/// The rigged plush bear model (clips `idle`, `walk`, `growl`).
+pub const BEAR_MODEL: &str = "models/creatures/bear.gltf";
+
+/// Give the bear (on every peer) its rigged plush model. A missing file only
+/// makes it invisible: its wandering and growls don't depend on it.
+fn dress_bear(mut commands: Commands, new: Query<(Entity, &Bear), Added<Bear>>) {
     for (entity, bear) in &new {
-        let fur = crate::art::soft(&mut materials, Color::srgb(0.55, 0.36, 0.22));
-        let tummy = materials.add(Color::srgb(0.85, 0.7, 0.52));
-        let dark = crate::art::glossy(&mut materials, Color::srgb(0.08, 0.05, 0.04));
-        let body = meshes.add(Sphere::new(0.8));
-        let head = meshes.add(Sphere::new(0.5));
-        let ear = meshes.add(Sphere::new(0.17));
-        let snout = meshes.add(Sphere::new(0.2));
-        let nose = meshes.add(Sphere::new(0.07));
-        let eye = meshes.add(Sphere::new(0.17));
-        let limb = meshes.add(Capsule3d::new(0.18, 0.35));
-        commands
-            .entity(entity)
-            .insert((
-                Transform::from_translation(bear_position(bear, 0.0)),
-                Visibility::default(),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                let pink = crate::art::soft(&mut materials, Color::srgb(0.95, 0.62, 0.62));
-                let phase = bear.home.x;
-                // Pear-shaped body that breathes, with a cream tummy patch.
-                p.spawn((
-                    Transform::from_xyz(0.0, 0.0, 0.0),
-                    Visibility::default(),
-                    crate::art::Breathe::new(Vec3::ONE, 0.025, phase),
-                ))
-                .with_children(|b| {
-                    b.spawn((
-                        Mesh3d(body),
-                        MeshMaterial3d(fur.clone()),
-                        Transform::from_xyz(0.0, 0.8, 0.0).with_scale(Vec3::new(1.0, 1.05, 0.9)),
-                    ));
-                    b.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.55))),
-                        MeshMaterial3d(tummy.clone()),
-                        Transform::from_xyz(0.0, 0.72, -0.4).with_scale(Vec3::new(1.0, 1.05, 0.5)),
-                    ));
-                });
-                // Stubby arms with paw pads, and legs with big round feet.
-                let pad = meshes.add(Sphere::new(0.12));
-                let toe = meshes.add(Sphere::new(0.045));
-                let foot = meshes.add(Sphere::new(0.24));
-                for x in [-0.7_f32, 0.7] {
-                    p.spawn((
-                        Mesh3d(limb.clone()),
-                        MeshMaterial3d(fur.clone()),
-                        Transform::from_xyz(x, 0.95, -0.25)
-                            .with_rotation(Quat::from_rotation_z(x.signum() * 0.6)),
-                        crate::art::Wiggle::sway(
-                            Quat::from_rotation_z(x.signum() * 0.6),
-                            Vec3::X,
-                            0.12,
-                            2.5,
-                            x,
-                        ),
-                    ))
-                    .with_children(|a| {
-                        a.spawn((
-                            Mesh3d(pad.clone()),
-                            MeshMaterial3d(pink.clone()),
-                            Transform::from_xyz(0.0, -0.33, -0.12)
-                                .with_scale(Vec3::new(1.0, 1.0, 0.4)),
-                        ));
-                    });
-                    p.spawn((
-                        Mesh3d(limb.clone()),
-                        MeshMaterial3d(fur.clone()),
-                        Transform::from_xyz(x * 0.55, 0.3, -0.05),
-                    ));
-                    p.spawn((
-                        Mesh3d(foot.clone()),
-                        MeshMaterial3d(fur.clone()),
-                        Transform::from_xyz(x * 0.55, 0.1, -0.2)
-                            .with_scale(Vec3::new(1.0, 0.55, 1.3)),
-                    ))
-                    .with_children(|f| {
-                        f.spawn((
-                            Mesh3d(pad.clone()),
-                            MeshMaterial3d(pink.clone()),
-                            Transform::from_xyz(0.0, 0.05, -0.2)
-                                .with_scale(Vec3::new(1.0, 1.2, 0.5)),
-                        ));
-                        for tx in [-0.1, 0.0, 0.1] {
-                            f.spawn((
-                                Mesh3d(toe.clone()),
-                                MeshMaterial3d(pink.clone()),
-                                Transform::from_xyz(tx, 0.18, -0.2),
-                            ));
-                        }
-                    });
-                }
-                // Little round tail that wags.
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.16))),
-                    MeshMaterial3d(tummy.clone()),
-                    Transform::from_xyz(0.0, 0.55, 0.75),
-                    crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Y, 0.4, 4.0, 0.0),
-                ));
-                // Head, with a slow curious tilt.
-                p.spawn((
-                    Mesh3d(head),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 1.85, -0.1).with_scale(Vec3::new(1.08, 0.95, 1.0)),
-                    crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Z, 0.08, 0.7, phase),
-                ))
-                .with_children(|h| {
-                    for x in [-0.33_f32, 0.33] {
-                        h.spawn((
-                            Mesh3d(ear.clone()),
-                            MeshMaterial3d(fur.clone()),
-                            Transform::from_xyz(x, 0.4, 0.0).with_scale(Vec3::new(1.0, 1.0, 0.6)),
-                            crate::art::Wiggle::twitch(Quat::IDENTITY, Vec3::Z, 0.35, x * 3.0),
-                        ))
-                        .with_children(|e| {
-                            e.spawn((
-                                Mesh3d(eye.clone()),
-                                MeshMaterial3d(pink.clone()),
-                                Transform::from_xyz(0.0, 0.0, -0.1)
-                                    .with_scale(Vec3::new(0.55, 0.55, 0.4)),
-                            ));
-                        });
-                    }
-                    crate::art::eyes(
-                        h,
-                        &mut meshes,
-                        &mut materials,
-                        Vec3::new(0.0, 0.1, -0.41),
-                        0.34,
-                        0.08,
-                    );
-                    crate::art::blush(
-                        h,
-                        &mut meshes,
-                        &mut materials,
-                        Vec3::new(0.0, -0.05, -0.4),
-                        0.62,
-                        0.08,
-                    );
-                    h.spawn((
-                        Mesh3d(snout),
-                        MeshMaterial3d(tummy),
-                        Transform::from_xyz(0.0, -0.1, -0.4).with_scale(Vec3::new(1.15, 0.85, 1.0)),
-                    ))
-                    .with_children(|s| {
-                        s.spawn((
-                            Mesh3d(nose),
-                            MeshMaterial3d(dark.clone()),
-                            Transform::from_xyz(0.0, 0.07, -0.18)
-                                .with_scale(Vec3::new(1.4, 1.0, 1.0)),
-                        ));
-                        // A tiny smile: two dark dots.
-                        let dot = meshes.add(Sphere::new(0.022));
-                        for mx in [-0.05, 0.05] {
-                            s.spawn((
-                                Mesh3d(dot.clone()),
-                                MeshMaterial3d(dark.clone()),
-                                Transform::from_xyz(mx, -0.06, -0.18),
-                            ));
-                        }
-                    });
-                });
-            });
+        commands.entity(entity).insert((
+            Transform::from_translation(bear_position(bear, 0.0)),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+            crate::rigged::Rigged { path: BEAR_MODEL },
+            bear_clip(false),
+        ));
     }
 }
 
-/// Amble along, face where we're going, and rear up a bit while growling.
+/// The clip the bear plays: a growl (rear up, paws up, puff) while growling,
+/// else its ambling waddle.
+pub fn bear_clip(growling: bool) -> crate::rigged::RigClip {
+    if growling {
+        crate::rigged::RigClip::once("growl").fade(0.15)
+    } else {
+        crate::rigged::RigClip::looping("walk").fade(0.3)
+    }
+}
+
+/// Amble along and face where we're going; the clips do the waddle and the
+/// growl's rear-up.
 fn animate_bear(
     time: Res<Time>,
     offset: Res<super::stillness::SessionOffset>,
-    mut bears: Query<(&Bear, &mut Transform)>,
+    mut bears: Query<(&Bear, &mut Transform, &mut crate::rigged::RigClip)>,
 ) {
     let t = super::stillness::session_secs(&time, &offset);
-    for (bear, mut transform) in &mut bears {
+    for (bear, mut transform, mut clip) in &mut bears {
         let here = bear_position(bear, t);
         let ahead = bear_position(bear, t + 0.1);
         let look = Vec3::new(ahead.x - here.x, 0.0, ahead.z - here.z);
-        let facing = Dir3::new(look)
-            .map(|dir| Transform::default().looking_to(dir, Vec3::Y).rotation)
-            .unwrap_or(transform.rotation);
-        let growling = is_growling(t);
-        // A gentle side-to-side waddle, or a rear-up (lean back) and puff when growling.
-        let waddle = (t * 2.5).sin() * 0.06;
-        let rear = if growling { 0.25 } else { 0.0 };
-        transform.rotation = facing * Quat::from_rotation_z(waddle) * Quat::from_rotation_x(rear);
+        if let Ok(dir) = Dir3::new(look) {
+            transform.rotation = Transform::default().looking_to(dir, Vec3::Y).rotation;
+        }
         transform.translation = here;
-        transform.scale = Vec3::splat(if growling { 1.12 } else { 1.0 });
+        let want = bear_clip(is_growling(t));
+        if want.name != clip.name {
+            *clip = want;
+        }
     }
 }
 
@@ -413,6 +266,14 @@ mod tests {
             assert_eq!(p.y, 0.0);
             assert!(Vec2::new(p.x, p.z).distance(bear.home) < 3.0);
         }
+    }
+
+    #[test]
+    fn bear_growls_once_then_walks_again() {
+        assert_eq!(bear_clip(true).name, "growl");
+        assert!(bear_clip(true).once);
+        assert_eq!(bear_clip(false).name, "walk");
+        assert!(!bear_clip(false).once);
     }
 
     #[test]

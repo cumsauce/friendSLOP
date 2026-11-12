@@ -13,6 +13,7 @@
 //! rat each, separate from the surface pets): it squeaks, tells you the lore
 //! and follows you everywhere, up ladders too. Click your own rat to hear it
 //! say something evil. A rat whose owner leaves goes back underground.
+//! The rats are a rigged modeler model ([`RAT_MODEL`]) that scurries and sniffs.
 
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
@@ -335,93 +336,58 @@ pub fn plugin(app: &mut App) {
 #[derive(Component)]
 struct Dressed;
 
-/// A grey rat: long body, pink ears and tail, glowing red eyes (evil).
-fn dress_rats(
-    mut commands: Commands,
-    new: Query<(Entity, &Rat), Without<Dressed>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    if new.is_empty() {
-        return;
-    }
-    let fur = crate::art::soft(&mut materials, Color::srgb(0.38, 0.35, 0.36));
-    let pink = crate::art::soft(&mut materials, Color::srgb(0.92, 0.6, 0.65));
-    let eye = materials.add(StandardMaterial {
-        base_color: Color::srgb(1.0, 0.1, 0.05),
-        emissive: LinearRgba::rgb(4.0, 0.2, 0.1),
-        unlit: true,
-        ..default()
-    });
-    let body = meshes.add(Sphere::new(0.13));
-    let head = meshes.add(Sphere::new(0.08));
-    let ear = meshes.add(Sphere::new(0.035));
-    let eye_mesh = meshes.add(Sphere::new(0.018));
-    let tail = meshes.add(Cuboid::new(0.02, 0.02, 0.32));
+/// The rigged rat: grey knitted body, pink ears and tail, glowing red eyes
+/// (evil). Faces -Z, feet at the origin; clips `idle` (sniffing) and `walk`
+/// (scurrying).
+pub const RAT_MODEL: &str = "models/creatures/rat.gltf";
+
+fn dress_rats(mut commands: Commands, new: Query<(Entity, &Rat), Without<Dressed>>) {
     for (entity, rat) in &new {
-        commands
-            .entity(entity)
-            .insert((
-                Dressed,
-                Transform::from_translation(rat.at).with_rotation(Quat::from_rotation_y(rat.yaw)),
-                Visibility::default(),
-                Clickable::at_height(0.15).labelled("adopt the rat"),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|r| {
-                r.spawn((
-                    Mesh3d(body.clone()),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.11, 0.0).with_scale(Vec3::new(0.8, 0.7, 1.4)),
-                ));
-                r.spawn((
-                    Mesh3d(head.clone()),
-                    MeshMaterial3d(fur.clone()),
-                    Transform::from_xyz(0.0, 0.13, -0.2).with_scale(Vec3::new(0.9, 0.9, 1.3)),
-                ));
-                for side in [-1.0, 1.0] {
-                    r.spawn((
-                        Mesh3d(ear.clone()),
-                        MeshMaterial3d(pink.clone()),
-                        Transform::from_xyz(side * 0.05, 0.21, -0.18)
-                            .with_scale(Vec3::new(1.0, 1.0, 0.4)),
-                    ));
-                    r.spawn((
-                        Mesh3d(eye_mesh.clone()),
-                        MeshMaterial3d(eye.clone()),
-                        Transform::from_xyz(side * 0.035, 0.16, -0.28),
-                    ));
-                }
-                r.spawn((
-                    Mesh3d(tail.clone()),
-                    MeshMaterial3d(pink.clone()),
-                    Transform::from_xyz(0.0, 0.07, 0.32).with_rotation(Quat::from_rotation_x(0.25)),
-                ));
-            });
+        commands.entity(entity).insert((
+            Dressed,
+            Transform::from_translation(rat.at).with_rotation(Quat::from_rotation_y(rat.yaw)),
+            Visibility::default(),
+            Clickable::at_height(0.15).labelled("adopt the rat"),
+            crate::rigged::Rigged { path: RAT_MODEL },
+            crate::rigged::RigClip::looping("idle"),
+            DespawnOnExit(AppState::InGame),
+        ));
     }
 }
 
-/// Glide to the replicated spot, with a little skitter while moving.
-fn glide_rats(time: Res<Time>, mut rats: Query<(&Rat, &mut Transform), With<Dressed>>) {
+/// The clip a rat plays: scurrying while it moves (faster when it's keeping
+/// up with its owner), sniffing about when it stops.
+pub fn rat_clip(moving: bool, adopted: bool) -> crate::rigged::RigClip {
+    use crate::rigged::RigClip;
+    match (moving, adopted) {
+        (true, true) => RigClip::looping("walk").speed(2.0).fade(0.1),
+        (true, false) => RigClip::looping("walk").fade(0.1),
+        (false, _) => RigClip::looping("idle").fade(0.25),
+    }
+}
+
+/// Glide to the replicated spot, scurrying while it moves.
+fn glide_rats(
+    time: Res<Time>,
+    mut rats: Query<(&Rat, &mut Transform, &mut crate::rigged::RigClip), With<Dressed>>,
+) {
     let k = (time.delta_secs() * 12.0).min(1.0);
-    let now = time.elapsed_secs();
-    for (rat, mut tf) in &mut rats {
+    for (rat, mut tf, mut clip) in &mut rats {
         let gap = rat.at - tf.translation;
         if gap.length() > CATCH_UP {
             tf.translation = rat.at; // popped up somewhere new
         }
         let moving = gap.xz().length() > 0.02;
         let mut at = tf.translation + gap * k;
-        at.y = rat.at.y
-            + if moving {
-                (now * 20.0 + rat.id as f32).sin().abs() * 0.03
-            } else {
-                0.0
-            };
+        at.y = rat.at.y;
         let facing = Quat::from_rotation_y(rat.yaw);
         if tf.translation != at || tf.rotation != facing {
             tf.translation = at;
             tf.rotation = tf.rotation.slerp(facing, k);
+        }
+        let want = rat_clip(moving, rat.owner.is_some());
+        if clip.name != want.name || clip.speed != want.speed {
+            *clip = want;
         }
     }
 }
@@ -541,6 +507,13 @@ mod tests {
         assert_eq!(a, Vec2::new(1.0, 0.0));
         let b = step_towards(Vec2::new(9.5, 0.0), Vec2::new(10.0, 0.0), 1.0, 0.9);
         assert_eq!(b, Vec2::new(9.5, 0.0));
+    }
+
+    #[test]
+    fn rats_scurry_while_moving_and_sniff_when_still() {
+        assert_eq!(rat_clip(true, false).name, "walk");
+        assert!(rat_clip(true, true).speed > rat_clip(true, false).speed);
+        assert_eq!(rat_clip(false, true).name, "idle");
     }
 
     #[test]

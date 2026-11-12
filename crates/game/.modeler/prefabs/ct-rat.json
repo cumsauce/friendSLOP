@@ -1,0 +1,3503 @@
+{
+  "format_version": 1,
+  "name": "ct-rat",
+  "parts": [],
+  "version": 20180,
+  "ops": [
+    {
+      "sdf": {
+        "name": "rat_fur_hi",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.11,
+              0.0
+            ],
+            "size": [
+              0.1,
+              0.085,
+              0.18
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.05,
+            "at": [
+              0.0,
+              0.135,
+              -0.19
+            ],
+            "size": [
+              0.07,
+              0.068,
+              0.1
+            ]
+          },
+          {
+            "shape": "capsule",
+            "blend": 0.03,
+            "radius": [
+              0.05,
+              0.018
+            ],
+            "from": [
+              0.0,
+              0.13,
+              -0.22
+            ],
+            "to": [
+              0.0,
+              0.11,
+              -0.31
+            ]
+          },
+          {
+            "shape": "capsule",
+            "blend": 0.02,
+            "radius": [
+              0.024,
+              0.015
+            ],
+            "from": [
+              0.06,
+              0.07,
+              -0.1
+            ],
+            "to": [
+              0.066,
+              0.015,
+              -0.125
+            ]
+          },
+          {
+            "shape": "capsule",
+            "blend": 0.02,
+            "radius": [
+              0.03,
+              0.016
+            ],
+            "from": [
+              0.065,
+              0.08,
+              0.1
+            ],
+            "to": [
+              0.072,
+              0.016,
+              0.115
+            ]
+          }
+        ],
+        "blend": 0.025,
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "rat_fur",
+        "input": "rat_fur_hi",
+        "tris": 430
+      }
+    },
+    {
+      "sdf": {
+        "name": "rat_ears_hi",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.052,
+              0.205,
+              -0.165
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              -0.17364818,
+              0.9848077
+            ],
+            "size": [
+              0.036,
+              0.036,
+              0.012
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "rat_ears",
+        "input": "rat_ears_hi",
+        "tris": 100
+      }
+    },
+    {
+      "sdf": {
+        "name": "rat_tail_hi",
+        "shapes": [
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.0,
+                0.085,
+                0.15,
+                0.02
+              ],
+              [
+                0.0,
+                0.07,
+                0.28,
+                0.014
+              ],
+              [
+                0.0,
+                0.045,
+                0.4,
+                0.009
+              ],
+              [
+                0.0,
+                0.035,
+                0.52,
+                0.005
+              ]
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "rat_tail",
+        "input": "rat_tail_hi",
+        "tris": 90
+      }
+    },
+    {
+      "primitive": {
+        "name": "rat_eye_raw",
+        "kind": "sphere",
+        "size": [
+          0.02,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.036,
+          0.165,
+          -0.262
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "decimate": {
+        "name": "rat_eye_l",
+        "input": "rat_eye_raw",
+        "tris": 40
+      }
+    },
+    {
+      "mirror": {
+        "name": "rat_eye_r",
+        "input": "rat_eye_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rat_nose_raw",
+        "kind": "sphere",
+        "size": [
+          0.013,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.112,
+          -0.326
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "decimate": {
+        "name": "rat_nose",
+        "input": "rat_nose_raw",
+        "tris": 30
+      }
+    },
+    {
+      "visibility": {
+        "name": "rat_fur_hi",
+        "input": "rat_fur_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rat_ears_hi",
+        "input": "rat_ears_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rat_tail_hi",
+        "input": "rat_tail_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rat_eye_raw",
+        "input": "rat_eye_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rat_nose_raw",
+        "input": "rat_nose_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "rat_fur",
+        "input": "rat_fur",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-knit-grey",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.y",
+                "b": 201.0619296,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.x",
+                "b": 251.327412,
+                "name": "ux0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "ux0",
+                "b": "sv",
+                "name": "ux",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "sa",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "sa",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#4a4446"
+                  ],
+                  [
+                    1,
+                    "#6a6264"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.06
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sa",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_ears",
+        "input": "rat_ears",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-knit-pink",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.y",
+                "b": 201.0619296,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.x",
+                "b": 251.327412,
+                "name": "ux0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "ux0",
+                "b": "sv",
+                "name": "ux",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "sa",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "sa",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d9808c"
+                  ],
+                  [
+                    1,
+                    "#f4a4b0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.06
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sa",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_tail",
+        "input": "rat_tail",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-knit-pink",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.y",
+                "b": 201.0619296,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.x",
+                "b": 251.327412,
+                "name": "ux0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "ux0",
+                "b": "sv",
+                "name": "ux",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "sa",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "sa",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d9808c"
+                  ],
+                  [
+                    1,
+                    "#f4a4b0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.06
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sa",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_nose",
+        "input": "rat_nose",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-knit-pink",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.y",
+                "b": 201.0619296,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.x",
+                "b": 251.327412,
+                "name": "ux0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "ux0",
+                "b": "sv",
+                "name": "ux",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "sa",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "sa",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d9808c"
+                  ],
+                  [
+                    1,
+                    "#f4a4b0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.06
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sa",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_eye_l",
+        "input": "rat_eye_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-eye-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.95,
+                  1.03
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ff2010",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "#ff2010",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_eye_r",
+        "input": "rat_eye_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-eye-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.95,
+                  1.03
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ff2010",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "#ff2010",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_eye_raw",
+        "input": "rat_eye_raw",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-eye-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.95,
+                  1.03
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ff2010",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "#ff2010",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_fur",
+        "input": "rat_fur",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-knit-grey",
+          "scale": 0.5,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.y",
+                "b": 201.0619296,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.x",
+                "b": 251.327412,
+                "name": "ux0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "ux0",
+                "b": "sv",
+                "name": "ux",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "sa",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "sa",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#4a4446"
+                  ],
+                  [
+                    1,
+                    "#6a6264"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.06
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sa",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rat_tail",
+        "input": "rat_tail",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ct-knit-pink",
+          "scale": 0.4,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.y",
+                "b": 201.0619296,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.x",
+                "b": 251.327412,
+                "name": "ux0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "ux0",
+                "b": "sv",
+                "name": "ux",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "sa",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "sa",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d9808c"
+                  ],
+                  [
+                    1,
+                    "#f4a4b0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.06
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sa",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "skeleton": {
+        "name": "rig",
+        "bones": [
+          {
+            "name": "body",
+            "parent": "root",
+            "head": [
+              0.0,
+              0.11,
+              0.13
+            ],
+            "tail": [
+              0.0,
+              0.12,
+              -0.1
+            ],
+            "radius": 0.1
+          },
+          {
+            "name": "head",
+            "parent": "body",
+            "head": [
+              0.0,
+              0.13,
+              -0.12
+            ],
+            "tail": [
+              0.0,
+              0.115,
+              -0.33
+            ],
+            "radius": 0.07
+          },
+          {
+            "name": "leg_back_l",
+            "parent": "body",
+            "head": [
+              0.065,
+              0.085,
+              0.1
+            ],
+            "tail": [
+              0.072,
+              0.0,
+              0.115
+            ],
+            "radius": 0.03
+          },
+          {
+            "name": "leg_front_l",
+            "parent": "body",
+            "head": [
+              0.06,
+              0.075,
+              -0.1
+            ],
+            "tail": [
+              0.066,
+              0.0,
+              -0.125
+            ],
+            "radius": 0.025
+          },
+          {
+            "name": "root",
+            "head": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "tail": [
+              0.0,
+              0.06,
+              0.0
+            ],
+            "radius": 0.03
+          },
+          {
+            "name": "tail1",
+            "parent": "body",
+            "head": [
+              0.0,
+              0.085,
+              0.15
+            ],
+            "tail": [
+              0.0,
+              0.07,
+              0.28
+            ],
+            "radius": 0.02
+          },
+          {
+            "name": "tail2",
+            "parent": "tail1",
+            "head": [
+              0.0,
+              0.07,
+              0.28
+            ],
+            "tail": [
+              0.0,
+              0.045,
+              0.4
+            ],
+            "radius": 0.014
+          },
+          {
+            "name": "tail3",
+            "parent": "tail2",
+            "head": [
+              0.0,
+              0.045,
+              0.4
+            ],
+            "tail": [
+              0.0,
+              0.035,
+              0.52
+            ],
+            "radius": 0.01
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_fur",
+        "skeleton": "rig",
+        "parts": [
+          "rat_fur"
+        ],
+        "mode": "smooth",
+        "blend": 0.03,
+        "paint": [
+          {
+            "bone": "head",
+            "min": [
+              -0.1,
+              0.05,
+              -0.4
+            ],
+            "max": [
+              0.1,
+              0.25,
+              -0.17
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_tail",
+        "skeleton": "rig",
+        "parts": [
+          "rat_tail"
+        ],
+        "mode": "smooth",
+        "blend": 0.04,
+        "paint": [
+          {
+            "bone": "tail1",
+            "min": [
+              -0.05,
+              0.0,
+              0.1
+            ],
+            "max": [
+              0.05,
+              0.15,
+              0.2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_face",
+        "skeleton": "rig",
+        "parts": [
+          "rat_ears",
+          "rat_eye_l",
+          "rat_eye_r",
+          "rat_nose"
+        ],
+        "bone": "head",
+        "mode": "rigid"
+      }
+    },
+    {
+      "clip": {
+        "name": "idle",
+        "skeleton": "rig",
+        "duration": 2.0,
+        "loop": true,
+        "tracks": {
+          "head": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.1,
+                    [
+                      0.043619387,
+                      0.0,
+                      0.0,
+                      0.99904823
+                    ]
+                  ],
+                  [
+                    0.2,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.3,
+                    [
+                      0.043619387,
+                      0.0,
+                      0.0,
+                      0.99904823
+                    ]
+                  ],
+                  [
+                    0.4,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.9,
+                    [
+                      0.017237538,
+                      0.15641065,
+                      -0.002730158,
+                      0.9875379
+                    ]
+                  ],
+                  [
+                    1.3,
+                    [
+                      0.017303098,
+                      -0.13050632,
+                      0.0022779962,
+                      0.9912939
+                    ]
+                  ],
+                  [
+                    1.7,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    2.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "tail1": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 12.0,
+                "period": 2.0,
+                "phase": 0.0
+              }
+            }
+          },
+          "tail2": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 15.0,
+                "period": 1.0,
+                "phase": 0.1
+              }
+            }
+          },
+          "tail3": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 18.0,
+                "period": 1.0,
+                "phase": 0.2
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "clip": {
+        "name": "walk",
+        "skeleton": "rig",
+        "duration": 0.3,
+        "loop": true,
+        "tracks": {
+          "head": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "amount": 4.0,
+                "period": 0.15,
+                "phase": 0.0
+              }
+            }
+          },
+          "leg_back_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    0.15,
+                    [
+                      -0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    0.3,
+                    [
+                      0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "leg_front_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    0.15,
+                    [
+                      0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    0.3,
+                    [
+                      -0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "root": {
+            "translate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.002,
+                      0.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.075,
+                    [
+                      0.0,
+                      0.014,
+                      0.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.15,
+                    [
+                      0.0,
+                      0.002,
+                      0.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.225,
+                    [
+                      0.0,
+                      0.014,
+                      0.0,
+                      0.0
+                    ]
+                  ],
+                  [
+                    0.3,
+                    [
+                      0.0,
+                      0.002,
+                      0.0,
+                      0.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "tail1": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 10.0,
+                "period": 0.3,
+                "phase": 0.0
+              }
+            }
+          },
+          "tail2": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 14.0,
+                "period": 0.3,
+                "phase": 0.05
+              }
+            }
+          },
+          "tail3": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 18.0,
+                "period": 0.3,
+                "phase": 0.1
+              }
+            }
+          }
+        },
+        "mirror": {
+          "leg_back_r": {
+            "from": "leg_back_l",
+            "phase": 0.5
+          },
+          "leg_front_r": {
+            "from": "leg_front_l",
+            "phase": 0.5
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "ct-rat",
+          "parts": [],
+          "version": 19802,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `ct-rat`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "ct-rat",
+          "parts": [],
+          "version": 20090,
+          "ops": [
+            {
+              "sdf": {
+                "name": "rat_fur_hi",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.0,
+                      0.11,
+                      0.0
+                    ],
+                    "size": [
+                      0.1,
+                      0.085,
+                      0.18
+                    ]
+                  },
+                  {
+                    "shape": "ellipsoid",
+                    "blend": 0.05,
+                    "at": [
+                      0.0,
+                      0.135,
+                      -0.19
+                    ],
+                    "size": [
+                      0.07,
+                      0.068,
+                      0.1
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "blend": 0.03,
+                    "radius": [
+                      0.05,
+                      0.018
+                    ],
+                    "from": [
+                      0.0,
+                      0.13,
+                      -0.22
+                    ],
+                    "to": [
+                      0.0,
+                      0.11,
+                      -0.31
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "blend": 0.02,
+                    "radius": [
+                      0.024,
+                      0.015
+                    ],
+                    "from": [
+                      0.06,
+                      0.07,
+                      -0.1
+                    ],
+                    "to": [
+                      0.066,
+                      0.015,
+                      -0.125
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "blend": 0.02,
+                    "radius": [
+                      0.03,
+                      0.016
+                    ],
+                    "from": [
+                      0.065,
+                      0.08,
+                      0.1
+                    ],
+                    "to": [
+                      0.072,
+                      0.016,
+                      0.115
+                    ]
+                  }
+                ],
+                "blend": 0.025,
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "rat_fur",
+                "input": "rat_fur_hi",
+                "tris": 430
+              }
+            },
+            {
+              "sdf": {
+                "name": "rat_ears_hi",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.052,
+                      0.205,
+                      -0.165
+                    ],
+                    "rotation": [
+                      0.0,
+                      0.0,
+                      -0.17364818,
+                      0.9848077
+                    ],
+                    "size": [
+                      0.036,
+                      0.036,
+                      0.012
+                    ]
+                  }
+                ],
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "rat_ears",
+                "input": "rat_ears_hi",
+                "tris": 100
+              }
+            },
+            {
+              "sdf": {
+                "name": "rat_tail_hi",
+                "shapes": [
+                  {
+                    "shape": "chain",
+                    "points": [
+                      [
+                        0.0,
+                        0.085,
+                        0.15,
+                        0.02
+                      ],
+                      [
+                        0.0,
+                        0.07,
+                        0.28,
+                        0.014
+                      ],
+                      [
+                        0.0,
+                        0.045,
+                        0.4,
+                        0.009
+                      ],
+                      [
+                        0.0,
+                        0.035,
+                        0.52,
+                        0.005
+                      ]
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "rat_tail",
+                "input": "rat_tail_hi",
+                "tris": 90
+              }
+            },
+            {
+              "primitive": {
+                "name": "rat_eye_raw",
+                "kind": "sphere",
+                "size": [
+                  0.02,
+                  0.0,
+                  0.0
+                ],
+                "translation": [
+                  0.036,
+                  0.165,
+                  -0.262
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "decimate": {
+                "name": "rat_eye_l",
+                "input": "rat_eye_raw",
+                "tris": 40
+              }
+            },
+            {
+              "mirror": {
+                "name": "rat_eye_r",
+                "input": "rat_eye_l",
+                "axis": "x",
+                "offset": [
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              }
+            },
+            {
+              "primitive": {
+                "name": "rat_nose_raw",
+                "kind": "sphere",
+                "size": [
+                  0.013,
+                  0.0,
+                  0.0
+                ],
+                "translation": [
+                  0.0,
+                  0.112,
+                  -0.326
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "decimate": {
+                "name": "rat_nose",
+                "input": "rat_nose_raw",
+                "tris": 30
+              }
+            },
+            {
+              "visibility": {
+                "name": "rat_fur_hi",
+                "input": "rat_fur_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rat_ears_hi",
+                "input": "rat_ears_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rat_tail_hi",
+                "input": "rat_tail_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rat_eye_raw",
+                "input": "rat_eye_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rat_nose_raw",
+                "input": "rat_nose_raw",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "rat_fur",
+                "input": "rat_fur",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-knit-grey",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.0619296,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 251.327412,
+                        "name": "ux0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux0",
+                        "b": "sv",
+                        "name": "ux",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "sa",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "sa",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#4a4446"
+                          ],
+                          [
+                            1,
+                            "#6a6264"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.06
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sa",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_ears",
+                "input": "rat_ears",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-knit-pink",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.0619296,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 251.327412,
+                        "name": "ux0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux0",
+                        "b": "sv",
+                        "name": "ux",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "sa",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "sa",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#d9808c"
+                          ],
+                          [
+                            1,
+                            "#f4a4b0"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.06
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sa",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_tail",
+                "input": "rat_tail",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-knit-pink",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.0619296,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 251.327412,
+                        "name": "ux0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux0",
+                        "b": "sv",
+                        "name": "ux",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "sa",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "sa",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#d9808c"
+                          ],
+                          [
+                            1,
+                            "#f4a4b0"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.06
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sa",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_nose",
+                "input": "rat_nose",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-knit-pink",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.0619296,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 251.327412,
+                        "name": "ux0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux0",
+                        "b": "sv",
+                        "name": "ux",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "sa",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "sa",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#d9808c"
+                          ],
+                          [
+                            1,
+                            "#f4a4b0"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.06
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sa",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_eye_l",
+                "input": "rat_eye_l",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-eye-red",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 2,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.95,
+                          1.03
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#ff2010",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "#ff2010",
+                        "name": "out",
+                        "roughness": 0.4,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_eye_r",
+                "input": "rat_eye_r",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-eye-red",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 2,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.95,
+                          1.03
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#ff2010",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "#ff2010",
+                        "name": "out",
+                        "roughness": 0.4,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_eye_raw",
+                "input": "rat_eye_raw",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-eye-red",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 64,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 2,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.95,
+                          1.03
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "#ff2010",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "emissive": "#ff2010",
+                        "name": "out",
+                        "roughness": 0.4,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_fur",
+                "input": "rat_fur",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-knit-grey",
+                  "scale": 0.5,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.0619296,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 251.327412,
+                        "name": "ux0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux0",
+                        "b": "sv",
+                        "name": "ux",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "sa",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "sa",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#4a4446"
+                          ],
+                          [
+                            1,
+                            "#6a6264"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.06
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sa",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "rat_tail",
+                "input": "rat_tail",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "ct-knit-pink",
+                  "scale": 0.4,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.2,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "input": "uv",
+                        "name": "s",
+                        "type": "split"
+                      },
+                      {
+                        "a": "s.y",
+                        "b": 201.0619296,
+                        "name": "vy",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "s.x",
+                        "b": 251.327412,
+                        "name": "ux0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "vy",
+                        "name": "sv",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux0",
+                        "b": "sv",
+                        "name": "ux",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ux",
+                        "name": "su",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "su",
+                        "name": "sa",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 5,
+                        "size": 0.05,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "sa",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#d9808c"
+                          ],
+                          [
+                            1,
+                            "#f4a4b0"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.9,
+                          1.06
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "nt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sa",
+                        "b": 0.0015,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "skeleton": {
+                "name": "rig",
+                "bones": [
+                  {
+                    "name": "body",
+                    "parent": "root",
+                    "head": [
+                      0.0,
+                      0.11,
+                      0.13
+                    ],
+                    "tail": [
+                      0.0,
+                      0.12,
+                      -0.1
+                    ],
+                    "radius": 0.1
+                  },
+                  {
+                    "name": "head",
+                    "parent": "body",
+                    "head": [
+                      0.0,
+                      0.13,
+                      -0.12
+                    ],
+                    "tail": [
+                      0.0,
+                      0.115,
+                      -0.33
+                    ],
+                    "radius": 0.07
+                  },
+                  {
+                    "name": "leg_back_l",
+                    "parent": "body",
+                    "head": [
+                      0.065,
+                      0.085,
+                      0.1
+                    ],
+                    "tail": [
+                      0.072,
+                      0.0,
+                      0.115
+                    ],
+                    "radius": 0.03
+                  },
+                  {
+                    "name": "leg_front_l",
+                    "parent": "body",
+                    "head": [
+                      0.06,
+                      0.075,
+                      -0.1
+                    ],
+                    "tail": [
+                      0.066,
+                      0.0,
+                      -0.125
+                    ],
+                    "radius": 0.025
+                  },
+                  {
+                    "name": "root",
+                    "head": [
+                      0.0,
+                      0.0,
+                      0.0
+                    ],
+                    "tail": [
+                      0.0,
+                      0.06,
+                      0.0
+                    ],
+                    "radius": 0.03
+                  },
+                  {
+                    "name": "tail1",
+                    "parent": "body",
+                    "head": [
+                      0.0,
+                      0.085,
+                      0.15
+                    ],
+                    "tail": [
+                      0.0,
+                      0.07,
+                      0.28
+                    ],
+                    "radius": 0.02
+                  },
+                  {
+                    "name": "tail2",
+                    "parent": "tail1",
+                    "head": [
+                      0.0,
+                      0.07,
+                      0.28
+                    ],
+                    "tail": [
+                      0.0,
+                      0.045,
+                      0.4
+                    ],
+                    "radius": 0.014
+                  },
+                  {
+                    "name": "tail3",
+                    "parent": "tail2",
+                    "head": [
+                      0.0,
+                      0.045,
+                      0.4
+                    ],
+                    "tail": [
+                      0.0,
+                      0.035,
+                      0.52
+                    ],
+                    "radius": 0.01
+                  }
+                ],
+                "mirror": "x"
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_fur",
+                "skeleton": "rig",
+                "parts": [
+                  "rat_fur"
+                ],
+                "mode": "smooth",
+                "blend": 0.03,
+                "paint": [
+                  {
+                    "bone": "head",
+                    "min": [
+                      -0.1,
+                      0.05,
+                      -0.4
+                    ],
+                    "max": [
+                      0.1,
+                      0.25,
+                      -0.17
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_tail",
+                "skeleton": "rig",
+                "parts": [
+                  "rat_tail"
+                ],
+                "mode": "smooth",
+                "blend": 0.04,
+                "paint": [
+                  {
+                    "bone": "tail1",
+                    "min": [
+                      -0.05,
+                      0.0,
+                      0.1
+                    ],
+                    "max": [
+                      0.05,
+                      0.15,
+                      0.2
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "bind": {
+                "name": "bind_face",
+                "skeleton": "rig",
+                "parts": [
+                  "rat_ears",
+                  "rat_eye_l",
+                  "rat_eye_r",
+                  "rat_nose"
+                ],
+                "bone": "head",
+                "mode": "rigid"
+              }
+            },
+            {
+              "clip": {
+                "name": "idle",
+                "skeleton": "rig",
+                "duration": 2.0,
+                "loop": true,
+                "tracks": {
+                  "head": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.1,
+                            [
+                              0.043619387,
+                              0.0,
+                              0.0,
+                              0.99904823
+                            ]
+                          ],
+                          [
+                            0.2,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.3,
+                            [
+                              0.043619387,
+                              0.0,
+                              0.0,
+                              0.99904823
+                            ]
+                          ],
+                          [
+                            0.4,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            0.9,
+                            [
+                              0.017237538,
+                              0.15641065,
+                              -0.002730158,
+                              0.9875379
+                            ]
+                          ],
+                          [
+                            1.3,
+                            [
+                              0.017303098,
+                              -0.13050632,
+                              0.0022779962,
+                              0.9912939
+                            ]
+                          ],
+                          [
+                            1.7,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ],
+                          [
+                            2.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.0,
+                              1.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "tail1": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          1.0,
+                          0.0
+                        ],
+                        "amount": 12.0,
+                        "period": 2.0,
+                        "phase": 0.0
+                      }
+                    }
+                  },
+                  "tail2": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          1.0,
+                          0.0
+                        ],
+                        "amount": 15.0,
+                        "period": 1.0,
+                        "phase": 0.1
+                      }
+                    }
+                  },
+                  "tail3": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          1.0,
+                          0.0
+                        ],
+                        "amount": 18.0,
+                        "period": 1.0,
+                        "phase": 0.2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "clip": {
+                "name": "walk",
+                "skeleton": "rig",
+                "duration": 0.3,
+                "loop": true,
+                "tracks": {
+                  "head": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          1.0,
+                          0.0,
+                          0.0
+                        ],
+                        "amount": 4.0,
+                        "period": 0.15,
+                        "phase": 0.0
+                      }
+                    }
+                  },
+                  "leg_back_l": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            0.15,
+                            [
+                              -0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            0.3,
+                            [
+                              0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "leg_front_l": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              -0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            0.15,
+                            [
+                              0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ],
+                          [
+                            0.3,
+                            [
+                              -0.25881904,
+                              0.0,
+                              0.0,
+                              0.9659258
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "root": {
+                    "translate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.002,
+                              0.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.075,
+                            [
+                              0.0,
+                              0.014,
+                              0.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.15,
+                            [
+                              0.0,
+                              0.002,
+                              0.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.225,
+                            [
+                              0.0,
+                              0.014,
+                              0.0,
+                              0.0
+                            ]
+                          ],
+                          [
+                            0.3,
+                            [
+                              0.0,
+                              0.002,
+                              0.0,
+                              0.0
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "tail1": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          1.0,
+                          0.0
+                        ],
+                        "amount": 10.0,
+                        "period": 0.3,
+                        "phase": 0.0
+                      }
+                    }
+                  },
+                  "tail2": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          1.0,
+                          0.0
+                        ],
+                        "amount": 14.0,
+                        "period": 0.3,
+                        "phase": 0.05
+                      }
+                    }
+                  },
+                  "tail3": {
+                    "rotate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          1.0,
+                          0.0
+                        ],
+                        "amount": 18.0,
+                        "period": 0.3,
+                        "phase": 0.1
+                      }
+                    }
+                  }
+                },
+                "mirror": {
+                  "leg_back_r": {
+                    "from": "leg_back_l",
+                    "phase": 0.5
+                  },
+                  "leg_front_r": {
+                    "from": "leg_front_l",
+                    "phase": 0.5
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "8 edits: material `rat_fur` <- `rat_fur` pbr=ct-knit-grey scale=0.5 … clip `walk` skeleton=`rig` 0.3s loop tracks=head,leg_back_l,leg_front_l,root,tail1,tail2,tail3 mirror=leg_back_r<-leg_back_l@0.5,leg_front_r<-leg_front_l@0.5",
+        "author": "cats"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

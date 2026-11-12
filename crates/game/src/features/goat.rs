@@ -106,151 +106,33 @@ pub fn plugin(app: &mut App) {
         );
 }
 
-fn dress_goat(
-    mut commands: Commands,
-    new: Query<(Entity, &Goat), Added<Goat>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+/// The rigged plush goat model (clips `idle`, `judge`).
+pub const GOAT_MODEL: &str = "models/creatures/goat.gltf";
+
+/// How long the goat's `judge` gesture (a look, a head shake, a hoof stomp) lasts.
+pub const JUDGE_SECS: f32 = 2.4;
+
+/// Give the goat (on every peer) its rigged plush model. A missing file only
+/// makes it invisible: its remarks don't depend on it.
+fn dress_goat(mut commands: Commands, new: Query<(Entity, &Goat), Added<Goat>>) {
     for (entity, goat) in &new {
-        let wool = crate::art::soft(&mut materials, Color::srgb(0.9, 0.88, 0.82));
-        let horn = crate::art::soft(&mut materials, Color::srgb(0.35, 0.3, 0.25));
-        let eye = crate::art::glossy(&mut materials, Color::srgb(0.75, 0.55, 0.1));
-        let leg = meshes.add(Cylinder::new(0.08, 0.7));
-        let horn_mesh = meshes.add(Cone::new(0.07, 0.35));
-        let eye_mesh = meshes.add(Sphere::new(0.06));
-        let ear_mesh = meshes.add(Sphere::new(0.14));
-        let pink = crate::art::soft(&mut materials, Color::srgb(0.95, 0.65, 0.65));
-        commands
-            .entity(entity)
-            .insert((
-                Transform::from_xyz(goat.home.x, 0.0, goat.home.y),
-                Visibility::default(),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                // Fluffy body: a few overlapping wool puffs.
-                let puff = meshes.add(Sphere::new(0.38));
-                let small_puff = meshes.add(Sphere::new(0.2));
-                p.spawn((
-                    Transform::default(),
-                    Visibility::default(),
-                    crate::art::Breathe::new(Vec3::ONE, 0.02, goat.home.x),
-                ))
-                .with_children(|b| {
-                    for (y, z) in [(0.92, -0.3), (0.98, 0.05), (0.9, 0.35)] {
-                        b.spawn((
-                            Mesh3d(puff.clone()),
-                            MeshMaterial3d(wool.clone()),
-                            Transform::from_xyz(0.0, y, z).with_scale(Vec3::new(0.95, 0.85, 1.0)),
-                        ));
-                    }
-                    // Extra little curls so the fleece reads as fluffy.
-                    for i in 0..8 {
-                        let a = i as f32 * 0.8;
-                        b.spawn((
-                            Mesh3d(small_puff.clone()),
-                            MeshMaterial3d(wool.clone()),
-                            Transform::from_xyz(
-                                a.cos() * 0.32,
-                                1.0 + a.sin() * 0.18,
-                                -0.4 + i as f32 * 0.11,
-                            ),
-                        ));
-                    }
-                });
-                // Hooves and a stubby tail.
-                let hoof = meshes.add(Cylinder::new(0.1, 0.1));
-                for (x, z) in [(-0.2, -0.4), (0.2, -0.4), (-0.2, 0.4), (0.2, 0.4)] {
-                    p.spawn((
-                        Mesh3d(hoof.clone()),
-                        MeshMaterial3d(horn.clone()),
-                        Transform::from_xyz(x, 0.05, z),
-                    ));
-                }
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.1))),
-                    MeshMaterial3d(wool.clone()),
-                    Transform::from_xyz(0.0, 1.15, 0.7),
-                    crate::art::Wiggle::sway(Quat::IDENTITY, Vec3::Y, 0.5, 6.0, 0.0),
-                ));
-                for (x, z) in [(-0.2, -0.4), (0.2, -0.4), (-0.2, 0.4), (0.2, 0.4)] {
-                    p.spawn((
-                        Mesh3d(leg.clone()),
-                        MeshMaterial3d(wool.clone()),
-                        Transform::from_xyz(x, 0.35, z),
-                    ));
-                }
-                p.spawn((
-                    Mesh3d(meshes.add(Sphere::new(0.22))),
-                    MeshMaterial3d(wool.clone()),
-                    Transform::from_xyz(0.0, 1.35, -0.65).with_scale(Vec3::new(1.0, 1.0, 1.2)),
-                ))
-                .with_children(|h| {
-                    for x in [-0.12, 0.12] {
-                        h.spawn((
-                            Mesh3d(horn_mesh.clone()),
-                            MeshMaterial3d(horn.clone()),
-                            Transform::from_xyz(x, 0.3, 0.1)
-                                .with_rotation(Quat::from_rotation_x(0.5)),
-                        ));
-                        // Floppy ears that flick at flies.
-                        h.spawn((
-                            Mesh3d(ear_mesh.clone()),
-                            MeshMaterial3d(wool.clone()),
-                            Transform::from_xyz(x * 2.0, 0.08, 0.05)
-                                .with_rotation(Quat::from_rotation_z(x.signum() * 1.3))
-                                .with_scale(Vec3::new(0.5, 1.0, 0.25)),
-                            crate::art::Wiggle::twitch(
-                                Quat::from_rotation_z(x.signum() * 1.3),
-                                Vec3::X,
-                                0.5,
-                                x * 10.0,
-                            ),
-                        ))
-                        .with_children(|e| {
-                            e.spawn((
-                                Mesh3d(ear_mesh.clone()),
-                                MeshMaterial3d(pink.clone()),
-                                Transform::from_xyz(0.0, 0.0, -0.05)
-                                    .with_scale(Vec3::new(0.6, 0.8, 0.6)),
-                            ));
-                        });
-                        // Unimpressed heavy eyelids above the eyes.
-                        h.spawn((
-                            Mesh3d(eye_mesh.clone()),
-                            MeshMaterial3d(wool.clone()),
-                            Transform::from_xyz(x * 1.4, 0.075, -0.225)
-                                .with_scale(Vec3::new(1.15, 0.45, 1.05)),
-                        ));
-                        // Half-closed, unimpressed eyes.
-                        h.spawn((
-                            Mesh3d(eye_mesh.clone()),
-                            MeshMaterial3d(eye.clone()),
-                            Transform::from_xyz(x * 1.4, 0.05, -0.22)
-                                .with_scale(Vec3::new(1.0, 0.4, 1.0)),
-                        ));
-                    }
-                    // Muzzle with a dark nose.
-                    h.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.13))),
-                        MeshMaterial3d(wool.clone()),
-                        Transform::from_xyz(0.0, -0.08, -0.2),
-                    ));
-                    h.spawn((
-                        Mesh3d(meshes.add(Sphere::new(0.04))),
-                        MeshMaterial3d(horn.clone()),
-                        Transform::from_xyz(0.0, -0.04, -0.33),
-                    ));
-                    // Beard.
-                    h.spawn((
-                        Mesh3d(meshes.add(Cone::new(0.08, 0.25))),
-                        MeshMaterial3d(wool.clone()),
-                        Transform::from_xyz(0.0, -0.3, -0.15)
-                            .with_rotation(Quat::from_rotation_x(std::f32::consts::PI)),
-                    ));
-                });
-            });
+        commands.entity(entity).insert((
+            Transform::from_xyz(goat.home.x, 0.0, goat.home.y),
+            Visibility::default(),
+            DespawnOnExit(AppState::InGame),
+            crate::rigged::Rigged { path: GOAT_MODEL },
+            goat_clip(f32::INFINITY),
+        ));
+    }
+}
+
+/// The goat's clip `since` seconds after its last remark: it judges while it
+/// talks, then goes back to idly chewing on its opinions.
+pub fn goat_clip(since: f32) -> crate::rigged::RigClip {
+    if (0.0..JUDGE_SECS).contains(&since) {
+        crate::rigged::RigClip::once("judge").fade(0.2)
+    } else {
+        crate::rigged::RigClip::looping("idle").fade(0.4)
     }
 }
 
@@ -298,6 +180,7 @@ fn judge(
     muted: Option<Res<VoiceMuted>>,
     mut seen: Local<Seen>,
     mut text: Query<&mut Text, With<GoatText>>,
+    mut clips: Query<&mut crate::rigged::RigClip, With<Goat>>,
 ) {
     let now = time.elapsed_secs();
     let players = players.iter().count();
@@ -346,6 +229,13 @@ fn judge(
         seen.said_at = now;
         seen.last_choice_at = now;
     }
+    // A fresh remark restarts the gesture, even mid-judgement.
+    if let Ok(mut clip) = clips.get_mut(goat) {
+        let next = goat_clip(now - seen.said_at);
+        if want.is_some() || next.name != clip.name {
+            *clip = next;
+        }
+    }
     for mut text in &mut text {
         if let Some(line) = want {
             text.0 = format!("Goat: \"{}\"", random_dialogue::say(line));
@@ -358,6 +248,15 @@ fn judge(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn goat_judges_while_it_talks_then_idles() {
+        assert_eq!(goat_clip(0.0).name, "judge");
+        assert!(goat_clip(0.0).once);
+        assert_eq!(goat_clip(JUDGE_SECS + 0.1).name, "idle");
+        assert_eq!(goat_clip(f32::INFINITY).name, "idle");
+        assert_eq!(goat_clip(f32::NEG_INFINITY).name, "idle");
+    }
 
     #[test]
     fn goat_has_an_opinion_on_everything() {

@@ -1,0 +1,1591 @@
+{
+  "format_version": 1,
+  "name": "fa-bird",
+  "parts": [],
+  "version": 20994,
+  "ops": [
+    {
+      "sdf": {
+        "name": "body_hi",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.0,
+              -0.02
+            ],
+            "size": [
+              0.1,
+              0.075,
+              0.25
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.03,
+              0.23
+            ],
+            "radius": [
+              0.07
+            ]
+          },
+          {
+            "shape": "capsule",
+            "blend": 0.01,
+            "radius": [
+              0.025,
+              0.004
+            ],
+            "from": [
+              0.0,
+              0.025,
+              0.28
+            ],
+            "to": [
+              0.0,
+              0.015,
+              0.36
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.03,
+            "at": [
+              0.0,
+              0.0,
+              -0.3
+            ],
+            "size": [
+              0.09,
+              0.015,
+              0.11
+            ]
+          }
+        ],
+        "blend": 0.04,
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "body",
+        "input": "body_hi",
+        "tris": 300
+      }
+    },
+    {
+      "extrude": {
+        "name": "wings",
+        "profile": [
+          [
+            [
+              -0.9,
+              -0.02
+            ],
+            [
+              -0.8,
+              0.03
+            ],
+            [
+              -0.7,
+              0.06
+            ],
+            [
+              -0.58,
+              0.09
+            ],
+            [
+              -0.45,
+              0.12
+            ],
+            [
+              -0.33,
+              0.135
+            ],
+            [
+              -0.2,
+              0.13
+            ],
+            [
+              -0.07,
+              0.11
+            ],
+            [
+              0.0,
+              0.1
+            ],
+            [
+              0.07,
+              0.11
+            ],
+            [
+              0.2,
+              0.13
+            ],
+            [
+              0.33,
+              0.135
+            ],
+            [
+              0.45,
+              0.12
+            ],
+            [
+              0.58,
+              0.09
+            ],
+            [
+              0.7,
+              0.06
+            ],
+            [
+              0.8,
+              0.03
+            ],
+            [
+              0.9,
+              -0.02
+            ],
+            [
+              0.9,
+              -0.06
+            ],
+            [
+              0.8,
+              -0.1
+            ],
+            [
+              0.7,
+              -0.13
+            ],
+            [
+              0.58,
+              -0.17
+            ],
+            [
+              0.45,
+              -0.19
+            ],
+            [
+              0.33,
+              -0.2
+            ],
+            [
+              0.2,
+              -0.19
+            ],
+            [
+              0.07,
+              -0.16
+            ],
+            [
+              -0.0,
+              -0.15
+            ],
+            [
+              -0.07,
+              -0.16
+            ],
+            [
+              -0.2,
+              -0.19
+            ],
+            [
+              -0.33,
+              -0.2
+            ],
+            [
+              -0.45,
+              -0.19
+            ],
+            [
+              -0.58,
+              -0.17
+            ],
+            [
+              -0.7,
+              -0.13
+            ],
+            [
+              -0.8,
+              -0.1
+            ],
+            [
+              -0.9,
+              -0.06
+            ]
+          ]
+        ],
+        "height": 0.012,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          -0.006,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "visibility": {
+        "name": "body_hi",
+        "input": "body_hi",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": [
+          0.12,
+          0.12,
+          0.15,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "name": "st",
+                "size": [
+                  0.012,
+                  0.01
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "input": "st.cell",
+                "name": "l",
+                "type": "split"
+              },
+              {
+                "a": "lx",
+                "name": "ax",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "a": "ax",
+                "b": 0.9,
+                "name": "vv",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ly",
+                "b": "vv",
+                "name": "yy",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "yy",
+                "b": 3.14159,
+                "name": "sy0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sy0",
+                "b": 1.5708,
+                "name": "sy",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "sy",
+                "name": "cy",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "lx",
+                "b": 3.14159,
+                "name": "sx0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "sx0",
+                "b": 1.5708,
+                "name": "sx",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "sx",
+                "name": "cx",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "cy",
+                "b": "cx",
+                "name": "bump0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "bump0",
+                "name": "bump",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "id": "st.id",
+                "max": 1.03,
+                "min": 0.93,
+                "name": "sr",
+                "seed": 5,
+                "type": "random"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bump",
+                "name": "sh",
+                "to": [
+                  0.72,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.92,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "sh",
+                "b": "nt",
+                "name": "v0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "v0",
+                "b": "sr",
+                "name": "v1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#f4f2ee",
+                "b": "v1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bump",
+                "b": 0.0016,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "normal_strength": 1.5,
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "l.x",
+                "name": "lx",
+                "to": [
+                  -1,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "l.y",
+                "name": "ly",
+                "to": [
+                  -1,
+                  1
+                ],
+                "type": "remap"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wings",
+        "input": "wings",
+        "base_color": [
+          0.12,
+          0.12,
+          0.15,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fa-felt",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 5,
+                "seed": 11,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "name": "m",
+                "octaves": 3,
+                "seed": 12,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "a",
+                "to": [
+                  0.88,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "m",
+                "name": "b",
+                "to": [
+                  0.94,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "a",
+                "b": "b",
+                "name": "v",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#f6f4f0",
+                "b": "v",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "double_sided": true,
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "skeleton": {
+        "name": "rig",
+        "bones": [
+          {
+            "name": "body",
+            "head": [
+              0.0,
+              0.0,
+              -0.3
+            ],
+            "tail": [
+              0.0,
+              0.0,
+              0.3
+            ],
+            "radius": 0.1
+          },
+          {
+            "name": "tip_l",
+            "parent": "wing_l",
+            "head": [
+              0.45,
+              0.0,
+              0.0
+            ],
+            "tail": [
+              0.9,
+              0.0,
+              0.0
+            ],
+            "radius": 0.12
+          },
+          {
+            "name": "wing_l",
+            "parent": "body",
+            "head": [
+              0.06,
+              0.0,
+              0.0
+            ],
+            "tail": [
+              0.45,
+              0.0,
+              0.0
+            ],
+            "radius": 0.12
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "bind": {
+        "name": "body_bind",
+        "skeleton": "rig",
+        "parts": [
+          "body"
+        ],
+        "bone": "body",
+        "mode": "rigid"
+      }
+    },
+    {
+      "bind": {
+        "name": "wing_bind",
+        "skeleton": "rig",
+        "parts": [
+          "wings"
+        ],
+        "mode": "smooth",
+        "blend": 0.12,
+        "paint": [
+          {
+            "bone": "body",
+            "min": [
+              -0.06,
+              -1.0,
+              -1.0
+            ],
+            "max": [
+              0.06,
+              1.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "clip": {
+        "name": "flap",
+        "skeleton": "rig",
+        "duration": 1.05,
+        "loop": true,
+        "tracks": {
+          "body": {
+            "translate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 0.03,
+                "period": 1.05,
+                "phase": 0.5
+              }
+            }
+          },
+          "tip_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      -0.043619387,
+                      0.99904823
+                    ]
+                  ],
+                  [
+                    0.26,
+                    [
+                      0.0,
+                      0.0,
+                      0.1305262,
+                      0.9914449
+                    ]
+                  ],
+                  [
+                    0.525,
+                    [
+                      0.0,
+                      0.0,
+                      0.06975647,
+                      0.9975641
+                    ]
+                  ],
+                  [
+                    0.79,
+                    [
+                      0.0,
+                      0.0,
+                      -0.15643448,
+                      0.98768836
+                    ]
+                  ],
+                  [
+                    1.05,
+                    [
+                      0.0,
+                      0.0,
+                      -0.043619387,
+                      0.99904823
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "wing_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.38268346,
+                      0.9238795
+                    ]
+                  ],
+                  [
+                    0.525,
+                    [
+                      0.0,
+                      0.0,
+                      -0.38268346,
+                      0.9238795
+                    ]
+                  ],
+                  [
+                    1.05,
+                    [
+                      0.0,
+                      0.0,
+                      0.38268346,
+                      0.9238795
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          }
+        },
+        "mirror": {
+          "tip_r": {
+            "from": "tip_l",
+            "phase": 0.0
+          },
+          "wing_r": {
+            "from": "wing_l",
+            "phase": 0.0
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "fa-bird",
+          "parts": [],
+          "version": 19309,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `fa-bird`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "fa-bird",
+          "parts": [],
+          "version": 20994,
+          "ops": [
+            {
+              "sdf": {
+                "name": "body_hi",
+                "shapes": [
+                  {
+                    "shape": "ellipsoid",
+                    "at": [
+                      0.0,
+                      0.0,
+                      -0.02
+                    ],
+                    "size": [
+                      0.1,
+                      0.075,
+                      0.25
+                    ]
+                  },
+                  {
+                    "shape": "sphere",
+                    "at": [
+                      0.0,
+                      0.03,
+                      0.23
+                    ],
+                    "radius": [
+                      0.07
+                    ]
+                  },
+                  {
+                    "shape": "capsule",
+                    "blend": 0.01,
+                    "radius": [
+                      0.025,
+                      0.004
+                    ],
+                    "from": [
+                      0.0,
+                      0.025,
+                      0.28
+                    ],
+                    "to": [
+                      0.0,
+                      0.015,
+                      0.36
+                    ]
+                  },
+                  {
+                    "shape": "ellipsoid",
+                    "blend": 0.03,
+                    "at": [
+                      0.0,
+                      0.0,
+                      -0.3
+                    ],
+                    "size": [
+                      0.09,
+                      0.015,
+                      0.11
+                    ]
+                  }
+                ],
+                "blend": 0.04,
+                "mirror": "x"
+              }
+            },
+            {
+              "decimate": {
+                "name": "body",
+                "input": "body_hi",
+                "tris": 300
+              }
+            },
+            {
+              "extrude": {
+                "name": "wings",
+                "profile": [
+                  [
+                    [
+                      -0.9,
+                      -0.02
+                    ],
+                    [
+                      -0.8,
+                      0.03
+                    ],
+                    [
+                      -0.7,
+                      0.06
+                    ],
+                    [
+                      -0.58,
+                      0.09
+                    ],
+                    [
+                      -0.45,
+                      0.12
+                    ],
+                    [
+                      -0.33,
+                      0.135
+                    ],
+                    [
+                      -0.2,
+                      0.13
+                    ],
+                    [
+                      -0.07,
+                      0.11
+                    ],
+                    [
+                      0.0,
+                      0.1
+                    ],
+                    [
+                      0.07,
+                      0.11
+                    ],
+                    [
+                      0.2,
+                      0.13
+                    ],
+                    [
+                      0.33,
+                      0.135
+                    ],
+                    [
+                      0.45,
+                      0.12
+                    ],
+                    [
+                      0.58,
+                      0.09
+                    ],
+                    [
+                      0.7,
+                      0.06
+                    ],
+                    [
+                      0.8,
+                      0.03
+                    ],
+                    [
+                      0.9,
+                      -0.02
+                    ],
+                    [
+                      0.9,
+                      -0.06
+                    ],
+                    [
+                      0.8,
+                      -0.1
+                    ],
+                    [
+                      0.7,
+                      -0.13
+                    ],
+                    [
+                      0.58,
+                      -0.17
+                    ],
+                    [
+                      0.45,
+                      -0.19
+                    ],
+                    [
+                      0.33,
+                      -0.2
+                    ],
+                    [
+                      0.2,
+                      -0.19
+                    ],
+                    [
+                      0.07,
+                      -0.16
+                    ],
+                    [
+                      -0.0,
+                      -0.15
+                    ],
+                    [
+                      -0.07,
+                      -0.16
+                    ],
+                    [
+                      -0.2,
+                      -0.19
+                    ],
+                    [
+                      -0.33,
+                      -0.2
+                    ],
+                    [
+                      -0.45,
+                      -0.19
+                    ],
+                    [
+                      -0.58,
+                      -0.17
+                    ],
+                    [
+                      -0.7,
+                      -0.13
+                    ],
+                    [
+                      -0.8,
+                      -0.1
+                    ],
+                    [
+                      -0.9,
+                      -0.06
+                    ]
+                  ]
+                ],
+                "height": 0.012,
+                "scale_top": [
+                  1.0,
+                  1.0
+                ],
+                "slices": 0,
+                "translation": [
+                  0.0,
+                  -0.006,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "visibility": {
+                "name": "body_hi",
+                "input": "body_hi",
+                "visible": false
+              }
+            },
+            {
+              "material": {
+                "name": "body",
+                "input": "body",
+                "base_color": [
+                  0.12,
+                  0.12,
+                  0.15,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "fa-knit",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.12,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "uv",
+                        "of": "uv",
+                        "type": "input"
+                      },
+                      {
+                        "name": "st",
+                        "size": [
+                          0.012,
+                          0.01
+                        ],
+                        "type": "tile_grid"
+                      },
+                      {
+                        "input": "st.cell",
+                        "name": "l",
+                        "type": "split"
+                      },
+                      {
+                        "a": "lx",
+                        "name": "ax",
+                        "op": "abs",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ax",
+                        "b": 0.9,
+                        "name": "vv",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "ly",
+                        "b": "vv",
+                        "name": "yy",
+                        "op": "sub",
+                        "type": "math"
+                      },
+                      {
+                        "a": "yy",
+                        "b": 3.14159,
+                        "name": "sy0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sy0",
+                        "b": 1.5708,
+                        "name": "sy",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sy",
+                        "name": "cy",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "lx",
+                        "b": 3.14159,
+                        "name": "sx0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sx0",
+                        "b": 1.5708,
+                        "name": "sx",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "a": "sx",
+                        "name": "cx",
+                        "op": "sin",
+                        "type": "math"
+                      },
+                      {
+                        "a": "cy",
+                        "b": "cx",
+                        "name": "bump0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          -1,
+                          1
+                        ],
+                        "input": "bump0",
+                        "name": "bump",
+                        "to": [
+                          0,
+                          1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 7,
+                        "size": 0.04,
+                        "type": "noise"
+                      },
+                      {
+                        "id": "st.id",
+                        "max": 1.03,
+                        "min": 0.93,
+                        "name": "sr",
+                        "seed": 5,
+                        "type": "random"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "bump",
+                        "name": "sh",
+                        "to": [
+                          0.72,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "nt",
+                        "to": [
+                          0.92,
+                          1.04
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "sh",
+                        "b": "nt",
+                        "name": "v0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "v0",
+                        "b": "sr",
+                        "name": "v1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "#f4f2ee",
+                        "b": "v1",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "bump",
+                        "b": 0.0016,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "normal_strength": 1.5,
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "l.x",
+                        "name": "lx",
+                        "to": [
+                          -1,
+                          1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "l.y",
+                        "name": "ly",
+                        "to": [
+                          -1,
+                          1
+                        ],
+                        "type": "remap"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "wings",
+                "input": "wings",
+                "base_color": [
+                  0.12,
+                  0.12,
+                  0.15,
+                  1.0
+                ],
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "fa-felt",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 0.25,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "n",
+                        "octaves": 5,
+                        "seed": 11,
+                        "size": 0.02,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "m",
+                        "octaves": 3,
+                        "seed": 12,
+                        "size": 0.1,
+                        "type": "noise"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "n",
+                        "name": "a",
+                        "to": [
+                          0.88,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "m",
+                        "name": "b",
+                        "to": [
+                          0.94,
+                          1.02
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "a",
+                        "b": "b",
+                        "name": "v",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "#f6f4f0",
+                        "b": "v",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "n",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "double_sided": true,
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.9,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "skeleton": {
+                "name": "rig",
+                "bones": [
+                  {
+                    "name": "body",
+                    "head": [
+                      0.0,
+                      0.0,
+                      -0.3
+                    ],
+                    "tail": [
+                      0.0,
+                      0.0,
+                      0.3
+                    ],
+                    "radius": 0.1
+                  },
+                  {
+                    "name": "tip_l",
+                    "parent": "wing_l",
+                    "head": [
+                      0.45,
+                      0.0,
+                      0.0
+                    ],
+                    "tail": [
+                      0.9,
+                      0.0,
+                      0.0
+                    ],
+                    "radius": 0.12
+                  },
+                  {
+                    "name": "wing_l",
+                    "parent": "body",
+                    "head": [
+                      0.06,
+                      0.0,
+                      0.0
+                    ],
+                    "tail": [
+                      0.45,
+                      0.0,
+                      0.0
+                    ],
+                    "radius": 0.12
+                  }
+                ],
+                "mirror": "x"
+              }
+            },
+            {
+              "bind": {
+                "name": "body_bind",
+                "skeleton": "rig",
+                "parts": [
+                  "body"
+                ],
+                "bone": "body",
+                "mode": "rigid"
+              }
+            },
+            {
+              "bind": {
+                "name": "wing_bind",
+                "skeleton": "rig",
+                "parts": [
+                  "wings"
+                ],
+                "mode": "smooth",
+                "blend": 0.12,
+                "paint": [
+                  {
+                    "bone": "body",
+                    "min": [
+                      -0.06,
+                      -1.0,
+                      -1.0
+                    ],
+                    "max": [
+                      0.06,
+                      1.0,
+                      1.0
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "clip": {
+                "name": "flap",
+                "skeleton": "rig",
+                "duration": 1.05,
+                "loop": true,
+                "tracks": {
+                  "body": {
+                    "translate": {
+                      "wave": {
+                        "axis": [
+                          0.0,
+                          1.0,
+                          0.0
+                        ],
+                        "amount": 0.03,
+                        "period": 1.05,
+                        "phase": 0.5
+                      }
+                    }
+                  },
+                  "tip_l": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              -0.043619387,
+                              0.99904823
+                            ]
+                          ],
+                          [
+                            0.26,
+                            [
+                              0.0,
+                              0.0,
+                              0.1305262,
+                              0.9914449
+                            ]
+                          ],
+                          [
+                            0.525,
+                            [
+                              0.0,
+                              0.0,
+                              0.06975647,
+                              0.9975641
+                            ]
+                          ],
+                          [
+                            0.79,
+                            [
+                              0.0,
+                              0.0,
+                              -0.15643448,
+                              0.98768836
+                            ]
+                          ],
+                          [
+                            1.05,
+                            [
+                              0.0,
+                              0.0,
+                              -0.043619387,
+                              0.99904823
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  },
+                  "wing_l": {
+                    "rotate": {
+                      "keys": {
+                        "keys": [
+                          [
+                            0.0,
+                            [
+                              0.0,
+                              0.0,
+                              0.38268346,
+                              0.9238795
+                            ]
+                          ],
+                          [
+                            0.525,
+                            [
+                              0.0,
+                              0.0,
+                              -0.38268346,
+                              0.9238795
+                            ]
+                          ],
+                          [
+                            1.05,
+                            [
+                              0.0,
+                              0.0,
+                              0.38268346,
+                              0.9238795
+                            ]
+                          ]
+                        ],
+                        "interp": "smooth"
+                      }
+                    }
+                  }
+                },
+                "mirror": {
+                  "tip_r": {
+                    "from": "tip_l",
+                    "phase": 0.0
+                  },
+                  "wing_r": {
+                    "from": "wing_l",
+                    "phase": 0.0
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "4 edits: skeleton `rig` bones=body,tip_l,wing_l mirror=x … clip `flap` skeleton=`rig` 1.05s loop tracks=body,tip_l,wing_l mirror=tip_r<-tip_l@0,wing_r<-wing_l@0",
+        "author": "fauna"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

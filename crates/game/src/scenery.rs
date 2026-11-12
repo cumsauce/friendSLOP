@@ -293,14 +293,16 @@ impl Dresser<'_, '_, '_> {
                 .with_scale(Vec3::splat(scale)),
             DespawnOnExit(AppState::InGame),
         ));
+        let tree = TREES.contains(&file) || DEAD_TREES.contains(&file);
         // Rocks and pebbles don't bend in the wind (#151: every swaying prop
-        // re-propagates its whole glTF hierarchy).
-        if !is_rigid(file) {
+        // re-propagates its whole glTF hierarchy). Trees are rigged and bend
+        // their own branches instead (`modeler_bevy`, steered in lod.rs).
+        if !is_rigid(file) && !tree {
             e.insert(crate::ambience::Sway::default());
         }
         // Trees get a far mesh and draw to the fog instead of vanishing like
         // small props (#227); `small` ones just cast no shadow.
-        if TREES.contains(&file) || DEAD_TREES.contains(&file) {
+        if tree {
             e.insert(crate::lod::TreeLod { shadows: !small });
         } else if small {
             e.insert(SmallProp);

@@ -9,17 +9,8 @@ nothing in the gameplay depends on them.
 
 ## Models (`models/`)
 
-The characters are by **Quaternius** ([quaternius.com](https://quaternius.com)),
-CC0, via their OpenGameArt upload page:
-
-- `models/characters/Cowboy_Male.glb`, `Cowboy_Female.glb`
-  — from the [Ultimate Animated Character Pack](https://opengameart.org/content/animated-characters-pack)
-  (converted FBX → glb with FBX2glTF; the rig's 11 built-in animations come
-  along and the game plays Idle/Walk/Shoot/RecieveHit).
-
-Repack note: the cat-vision palette (#12) deliberately does not recolour
-textured materials yet, so these models keep their natural colours for now
-(see GAME_DESIGN.md open questions).
+Every model is made for friendSLOP with the modeler (below); the last kit
+models (Quaternius's duel cowboys) were replaced in turn.
 
 ### Made for friendSLOP with the modeler
 
@@ -27,13 +18,22 @@ Built by agents with the [modeler](https://github.com/cumsauce/modeler) MCP tool
 as **CC0**. The editable sources (op graphs, procedural materials, the
 `friendslop` style) live in `crates/game/.modeler/`, outside `assets/`; open
 the catalog there and `export_model` again to change one. They replaced the
-kit's trees and nature props.
+kit's trees, nature props and characters.
 
 Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 `textures/` (named by material, channel and content hash).
 
 - `models/nature/tree_1..3`, `pine_1..2`, `dead_tree_1..2` — the trees,
-  grown with the modeler's L-systems at the size of the kit trees they replaced.
+  grown with the modeler's L-systems at the size of the kit trees they replaced,
+  rigged from their branches and swaying in the wind.
+- `models/characters/cowboy_male`, `cowboy_female` — the rigged duel cowboys
+  (idle, walk, shoot and hit clips, revolver in hand).
+- `models/creatures/` — the rigged animals and figures with their clips: the
+  bear, goat, landlord, Dave, the pets (dog, cat, bunny, pet duck), crows, the
+  fat cat, rats, birds and butterflies; plus the pond ducks and falling leaves.
+- `models/people/` — the parts of the character creator's bodies (torsos,
+  heads, eyes, snouts, ears, horns, tails, limbs, hats and accessories), knitted
+  and tinted by each look's palette in game.
 - `models/nature/meadow_grass`, `meadow_flower_yellow|blue|white` — the tiny
   meadow tufts and flowers strewn over the ground.
 - `models/nature/rock_1..3`, `pebble_1..3` — faceted stones (stone
@@ -73,7 +73,8 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   egg, Abuela's rocking chair and knitting, the toilets, stall doors and
   panels, and the underground's manhole, cellar door, trapdoor, grate, jar
   shelf and ladders; the Tome of Uncancelling, the hell pit's basalt stepping
-  stones, the climb's floating island and rock spire, and the warehouse's
+  stones, the climb's floating island and rock spire, Abuela's hair and
+  glasses, heaven's clouds and flowers, the commune flag, and the warehouse's
   cardboard boxes, shelving rack, pallet, fluorescent tube and soul crystal.
 - `textures/*.ktx2` — the baked textures of the models above, shared by
   every model using the same material.

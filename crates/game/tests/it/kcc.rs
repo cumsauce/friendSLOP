@@ -42,6 +42,10 @@ fn world() -> App {
         Collider::cuboid(0.5, 3.0, 8.0),
         Transform::from_xyz(-4.0, 1.5, -18.0),
     ));
+    // Plugins' `finish` registers avian's diagnostics resources (its spatial
+    // queries and collider tree need them); `App::run` would call it.
+    app.finish();
+    app.cleanup();
     app
 }
 

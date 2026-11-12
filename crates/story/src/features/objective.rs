@@ -192,7 +192,10 @@ fn show_objective(
     let text = match campaign.single() {
         Ok(c) if c.finale() => format!("{}\n\n{stats}", ending()),
         Ok(c) => {
-            let next = &CHAPTERS[(c.chapter + 1) % CHAPTERS.len()];
+            let all = CHAPTERS.get();
+            let Some(next) = all.get((c.chapter + 1) % all.len().max(1)) else {
+                return;
+            };
             format!(
                 "CHAPTER {} COMPLETE: {}!\n{stats}\n\n\
                  Press [Enter] to start Chapter {}: {}",

@@ -34,7 +34,7 @@ pub fn plugin(app: &mut App) {
 /// The four lines for a campaign state.
 pub fn lines(c: &Campaign) -> [String; 4] {
     [
-        format!("CHAPTER {} / {}", c.chapter + 1, CHAPTERS.len()),
+        format!("CHAPTER {} / {}", c.chapter + 1, CHAPTERS.get().len()),
         c.current().name.to_string(),
         format!(
             "Jobs {}/{}   •   Heaven Pass {}/{}",

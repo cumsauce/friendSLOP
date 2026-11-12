@@ -37,21 +37,16 @@ pub const KNOCKBACK: f32 = 3.0;
 pub const HAUL: u32 = 25;
 
 /// The crew: name and the line he greets a challenger with.
-pub const CREW: [(&str, &str); 3] = [
-    (
-        "Captain Rosa Gaybeard",
-        "Captain Rosa Gaybeard: \"this treasure belongs to me husband and me. EN GARDE, darling\"",
-    ),
-    (
-        "Jack Hartley",
-        "Jack Hartley, a trans man and the best blade aboard: \"took me years to become the man I am. \
-         you won't take this gold in one afternoon\"",
-    ),
-    (
-        "Bosun Fennel",
-        "Bosun Fennel: \"the storm of '21 couldn't sink our love and neither will you\"",
-    ),
-];
+pub static CREW: friendslop_data::Data<Vec<(String, String)>> =
+    friendslop_data::Data::ron("data/text/shipwreck_crew.ron");
+
+/// Crew member `id`: name and greeting.
+pub fn crew_member(id: usize) -> (String, String) {
+    let crew = CREW.get();
+    crew.get(id % crew.len().max(1))
+        .cloned()
+        .unwrap_or_default()
+}
 
 /// A pirate guarding the treasure. `down` > 0 while he's yielded.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -66,8 +61,8 @@ impl Pirate {
         self.down <= 0.0
     }
 
-    pub fn name(&self) -> &'static str {
-        CREW[self.id as usize % CREW.len()].0
+    pub fn name(&self) -> String {
+        crew_member(self.id as usize).0
     }
 }
 
@@ -191,7 +186,7 @@ fn man_the_wreck(
         commands.entity(e).despawn();
     }
     crew.looted.clear();
-    for id in 0..CREW.len() as u8 {
+    for id in 0..CREW.get().len() as u8 {
         commands.spawn((
             Pirate {
                 id,
@@ -270,10 +265,7 @@ fn attack(
         return;
     }
     if p.hp == PIRATE_HP {
-        news(
-            &mut commands,
-            CREW[p.id as usize % CREW.len()].1.to_string(),
-        );
+        news(&mut commands, crew_member(p.id as usize).1);
     }
     if hit(&mut p) {
         news(

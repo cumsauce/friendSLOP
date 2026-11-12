@@ -779,7 +779,7 @@ fn play_chapter(sim: &mut Sim) {
     sim.say(format!("=== CHAPTER {}: {} ===", c.chapter + 1, ch.name));
     let start = sim.t;
     side_quests(sim, c.chapter);
-    for &task in ch.tasks {
+    for &task in &ch.tasks {
         match task {
             Task::Pack => pack(sim),
             Task::Mushroom(n) => mushrooms(sim, n),
@@ -825,10 +825,10 @@ fn six_friends_free_the_commune_and_get_into_heaven() {
     assert_eq!(sim.all::<Player>().len(), PLAYERS as usize);
     let stats_at_start = sim.per_player::<Stats>();
 
-    for chapter in 0..CHAPTERS.len() {
+    for chapter in 0..CHAPTERS.get().len() {
         assert_eq!(sim.campaign().chapter, chapter);
         play_chapter(&mut sim);
-        if chapter + 1 < CHAPTERS.len() {
+        if chapter + 1 < CHAPTERS.get().len() {
             // The tears rained only once (#43): the ones used stay used.
             let left = sim.all::<GodsTear>().len();
             sim.until(

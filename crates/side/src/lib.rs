@@ -28,3 +28,11 @@ pub mod features {
     pub mod sesbian_lex;
     pub mod shipwreck;
 }
+
+/// This crate's data files (see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![
+        &features::shipwreck::CREW,
+        &features::discord_friends::LINES,
+    ]
+}

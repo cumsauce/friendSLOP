@@ -34,26 +34,8 @@ use crate::people::{CharacterLook, Gait, HeadAnchor, RigRoot};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// The things she says, with what they mean.
-pub const LINES: [(&str, &str); 12] = [
-    ("¡Ay, mi niño!", "Oh, my child!"),
-    ("¿Ya comiste?", "Have you eaten yet?"),
-    ("Ven, siéntate conmigo", "Come, sit with me"),
-    ("¡Qué guapo estás!", "How handsome you look!"),
-    ("Te quiero mucho", "I love you very much"),
-    ("Cuídate, mijo", "Take care of yourself, dear"),
-    ("Dios te bendiga", "God bless you"),
-    (
-        "Mi amor, qué alegría verte",
-        "My love, what a joy to see you",
-    ),
-    (
-        "Estás muy flaco, come algo",
-        "You're too thin, eat something",
-    ),
-    ("Aquí estoy, mi vida", "I'm right here, my darling"),
-    ("Abrígate, que hace frío", "Bundle up, it's cold"),
-    ("Siempre te estoy cuidando", "I'm always watching over you"),
-];
+pub static LINES: friendslop_data::Data<Vec<(String, String)>> =
+    friendslop_data::Data::ron("data/text/abuela.ron");
 
 /// How close (on the island) counts as visiting her.
 pub const GREET_RADIUS: f32 = 4.0;
@@ -128,7 +110,7 @@ fn speak_to(
     player: u64,
 ) {
     greeted.last = Some(now);
-    let line = (abuela.visits as usize % LINES.len()) as u8;
+    let line = (abuela.visits as usize % LINES.get().len().max(1)) as u8;
     abuela.visits += 1;
     commands.server_trigger(ToClients {
         targets: SendTargets::All,
@@ -458,14 +440,16 @@ fn hear_abuela(
     if state.is_none_or(|s| *s.get() != AppState::InGame) {
         return;
     }
-    let Some(&(spanish, english)) = LINES.get(says.line as usize) else {
+    let lines = LINES.get();
+    let Some((spanish, english)) = lines.get(says.line as usize).cloned() else {
         return;
     };
     if audio.is_some() {
         let seed = says.line as u32 * 31 + says.player as u32;
         let carry = crate::spatial::Carry::NEARBY;
+        let spanish = spanish.clone();
         play_synth_at(&mut commands, chair_at() + Vec3::Y, carry, 0.6, move || {
-            wav_bytes(&voice(spanish, seed, RATE), RATE)
+            wav_bytes(&voice(&spanish, seed, RATE), RATE)
         });
     }
     if let (Some(mut meshes), Some(mut materials)) = (meshes, materials) {
@@ -722,7 +706,7 @@ mod tests {
 
     #[test]
     fn her_voice_is_soft_and_sane() {
-        for (i, (es, _)) in LINES.iter().enumerate() {
+        for (i, (es, _)) in LINES.get().iter().enumerate() {
             let v = voice(es, i as u32, RATE);
             assert!(v.len() > RATE as usize / 4, "{es}");
             assert!(v.iter().all(|x| x.is_finite()));

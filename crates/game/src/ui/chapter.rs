@@ -17,7 +17,11 @@ const SHRINK_SECS: f32 = 0.35;
 
 /// "CHAPTER 02     /     05".
 pub fn chapter_line(chapter: usize) -> String {
-    format!("CHAPTER {:02}     /     {:02}", chapter + 1, CHAPTERS.len())
+    format!(
+        "CHAPTER {:02}     /     {:02}",
+        chapter + 1,
+        CHAPTERS.get().len()
+    )
 }
 
 /// The intro flattened onto one paragraph (the source wraps for the old
@@ -136,7 +140,7 @@ fn card_for(c: &Campaign) -> impl Bundle {
                 at(22.0, 18.0, B),
             )),
             Spawn((
-                Text::new(ch.name),
+                Text::new(ch.name.clone()),
                 head(40.0, CREAM),
                 Node {
                     width: px(417),
@@ -144,7 +148,7 @@ fn card_for(c: &Campaign) -> impl Bundle {
                 },
             )),
             Spawn((
-                Text::new(blurb(ch.intro)),
+                Text::new(blurb(&ch.intro)),
                 body(15.0, CREAM),
                 Node {
                     width: px(417),

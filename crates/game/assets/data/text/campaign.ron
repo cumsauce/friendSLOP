@@ -1,0 +1,31 @@
+// The campaign's chapters, in order (#165): each has a name, an intro shown on the
+// chapter card, and the tasks the group has to finish. Tasks: Pack, Mushroom(n),
+// VaultDoor, FireTotem, Halt(n), Tears(n), HideSeek(n), Duel(n), Landlord, Abuela,
+// Burgers(n), Paul(n), Jegg(n). Tears count over the whole campaign.
+[
+    (
+        name: "Moving In",
+        intro: "Your landlord has just raised the rent. Abuela waits in heaven, up the sky islands:\nclimb up for her blessing, find your feet, and stand up to him.",
+        tasks: [Pack, Mushroom(1), Abuela, Landlord],
+    ),
+    (
+        name: "Rent Day",
+        intro: "He's back and the rent's gone up again. Crack the vault, test HALT's walls,\nand feed the commune from Wendy's while you're at it.",
+        tasks: [VaultDoor, Halt(1), HideSeek(1), Burgers(3), Landlord],
+    ),
+    (
+        name: "The Heist",
+        intro: "The tears hold power and the Fire totem burns in the vault. Take what's yours.\nSewer Paul runs the tunnels: buy his silence with crow eggs.",
+        tasks: [FireTotem, Tears(3), Duel(1), Halt(1), Paul(1), Landlord],
+    ),
+    (
+        name: "General Strike",
+        intro: "The whole commune downs tools. Everyone, everything, all at once.\nEven Jegg: brave the warehouse and bring back pieces of Jegg's soul.",
+        tasks: [Pack, Mushroom(3), HideSeek(2), Duel(2), Halt(2), Jegg(2), Landlord],
+    ),
+    (
+        name: "The Eviction",
+        intro: "One last time. Make Jegg whole, beat him now, and the Commune is free for good.\nAbuela is keeping the gates of heaven open for you.",
+        tasks: [FireTotem, Tears(9), HideSeek(3), Duel(3), Halt(3), Jegg(5), Landlord],
+    ),
+]

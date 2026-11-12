@@ -48,9 +48,14 @@ use wfc::{CELL, ENTRANCE, H, Plan, Rng, W, cell_centre, cell_of};
 pub const SOUL_PIECES: u8 = 5;
 /// The middle of the warehouse's footprint, out in the meadow.
 pub use friendslop_world::places::outside_at;
-/// Its size (x, z) and wall height.
-pub const OUTSIDE_SIZE: Vec2 = Vec2::new(20.0, 13.0);
-pub const OUTSIDE_HEIGHT: f32 = 7.5;
+/// Its size (x, z): the warehouse spot's box on the map.
+pub fn outside_size() -> Vec2 {
+    friendslop_world::places::sizes("warehouse").size
+}
+/// Its wall height (the spot's `Feature` height).
+pub fn outside_height() -> f32 {
+    friendslop_world::places::sizes("warehouse").height
+}
 /// Wall height inside.
 pub const INSIDE_WALL: f32 = 4.2;
 /// Monster speeds: prowling, and hunting (walking is 5 m/s; run!).
@@ -68,7 +73,7 @@ const LOSE_AFTER: f32 = 5.0;
 
 /// The loading door, on the north face (towards the commune).
 pub fn door_at() -> Vec3 {
-    let p = Vec2::new(outside_at().x, outside_at().y - OUTSIDE_SIZE.y / 2.0);
+    let p = Vec2::new(outside_at().x, outside_at().y - outside_size().y / 2.0);
     Vec3::new(p.x, outside_floor(), p.y)
 }
 
@@ -90,7 +95,7 @@ pub fn jegg_at() -> Vec3 {
 /// The floor height of the building: the highest ground under it, so it sits
 /// on a plinth rather than floating.
 pub fn outside_floor() -> f32 {
-    let h = OUTSIDE_SIZE / 2.0;
+    let h = outside_size() / 2.0;
     let mut top = f32::MIN;
     for i in -2..=2 {
         for j in -2..=2 {
@@ -103,7 +108,7 @@ pub fn outside_floor() -> f32 {
 
 /// Does the warehouse (plus `margin`) cover this meadow spot? Scenery keeps out.
 pub fn covers(p: Vec2, margin: f32) -> bool {
-    let h = OUTSIDE_SIZE / 2.0 + Vec2::splat(margin + 2.0);
+    let h = outside_size() / 2.0 + Vec2::splat(margin + 2.0);
     let d = (p - outside_at()).abs();
     let lot = d.x < h.x && d.y < h.y;
     // Keep the yard in front of the door clear too.

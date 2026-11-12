@@ -23,7 +23,7 @@
 
 use avian3d::prelude::*;
 use bevy::prelude::*;
-use std::f32::consts::{FRAC_PI_2, TAU};
+use std::f32::consts::TAU;
 
 use crate::AppState;
 use crate::art;
@@ -144,10 +144,28 @@ fn dress_zones(
     valley(&mut d, &mut Rng(0x7A_11E7));
     meadows(&mut d, &mut Rng(0x3E_AD0));
     windmill(&mut d);
+    map_blocks(&mut d);
 }
 
 fn v3(p: Vec2, y: f32) -> Vec3 {
     Vec3::new(p.x, y, p.y)
+}
+
+/// The map's static colliders (`Block` markers: the hut's walls, the
+/// archway, the crane's posts, the windmill), from the embedded map data so
+/// collisions never wait on a model file.
+fn map_blocks(d: &mut Dresser) {
+    for b in &friendslop_world::places::layout().blocks {
+        // Stand on the named entity's ground (`solid_*` adds its own).
+        let lift = ground(b.ground_at) - ground(b.centre.xz());
+        let centre = b.centre + Vec3::Y * lift;
+        let rot = Quat::from_rotation_y(b.yaw);
+        if b.round {
+            d.solid_cylinder(centre, b.size.x / 2.0, b.size.y, rot);
+        } else {
+            d.solid_box(centre, b.size, rot);
+        }
+    }
 }
 
 /// A big tree (8–14 m) with a trunk collider; only the biggest cast shadows.
@@ -190,59 +208,9 @@ fn forest(d: &mut Dresser, rng: &mut Rng) {
         d.rock(rng, c, s);
     }
 
-    // The hidden clearing: a woodcutter's hut ruin, chopping stump, log pile
-    // (modeler models; the walls, chimney, stump and bottom logs block).
+    // The hidden clearing's hut ruin, stump and log pile are on the map
+    // (commune-map in the modeler); undergrowth grows around them.
     let c = forest_clearing_at();
-    let (w, dp) = (5.0, 4.0);
-    d.prop(
-        "woodcutter_hut",
-        Transform::from_translation(v3(c, 0.0)),
-        false,
-    );
-    // Back wall, broken side walls, front with a doorway.
-    d.solid_box(
-        v3(c + Vec2::new(0.0, -dp / 2.0), 1.3),
-        Vec3::new(w, 2.6, 0.25),
-        Quat::IDENTITY,
-    );
-    d.solid_box(
-        v3(c + Vec2::new(-w / 2.0, 0.0), 1.0),
-        Vec3::new(0.25, 2.0, dp),
-        Quat::IDENTITY,
-    );
-    d.solid_box(
-        v3(c + Vec2::new(w / 2.0, -0.8), 0.7),
-        Vec3::new(0.25, 1.4, dp - 1.6),
-        Quat::IDENTITY,
-    );
-    d.solid_box(
-        v3(c + Vec2::new(-1.6, dp / 2.0), 0.9),
-        Vec3::new(1.8, 1.8, 0.25),
-        Quat::IDENTITY,
-    );
-    // Stone chimney.
-    d.solid_box(
-        v3(c + Vec2::new(-w / 2.0 - 0.4, -1.0), 2.0),
-        Vec3::new(0.9, 4.0, 0.9),
-        Quat::IDENTITY,
-    );
-    d.stump(c + Vec2::new(3.5, 3.5), 0.5, 0.7);
-    let pile = c + Vec2::new(-4.5, 3.0);
-    d.prop(
-        "log_pile",
-        Transform::from_translation(v3(pile, 0.0)),
-        false,
-    );
-    for i in 0..3 {
-        // The bottom log of each row blocks.
-        let p = pile + Vec2::new(0.0, i as f32 * 0.3);
-        d.solid_cylinder(
-            v3(p, 0.3 + i as f32 * 0.5),
-            0.25,
-            2.2,
-            Quat::from_rotation_z(FRAC_PI_2),
-        );
-    }
     d.undergrowth(rng, c, 7.0, 10);
 }
 
@@ -369,20 +337,7 @@ fn castle(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
         );
         z += len;
     }
-    // The archway: two pillars and a lintel (modeler model).
-    d.prop("castle_arch", Transform::from_xyz(wall_x, 0.0, 58.0), false);
-    for dz in [-2.2, 2.2] {
-        d.solid_box(
-            Vec3::new(wall_x, 4.0, 58.0 + dz),
-            Vec3::new(1.8, 8.0, 1.6),
-            Quat::IDENTITY,
-        );
-    }
-    d.solid_box(
-        Vec3::new(wall_x, 7.2, 58.0),
-        Vec3::new(1.8, 1.6, 6.0),
-        Quat::IDENTITY,
-    );
+    // The archway (model and colliders) is on the map, in the wall's gap.
     // A cross wall at the north end, with a window gap.
     for (x0, x1, h) in [(-46.0, -41.0, 7.0), (-39.5, -34.0, 9.0)] {
         d.block(
@@ -448,25 +403,7 @@ fn quarry(d: &mut Dresser, rng: &mut Rng) {
         let p = c + Vec2::from_angle(a) * 8.5;
         d.cluster(rng, Cluster::Crates, p);
     }
-    let base = c + Vec2::new(9.0, -3.0);
-    // `solid_box` snaps each collider to its own ground; on the rim slope that
-    // would tear the crane apart. Lift each by the difference to the base's.
-    let g0 = ground(base);
-    let v3 = |p: Vec2, y: f32| Vec3::new(p.x, y + g0 - ground(p), p.y);
-    // The modeler model: posts, crossbeam, a jib reaching out over the pit
-    // with a rope and a hanging crate. The posts block.
-    d.prop(
-        "quarry_crane",
-        Transform::from_xyz(base.x, 0.0, base.y),
-        false,
-    );
-    for dz in [-1.2, 1.2] {
-        d.solid_box(
-            v3(base + Vec2::new(0.0, dz), 3.5),
-            Vec3::new(0.35, 7.0, 0.35),
-            Quat::IDENTITY,
-        );
-    }
+    // The wooden crane on the east rim is on the map.
 }
 
 /// The field wall and hedgerow segment models (`fn-stone-wall*`,
@@ -571,15 +508,8 @@ fn meadows(d: &mut Dresser, rng: &mut Rng) {
 fn windmill(d: &mut Dresser) {
     let c = windmill_at();
     let g = ground(c);
-    // Tower, door and cap are one modeler model; the sails are another, on
-    // the hub entity `turn_sails` spins.
-    d.prop("windmill", Transform::from_translation(v3(c, 0.0)), false);
-    // The bottom drum of the tapered tower blocks, as does the whole tower.
-    d.solid_cylinder(v3(c, 1.0), 2.6, 2.05, Quat::IDENTITY);
-    d.blocker(
-        Transform::from_xyz(c.x, 5.0, c.y),
-        Collider::cylinder(2.6, 10.0),
-    );
+    // The tower (model and colliders) is on the map; the sails are another
+    // model, on the hub entity `turn_sails` spins.
     // Sails on the south face (towards the commune), turning around +Z.
     d.commands.spawn((
         crate::scenery::scenery_model(d.assets, "windmill_sails"),

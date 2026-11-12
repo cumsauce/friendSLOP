@@ -168,11 +168,10 @@ pub mod ui {
 pub mod zones {
     use bevy::prelude::*;
 
-    /// Nothing goes past this half-extent.
-    pub const MAP_HALF: f32 = 88.0;
-
-    /// The commune's own dressing (scenery.rs) covers this half-extent.
-    pub const COMMUNE_HALF: f32 = 27.0;
+    /// Nothing goes past this half-extent (the map's `bounds` district).
+    pub fn map_half() -> f32 {
+        friendslop_world::places::layout().half.x
+    }
 
     #[derive(Clone, Copy, PartialEq, Eq, Debug)]
     pub enum Zone {
@@ -185,22 +184,25 @@ pub mod zones {
         Outside,
     }
 
+    /// The district a point is in: the map's `District` boxes, lowest
+    /// `order` first; open ground inside the map is meadow.
     pub fn zone_of(p: Vec2) -> Zone {
-        if p.x.abs() > MAP_HALF || p.y.abs() > MAP_HALF {
-            Zone::Outside
-        } else if p.x.abs() < COMMUNE_HALF && p.y.abs() < COMMUNE_HALF {
-            Zone::Commune
-        } else if (33.0..82.0).contains(&p.x) && (-37.0..37.0).contains(&p.y) {
-            Zone::Village
-        } else if p.y < -35.0 {
-            Zone::Forest
-        } else if p.x < -30.0 && p.y > 30.0 {
-            Zone::Ruins
-        } else if p.x < -35.0 && p.y.abs() <= 30.0 {
-            Zone::Valley
-        } else {
-            Zone::Meadow
+        let layout = friendslop_world::places::layout();
+        if p.x.abs() > layout.half.x || p.y.abs() > layout.half.y {
+            return Zone::Outside;
         }
+        layout
+            .districts
+            .iter()
+            .find(|(_, lo, hi)| p.cmpge(*lo).all() && p.cmplt(*hi).all())
+            .map_or(Zone::Meadow, |(kind, ..)| match kind.as_str() {
+                "commune" => Zone::Commune,
+                "village" => Zone::Village,
+                "forest" => Zone::Forest,
+                "ruins" => Zone::Ruins,
+                "valley" => Zone::Valley,
+                _ => Zone::Meadow,
+            })
     }
 }
 

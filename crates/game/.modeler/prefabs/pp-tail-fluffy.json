@@ -1,15 +1,16 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-tail-fluffy",
-  "parts": [],
-  "version": 20879,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
+        "blend": 0.04,
         "name": "tail_raw",
         "shapes": [
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.0,
@@ -17,10 +18,10 @@
             ],
             "radius": [
               0.13
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               0.08,
               0.05,
@@ -28,10 +29,10 @@
             ],
             "radius": [
               0.08
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               -0.08,
               0.04,
@@ -39,10 +40,10 @@
             ],
             "radius": [
               0.08
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.09,
@@ -50,10 +51,10 @@
             ],
             "radius": [
               0.08
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               0.0,
               -0.06,
@@ -61,10 +62,10 @@
             ],
             "radius": [
               0.08
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               0.05,
               -0.02,
@@ -72,10 +73,10 @@
             ],
             "radius": [
               0.07
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               -0.05,
               0.03,
@@ -83,40 +84,35 @@
             ],
             "radius": [
               0.07
-            ]
+            ],
+            "shape": "sphere"
           }
-        ],
-        "blend": 0.04
+        ]
       }
     },
     {
       "decimate": {
-        "name": "tail",
         "input": "tail_raw",
+        "name": "tail",
         "tris": 150
       }
     },
     {
       "visibility": {
-        "name": "tail_raw",
         "input": "tail_raw",
+        "name": "tail_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "tail",
-        "input": "tail",
         "base_color": null,
-        "roughness": null,
+        "input": "tail",
         "metalness": null,
+        "name": "tail",
         "pbr": {
-          "material": "pp-felt",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -206,258 +202,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.2
+          },
+          "material": "pp-felt",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-tail-fluffy",
-          "parts": [],
-          "version": 20492,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-tail-fluffy`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-tail-fluffy",
-          "parts": [],
-          "version": 20497,
-          "ops": [
-            {
-              "sdf": {
-                "name": "tail_raw",
-                "shapes": [
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.0,
-                      0.12
-                    ],
-                    "radius": [
-                      0.13
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.08,
-                      0.05,
-                      0.1
-                    ],
-                    "radius": [
-                      0.08
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      -0.08,
-                      0.04,
-                      0.12
-                    ],
-                    "radius": [
-                      0.08
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.09,
-                      0.16
-                    ],
-                    "radius": [
-                      0.08
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      -0.06,
-                      0.14
-                    ],
-                    "radius": [
-                      0.08
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.05,
-                      -0.02,
-                      0.24
-                    ],
-                    "radius": [
-                      0.07
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      -0.05,
-                      0.03,
-                      0.25
-                    ],
-                    "radius": [
-                      0.07
-                    ]
-                  }
-                ],
-                "blend": 0.04
-              }
-            },
-            {
-              "decimate": {
-                "name": "tail",
-                "input": "tail_raw",
-                "tris": 150
-              }
-            },
-            {
-              "visibility": {
-                "name": "tail_raw",
-                "input": "tail_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "tail",
-                "input": "tail",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-felt",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "material `tail` <- `tail` pbr=pp-felt",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20879
 }

@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "fn-fence-post",
-  "parts": [],
-  "version": 13349,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "post_raw",
         "profile": [
           [
@@ -31,46 +33,40 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 4,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
         "rotation": [
           0.0,
           0.38268346,
           0.0,
           0.9238795
+        ],
+        "segments": 4,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ]
       }
     },
     {
       "deform": {
-        "name": "post",
+        "amount": 0.006,
+        "detail": 0.12,
         "input": "post_raw",
         "mode": "displace",
-        "amount": 0.006,
+        "name": "post",
         "scale": 0.3,
-        "seed": 3,
-        "detail": 0.12
+        "seed": 3
       }
     },
     {
       "material": {
-        "name": "post",
-        "input": "post",
         "base_color": null,
-        "roughness": null,
+        "input": "post",
         "metalness": null,
+        "name": "post",
         "pbr": {
-          "material": "fn-timber-v",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "rot",
@@ -167,233 +163,24 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "fn-timber-v",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "post_raw",
         "input": "post_raw",
+        "name": "post_raw",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fn-fence-post",
-          "parts": [],
-          "version": 13132,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `fn-fence-post`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fn-fence-post",
-          "parts": [],
-          "version": 13304,
-          "ops": [
-            {
-              "revolve": {
-                "name": "post_raw",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.55
-                    ],
-                    [
-                      0.099,
-                      -0.55
-                    ],
-                    [
-                      0.099,
-                      0.44
-                    ],
-                    [
-                      0.03,
-                      0.55
-                    ],
-                    [
-                      0.0,
-                      0.55
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 4,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.38268346,
-                  0.0,
-                  0.9238795
-                ]
-              }
-            },
-            {
-              "deform": {
-                "name": "post",
-                "input": "post_raw",
-                "mode": "displace",
-                "amount": 0.006,
-                "scale": 0.3,
-                "seed": 3,
-                "detail": 0.12
-              }
-            },
-            {
-              "material": {
-                "name": "post",
-                "input": "post",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fn-timber-v",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "rot",
-                        "rotate": 90,
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "rot",
-                        "name": "wv",
-                        "octaves": 2,
-                        "seed": 61,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.05,
-                        "by": "wv",
-                        "coords": "rot",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wp",
-                        "name": "g",
-                        "size": [
-                          1.0,
-                          0.02
-                        ],
-                        "stagger": 0.36,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "gr",
-                        "seed": 72,
-                        "type": "random"
-                      },
-                      {
-                        "coords": "rot",
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 73,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "gr",
-                        "b": "fn",
-                        "c": 0.4,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "wc",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2a1a"
-                          ],
-                          [
-                            0.55,
-                            "#5a3e28"
-                          ],
-                          [
-                            1,
-                            "#6e4e33"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "wc",
-                        "b": 1.0,
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "t0",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.7,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "post_raw",
-                "input": "post_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "4 edits: revolve `post_raw` profile=[[[0.0, -0.55], [0.099, -0.55], [0.099, 0.44], [0.03, 0.55], [0.0, 0.55]]] degrees=360 segments=4 round=0 at=[0.0, 0.0, 0.0] rot=[0.0, 0.38268346, 0.0, 0.9238795] … hidden `post_raw`",
-        "author": "fences"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 13349
 }

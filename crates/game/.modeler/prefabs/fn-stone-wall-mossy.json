@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "fn-stone-wall-mossy",
-  "parts": [],
-  "version": 17679,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "core_raw",
         "kind": "box",
+        "name": "core_raw",
+        "rotation": null,
         "size": [
           2.0,
           0.94,
@@ -17,27 +19,27 @@
           0.0,
           0.47,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "deform": {
-        "name": "core",
+        "axis": "y",
+        "detail": 3.0,
         "input": "core_raw",
         "mode": "taper",
-        "axis": "y",
+        "name": "core",
         "scale_end": [
           1.0,
           0.84
-        ],
-        "detail": 3.0
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap0_raw",
         "kind": "box",
+        "name": "cap0_raw",
+        "rotation": null,
         "size": [
           0.21361081,
           0.21652336,
@@ -47,41 +49,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap0_ch",
         "input": "cap0_raw",
         "mode": "chamfer",
+        "name": "cap0_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap0",
         "input": "cap0_ch",
-        "translation": [
-          -0.875,
-          1.0082617,
-          -0.020701664
-        ],
+        "name": "cap0",
         "rotation": [
           -0.05243165,
           -0.012596901,
           0.04314552,
           0.9976125
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.875,
+          1.0082617,
+          -0.020701664
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap1_raw",
         "kind": "box",
+        "name": "cap1_raw",
+        "rotation": null,
         "size": [
           0.23678069,
           0.25603166,
@@ -91,41 +93,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap1_ch",
         "input": "cap1_raw",
         "mode": "chamfer",
+        "name": "cap1_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap1",
         "input": "cap1_ch",
-        "translation": [
-          -0.625,
-          1.0280159,
-          0.0022008005
-        ],
+        "name": "cap1",
         "rotation": [
           -0.028653223,
           -0.033105835,
           -0.042123284,
           0.99815255
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.625,
+          1.0280159,
+          0.0022008005
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap2_raw",
         "kind": "box",
+        "name": "cap2_raw",
+        "rotation": null,
         "size": [
           0.24246165,
           0.21500804,
@@ -135,41 +137,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap2_ch",
         "input": "cap2_raw",
         "mode": "chamfer",
+        "name": "cap2_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap2",
         "input": "cap2_ch",
-        "translation": [
-          -0.375,
-          1.007504,
-          0.018399142
-        ],
+        "name": "cap2",
         "rotation": [
           0.036033526,
           -0.032800186,
           -0.01870978,
           0.9986369
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.375,
+          1.007504,
+          0.018399142
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap3_raw",
         "kind": "box",
+        "name": "cap3_raw",
+        "rotation": null,
         "size": [
           0.23561631,
           0.24388829,
@@ -179,41 +181,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap3_ch",
         "input": "cap3_raw",
         "mode": "chamfer",
+        "name": "cap3_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap3",
         "input": "cap3_ch",
-        "translation": [
-          -0.125,
-          1.0219442,
-          0.022803046
-        ],
+        "name": "cap3",
         "rotation": [
           -0.050658222,
           0.010161259,
           0.018514901,
           0.99849266
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.125,
+          1.0219442,
+          0.022803046
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap4_raw",
         "kind": "box",
+        "name": "cap4_raw",
+        "rotation": null,
         "size": [
           0.21622266,
           0.23541677,
@@ -223,41 +225,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap4_ch",
         "input": "cap4_raw",
         "mode": "chamfer",
+        "name": "cap4_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap4",
         "input": "cap4_ch",
-        "translation": [
-          0.125,
-          1.0177084,
-          -0.024639228
-        ],
+        "name": "cap4",
         "rotation": [
           0.05283989,
           0.03847423,
           0.002947381,
           0.99785715
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.125,
+          1.0177084,
+          -0.024639228
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap5_raw",
         "kind": "box",
+        "name": "cap5_raw",
+        "rotation": null,
         "size": [
           0.24181046,
           0.2210172,
@@ -267,41 +269,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap5_ch",
         "input": "cap5_raw",
         "mode": "chamfer",
+        "name": "cap5_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap5",
         "input": "cap5_ch",
-        "translation": [
-          0.375,
-          1.0105087,
-          0.022939034
-        ],
+        "name": "cap5",
         "rotation": [
           0.04251495,
           0.0004928601,
           -0.009040547,
           0.99905485
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.375,
+          1.0105087,
+          0.022939034
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap6_raw",
         "kind": "box",
+        "name": "cap6_raw",
+        "rotation": null,
         "size": [
           0.22508651,
           0.24192387,
@@ -311,41 +313,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap6_ch",
         "input": "cap6_raw",
         "mode": "chamfer",
+        "name": "cap6_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap6",
         "input": "cap6_ch",
-        "translation": [
-          0.625,
-          1.0209619,
-          -0.011693304
-        ],
+        "name": "cap6",
         "rotation": [
           0.035825297,
           -0.049536135,
           -0.04557875,
           0.9970885
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.625,
+          1.0209619,
+          -0.011693304
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cap7_raw",
         "kind": "box",
+        "name": "cap7_raw",
+        "rotation": null,
         "size": [
           0.21981516,
           0.24384455,
@@ -355,41 +357,41 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "cap7_ch",
         "input": "cap7_raw",
         "mode": "chamfer",
+        "name": "cap7_ch",
         "radius": 0.035,
         "segments": 0
       }
     },
     {
       "transform": {
-        "name": "cap7",
         "input": "cap7_ch",
-        "translation": [
-          0.875,
-          1.0219222,
-          -0.0017255949
-        ],
+        "name": "cap7",
         "rotation": [
           -0.017504586,
           0.05262648,
           -0.03082616,
           0.9979849
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.875,
+          1.0219222,
+          -0.0017255949
+        ]
       }
     },
     {
       "primitive": {
-        "name": "foot0_raw",
         "kind": "box",
+        "name": "foot0_raw",
+        "rotation": null,
         "size": [
           0.34634718,
           0.2506132,
@@ -399,32 +401,32 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "foot0",
         "input": "foot0_raw",
-        "translation": [
-          -0.63395286,
-          0.0953066,
-          -0.27
-        ],
+        "name": "foot0",
         "rotation": [
           -0.00039288175,
           -0.031226186,
           -0.012574672,
           0.99943316
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.63395286,
+          0.0953066,
+          -0.27
+        ]
       }
     },
     {
       "primitive": {
-        "name": "foot1_raw",
         "kind": "box",
+        "name": "foot1_raw",
+        "rotation": null,
         "size": [
           0.36168694,
           0.24468231,
@@ -434,32 +436,32 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "foot1",
         "input": "foot1_raw",
-        "translation": [
-          0.08951083,
-          0.09234116,
-          -0.27
-        ],
+        "name": "foot1",
         "rotation": [
           0.0019643165,
           0.056388855,
           -0.034758613,
           0.9978017
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.08951083,
+          0.09234116,
+          -0.27
+        ]
       }
     },
     {
       "primitive": {
-        "name": "foot2_raw",
         "kind": "box",
+        "name": "foot2_raw",
+        "rotation": null,
         "size": [
           0.34975302,
           0.26121297,
@@ -469,32 +471,32 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "foot2",
         "input": "foot2_raw",
-        "translation": [
-          0.58985764,
-          0.100606486,
-          -0.27
-        ],
+        "name": "foot2",
         "rotation": [
           0.0003692757,
           0.016112428,
           -0.022909692,
           0.9996076
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.58985764,
+          0.100606486,
+          -0.27
+        ]
       }
     },
     {
       "primitive": {
-        "name": "foot3_raw",
         "kind": "box",
+        "name": "foot3_raw",
+        "rotation": null,
         "size": [
           0.34308016,
           0.2367215,
@@ -504,32 +506,32 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "foot3",
         "input": "foot3_raw",
-        "translation": [
-          -0.6470293,
-          0.08836075,
-          0.27
-        ],
+        "name": "foot3",
         "rotation": [
           0.0010982548,
           -0.0637828,
           0.01718105,
           0.9978154
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.6470293,
+          0.08836075,
+          0.27
+        ]
       }
     },
     {
       "primitive": {
-        "name": "foot4_raw",
         "kind": "box",
+        "name": "foot4_raw",
+        "rotation": null,
         "size": [
           0.44411588,
           0.25879022,
@@ -539,32 +541,32 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "foot4",
         "input": "foot4_raw",
-        "translation": [
-          0.11334845,
-          0.09939512,
-          0.27
-        ],
+        "name": "foot4",
         "rotation": [
           0.002697113,
           0.064108804,
           -0.041947063,
           0.9970573
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.11334845,
+          0.09939512,
+          0.27
+        ]
       }
     },
     {
       "primitive": {
-        "name": "foot5_raw",
         "kind": "box",
+        "name": "foot5_raw",
+        "rotation": null,
         "size": [
           0.44558087,
           0.26201916,
@@ -574,42 +576,36 @@
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "foot5",
         "input": "foot5_raw",
-        "translation": [
-          0.6262394,
-          0.10100958,
-          0.27
-        ],
+        "name": "foot5",
         "rotation": [
           0.00048369862,
           -0.012496973,
           0.03867328,
           0.99917376
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.6262394,
+          0.10100958,
+          0.27
+        ]
       }
     },
     {
       "material": {
-        "name": "core",
+        "base_color": null,
         "input": "core",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "core",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -788,25 +784,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap0",
+        "base_color": null,
         "input": "cap0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap0",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -985,25 +981,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap1",
+        "base_color": null,
         "input": "cap1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap1",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -1182,25 +1178,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap2",
+        "base_color": null,
         "input": "cap2",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap2",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -1379,25 +1375,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap3",
+        "base_color": null,
         "input": "cap3",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap3",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -1576,25 +1572,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap4",
+        "base_color": null,
         "input": "cap4",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap4",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -1773,25 +1769,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap5",
+        "base_color": null,
         "input": "cap5",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap5",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -1970,25 +1966,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap6",
+        "base_color": null,
         "input": "cap6",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap6",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -2167,25 +2163,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cap7",
+        "base_color": null,
         "input": "cap7",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cap7",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -2364,25 +2360,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "foot0",
+        "base_color": null,
         "input": "foot0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "foot0",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -2561,25 +2557,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "foot1",
+        "base_color": null,
         "input": "foot1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "foot1",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -2758,25 +2754,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "foot2",
+        "base_color": null,
         "input": "foot2",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "foot2",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -2955,25 +2951,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "foot3",
+        "base_color": null,
         "input": "foot3",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "foot3",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -3152,25 +3148,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "foot4",
+        "base_color": null,
         "input": "foot4",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "foot4",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -3349,25 +3345,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "foot5",
-        "input": "foot5",
         "base_color": null,
-        "roughness": null,
+        "input": "foot5",
         "metalness": null,
+        "name": "foot5",
         "pbr": {
-          "material": "zn-mossy-stonework",
-          "scale": 2.5,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -3546,3920 +3542,178 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 2.0
+          },
+          "material": "zn-mossy-stonework",
+          "scale": 2.5
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "core_raw",
         "input": "core_raw",
+        "name": "core_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap0_raw",
         "input": "cap0_raw",
+        "name": "cap0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap0_ch",
         "input": "cap0_ch",
+        "name": "cap0_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap1_raw",
         "input": "cap1_raw",
+        "name": "cap1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap1_ch",
         "input": "cap1_ch",
+        "name": "cap1_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap2_raw",
         "input": "cap2_raw",
+        "name": "cap2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap2_ch",
         "input": "cap2_ch",
+        "name": "cap2_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap3_raw",
         "input": "cap3_raw",
+        "name": "cap3_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap3_ch",
         "input": "cap3_ch",
+        "name": "cap3_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap4_raw",
         "input": "cap4_raw",
+        "name": "cap4_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap4_ch",
         "input": "cap4_ch",
+        "name": "cap4_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap5_raw",
         "input": "cap5_raw",
+        "name": "cap5_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap5_ch",
         "input": "cap5_ch",
+        "name": "cap5_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap6_raw",
         "input": "cap6_raw",
+        "name": "cap6_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap6_ch",
         "input": "cap6_ch",
+        "name": "cap6_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap7_raw",
         "input": "cap7_raw",
+        "name": "cap7_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cap7_ch",
         "input": "cap7_ch",
+        "name": "cap7_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "foot0_raw",
         "input": "foot0_raw",
+        "name": "foot0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "foot1_raw",
         "input": "foot1_raw",
+        "name": "foot1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "foot2_raw",
         "input": "foot2_raw",
+        "name": "foot2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "foot3_raw",
         "input": "foot3_raw",
+        "name": "foot3_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "foot4_raw",
         "input": "foot4_raw",
+        "name": "foot4_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "foot5_raw",
         "input": "foot5_raw",
+        "name": "foot5_raw",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fn-stone-wall-mossy",
-          "parts": [],
-          "version": 15107,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `fn-stone-wall-mossy`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "fn-stone-wall-mossy",
-          "parts": [],
-          "version": 17677,
-          "ops": [
-            {
-              "primitive": {
-                "name": "core_raw",
-                "kind": "box",
-                "size": [
-                  2.0,
-                  0.94,
-                  0.6
-                ],
-                "translation": [
-                  0.0,
-                  0.47,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "deform": {
-                "name": "core",
-                "input": "core_raw",
-                "mode": "taper",
-                "axis": "y",
-                "scale_end": [
-                  1.0,
-                  0.84
-                ],
-                "detail": 3.0
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap0_raw",
-                "kind": "box",
-                "size": [
-                  0.21361081,
-                  0.21652336,
-                  0.5237635
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap0_ch",
-                "input": "cap0_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap0",
-                "input": "cap0_ch",
-                "translation": [
-                  -0.875,
-                  1.0082617,
-                  -0.020701664
-                ],
-                "rotation": [
-                  -0.05243165,
-                  -0.012596901,
-                  0.04314552,
-                  0.9976125
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap1_raw",
-                "kind": "box",
-                "size": [
-                  0.23678069,
-                  0.25603166,
-                  0.5133157
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap1_ch",
-                "input": "cap1_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap1",
-                "input": "cap1_ch",
-                "translation": [
-                  -0.625,
-                  1.0280159,
-                  0.0022008005
-                ],
-                "rotation": [
-                  -0.028653223,
-                  -0.033105835,
-                  -0.042123284,
-                  0.99815255
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap2_raw",
-                "kind": "box",
-                "size": [
-                  0.24246165,
-                  0.21500804,
-                  0.5497352
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap2_ch",
-                "input": "cap2_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap2",
-                "input": "cap2_ch",
-                "translation": [
-                  -0.375,
-                  1.007504,
-                  0.018399142
-                ],
-                "rotation": [
-                  0.036033526,
-                  -0.032800186,
-                  -0.01870978,
-                  0.9986369
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap3_raw",
-                "kind": "box",
-                "size": [
-                  0.23561631,
-                  0.24388829,
-                  0.5512789
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap3_ch",
-                "input": "cap3_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap3",
-                "input": "cap3_ch",
-                "translation": [
-                  -0.125,
-                  1.0219442,
-                  0.022803046
-                ],
-                "rotation": [
-                  -0.050658222,
-                  0.010161259,
-                  0.018514901,
-                  0.99849266
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap4_raw",
-                "kind": "box",
-                "size": [
-                  0.21622266,
-                  0.23541677,
-                  0.52841526
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap4_ch",
-                "input": "cap4_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap4",
-                "input": "cap4_ch",
-                "translation": [
-                  0.125,
-                  1.0177084,
-                  -0.024639228
-                ],
-                "rotation": [
-                  0.05283989,
-                  0.03847423,
-                  0.002947381,
-                  0.99785715
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap5_raw",
-                "kind": "box",
-                "size": [
-                  0.24181046,
-                  0.2210172,
-                  0.534342
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap5_ch",
-                "input": "cap5_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap5",
-                "input": "cap5_ch",
-                "translation": [
-                  0.375,
-                  1.0105087,
-                  0.022939034
-                ],
-                "rotation": [
-                  0.04251495,
-                  0.0004928601,
-                  -0.009040547,
-                  0.99905485
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap6_raw",
-                "kind": "box",
-                "size": [
-                  0.22508651,
-                  0.24192387,
-                  0.50967926
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap6_ch",
-                "input": "cap6_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap6",
-                "input": "cap6_ch",
-                "translation": [
-                  0.625,
-                  1.0209619,
-                  -0.011693304
-                ],
-                "rotation": [
-                  0.035825297,
-                  -0.049536135,
-                  -0.04557875,
-                  0.9970885
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cap7_raw",
-                "kind": "box",
-                "size": [
-                  0.21981516,
-                  0.24384455,
-                  0.5320773
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "cap7_ch",
-                "input": "cap7_raw",
-                "mode": "chamfer",
-                "radius": 0.035,
-                "segments": 0
-              }
-            },
-            {
-              "transform": {
-                "name": "cap7",
-                "input": "cap7_ch",
-                "translation": [
-                  0.875,
-                  1.0219222,
-                  -0.0017255949
-                ],
-                "rotation": [
-                  -0.017504586,
-                  0.05262648,
-                  -0.03082616,
-                  0.9979849
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "foot0_raw",
-                "kind": "box",
-                "size": [
-                  0.34634718,
-                  0.2506132,
-                  0.13
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "foot0",
-                "input": "foot0_raw",
-                "translation": [
-                  -0.63395286,
-                  0.0953066,
-                  -0.27
-                ],
-                "rotation": [
-                  -0.00039288175,
-                  -0.031226186,
-                  -0.012574672,
-                  0.99943316
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "foot1_raw",
-                "kind": "box",
-                "size": [
-                  0.36168694,
-                  0.24468231,
-                  0.13
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "foot1",
-                "input": "foot1_raw",
-                "translation": [
-                  0.08951083,
-                  0.09234116,
-                  -0.27
-                ],
-                "rotation": [
-                  0.0019643165,
-                  0.056388855,
-                  -0.034758613,
-                  0.9978017
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "foot2_raw",
-                "kind": "box",
-                "size": [
-                  0.34975302,
-                  0.26121297,
-                  0.13
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "foot2",
-                "input": "foot2_raw",
-                "translation": [
-                  0.58985764,
-                  0.100606486,
-                  -0.27
-                ],
-                "rotation": [
-                  0.0003692757,
-                  0.016112428,
-                  -0.022909692,
-                  0.9996076
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "foot3_raw",
-                "kind": "box",
-                "size": [
-                  0.34308016,
-                  0.2367215,
-                  0.13
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "foot3",
-                "input": "foot3_raw",
-                "translation": [
-                  -0.6470293,
-                  0.08836075,
-                  0.27
-                ],
-                "rotation": [
-                  0.0010982548,
-                  -0.0637828,
-                  0.01718105,
-                  0.9978154
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "foot4_raw",
-                "kind": "box",
-                "size": [
-                  0.44411588,
-                  0.25879022,
-                  0.13
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "foot4",
-                "input": "foot4_raw",
-                "translation": [
-                  0.11334845,
-                  0.09939512,
-                  0.27
-                ],
-                "rotation": [
-                  0.002697113,
-                  0.064108804,
-                  -0.041947063,
-                  0.9970573
-                ],
-                "scale": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "foot5_raw",
-                "kind": "box",
-                "size": [
-                  0.44558087,
-                  0.26201916,
-                  0.13
-                ],
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "foot5",
-                "input": "foot5_raw",
-                "translation": [
-                  0.6262394,
-                  0.10100958,
-                  0.27
-                ],
-                "rotation": [
-                  0.00048369862,
-                  -0.012496973,
-                  0.03867328,
-                  0.99917376
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "core",
-                "input": "core",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap0",
-                "input": "cap0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap1",
-                "input": "cap1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap2",
-                "input": "cap2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap3",
-                "input": "cap3",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap4",
-                "input": "cap4",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap5",
-                "input": "cap5",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap6",
-                "input": "cap6",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cap7",
-                "input": "cap7",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "foot0",
-                "input": "foot0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "foot1",
-                "input": "foot1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "foot2",
-                "input": "foot2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "foot3",
-                "input": "foot3",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "foot4",
-                "input": "foot4",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "foot5",
-                "input": "foot5",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "zn-mossy-stonework",
-                  "scale": 2.5,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "wn",
-                        "octaves": 3,
-                        "seed": 41,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.06,
-                        "by": "wn",
-                        "name": "wc",
-                        "type": "warp"
-                      },
-                      {
-                        "coords": "wc",
-                        "name": "g",
-                        "size": [
-                          0.5,
-                          0.25
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "chipn",
-                        "octaves": 3,
-                        "seed": 42,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "chipn",
-                        "name": "chip",
-                        "to": [
-                          -0.012,
-                          0.012
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g.edge",
-                        "b": "chip",
-                        "name": "e2",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "in": [
-                          0.01,
-                          0.03
-                        ],
-                        "input": "e2",
-                        "name": "blk",
-                        "type": "levels"
-                      },
-                      {
-                        "id": "g.id",
-                        "max": 1,
-                        "min": 0,
-                        "name": "tone",
-                        "seed": 43,
-                        "type": "random"
-                      },
-                      {
-                        "name": "face",
-                        "octaves": 3,
-                        "seed": 44,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "a": "tone",
-                        "b": "face",
-                        "c": 0.45,
-                        "name": "t0",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "input": "t0",
-                        "name": "sc",
-                        "stops": [
-                          [
-                            0,
-                            "#626b5a"
-                          ],
-                          [
-                            0.5,
-                            "#7e8672"
-                          ],
-                          [
-                            1,
-                            "#98a089"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "name": "mn",
-                        "octaves": 4,
-                        "seed": 45,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.5,
-                          0.62
-                        ],
-                        "input": "mn",
-                        "name": "mm",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "face",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#4e6a2a"
-                          ],
-                          [
-                            1,
-                            "#7a9640"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "sc",
-                        "b": "mc",
-                        "c": "mm",
-                        "name": "sm",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#4d5446",
-                        "b": "sm",
-                        "c": "blk",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "blk",
-                        "b": 0.012,
-                        "name": "hb",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "face",
-                        "b": 0.006,
-                        "name": "hf",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hb",
-                        "b": "hf",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "core_raw",
-                "input": "core_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap0_raw",
-                "input": "cap0_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap0_ch",
-                "input": "cap0_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap1_raw",
-                "input": "cap1_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap1_ch",
-                "input": "cap1_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap2_raw",
-                "input": "cap2_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap2_ch",
-                "input": "cap2_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap3_raw",
-                "input": "cap3_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap3_ch",
-                "input": "cap3_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap4_raw",
-                "input": "cap4_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap4_ch",
-                "input": "cap4_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap5_raw",
-                "input": "cap5_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap5_ch",
-                "input": "cap5_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap6_raw",
-                "input": "cap6_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap6_ch",
-                "input": "cap6_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap7_raw",
-                "input": "cap7_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cap7_ch",
-                "input": "cap7_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot0_raw",
-                "input": "foot0_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot1_raw",
-                "input": "foot1_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot2_raw",
-                "input": "foot2_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot3_raw",
-                "input": "foot3_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot4_raw",
-                "input": "foot4_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot5_raw",
-                "input": "foot5_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "op delete `core_ch`",
-        "author": "lite-nature"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 17679
 }

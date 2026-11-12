@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pk-yarn-ball",
-  "parts": [],
-  "version": 16290,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "ball",
         "profile": [
           [
@@ -47,18 +49,18 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "wrap0",
         "profile": [
           [
@@ -79,24 +81,24 @@
               -0.01
             ]
           ]
-        ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ],
         "rotation": [
           0.0,
           0.0,
           0.0,
           1.0
+        ],
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "wrap1",
         "profile": [
           [
@@ -117,24 +119,24 @@
               -0.01
             ]
           ]
-        ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ],
         "rotation": [
           0.49240392,
           0.15038374,
           -0.0868241,
           0.8528686
+        ],
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "wrap2",
         "profile": [
           [
@@ -155,24 +157,24 @@
               -0.01
             ]
           ]
-        ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ],
         "rotation": [
           -0.34618863,
           0.5198368,
           0.24240388,
           0.74240386
+        ],
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "wrap3",
         "profile": [
           [
@@ -193,24 +195,24 @@
               -0.01
             ]
           ]
-        ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ],
         "rotation": [
           0.66446304,
           -0.24184477,
           0.24184477,
           0.66446304
+        ],
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "wrap4",
         "profile": [
           [
@@ -232,35 +234,29 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
         "rotation": [
           0.09960051,
           0.80670726,
           -0.14224426,
           0.56486255
+        ],
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ]
       }
     },
     {
       "material": {
-        "name": "ball",
+        "base_color": null,
         "input": "ball",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "ball",
         "pbr": {
-          "material": "pk-yarn",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -375,25 +371,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pk-yarn",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wrap0",
+        "base_color": null,
         "input": "wrap0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "wrap0",
         "pbr": {
-          "material": "pk-yarn",
-          "scale": 0.7,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -508,25 +504,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pk-yarn",
+          "scale": 0.7
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wrap1",
+        "base_color": null,
         "input": "wrap1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "wrap1",
         "pbr": {
-          "material": "pk-yarn",
-          "scale": 0.7,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -641,25 +637,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pk-yarn",
+          "scale": 0.7
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wrap2",
+        "base_color": null,
         "input": "wrap2",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "wrap2",
         "pbr": {
-          "material": "pk-yarn",
-          "scale": 0.7,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -774,25 +770,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pk-yarn",
+          "scale": 0.7
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wrap3",
+        "base_color": null,
         "input": "wrap3",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "wrap3",
         "pbr": {
-          "material": "pk-yarn",
-          "scale": 0.7,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -907,25 +903,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pk-yarn",
+          "scale": 0.7
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "wrap4",
-        "input": "wrap4",
         "base_color": null,
-        "roughness": null,
+        "input": "wrap4",
         "metalness": null,
+        "name": "wrap4",
         "pbr": {
-          "material": "pk-yarn",
-          "scale": 0.7,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1040,1092 +1036,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "pk-yarn",
+          "scale": 0.7
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pk-yarn-ball",
-          "parts": [],
-          "version": 8476,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pk-yarn-ball`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pk-yarn-ball",
-          "parts": [],
-          "version": 16239,
-          "ops": [
-            {
-              "revolve": {
-                "name": "ball",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.1
-                    ],
-                    [
-                      0.038268343,
-                      -0.09238795
-                    ],
-                    [
-                      0.07071068,
-                      -0.07071068
-                    ],
-                    [
-                      0.09238795,
-                      -0.038268343
-                    ],
-                    [
-                      0.1,
-                      -6.123234e-18
-                    ],
-                    [
-                      0.09238795,
-                      0.038268343
-                    ],
-                    [
-                      0.07071068,
-                      0.07071068
-                    ],
-                    [
-                      0.038268343,
-                      0.09238795
-                    ],
-                    [
-                      0.0,
-                      0.1
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "wrap0",
-                "profile": [
-                  [
-                    [
-                      0.108,
-                      0.0
-                    ],
-                    [
-                      0.098,
-                      0.01
-                    ],
-                    [
-                      0.088,
-                      1.2246468e-18
-                    ],
-                    [
-                      0.098,
-                      -0.01
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.0,
-                  1.0
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "wrap1",
-                "profile": [
-                  [
-                    [
-                      0.108,
-                      0.0
-                    ],
-                    [
-                      0.098,
-                      0.01
-                    ],
-                    [
-                      0.088,
-                      1.2246468e-18
-                    ],
-                    [
-                      0.098,
-                      -0.01
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.49240392,
-                  0.15038374,
-                  -0.0868241,
-                  0.8528686
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "wrap2",
-                "profile": [
-                  [
-                    [
-                      0.108,
-                      0.0
-                    ],
-                    [
-                      0.098,
-                      0.01
-                    ],
-                    [
-                      0.088,
-                      1.2246468e-18
-                    ],
-                    [
-                      0.098,
-                      -0.01
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  -0.34618863,
-                  0.5198368,
-                  0.24240388,
-                  0.74240386
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "wrap3",
-                "profile": [
-                  [
-                    [
-                      0.108,
-                      0.0
-                    ],
-                    [
-                      0.098,
-                      0.01
-                    ],
-                    [
-                      0.088,
-                      1.2246468e-18
-                    ],
-                    [
-                      0.098,
-                      -0.01
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.66446304,
-                  -0.24184477,
-                  0.24184477,
-                  0.66446304
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "wrap4",
-                "profile": [
-                  [
-                    [
-                      0.108,
-                      0.0
-                    ],
-                    [
-                      0.098,
-                      0.01
-                    ],
-                    [
-                      0.088,
-                      1.2246468e-18
-                    ],
-                    [
-                      0.098,
-                      -0.01
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.09960051,
-                  0.80670726,
-                  -0.14224426,
-                  0.56486255
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "ball",
-                "input": "ball",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-yarn",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 1005.3096491487338,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 1005.3096491487338,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#d86878"
-                          ],
-                          [
-                            1,
-                            "#f59aa6"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.93,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wrap0",
-                "input": "wrap0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-yarn",
-                  "scale": 0.7,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 1005.3096491487338,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 1005.3096491487338,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#d86878"
-                          ],
-                          [
-                            1,
-                            "#f59aa6"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.93,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wrap1",
-                "input": "wrap1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-yarn",
-                  "scale": 0.7,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 1005.3096491487338,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 1005.3096491487338,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#d86878"
-                          ],
-                          [
-                            1,
-                            "#f59aa6"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.93,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wrap2",
-                "input": "wrap2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-yarn",
-                  "scale": 0.7,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 1005.3096491487338,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 1005.3096491487338,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#d86878"
-                          ],
-                          [
-                            1,
-                            "#f59aa6"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.93,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wrap3",
-                "input": "wrap3",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-yarn",
-                  "scale": 0.7,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 1005.3096491487338,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 1005.3096491487338,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#d86878"
-                          ],
-                          [
-                            1,
-                            "#f59aa6"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.93,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "wrap4",
-                "input": "wrap4",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-yarn",
-                  "scale": 0.7,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 1005.3096491487338,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 1005.3096491487338,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#d86878"
-                          ],
-                          [
-                            1,
-                            "#f59aa6"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.93,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "6 edits: revolve `ball` profile=[[[0.0, -0.1], [0.038268343, -0.09238795], [0.07071068, -0.07071068], [0.09238795, -0.038268343], [0.1, -6.123234e-18], [0.09238795, 0.038268343], [0.07071068, 0.07071068], [0.038268343, 0.09238795], [0.0, 0.1]]] degrees=360 segments=10 round=0 at=[0.0, 0.0, 0.0] … revolve `wrap4` profile=[[[0.108, 0.0], [0.098, 0.01], [0.088, 1.2246468e-18], [0.098, -0.01]]] degrees=360 segments=10 round=0 at=[0.0, 0.0, 0.0] rot=[0.09960051, 0.80670726, -0.14224426, 0.56486255]",
-        "author": "lite-features"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 16290
 }

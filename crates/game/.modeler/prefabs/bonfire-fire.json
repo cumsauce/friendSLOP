@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "bonfire-fire",
-  "parts": [],
-  "version": 1336,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "fl0_r",
         "profile": [
           [
@@ -35,36 +37,36 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "fl0",
         "input": "fl0_r",
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
+        "name": "fl0",
         "rotation": [
           -0.03807035,
           -0.002460805,
           0.06445679,
           0.997191
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "fl1_r",
         "profile": [
           [
@@ -94,36 +96,36 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "fl1",
         "input": "fl1_r",
-        "translation": [
-          0.12,
-          0.0,
-          0.05
-        ],
+        "name": "fl1",
         "rotation": [
           -0.058751687,
           0.3400138,
           0.044662133,
           0.9375202
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.12,
+          0.0,
+          0.05
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "fl2_r",
         "profile": [
           [
@@ -153,36 +155,36 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "fl2",
         "input": "fl2_r",
-        "translation": [
-          -0.1,
-          0.0,
-          0.08
-        ],
+        "name": "fl2",
         "rotation": [
           -0.064989254,
           -0.25625306,
           -0.048970997,
           0.96317834
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.1,
+          0.0,
+          0.08
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "fl3_r",
         "profile": [
           [
@@ -212,36 +214,36 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "fl3",
         "input": "fl3_r",
-        "translation": [
-          0.03,
-          0.0,
-          -0.13
-        ],
+        "name": "fl3",
         "rotation": [
           0.07426442,
           0.12730162,
           -0.049201675,
           0.98785543
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.03,
+          0.0,
+          -0.13
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "fl4_r",
         "profile": [
           [
@@ -271,36 +273,36 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "fl4",
         "input": "fl4_r",
-        "translation": [
-          -0.06,
-          0.0,
-          -0.08
-        ],
+        "name": "fl4",
         "rotation": [
           0.015540223,
           -0.4226309,
           0.0032004286,
           0.906163
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          -0.06,
+          0.0,
+          -0.08
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "fl5_r",
         "profile": [
           [
@@ -330,48 +332,42 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           0.0,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "transform": {
-        "name": "fl5",
         "input": "fl5_r",
-        "translation": [
-          0.13,
-          0.0,
-          -0.09
-        ],
+        "name": "fl5",
         "rotation": [
           -0.004958639,
           0.5735678,
           0.0031795832,
           0.819137
         ],
-        "scale": null
+        "scale": null,
+        "translation": [
+          0.13,
+          0.0,
+          -0.09
+        ]
       }
     },
     {
       "material": {
-        "name": "fl0",
+        "base_color": null,
         "input": "fl0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl0",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -459,25 +455,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl0_r",
+        "base_color": null,
         "input": "fl0_r",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl0_r",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -565,25 +561,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl1",
+        "base_color": null,
         "input": "fl1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl1",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -671,25 +667,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl1_r",
+        "base_color": null,
         "input": "fl1_r",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl1_r",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -777,25 +773,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl2",
+        "base_color": null,
         "input": "fl2",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl2",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -883,25 +879,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl2_r",
+        "base_color": null,
         "input": "fl2_r",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl2_r",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -989,25 +985,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl3",
+        "base_color": null,
         "input": "fl3",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl3",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -1095,25 +1091,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl3_r",
+        "base_color": null,
         "input": "fl3_r",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl3_r",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -1201,25 +1197,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl4",
+        "base_color": null,
         "input": "fl4",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl4",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -1307,25 +1303,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl4_r",
+        "base_color": null,
         "input": "fl4_r",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl4_r",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -1413,25 +1409,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl5",
+        "base_color": null,
         "input": "fl5",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fl5",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -1519,25 +1515,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fl5_r",
-        "input": "fl5_r",
         "base_color": null,
-        "roughness": null,
+        "input": "fl5_r",
         "metalness": null,
+        "name": "fl5_r",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -1625,67 +1621,71 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "collider": {
+        "body": "static",
         "name": "col",
         "parts": [
           "*"
         ],
-        "shape": "none",
-        "body": "static",
-        "sensor": false
+        "sensor": false,
+        "shape": "none"
       }
     },
     {
       "visibility": {
-        "name": "fl0_r",
         "input": "fl0_r",
+        "name": "fl0_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl1_r",
         "input": "fl1_r",
+        "name": "fl1_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl2_r",
         "input": "fl2_r",
+        "name": "fl2_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl3_r",
         "input": "fl3_r",
+        "name": "fl3_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl4_r",
         "input": "fl4_r",
+        "name": "fl4_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl5_r",
         "input": "fl5_r",
+        "name": "fl5_r",
         "visible": false
       }
     },
     {
       "group": {
-        "name": "flames",
         "inputs": [
           "fl0",
           "fl1",
@@ -1693,23 +1693,19 @@
           "fl3",
           "fl4",
           "fl5"
-        ]
+        ],
+        "name": "flames"
       }
     },
     {
       "material": {
-        "name": "flames",
-        "input": "flames",
         "base_color": null,
-        "roughness": null,
+        "input": "flames",
         "metalness": null,
+        "name": "flames",
         "pbr": {
-          "material": "flame",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "from": [
@@ -1797,3691 +1793,61 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "flame",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "fl0",
         "input": "fl0",
+        "name": "fl0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl1",
         "input": "fl1",
+        "name": "fl1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl2",
         "input": "fl2",
+        "name": "fl2",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl3",
         "input": "fl3",
+        "name": "fl3",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl4",
         "input": "fl4",
+        "name": "fl4",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fl5",
         "input": "fl5",
+        "name": "fl5",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "model",
-          "parts": [],
-          "version": 1,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "bonfire-fire",
-          "parts": [],
-          "version": 1190,
-          "ops": [
-            {
-              "revolve": {
-                "name": "fl0_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.10625,
-                      0.075
-                    ],
-                    [
-                      0.159375,
-                      0.25
-                    ],
-                    [
-                      0.1275,
-                      0.525
-                    ],
-                    [
-                      0.06375,
-                      0.825
-                    ],
-                    [
-                      0.0,
-                      1.0625
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl0",
-                "input": "fl0_r",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  -0.03807035,
-                  -0.002460805,
-                  0.06445679,
-                  0.997191
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl1_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.09625,
-                      0.051
-                    ],
-                    [
-                      0.144375,
-                      0.17
-                    ],
-                    [
-                      0.1155,
-                      0.357
-                    ],
-                    [
-                      0.05775,
-                      0.561
-                    ],
-                    [
-                      0.0,
-                      0.7225
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl1",
-                "input": "fl1_r",
-                "translation": [
-                  0.12,
-                  0.0,
-                  0.05
-                ],
-                "rotation": [
-                  -0.058751687,
-                  0.3400138,
-                  0.044662133,
-                  0.9375202
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl2_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.0975,
-                      0.054
-                    ],
-                    [
-                      0.14625,
-                      0.18
-                    ],
-                    [
-                      0.117,
-                      0.378
-                    ],
-                    [
-                      0.0585,
-                      0.594
-                    ],
-                    [
-                      0.0,
-                      0.765
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl2",
-                "input": "fl2_r",
-                "translation": [
-                  -0.1,
-                  0.0,
-                  0.08
-                ],
-                "rotation": [
-                  -0.064989254,
-                  -0.25625306,
-                  -0.048970997,
-                  0.96317834
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl3_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.095,
-                      0.048
-                    ],
-                    [
-                      0.1425,
-                      0.16
-                    ],
-                    [
-                      0.114,
-                      0.336
-                    ],
-                    [
-                      0.057,
-                      0.528
-                    ],
-                    [
-                      0.0,
-                      0.68
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl3",
-                "input": "fl3_r",
-                "translation": [
-                  0.03,
-                  0.0,
-                  -0.13
-                ],
-                "rotation": [
-                  0.07426442,
-                  0.12730162,
-                  -0.049201675,
-                  0.98785543
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl4_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.09125,
-                      0.039
-                    ],
-                    [
-                      0.136875,
-                      0.13
-                    ],
-                    [
-                      0.1095,
-                      0.273
-                    ],
-                    [
-                      0.05475,
-                      0.429
-                    ],
-                    [
-                      0.0,
-                      0.5525
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl4",
-                "input": "fl4_r",
-                "translation": [
-                  -0.06,
-                  0.0,
-                  -0.08
-                ],
-                "rotation": [
-                  0.015540223,
-                  -0.4226309,
-                  0.0032004286,
-                  0.906163
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl5_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.09,
-                      0.036
-                    ],
-                    [
-                      0.135,
-                      0.12
-                    ],
-                    [
-                      0.108,
-                      0.252
-                    ],
-                    [
-                      0.054,
-                      0.396
-                    ],
-                    [
-                      0.0,
-                      0.51
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl5",
-                "input": "fl5_r",
-                "translation": [
-                  0.13,
-                  0.0,
-                  -0.09
-                ],
-                "rotation": [
-                  -0.004958639,
-                  0.5735678,
-                  0.0031795832,
-                  0.819137
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "fl0",
-                "input": "fl0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl0_r",
-                "input": "fl0_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl1",
-                "input": "fl1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl1_r",
-                "input": "fl1_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl2",
-                "input": "fl2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl2_r",
-                "input": "fl2_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl3",
-                "input": "fl3",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl3_r",
-                "input": "fl3_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl4",
-                "input": "fl4",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl4_r",
-                "input": "fl4_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl5",
-                "input": "fl5",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl5_r",
-                "input": "fl5_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "collider": {
-                "name": "col",
-                "parts": [
-                  "*"
-                ],
-                "shape": "none",
-                "body": "static",
-                "sensor": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl0_r",
-                "input": "fl0_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl1_r",
-                "input": "fl1_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl2_r",
-                "input": "fl2_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl3_r",
-                "input": "fl3_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl4_r",
-                "input": "fl4_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl5_r",
-                "input": "fl5_r",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "31 edits: revolve `fl0_r` profile=[[[0.0, 0.0], [0.10625, 0.075], [0.159375, 0.25], [0.1275, 0.525], [0.06375, 0.825], [0.0, 1.0625]]] degrees=360 segments=10 round=0 at=[0.0, 0.0, 0.0] … hidden `fl5_r`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "bonfire-fire",
-          "parts": [],
-          "version": 1274,
-          "ops": [
-            {
-              "revolve": {
-                "name": "fl0_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.10625,
-                      0.075
-                    ],
-                    [
-                      0.159375,
-                      0.25
-                    ],
-                    [
-                      0.1275,
-                      0.525
-                    ],
-                    [
-                      0.06375,
-                      0.825
-                    ],
-                    [
-                      0.0,
-                      1.0625
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl0",
-                "input": "fl0_r",
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  -0.03807035,
-                  -0.002460805,
-                  0.06445679,
-                  0.997191
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl1_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.09625,
-                      0.051
-                    ],
-                    [
-                      0.144375,
-                      0.17
-                    ],
-                    [
-                      0.1155,
-                      0.357
-                    ],
-                    [
-                      0.05775,
-                      0.561
-                    ],
-                    [
-                      0.0,
-                      0.7225
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl1",
-                "input": "fl1_r",
-                "translation": [
-                  0.12,
-                  0.0,
-                  0.05
-                ],
-                "rotation": [
-                  -0.058751687,
-                  0.3400138,
-                  0.044662133,
-                  0.9375202
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl2_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.0975,
-                      0.054
-                    ],
-                    [
-                      0.14625,
-                      0.18
-                    ],
-                    [
-                      0.117,
-                      0.378
-                    ],
-                    [
-                      0.0585,
-                      0.594
-                    ],
-                    [
-                      0.0,
-                      0.765
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl2",
-                "input": "fl2_r",
-                "translation": [
-                  -0.1,
-                  0.0,
-                  0.08
-                ],
-                "rotation": [
-                  -0.064989254,
-                  -0.25625306,
-                  -0.048970997,
-                  0.96317834
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl3_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.095,
-                      0.048
-                    ],
-                    [
-                      0.1425,
-                      0.16
-                    ],
-                    [
-                      0.114,
-                      0.336
-                    ],
-                    [
-                      0.057,
-                      0.528
-                    ],
-                    [
-                      0.0,
-                      0.68
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl3",
-                "input": "fl3_r",
-                "translation": [
-                  0.03,
-                  0.0,
-                  -0.13
-                ],
-                "rotation": [
-                  0.07426442,
-                  0.12730162,
-                  -0.049201675,
-                  0.98785543
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl4_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.09125,
-                      0.039
-                    ],
-                    [
-                      0.136875,
-                      0.13
-                    ],
-                    [
-                      0.1095,
-                      0.273
-                    ],
-                    [
-                      0.05475,
-                      0.429
-                    ],
-                    [
-                      0.0,
-                      0.5525
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl4",
-                "input": "fl4_r",
-                "translation": [
-                  -0.06,
-                  0.0,
-                  -0.08
-                ],
-                "rotation": [
-                  0.015540223,
-                  -0.4226309,
-                  0.0032004286,
-                  0.906163
-                ],
-                "scale": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "fl5_r",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.09,
-                      0.036
-                    ],
-                    [
-                      0.135,
-                      0.12
-                    ],
-                    [
-                      0.108,
-                      0.252
-                    ],
-                    [
-                      0.054,
-                      0.396
-                    ],
-                    [
-                      0.0,
-                      0.51
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "transform": {
-                "name": "fl5",
-                "input": "fl5_r",
-                "translation": [
-                  0.13,
-                  0.0,
-                  -0.09
-                ],
-                "rotation": [
-                  -0.004958639,
-                  0.5735678,
-                  0.0031795832,
-                  0.819137
-                ],
-                "scale": null
-              }
-            },
-            {
-              "material": {
-                "name": "fl0",
-                "input": "fl0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl0_r",
-                "input": "fl0_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl1",
-                "input": "fl1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl1_r",
-                "input": "fl1_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl2",
-                "input": "fl2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl2_r",
-                "input": "fl2_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl3",
-                "input": "fl3",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl3_r",
-                "input": "fl3_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl4",
-                "input": "fl4",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl4_r",
-                "input": "fl4_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl5",
-                "input": "fl5",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fl5_r",
-                "input": "fl5_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "collider": {
-                "name": "col",
-                "parts": [
-                  "*"
-                ],
-                "shape": "none",
-                "body": "static",
-                "sensor": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl0_r",
-                "input": "fl0_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl1_r",
-                "input": "fl1_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl2_r",
-                "input": "fl2_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl3_r",
-                "input": "fl3_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl4_r",
-                "input": "fl4_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl5_r",
-                "input": "fl5_r",
-                "visible": false
-              }
-            },
-            {
-              "group": {
-                "name": "flames",
-                "inputs": [
-                  "fl0",
-                  "fl1",
-                  "fl2",
-                  "fl3",
-                  "fl4",
-                  "fl5"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "flames",
-                "input": "flames",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "flame",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "from": [
-                          0,
-                          0,
-                          0
-                        ],
-                        "name": "g",
-                        "to": [
-                          0,
-                          1.3,
-                          0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          -0.15,
-                          0.15
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g",
-                        "b": "nt",
-                        "name": "gg",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "gg",
-                        "name": "c",
-                        "stops": [
-                          [
-                            0.0,
-                            "#fff2a8"
-                          ],
-                          [
-                            0.35,
-                            "#ffb347"
-                          ],
-                          [
-                            0.75,
-                            "#ff5a1f"
-                          ],
-                          [
-                            1.0,
-                            "#c22a10"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c",
-                        "b": 6.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c",
-                        "emissive": "c",
-                        "name": "out",
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl0",
-                "input": "fl0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl1",
-                "input": "fl1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl2",
-                "input": "fl2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl3",
-                "input": "fl3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl4",
-                "input": "fl4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fl5",
-                "input": "fl5",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "8 edits: group `flames` = `fl0` + `fl1` + `fl2` + `fl3` + `fl4` + `fl5` … hidden `fl5`"
-      }
-    ],
-    "current": 2
-  },
+  "parts": [],
   "style": {
-    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -5496,9 +1862,10 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
+    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "derived_from_ops": true
+  "version": 1336
 }

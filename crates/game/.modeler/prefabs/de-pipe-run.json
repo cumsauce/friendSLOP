@@ -1,11 +1,13 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "de-pipe-run",
-  "parts": [],
-  "version": 5990,
+  "next_annotation_id": 0,
   "ops": [
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "pipe0",
         "profile": [
           [
@@ -27,23 +29,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.0,
-          -0.1,
-          -0.02
-        ],
         "rotation": [
           0.0,
           0.0,
           0.70710677,
           0.70710677
+        ],
+        "segments": 10,
+        "translation": [
+          0.0,
+          -0.1,
+          -0.02
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "clamp0_0",
         "profile": [
           [
@@ -65,23 +67,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          -0.75,
-          -0.1,
-          -0.02
-        ],
         "rotation": [
           0.0,
           0.0,
           0.70710677,
           0.70710677
+        ],
+        "segments": 10,
+        "translation": [
+          -0.75,
+          -0.1,
+          -0.02
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "clamp0_1",
         "profile": [
           [
@@ -103,23 +105,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.75,
-          -0.1,
-          -0.02
-        ],
         "rotation": [
           0.0,
           0.0,
           0.70710677,
           0.70710677
+        ],
+        "segments": 10,
+        "translation": [
+          0.75,
+          -0.1,
+          -0.02
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "pipe1",
         "profile": [
           [
@@ -141,23 +143,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.0,
-          -0.28,
-          -0.02
-        ],
         "rotation": [
           0.0,
           0.0,
           0.70710677,
           0.70710677
+        ],
+        "segments": 10,
+        "translation": [
+          0.0,
+          -0.28,
+          -0.02
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "clamp1_0",
         "profile": [
           [
@@ -179,23 +181,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          -0.75,
-          -0.28,
-          -0.02
-        ],
         "rotation": [
           0.0,
           0.0,
           0.70710677,
           0.70710677
+        ],
+        "segments": 10,
+        "translation": [
+          -0.75,
+          -0.28,
+          -0.02
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "clamp1_1",
         "profile": [
           [
@@ -217,25 +219,25 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 10,
-        "translation": [
-          0.75,
-          -0.28,
-          -0.02
-        ],
         "rotation": [
           0.0,
           0.0,
           0.70710677,
           0.70710677
+        ],
+        "segments": 10,
+        "translation": [
+          0.75,
+          -0.28,
+          -0.02
         ]
       }
     },
     {
       "primitive": {
-        "name": "strap0",
         "kind": "box",
+        "name": "strap0",
+        "rotation": null,
         "size": [
           0.05,
           0.3,
@@ -245,14 +247,14 @@
           -0.75,
           -0.17,
           -0.09
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "strap1",
         "kind": "box",
+        "name": "strap1",
+        "rotation": null,
         "size": [
           0.05,
           0.3,
@@ -262,24 +264,18 @@
           0.75,
           -0.17,
           -0.09
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "material": {
-        "name": "pipe0",
+        "base_color": null,
         "input": "pipe0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "pipe0",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -386,25 +382,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "pipe1",
+        "base_color": null,
         "input": "pipe1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "pipe1",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -511,25 +507,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "clamp0_0",
+        "base_color": null,
         "input": "clamp0_0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "clamp0_0",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -636,25 +632,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "clamp0_1",
+        "base_color": null,
         "input": "clamp0_1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "clamp0_1",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -761,25 +757,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "clamp1_0",
+        "base_color": null,
         "input": "clamp1_0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "clamp1_0",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -886,25 +882,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "clamp1_1",
+        "base_color": null,
         "input": "clamp1_1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "clamp1_1",
         "pbr": {
-          "material": "de-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -1011,25 +1007,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "strap0",
+        "base_color": null,
         "input": "strap0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "strap0",
         "pbr": {
-          "material": "de-timber",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -1128,25 +1124,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-timber",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "strap1",
-        "input": "strap1",
         "base_color": null,
-        "roughness": null,
+        "input": "strap1",
         "metalness": null,
+        "name": "strap1",
         "pbr": {
-          "material": "de-timber",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -1245,14 +1241,18 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-timber",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "group": {
-        "name": "iron",
         "inputs": [
           "pipe0",
           "pipe1",
@@ -1260,2720 +1260,76 @@
           "clamp0_1",
           "clamp1_0",
           "clamp1_1"
-        ]
+        ],
+        "name": "iron"
       }
     },
     {
       "group": {
-        "name": "straps",
         "inputs": [
           "strap0",
           "strap1"
-        ]
+        ],
+        "name": "straps"
       }
     },
     {
       "visibility": {
-        "name": "pipe0",
         "input": "pipe0",
+        "name": "pipe0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "pipe1",
         "input": "pipe1",
+        "name": "pipe1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "clamp0_0",
         "input": "clamp0_0",
+        "name": "clamp0_0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "clamp0_1",
         "input": "clamp0_1",
+        "name": "clamp0_1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "clamp1_0",
         "input": "clamp1_0",
+        "name": "clamp1_0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "clamp1_1",
         "input": "clamp1_1",
+        "name": "clamp1_1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "strap0",
         "input": "strap0",
+        "name": "strap0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "strap1",
         "input": "strap1",
+        "name": "strap1",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "model",
-          "parts": [],
-          "version": 1,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "de-pipe-run",
-          "parts": [],
-          "version": 3971,
-          "ops": [
-            {
-              "revolve": {
-                "name": "pipe0",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      1.0
-                    ],
-                    [
-                      0.0,
-                      1.0
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  -0.1,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp0_0",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  -0.75,
-                  -0.1,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp0_1",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.75,
-                  -0.1,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "pipe1",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      1.0
-                    ],
-                    [
-                      0.0,
-                      1.0
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  -0.28,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp1_0",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  -0.75,
-                  -0.28,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp1_1",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.75,
-                  -0.28,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "strap0",
-                "kind": "box",
-                "size": [
-                  0.05,
-                  0.3,
-                  0.02
-                ],
-                "translation": [
-                  -0.75,
-                  -0.17,
-                  -0.09
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "strap1",
-                "kind": "box",
-                "size": [
-                  0.05,
-                  0.3,
-                  0.02
-                ],
-                "translation": [
-                  0.75,
-                  -0.17,
-                  -0.09
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "pipe0",
-                "input": "pipe0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "pipe1",
-                "input": "pipe1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp0_0",
-                "input": "clamp0_0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp0_1",
-                "input": "clamp0_1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp1_0",
-                "input": "clamp1_0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp1_1",
-                "input": "clamp1_1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "strap0",
-                "input": "strap0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 13,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 18,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3e2918"
-                          ],
-                          [
-                            0.5,
-                            "#5a3c25"
-                          ],
-                          [
-                            1.0,
-                            "#6e4c32"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "strap1",
-                "input": "strap1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 13,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 18,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3e2918"
-                          ],
-                          [
-                            0.5,
-                            "#5a3c25"
-                          ],
-                          [
-                            1.0,
-                            "#6e4c32"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "16 edits: revolve `pipe0` profile=[[[0.0, -1.0], [0.06, -1.0], [0.06, 1.0], [0.0, 1.0]]] degrees=360 segments=10 round=0 at=[0.0, -0.1, -0.02] rot=[0.0, 0.0, 0.70710677, 0.70710677] … material `strap1` <- `strap1` pbr=de-timber"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "de-pipe-run",
-          "parts": [],
-          "version": 5990,
-          "ops": [
-            {
-              "revolve": {
-                "name": "pipe0",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      1.0
-                    ],
-                    [
-                      0.0,
-                      1.0
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  -0.1,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp0_0",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  -0.75,
-                  -0.1,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp0_1",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.75,
-                  -0.1,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "pipe1",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      -1.0
-                    ],
-                    [
-                      0.06,
-                      1.0
-                    ],
-                    [
-                      0.0,
-                      1.0
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  -0.28,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp1_0",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  -0.75,
-                  -0.28,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "clamp1_1",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      -0.018
-                    ],
-                    [
-                      0.07,
-                      0.018
-                    ],
-                    [
-                      0.0,
-                      0.018
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.75,
-                  -0.28,
-                  -0.02
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "strap0",
-                "kind": "box",
-                "size": [
-                  0.05,
-                  0.3,
-                  0.02
-                ],
-                "translation": [
-                  -0.75,
-                  -0.17,
-                  -0.09
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "strap1",
-                "kind": "box",
-                "size": [
-                  0.05,
-                  0.3,
-                  0.02
-                ],
-                "translation": [
-                  0.75,
-                  -0.17,
-                  -0.09
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "pipe0",
-                "input": "pipe0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "pipe1",
-                "input": "pipe1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp0_0",
-                "input": "clamp0_0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp0_1",
-                "input": "clamp0_1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp1_0",
-                "input": "clamp1_0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "clamp1_1",
-                "input": "clamp1_1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 5,
-                        "seed": 22,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wy",
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#25262b"
-                          ],
-                          [
-                            1.0,
-                            "#3d3f46"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "wy.f1",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2e18"
-                          ],
-                          [
-                            0.6,
-                            "#8a4a22"
-                          ],
-                          [
-                            1.0,
-                            "#6e3a1c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "rust_m",
-                        "b": 0.0008,
-                        "name": "rh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "rc",
-                        "height": "rh",
-                        "metallic": 0.0,
-                        "name": "rust",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "base_color": "c0",
-                        "metallic": 0.85,
-                        "name": "out",
-                        "over": [
-                          {
-                            "mask": "rust_m",
-                            "output": "rust"
-                          }
-                        ],
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "strap0",
-                "input": "strap0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 13,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 18,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3e2918"
-                          ],
-                          [
-                            0.5,
-                            "#5a3c25"
-                          ],
-                          [
-                            1.0,
-                            "#6e4c32"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "strap1",
-                "input": "strap1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-timber",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 13,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 18,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3e2918"
-                          ],
-                          [
-                            0.5,
-                            "#5a3c25"
-                          ],
-                          [
-                            1.0,
-                            "#6e4c32"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "group": {
-                "name": "iron",
-                "inputs": [
-                  "pipe0",
-                  "pipe1",
-                  "clamp0_0",
-                  "clamp0_1",
-                  "clamp1_0",
-                  "clamp1_1"
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "straps",
-                "inputs": [
-                  "strap0",
-                  "strap1"
-                ]
-              }
-            },
-            {
-              "visibility": {
-                "name": "pipe0",
-                "input": "pipe0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "pipe1",
-                "input": "pipe1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "clamp0_0",
-                "input": "clamp0_0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "clamp0_1",
-                "input": "clamp0_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "clamp1_0",
-                "input": "clamp1_0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "clamp1_1",
-                "input": "clamp1_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "strap0",
-                "input": "strap0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "strap1",
-                "input": "strap1",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "10 edits: group `iron` = `pipe0` + `pipe1` + `clamp0_0` + `clamp0_1` + `clamp1_0` + `clamp1_1` … hidden `strap1`"
-      }
-    ],
-    "current": 2
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 5990
 }

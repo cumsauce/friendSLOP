@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "revolver",
-  "parts": [],
-  "version": 17221,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "frame",
         "kind": "box",
+        "name": "frame",
+        "rotation": null,
         "size": [
           0.13,
           0.06,
@@ -17,14 +19,19 @@
           0.035,
           0.02,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "cyl",
         "kind": "cylinder",
+        "name": "cyl",
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ],
         "size": [
           0.024,
           0.052,
@@ -34,19 +41,19 @@
           0.06,
           0.033,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
         ]
       }
     },
     {
       "primitive": {
-        "name": "barrel",
         "kind": "cylinder",
+        "name": "barrel",
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ],
         "size": [
           0.0095,
           0.16,
@@ -56,19 +63,14 @@
           0.18,
           0.046,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
         ]
       }
     },
     {
       "primitive": {
-        "name": "sight",
         "kind": "box",
+        "name": "sight",
+        "rotation": null,
         "size": [
           0.012,
           0.012,
@@ -78,14 +80,19 @@
           0.252,
           0.058,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "hammer",
         "kind": "box",
+        "name": "hammer",
+        "rotation": [
+          0.0,
+          0.0,
+          0.21643962,
+          0.976296
+        ],
         "size": [
           0.016,
           0.03,
@@ -95,19 +102,19 @@
           -0.03,
           0.055,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.21643962,
-          0.976296
         ]
       }
     },
     {
       "primitive": {
-        "name": "strap",
         "kind": "box",
+        "name": "strap",
+        "rotation": [
+          0.0,
+          0.0,
+          -0.190809,
+          0.98162717
+        ],
         "size": [
           0.035,
           0.11,
@@ -117,19 +124,19 @@
           -0.045,
           -0.035,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          -0.190809,
-          0.98162717
         ]
       }
     },
     {
       "primitive": {
-        "name": "grip_l",
         "kind": "box",
+        "name": "grip_l",
+        "rotation": [
+          0.0,
+          0.0,
+          -0.190809,
+          0.98162717
+        ],
         "size": [
           0.033,
           0.1,
@@ -139,20 +146,14 @@
           -0.045,
           -0.04,
           0.013
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          -0.190809,
-          0.98162717
         ]
       }
     },
     {
       "mirror": {
-        "name": "grip_r",
-        "input": "grip_l",
         "axis": "z",
+        "input": "grip_l",
+        "name": "grip_r",
         "offset": [
           0.0,
           0.0,
@@ -162,8 +163,14 @@
     },
     {
       "primitive": {
-        "name": "trigger",
         "kind": "box",
+        "name": "trigger",
+        "rotation": [
+          0.0,
+          0.0,
+          -0.1305262,
+          0.9914449
+        ],
         "size": [
           0.005,
           0.02,
@@ -173,29 +180,18 @@
           0.008,
           -0.012,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          -0.1305262,
-          0.9914449
         ]
       }
     },
     {
       "material": {
-        "name": "frame",
+        "base_color": null,
         "input": "frame",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "frame",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -270,25 +266,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "cyl",
+        "base_color": null,
         "input": "cyl",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "cyl",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -363,25 +359,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "barrel",
+        "base_color": null,
         "input": "barrel",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "barrel",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -456,25 +452,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "sight",
+        "base_color": null,
         "input": "sight",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "sight",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -549,25 +545,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "hammer",
+        "base_color": null,
         "input": "hammer",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "hammer",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -642,25 +638,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "strap",
+        "base_color": null,
         "input": "strap",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "strap",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -735,25 +731,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "trigger",
+        "base_color": null,
         "input": "trigger",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "trigger",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -828,25 +824,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "grip_l",
-        "input": "grip_l",
         "base_color": null,
-        "roughness": null,
+        "input": "grip_l",
         "metalness": null,
+        "name": "grip_l",
         "pbr": {
-          "material": "grip_wood",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -906,25 +902,29 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "grip_wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "collider": {
+        "body": "static",
         "name": "col",
         "parts": [
           "*"
         ],
-        "shape": "none",
-        "body": "static",
-        "sensor": false
+        "sensor": false,
+        "shape": "none"
       }
     },
     {
       "group": {
-        "name": "metal",
         "inputs": [
           "frame",
           "cyl",
@@ -935,32 +935,28 @@
           "strap",
           "guard_rv",
           "trigger"
-        ]
+        ],
+        "name": "metal"
       }
     },
     {
       "group": {
-        "name": "grips",
         "inputs": [
           "grip_l",
           "grip_r"
-        ]
+        ],
+        "name": "grips"
       }
     },
     {
       "material": {
-        "name": "metal",
-        "input": "metal",
         "base_color": null,
-        "roughness": null,
+        "input": "metal",
         "metalness": null,
+        "name": "metal",
         "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1035,25 +1031,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "gunmetal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "grips",
-        "input": "grips",
         "base_color": null,
-        "roughness": null,
+        "input": "grips",
         "metalness": null,
+        "name": "grips",
         "pbr": {
-          "material": "grip_wood",
-          "scale": 1.0,
           "graph": {
             "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -1113,76 +1109,82 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "grip_wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "frame",
         "input": "frame",
+        "name": "frame",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "cyl",
         "input": "cyl",
+        "name": "cyl",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "barrel",
         "input": "barrel",
+        "name": "barrel",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "sight",
         "input": "sight",
+        "name": "sight",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "hammer",
         "input": "hammer",
+        "name": "hammer",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "strap",
         "input": "strap",
+        "name": "strap",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "trigger",
         "input": "trigger",
+        "name": "trigger",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "grip_l",
         "input": "grip_l",
+        "name": "grip_l",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "grip_r",
         "input": "grip_r",
+        "name": "grip_r",
         "visible": false
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "guard_rv",
         "profile": [
           [
@@ -1220,23 +1222,23 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 24,
-        "translation": [
-          0.012,
-          -0.012,
-          0.0
-        ],
         "rotation": [
           0.7071068,
           0.0,
           0.0,
           0.7071068
+        ],
+        "segments": 24,
+        "translation": [
+          0.012,
+          -0.012,
+          0.0
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "rod_rv",
         "profile": [
           [
@@ -1258,1400 +1260,37 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 12,
-        "translation": [
-          0.155,
-          0.027,
-          0.0
-        ],
         "rotation": [
           0.0,
           0.0,
           0.7071068,
           0.7071068
+        ],
+        "segments": 12,
+        "translation": [
+          0.155,
+          0.027,
+          0.0
         ]
       }
     },
     {
       "visibility": {
-        "name": "guard_rv",
         "input": "guard_rv",
+        "name": "guard_rv",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "rod_rv",
         "input": "rod_rv",
+        "name": "rod_rv",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "model",
-          "parts": [],
-          "version": 1,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "revolver",
-          "parts": [],
-          "version": 17191,
-          "ops": [
-            {
-              "primitive": {
-                "name": "frame",
-                "kind": "box",
-                "size": [
-                  0.13,
-                  0.06,
-                  0.026
-                ],
-                "translation": [
-                  0.035,
-                  0.02,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "cyl",
-                "kind": "cylinder",
-                "size": [
-                  0.024,
-                  0.052,
-                  0.0
-                ],
-                "translation": [
-                  0.06,
-                  0.033,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "barrel",
-                "kind": "cylinder",
-                "size": [
-                  0.0095,
-                  0.16,
-                  0.0
-                ],
-                "translation": [
-                  0.18,
-                  0.046,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "sight",
-                "kind": "box",
-                "size": [
-                  0.012,
-                  0.012,
-                  0.004
-                ],
-                "translation": [
-                  0.252,
-                  0.058,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "hammer",
-                "kind": "box",
-                "size": [
-                  0.016,
-                  0.03,
-                  0.008
-                ],
-                "translation": [
-                  -0.03,
-                  0.055,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.21643962,
-                  0.976296
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "strap",
-                "kind": "box",
-                "size": [
-                  0.035,
-                  0.11,
-                  0.022
-                ],
-                "translation": [
-                  -0.045,
-                  -0.035,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  -0.190809,
-                  0.98162717
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "grip_l",
-                "kind": "box",
-                "size": [
-                  0.033,
-                  0.1,
-                  0.006
-                ],
-                "translation": [
-                  -0.045,
-                  -0.04,
-                  0.013
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  -0.190809,
-                  0.98162717
-                ]
-              }
-            },
-            {
-              "mirror": {
-                "name": "grip_r",
-                "input": "grip_l",
-                "axis": "z",
-                "offset": [
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "trigger",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.02,
-                  0.005
-                ],
-                "translation": [
-                  0.008,
-                  -0.012,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  -0.1305262,
-                  0.9914449
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "frame",
-                "input": "frame",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "cyl",
-                "input": "cyl",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "barrel",
-                "input": "barrel",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "sight",
-                "input": "sight",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "hammer",
-                "input": "hammer",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "strap",
-                "input": "strap",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "trigger",
-                "input": "trigger",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "grip_l",
-                "input": "grip_l",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "grip_wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "wv",
-                        "octaves": 3,
-                        "seed": 2,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.01,
-                        "by": "wv",
-                        "coords": "p",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "center": [
-                          0.0,
-                          -0.3
-                        ],
-                        "coords": "wp",
-                        "name": "rg",
-                        "spacing": 0.004,
-                        "type": "rings"
-                      },
-                      {
-                        "input": "rg",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2f17"
-                          ],
-                          [
-                            0.5,
-                            "#7d4422"
-                          ],
-                          [
-                            1.0,
-                            "#9a5a2e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "clearcoat": 0.4,
-                        "name": "out",
-                        "roughness": 0.4,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "collider": {
-                "name": "col",
-                "parts": [
-                  "*"
-                ],
-                "shape": "none",
-                "body": "static",
-                "sensor": false
-              }
-            },
-            {
-              "group": {
-                "name": "metal",
-                "inputs": [
-                  "frame",
-                  "cyl",
-                  "barrel",
-                  "rod_rv",
-                  "sight",
-                  "hammer",
-                  "strap",
-                  "guard_rv",
-                  "trigger"
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "grips",
-                "inputs": [
-                  "grip_l",
-                  "grip_r"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "metal",
-                "input": "metal",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "gunmetal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 12,
-                        "size": 0.02,
-                        "type": "noise"
-                      },
-                      {
-                        "gain": 1.5,
-                        "name": "cv",
-                        "radius": 0.004,
-                        "type": "mesh_curvature"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "cv.convex",
-                        "name": "wear",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2c2e33"
-                          ],
-                          [
-                            1.0,
-                            "#43464d"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#8a8d93",
-                        "c": "wear",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "r",
-                        "to": [
-                          0.3,
-                          0.5
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "grips",
-                "input": "grips",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "grip_wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "wv",
-                        "octaves": 3,
-                        "seed": 2,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "amount": 0.01,
-                        "by": "wv",
-                        "coords": "p",
-                        "name": "wp",
-                        "type": "warp"
-                      },
-                      {
-                        "center": [
-                          0.0,
-                          -0.3
-                        ],
-                        "coords": "wp",
-                        "name": "rg",
-                        "spacing": 0.004,
-                        "type": "rings"
-                      },
-                      {
-                        "input": "rg",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0.0,
-                            "#5a2f17"
-                          ],
-                          [
-                            0.5,
-                            "#7d4422"
-                          ],
-                          [
-                            1.0,
-                            "#9a5a2e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "base_color": "col",
-                        "clearcoat": 0.4,
-                        "name": "out",
-                        "roughness": 0.4,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "frame",
-                "input": "frame",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "cyl",
-                "input": "cyl",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "barrel",
-                "input": "barrel",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "sight",
-                "input": "sight",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "hammer",
-                "input": "hammer",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "strap",
-                "input": "strap",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "trigger",
-                "input": "trigger",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "grip_l",
-                "input": "grip_l",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "grip_r",
-                "input": "grip_r",
-                "visible": false
-              }
-            },
-            {
-              "revolve": {
-                "name": "guard_rv",
-                "profile": [
-                  [
-                    [
-                      0.0205,
-                      0.0
-                    ],
-                    [
-                      0.019474873,
-                      0.0024748738
-                    ],
-                    [
-                      0.017,
-                      0.0035
-                    ],
-                    [
-                      0.014525127,
-                      0.0024748738
-                    ],
-                    [
-                      0.0135,
-                      4.2862638e-19
-                    ],
-                    [
-                      0.014525127,
-                      -0.0024748738
-                    ],
-                    [
-                      0.017,
-                      -0.0035
-                    ],
-                    [
-                      0.019474873,
-                      -0.0024748738
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 24,
-                "translation": [
-                  0.012,
-                  -0.012,
-                  0.0
-                ],
-                "rotation": [
-                  0.7071068,
-                  0.0,
-                  0.0,
-                  0.7071068
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "rod_rv",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -0.055
-                    ],
-                    [
-                      0.0055,
-                      -0.055
-                    ],
-                    [
-                      0.0055,
-                      0.055
-                    ],
-                    [
-                      0.0,
-                      0.055
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 12,
-                "translation": [
-                  0.155,
-                  0.027,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.7071068,
-                  0.7071068
-                ]
-              }
-            },
-            {
-              "visibility": {
-                "name": "guard_rv",
-                "input": "guard_rv",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rod_rv",
-                "input": "rod_rv",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "name": "friendslop",
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          },
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "7 edits: revolve `guard_rv` profile=[[[0.0205, 0.0], [0.019474873, 0.0024748738], [0.017, 0.0035], [0.014525127, 0.0024748738], [0.0135, 4.2862638e-19], [0.014525127, -0.0024748738], [0.017, -0.0035], [0.019474873, -0.0024748738]]] degrees=360 segments=24 round=0 at=[0.012, -0.012, 0.0] rot=[0.7071068, 0.0, 0.0, 0.7071068] … hidden `rod_rv`",
-        "author": "lite-features"
-      }
-    ],
-    "current": 1
-  },
+  "parts": [],
   "style": {
-    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -2666,9 +1305,10 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
+    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "derived_from_ops": true
+  "version": 17221
 }

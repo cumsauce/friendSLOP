@@ -1,13 +1,51 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "tr-tree-2",
-  "parts": [],
-  "version": 18078,
+  "next_annotation_id": 0,
   "ops": [
     {
       "lsystem": {
-        "name": "tree_2",
+        "angle": 25.0,
         "axiom": "!(R0)F(0.22)[/(15)&(125)!(0.13)F(0.5)][/(87)&(125)!(0.13)F(0.5)][/(159)&(125)!(0.13)F(0.5)][/(231)&(125)!(0.13)F(0.5)][/(303)&(125)!(0.13)F(0.5)]!(R1)F(h1-0.3)[&(18)!(R1*0.8)F(1.0)T(N,R2)]/(180)[&(18)!(R1*0.8)F(0.9)T(N,R2*0.95)]!(R1*0.6)F(0.35)/(90)!(R2*0.7)F(1.6)B(bl*0.9,R2*0.6,2)",
+        "branch_roll": 137.5,
+        "constants": {
+          "N": 2.0,
+          "R0": 0.34,
+          "R1": 0.27,
+          "R2": 0.17,
+          "a": 43.0,
+          "bl": 0.82,
+          "da": 4.0,
+          "h1": 1.7,
+          "k": 0.62,
+          "k2": 0.68,
+          "s": 1.0,
+          "sp": 40.0
+        },
+        "iterations": 12,
+        "jitter": 10.0,
+        "leaf": {
+          "angle": 35.0,
+          "cross": false,
+          "curl": 0.0,
+          "fold": 0.0,
+          "mode": "card",
+          "shape": "ellipse",
+          "stalk": 0.0
+        },
+        "leaf_size": [
+          1.0,
+          1.0
+        ],
+        "length": 0.3,
+        "length_jitter": 0.12,
+        "length_scale": 1.0,
+        "name": "tree_2",
+        "radius": 0.08,
+        "radius_scale": 1.0,
+        "rotation": null,
         "rules": [
           [
             "B(l,w,d)",
@@ -55,73 +93,31 @@
             ]
           ]
         ],
-        "constants": {
-          "N": 2.0,
-          "R0": 0.34,
-          "R1": 0.27,
-          "R2": 0.17,
-          "a": 43.0,
-          "bl": 0.82,
-          "da": 4.0,
-          "h1": 1.7,
-          "k": 0.62,
-          "k2": 0.68,
-          "s": 1.0,
-          "sp": 40.0
-        },
-        "iterations": 12,
-        "angle": 25.0,
-        "length": 0.3,
-        "length_scale": 1.0,
-        "radius": 0.08,
-        "radius_scale": 1.0,
-        "taper": 0.93,
-        "branch_roll": 137.5,
-        "jitter": 10.0,
-        "length_jitter": 0.12,
-        "tropism": [
-          0.0,
-          1.0,
-          0.0
-        ],
-        "tropism_strength": 0.04,
         "seed": 11,
         "sides": 6,
-        "leaf_size": [
-          1.0,
-          1.0
-        ],
-        "leaf": {
-          "shape": "ellipse",
-          "angle": 35.0,
-          "curl": 0.0,
-          "fold": 0.0,
-          "stalk": 0.0,
-          "mode": "card",
-          "cross": false
-        },
+        "taper": 0.93,
         "translation": [
           0.0,
           -0.2,
           0.0
         ],
-        "rotation": null
+        "tropism": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "tropism_strength": 0.04
       }
     },
     {
       "material": {
-        "name": "tree_2",
-        "input": "tree_2",
         "base_color": null,
-        "roughness": null,
+        "input": "tree_2",
         "metalness": null,
+        "name": "tree_2",
         "pbr": {
-          "material": "tr-bark",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "sc",
@@ -202,25 +198,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "tr-bark",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "tree_2_leaves",
-        "input": "tree_2_leaves",
         "base_color": null,
-        "roughness": null,
+        "input": "tree_2_leaves",
         "metalness": null,
+        "name": "tree_2_leaves",
         "pbr": {
-          "material": "tr-leaf",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "mode": "fbm",
@@ -284,25 +280,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "tr-leaf",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "tree_2",
-        "input": "tree_2",
         "base_color": null,
-        "roughness": null,
+        "input": "tree_2",
         "metalness": null,
+        "name": "tree_2",
         "pbr": {
-          "material": "tr-bark",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "sc",
@@ -383,25 +379,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "tr-bark",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "tree_2_leaves",
-        "input": "tree_2_leaves",
         "base_color": null,
-        "roughness": null,
+        "input": "tree_2_leaves",
         "metalness": null,
+        "name": "tree_2_leaves",
         "pbr": {
-          "material": "tr-leaf-card",
-          "scale": 1.0,
           "graph": {
             "domain": "card",
-            "tile": 1.0,
-            "resolution": 512,
             "nodes": [
               {
                 "angle": 0,
@@ -591,725 +587,58 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 512,
+            "tile": 1.0
+          },
+          "material": "tr-leaf-card",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "skeleton": {
-        "name": "rig",
+        "bone_length": 0.9,
         "bones": [],
         "from": "tree_2",
-        "bone_length": 0.9,
+        "max_bones": 32,
         "max_depth": 2,
-        "max_bones": 32
+        "name": "rig"
       }
     },
     {
       "bind": {
+        "mode": "auto",
         "name": "rig_bind",
-        "skeleton": "rig",
         "parts": [
           "tree_2",
           "tree_2_leaves"
         ],
-        "mode": "auto"
+        "skeleton": "rig"
       }
     },
     {
       "sway": {
-        "name": "wind",
-        "skeleton": "rig",
         "duration": 4.0,
         "motion": {
-          "kind": "wind",
           "direction": [
             1.0,
             0.0,
             0.3
           ],
-          "strength": 0.5,
-          "gust": 0.4,
           "flutter": 0.5,
           "frequency": 1.0,
-          "seed": 0
-        }
+          "gust": 0.4,
+          "kind": "wind",
+          "seed": 0,
+          "strength": 0.5
+        },
+        "name": "wind",
+        "skeleton": "rig"
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "tr-tree-2",
-          "parts": [],
-          "version": 14697,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `tr-tree-2`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "tr-tree-2",
-          "parts": [],
-          "version": 18078,
-          "ops": [
-            {
-              "lsystem": {
-                "name": "tree_2",
-                "axiom": "!(R0)F(0.22)[/(15)&(125)!(0.13)F(0.5)][/(87)&(125)!(0.13)F(0.5)][/(159)&(125)!(0.13)F(0.5)][/(231)&(125)!(0.13)F(0.5)][/(303)&(125)!(0.13)F(0.5)]!(R1)F(h1-0.3)[&(18)!(R1*0.8)F(1.0)T(N,R2)]/(180)[&(18)!(R1*0.8)F(0.9)T(N,R2*0.95)]!(R1*0.6)F(0.35)/(90)!(R2*0.7)F(1.6)B(bl*0.9,R2*0.6,2)",
-                "rules": [
-                  [
-                    "B(l,w,d)",
-                    [
-                      {
-                        "p": 1.0,
-                        "to": "C"
-                      }
-                    ]
-                  ],
-                  [
-                    "B(l,w,d) : d > 0",
-                    [
-                      {
-                        "p": 1.0,
-                        "to": "!(w)F(l*0.5)[&(65)L(0.85)]/(180)[&(65)L(0.8)]!(w*0.85)F(l*0.5)[+(sp)B(l*k,w*0.6,d-1)][-(sp)B(l*k,w*0.6,d-1)]/(90)&(8)B(l*k2,w*0.65,d-1)"
-                      }
-                    ]
-                  ],
-                  [
-                    "C",
-                    [
-                      {
-                        "p": 1.0,
-                        "to": "[L(1)][&(60)L(0.9)]/(72)[&(60)L(0.85)]/(72)[&(60)L(0.95)]/(72)[&(60)L(0.9)]/(72)[&(60)L(0.85)]"
-                      }
-                    ]
-                  ],
-                  [
-                    "T(n,w)",
-                    [
-                      {
-                        "p": 1.0,
-                        "to": "!(w)F(s*0.7)[&(30)B(bl*0.75,w*0.6,2)]/(160)&(5)B(bl*0.8,w*0.7,2)"
-                      }
-                    ]
-                  ],
-                  [
-                    "T(n,w) : n > 0",
-                    [
-                      {
-                        "p": 1.0,
-                        "to": "!(w)F(s)[&(a+da*n)B(bl*(0.8+0.2*sin(n*1.7)),w*0.6,2)]/(137.5)T(n-1,w*0.86)"
-                      }
-                    ]
-                  ]
-                ],
-                "constants": {
-                  "N": 2.0,
-                  "R0": 0.34,
-                  "R1": 0.27,
-                  "R2": 0.17,
-                  "a": 43.0,
-                  "bl": 0.82,
-                  "da": 4.0,
-                  "h1": 1.7,
-                  "k": 0.62,
-                  "k2": 0.68,
-                  "s": 1.0,
-                  "sp": 40.0
-                },
-                "iterations": 12,
-                "angle": 25.0,
-                "length": 0.3,
-                "length_scale": 1.0,
-                "radius": 0.08,
-                "radius_scale": 1.0,
-                "taper": 0.93,
-                "branch_roll": 137.5,
-                "jitter": 10.0,
-                "length_jitter": 0.12,
-                "tropism": [
-                  0.0,
-                  1.0,
-                  0.0
-                ],
-                "tropism_strength": 0.04,
-                "seed": 11,
-                "sides": 6,
-                "leaf_size": [
-                  1.0,
-                  1.0
-                ],
-                "leaf": {
-                  "shape": "ellipse",
-                  "angle": 35.0,
-                  "curl": 0.0,
-                  "fold": 0.0,
-                  "stalk": 0.0,
-                  "mode": "card",
-                  "cross": false
-                },
-                "translation": [
-                  0.0,
-                  -0.2,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "tree_2",
-                "input": "tree_2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "tr-bark",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "sc",
-                        "scale": [
-                          5,
-                          1
-                        ],
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "sc",
-                        "mode": "ridged",
-                        "name": "streak",
-                        "octaves": 3,
-                        "seed": 4,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "mode": "fbm",
-                        "name": "blot",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "streak",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2e1f14"
-                          ],
-                          [
-                            0.5,
-                            "#4a3322"
-                          ],
-                          [
-                            1.0,
-                            "#664a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "blot",
-                        "name": "bt",
-                        "to": [
-                          0.82,
-                          1.12
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "streak",
-                        "b": 0.008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "tree_2_leaves",
-                "input": "tree_2_leaves",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "tr-leaf",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 31,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "mode": "fbm",
-                        "name": "nf",
-                        "octaves": 2,
-                        "seed": 32,
-                        "size": 0.0625,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3d6a24"
-                          ],
-                          [
-                            0.5,
-                            "#4f8a2c"
-                          ],
-                          [
-                            1.0,
-                            "#74a83c"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "ft",
-                        "to": [
-                          0.9,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "ft",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "roughness": 0.8,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "tree_2",
-                "input": "tree_2",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "tr-bark",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "sc",
-                        "scale": [
-                          5,
-                          1
-                        ],
-                        "type": "transform"
-                      },
-                      {
-                        "coords": "sc",
-                        "mode": "ridged",
-                        "name": "streak",
-                        "octaves": 3,
-                        "seed": 4,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "mode": "fbm",
-                        "name": "blot",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "streak",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2e1f14"
-                          ],
-                          [
-                            0.5,
-                            "#4a3322"
-                          ],
-                          [
-                            1.0,
-                            "#664a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "blot",
-                        "name": "bt",
-                        "to": [
-                          0.82,
-                          1.12
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "streak",
-                        "b": 0.008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "tree_2_leaves",
-                "input": "tree_2_leaves",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "tr-leaf-card",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "card",
-                    "tile": 1.0,
-                    "resolution": 512,
-                    "nodes": [
-                      {
-                        "angle": 0,
-                        "angle_jitter": 180,
-                        "cell": 0.1,
-                        "name": "lv",
-                        "per_cell": 3,
-                        "scale": [
-                          0.8,
-                          1.25
-                        ],
-                        "seed": 7,
-                        "shape": "leaf",
-                        "size": [
-                          0.1,
-                          0.19
-                        ],
-                        "type": "scatter"
-                      },
-                      {
-                        "name": "bn",
-                        "octaves": 2,
-                        "seed": 3,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "center": [
-                          0.5,
-                          0.52
-                        ],
-                        "name": "bc",
-                        "radius": 0.4,
-                        "type": "circle"
-                      },
-                      {
-                        "amount": 0.16,
-                        "by": "bn",
-                        "input": "bc",
-                        "name": "bd",
-                        "type": "displace"
-                      },
-                      {
-                        "a": "lv.edge",
-                        "b": 2.5,
-                        "name": "ek",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bd",
-                        "b": "ek",
-                        "name": "bs",
-                        "op": "sub",
-                        "type": "math"
-                      },
-                      {
-                        "name": "bm",
-                        "sdf": "bs",
-                        "type": "mask"
-                      },
-                      {
-                        "a": "bm",
-                        "b": "lv.mask",
-                        "name": "op",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "id": "lv.id",
-                        "name": "rid",
-                        "seed": 5,
-                        "type": "random"
-                      },
-                      {
-                        "input": "rid",
-                        "name": "lc",
-                        "stops": [
-                          [
-                            0,
-                            "#3f6a22"
-                          ],
-                          [
-                            0.45,
-                            "#55862c"
-                          ],
-                          [
-                            0.8,
-                            "#6c9a34"
-                          ],
-                          [
-                            1,
-                            "#86a840"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "lv.local",
-                        "name": "ll",
-                        "type": "split"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "ll.y",
-                        "name": "tipf",
-                        "to": [
-                          0.78,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "lc",
-                        "b": "tipf",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0,
-                          -0.9
-                        ],
-                        "b": [
-                          0,
-                          0.9
-                        ],
-                        "coords": "lv.local",
-                        "name": "rib",
-                        "type": "segment",
-                        "width": 0.05
-                      },
-                      {
-                        "name": "ribm",
-                        "sdf": "rib",
-                        "type": "mask"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#9cb860",
-                        "name": "c2",
-                        "opacity": "ribm",
-                        "type": "blend"
-                      },
-                      {
-                        "from": [
-                          0.5,
-                          0.15
-                        ],
-                        "name": "vg",
-                        "to": [
-                          0.5,
-                          1.0
-                        ],
-                        "type": "gradient"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "vg",
-                        "name": "vgr",
-                        "to": [
-                          1.05,
-                          0.72
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c2",
-                        "b": "vgr",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "name": "out",
-                        "opacity": "op",
-                        "roughness": 0.75,
-                        "transmission": 0.25,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "skeleton": {
-                "name": "rig",
-                "bones": [],
-                "from": "tree_2",
-                "bone_length": 0.9,
-                "max_depth": 2,
-                "max_bones": 32
-              }
-            },
-            {
-              "bind": {
-                "name": "rig_bind",
-                "skeleton": "rig",
-                "parts": [
-                  "tree_2",
-                  "tree_2_leaves"
-                ],
-                "mode": "auto"
-              }
-            },
-            {
-              "sway": {
-                "name": "wind",
-                "skeleton": "rig",
-                "duration": 4.0,
-                "motion": {
-                  "kind": "wind",
-                  "direction": [
-                    1.0,
-                    0.0,
-                    0.3
-                  ],
-                  "strength": 0.5,
-                  "gust": 0.4,
-                  "flutter": 0.5,
-                  "frequency": 1.0,
-                  "seed": 0
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "3 edits: skeleton `rig` from=`tree_2` … sway `wind` skeleton=`rig` wind strength=0.5 gust=0.4 flutter=0.5 dir=[1.0, 0.0, 0.3]",
-        "author": "treerig"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 18078
 }

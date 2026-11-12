@@ -1,20 +1,21 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-hat-headscarf",
-  "parts": [],
-  "version": 20887,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
         "name": "scarf_raw",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.0,
               0.06,
               0.04
             ],
+            "shape": "ellipsoid",
             "size": [
               0.3,
               0.27,
@@ -22,14 +23,14 @@
             ]
           },
           {
-            "shape": "ellipsoid",
-            "op": "subtract",
-            "blend": 0.03,
             "at": [
               0.0,
               -0.06,
               -0.3
             ],
+            "blend": 0.03,
+            "op": "subtract",
+            "shape": "ellipsoid",
             "size": [
               0.26,
               0.3,
@@ -41,17 +42,17 @@
     },
     {
       "decimate": {
-        "name": "scarf",
         "input": "scarf_raw",
+        "name": "scarf",
         "tris": 200
       }
     },
     {
       "sdf": {
+        "blend": 0.02,
         "name": "knot_raw",
         "shapes": [
           {
-            "shape": "sphere",
             "at": [
               0.0,
               -0.05,
@@ -59,19 +60,20 @@
             ],
             "radius": [
               0.07
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "capsule",
-            "radius": [
-              0.035,
-              0.02
-            ],
             "from": [
               0.0,
               -0.07,
               0.31
             ],
+            "radius": [
+              0.035,
+              0.02
+            ],
+            "shape": "capsule",
             "to": [
               0.05,
               -0.2,
@@ -79,61 +81,55 @@
             ]
           },
           {
-            "shape": "capsule",
-            "radius": [
-              0.035,
-              0.02
-            ],
             "from": [
               0.0,
               -0.07,
               0.31
             ],
+            "radius": [
+              0.035,
+              0.02
+            ],
+            "shape": "capsule",
             "to": [
               -0.04,
               -0.21,
               0.32
             ]
           }
-        ],
-        "blend": 0.02
+        ]
       }
     },
     {
       "decimate": {
-        "name": "knot",
         "input": "knot_raw",
+        "name": "knot",
         "tris": 80
       }
     },
     {
       "visibility": {
-        "name": "scarf_raw",
         "input": "scarf_raw",
+        "name": "scarf_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "knot_raw",
         "input": "knot_raw",
+        "name": "knot_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "scarf",
-        "input": "scarf",
         "base_color": null,
-        "roughness": null,
+        "input": "scarf",
         "metalness": null,
+        "name": "scarf",
         "pbr": {
-          "material": "pp-rib",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.12,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -350,25 +346,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 0.12
+          },
+          "material": "pp-rib",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "knot",
-        "input": "knot",
         "base_color": null,
-        "roughness": null,
+        "input": "knot",
         "metalness": null,
+        "name": "knot",
         "pbr": {
-          "material": "pp-rib",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.12,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -585,637 +581,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 0.12
+          },
+          "material": "pp-rib",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hat-headscarf",
-          "parts": [],
-          "version": 20682,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-hat-headscarf`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hat-headscarf",
-          "parts": [],
-          "version": 20691,
-          "ops": [
-            {
-              "sdf": {
-                "name": "scarf_raw",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.0,
-                      0.06,
-                      0.04
-                    ],
-                    "size": [
-                      0.3,
-                      0.27,
-                      0.29
-                    ]
-                  },
-                  {
-                    "shape": "ellipsoid",
-                    "op": "subtract",
-                    "blend": 0.03,
-                    "at": [
-                      0.0,
-                      -0.06,
-                      -0.3
-                    ],
-                    "size": [
-                      0.26,
-                      0.3,
-                      0.22
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "scarf",
-                "input": "scarf_raw",
-                "tris": 200
-              }
-            },
-            {
-              "sdf": {
-                "name": "knot_raw",
-                "shapes": [
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      -0.05,
-                      0.3
-                    ],
-                    "radius": [
-                      0.07
-                    ]
-                  },
-                  {
-                    "shape": "capsule",
-                    "radius": [
-                      0.035,
-                      0.02
-                    ],
-                    "from": [
-                      0.0,
-                      -0.07,
-                      0.31
-                    ],
-                    "to": [
-                      0.05,
-                      -0.2,
-                      0.33
-                    ]
-                  },
-                  {
-                    "shape": "capsule",
-                    "radius": [
-                      0.035,
-                      0.02
-                    ],
-                    "from": [
-                      0.0,
-                      -0.07,
-                      0.31
-                    ],
-                    "to": [
-                      -0.04,
-                      -0.21,
-                      0.32
-                    ]
-                  }
-                ],
-                "blend": 0.02
-              }
-            },
-            {
-              "decimate": {
-                "name": "knot",
-                "input": "knot_raw",
-                "tris": 80
-              }
-            },
-            {
-              "visibility": {
-                "name": "scarf_raw",
-                "input": "scarf_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "knot_raw",
-                "input": "knot_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "scarf",
-                "input": "scarf",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-rib",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.12,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.015,
-                          0.012
-                        ],
-                        "stagger": 0,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "a": [
-                          -0.0039,
-                          -0.0031200000000000004
-                        ],
-                        "b": [
-                          -0.0015,
-                          0.0028799999999999997
-                        ],
-                        "coords": "g.local",
-                        "name": "l1",
-                        "type": "segment",
-                        "width": 0.005399999999999999
-                      },
-                      {
-                        "a": [
-                          0.0039,
-                          -0.0031200000000000004
-                        ],
-                        "b": [
-                          0.0015,
-                          0.0028799999999999997
-                        ],
-                        "coords": "g.local",
-                        "name": "l2",
-                        "type": "segment",
-                        "width": 0.005399999999999999
-                      },
-                      {
-                        "a": "l1",
-                        "b": "l2",
-                        "name": "v",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "from": [
-                          -0.0026999999999999997,
-                          0.00015
-                        ],
-                        "input": "v",
-                        "name": "vr",
-                        "to": [
-                          1,
-                          0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "vr",
-                        "b": 0,
-                        "c": 1,
-                        "name": "vc",
-                        "op": "clamp",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vc",
-                        "b": 0.6,
-                        "name": "pill",
-                        "op": "pow",
-                        "type": "math"
-                      },
-                      {
-                        "name": "fz",
-                        "octaves": 2,
-                        "seed": 5,
-                        "size": 0.003,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "tone",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "tone",
-                        "name": "tv",
-                        "to": [
-                          0.93,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.94,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "pill",
-                        "name": "pv",
-                        "to": [
-                          0.55,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "pv",
-                        "b": "tv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "fv",
-                        "name": "c2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "input": "g.cell",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "su",
-                        "type": "split"
-                      },
-                      {
-                        "a": "su.x",
-                        "b": 209.43951,
-                        "name": "ru",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ru",
-                        "name": "rs",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "rs",
-                        "name": "rr",
-                        "to": [
-                          0.45,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "pill",
-                        "b": "rr",
-                        "name": "hp",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c2",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hp",
-                        "b": 0.0016,
-                        "name": "hh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "normal_strength": 1.0,
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "knot",
-                "input": "knot",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-rib",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.12,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.015,
-                          0.012
-                        ],
-                        "stagger": 0,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "a": [
-                          -0.0039,
-                          -0.0031200000000000004
-                        ],
-                        "b": [
-                          -0.0015,
-                          0.0028799999999999997
-                        ],
-                        "coords": "g.local",
-                        "name": "l1",
-                        "type": "segment",
-                        "width": 0.005399999999999999
-                      },
-                      {
-                        "a": [
-                          0.0039,
-                          -0.0031200000000000004
-                        ],
-                        "b": [
-                          0.0015,
-                          0.0028799999999999997
-                        ],
-                        "coords": "g.local",
-                        "name": "l2",
-                        "type": "segment",
-                        "width": 0.005399999999999999
-                      },
-                      {
-                        "a": "l1",
-                        "b": "l2",
-                        "name": "v",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "from": [
-                          -0.0026999999999999997,
-                          0.00015
-                        ],
-                        "input": "v",
-                        "name": "vr",
-                        "to": [
-                          1,
-                          0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "vr",
-                        "b": 0,
-                        "c": 1,
-                        "name": "vc",
-                        "op": "clamp",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vc",
-                        "b": 0.6,
-                        "name": "pill",
-                        "op": "pow",
-                        "type": "math"
-                      },
-                      {
-                        "name": "fz",
-                        "octaves": 2,
-                        "seed": 5,
-                        "size": 0.003,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "tone",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "tone",
-                        "name": "tv",
-                        "to": [
-                          0.93,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.94,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "pill",
-                        "name": "pv",
-                        "to": [
-                          0.55,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "pv",
-                        "b": "tv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "fv",
-                        "name": "c2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "input": "g.cell",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "su",
-                        "type": "split"
-                      },
-                      {
-                        "a": "su.x",
-                        "b": 209.43951,
-                        "name": "ru",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ru",
-                        "name": "rs",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "rs",
-                        "name": "rr",
-                        "to": [
-                          0.45,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "pill",
-                        "b": "rr",
-                        "name": "hp",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c2",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hp",
-                        "b": 0.0016,
-                        "name": "hh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "normal_strength": 1.0,
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: material `scarf` <- `scarf` pbr=pp-rib … material `knot` <- `knot` pbr=pp-rib",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20887
 }

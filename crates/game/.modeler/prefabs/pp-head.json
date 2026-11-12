@@ -1,15 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-head",
-  "parts": [],
-  "version": 20864,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
         "name": "head_raw",
         "shapes": [
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.0,
@@ -17,24 +17,25 @@
             ],
             "radius": [
               0.28
-            ]
+            ],
+            "shape": "sphere"
           }
         ]
       }
     },
     {
       "decimate": {
-        "name": "head",
         "input": "head_raw",
+        "name": "head",
         "tris": 320
       }
     },
     {
       "sdf": {
+        "mirror": "x",
         "name": "blush_raw",
         "shapes": [
           {
-            "shape": "ellipsoid",
             "at": [
               0.15723293,
               -0.06289317,
@@ -46,51 +47,46 @@
               0.0,
               0.95322037
             ],
+            "shape": "ellipsoid",
             "size": [
               0.042,
               0.028,
               0.0098
             ]
           }
-        ],
-        "mirror": "x"
+        ]
       }
     },
     {
       "decimate": {
-        "name": "blush",
         "input": "blush_raw",
+        "name": "blush",
         "tris": 60
       }
     },
     {
       "visibility": {
-        "name": "head_raw",
         "input": "head_raw",
+        "name": "head_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "blush_raw",
         "input": "blush_raw",
+        "name": "blush_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "head",
-        "input": "head",
         "base_color": null,
-        "roughness": null,
+        "input": "head",
         "metalness": null,
+        "name": "head",
         "pbr": {
-          "material": "pp-felt",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -180,25 +176,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.2
+          },
+          "material": "pp-felt",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "blush",
-        "input": "blush",
         "base_color": null,
-        "roughness": null,
+        "input": "blush",
         "metalness": null,
+        "name": "blush",
         "pbr": {
-          "material": "pp-blush",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.2,
-            "resolution": 64,
             "nodes": [
               {
                 "name": "fz",
@@ -284,336 +280,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 64,
+            "tile": 0.2
+          },
+          "material": "pp-blush",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-head",
-          "parts": [],
-          "version": 19078,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-head`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-head",
-          "parts": [],
-          "version": 19943,
-          "ops": [
-            {
-              "sdf": {
-                "name": "head_raw",
-                "shapes": [
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.0,
-                      0.0
-                    ],
-                    "radius": [
-                      0.28
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "head",
-                "input": "head_raw",
-                "tris": 320
-              }
-            },
-            {
-              "sdf": {
-                "name": "blush_raw",
-                "shapes": [
-                  {
-                    "shape": "ellipsoid",
-                    "at": [
-                      0.15723293,
-                      -0.06289317,
-                      -0.22298488
-                    ],
-                    "rotation": [
-                      0.0,
-                      -0.30227625,
-                      0.0,
-                      0.95322037
-                    ],
-                    "size": [
-                      0.042,
-                      0.028,
-                      0.0098
-                    ]
-                  }
-                ],
-                "mirror": "x"
-              }
-            },
-            {
-              "decimate": {
-                "name": "blush",
-                "input": "blush_raw",
-                "tris": 60
-              }
-            },
-            {
-              "visibility": {
-                "name": "head_raw",
-                "input": "head_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "blush_raw",
-                "input": "blush_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "head",
-                "input": "head",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-felt",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "blush",
-                "input": "blush",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-blush",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.2,
-                    "resolution": 64,
-                    "nodes": [
-                      {
-                        "name": "fz",
-                        "octaves": 3,
-                        "seed": 11,
-                        "size": 0.0025,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bl",
-                        "octaves": 3,
-                        "seed": 13,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.88,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "bl",
-                        "name": "bv",
-                        "to": [
-                          0.94,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "fv",
-                        "b": "bv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#ff8c99",
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fz",
-                        "b": 0.0005,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "bl",
-                        "b": 0.0012,
-                        "name": "h2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h1",
-                        "b": "h2",
-                        "name": "hh",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "2 edits: material `head` <- `head` pbr=pp-felt … material `blush` <- `blush` pbr=pp-blush",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20864
 }

@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "de-rug",
-  "parts": [],
-  "version": 5999,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "body_raw",
         "kind": "box",
+        "name": "body_raw",
+        "rotation": null,
         "size": [
           1.5,
           0.014,
@@ -17,23 +19,23 @@
           0.0,
           0.007,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "body",
         "input": "body_raw",
         "mode": "chamfer",
+        "name": "body",
         "radius": 0.004,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "name": "bo_out",
         "kind": "box",
+        "name": "bo_out",
+        "rotation": null,
         "size": [
           1.44,
           0.005,
@@ -43,14 +45,14 @@
           0.0,
           0.0155,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "bo_in",
         "kind": "box",
+        "name": "bo_in",
+        "rotation": null,
         "size": [
           1.32,
           0.01,
@@ -60,22 +62,22 @@
           0.0,
           0.0155,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "boolean": {
-        "name": "border",
-        "op": "difference",
         "a": "bo_out",
-        "b": "bo_in"
+        "b": "bo_in",
+        "name": "border",
+        "op": "difference"
       }
     },
     {
       "primitive": {
-        "name": "stripe",
         "kind": "box",
+        "name": "stripe",
+        "rotation": null,
         "size": [
           1.1,
           0.005,
@@ -85,14 +87,19 @@
           0.0,
           0.0155,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "dia0",
         "kind": "box",
+        "name": "dia0",
+        "rotation": [
+          0.0,
+          0.38268346,
+          0.0,
+          0.9238795
+        ],
         "size": [
           0.14,
           0.005,
@@ -102,19 +109,19 @@
           -0.42,
           0.0165,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.38268346,
-          0.0,
-          0.9238795
         ]
       }
     },
     {
       "primitive": {
-        "name": "dia1",
         "kind": "box",
+        "name": "dia1",
+        "rotation": [
+          0.0,
+          0.38268346,
+          0.0,
+          0.9238795
+        ],
         "size": [
           0.14,
           0.005,
@@ -124,19 +131,14 @@
           0.42,
           0.0165,
           0.0
-        ],
-        "rotation": [
-          0.0,
-          0.38268346,
-          0.0,
-          0.9238795
         ]
       }
     },
     {
       "primitive": {
-        "name": "tassel",
         "kind": "box",
+        "name": "tassel",
+        "rotation": null,
         "size": [
           0.05,
           0.006,
@@ -146,15 +148,14 @@
           0.775,
           0.005,
           -0.44
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "linear_array": {
-        "name": "tassels_r",
-        "input": "tassel",
         "count": 12,
+        "input": "tassel",
+        "name": "tassels_r",
         "offset": [
           0.0,
           0.0,
@@ -164,7 +165,6 @@
     },
     {
       "group": {
-        "name": "fringe_r",
         "inputs": [
           "tassel",
           "tassels_r_1",
@@ -178,14 +178,15 @@
           "tassels_r_9",
           "tassels_r_10",
           "tassels_r_11"
-        ]
+        ],
+        "name": "fringe_r"
       }
     },
     {
       "mirror": {
-        "name": "fringe_l",
-        "input": "fringe_r",
         "axis": "x",
+        "input": "fringe_r",
+        "name": "fringe_l",
         "offset": [
           0.0,
           0.0,
@@ -195,18 +196,13 @@
     },
     {
       "material": {
-        "name": "body",
-        "input": "body",
         "base_color": null,
-        "roughness": null,
+        "input": "body",
         "metalness": null,
+        "name": "body",
         "pbr": {
-          "material": "de-cloth",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -352,25 +348,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-cloth",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "border",
+        "base_color": null,
         "input": "border",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "border",
         "pbr": {
-          "material": "de-red",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -516,25 +512,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-red",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "dia0",
+        "base_color": null,
         "input": "dia0",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "dia0",
         "pbr": {
-          "material": "de-red",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -680,25 +676,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-red",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "dia1",
+        "base_color": null,
         "input": "dia1",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "dia1",
         "pbr": {
-          "material": "de-red",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -844,25 +840,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-red",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "stripe",
+        "base_color": null,
         "input": "stripe",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "stripe",
         "pbr": {
-          "material": "de-linen",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1008,25 +1004,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-linen",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fringe_l",
+        "base_color": null,
         "input": "fringe_l",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "fringe_l",
         "pbr": {
-          "material": "de-linen",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1172,25 +1168,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-linen",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "fringe_r",
-        "input": "fringe_r",
         "base_color": null,
-        "roughness": null,
+        "input": "fringe_r",
         "metalness": null,
+        "name": "fringe_r",
         "pbr": {
-          "material": "de-linen",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.25,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1336,3200 +1332,184 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.25
+          },
+          "material": "de-linen",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "body_raw",
         "input": "body_raw",
+        "name": "body_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "bo_out",
         "input": "bo_out",
+        "name": "bo_out",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "bo_in",
         "input": "bo_in",
+        "name": "bo_in",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassel",
         "input": "tassel",
+        "name": "tassel",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_1",
         "input": "tassels_r_1",
+        "name": "tassels_r_1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_2",
         "input": "tassels_r_2",
+        "name": "tassels_r_2",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_3",
         "input": "tassels_r_3",
+        "name": "tassels_r_3",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_4",
         "input": "tassels_r_4",
+        "name": "tassels_r_4",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_5",
         "input": "tassels_r_5",
+        "name": "tassels_r_5",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_6",
         "input": "tassels_r_6",
+        "name": "tassels_r_6",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_7",
         "input": "tassels_r_7",
+        "name": "tassels_r_7",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_8",
         "input": "tassels_r_8",
+        "name": "tassels_r_8",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_9",
         "input": "tassels_r_9",
+        "name": "tassels_r_9",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_10",
         "input": "tassels_r_10",
+        "name": "tassels_r_10",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "tassels_r_11",
         "input": "tassels_r_11",
+        "name": "tassels_r_11",
         "visible": false
       }
     },
     {
       "group": {
-        "name": "red",
         "inputs": [
           "border",
           "dia0",
           "dia1"
-        ]
+        ],
+        "name": "red"
       }
     },
     {
       "group": {
-        "name": "linen",
         "inputs": [
           "stripe",
           "fringe_r",
           "fringe_l"
-        ]
+        ],
+        "name": "linen"
       }
     },
     {
       "visibility": {
-        "name": "border",
         "input": "border",
+        "name": "border",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "dia0",
         "input": "dia0",
+        "name": "dia0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "dia1",
         "input": "dia1",
+        "name": "dia1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "stripe",
         "input": "stripe",
+        "name": "stripe",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fringe_r",
         "input": "fringe_r",
+        "name": "fringe_r",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "fringe_l",
         "input": "fringe_l",
+        "name": "fringe_l",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "model",
-          "parts": [],
-          "version": 1,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "style": {
-            "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
-            "colors": {
-              "bark": "#6b4a2f",
-              "brass": "#b8893a",
-              "char": "#2a2220",
-              "ember": "#ff5a1f",
-              "flame": "#ffb347",
-              "gunmetal": "#3a3d44",
-              "leaf": "#5f8f2f",
-              "moss": "#6f8f3a",
-              "stone": "#8f8a80",
-              "stone_dark": "#5e5a54",
-              "wood": "#9a6a3e"
-            },
-            "numbers": {
-              "segments": 12.0
-            }
-          }
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "style"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "de-rug",
-          "parts": [],
-          "version": 3653,
-          "ops": [
-            {
-              "primitive": {
-                "name": "body_raw",
-                "kind": "box",
-                "size": [
-                  1.5,
-                  0.014,
-                  1.0
-                ],
-                "translation": [
-                  0.0,
-                  0.007,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "body",
-                "input": "body_raw",
-                "mode": "chamfer",
-                "radius": 0.004,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "bo_out",
-                "kind": "box",
-                "size": [
-                  1.44,
-                  0.005,
-                  0.94
-                ],
-                "translation": [
-                  0.0,
-                  0.0155,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "bo_in",
-                "kind": "box",
-                "size": [
-                  1.32,
-                  0.01,
-                  0.82
-                ],
-                "translation": [
-                  0.0,
-                  0.0155,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "boolean": {
-                "name": "border",
-                "op": "difference",
-                "a": "bo_out",
-                "b": "bo_in"
-              }
-            },
-            {
-              "primitive": {
-                "name": "stripe",
-                "kind": "box",
-                "size": [
-                  1.1,
-                  0.005,
-                  0.2
-                ],
-                "translation": [
-                  0.0,
-                  0.0155,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "dia0",
-                "kind": "box",
-                "size": [
-                  0.14,
-                  0.005,
-                  0.14
-                ],
-                "translation": [
-                  -0.42,
-                  0.0165,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.38268346,
-                  0.0,
-                  0.9238795
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "dia1",
-                "kind": "box",
-                "size": [
-                  0.14,
-                  0.005,
-                  0.14
-                ],
-                "translation": [
-                  0.42,
-                  0.0165,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.38268346,
-                  0.0,
-                  0.9238795
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "tassel",
-                "kind": "box",
-                "size": [
-                  0.05,
-                  0.006,
-                  0.025
-                ],
-                "translation": [
-                  0.775,
-                  0.005,
-                  -0.44
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "linear_array": {
-                "name": "tassels_r",
-                "input": "tassel",
-                "count": 12,
-                "offset": [
-                  0.0,
-                  0.0,
-                  0.08
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "fringe_r",
-                "inputs": [
-                  "tassel",
-                  "tassels_r_1",
-                  "tassels_r_2",
-                  "tassels_r_3",
-                  "tassels_r_4",
-                  "tassels_r_5",
-                  "tassels_r_6",
-                  "tassels_r_7",
-                  "tassels_r_8",
-                  "tassels_r_9",
-                  "tassels_r_10",
-                  "tassels_r_11"
-                ]
-              }
-            },
-            {
-              "mirror": {
-                "name": "fringe_l",
-                "input": "fringe_r",
-                "axis": "x",
-                "offset": [
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "body",
-                "input": "body",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-cloth",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 1,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 21,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2f4466"
-                          ],
-                          [
-                            1.0,
-                            "#4f6f9e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#3a3a3a",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "border",
-                "input": "border",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-red",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 5,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 25,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#8a2c28"
-                          ],
-                          [
-                            1.0,
-                            "#c24a40"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#4a2a22",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "dia0",
-                "input": "dia0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-red",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 5,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 25,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#8a2c28"
-                          ],
-                          [
-                            1.0,
-                            "#c24a40"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#4a2a22",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "dia1",
-                "input": "dia1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-red",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 5,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 25,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#8a2c28"
-                          ],
-                          [
-                            1.0,
-                            "#c24a40"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#4a2a22",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "stripe",
-                "input": "stripe",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fringe_l",
-                "input": "fringe_l",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fringe_r",
-                "input": "fringe_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "body_raw",
-                "input": "body_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bo_out",
-                "input": "bo_out",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bo_in",
-                "input": "bo_in",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassel",
-                "input": "tassel",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_1",
-                "input": "tassels_r_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_2",
-                "input": "tassels_r_2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_3",
-                "input": "tassels_r_3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_4",
-                "input": "tassels_r_4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_5",
-                "input": "tassels_r_5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_6",
-                "input": "tassels_r_6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_7",
-                "input": "tassels_r_7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_8",
-                "input": "tassels_r_8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_9",
-                "input": "tassels_r_9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_10",
-                "input": "tassels_r_10",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_11",
-                "input": "tassels_r_11",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "3 edits: op delete `diamond_raw` … primitive `dia1` (box) size=[0.14, 0.005, 0.14] at=[0.42, 0.0165, 0.0] rot=[0.0, 0.38268346, 0.0, 0.9238795]"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "de-rug",
-          "parts": [],
-          "version": 5999,
-          "ops": [
-            {
-              "primitive": {
-                "name": "body_raw",
-                "kind": "box",
-                "size": [
-                  1.5,
-                  0.014,
-                  1.0
-                ],
-                "translation": [
-                  0.0,
-                  0.007,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "body",
-                "input": "body_raw",
-                "mode": "chamfer",
-                "radius": 0.004,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "bo_out",
-                "kind": "box",
-                "size": [
-                  1.44,
-                  0.005,
-                  0.94
-                ],
-                "translation": [
-                  0.0,
-                  0.0155,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "bo_in",
-                "kind": "box",
-                "size": [
-                  1.32,
-                  0.01,
-                  0.82
-                ],
-                "translation": [
-                  0.0,
-                  0.0155,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "boolean": {
-                "name": "border",
-                "op": "difference",
-                "a": "bo_out",
-                "b": "bo_in"
-              }
-            },
-            {
-              "primitive": {
-                "name": "stripe",
-                "kind": "box",
-                "size": [
-                  1.1,
-                  0.005,
-                  0.2
-                ],
-                "translation": [
-                  0.0,
-                  0.0155,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "dia0",
-                "kind": "box",
-                "size": [
-                  0.14,
-                  0.005,
-                  0.14
-                ],
-                "translation": [
-                  -0.42,
-                  0.0165,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.38268346,
-                  0.0,
-                  0.9238795
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "dia1",
-                "kind": "box",
-                "size": [
-                  0.14,
-                  0.005,
-                  0.14
-                ],
-                "translation": [
-                  0.42,
-                  0.0165,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.38268346,
-                  0.0,
-                  0.9238795
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "tassel",
-                "kind": "box",
-                "size": [
-                  0.05,
-                  0.006,
-                  0.025
-                ],
-                "translation": [
-                  0.775,
-                  0.005,
-                  -0.44
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "linear_array": {
-                "name": "tassels_r",
-                "input": "tassel",
-                "count": 12,
-                "offset": [
-                  0.0,
-                  0.0,
-                  0.08
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "fringe_r",
-                "inputs": [
-                  "tassel",
-                  "tassels_r_1",
-                  "tassels_r_2",
-                  "tassels_r_3",
-                  "tassels_r_4",
-                  "tassels_r_5",
-                  "tassels_r_6",
-                  "tassels_r_7",
-                  "tassels_r_8",
-                  "tassels_r_9",
-                  "tassels_r_10",
-                  "tassels_r_11"
-                ]
-              }
-            },
-            {
-              "mirror": {
-                "name": "fringe_l",
-                "input": "fringe_r",
-                "axis": "x",
-                "offset": [
-                  0.0,
-                  0.0,
-                  0.0
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "body",
-                "input": "body",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-cloth",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 1,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 21,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#2f4466"
-                          ],
-                          [
-                            1.0,
-                            "#4f6f9e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#3a3a3a",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "border",
-                "input": "border",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-red",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 5,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 25,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#8a2c28"
-                          ],
-                          [
-                            1.0,
-                            "#c24a40"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#4a2a22",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "dia0",
-                "input": "dia0",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-red",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 5,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 25,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#8a2c28"
-                          ],
-                          [
-                            1.0,
-                            "#c24a40"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#4a2a22",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "dia1",
-                "input": "dia1",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-red",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 5,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 25,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#8a2c28"
-                          ],
-                          [
-                            1.0,
-                            "#c24a40"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#4a2a22",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "stripe",
-                "input": "stripe",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fringe_l",
-                "input": "fringe_l",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "fringe_r",
-                "input": "fringe_r",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-linen",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.25,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "a": "s.x",
-                        "b": 502.6548245743669,
-                        "name": "ux",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "s.y",
-                        "b": 502.6548245743669,
-                        "name": "vy",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ux",
-                        "name": "su",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vy",
-                        "name": "sv",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "a": "su",
-                        "b": "sv",
-                        "name": "w",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "w",
-                        "name": "w01",
-                        "to": [
-                          0,
-                          1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 3,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "grime",
-                        "octaves": 3,
-                        "seed": 23,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.85
-                        ],
-                        "input": "grime",
-                        "name": "grime_m",
-                        "type": "levels"
-                      },
-                      {
-                        "input": "w01",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#cfc6b2"
-                          ],
-                          [
-                            1.0,
-                            "#ece5d4"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "n",
-                        "name": "nt",
-                        "to": [
-                          0.88,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "nt",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "grime_m",
-                        "b": 0.45,
-                        "name": "gm",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "#8a7c66",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "w01",
-                        "b": 0.0012,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.92,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "body_raw",
-                "input": "body_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bo_out",
-                "input": "bo_out",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "bo_in",
-                "input": "bo_in",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassel",
-                "input": "tassel",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_1",
-                "input": "tassels_r_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_2",
-                "input": "tassels_r_2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_3",
-                "input": "tassels_r_3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_4",
-                "input": "tassels_r_4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_5",
-                "input": "tassels_r_5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_6",
-                "input": "tassels_r_6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_7",
-                "input": "tassels_r_7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_8",
-                "input": "tassels_r_8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_9",
-                "input": "tassels_r_9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_10",
-                "input": "tassels_r_10",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "tassels_r_11",
-                "input": "tassels_r_11",
-                "visible": false
-              }
-            },
-            {
-              "group": {
-                "name": "red",
-                "inputs": [
-                  "border",
-                  "dia0",
-                  "dia1"
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "linen",
-                "inputs": [
-                  "stripe",
-                  "fringe_r",
-                  "fringe_l"
-                ]
-              }
-            },
-            {
-              "visibility": {
-                "name": "border",
-                "input": "border",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "dia0",
-                "input": "dia0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "dia1",
-                "input": "dia1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stripe",
-                "input": "stripe",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fringe_r",
-                "input": "fringe_r",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "fringe_l",
-                "input": "fringe_l",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "8 edits: group `red` = `border` + `dia0` + `dia1` … hidden `fringe_l`"
-      }
-    ],
-    "current": 2
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 5999
 }

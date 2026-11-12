@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "sp-lantern",
-  "parts": [],
-  "version": 9242,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "base",
         "kind": "box",
+        "name": "base",
+        "rotation": null,
         "size": [
           0.2,
           0.03,
@@ -17,14 +19,14 @@
           0.0,
           -0.115,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "top",
         "kind": "box",
+        "name": "top",
+        "rotation": null,
         "size": [
           0.2,
           0.03,
@@ -34,12 +36,12 @@
           0.0,
           0.1,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "roof",
         "profile": [
           [
@@ -57,25 +59,25 @@
             ]
           ]
         ],
-        "degrees": 360.0,
-        "segments": 4,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
-        ],
         "rotation": [
           0.0,
           0.38268346,
           0.0,
           0.9238795
+        ],
+        "segments": 4,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ]
       }
     },
     {
       "primitive": {
+        "kind": "box",
         "name": "post0",
-        "kind": "box",
+        "rotation": null,
         "size": [
           0.025,
           0.2,
@@ -85,14 +87,14 @@
           -0.085,
           -0.005,
           -0.085
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
+        "kind": "box",
         "name": "post1",
-        "kind": "box",
+        "rotation": null,
         "size": [
           0.025,
           0.2,
@@ -102,14 +104,14 @@
           0.085,
           -0.005,
           -0.085
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "post2",
         "kind": "box",
+        "name": "post2",
+        "rotation": null,
         "size": [
           0.025,
           0.2,
@@ -119,14 +121,14 @@
           -0.085,
           -0.005,
           0.085
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "primitive": {
-        "name": "post3",
         "kind": "box",
+        "name": "post3",
+        "rotation": null,
         "size": [
           0.025,
           0.2,
@@ -136,31 +138,13 @@
           0.085,
           -0.005,
           0.085
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "sweep": {
+        "closed": false,
         "name": "handle",
-        "profile": [
-          [
-            -0.008,
-            -0.008
-          ],
-          [
-            0.008,
-            -0.008
-          ],
-          [
-            0.008,
-            0.008
-          ],
-          [
-            -0.008,
-            0.008
-          ]
-        ],
         "path": [
           [
             -0.06,
@@ -183,13 +167,31 @@
             0.0
           ]
         ],
-        "closed": false
+        "profile": [
+          [
+            -0.008,
+            -0.008
+          ],
+          [
+            0.008,
+            -0.008
+          ],
+          [
+            0.008,
+            0.008
+          ],
+          [
+            -0.008,
+            0.008
+          ]
+        ]
       }
     },
     {
       "primitive": {
-        "name": "core",
         "kind": "box",
+        "name": "core",
+        "rotation": null,
         "size": [
           0.15,
           0.19,
@@ -199,13 +201,11 @@
           0.0,
           -0.005,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "group": {
-        "name": "frame",
         "inputs": [
           "base",
           "top",
@@ -215,28 +215,24 @@
           "post2",
           "post3",
           "handle"
-        ]
+        ],
+        "name": "frame"
       }
     },
     {
       "material": {
-        "name": "frame",
-        "input": "frame",
         "base_color": [
           0.32,
           0.3,
           0.3,
           1.0
         ],
-        "roughness": null,
+        "input": "frame",
         "metalness": null,
+        "name": "frame",
         "pbr": {
-          "material": "sp-metal",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -351,25 +347,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 1.0
+          },
+          "material": "sp-metal",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "core",
-        "input": "core",
         "base_color": null,
-        "roughness": null,
+        "input": "core",
         "metalness": null,
+        "name": "core",
         "pbr": {
-          "material": "sp-glow",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -408,1054 +404,73 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "sp-glow",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "base",
         "input": "base",
+        "name": "base",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "top",
         "input": "top",
+        "name": "top",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "roof",
         "input": "roof",
+        "name": "roof",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "post0",
         "input": "post0",
+        "name": "post0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "post1",
         "input": "post1",
+        "name": "post1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "post2",
         "input": "post2",
+        "name": "post2",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "post3",
         "input": "post3",
+        "name": "post3",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "handle",
         "input": "handle",
+        "name": "handle",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-lantern",
-          "parts": [],
-          "version": 8495,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `sp-lantern`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-lantern",
-          "parts": [],
-          "version": 9221,
-          "ops": [
-            {
-              "primitive": {
-                "name": "base",
-                "kind": "box",
-                "size": [
-                  0.2,
-                  0.03,
-                  0.2
-                ],
-                "translation": [
-                  0.0,
-                  -0.115,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "top",
-                "kind": "box",
-                "size": [
-                  0.2,
-                  0.03,
-                  0.2
-                ],
-                "translation": [
-                  0.0,
-                  0.1,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "roof",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.115
-                    ],
-                    [
-                      0.14,
-                      0.115
-                    ],
-                    [
-                      0.0,
-                      0.19
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 4,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.38268346,
-                  0.0,
-                  0.9238795
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "post0",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  -0.085,
-                  -0.005,
-                  -0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "post1",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  0.085,
-                  -0.005,
-                  -0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "post2",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  -0.085,
-                  -0.005,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "post3",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  0.085,
-                  -0.005,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "sweep": {
-                "name": "handle",
-                "profile": [
-                  [
-                    -0.008,
-                    -0.008
-                  ],
-                  [
-                    0.008,
-                    -0.008
-                  ],
-                  [
-                    0.008,
-                    0.008
-                  ],
-                  [
-                    -0.008,
-                    0.008
-                  ]
-                ],
-                "path": [
-                  [
-                    -0.06,
-                    0.15,
-                    0.0
-                  ],
-                  [
-                    -0.06,
-                    0.22,
-                    0.0
-                  ],
-                  [
-                    0.06,
-                    0.22,
-                    0.0
-                  ],
-                  [
-                    0.06,
-                    0.15,
-                    0.0
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "primitive": {
-                "name": "core",
-                "kind": "box",
-                "size": [
-                  0.15,
-                  0.19,
-                  0.15
-                ],
-                "translation": [
-                  0.0,
-                  -0.005,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "frame",
-                "inputs": [
-                  "base",
-                  "top",
-                  "roof",
-                  "post0",
-                  "post1",
-                  "post2",
-                  "post3",
-                  "handle"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "frame",
-                "input": "frame",
-                "base_color": [
-                  0.32,
-                  0.3,
-                  0.3,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "core",
-                "input": "core",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-glow",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 171,
-                        "size": 0.1,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#ffb060"
-                          ],
-                          [
-                            1,
-                            "#ffe0a0"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "col",
-                        "b": 3.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "emissive": "em",
-                        "name": "out",
-                        "roughness": 0.4,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "base",
-                "input": "base",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "top",
-                "input": "top",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "roof",
-                "input": "roof",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post0",
-                "input": "post0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post1",
-                "input": "post1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post2",
-                "input": "post2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post3",
-                "input": "post3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "handle",
-                "input": "handle",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `sp-lantern`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-lantern",
-          "parts": [],
-          "version": 9242,
-          "ops": [
-            {
-              "primitive": {
-                "name": "base",
-                "kind": "box",
-                "size": [
-                  0.2,
-                  0.03,
-                  0.2
-                ],
-                "translation": [
-                  0.0,
-                  -0.115,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "top",
-                "kind": "box",
-                "size": [
-                  0.2,
-                  0.03,
-                  0.2
-                ],
-                "translation": [
-                  0.0,
-                  0.1,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "revolve": {
-                "name": "roof",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.115
-                    ],
-                    [
-                      0.14,
-                      0.115
-                    ],
-                    [
-                      0.0,
-                      0.19
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 4,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.38268346,
-                  0.0,
-                  0.9238795
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "post0",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  -0.085,
-                  -0.005,
-                  -0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "post1",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  0.085,
-                  -0.005,
-                  -0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "post2",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  -0.085,
-                  -0.005,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "post3",
-                "kind": "box",
-                "size": [
-                  0.025,
-                  0.2,
-                  0.025
-                ],
-                "translation": [
-                  0.085,
-                  -0.005,
-                  0.085
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "sweep": {
-                "name": "handle",
-                "profile": [
-                  [
-                    -0.008,
-                    -0.008
-                  ],
-                  [
-                    0.008,
-                    -0.008
-                  ],
-                  [
-                    0.008,
-                    0.008
-                  ],
-                  [
-                    -0.008,
-                    0.008
-                  ]
-                ],
-                "path": [
-                  [
-                    -0.06,
-                    0.15,
-                    0.0
-                  ],
-                  [
-                    -0.06,
-                    0.22,
-                    0.0
-                  ],
-                  [
-                    0.06,
-                    0.22,
-                    0.0
-                  ],
-                  [
-                    0.06,
-                    0.15,
-                    0.0
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "primitive": {
-                "name": "core",
-                "kind": "box",
-                "size": [
-                  0.15,
-                  0.19,
-                  0.15
-                ],
-                "translation": [
-                  0.0,
-                  -0.005,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "group": {
-                "name": "frame",
-                "inputs": [
-                  "base",
-                  "top",
-                  "roof",
-                  "post0",
-                  "post1",
-                  "post2",
-                  "post3",
-                  "handle"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "frame",
-                "input": "frame",
-                "base_color": [
-                  0.32,
-                  0.3,
-                  0.3,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-metal",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 111,
-                        "size": 0.08,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "rn",
-                        "octaves": 4,
-                        "seed": 112,
-                        "size": 0.25,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.58,
-                          0.72
-                        ],
-                        "input": "rn",
-                        "name": "rust",
-                        "type": "levels"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "fn",
-                        "length": 0.05,
-                        "name": "br",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "input": "br",
-                        "name": "mc",
-                        "stops": [
-                          [
-                            0,
-                            "#8a8c90"
-                          ],
-                          [
-                            1,
-                            "#b4b6ba"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "rc",
-                        "stops": [
-                          [
-                            0,
-                            "#6a3a20"
-                          ],
-                          [
-                            1,
-                            "#9a5a30"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "mc",
-                        "b": "rc",
-                        "c": "rust",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": 0.75,
-                        "b": 0.0,
-                        "c": "rust",
-                        "name": "met",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "br",
-                        "name": "r0",
-                        "to": [
-                          0.35,
-                          0.55
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "r0",
-                        "b": 0.9,
-                        "c": "rust",
-                        "name": "rough",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "rust",
-                        "b": 0.0008,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": "met",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "core",
-                "input": "core",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-glow",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 171,
-                        "size": 0.1,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#ffb060"
-                          ],
-                          [
-                            1,
-                            "#ffe0a0"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "col",
-                        "b": 3.0,
-                        "name": "em",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "emissive": "em",
-                        "name": "out",
-                        "roughness": 0.4,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "base",
-                "input": "base",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "top",
-                "input": "top",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "roof",
-                "input": "roof",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post0",
-                "input": "post0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post1",
-                "input": "post1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post2",
-                "input": "post2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "post3",
-                "input": "post3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "handle",
-                "input": "handle",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
-        "children": [],
-        "label": "20 edits: primitive `base` (box) size=[0.2, 0.03, 0.2] at=[0.0, -0.115, 0.0] … hidden `handle`"
-      }
-    ],
-    "current": 2
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 9242
 }

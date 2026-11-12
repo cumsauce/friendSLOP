@@ -1,15 +1,17 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "np-heaven-cloud",
-  "parts": [],
-  "version": 19651,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
+        "blend": 0.07,
         "name": "cloud_hi",
+        "resolution": 0.03,
         "shapes": [
           {
-            "shape": "sphere",
             "at": [
               0.0,
               0.0,
@@ -17,10 +19,10 @@
             ],
             "radius": [
               0.72
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               0.48,
               0.08,
@@ -28,10 +30,10 @@
             ],
             "radius": [
               0.5
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               -0.44,
               0.04,
@@ -39,10 +41,10 @@
             ],
             "radius": [
               0.55
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               0.08,
               0.36,
@@ -50,10 +52,10 @@
             ],
             "radius": [
               0.48
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "sphere",
             "at": [
               -0.12,
               0.12,
@@ -61,56 +63,50 @@
             ],
             "radius": [
               0.4
-            ]
+            ],
+            "shape": "sphere"
           },
           {
-            "shape": "box",
-            "op": "subtract",
-            "blend": 0.15,
             "at": [
               0.0,
               -0.95,
               0.0
             ],
+            "blend": 0.15,
+            "op": "subtract",
+            "shape": "box",
             "size": [
               3.0,
               1.0,
               3.0
             ]
           }
-        ],
-        "blend": 0.07,
-        "resolution": 0.03
+        ]
       }
     },
     {
       "decimate": {
-        "name": "cloud",
         "input": "cloud_hi",
+        "name": "cloud",
         "tris": 360
       }
     },
     {
       "visibility": {
-        "name": "cloud_hi",
         "input": "cloud_hi",
+        "name": "cloud_hi",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "cloud",
-        "input": "cloud",
         "base_color": null,
-        "roughness": null,
+        "input": "cloud",
         "metalness": null,
+        "name": "cloud",
         "pbr": {
-          "material": "np-cloud",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 2.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -156,208 +152,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 2.0
+          },
+          "material": "np-cloud",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "np-heaven-cloud",
-          "parts": [],
-          "version": 19228,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `np-heaven-cloud`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "np-heaven-cloud",
-          "parts": [],
-          "version": 19387,
-          "ops": [
-            {
-              "sdf": {
-                "name": "cloud_hi",
-                "shapes": [
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.0,
-                      0.0,
-                      0.0
-                    ],
-                    "radius": [
-                      0.72
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.48,
-                      0.08,
-                      0.12
-                    ],
-                    "radius": [
-                      0.5
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      -0.44,
-                      0.04,
-                      -0.1
-                    ],
-                    "radius": [
-                      0.55
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      0.08,
-                      0.36,
-                      -0.05
-                    ],
-                    "radius": [
-                      0.48
-                    ]
-                  },
-                  {
-                    "shape": "sphere",
-                    "at": [
-                      -0.12,
-                      0.12,
-                      0.45
-                    ],
-                    "radius": [
-                      0.4
-                    ]
-                  },
-                  {
-                    "shape": "box",
-                    "op": "subtract",
-                    "blend": 0.15,
-                    "at": [
-                      0.0,
-                      -0.95,
-                      0.0
-                    ],
-                    "size": [
-                      3.0,
-                      1.0,
-                      3.0
-                    ]
-                  }
-                ],
-                "blend": 0.07,
-                "resolution": 0.03
-              }
-            },
-            {
-              "decimate": {
-                "name": "cloud",
-                "input": "cloud_hi",
-                "tris": 360
-              }
-            },
-            {
-              "visibility": {
-                "name": "cloud_hi",
-                "input": "cloud_hi",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "cloud",
-                "input": "cloud",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "np-cloud",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.4,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#f2ece4"
-                          ],
-                          [
-                            1,
-                            "#fffdf8"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "emissive": [
-                          0.25,
-                          0.22,
-                          0.18
-                        ],
-                        "height": "h",
-                        "metallic": 0.0,
-                        "name": "out",
-                        "opacity": 0.9,
-                        "roughness": 1.0,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "material `cloud` <- `cloud` pbr=np-cloud",
-        "author": "npcs"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 19651
 }

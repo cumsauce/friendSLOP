@@ -1,13 +1,15 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pk-wheel-stand",
-  "parts": [],
-  "version": 7128,
+  "next_annotation_id": 0,
   "ops": [
     {
       "primitive": {
-        "name": "post_raw",
         "kind": "box",
+        "name": "post_raw",
+        "rotation": null,
         "size": [
           0.12,
           1.8,
@@ -17,23 +19,23 @@
           0.0,
           0.9,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "post",
         "input": "post_raw",
         "mode": "chamfer",
+        "name": "post",
         "radius": 0.015,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "name": "footx_raw",
         "kind": "box",
+        "name": "footx_raw",
+        "rotation": null,
         "size": [
           0.6,
           0.1,
@@ -43,23 +45,23 @@
           0.0,
           0.05,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "footx",
         "input": "footx_raw",
         "mode": "chamfer",
+        "name": "footx",
         "radius": 0.02,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "name": "footz_raw",
         "kind": "box",
+        "name": "footz_raw",
+        "rotation": null,
         "size": [
           0.14,
           0.1,
@@ -69,23 +71,28 @@
           0.0,
           0.05,
           0.0
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "round": {
-        "name": "footz",
         "input": "footz_raw",
         "mode": "chamfer",
+        "name": "footz",
         "radius": 0.02,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "name": "axle",
         "kind": "cylinder",
+        "name": "axle",
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ],
         "size": [
           0.04,
           0.16,
@@ -95,44 +102,13 @@
           0.0,
           1.75,
           -0.06
-        ],
-        "rotation": [
-          0.70710677,
-          0.0,
-          0.0,
-          0.70710677
         ]
       }
     },
     {
       "sweep": {
+        "closed": false,
         "name": "arm",
-        "profile": [
-          [
-            0.022,
-            0.0
-          ],
-          [
-            0.011,
-            0.01905256
-          ],
-          [
-            -0.011,
-            0.01905256
-          ],
-          [
-            -0.022,
-            2.694223e-18
-          ],
-          [
-            -0.011,
-            -0.01905256
-          ],
-          [
-            0.011,
-            -0.01905256
-          ]
-        ],
         "path": [
           [
             0.0,
@@ -150,13 +126,44 @@
             -0.16
           ]
         ],
-        "closed": false
+        "profile": [
+          [
+            0.022,
+            0.0
+          ],
+          [
+            0.011,
+            0.01905256
+          ],
+          [
+            -0.011,
+            0.01905256
+          ],
+          [
+            -0.022,
+            2.6942230000000002e-18
+          ],
+          [
+            -0.011,
+            -0.01905256
+          ],
+          [
+            0.011,
+            -0.01905256
+          ]
+        ]
       }
     },
     {
       "primitive": {
-        "name": "pointer",
         "kind": "cone",
+        "name": "pointer",
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          -4.371139e-8
+        ],
         "size": [
           0.075,
           0.17,
@@ -166,17 +173,12 @@
           0.0,
           2.53,
           -0.16
-        ],
-        "rotation": [
-          1.0,
-          0.0,
-          0.0,
-          -4.371139e-8
         ]
       }
     },
     {
       "revolve": {
+        "degrees": 360.0,
         "name": "knob",
         "profile": [
           [
@@ -202,30 +204,24 @@
             ]
           ]
         ],
-        "degrees": 360.0,
+        "rotation": null,
         "segments": 10,
         "translation": [
           0.0,
           2.6,
           -0.16
-        ],
-        "rotation": null
+        ]
       }
     },
     {
       "material": {
-        "name": "post",
+        "base_color": null,
         "input": "post",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "post",
         "pbr": {
-          "material": "de-wood",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -324,25 +320,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "footx",
+        "base_color": null,
         "input": "footx",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "footx",
         "pbr": {
-          "material": "de-wood",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -441,25 +437,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "footx_raw",
+        "base_color": null,
         "input": "footx_raw",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "footx_raw",
         "pbr": {
-          "material": "de-wood",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -558,25 +554,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "footz",
+        "base_color": null,
         "input": "footz",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "footz",
         "pbr": {
-          "material": "de-wood",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -675,25 +671,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "footz_raw",
+        "base_color": null,
         "input": "footz_raw",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "footz_raw",
         "pbr": {
-          "material": "de-wood",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -792,25 +788,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "de-wood",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "axle",
-        "input": "axle",
         "base_color": null,
-        "roughness": null,
+        "input": "axle",
         "metalness": null,
+        "name": "axle",
         "pbr": {
-          "material": "fu-iron",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -859,25 +855,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 1.0
+          },
+          "material": "fu-iron",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "arm",
+        "base_color": null,
         "input": "arm",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "arm",
         "pbr": {
-          "material": "pk-gold",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -917,25 +913,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "pk-gold",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "pointer",
+        "base_color": null,
         "input": "pointer",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "pointer",
         "pbr": {
-          "material": "pk-gold",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -975,25 +971,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "pk-gold",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "knob",
-        "input": "knob",
         "base_color": null,
-        "roughness": null,
+        "input": "knob",
         "metalness": null,
+        "name": "knob",
         "pbr": {
-          "material": "pk-gold",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.5,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -1033,1126 +1029,38 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.5
+          },
+          "material": "pk-gold",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "visibility": {
-        "name": "post_raw",
         "input": "post_raw",
+        "name": "post_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "footx_raw",
         "input": "footx_raw",
+        "name": "footx_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "footz_raw",
         "input": "footz_raw",
+        "name": "footz_raw",
         "visible": false
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pk-wheel-stand",
-          "parts": [],
-          "version": 7105,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pk-wheel-stand`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pk-wheel-stand",
-          "parts": [],
-          "version": 7128,
-          "ops": [
-            {
-              "primitive": {
-                "name": "post_raw",
-                "kind": "box",
-                "size": [
-                  0.12,
-                  1.8,
-                  0.12
-                ],
-                "translation": [
-                  0.0,
-                  0.9,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "post",
-                "input": "post_raw",
-                "mode": "chamfer",
-                "radius": 0.015,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "footx_raw",
-                "kind": "box",
-                "size": [
-                  0.6,
-                  0.1,
-                  0.14
-                ],
-                "translation": [
-                  0.0,
-                  0.05,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "footx",
-                "input": "footx_raw",
-                "mode": "chamfer",
-                "radius": 0.02,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "footz_raw",
-                "kind": "box",
-                "size": [
-                  0.14,
-                  0.1,
-                  0.6
-                ],
-                "translation": [
-                  0.0,
-                  0.05,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "round": {
-                "name": "footz",
-                "input": "footz_raw",
-                "mode": "chamfer",
-                "radius": 0.02,
-                "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "axle",
-                "kind": "cylinder",
-                "size": [
-                  0.04,
-                  0.16,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  1.75,
-                  -0.06
-                ],
-                "rotation": [
-                  0.70710677,
-                  0.0,
-                  0.0,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "sweep": {
-                "name": "arm",
-                "profile": [
-                  [
-                    0.022,
-                    0.0
-                  ],
-                  [
-                    0.011,
-                    0.01905256
-                  ],
-                  [
-                    -0.011,
-                    0.01905256
-                  ],
-                  [
-                    -0.022,
-                    2.694223e-18
-                  ],
-                  [
-                    -0.011,
-                    -0.01905256
-                  ],
-                  [
-                    0.011,
-                    -0.01905256
-                  ]
-                ],
-                "path": [
-                  [
-                    0.0,
-                    1.78,
-                    0.0
-                  ],
-                  [
-                    0.0,
-                    2.66,
-                    0.0
-                  ],
-                  [
-                    0.0,
-                    2.66,
-                    -0.16
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "primitive": {
-                "name": "pointer",
-                "kind": "cone",
-                "size": [
-                  0.075,
-                  0.17,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  2.53,
-                  -0.16
-                ],
-                "rotation": [
-                  1.0,
-                  0.0,
-                  0.0,
-                  -4.371139e-8
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "knob",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.05,
-                      0.0
-                    ],
-                    [
-                      0.0425,
-                      0.033
-                    ],
-                    [
-                      0.025,
-                      0.054
-                    ],
-                    [
-                      0.0,
-                      0.06
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 10,
-                "translation": [
-                  0.0,
-                  2.6,
-                  -0.16
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "post",
-                "input": "post",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "footx",
-                "input": "footx",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "footx_raw",
-                "input": "footx_raw",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "footz",
-                "input": "footz",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "footz_raw",
-                "input": "footz_raw",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "de-wood",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 11,
-                        "size": 0.015,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "n",
-                        "length": 0.12,
-                        "name": "grain",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.35,
-                          0.65
-                        ],
-                        "input": "grain",
-                        "name": "g2",
-                        "type": "levels"
-                      },
-                      {
-                        "name": "big",
-                        "octaves": 3,
-                        "seed": 16,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "g2",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#6e4a2a"
-                          ],
-                          [
-                            0.5,
-                            "#946640"
-                          ],
-                          [
-                            1.0,
-                            "#b07e50"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "big",
-                        "name": "bt",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "bt",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "g2",
-                        "name": "r",
-                        "to": [
-                          0.8,
-                          0.65
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "g2",
-                        "b": 0.0015,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "axle",
-                "input": "axle",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "fu-iron",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 4,
-                        "seed": 81,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#2a2a30"
-                          ],
-                          [
-                            0.6,
-                            "#3a3a42"
-                          ],
-                          [
-                            1,
-                            "#5a4a3e"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fn",
-                        "name": "r",
-                        "to": [
-                          0.45,
-                          0.7
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "metallic": 0.8,
-                        "name": "out",
-                        "roughness": "r",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "arm",
-                "input": "arm",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-gold",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b98a2a"
-                          ],
-                          [
-                            1,
-                            "#f0c458"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "pointer",
-                "input": "pointer",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-gold",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b98a2a"
-                          ],
-                          [
-                            1,
-                            "#f0c458"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "knob",
-                "input": "knob",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pk-gold",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.5,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "n",
-                        "octaves": 3,
-                        "seed": 5,
-                        "size": 0.05,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "col",
-                        "stops": [
-                          [
-                            0,
-                            "#b98a2a"
-                          ],
-                          [
-                            1,
-                            "#f0c458"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "n",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "metallic": 1.0,
-                        "name": "out",
-                        "roughness": 0.3,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "post_raw",
-                "input": "post_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "footx_raw",
-                "input": "footx_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "footz_raw",
-                "input": "footz_raw",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "22 edits: primitive `post_raw` (box) size=[0.12, 1.8, 0.12] at=[0.0, 0.9, 0.0] … hidden `footz_raw`"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 7128
 }

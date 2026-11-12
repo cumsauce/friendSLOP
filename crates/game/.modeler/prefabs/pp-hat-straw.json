@@ -1,33 +1,34 @@
 {
+  "annotations": [],
+  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-hat-straw",
-  "parts": [],
-  "version": 20886,
+  "next_annotation_id": 0,
   "ops": [
     {
       "sdf": {
         "name": "brim_raw",
         "shapes": [
           {
-            "shape": "cylinder",
             "at": [
               0.0,
               0.2,
               0.0
             ],
+            "height": 0.022,
             "radius": [
               0.48
             ],
-            "height": 0.022,
-            "round": 0.008
+            "round": 0.008,
+            "shape": "cylinder"
           }
         ]
       }
     },
     {
       "decimate": {
-        "name": "brim",
         "input": "brim_raw",
+        "name": "brim",
         "tris": 120
       }
     },
@@ -36,25 +37,25 @@
         "name": "crown_raw",
         "shapes": [
           {
-            "shape": "cylinder",
             "at": [
               0.0,
               0.265,
               0.0
             ],
+            "height": 0.11,
             "radius": [
               0.21
             ],
-            "height": 0.11,
-            "round": 0.03
+            "round": 0.03,
+            "shape": "cylinder"
           }
         ]
       }
     },
     {
       "decimate": {
-        "name": "crown",
         "input": "crown_raw",
+        "name": "crown",
         "tris": 90
       }
     },
@@ -63,63 +64,58 @@
         "name": "band_raw",
         "shapes": [
           {
-            "shape": "cylinder",
             "at": [
               0.0,
               0.24,
               0.0
             ],
+            "height": 0.04,
             "radius": [
               0.216
             ],
-            "height": 0.04,
-            "round": 0.006
+            "round": 0.006,
+            "shape": "cylinder"
           }
         ]
       }
     },
     {
       "decimate": {
-        "name": "band",
         "input": "band_raw",
+        "name": "band",
         "tris": 60
       }
     },
     {
       "visibility": {
-        "name": "brim_raw",
         "input": "brim_raw",
+        "name": "brim_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "crown_raw",
         "input": "crown_raw",
+        "name": "crown_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "name": "band_raw",
         "input": "band_raw",
+        "name": "band_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "name": "brim",
+        "base_color": null,
         "input": "brim",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "brim",
         "pbr": {
-          "material": "pp-straw",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.16,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "g",
@@ -209,25 +205,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.16
+          },
+          "material": "pp-straw",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "crown",
+        "base_color": null,
         "input": "crown",
-        "base_color": null,
-        "roughness": null,
         "metalness": null,
+        "name": "crown",
         "pbr": {
-          "material": "pp-straw",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.16,
-            "resolution": 128,
             "nodes": [
               {
                 "name": "g",
@@ -317,25 +313,25 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 128,
+            "tile": 0.16
+          },
+          "material": "pp-straw",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     },
     {
       "material": {
-        "name": "band",
-        "input": "band",
         "base_color": null,
-        "roughness": null,
+        "input": "band",
         "metalness": null,
+        "name": "band",
         "pbr": {
-          "material": "pp-rib",
-          "scale": 1.0,
           "graph": {
             "domain": "tile",
-            "tile": 0.12,
-            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -552,604 +548,17 @@
                 "type": "output"
               }
             ],
-            "params": {}
-          }
-        }
+            "params": {},
+            "resolution": 256,
+            "tile": 0.12
+          },
+          "material": "pp-rib",
+          "scale": 1.0
+        },
+        "roughness": null
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
-  "history": {
-    "nodes": [
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hat-straw",
-          "parts": [],
-          "version": 20662,
-          "ops": [],
-          "annotations": [],
-          "next_annotation_id": 0
-        },
-        "parent": null,
-        "children": [
-          1
-        ],
-        "label": "new model `pp-hat-straw`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "pp-hat-straw",
-          "parts": [],
-          "version": 20677,
-          "ops": [
-            {
-              "sdf": {
-                "name": "brim_raw",
-                "shapes": [
-                  {
-                    "shape": "cylinder",
-                    "at": [
-                      0.0,
-                      0.2,
-                      0.0
-                    ],
-                    "radius": [
-                      0.48
-                    ],
-                    "height": 0.022,
-                    "round": 0.008
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "brim",
-                "input": "brim_raw",
-                "tris": 120
-              }
-            },
-            {
-              "sdf": {
-                "name": "crown_raw",
-                "shapes": [
-                  {
-                    "shape": "cylinder",
-                    "at": [
-                      0.0,
-                      0.265,
-                      0.0
-                    ],
-                    "radius": [
-                      0.21
-                    ],
-                    "height": 0.11,
-                    "round": 0.03
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "crown",
-                "input": "crown_raw",
-                "tris": 90
-              }
-            },
-            {
-              "sdf": {
-                "name": "band_raw",
-                "shapes": [
-                  {
-                    "shape": "cylinder",
-                    "at": [
-                      0.0,
-                      0.24,
-                      0.0
-                    ],
-                    "radius": [
-                      0.216
-                    ],
-                    "height": 0.04,
-                    "round": 0.006
-                  }
-                ]
-              }
-            },
-            {
-              "decimate": {
-                "name": "band",
-                "input": "band_raw",
-                "tris": 60
-              }
-            },
-            {
-              "visibility": {
-                "name": "brim_raw",
-                "input": "brim_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "crown_raw",
-                "input": "crown_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "band_raw",
-                "input": "band_raw",
-                "visible": false
-              }
-            },
-            {
-              "material": {
-                "name": "brim",
-                "input": "brim",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-straw",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.16,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.02,
-                          0.02
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "st",
-                        "octaves": 2,
-                        "seed": 21,
-                        "size": 0.004,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "st",
-                        "length": 0.02,
-                        "name": "sb",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.0,
-                          0.003
-                        ],
-                        "input": "g.edge",
-                        "name": "ed",
-                        "type": "levels"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "sb",
-                        "name": "sv",
-                        "to": [
-                          0.8,
-                          1.05
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "ed",
-                        "name": "ev",
-                        "to": [
-                          0.7,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "sv",
-                        "b": "ev",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#eed180",
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ed",
-                        "b": 0.0012,
-                        "name": "hh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.85,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "crown",
-                "input": "crown",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-straw",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.16,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.02,
-                          0.02
-                        ],
-                        "stagger": 0.5,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "name": "st",
-                        "octaves": 2,
-                        "seed": 21,
-                        "size": 0.004,
-                        "type": "noise"
-                      },
-                      {
-                        "angle": 0,
-                        "input": "st",
-                        "length": 0.02,
-                        "name": "sb",
-                        "type": "dir_blur"
-                      },
-                      {
-                        "in": [
-                          0.0,
-                          0.003
-                        ],
-                        "input": "g.edge",
-                        "name": "ed",
-                        "type": "levels"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "sb",
-                        "name": "sv",
-                        "to": [
-                          0.8,
-                          1.05
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "ed",
-                        "name": "ev",
-                        "to": [
-                          0.7,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "sv",
-                        "b": "ev",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#eed180",
-                        "b": "c1",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ed",
-                        "b": 0.0012,
-                        "name": "hh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "roughness": 0.85,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "band",
-                "input": "band",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "pp-rib",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 0.12,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "g",
-                        "size": [
-                          0.015,
-                          0.012
-                        ],
-                        "stagger": 0,
-                        "type": "tile_grid"
-                      },
-                      {
-                        "a": [
-                          -0.0039,
-                          -0.0031200000000000004
-                        ],
-                        "b": [
-                          -0.0015,
-                          0.0028799999999999997
-                        ],
-                        "coords": "g.local",
-                        "name": "l1",
-                        "type": "segment",
-                        "width": 0.005399999999999999
-                      },
-                      {
-                        "a": [
-                          0.0039,
-                          -0.0031200000000000004
-                        ],
-                        "b": [
-                          0.0015,
-                          0.0028799999999999997
-                        ],
-                        "coords": "g.local",
-                        "name": "l2",
-                        "type": "segment",
-                        "width": 0.005399999999999999
-                      },
-                      {
-                        "a": "l1",
-                        "b": "l2",
-                        "name": "v",
-                        "op": "union",
-                        "type": "sdf_op"
-                      },
-                      {
-                        "from": [
-                          -0.0026999999999999997,
-                          0.00015
-                        ],
-                        "input": "v",
-                        "name": "vr",
-                        "to": [
-                          1,
-                          0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "vr",
-                        "b": 0,
-                        "c": 1,
-                        "name": "vc",
-                        "op": "clamp",
-                        "type": "math"
-                      },
-                      {
-                        "a": "vc",
-                        "b": 0.6,
-                        "name": "pill",
-                        "op": "pow",
-                        "type": "math"
-                      },
-                      {
-                        "name": "fz",
-                        "octaves": 2,
-                        "seed": 5,
-                        "size": 0.003,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "tone",
-                        "octaves": 3,
-                        "seed": 7,
-                        "size": 0.04,
-                        "type": "noise"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "tone",
-                        "name": "tv",
-                        "to": [
-                          0.93,
-                          1.02
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "fz",
-                        "name": "fv",
-                        "to": [
-                          0.94,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "pill",
-                        "name": "pv",
-                        "to": [
-                          0.55,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "pv",
-                        "b": "tv",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "fv",
-                        "name": "c2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "input": "g.cell",
-                        "name": "s",
-                        "type": "split"
-                      },
-                      {
-                        "name": "uv",
-                        "of": "uv",
-                        "type": "input"
-                      },
-                      {
-                        "input": "uv",
-                        "name": "su",
-                        "type": "split"
-                      },
-                      {
-                        "a": "su.x",
-                        "b": 209.43951,
-                        "name": "ru",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "ru",
-                        "name": "rs",
-                        "op": "sin",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          -1,
-                          1
-                        ],
-                        "input": "rs",
-                        "name": "rr",
-                        "to": [
-                          0.45,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "pill",
-                        "b": "rr",
-                        "name": "hp",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": [
-                          0.97,
-                          0.97,
-                          0.97
-                        ],
-                        "b": "c2",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "hp",
-                        "b": 0.0016,
-                        "name": "hh",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "hh",
-                        "metallic": 0,
-                        "name": "out",
-                        "normal_strength": 1.0,
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 0,
-        "children": [],
-        "label": "3 edits: material `brim` <- `brim` pbr=pp-straw … material `band` <- `band` pbr=pp-rib",
-        "author": "people"
-      }
-    ],
-    "current": 1
-  },
-  "derived_from_ops": true
+  "parts": [],
+  "version": 20886
 }

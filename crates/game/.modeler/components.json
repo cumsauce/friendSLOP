@@ -18,42 +18,35 @@
       "fields": {
         "radius": "f32",
         "height": "f32",
-        "depth": "f32",
-        "size": "vec2"
+        "depth": "f32"
       },
-      "doc": "Sizes of a spot's ground feature: radius, height, depth (m) or a rectangle size."
+      "doc": "Sizes of a spot's ground feature: radius, height, depth (m). A rectangle uses the marker's own size."
     },
     "Path": {
       "type": "friendslop_world::map::Path",
       "fields": {
-        "to": "string"
+        "to": "refs"
       },
-      "doc": "A path from this marker to the named markers (comma-separated)."
+      "doc": "Paths from this marker to the markers it names."
     },
     "District": {
       "type": "friendslop_world::map::District",
       "fields": {
         "kind": "string",
-        "size": "vec2",
         "order": "u32"
       },
-      "doc": "A district box (x, z size) centred here; lower order wins where boxes overlap. kind 'bounds' is the map's edge."
+      "doc": "A district: the marker's box (its size, x by z). Lower order wins where boxes overlap; kind 'bounds' is the map's edge."
     },
     "Plot": {
       "type": "friendslop_world::map::Plot",
       "fields": {
-        "size": "vec2",
-        "turns": "i32",
         "upper": "bool"
       },
-      "doc": "A house plot: footprint (w, d), quarter turns, must have an upper floor."
+      "doc": "A house plot: the marker's size is the footprint (x by z) and its yaw the door side; upper: must have an upper floor."
     },
     "Hangout": {
       "type": "friendslop_world::map::Hangout",
-      "fields": {
-        "trip": "bool"
-      },
-      "doc": "Where villagers hang out; trip: a far destination reached over the navmesh."
+      "doc": "Where villagers hang out (marker kind 'trip': a far destination reached over the navmesh)."
     },
     "Clear": {
       "type": "friendslop_world::map::Clear",

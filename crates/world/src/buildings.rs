@@ -581,8 +581,8 @@ pub use crate::places::tower_at;
 /// The two 8 x 7 plots are marked `upper` and always get two or three
 /// storeys: the street spot villagers walk to and the tests' "two two-storey
 /// houses" rely on them.
-fn plots() -> &'static [crate::places::HousePlot] {
-    &crate::places::layout().plots
+fn plots() -> Vec<crate::places::HousePlot> {
+    crate::places::layout().plots.clone()
 }
 
 /// The pinned big cottage: the underground's cellar door is just outside

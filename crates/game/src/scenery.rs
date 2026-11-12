@@ -65,10 +65,10 @@ fn no_shadows_on_small_props(
 }
 
 /// Spots that must stay open: (centre, radius).
-fn keep_clear() -> &'static [(Vec2, f32)] {
+fn keep_clear() -> Vec<(Vec2, f32)> {
     // The map's `Clear` markers: the spawn, bonfire, landlord, vault, wheel,
     // totems, storm debris and animal homes.
-    &friendslop_world::places::layout().clears
+    friendslop_world::places::layout().clears.clone()
 }
 
 /// Is `p` (with `margin` of footprint) clear of every landmark?

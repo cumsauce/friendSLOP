@@ -1,0 +1,15 @@
+[package]
+name = "friendslop-data"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "Game data files (maps, tuning, writing) loaded at run time from assets/data: read from disk on desktop and in tests, fetched by the asset server in the browser, reloaded when edited. No game code."
+
+[dependencies]
+bevy.workspace = true
+serde.workspace = true
+serde_json = "1"
+ron = "0.12"
+
+[lints]
+workspace = true

@@ -100,6 +100,11 @@ impl Plugin for GamePlugin {
                 theme::plugin,
                 friendslop_world::map::MapPlugin,
             ));
+        // Every data file the game reads (maps, tuning, writing): loaded at
+        // run time, re-read when edited (see `friendslop_data`).
+        app.add_plugins(friendslop_data::DataPlugin {
+            files: data_files(),
+        });
         app.add_plugins((
             controls::plugin,
             graphics::plugin,
@@ -113,4 +118,9 @@ impl Plugin for GamePlugin {
             modeler_bevy::ModelerPlugin,
         ));
     }
+}
+
+/// Every data file the game reads, from every crate.
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    friendslop_world::data_files()
 }

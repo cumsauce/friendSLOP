@@ -51,12 +51,6 @@ pub use crate::places::lake_at;
 /// The sunken quarry pit in the south-west ruins.
 pub use crate::places::quarry_at;
 
-/// Path segments between landmarks and out to every district (the map's
-/// `Path` markers).
-fn paths() -> &'static [(Vec2, Vec2)] {
-    &layout().paths
-}
-
 /// Height of the lake's water surface (the lake spot's `Feature` height).
 pub fn lake_level() -> f32 {
     layout().lake.height
@@ -101,7 +95,8 @@ fn seg_dist(p: Vec2, a: Vec2, b: Vec2) -> f32 {
 /// How much "path" is at a point, 0..1 (wobbly edges so it looks walked-in).
 fn path_amount(p: Vec2) -> f32 {
     let wobble = (noise(p.x * 0.6, p.y * 0.6, 77) - 0.5) * 0.7;
-    let d = paths()
+    let d = layout()
+        .paths
         .iter()
         .map(|&(a, b)| seg_dist(p, a, b))
         .fold(f32::MAX, f32::min)
@@ -134,13 +129,17 @@ fn rect_mask(p: Vec2, min: Vec2, max: Vec2, soft: f32) -> f32 {
     1.0 - smoothstep(0.0, soft, d)
 }
 
-/// Terrain heights the modeler baked from map documents
-/// (`export_model` to `.bsn` writes `<map>.<terrain>.heights`). Embedded, so
-/// every peer and the web build read them at startup, before any asset loads.
-/// Inside a grid its heights win; everywhere else the procedural ground.
-const BAKED: &[&[u8]] = &[include_bytes!(
-    "../../game/assets/maps/commune.ground.heights"
-)];
+/// The world's ground heights, baked by the modeler from `commune-map`'s
+/// terrain (`export_model` to `.bsn` writes `<map>.<terrain>.heights`),
+/// loaded at run time like every data file (see `friendslop_data`). Inside
+/// the grid its heights win; elsewhere, or while it's missing, the
+/// procedural ground.
+pub static HEIGHTS: friendslop_data::Data<Vec<HeightGrid>> =
+    friendslop_data::Data::new("maps/commune.ground.heights", |b| {
+        HeightGrid::decode(b)
+            .map(|g| vec![g])
+            .ok_or_else(|| "not a heights file".to_string())
+    });
 
 /// A decoded heights grid (format: the modeler's `scene::write_heights`).
 pub struct HeightGrid {
@@ -200,9 +199,8 @@ impl HeightGrid {
     }
 }
 
-fn baked() -> &'static [HeightGrid] {
-    static GRIDS: std::sync::OnceLock<Vec<HeightGrid>> = std::sync::OnceLock::new();
-    GRIDS.get_or_init(|| BAKED.iter().filter_map(|b| HeightGrid::decode(b)).collect())
+fn baked() -> std::sync::Arc<Vec<HeightGrid>> {
+    HEIGHTS.get()
 }
 
 /// Ground height: the map's terrain, shaped in the modeler and baked to a

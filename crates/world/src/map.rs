@@ -20,7 +20,6 @@ pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        crate::places::claim_map_props();
         app.init_asset::<MapText>()
             .register_asset_loader(MapLoader)
             .register_type::<GltfSource>()

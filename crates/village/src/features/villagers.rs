@@ -63,8 +63,8 @@ const MAX_CLIMB: f32 = 0.5;
 const MAX_SLOPE_DEGS: f32 = 40.0;
 
 /// Where villagers like to hang out (x, z): the map's `Hangout` markers.
-fn points() -> &'static [Vec2] {
-    &friendslop_world::places::layout().hangouts
+fn points() -> Vec<Vec2> {
+    friendslop_world::places::layout().hangouts.clone()
 }
 
 /// Where the navmesh lets villagers travel to (handoff #94): one spot per
@@ -72,8 +72,8 @@ fn points() -> &'static [Vec2] {
 /// map overland. Only picked while a villager has a landmass agent; without
 /// the mesh the brain sticks to [`points`], which straight-line steering can
 /// always reach.
-fn districts() -> &'static [Vec2] {
-    &friendslop_world::places::layout().trips
+fn districts() -> Vec<Vec2> {
+    friendslop_world::places::layout().trips.clone()
 }
 
 /// Server only: what a villager is up to.
@@ -231,7 +231,7 @@ fn think(
             if brain.wait <= 0.0 {
                 // Up and off somewhere new. With the navmesh, most trips are
                 // overland to another district; the rest stay local.
-                let spots: &[Vec2] = if agent_target.is_some()
+                let spots = if agent_target.is_some()
                     && nav.as_ref().is_some_and(|n| n.ready)
                     && rng.f() < 0.55
                 {
@@ -239,7 +239,10 @@ fn think(
                 } else {
                     points()
                 };
-                let p = spots[(rng.f() * spots.len() as f32) as usize % spots.len()];
+                let pick = (rng.f() * spots.len() as f32) as usize;
+                let Some(&p) = spots.get(pick % spots.len().max(1)) else {
+                    continue;
+                };
                 brain.target = outside_arena(p + Vec2::new(rng.f() - 0.5, rng.f() - 0.5) * 3.0);
                 if let Some(mut target) = agent_target {
                     *target = AgentTarget3d::Point(Vec3::new(

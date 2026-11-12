@@ -1,0 +1,188 @@
+{
+  "name": "wd-checker",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.6,
+  "resolution": 512,
+  "nodes": [
+    {
+      "center": [
+        0.15,
+        0.15
+      ],
+      "name": "r1",
+      "size": [
+        0.3,
+        0.3
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.45,
+        0.45
+      ],
+      "name": "r2",
+      "size": [
+        0.3,
+        0.3
+      ],
+      "type": "rect"
+    },
+    {
+      "a": "r1",
+      "b": "r2",
+      "name": "u",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "u",
+      "type": "mask"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 31,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fn",
+      "name": "v",
+      "to": [
+        0.9,
+        1
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "#f2eee4",
+      "b": "#b8302a",
+      "c": "m",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "v",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wd-checker",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.6,
+          "resolution": 512,
+          "nodes": [
+            {
+              "center": [
+                0.15,
+                0.15
+              ],
+              "name": "r1",
+              "size": [
+                0.3,
+                0.3
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.45,
+                0.45
+              ],
+              "name": "r2",
+              "size": [
+                0.3,
+                0.3
+              ],
+              "type": "rect"
+            },
+            {
+              "a": "r1",
+              "b": "r2",
+              "name": "u",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "u",
+              "type": "mask"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "v",
+              "to": [
+                0.9,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#f2eee4",
+              "b": "#b8302a",
+              "c": "m",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "v",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+r1 +r2 +u +m +fn +v +c0 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

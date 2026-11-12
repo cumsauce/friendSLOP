@@ -484,10 +484,20 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   while you're down there a line under the danger lane says how far the nearest ladder is along
   the tunnels and which way to turn ("nearest ladder 18 m, to your left. Click it to climb out").
 - **Wendy's** (#117, Kori.exe: "a Wendy's on the map somewhere that has human meat burgers
-  available to pick up"). A little cream burger shack on a stone base stands in the meadow just
-  north of the road to the east village (around (30, 9)), with a red-and-white striped awning, a
-  roof sign (its name floats over it), an open serving window and a glowing grill inside. Three
-  human meat burgers (bun, lettuce, a pinkish patty, cheese) sit on the counter. Click one to pick
+  available to pick up"). A walk-in burger restaurant on a stone base stands in the meadow just
+  north of the road to the east village (around (30, 9)): cream walls, red trim, a red-shingled
+  gable roof with WENDY'S on both gable ends, a glass shopfront and an open front door (stone
+  steps where the ground dips, an OPEN sign, lamps by the door). Inside: a checkered dining room
+  (four tables with ketchup, mustard and napkins under hanging lamps, joke posters like "100%
+  HUMAN" and "ASK ABOUT THE MEAT", a clock, plants, a condiment station, a wet-floor sign), an
+  order counter across the middle (register, trays, tip jar, ORDER HERE sign, a lit "HUMAN MEAT
+  BURGERS / fresh today" menu, a pass shelf under heat lamps), a kitchen behind it (grill,
+  fryer, sink, fridge, a prep island with buns, hanging pans and utensils, order tickets,
+  shelves of tubs; walk round the counter's end), an EMPLOYEES ONLY butcher's backroom
+  (carcasses on a meat rail, chopping block and cleaver, a grinder, knives and a saw on the
+  wall, a chest freezer, blood on the floor) and stairs up to a raftered attic (crates, an old
+  mattress, a dust-sheeted chair, a chest, the old GRAND OPENING sign). Three human meat
+  burgers (bun, lettuce, a pinkish patty, cheese) sit on the counter. Click one to pick
   it up (server-checked reach; the 5% action failure applies): your count shows bottom-right
   ("human meat burgers: N") and a fresh burger appears in that spot 15 s later (paused in the
   stillness). Carrying burgers does nothing else yet (`features/wendys.rs`).

@@ -37,7 +37,7 @@ If you're running in CI, also read `.github/claude/run.md`.
   saving so the sources stay small. Swap a code-built object for a model by spawning the glTF
   where its meshes were and keeping its colliders as mesh-less entities (gameplay never
   depends on the file). Building props are marked by `Kit::begin_prop` and drawn from
-  `models/props/` when listed in `buildings::PROP_MODELS`; the six building surfaces take
+  `models/props/` when listed in `buildings::PROP_MODELS`; house trim the boxes don't have (window frames, doors, shop windows, chimney pots) is a model-only `Kit::mark` the grammar puts in each wall hole (`hs-*` sources); the six building surfaces take
   their textures from `models/surfaces/`. Generated interiors take their pieces from a **tile kit**: modeler
   prefabs one grid cell across (`wh-tile-*`), listed with their open sides and weights in a data
   file (`data/places/warehouse_tiles.ron`); WFC tries every quarter turn of each piece and the

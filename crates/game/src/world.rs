@@ -34,6 +34,15 @@ fn spawn_world(mut commands: Commands, assets: Res<AssetServer>) {
     ));
     // The ground itself lives in `terrain.rs`.
     scatter_ground_detail(&mut commands, &assets);
+    // The commune's props and spots, laid out in the modeler (document
+    // `commune-map` in .modeler/, exported to assets/maps/commune.bsn).
+    commands.spawn((
+        Name::new("commune map"),
+        friendslop_world::map::Map(assets.load("maps/commune.bsn")),
+        Transform::default(),
+        Visibility::default(),
+        DespawnOnExit(AppState::InGame),
+    ));
 }
 
 /// The meadow's flower models, one per petal colour (yellow, blue, white).

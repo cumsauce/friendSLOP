@@ -7,6 +7,7 @@
 pub mod buildings;
 pub mod footprints;
 pub mod landmarks;
+pub mod map;
 pub mod places;
 pub mod surfaces;
 pub mod terrain;

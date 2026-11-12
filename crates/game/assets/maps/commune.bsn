@@ -1,0 +1,68 @@
+// jackdaw 0.20.2 | bevy 0.20
+// SALT: We're not needing `Cargo.lock` anyway. x didn't set us up for
+// success. We need more SME's. We haven't considered the problem space
+// enough. BSN syntax needs more changes. And `Children` sugaring? Ask
+// Sam "Salt" Saltman.
+// Written by the modeler (export_model to .bsn): edit the map document, not this file.
+bevy_ecs::hierarchy::Children [
+    #picnic
+    jackdaw_scene_types::node_id::SceneNodeId(2263240635778810478)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 6.0, y: 0.0, z: 20.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "picnic",
+    }
+    --
+    #picnic_barrel
+    jackdaw_scene_types::node_id::SceneNodeId(6622893275690094274)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 8.2, y: 0.0, z: 21.2 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/fu-barrel.gltf",
+        scene_index: 0,
+    }
+    --
+    #picnic_crates
+    jackdaw_scene_types::node_id::SceneNodeId(7615309354341599270)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 3.6, y: -0.000000029802322, z: 21.4 },
+        rotation: glam::Quat { x: 0.0, y: 0.17364818, z: 0.0, w: 0.98480785 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/fu-crates.gltf",
+        scene_index: 0,
+    }
+    --
+    #picnic_stool_1
+    jackdaw_scene_types::node_id::SceneNodeId(4048393241897724910)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 5.0, y: 0.0, z: 20.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/fu-stool.gltf",
+        scene_index: 0,
+    }
+    --
+    #picnic_stool_2
+    jackdaw_scene_types::node_id::SceneNodeId(4048394891165167226)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 7.0, y: 0.0, z: 20.0 },
+        rotation: glam::Quat { x: 0.0, y: 1.0, z: 0.0, w: -0.00000004371139 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/fu-stool.gltf",
+        scene_index: 0,
+    }
+    --
+    #picnic_table
+    jackdaw_scene_types::node_id::SceneNodeId(2069036091280013129)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 6.0, y: 0.0, z: 20.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/fu-table.gltf",
+        scene_index: 0,
+    }
+]

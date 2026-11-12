@@ -33,7 +33,7 @@ use crate::features::campaign::Campaign;
 use crate::features::duel::Duelist;
 use crate::features::fps::Walker;
 use crate::features::hide_and_seek::{HideSeek, Phase, SEEK_SECS};
-use crate::features::landlord::{Act3, LANDLORD_AT, Tenancy};
+use crate::features::landlord::{Act3, Tenancy, landlord_at};
 use crate::features::stillness::Stillness;
 use crate::player::{LocalPlayer, Player};
 use crate::settings::Settings;
@@ -503,7 +503,7 @@ fn direct(
             0.75 + 0.2 * (1.0 - t.hp as f32 / 12.0).clamp(0.0, 1.0),
         )
     } else if let Some(at) = cam {
-        let near_landlord = at.xz().distance(LANDLORD_AT.xz()) < 12.0;
+        let near_landlord = at.xz().distance(landlord_at().xz()) < 12.0;
         match tenancy.iter().next() {
             Some(t) if near_landlord && t.act != Act3::Won => {
                 (Mood::Landlord, (0.4 + 0.08 * t.raises as f32).min(0.8))

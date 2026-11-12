@@ -37,12 +37,12 @@ pub fn plugin(app: &mut App) {
 }
 
 pub const FOREST_CLEARING: Vec2 = Vec2::new(-28.0, -62.0);
-pub const MAZE_AT: Vec2 = Vec2::new(-66.0, 44.0);
+pub use friendslop_world::places::maze_at;
 /// Maze cells per side and cell size (24 × 24 m).
 const MAZE_CELLS: usize = 8;
 const MAZE_CELL: f32 = 3.0;
-const QUARRY_AT: Vec2 = Vec2::new(-55.0, 65.0);
-pub const WINDMILL_AT: Vec2 = Vec2::new(-8.0, -31.0);
+use friendslop_world::places::quarry_at;
+pub use friendslop_world::places::windmill_at;
 
 /// Water and the windmill's yard stay open everywhere.
 fn wet_or_taken(p: Vec2, margin: f32) -> bool {
@@ -50,9 +50,9 @@ fn wet_or_taken(p: Vec2, margin: f32) -> bool {
         || crate::terrain::is_lake(p.x, p.y)
         || crate::terrain::is_lake(p.x + margin, p.y)
         || crate::terrain::is_pond(p.x + margin, p.y)
-        || p.distance(WINDMILL_AT) < 6.0 + margin
+        || p.distance(windmill_at()) < 6.0 + margin
         || crate::features::warehouse::covers(p, margin)
-        || p.distance(crate::features::wendys::WENDYS_AT) < 6.0 + margin
+        || p.distance(crate::features::wendys::wendys_at()) < 6.0 + margin
         || crate::features::underground::covers(p, margin)
         || friendslop_world::footprints::claimed(p, margin)
 }
@@ -77,8 +77,8 @@ fn free(p: Vec2, zone: Zone, margin: f32) -> bool {
 /// Is `p` part of a set piece (maze, castle, quarry, clearing)?
 fn in_set_piece(p: Vec2, margin: f32) -> bool {
     let half = MAZE_CELLS as f32 * MAZE_CELL / 2.0 + 2.0 + margin;
-    (p.x - MAZE_AT.x).abs() < half && (p.y - MAZE_AT.y).abs() < half
-        || p.distance(QUARRY_AT) < 13.0 + margin
+    (p.x - maze_at().x).abs() < half && (p.y - maze_at().y).abs() < half
+        || p.distance(quarry_at()) < 13.0 + margin
         || p.distance(FOREST_CLEARING) < 9.0 + margin
         || ((-48.0..-30.0).contains(&p.x) && (36.0..84.0).contains(&p.y))
 }
@@ -295,7 +295,7 @@ fn maze(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
     south[m][m - 1] = false;
 
     let half = N as f32 * MAZE_CELL / 2.0;
-    let origin = MAZE_AT - Vec2::splat(half);
+    let origin = maze_at() - Vec2::splat(half);
     let (h, t) = (3.0, 0.7);
     let mut wall = |d: &mut Dresser, a: Vec2, b: Vec2| {
         let mid = (a + b) / 2.0;
@@ -331,7 +331,7 @@ fn maze(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
         }
     }
     // The prize: a gilded statue on a plinth (modeler model).
-    let c = MAZE_AT;
+    let c = maze_at();
     d.prop(
         "maze_statue",
         Transform::from_translation(v3(c, 0.0)),
@@ -431,7 +431,7 @@ fn castle(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
 }
 
 fn quarry(d: &mut Dresser, rng: &mut Rng) {
-    let c = QUARRY_AT;
+    let c = quarry_at();
     // Rock faces around the rim (the pit itself is the terrain's).
     for i in 0..10 {
         let a = i as f32 / 10.0 * TAU + rng.range(-0.2, 0.2);
@@ -439,7 +439,7 @@ fn quarry(d: &mut Dresser, rng: &mut Rng) {
         let s = rng.range(1.4, 2.4);
         // Big rocks must not bury the hedge maze's outer walls.
         let half = MAZE_CELLS as f32 * MAZE_CELL / 2.0 + 2.0 + 3.0;
-        if (p.x - MAZE_AT.x).abs() < half && (p.y - MAZE_AT.y).abs() < half {
+        if (p.x - maze_at().x).abs() < half && (p.y - maze_at().y).abs() < half {
             continue;
         }
         d.rock(rng, p, s);
@@ -570,7 +570,7 @@ fn meadows(d: &mut Dresser, rng: &mut Rng) {
 
 /// A whitewashed tower windmill (~12 m) with slowly turning sails.
 fn windmill(d: &mut Dresser) {
-    let c = WINDMILL_AT;
+    let c = windmill_at();
     let g = ground(c);
     // Tower, door and cap are one modeler model; the sails are another, on
     // the hub entity `turn_sails` spins.

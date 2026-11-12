@@ -47,7 +47,7 @@ use wfc::{CELL, ENTRANCE, H, Plan, Rng, W, cell_centre, cell_of};
 /// Soul pieces Jegg needs to be whole.
 pub const SOUL_PIECES: u8 = 5;
 /// The middle of the warehouse's footprint, out in the meadow.
-pub const OUTSIDE_AT: Vec2 = Vec2::new(14.0, 41.0);
+pub use friendslop_world::places::outside_at;
 /// Its size (x, z) and wall height.
 pub const OUTSIDE_SIZE: Vec2 = Vec2::new(20.0, 13.0);
 pub const OUTSIDE_HEIGHT: f32 = 7.5;
@@ -68,7 +68,7 @@ const LOSE_AFTER: f32 = 5.0;
 
 /// The loading door, on the north face (towards the commune).
 pub fn door_at() -> Vec3 {
-    let p = Vec2::new(OUTSIDE_AT.x, OUTSIDE_AT.y - OUTSIDE_SIZE.y / 2.0);
+    let p = Vec2::new(outside_at().x, outside_at().y - OUTSIDE_SIZE.y / 2.0);
     Vec3::new(p.x, outside_floor(), p.y)
 }
 
@@ -94,7 +94,7 @@ pub fn outside_floor() -> f32 {
     let mut top = f32::MIN;
     for i in -2..=2 {
         for j in -2..=2 {
-            let p = OUTSIDE_AT + Vec2::new(h.x * i as f32 / 2.0, h.y * j as f32 / 2.0);
+            let p = outside_at() + Vec2::new(h.x * i as f32 / 2.0, h.y * j as f32 / 2.0);
             top = top.max(crate::terrain::height_at(p.x, p.y));
         }
     }
@@ -104,10 +104,10 @@ pub fn outside_floor() -> f32 {
 /// Does the warehouse (plus `margin`) cover this meadow spot? Scenery keeps out.
 pub fn covers(p: Vec2, margin: f32) -> bool {
     let h = OUTSIDE_SIZE / 2.0 + Vec2::splat(margin + 2.0);
-    let d = (p - OUTSIDE_AT).abs();
+    let d = (p - outside_at()).abs();
     let lot = d.x < h.x && d.y < h.y;
     // Keep the yard in front of the door clear too.
-    let yard = (p - Vec2::new(OUTSIDE_AT.x, OUTSIDE_AT.y - h.y - 3.0)).length() < 6.0 + margin;
+    let yard = (p - Vec2::new(outside_at().x, outside_at().y - h.y - 3.0)).length() < 6.0 + margin;
     lot || yard
 }
 

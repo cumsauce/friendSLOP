@@ -33,7 +33,7 @@ use crate::player::PlayerOwner;
 use crate::rigged::{RigClip, Rigged};
 
 /// Where the landlord stands.
-pub const LANDLORD_AT: Vec3 = Vec3::new(13.0, 0.0, -4.0);
+pub use friendslop_world::places::landlord_at;
 /// Rent before the inciting raise.
 pub const OLD_RENT: u32 = 10;
 /// How much each raise adds.
@@ -205,7 +205,7 @@ fn bother_landlord(
     if is_frozen(&still) {
         return;
     }
-    if !in_reach(&mut commands, ev.client_id, &walkers, LANDLORD_AT) {
+    if !in_reach(&mut commands, ev.client_id, &walkers, landlord_at()) {
         return;
     }
     let owner = match ev.client_id {
@@ -277,7 +277,7 @@ fn spawn_landlord(mut commands: Commands) {
     // entity's own pick point, not at his meshes.
     commands.spawn((
         LandlordBody,
-        Transform::from_translation(LANDLORD_AT),
+        Transform::from_translation(landlord_at()),
         Clickable::at_height(1.2)
             .radius(60.0)
             .labelled("pay the landlord"),
@@ -334,7 +334,7 @@ fn show_tenancy(
         _ => (1.0, 0.0),
     };
     let want = Transform {
-        translation: LANDLORD_AT + Vec3::Y * bob,
+        translation: landlord_at() + Vec3::Y * bob,
         rotation: if t.act == Act3::Won {
             Quat::from_rotation_z(std::f32::consts::FRAC_PI_2)
         } else {

@@ -140,7 +140,7 @@ fn slay_abduction(
         return;
     }
     t.0 -= back;
-    let arena = super::duel::ARENA_CENTER.xz();
+    let arena = super::duel::arena_center().xz();
     for i in 0..back {
         sky.next_id += 1;
         let spot = Vec2::from_angle(i as f32 * 2.4) * (1.0 + i as f32 * 0.6);

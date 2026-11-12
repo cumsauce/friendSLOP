@@ -5,7 +5,7 @@
 //! - **Your wife** walks back and forth between the bonfire and the east side
 //!   of the commune ([`wife_at`]). It's a commune: she's married to all of you.
 //! - **Officer Mei**, an intelligence officer in a dress uniform and peaked
-//!   cap, waits at the east edge ([`OFFICER_AT`]). Click her to flirt. If your
+//!   cap, waits at the east edge ([`officer_at()`]). Click her to flirt. If your
 //!   wife is within [`WIFE_SIGHT`] of you when you do, she catches you.
 //! - [`FLIRTS_FOR_AFFAIR`] flirts and you're having an affair: pink hearts
 //!   float up from you and from Mei (everyone sees). Every flirt after that she
@@ -30,7 +30,7 @@ use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// Where Officer Mei waits (x, z): the east edge of the commune.
-pub const OFFICER_AT: Vec2 = Vec2::new(15.5, -3.5);
+pub use friendslop_world::places::officer_at;
 /// The wife catches a flirt within this distance of you.
 pub const WIFE_SIGHT: f32 = 10.0;
 /// During an affair she smells the perfume this close.
@@ -241,7 +241,7 @@ fn on_flirt(
     wives: Query<&Wife>,
     mut players: Query<(Entity, &Player, &PlayerOwner, &mut Affair)>,
 ) {
-    let target = Vec3::new(OFFICER_AT.x, 0.0, OFFICER_AT.y);
+    let target = Vec3::new(officer_at().x, 0.0, officer_at().y);
     if !in_reach(&mut commands, ev.client_id, &walkers, target) {
         return;
     }
@@ -348,13 +348,13 @@ fn wife_look() -> crate::people::CharacterLook {
 }
 
 fn spawn_officer(mut commands: Commands) {
-    let y = crate::terrain::height_at(OFFICER_AT.x, OFFICER_AT.y);
+    let y = crate::terrain::height_at(officer_at().x, officer_at().y);
     // Facing back towards the commune.
-    let face = -OFFICER_AT;
+    let face = -officer_at();
     commands.spawn((
         Officer,
         crate::people::Gait::default(),
-        Transform::from_xyz(OFFICER_AT.x, y, OFFICER_AT.y)
+        Transform::from_xyz(officer_at().x, y, officer_at().y)
             .with_rotation(Quat::from_rotation_y(f32::atan2(-face.x, -face.y))),
         Visibility::default(),
         Clickable::at_height(1.0)
@@ -546,15 +546,15 @@ mod tests {
         assert!(far.distance(PATH[PATH.len() - 1]) < 0.01);
         assert!(home.distance(PATH[0]) < 0.01);
         // Her far end brings her within sight of Mei, so flirting is timing.
-        assert!(far.distance(OFFICER_AT) < WIFE_SIGHT);
-        assert!(start.distance(OFFICER_AT) > WIFE_SIGHT);
+        assert!(far.distance(officer_at()) < WIFE_SIGHT);
+        assert!(start.distance(officer_at()) > WIFE_SIGHT);
     }
 
     #[test]
     fn mei_stays_out_of_the_duel_arena() {
         assert_eq!(
-            super::super::villagers::outside_arena(OFFICER_AT),
-            OFFICER_AT
+            super::super::villagers::outside_arena(officer_at()),
+            officer_at()
         );
     }
 }

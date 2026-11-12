@@ -29,7 +29,7 @@ use friendslop::features::fps::Walker;
 use friendslop::features::gods_tears::{GodsTear, TOTAL_TEARS, Transformation, UseGodsTear};
 use friendslop::features::halt::{Halt, Pry};
 use friendslop::features::hide_and_seek::{HideSeek, Phase, Role, StartHideSeek, TagHider};
-use friendslop::features::landlord::{Act3, BotherLandlord, LANDLORD_AT, Tenancy};
+use friendslop::features::landlord::{Act3, BotherLandlord, Tenancy, landlord_at};
 use friendslop::features::morality::Morality;
 use friendslop::features::mushroom::{EatMushroom, Mushroom};
 use friendslop::features::objective::{Objective, RequestRestart};
@@ -518,7 +518,7 @@ fn landlord(sim: &mut Sim) {
         let a = id as f32;
         sim.walk(
             id,
-            LANDLORD_AT + Vec3::new(a.cos() * 1.5, 0.0, a.sin() * 1.5),
+            landlord_at() + Vec3::new(a.cos() * 1.5, 0.0, a.sin() * 1.5),
         );
     }
     let mut paid_until = None;

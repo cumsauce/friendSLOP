@@ -31,7 +31,7 @@ use crate::world::MainCamera;
 
 pub use crate::rules::Duelist;
 /// Arena centre on the floor and half its width.
-pub use friendslop_world::places::{ARENA_CENTER, ARENA_HALF};
+pub use friendslop_world::places::{ARENA_HALF, arena_center};
 pub const LIVES: u8 = 3;
 const SPEED: f32 = 5.0;
 const EYE: f32 = 1.6;
@@ -128,8 +128,8 @@ struct DuelInvites {
 pub fn spawn_points() -> [Vec3; 2] {
     let d = ARENA_HALF - 1.0;
     [
-        ARENA_CENTER + Vec3::new(-d, 0.0, -d),
-        ARENA_CENTER + Vec3::new(d, 0.0, d),
+        arena_center() + Vec3::new(-d, 0.0, -d),
+        arena_center() + Vec3::new(d, 0.0, d),
     ]
 }
 
@@ -335,9 +335,9 @@ fn move_duelists(
         let rot = Quat::from_rotation_y(d.yaw);
         let step = rot * Vec3::new(stick.0.x, 0.0, -stick.0.y) * speed * dt;
         let lim = ARENA_HALF - BODY_RADIUS;
-        let rel = (d.pos + step - ARENA_CENTER)
+        let rel = (d.pos + step - arena_center())
             .clamp(Vec3::new(-lim, 0.0, -lim), Vec3::new(lim, 0.0, lim));
-        let pos = ARENA_CENTER + rel;
+        let pos = arena_center() + rel;
         if d.pos != pos {
             d.pos = pos; // pressed against the wall: nothing to replicate
         }
@@ -421,7 +421,7 @@ fn on_shoot(
     };
     victim.pos = pos;
     victim.bullets = 1;
-    victim.yaw = yaw_towards(pos, ARENA_CENTER);
+    victim.yaw = yaw_towards(pos, arena_center());
     let lives = victim.lives;
     news(
         &mut commands,
@@ -567,7 +567,7 @@ fn spawn_arena(
             reflectance: 0.05,
             ..default()
         }),
-        Transform::from_translation(ARENA_CENTER + Vec3::Y * 0.015),
+        Transform::from_translation(arena_center() + Vec3::Y * 0.015),
     );
     // Bunting: little flags hanging on a sagging string between corner poles.
     spawn(
@@ -579,7 +579,7 @@ fn spawn_arena(
             cull_mode: None,
             ..default()
         }),
-        Transform::from_translation(ARENA_CENTER),
+        Transform::from_translation(arena_center()),
     );
     // Modeler-made fence, barrels and bales (sources in `.modeler/`, prefabs
     // `sp-fence-*`, `sp-barrel`, `sp-hay-bale`), placed exactly as the old
@@ -604,7 +604,7 @@ fn spawn_arena(
         let out = rot * Vec3::Z * ARENA_HALF;
         for k in 0..=posts {
             let t = -ARENA_HALF + size * k as f32 / posts as f32;
-            let at = ARENA_CENTER + out + along * t;
+            let at = arena_center() + out + along * t;
             let corner = k == 0 || k == posts;
             if corner {
                 place(&tall, Transform::from_translation(at + Vec3::Y * 1.2));
@@ -644,7 +644,7 @@ fn spawn_arena(
     let bale = model("hay_bale.gltf");
     let o = ARENA_HALF + 0.9;
     for (x, z) in [(-o, -o + 1.2), (o - 0.6, o), (o, -o + 0.4)] {
-        let at = ARENA_CENTER + Vec3::new(x, 0.0, z);
+        let at = arena_center() + Vec3::new(x, 0.0, z);
         place(&barrel, Transform::from_translation(at + Vec3::Y * 0.475));
     }
     for (x, z, yaw, stack) in [
@@ -652,7 +652,7 @@ fn spawn_arena(
         (o, 1.5, FRAC_PI_2, false),
         (-2.5, -o, 0.1, true),
     ] {
-        let at = ARENA_CENTER + Vec3::new(x, 0.0, z);
+        let at = arena_center() + Vec3::new(x, 0.0, z);
         let r = Quat::from_rotation_y(yaw);
         place(
             &bale,
@@ -1304,7 +1304,7 @@ mod tests {
 
     #[test]
     fn no_bullets_means_punching_only_up_close() {
-        let here = ARENA_CENTER;
+        let here = arena_center();
         let near = here + Vec3::new(0.0, 0.0, -1.0);
         let far = here + Vec3::new(0.0, 0.0, -5.0);
         let mut puncher = duelist(0, here, near);

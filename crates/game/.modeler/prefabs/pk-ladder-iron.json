@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "pk-ladder-iron",
   "parts": [],
-  "version": 9578,
+  "version": 16045,
   "ops": [
     {
       "primitive": {
@@ -54,204 +54,6 @@
         "mode": "chamfer",
         "radius": 0.012,
         "segments": 0
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung0",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.3,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung1",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.63,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung2",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          0.96,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung3",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          1.29,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung4",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          1.62,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung5",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          1.95,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung6",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          2.28,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung7",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          2.61,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
-      }
-    },
-    {
-      "primitive": {
-        "name": "rung8",
-        "kind": "cylinder",
-        "size": [
-          0.022,
-          0.56,
-          0.0
-        ],
-        "translation": [
-          0.0,
-          2.94,
-          0.0
-        ],
-        "rotation": [
-          0.0,
-          0.0,
-          0.70710677,
-          0.70710677
-        ]
       }
     },
     {
@@ -755,6 +557,58 @@
       }
     },
     {
+      "visibility": {
+        "name": "rail0_raw",
+        "input": "rail0_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rail1_raw",
+        "input": "rail1_raw",
+        "visible": false
+      }
+    },
+    {
+      "revolve": {
+        "name": "rung0",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.3,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
+      }
+    },
+    {
       "material": {
         "name": "rung0",
         "input": "rung0",
@@ -877,6 +731,44 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "revolve": {
+        "name": "rung1",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.63,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
       }
     },
     {
@@ -1005,6 +897,44 @@
       }
     },
     {
+      "revolve": {
+        "name": "rung2",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          0.96,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
+      }
+    },
+    {
       "material": {
         "name": "rung2",
         "input": "rung2",
@@ -1127,6 +1057,44 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "revolve": {
+        "name": "rung3",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          1.29,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
       }
     },
     {
@@ -1255,6 +1223,44 @@
       }
     },
     {
+      "revolve": {
+        "name": "rung4",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          1.62,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
+      }
+    },
+    {
       "material": {
         "name": "rung4",
         "input": "rung4",
@@ -1377,6 +1383,44 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "revolve": {
+        "name": "rung5",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          1.95,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
       }
     },
     {
@@ -1505,6 +1549,44 @@
       }
     },
     {
+      "revolve": {
+        "name": "rung6",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          2.28,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
+      }
+    },
+    {
       "material": {
         "name": "rung6",
         "input": "rung6",
@@ -1627,6 +1709,44 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "revolve": {
+        "name": "rung7",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          2.61,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
       }
     },
     {
@@ -1755,6 +1875,44 @@
       }
     },
     {
+      "revolve": {
+        "name": "rung8",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.28
+            ],
+            [
+              0.022,
+              -0.28
+            ],
+            [
+              0.022,
+              0.28
+            ],
+            [
+              0.0,
+              0.28
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 8,
+        "translation": [
+          0.0,
+          2.94,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
+      }
+    },
+    {
       "material": {
         "name": "rung8",
         "input": "rung8",
@@ -1878,20 +2036,6 @@
           }
         }
       }
-    },
-    {
-      "visibility": {
-        "name": "rail0_raw",
-        "input": "rail0_raw",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "rail1_raw",
-        "input": "rail1_raw",
-        "visible": false
-      }
     }
   ],
   "annotations": [],
@@ -1919,7 +2063,7 @@
           "format_version": 1,
           "name": "pk-ladder-iron",
           "parts": [],
-          "version": 9578,
+          "version": 16030,
           "ops": [
             {
               "primitive": {
@@ -1971,204 +2115,6 @@
                 "mode": "chamfer",
                 "radius": 0.012,
                 "segments": 0
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung0",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.3,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung1",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.63,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung2",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  0.96,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung3",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  1.29,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung4",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  1.62,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung5",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  1.95,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung6",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  2.28,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung7",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  2.61,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rung8",
-                "kind": "cylinder",
-                "size": [
-                  0.022,
-                  0.56,
-                  0.0
-                ],
-                "translation": [
-                  0.0,
-                  2.94,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  0.70710677,
-                  0.70710677
-                ]
               }
             },
             {
@@ -2672,6 +2618,58 @@
               }
             },
             {
+              "visibility": {
+                "name": "rail0_raw",
+                "input": "rail0_raw",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rail1_raw",
+                "input": "rail1_raw",
+                "visible": false
+              }
+            },
+            {
+              "revolve": {
+                "name": "rung0",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.3,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
+              }
+            },
+            {
               "material": {
                 "name": "rung0",
                 "input": "rung0",
@@ -2794,6 +2792,44 @@
                     "params": {}
                   }
                 }
+              }
+            },
+            {
+              "revolve": {
+                "name": "rung1",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.63,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
               }
             },
             {
@@ -2922,6 +2958,44 @@
               }
             },
             {
+              "revolve": {
+                "name": "rung2",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  0.96,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
+              }
+            },
+            {
               "material": {
                 "name": "rung2",
                 "input": "rung2",
@@ -3044,6 +3118,44 @@
                     "params": {}
                   }
                 }
+              }
+            },
+            {
+              "revolve": {
+                "name": "rung3",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  1.29,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
               }
             },
             {
@@ -3172,6 +3284,44 @@
               }
             },
             {
+              "revolve": {
+                "name": "rung4",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  1.62,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
+              }
+            },
+            {
               "material": {
                 "name": "rung4",
                 "input": "rung4",
@@ -3294,6 +3444,44 @@
                     "params": {}
                   }
                 }
+              }
+            },
+            {
+              "revolve": {
+                "name": "rung5",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  1.95,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
               }
             },
             {
@@ -3422,6 +3610,44 @@
               }
             },
             {
+              "revolve": {
+                "name": "rung6",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  2.28,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
+              }
+            },
+            {
               "material": {
                 "name": "rung6",
                 "input": "rung6",
@@ -3544,6 +3770,44 @@
                     "params": {}
                   }
                 }
+              }
+            },
+            {
+              "revolve": {
+                "name": "rung7",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  2.61,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
               }
             },
             {
@@ -3672,6 +3936,44 @@
               }
             },
             {
+              "revolve": {
+                "name": "rung8",
+                "profile": [
+                  [
+                    [
+                      0.0,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      -0.28
+                    ],
+                    [
+                      0.022,
+                      0.28
+                    ],
+                    [
+                      0.0,
+                      0.28
+                    ]
+                  ]
+                ],
+                "degrees": 360.0,
+                "segments": 8,
+                "translation": [
+                  0.0,
+                  2.94,
+                  0.0
+                ],
+                "rotation": [
+                  0.0,
+                  0.0,
+                  0.7071068,
+                  0.7071068
+                ]
+              }
+            },
+            {
               "material": {
                 "name": "rung8",
                 "input": "rung8",
@@ -3795,20 +4097,6 @@
                   }
                 }
               }
-            },
-            {
-              "visibility": {
-                "name": "rail0_raw",
-                "input": "rail0_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rail1_raw",
-                "input": "rail1_raw",
-                "visible": false
-              }
             }
           ],
           "annotations": [],
@@ -3817,7 +4105,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "28 edits: primitive `rail0_raw` (box) size=[0.07, 3.2, 0.07] at=[-0.25, 1.6, 0.0] … hidden `rail1_raw`"
+        "label": "27 edits: op delete `rung0` … material `rung8` <- `rung8` pbr=de-iron",
+        "author": "lite-features"
       }
     ],
     "current": 1

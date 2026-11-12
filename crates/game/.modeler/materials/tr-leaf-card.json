@@ -1,0 +1,406 @@
+{
+  "name": "tr-leaf-card",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "angle": 0,
+      "angle_jitter": 180,
+      "cell": 0.1,
+      "name": "lv",
+      "per_cell": 3,
+      "scale": [
+        0.8,
+        1.25
+      ],
+      "seed": 7,
+      "shape": "leaf",
+      "size": [
+        0.1,
+        0.19
+      ],
+      "type": "scatter"
+    },
+    {
+      "name": "bn",
+      "octaves": 2,
+      "seed": 3,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "center": [
+        0.5,
+        0.52
+      ],
+      "name": "bc",
+      "radius": 0.4,
+      "type": "circle"
+    },
+    {
+      "amount": 0.16,
+      "by": "bn",
+      "input": "bc",
+      "name": "bd",
+      "type": "displace"
+    },
+    {
+      "a": "lv.edge",
+      "b": 2.5,
+      "name": "ek",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "bd",
+      "b": "ek",
+      "name": "bs",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "name": "bm",
+      "sdf": "bs",
+      "type": "mask"
+    },
+    {
+      "a": "bm",
+      "b": "lv.mask",
+      "name": "op",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "id": "lv.id",
+      "name": "rid",
+      "seed": 5,
+      "type": "random"
+    },
+    {
+      "input": "rid",
+      "name": "lc",
+      "stops": [
+        [
+          0,
+          "#3f6a22"
+        ],
+        [
+          0.45,
+          "#55862c"
+        ],
+        [
+          0.8,
+          "#6c9a34"
+        ],
+        [
+          1,
+          "#86a840"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "lv.local",
+      "name": "ll",
+      "type": "split"
+    },
+    {
+      "from": [
+        -1,
+        1
+      ],
+      "input": "ll.y",
+      "name": "tipf",
+      "to": [
+        0.78,
+        1.08
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "lc",
+      "b": "tipf",
+      "name": "c1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": [
+        0,
+        -0.9
+      ],
+      "b": [
+        0,
+        0.9
+      ],
+      "coords": "lv.local",
+      "name": "rib",
+      "type": "segment",
+      "width": 0.05
+    },
+    {
+      "name": "ribm",
+      "sdf": "rib",
+      "type": "mask"
+    },
+    {
+      "a": "c1",
+      "b": "#9cb860",
+      "name": "c2",
+      "opacity": "ribm",
+      "type": "blend"
+    },
+    {
+      "from": [
+        0.5,
+        0.15
+      ],
+      "name": "vg",
+      "to": [
+        0.5,
+        1.0
+      ],
+      "type": "gradient"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "vg",
+      "name": "vgr",
+      "to": [
+        1.05,
+        0.72
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c2",
+      "b": "vgr",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "opacity": "op",
+      "roughness": 0.75,
+      "transmission": 0.25,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "tr-leaf-card",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "angle": 0,
+              "angle_jitter": 180,
+              "cell": 0.1,
+              "name": "lv",
+              "per_cell": 3,
+              "scale": [
+                0.8,
+                1.25
+              ],
+              "seed": 7,
+              "shape": "leaf",
+              "size": [
+                0.1,
+                0.19
+              ],
+              "type": "scatter"
+            },
+            {
+              "name": "bn",
+              "octaves": 2,
+              "seed": 3,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "center": [
+                0.5,
+                0.52
+              ],
+              "name": "bc",
+              "radius": 0.4,
+              "type": "circle"
+            },
+            {
+              "amount": 0.16,
+              "by": "bn",
+              "input": "bc",
+              "name": "bd",
+              "type": "displace"
+            },
+            {
+              "a": "lv.edge",
+              "b": 2.5,
+              "name": "ek",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "bd",
+              "b": "ek",
+              "name": "bs",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "name": "bm",
+              "sdf": "bs",
+              "type": "mask"
+            },
+            {
+              "a": "bm",
+              "b": "lv.mask",
+              "name": "op",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "lv.id",
+              "name": "rid",
+              "seed": 5,
+              "type": "random"
+            },
+            {
+              "input": "rid",
+              "name": "lc",
+              "stops": [
+                [
+                  0,
+                  "#3f6a22"
+                ],
+                [
+                  0.45,
+                  "#55862c"
+                ],
+                [
+                  0.8,
+                  "#6c9a34"
+                ],
+                [
+                  1,
+                  "#86a840"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "lv.local",
+              "name": "ll",
+              "type": "split"
+            },
+            {
+              "from": [
+                -1,
+                1
+              ],
+              "input": "ll.y",
+              "name": "tipf",
+              "to": [
+                0.78,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "lc",
+              "b": "tipf",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": [
+                0,
+                -0.9
+              ],
+              "b": [
+                0,
+                0.9
+              ],
+              "coords": "lv.local",
+              "name": "rib",
+              "type": "segment",
+              "width": 0.05
+            },
+            {
+              "name": "ribm",
+              "sdf": "rib",
+              "type": "mask"
+            },
+            {
+              "a": "c1",
+              "b": "#9cb860",
+              "name": "c2",
+              "opacity": "ribm",
+              "type": "blend"
+            },
+            {
+              "from": [
+                0.5,
+                0.15
+              ],
+              "name": "vg",
+              "to": [
+                0.5,
+                1.0
+              ],
+              "type": "gradient"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "vg",
+              "name": "vgr",
+              "to": [
+                1.05,
+                0.72
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c2",
+              "b": "vgr",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "opacity": "op",
+              "roughness": 0.75,
+              "transmission": 0.25,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+lv +bn +bc +bd +ek +bs +bm +op +rid +lc +ll +tipf +c1 +rib +ribm +c2 +vg +vgr +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

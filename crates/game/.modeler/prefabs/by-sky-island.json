@@ -2,370 +2,8 @@
   "format_version": 1,
   "name": "by-sky-island",
   "parts": [],
-  "version": 15038,
+  "version": 17723,
   "ops": [
-    {
-      "extrude": {
-        "name": "turf",
-        "profile": [
-          [
-            [
-              5.0353,
-              0.0
-            ],
-            [
-              4.7287,
-              1.9025
-            ],
-            [
-              3.5985,
-              3.568
-            ],
-            [
-              1.9011,
-              4.6951
-            ],
-            [
-              0.0,
-              5.0631
-            ],
-            [
-              -1.9022,
-              4.5973
-            ],
-            [
-              -3.5785,
-              3.6508
-            ],
-            [
-              -4.605,
-              1.9171
-            ],
-            [
-              -5.1124,
-              0.0
-            ],
-            [
-              -4.7114,
-              -1.934
-            ],
-            [
-              -3.6776,
-              -3.5107
-            ],
-            [
-              -1.9789,
-              -4.6439
-            ],
-            [
-              -0.0,
-              -4.9829
-            ],
-            [
-              1.9254,
-              -4.7675
-            ],
-            [
-              3.5348,
-              -3.6068
-            ],
-            [
-              4.7259,
-              -1.9316
-            ]
-          ]
-        ],
-        "height": 0.4,
-        "scale_top": [
-          1.0,
-          1.0
-        ],
-        "slices": 0,
-        "round": 0.3,
-        "translation": [
-          0.0,
-          0.35,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "material": {
-        "name": "turf",
-        "input": "turf",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "by-turf",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
-            "nodes": [
-              {
-                "mode": "fbm",
-                "name": "nb",
-                "octaves": 4,
-                "seed": 441,
-                "size": 0.5,
-                "type": "noise"
-              },
-              {
-                "mode": "fbm",
-                "name": "nf",
-                "octaves": 3,
-                "seed": 442,
-                "size": 0.06,
-                "type": "noise"
-              },
-              {
-                "input": "nb",
-                "name": "base",
-                "stops": [
-                  [
-                    0,
-                    "#3f7a33"
-                  ],
-                  [
-                    0.5,
-                    "#5c9e4d"
-                  ],
-                  [
-                    1,
-                    "#78b35a"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "nf",
-                "name": "ft",
-                "to": [
-                  0.8,
-                  1.12
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "base",
-                "b": "ft",
-                "name": "col",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "nf",
-                "b": 0.006,
-                "name": "h",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "base_color": "col",
-                "height": "h",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {}
-          }
-        }
-      }
-    },
-    {
-      "extrude": {
-        "name": "soil",
-        "profile": [
-          [
-            [
-              4.9341,
-              0.0
-            ],
-            [
-              4.4254,
-              1.8496
-            ],
-            [
-              3.5166,
-              3.4639
-            ],
-            [
-              1.8618,
-              4.5688
-            ],
-            [
-              0.0,
-              4.8609
-            ],
-            [
-              -1.9161,
-              4.5998
-            ],
-            [
-              -3.4255,
-              3.4945
-            ],
-            [
-              -4.5524,
-              1.9252
-            ],
-            [
-              -4.9877,
-              0.0
-            ],
-            [
-              -4.6764,
-              -1.8397
-            ],
-            [
-              -3.4619,
-              -3.5326
-            ],
-            [
-              -1.8435,
-              -4.5425
-            ],
-            [
-              -0.0,
-              -4.9697
-            ],
-            [
-              1.9127,
-              -4.5654
-            ],
-            [
-              3.5573,
-              -3.4401
-            ],
-            [
-              4.5988,
-              -1.8935
-            ]
-          ]
-        ],
-        "height": 0.75,
-        "scale_top": [
-          1.0,
-          1.0
-        ],
-        "slices": 0,
-        "round": 0.3,
-        "translation": [
-          0.0,
-          -0.35,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "material": {
-        "name": "soil",
-        "input": "soil",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "sp-soil",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
-            "nodes": [
-              {
-                "name": "fn",
-                "octaves": 5,
-                "seed": 181,
-                "size": 0.15,
-                "type": "noise"
-              },
-              {
-                "name": "pb",
-                "seed": 182,
-                "size": 0.05,
-                "type": "worley"
-              },
-              {
-                "input": "fn",
-                "name": "c0",
-                "stops": [
-                  [
-                    0,
-                    "#3e2c1e"
-                  ],
-                  [
-                    1,
-                    "#6a4e34"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "c0",
-                "b": "#7a7068",
-                "c": "peb",
-                "name": "col",
-                "op": "mix",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.004,
-                "name": "h0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "peb",
-                "b": 0.004,
-                "name": "h1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "h0",
-                "b": "h1",
-                "name": "h",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "base_color": "col",
-                "height": "h",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              },
-              {
-                "in": [
-                  0.007,
-                  0.012
-                ],
-                "input": "pb.f1",
-                "name": "peb0",
-                "type": "levels"
-              },
-              {
-                "a": "peb0",
-                "name": "peb",
-                "op": "invert",
-                "type": "math"
-              }
-            ],
-            "params": {}
-          }
-        }
-      }
-    },
     {
       "primitive": {
         "name": "rock_raw_p0",
@@ -1163,169 +801,6 @@
           "rock_raw_p42",
           "rock_raw_p43"
         ]
-      }
-    },
-    {
-      "deform": {
-        "name": "rock",
-        "input": "rock_raw",
-        "mode": "displace",
-        "amount": 0.4,
-        "scale": 1.6,
-        "seed": 11,
-        "noise": "ridged",
-        "detail": 0.55
-      }
-    },
-    {
-      "material": {
-        "name": "rock",
-        "input": "rock",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "by-crag",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 2.0,
-            "resolution": 256,
-            "nodes": [
-              {
-                "mode": "fbm",
-                "name": "nb",
-                "octaves": 4,
-                "seed": 421,
-                "size": 0.8,
-                "type": "noise"
-              },
-              {
-                "mode": "fbm",
-                "name": "nf",
-                "octaves": 3,
-                "seed": 422,
-                "size": 0.13333333333333333,
-                "type": "noise"
-              },
-              {
-                "jitter": 1.0,
-                "name": "wc",
-                "seed": 423,
-                "size": 0.7,
-                "type": "worley"
-              },
-              {
-                "in": [
-                  0.0,
-                  0.03
-                ],
-                "input": "wc.edge",
-                "name": "cm",
-                "type": "levels"
-              },
-              {
-                "a": "cm",
-                "name": "cmi",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "input": "nb",
-                "name": "base",
-                "stops": [
-                  [
-                    0,
-                    "#5f564d"
-                  ],
-                  [
-                    0.45,
-                    "#7c7369"
-                  ],
-                  [
-                    0.8,
-                    "#8d8478"
-                  ],
-                  [
-                    1,
-                    "#9a9083"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "nf",
-                "name": "ft",
-                "to": [
-                  0.85,
-                  1.08
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "base",
-                "b": "ft",
-                "name": "b2",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "#3f3832",
-                "b": "b2",
-                "c": "cm",
-                "name": "col",
-                "op": "mix",
-                "type": "math"
-              },
-              {
-                "a": "cm",
-                "b": 0.012,
-                "name": "h0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "nb",
-                "b": 0.01,
-                "name": "h1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "h0",
-                "b": "h1",
-                "name": "h",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "nf",
-                "name": "rough",
-                "to": [
-                  0.78,
-                  0.95
-                ],
-                "type": "remap"
-              },
-              {
-                "base_color": "col",
-                "height": "h",
-                "name": "out",
-                "roughness": "rough",
-                "type": "output"
-              }
-            ],
-            "params": {}
-          }
-        }
       }
     },
     {
@@ -2708,6 +2183,914 @@
         "input": "boulder1_p14",
         "visible": false
       }
+    },
+    {
+      "extrude": {
+        "name": "turf_hi",
+        "profile": [
+          [
+            [
+              5.0353,
+              0.0
+            ],
+            [
+              4.7287,
+              1.9025
+            ],
+            [
+              3.5985,
+              3.568
+            ],
+            [
+              1.9011,
+              4.6951
+            ],
+            [
+              0.0,
+              5.0631
+            ],
+            [
+              -1.9022,
+              4.5973
+            ],
+            [
+              -3.5785,
+              3.6508
+            ],
+            [
+              -4.605,
+              1.9171
+            ],
+            [
+              -5.1124,
+              0.0
+            ],
+            [
+              -4.7114,
+              -1.934
+            ],
+            [
+              -3.6776,
+              -3.5107
+            ],
+            [
+              -1.9789,
+              -4.6439
+            ],
+            [
+              -0.0,
+              -4.9829
+            ],
+            [
+              1.9254,
+              -4.7675
+            ],
+            [
+              3.5348,
+              -3.6068
+            ],
+            [
+              4.7259,
+              -1.9316
+            ]
+          ]
+        ],
+        "height": 0.4,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "round": 0.3,
+        "translation": [
+          0.0,
+          0.35,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "turf_hi",
+        "input": "turf_hi",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-turf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "nb",
+                "octaves": 4,
+                "seed": 441,
+                "size": 0.5,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 442,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "nb",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#3f7a33"
+                  ],
+                  [
+                    0.5,
+                    "#5c9e4d"
+                  ],
+                  [
+                    1,
+                    "#78b35a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.8,
+                  1.12
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "ft",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "nf",
+                "b": 0.006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "turf",
+        "input": "turf_hi",
+        "tris": 190
+      }
+    },
+    {
+      "material": {
+        "name": "turf",
+        "input": "turf",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-turf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "nb",
+                "octaves": 4,
+                "seed": 441,
+                "size": 0.5,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 442,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "nb",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#3f7a33"
+                  ],
+                  [
+                    0.5,
+                    "#5c9e4d"
+                  ],
+                  [
+                    1,
+                    "#78b35a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.8,
+                  1.12
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "ft",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "nf",
+                "b": 0.006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "extrude": {
+        "name": "soil_hi",
+        "profile": [
+          [
+            [
+              4.9341,
+              0.0
+            ],
+            [
+              4.4254,
+              1.8496
+            ],
+            [
+              3.5166,
+              3.4639
+            ],
+            [
+              1.8618,
+              4.5688
+            ],
+            [
+              0.0,
+              4.8609
+            ],
+            [
+              -1.9161,
+              4.5998
+            ],
+            [
+              -3.4255,
+              3.4945
+            ],
+            [
+              -4.5524,
+              1.9252
+            ],
+            [
+              -4.9877,
+              0.0
+            ],
+            [
+              -4.6764,
+              -1.8397
+            ],
+            [
+              -3.4619,
+              -3.5326
+            ],
+            [
+              -1.8435,
+              -4.5425
+            ],
+            [
+              -0.0,
+              -4.9697
+            ],
+            [
+              1.9127,
+              -4.5654
+            ],
+            [
+              3.5573,
+              -3.4401
+            ],
+            [
+              4.5988,
+              -1.8935
+            ]
+          ]
+        ],
+        "height": 0.75,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "round": 0.3,
+        "translation": [
+          0.0,
+          -0.35,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "soil_hi",
+        "input": "soil_hi",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-soil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 181,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "pb",
+                "seed": 182,
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#3e2c1e"
+                  ],
+                  [
+                    1,
+                    "#6a4e34"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#7a7068",
+                "c": "peb",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.004,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "peb",
+                "b": 0.004,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.007,
+                  0.012
+                ],
+                "input": "pb.f1",
+                "name": "peb0",
+                "type": "levels"
+              },
+              {
+                "a": "peb0",
+                "name": "peb",
+                "op": "invert",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "soil",
+        "input": "soil_hi",
+        "tris": 150
+      }
+    },
+    {
+      "material": {
+        "name": "soil",
+        "input": "soil",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-soil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 181,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "pb",
+                "seed": 182,
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#3e2c1e"
+                  ],
+                  [
+                    1,
+                    "#6a4e34"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#7a7068",
+                "c": "peb",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.004,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "peb",
+                "b": 0.004,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.007,
+                  0.012
+                ],
+                "input": "pb.f1",
+                "name": "peb0",
+                "type": "levels"
+              },
+              {
+                "a": "peb0",
+                "name": "peb",
+                "op": "invert",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "deform": {
+        "name": "rock_hi",
+        "input": "rock_raw",
+        "mode": "displace",
+        "amount": 0.4,
+        "scale": 1.6,
+        "seed": 11,
+        "noise": "ridged",
+        "detail": 0.55
+      }
+    },
+    {
+      "material": {
+        "name": "rock_hi",
+        "input": "rock_hi",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-crag",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "nb",
+                "octaves": 4,
+                "seed": 421,
+                "size": 0.8,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 422,
+                "size": 0.13333333333333333,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wc",
+                "seed": 423,
+                "size": 0.7,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.03
+                ],
+                "input": "wc.edge",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "cm",
+                "name": "cmi",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "input": "nb",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#5f564d"
+                  ],
+                  [
+                    0.45,
+                    "#7c7369"
+                  ],
+                  [
+                    0.8,
+                    "#8d8478"
+                  ],
+                  [
+                    1,
+                    "#9a9083"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.85,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "ft",
+                "name": "b2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#3f3832",
+                "b": "b2",
+                "c": "cm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "cm",
+                "b": 0.012,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "nb",
+                "b": 0.01,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "rough",
+                "to": [
+                  0.78,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "rock",
+        "input": "rock_hi",
+        "tris": 720
+      }
+    },
+    {
+      "material": {
+        "name": "rock",
+        "input": "rock",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-crag",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "nb",
+                "octaves": 4,
+                "seed": 421,
+                "size": 0.8,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 422,
+                "size": 0.13333333333333333,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wc",
+                "seed": 423,
+                "size": 0.7,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.03
+                ],
+                "input": "wc.edge",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "cm",
+                "name": "cmi",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "input": "nb",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#5f564d"
+                  ],
+                  [
+                    0.45,
+                    "#7c7369"
+                  ],
+                  [
+                    0.8,
+                    "#8d8478"
+                  ],
+                  [
+                    1,
+                    "#9a9083"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.85,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "ft",
+                "name": "b2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#3f3832",
+                "b": "b2",
+                "c": "cm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "cm",
+                "b": 0.012,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "nb",
+                "b": 0.01,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "rough",
+                "to": [
+                  0.78,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "turf_hi",
+        "input": "turf_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "soil_hi",
+        "input": "soil_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rock_hi",
+        "input": "rock_hi",
+        "visible": false
+      }
     }
   ],
   "annotations": [],
@@ -2735,370 +3118,8 @@
           "format_version": 1,
           "name": "by-sky-island",
           "parts": [],
-          "version": 14874,
+          "version": 17723,
           "ops": [
-            {
-              "extrude": {
-                "name": "turf",
-                "profile": [
-                  [
-                    [
-                      5.0353,
-                      0.0
-                    ],
-                    [
-                      4.7287,
-                      1.9025
-                    ],
-                    [
-                      3.5985,
-                      3.568
-                    ],
-                    [
-                      1.9011,
-                      4.6951
-                    ],
-                    [
-                      0.0,
-                      5.0631
-                    ],
-                    [
-                      -1.9022,
-                      4.5973
-                    ],
-                    [
-                      -3.5785,
-                      3.6508
-                    ],
-                    [
-                      -4.605,
-                      1.9171
-                    ],
-                    [
-                      -5.1124,
-                      0.0
-                    ],
-                    [
-                      -4.7114,
-                      -1.934
-                    ],
-                    [
-                      -3.6776,
-                      -3.5107
-                    ],
-                    [
-                      -1.9789,
-                      -4.6439
-                    ],
-                    [
-                      -0.0,
-                      -4.9829
-                    ],
-                    [
-                      1.9254,
-                      -4.7675
-                    ],
-                    [
-                      3.5348,
-                      -3.6068
-                    ],
-                    [
-                      4.7259,
-                      -1.9316
-                    ]
-                  ]
-                ],
-                "height": 0.4,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "round": 0.3,
-                "translation": [
-                  0.0,
-                  0.35,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "turf",
-                "input": "turf",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "by-turf",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "mode": "fbm",
-                        "name": "nb",
-                        "octaves": 4,
-                        "seed": 441,
-                        "size": 0.5,
-                        "type": "noise"
-                      },
-                      {
-                        "mode": "fbm",
-                        "name": "nf",
-                        "octaves": 3,
-                        "seed": 442,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "nb",
-                        "name": "base",
-                        "stops": [
-                          [
-                            0,
-                            "#3f7a33"
-                          ],
-                          [
-                            0.5,
-                            "#5c9e4d"
-                          ],
-                          [
-                            1,
-                            "#78b35a"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "ft",
-                        "to": [
-                          0.8,
-                          1.12
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "base",
-                        "b": "ft",
-                        "name": "col",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "nf",
-                        "b": 0.006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "extrude": {
-                "name": "soil",
-                "profile": [
-                  [
-                    [
-                      4.9341,
-                      0.0
-                    ],
-                    [
-                      4.4254,
-                      1.8496
-                    ],
-                    [
-                      3.5166,
-                      3.4639
-                    ],
-                    [
-                      1.8618,
-                      4.5688
-                    ],
-                    [
-                      0.0,
-                      4.8609
-                    ],
-                    [
-                      -1.9161,
-                      4.5998
-                    ],
-                    [
-                      -3.4255,
-                      3.4945
-                    ],
-                    [
-                      -4.5524,
-                      1.9252
-                    ],
-                    [
-                      -4.9877,
-                      0.0
-                    ],
-                    [
-                      -4.6764,
-                      -1.8397
-                    ],
-                    [
-                      -3.4619,
-                      -3.5326
-                    ],
-                    [
-                      -1.8435,
-                      -4.5425
-                    ],
-                    [
-                      -0.0,
-                      -4.9697
-                    ],
-                    [
-                      1.9127,
-                      -4.5654
-                    ],
-                    [
-                      3.5573,
-                      -3.4401
-                    ],
-                    [
-                      4.5988,
-                      -1.8935
-                    ]
-                  ]
-                ],
-                "height": 0.75,
-                "scale_top": [
-                  1.0,
-                  1.0
-                ],
-                "slices": 0,
-                "round": 0.3,
-                "translation": [
-                  0.0,
-                  -0.35,
-                  0.0
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "soil",
-                "input": "soil",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-soil",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 5,
-                        "seed": 181,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "pb",
-                        "seed": 182,
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2c1e"
-                          ],
-                          [
-                            1,
-                            "#6a4e34"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#7a7068",
-                        "c": "peb",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.004,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "peb",
-                        "b": 0.004,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "in": [
-                          0.007,
-                          0.012
-                        ],
-                        "input": "pb.f1",
-                        "name": "peb0",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "peb0",
-                        "name": "peb",
-                        "op": "invert",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
             {
               "primitive": {
                 "name": "rock_raw_p0",
@@ -3896,169 +3917,6 @@
                   "rock_raw_p42",
                   "rock_raw_p43"
                 ]
-              }
-            },
-            {
-              "deform": {
-                "name": "rock",
-                "input": "rock_raw",
-                "mode": "displace",
-                "amount": 0.4,
-                "scale": 1.6,
-                "seed": 11,
-                "noise": "ridged",
-                "detail": 0.55
-              }
-            },
-            {
-              "material": {
-                "name": "rock",
-                "input": "rock",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "by-crag",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 2.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "mode": "fbm",
-                        "name": "nb",
-                        "octaves": 4,
-                        "seed": 421,
-                        "size": 0.8,
-                        "type": "noise"
-                      },
-                      {
-                        "mode": "fbm",
-                        "name": "nf",
-                        "octaves": 3,
-                        "seed": 422,
-                        "size": 0.13333333333333333,
-                        "type": "noise"
-                      },
-                      {
-                        "jitter": 1.0,
-                        "name": "wc",
-                        "seed": 423,
-                        "size": 0.7,
-                        "type": "worley"
-                      },
-                      {
-                        "in": [
-                          0.0,
-                          0.03
-                        ],
-                        "input": "wc.edge",
-                        "name": "cm",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "cm",
-                        "name": "cmi",
-                        "op": "invert",
-                        "type": "math"
-                      },
-                      {
-                        "input": "nb",
-                        "name": "base",
-                        "stops": [
-                          [
-                            0,
-                            "#5f564d"
-                          ],
-                          [
-                            0.45,
-                            "#7c7369"
-                          ],
-                          [
-                            0.8,
-                            "#8d8478"
-                          ],
-                          [
-                            1,
-                            "#9a9083"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "ft",
-                        "to": [
-                          0.85,
-                          1.08
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "base",
-                        "b": "ft",
-                        "name": "b2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "#3f3832",
-                        "b": "b2",
-                        "c": "cm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "cm",
-                        "b": 0.012,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "nb",
-                        "b": 0.01,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "rough",
-                        "to": [
-                          0.78,
-                          0.95
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": "rough",
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
               }
             },
             {
@@ -5441,6 +5299,914 @@
                 "input": "boulder1_p14",
                 "visible": false
               }
+            },
+            {
+              "extrude": {
+                "name": "turf_hi",
+                "profile": [
+                  [
+                    [
+                      5.0353,
+                      0.0
+                    ],
+                    [
+                      4.7287,
+                      1.9025
+                    ],
+                    [
+                      3.5985,
+                      3.568
+                    ],
+                    [
+                      1.9011,
+                      4.6951
+                    ],
+                    [
+                      0.0,
+                      5.0631
+                    ],
+                    [
+                      -1.9022,
+                      4.5973
+                    ],
+                    [
+                      -3.5785,
+                      3.6508
+                    ],
+                    [
+                      -4.605,
+                      1.9171
+                    ],
+                    [
+                      -5.1124,
+                      0.0
+                    ],
+                    [
+                      -4.7114,
+                      -1.934
+                    ],
+                    [
+                      -3.6776,
+                      -3.5107
+                    ],
+                    [
+                      -1.9789,
+                      -4.6439
+                    ],
+                    [
+                      -0.0,
+                      -4.9829
+                    ],
+                    [
+                      1.9254,
+                      -4.7675
+                    ],
+                    [
+                      3.5348,
+                      -3.6068
+                    ],
+                    [
+                      4.7259,
+                      -1.9316
+                    ]
+                  ]
+                ],
+                "height": 0.4,
+                "scale_top": [
+                  1.0,
+                  1.0
+                ],
+                "slices": 0,
+                "round": 0.3,
+                "translation": [
+                  0.0,
+                  0.35,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "turf_hi",
+                "input": "turf_hi",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-turf",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "nb",
+                        "octaves": 4,
+                        "seed": 441,
+                        "size": 0.5,
+                        "type": "noise"
+                      },
+                      {
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 442,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "nb",
+                        "name": "base",
+                        "stops": [
+                          [
+                            0,
+                            "#3f7a33"
+                          ],
+                          [
+                            0.5,
+                            "#5c9e4d"
+                          ],
+                          [
+                            1,
+                            "#78b35a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.8,
+                          1.12
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "base",
+                        "b": "ft",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "nf",
+                        "b": 0.006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "decimate": {
+                "name": "turf",
+                "input": "turf_hi",
+                "tris": 190
+              }
+            },
+            {
+              "material": {
+                "name": "turf",
+                "input": "turf",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-turf",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "nb",
+                        "octaves": 4,
+                        "seed": 441,
+                        "size": 0.5,
+                        "type": "noise"
+                      },
+                      {
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 442,
+                        "size": 0.06,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "nb",
+                        "name": "base",
+                        "stops": [
+                          [
+                            0,
+                            "#3f7a33"
+                          ],
+                          [
+                            0.5,
+                            "#5c9e4d"
+                          ],
+                          [
+                            1,
+                            "#78b35a"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.8,
+                          1.12
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "base",
+                        "b": "ft",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "nf",
+                        "b": 0.006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "extrude": {
+                "name": "soil_hi",
+                "profile": [
+                  [
+                    [
+                      4.9341,
+                      0.0
+                    ],
+                    [
+                      4.4254,
+                      1.8496
+                    ],
+                    [
+                      3.5166,
+                      3.4639
+                    ],
+                    [
+                      1.8618,
+                      4.5688
+                    ],
+                    [
+                      0.0,
+                      4.8609
+                    ],
+                    [
+                      -1.9161,
+                      4.5998
+                    ],
+                    [
+                      -3.4255,
+                      3.4945
+                    ],
+                    [
+                      -4.5524,
+                      1.9252
+                    ],
+                    [
+                      -4.9877,
+                      0.0
+                    ],
+                    [
+                      -4.6764,
+                      -1.8397
+                    ],
+                    [
+                      -3.4619,
+                      -3.5326
+                    ],
+                    [
+                      -1.8435,
+                      -4.5425
+                    ],
+                    [
+                      -0.0,
+                      -4.9697
+                    ],
+                    [
+                      1.9127,
+                      -4.5654
+                    ],
+                    [
+                      3.5573,
+                      -3.4401
+                    ],
+                    [
+                      4.5988,
+                      -1.8935
+                    ]
+                  ]
+                ],
+                "height": 0.75,
+                "scale_top": [
+                  1.0,
+                  1.0
+                ],
+                "slices": 0,
+                "round": 0.3,
+                "translation": [
+                  0.0,
+                  -0.35,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "soil_hi",
+                "input": "soil_hi",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-soil",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 5,
+                        "seed": 181,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "pb",
+                        "seed": 182,
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#3e2c1e"
+                          ],
+                          [
+                            1,
+                            "#6a4e34"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "#7a7068",
+                        "c": "peb",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "fn",
+                        "b": 0.004,
+                        "name": "h0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "peb",
+                        "b": 0.004,
+                        "name": "h1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h0",
+                        "b": "h1",
+                        "name": "h",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "in": [
+                          0.007,
+                          0.012
+                        ],
+                        "input": "pb.f1",
+                        "name": "peb0",
+                        "type": "levels"
+                      },
+                      {
+                        "a": "peb0",
+                        "name": "peb",
+                        "op": "invert",
+                        "type": "math"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "decimate": {
+                "name": "soil",
+                "input": "soil_hi",
+                "tris": 150
+              }
+            },
+            {
+              "material": {
+                "name": "soil",
+                "input": "soil",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-soil",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 5,
+                        "seed": 181,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "pb",
+                        "seed": 182,
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#3e2c1e"
+                          ],
+                          [
+                            1,
+                            "#6a4e34"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "#7a7068",
+                        "c": "peb",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "fn",
+                        "b": 0.004,
+                        "name": "h0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "peb",
+                        "b": 0.004,
+                        "name": "h1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h0",
+                        "b": "h1",
+                        "name": "h",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "in": [
+                          0.007,
+                          0.012
+                        ],
+                        "input": "pb.f1",
+                        "name": "peb0",
+                        "type": "levels"
+                      },
+                      {
+                        "a": "peb0",
+                        "name": "peb",
+                        "op": "invert",
+                        "type": "math"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "deform": {
+                "name": "rock_hi",
+                "input": "rock_raw",
+                "mode": "displace",
+                "amount": 0.4,
+                "scale": 1.6,
+                "seed": 11,
+                "noise": "ridged",
+                "detail": 0.55
+              }
+            },
+            {
+              "material": {
+                "name": "rock_hi",
+                "input": "rock_hi",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-crag",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 2.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "nb",
+                        "octaves": 4,
+                        "seed": 421,
+                        "size": 0.8,
+                        "type": "noise"
+                      },
+                      {
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 422,
+                        "size": 0.13333333333333333,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wc",
+                        "seed": 423,
+                        "size": 0.7,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.0,
+                          0.03
+                        ],
+                        "input": "wc.edge",
+                        "name": "cm",
+                        "type": "levels"
+                      },
+                      {
+                        "a": "cm",
+                        "name": "cmi",
+                        "op": "invert",
+                        "type": "math"
+                      },
+                      {
+                        "input": "nb",
+                        "name": "base",
+                        "stops": [
+                          [
+                            0,
+                            "#5f564d"
+                          ],
+                          [
+                            0.45,
+                            "#7c7369"
+                          ],
+                          [
+                            0.8,
+                            "#8d8478"
+                          ],
+                          [
+                            1,
+                            "#9a9083"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.85,
+                          1.08
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "base",
+                        "b": "ft",
+                        "name": "b2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "#3f3832",
+                        "b": "b2",
+                        "c": "cm",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "cm",
+                        "b": 0.012,
+                        "name": "h0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "nb",
+                        "b": 0.01,
+                        "name": "h1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h0",
+                        "b": "h1",
+                        "name": "h",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "rough",
+                        "to": [
+                          0.78,
+                          0.95
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "decimate": {
+                "name": "rock",
+                "input": "rock_hi",
+                "tris": 720
+              }
+            },
+            {
+              "material": {
+                "name": "rock",
+                "input": "rock",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "by-crag",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 2.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "nb",
+                        "octaves": 4,
+                        "seed": 421,
+                        "size": 0.8,
+                        "type": "noise"
+                      },
+                      {
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 422,
+                        "size": 0.13333333333333333,
+                        "type": "noise"
+                      },
+                      {
+                        "jitter": 1.0,
+                        "name": "wc",
+                        "seed": 423,
+                        "size": 0.7,
+                        "type": "worley"
+                      },
+                      {
+                        "in": [
+                          0.0,
+                          0.03
+                        ],
+                        "input": "wc.edge",
+                        "name": "cm",
+                        "type": "levels"
+                      },
+                      {
+                        "a": "cm",
+                        "name": "cmi",
+                        "op": "invert",
+                        "type": "math"
+                      },
+                      {
+                        "input": "nb",
+                        "name": "base",
+                        "stops": [
+                          [
+                            0,
+                            "#5f564d"
+                          ],
+                          [
+                            0.45,
+                            "#7c7369"
+                          ],
+                          [
+                            0.8,
+                            "#8d8478"
+                          ],
+                          [
+                            1,
+                            "#9a9083"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.85,
+                          1.08
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "base",
+                        "b": "ft",
+                        "name": "b2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "#3f3832",
+                        "b": "b2",
+                        "c": "cm",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "cm",
+                        "b": 0.012,
+                        "name": "h0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "nb",
+                        "b": 0.01,
+                        "name": "h1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h0",
+                        "b": "h1",
+                        "name": "h",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "rough",
+                        "to": [
+                          0.78,
+                          0.95
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": "rough",
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "turf_hi",
+                "input": "turf_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "soil_hi",
+                "input": "soil_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rock_hi",
+                "input": "rock_hi",
+                "visible": false
+              }
             }
           ],
           "annotations": [],
@@ -5449,8 +6215,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "160 edits: extrude `turf` profile=[[[5.0353, 0.0], [4.7287, 1.9025], [3.5985, 3.568], [1.9011, 4.6951], [0.0, 5.0631], [-1.9022, 4.5973], [-3.5785, 3.6508], [-4.605, 1.9171], [-5.1124, 0.0], [-4.7114, -1.934], [-3.6776, -3.5107], [-1.9789, -4.6439], [-0.0, -4.9829], [1.9254, -4.7675], [3.5348, -3.6068], [4.7259, -1.9316]]] height=0.4 twist=0 scale_top=[1.0, 1.0] slices=0 round=0.3 at=[0.0, 0.35, 0.0] … hidden `boulder1_p14`",
-        "author": "beyond"
+        "label": "decimate `rock` <- `rock_hi` tris=720",
+        "author": "lite-nature"
       }
     ],
     "current": 1

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "sp-fallen-tree",
   "parts": [],
-  "version": 9068,
+  "version": 17074,
   "ops": [
     {
       "revolve": {
@@ -616,29 +616,6 @@
           -0.2317912
         ],
         "rotation": null
-      }
-    },
-    {
-      "hull": {
-        "name": "rootball",
-        "inputs": [
-          "rootball_p0",
-          "rootball_p1",
-          "rootball_p2",
-          "rootball_p3",
-          "rootball_p4",
-          "rootball_p5",
-          "rootball_p6",
-          "rootball_p7",
-          "rootball_p8",
-          "rootball_p9",
-          "rootball_p10",
-          "rootball_p11",
-          "rootball_p12",
-          "rootball_p13",
-          "rootball_p14",
-          "rootball_p15"
-        ]
       }
     },
     {
@@ -1750,17 +1727,6 @@
       }
     },
     {
-      "group": {
-        "name": "crown",
-        "inputs": [
-          "c0",
-          "c1",
-          "c2",
-          "c3"
-        ]
-      }
-    },
-    {
       "material": {
         "name": "wood",
         "input": "wood",
@@ -1868,236 +1834,6 @@
             "params": {
               "burn": 0.0
             }
-          }
-        }
-      }
-    },
-    {
-      "material": {
-        "name": "crown",
-        "input": "crown",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "leaf",
-          "scale": 1.0,
-          "graph": {
-            "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
-            "nodes": [
-              {
-                "name": "p",
-                "of": "position",
-                "type": "input"
-              },
-              {
-                "coords": "p",
-                "mode": "fbm",
-                "name": "n",
-                "octaves": 4,
-                "seed": 21,
-                "size": 0.15,
-                "type": "noise"
-              },
-              {
-                "coords": "p",
-                "mode": "fbm",
-                "name": "nf",
-                "octaves": 3,
-                "seed": 22,
-                "size": 0.03,
-                "type": "noise"
-              },
-              {
-                "input": "n",
-                "name": "c0",
-                "stops": [
-                  [
-                    0.0,
-                    "#3f6b22"
-                  ],
-                  [
-                    0.5,
-                    "#5f8f2f"
-                  ],
-                  [
-                    1.0,
-                    "#8ab043"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "nf",
-                "name": "ft",
-                "to": [
-                  0.88,
-                  1.1
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "c0",
-                "b": "ft",
-                "name": "c1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "name": "ao",
-                "radius": 0.15,
-                "type": "mesh_ao"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "ao",
-                "name": "aot",
-                "to": [
-                  0.45,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "c1",
-                "b": "aot",
-                "name": "c2",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "c2",
-                "b": "$light",
-                "name": "c3",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "base_color": "c4",
-                "name": "out",
-                "roughness": 0.75,
-                "type": "output"
-              },
-              {
-                "hue": "$hue",
-                "input": "c3",
-                "name": "c4",
-                "type": "hsv"
-              }
-            ],
-            "params": {
-              "hue": 0.0,
-              "light": 1.0
-            }
-          }
-        }
-      }
-    },
-    {
-      "material": {
-        "name": "rootball",
-        "input": "rootball",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "sp-soil",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
-            "nodes": [
-              {
-                "name": "fn",
-                "octaves": 5,
-                "seed": 181,
-                "size": 0.15,
-                "type": "noise"
-              },
-              {
-                "name": "pb",
-                "seed": 182,
-                "size": 0.05,
-                "type": "worley"
-              },
-              {
-                "input": "fn",
-                "name": "c0",
-                "stops": [
-                  [
-                    0,
-                    "#3e2c1e"
-                  ],
-                  [
-                    1,
-                    "#6a4e34"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "c0",
-                "b": "#7a7068",
-                "c": "peb",
-                "name": "col",
-                "op": "mix",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.004,
-                "name": "h0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "peb",
-                "b": 0.004,
-                "name": "h1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "h0",
-                "b": "h1",
-                "name": "h",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "base_color": "col",
-                "height": "h",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              },
-              {
-                "in": [
-                  0.007,
-                  0.012
-                ],
-                "input": "pb.f1",
-                "name": "peb0",
-                "type": "levels"
-              },
-              {
-                "a": "peb0",
-                "name": "peb",
-                "op": "invert",
-                "type": "math"
-              }
-            ],
-            "params": {}
           }
         }
       }
@@ -2717,6 +2453,298 @@
         "input": "c3",
         "visible": false
       }
+    },
+    {
+      "group": {
+        "name": "crown_hi",
+        "inputs": [
+          "c0",
+          "c1",
+          "c2",
+          "c3"
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "crown",
+        "input": "crown_hi",
+        "tris": 170
+      }
+    },
+    {
+      "material": {
+        "name": "crown",
+        "input": "crown",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3f6b22"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#8ab043"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.88,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "ft",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "ao",
+                "radius": 0.15,
+                "type": "mesh_ao"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "ao",
+                "name": "aot",
+                "to": [
+                  0.45,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c1",
+                "b": "aot",
+                "name": "c2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c2",
+                "b": "$light",
+                "name": "c3",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c4",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              },
+              {
+                "hue": "$hue",
+                "input": "c3",
+                "name": "c4",
+                "type": "hsv"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "light": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "hull": {
+        "name": "rootball_hi",
+        "inputs": [
+          "rootball_p0",
+          "rootball_p1",
+          "rootball_p2",
+          "rootball_p3",
+          "rootball_p4",
+          "rootball_p5",
+          "rootball_p6",
+          "rootball_p7",
+          "rootball_p8",
+          "rootball_p9",
+          "rootball_p10",
+          "rootball_p11",
+          "rootball_p12",
+          "rootball_p13",
+          "rootball_p14",
+          "rootball_p15"
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "rootball",
+        "input": "rootball_hi",
+        "tris": 50
+      }
+    },
+    {
+      "material": {
+        "name": "rootball",
+        "input": "rootball",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-soil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 181,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "pb",
+                "seed": 182,
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#3e2c1e"
+                  ],
+                  [
+                    1,
+                    "#6a4e34"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#7a7068",
+                "c": "peb",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.004,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "peb",
+                "b": 0.004,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.007,
+                  0.012
+                ],
+                "input": "pb.f1",
+                "name": "peb0",
+                "type": "levels"
+              },
+              {
+                "a": "peb0",
+                "name": "peb",
+                "op": "invert",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "crown_hi",
+        "input": "crown_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rootball_hi",
+        "input": "rootball_hi",
+        "visible": false
+      }
     }
   ],
   "annotations": [],
@@ -2744,7 +2772,7 @@
           "format_version": 1,
           "name": "sp-fallen-tree",
           "parts": [],
-          "version": 8885,
+          "version": 16975,
           "ops": [
             {
               "revolve": {
@@ -3358,29 +3386,6 @@
                   -0.2317912
                 ],
                 "rotation": null
-              }
-            },
-            {
-              "hull": {
-                "name": "rootball",
-                "inputs": [
-                  "rootball_p0",
-                  "rootball_p1",
-                  "rootball_p2",
-                  "rootball_p3",
-                  "rootball_p4",
-                  "rootball_p5",
-                  "rootball_p6",
-                  "rootball_p7",
-                  "rootball_p8",
-                  "rootball_p9",
-                  "rootball_p10",
-                  "rootball_p11",
-                  "rootball_p12",
-                  "rootball_p13",
-                  "rootball_p14",
-                  "rootball_p15"
-                ]
               }
             },
             {
@@ -4492,17 +4497,6 @@
               }
             },
             {
-              "group": {
-                "name": "crown",
-                "inputs": [
-                  "c0",
-                  "c1",
-                  "c2",
-                  "c3"
-                ]
-              }
-            },
-            {
               "material": {
                 "name": "wood",
                 "input": "wood",
@@ -4610,236 +4604,6 @@
                     "params": {
                       "burn": 0.0
                     }
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "crown",
-                "input": "crown",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "leaf",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "nf",
-                        "octaves": 3,
-                        "seed": 22,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3f6b22"
-                          ],
-                          [
-                            0.5,
-                            "#5f8f2f"
-                          ],
-                          [
-                            1.0,
-                            "#8ab043"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "ft",
-                        "to": [
-                          0.88,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "ft",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "name": "ao",
-                        "radius": 0.15,
-                        "type": "mesh_ao"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "ao",
-                        "name": "aot",
-                        "to": [
-                          0.45,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "aot",
-                        "name": "c2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c2",
-                        "b": "$light",
-                        "name": "c3",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c4",
-                        "name": "out",
-                        "roughness": 0.75,
-                        "type": "output"
-                      },
-                      {
-                        "hue": "$hue",
-                        "input": "c3",
-                        "name": "c4",
-                        "type": "hsv"
-                      }
-                    ],
-                    "params": {
-                      "hue": 0.0,
-                      "light": 1.0
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "rootball",
-                "input": "rootball",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-soil",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 5,
-                        "seed": 181,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "pb",
-                        "seed": 182,
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2c1e"
-                          ],
-                          [
-                            1,
-                            "#6a4e34"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#7a7068",
-                        "c": "peb",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.004,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "peb",
-                        "b": 0.004,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "in": [
-                          0.007,
-                          0.012
-                        ],
-                        "input": "pb.f1",
-                        "name": "peb0",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "peb0",
-                        "name": "peb",
-                        "op": "invert",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {}
                   }
                 }
               }
@@ -5457,6 +5221,298 @@
               "visibility": {
                 "name": "c3",
                 "input": "c3",
+                "visible": false
+              }
+            },
+            {
+              "group": {
+                "name": "crown_hi",
+                "inputs": [
+                  "c0",
+                  "c1",
+                  "c2",
+                  "c3"
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "crown",
+                "input": "crown_hi",
+                "tris": 170
+              }
+            },
+            {
+              "material": {
+                "name": "crown",
+                "input": "crown",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "leaf",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "object",
+                    "tile": 1.0,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "name": "p",
+                        "of": "position",
+                        "type": "input"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 4,
+                        "seed": 21,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "coords": "p",
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 3,
+                        "seed": 22,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3f6b22"
+                          ],
+                          [
+                            0.5,
+                            "#5f8f2f"
+                          ],
+                          [
+                            1.0,
+                            "#8ab043"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.88,
+                          1.1
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "ft",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "name": "ao",
+                        "radius": 0.15,
+                        "type": "mesh_ao"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "ao",
+                        "name": "aot",
+                        "to": [
+                          0.45,
+                          1.0
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c1",
+                        "b": "aot",
+                        "name": "c2",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "c2",
+                        "b": "$light",
+                        "name": "c3",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "c4",
+                        "name": "out",
+                        "roughness": 0.75,
+                        "type": "output"
+                      },
+                      {
+                        "hue": "$hue",
+                        "input": "c3",
+                        "name": "c4",
+                        "type": "hsv"
+                      }
+                    ],
+                    "params": {
+                      "hue": 0.0,
+                      "light": 1.0
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "hull": {
+                "name": "rootball_hi",
+                "inputs": [
+                  "rootball_p0",
+                  "rootball_p1",
+                  "rootball_p2",
+                  "rootball_p3",
+                  "rootball_p4",
+                  "rootball_p5",
+                  "rootball_p6",
+                  "rootball_p7",
+                  "rootball_p8",
+                  "rootball_p9",
+                  "rootball_p10",
+                  "rootball_p11",
+                  "rootball_p12",
+                  "rootball_p13",
+                  "rootball_p14",
+                  "rootball_p15"
+                ]
+              }
+            },
+            {
+              "decimate": {
+                "name": "rootball",
+                "input": "rootball_hi",
+                "tris": 50
+              }
+            },
+            {
+              "material": {
+                "name": "rootball",
+                "input": "rootball",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "sp-soil",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 5,
+                        "seed": 181,
+                        "size": 0.15,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "pb",
+                        "seed": 182,
+                        "size": 0.05,
+                        "type": "worley"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0,
+                            "#3e2c1e"
+                          ],
+                          [
+                            1,
+                            "#6a4e34"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "#7a7068",
+                        "c": "peb",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "fn",
+                        "b": 0.004,
+                        "name": "h0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "peb",
+                        "b": 0.004,
+                        "name": "h1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "h0",
+                        "b": "h1",
+                        "name": "h",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      },
+                      {
+                        "in": [
+                          0.007,
+                          0.012
+                        ],
+                        "input": "pb.f1",
+                        "name": "peb0",
+                        "type": "levels"
+                      },
+                      {
+                        "a": "peb0",
+                        "name": "peb",
+                        "op": "invert",
+                        "type": "math"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "crown_hi",
+                "input": "crown_hi",
+                "visible": false
+              }
+            },
+            {
+              "visibility": {
+                "name": "rootball_hi",
+                "input": "rootball_hi",
                 "visible": false
               }
             }
@@ -5466,2743 +5522,12 @@
           "derived_from_ops": true
         },
         "parent": 0,
-        "children": [
-          2
-        ],
-        "label": "new model `sp-fallen-tree`"
-      },
-      {
-        "model": {
-          "format_version": 1,
-          "name": "sp-fallen-tree",
-          "parts": [],
-          "version": 9068,
-          "ops": [
-            {
-              "revolve": {
-                "name": "trunk",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      -2.05
-                    ],
-                    [
-                      0.3,
-                      -2.05
-                    ],
-                    [
-                      0.26,
-                      -1.2
-                    ],
-                    [
-                      0.24,
-                      0.5
-                    ],
-                    [
-                      0.19,
-                      2.1
-                    ],
-                    [
-                      0.0,
-                      2.1
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 8,
-                "translation": [
-                  0.0,
-                  0.0,
-                  0.0
-                ],
-                "rotation": [
-                  0.0,
-                  0.0,
-                  -0.70710677,
-                  0.70710677
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "stub_a",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.08,
-                      0.0
-                    ],
-                    [
-                      0.05,
-                      0.7
-                    ],
-                    [
-                      0.0,
-                      0.72
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  0.6,
-                  0.12,
-                  0.0
-                ],
-                "rotation": [
-                  -0.49240386,
-                  0.15038373,
-                  0.08682409,
-                  0.8528685
-                ]
-              }
-            },
-            {
-              "revolve": {
-                "name": "stub_b",
-                "profile": [
-                  [
-                    [
-                      0.0,
-                      0.0
-                    ],
-                    [
-                      0.07,
-                      0.0
-                    ],
-                    [
-                      0.04,
-                      0.6
-                    ],
-                    [
-                      0.0,
-                      0.62
-                    ]
-                  ]
-                ],
-                "degrees": 360.0,
-                "segments": 6,
-                "translation": [
-                  1.2,
-                  0.1,
-                  0.0
-                ],
-                "rotation": [
-                  0.5540323,
-                  -0.21201216,
-                  0.1484525,
-                  0.7912401
-                ]
-              }
-            },
-            {
-              "sweep": {
-                "name": "root_0",
-                "profile": [
-                  [
-                    -0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    0.04
-                  ],
-                  [
-                    -0.04,
-                    0.04
-                  ]
-                ],
-                "path": [
-                  [
-                    -1.9,
-                    0.09553365,
-                    0.02955202
-                  ],
-                  [
-                    -2.05,
-                    0.7754351,
-                    0.16253611
-                  ],
-                  [
-                    -2.0,
-                    0.99594516,
-                    0.4075117
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "sweep": {
-                "name": "root_1",
-                "profile": [
-                  [
-                    -0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    0.04
-                  ],
-                  [
-                    -0.04,
-                    0.04
-                  ]
-                ],
-                "path": [
-                  [
-                    -1.9,
-                    0.016996715,
-                    0.09854497
-                  ],
-                  [
-                    -2.05,
-                    0.34348193,
-                    0.5419974
-                  ],
-                  [
-                    -2.0,
-                    0.2251804,
-                    0.84963757
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "sweep": {
-                "name": "root_2",
-                "profile": [
-                  [
-                    -0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    0.04
-                  ],
-                  [
-                    -0.04,
-                    0.04
-                  ]
-                ],
-                "path": [
-                  [
-                    -1.9,
-                    -0.080114365,
-                    0.059847213
-                  ],
-                  [
-                    -2.05,
-                    -0.19062899,
-                    0.32915968
-                  ],
-                  [
-                    -2.0,
-                    -0.51846135,
-                    0.3632729
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "sweep": {
-                "name": "root_3",
-                "profile": [
-                  [
-                    -0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    0.04
-                  ],
-                  [
-                    -0.04,
-                    0.04
-                  ]
-                ],
-                "path": [
-                  [
-                    -1.9,
-                    -0.08967584,
-                    -0.044252045
-                  ],
-                  [
-                    -2.05,
-                    -0.24321713,
-                    -0.24338624
-                  ],
-                  [
-                    -2.0,
-                    -0.42232254,
-                    -0.5200792
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "sweep": {
-                "name": "root_4",
-                "profile": [
-                  [
-                    -0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    -0.04
-                  ],
-                  [
-                    0.04,
-                    0.04
-                  ],
-                  [
-                    -0.04,
-                    0.04
-                  ]
-                ],
-                "path": [
-                  [
-                    -1.9,
-                    0.0087498985,
-                    -0.09961646
-                  ],
-                  [
-                    -2.05,
-                    0.29812443,
-                    -0.54789054
-                  ],
-                  [
-                    -2.0,
-                    0.49111286,
-                    -0.81508565
-                  ]
-                ],
-                "closed": false
-              }
-            },
-            {
-              "group": {
-                "name": "wood",
-                "inputs": [
-                  "trunk",
-                  "stub_a",
-                  "stub_b",
-                  "root_0",
-                  "root_1",
-                  "root_2",
-                  "root_3",
-                  "root_4"
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p0",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.0317485,
-                  0.9180177,
-                  0.061730713
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p1",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.2133768,
-                  0.81288904,
-                  0.069758706
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p2",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.0430262,
-                  0.7438662,
-                  -0.44760638
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p3",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.0142105,
-                  0.6451567,
-                  0.46167868
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p4",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.266489,
-                  0.58316725,
-                  -0.33398566
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p5",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -1.9439791,
-                  0.45584822,
-                  -0.28368628
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p6",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.1669295,
-                  0.39344224,
-                  0.6630115
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p7",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.110832,
-                  0.2877372,
-                  -0.5584621
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p8",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -1.9657606,
-                  0.20015006,
-                  0.59669775
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p9",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.3032637,
-                  0.11419972,
-                  -0.0005773788
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p10",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.0176256,
-                  0.063078076,
-                  -0.4546405
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p11",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.1020424,
-                  -0.015783757,
-                  0.5072169
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p12",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.2224252,
-                  -0.11326702,
-                  -0.29583856
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p13",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -1.9591515,
-                  -0.22604303,
-                  -0.09200835
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p14",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.198854,
-                  -0.37717664,
-                  0.26717317
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "rootball_p15",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  -2.0868297,
-                  -0.43386993,
-                  -0.2317912
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "hull": {
-                "name": "rootball",
-                "inputs": [
-                  "rootball_p0",
-                  "rootball_p1",
-                  "rootball_p2",
-                  "rootball_p3",
-                  "rootball_p4",
-                  "rootball_p5",
-                  "rootball_p6",
-                  "rootball_p7",
-                  "rootball_p8",
-                  "rootball_p9",
-                  "rootball_p10",
-                  "rootball_p11",
-                  "rootball_p12",
-                  "rootball_p13",
-                  "rootball_p14",
-                  "rootball_p15"
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p0",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.7456825,
-                  1.4983906,
-                  0.034324225
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p1",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.8860291,
-                  1.3452976,
-                  0.19382957
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p2",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.5620959,
-                  1.3070635,
-                  -0.7347133
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p3",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.5339298,
-                  1.1520553,
-                  0.78313303
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p4",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.6919761,
-                  1.0143676,
-                  -0.3669196
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p5",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.1481724,
-                  0.9364599,
-                  -0.47392297
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p6",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.9181681,
-                  0.81769484,
-                  0.68380356
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p7",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.3974915,
-                  0.7379514,
-                  -0.9068091
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p8",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.160108,
-                  0.643135,
-                  0.405205
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p9",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.3529027,
-                  0.5464197,
-                  -0.21996152
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p10",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.2373996,
-                  0.44478494,
-                  -0.58289087
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p11",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.654919,
-                  0.3628303,
-                  0.87496513
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p12",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.8461639,
-                  0.29033998,
-                  -0.5980416
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p13",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.1800437,
-                  0.1677597,
-                  0.2889656
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p14",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.8377633,
-                  -0.0023890582,
-                  0.6599074
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p15",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.3579218,
-                  -0.13344905,
-                  -0.7793236
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p16",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.7163475,
-                  -0.16170065,
-                  0.4637759
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c0_p17",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.0772495,
-                  -0.24609943,
-                  -0.05355113
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "hull": {
-                "name": "c0",
-                "inputs": [
-                  "c0_p0",
-                  "c0_p1",
-                  "c0_p2",
-                  "c0_p3",
-                  "c0_p4",
-                  "c0_p5",
-                  "c0_p6",
-                  "c0_p7",
-                  "c0_p8",
-                  "c0_p9",
-                  "c0_p10",
-                  "c0_p11",
-                  "c0_p12",
-                  "c0_p13",
-                  "c0_p14",
-                  "c0_p15",
-                  "c0_p16",
-                  "c0_p17"
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p0",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.0945148,
-                  0.89703304,
-                  0.826034
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p1",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.52822,
-                  0.9419492,
-                  1.0310155
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p2",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.9935099,
-                  0.7418114,
-                  0.23413226
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p3",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.0504391,
-                  0.68610805,
-                  1.2582301
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p4",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.443593,
-                  0.59704053,
-                  0.30865213
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p5",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.5466783,
-                  0.5216074,
-                  0.7059086
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p6",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.4396123,
-                  0.44841257,
-                  1.3404063
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p7",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.846635,
-                  0.35169336,
-                  -0.08518159
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p8",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.322297,
-                  0.28884587,
-                  1.1136206
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p9",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.234921,
-                  0.17995712,
-                  0.6080787
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p10",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.2213206,
-                  0.12788805,
-                  0.2537902
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p11",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.7876298,
-                  0.0047018067,
-                  1.2379011
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p12",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  1.6824564,
-                  -0.11017323,
-                  0.2849568
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c1_p13",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.1479614,
-                  -0.16822658,
-                  0.7934213
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "hull": {
-                "name": "c1",
-                "inputs": [
-                  "c1_p0",
-                  "c1_p1",
-                  "c1_p2",
-                  "c1_p3",
-                  "c1_p4",
-                  "c1_p5",
-                  "c1_p6",
-                  "c1_p7",
-                  "c1_p8",
-                  "c1_p9",
-                  "c1_p10",
-                  "c1_p11",
-                  "c1_p12",
-                  "c1_p13"
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p0",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.168436,
-                  1.1848011,
-                  -0.43359816
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p1",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.502618,
-                  0.9469083,
-                  -0.5168911
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p2",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.140498,
-                  0.9082983,
-                  -1.1072199
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p3",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.0904248,
-                  0.78895456,
-                  -0.05481813
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p4",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.2399304,
-                  0.7282828,
-                  -0.7971697
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p5",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.5557163,
-                  0.6374067,
-                  -0.9038507
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p6",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.7205453,
-                  0.540659,
-                  0.03006366
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p7",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.8612976,
-                  0.4546683,
-                  -1.3293843
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p8",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.520484,
-                  0.35092768,
-                  -0.12069208
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p9",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.3018417,
-                  0.29867032,
-                  -0.4935731
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p10",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.4255035,
-                  0.16631046,
-                  -1.0105873
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p11",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.8460138,
-                  0.06697571,
-                  -0.007110739
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p12",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.701265,
-                  0.010307861,
-                  -0.9979846
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c2_p13",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.1597688,
-                  -0.07979382,
-                  -0.53657687
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "hull": {
-                "name": "c2",
-                "inputs": [
-                  "c2_p0",
-                  "c2_p1",
-                  "c2_p2",
-                  "c2_p3",
-                  "c2_p4",
-                  "c2_p5",
-                  "c2_p6",
-                  "c2_p7",
-                  "c2_p8",
-                  "c2_p9",
-                  "c2_p10",
-                  "c2_p11",
-                  "c2_p12",
-                  "c2_p13"
-                ]
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p0",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.4233189,
-                  1.4627764,
-                  0.40171838
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p1",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.855789,
-                  1.3967416,
-                  0.55206466
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p2",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.2978785,
-                  1.2716976,
-                  -0.17313497
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p3",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.5156298,
-                  1.1962633,
-                  0.7623262
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p4",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.6257496,
-                  1.1086011,
-                  0.14363115
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p5",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.8273249,
-                  1.0272601,
-                  0.2167823
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p6",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.8657246,
-                  0.9435966,
-                  0.87388116
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p7",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.260084,
-                  0.8652448,
-                  -0.22603074
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p8",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.7265043,
-                  0.7659436,
-                  0.70886433
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p9",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  2.6496956,
-                  0.70685923,
-                  0.2713527
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p10",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.5431628,
-                  0.5876249,
-                  -0.18022653
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p11",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.3239706,
-                  0.518791,
-                  0.7797581
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p12",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.028881,
-                  0.51223385,
-                  0.0142833935
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "primitive": {
-                "name": "c3_p13",
-                "kind": "box",
-                "size": [
-                  0.005,
-                  0.005,
-                  0.005
-                ],
-                "translation": [
-                  3.4096456,
-                  0.41910762,
-                  0.29574734
-                ],
-                "rotation": null
-              }
-            },
-            {
-              "hull": {
-                "name": "c3",
-                "inputs": [
-                  "c3_p0",
-                  "c3_p1",
-                  "c3_p2",
-                  "c3_p3",
-                  "c3_p4",
-                  "c3_p5",
-                  "c3_p6",
-                  "c3_p7",
-                  "c3_p8",
-                  "c3_p9",
-                  "c3_p10",
-                  "c3_p11",
-                  "c3_p12",
-                  "c3_p13"
-                ]
-              }
-            },
-            {
-              "group": {
-                "name": "crown",
-                "inputs": [
-                  "c0",
-                  "c1",
-                  "c2",
-                  "c3"
-                ]
-              }
-            },
-            {
-              "material": {
-                "name": "wood",
-                "input": "wood",
-                "base_color": [
-                  0.75,
-                  0.62,
-                  0.55,
-                  1.0
-                ],
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "bark",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "ridged",
-                        "name": "streak",
-                        "octaves": 4,
-                        "seed": 2,
-                        "size": 0.06,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "blot",
-                        "octaves": 3,
-                        "seed": 9,
-                        "size": 0.2,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "streak",
-                        "name": "col0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3b281a"
-                          ],
-                          [
-                            0.55,
-                            "#6b4a2f"
-                          ],
-                          [
-                            1.0,
-                            "#8a6440"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "blot",
-                        "name": "blot_t",
-                        "to": [
-                          0.85,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "col0",
-                        "b": "blot_t",
-                        "name": "col1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "col1",
-                        "b": "#1e1714",
-                        "c": "$burn",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "streak",
-                        "b": 0.006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.9,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {
-                      "burn": 0.0
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "crown",
-                "input": "crown",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "leaf",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "object",
-                    "tile": 1.0,
-                    "resolution": 128,
-                    "nodes": [
-                      {
-                        "name": "p",
-                        "of": "position",
-                        "type": "input"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "n",
-                        "octaves": 4,
-                        "seed": 21,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "coords": "p",
-                        "mode": "fbm",
-                        "name": "nf",
-                        "octaves": 3,
-                        "seed": 22,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "input": "n",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0.0,
-                            "#3f6b22"
-                          ],
-                          [
-                            0.5,
-                            "#5f8f2f"
-                          ],
-                          [
-                            1.0,
-                            "#8ab043"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "nf",
-                        "name": "ft",
-                        "to": [
-                          0.88,
-                          1.1
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "ft",
-                        "name": "c1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "name": "ao",
-                        "radius": 0.15,
-                        "type": "mesh_ao"
-                      },
-                      {
-                        "from": [
-                          0,
-                          1
-                        ],
-                        "input": "ao",
-                        "name": "aot",
-                        "to": [
-                          0.45,
-                          1.0
-                        ],
-                        "type": "remap"
-                      },
-                      {
-                        "a": "c1",
-                        "b": "aot",
-                        "name": "c2",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "c2",
-                        "b": "$light",
-                        "name": "c3",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "c4",
-                        "name": "out",
-                        "roughness": 0.75,
-                        "type": "output"
-                      },
-                      {
-                        "hue": "$hue",
-                        "input": "c3",
-                        "name": "c4",
-                        "type": "hsv"
-                      }
-                    ],
-                    "params": {
-                      "hue": 0.0,
-                      "light": 1.0
-                    }
-                  }
-                }
-              }
-            },
-            {
-              "material": {
-                "name": "rootball",
-                "input": "rootball",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "sp-soil",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 5,
-                        "seed": 181,
-                        "size": 0.15,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "pb",
-                        "seed": 182,
-                        "size": 0.05,
-                        "type": "worley"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "c0",
-                        "stops": [
-                          [
-                            0,
-                            "#3e2c1e"
-                          ],
-                          [
-                            1,
-                            "#6a4e34"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "c0",
-                        "b": "#7a7068",
-                        "c": "peb",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.004,
-                        "name": "h0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "peb",
-                        "b": 0.004,
-                        "name": "h1",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "h0",
-                        "b": "h1",
-                        "name": "h",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      },
-                      {
-                        "in": [
-                          0.007,
-                          0.012
-                        ],
-                        "input": "pb.f1",
-                        "name": "peb0",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "peb0",
-                        "name": "peb",
-                        "op": "invert",
-                        "type": "math"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
-              }
-            },
-            {
-              "visibility": {
-                "name": "trunk",
-                "input": "trunk",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stub_a",
-                "input": "stub_a",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "stub_b",
-                "input": "stub_b",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "root_0",
-                "input": "root_0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "root_1",
-                "input": "root_1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "root_2",
-                "input": "root_2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "root_3",
-                "input": "root_3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "root_4",
-                "input": "root_4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p0",
-                "input": "rootball_p0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p1",
-                "input": "rootball_p1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p2",
-                "input": "rootball_p2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p3",
-                "input": "rootball_p3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p4",
-                "input": "rootball_p4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p5",
-                "input": "rootball_p5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p6",
-                "input": "rootball_p6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p7",
-                "input": "rootball_p7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p8",
-                "input": "rootball_p8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p9",
-                "input": "rootball_p9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p10",
-                "input": "rootball_p10",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p11",
-                "input": "rootball_p11",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p12",
-                "input": "rootball_p12",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p13",
-                "input": "rootball_p13",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p14",
-                "input": "rootball_p14",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "rootball_p15",
-                "input": "rootball_p15",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p0",
-                "input": "c0_p0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p1",
-                "input": "c0_p1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p2",
-                "input": "c0_p2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p3",
-                "input": "c0_p3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p4",
-                "input": "c0_p4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p5",
-                "input": "c0_p5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p6",
-                "input": "c0_p6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p7",
-                "input": "c0_p7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p8",
-                "input": "c0_p8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p9",
-                "input": "c0_p9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p10",
-                "input": "c0_p10",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p11",
-                "input": "c0_p11",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p12",
-                "input": "c0_p12",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p13",
-                "input": "c0_p13",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p14",
-                "input": "c0_p14",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p15",
-                "input": "c0_p15",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p16",
-                "input": "c0_p16",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0_p17",
-                "input": "c0_p17",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p0",
-                "input": "c1_p0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p1",
-                "input": "c1_p1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p2",
-                "input": "c1_p2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p3",
-                "input": "c1_p3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p4",
-                "input": "c1_p4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p5",
-                "input": "c1_p5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p6",
-                "input": "c1_p6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p7",
-                "input": "c1_p7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p8",
-                "input": "c1_p8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p9",
-                "input": "c1_p9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p10",
-                "input": "c1_p10",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p11",
-                "input": "c1_p11",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p12",
-                "input": "c1_p12",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1_p13",
-                "input": "c1_p13",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p0",
-                "input": "c2_p0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p1",
-                "input": "c2_p1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p2",
-                "input": "c2_p2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p3",
-                "input": "c2_p3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p4",
-                "input": "c2_p4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p5",
-                "input": "c2_p5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p6",
-                "input": "c2_p6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p7",
-                "input": "c2_p7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p8",
-                "input": "c2_p8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p9",
-                "input": "c2_p9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p10",
-                "input": "c2_p10",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p11",
-                "input": "c2_p11",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p12",
-                "input": "c2_p12",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2_p13",
-                "input": "c2_p13",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p0",
-                "input": "c3_p0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p1",
-                "input": "c3_p1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p2",
-                "input": "c3_p2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p3",
-                "input": "c3_p3",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p4",
-                "input": "c3_p4",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p5",
-                "input": "c3_p5",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p6",
-                "input": "c3_p6",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p7",
-                "input": "c3_p7",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p8",
-                "input": "c3_p8",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p9",
-                "input": "c3_p9",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p10",
-                "input": "c3_p10",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p11",
-                "input": "c3_p11",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p12",
-                "input": "c3_p12",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3_p13",
-                "input": "c3_p13",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c0",
-                "input": "c0",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c1",
-                "input": "c1",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c2",
-                "input": "c2",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "c3",
-                "input": "c3",
-                "visible": false
-              }
-            }
-          ],
-          "annotations": [],
-          "next_annotation_id": 0,
-          "derived_from_ops": true
-        },
-        "parent": 1,
         "children": [],
-        "label": "182 edits: revolve `trunk` profile=[[[0.0, -2.05], [0.3, -2.05], [0.26, -1.2], [0.24, 0.5], [0.19, 2.1], [0.0, 2.1]]] degrees=360 segments=8 round=0 at=[0.0, 0.0, 0.0] rot=[0.0, 0.0, -0.70710677, 0.70710677] … hidden `c3`"
+        "label": "10 edits: op delete `crown` … hidden `rootball_hi`",
+        "author": "lite-features"
       }
     ],
-    "current": 2
+    "current": 1
   },
   "derived_from_ops": true
 }

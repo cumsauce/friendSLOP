@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "fn-stone-wall",
   "parts": [],
-  "version": 15041,
+  "version": 17678,
   "ops": [
     {
       "primitive": {
@@ -22,25 +22,16 @@
       }
     },
     {
-      "round": {
-        "name": "core_ch",
-        "input": "core_raw",
-        "mode": "chamfer",
-        "radius": 0.03,
-        "segments": 0
-      }
-    },
-    {
       "deform": {
         "name": "core",
-        "input": "core_ch",
+        "input": "core_raw",
         "mode": "taper",
         "axis": "y",
         "scale_end": [
           1.0,
           0.84
         ],
-        "detail": 0.5
+        "detail": 3.0
       }
     },
     {
@@ -413,18 +404,9 @@
       }
     },
     {
-      "round": {
-        "name": "foot0_ch",
-        "input": "foot0_raw",
-        "mode": "chamfer",
-        "radius": 0.04,
-        "segments": 0
-      }
-    },
-    {
       "transform": {
         "name": "foot0",
-        "input": "foot0_ch",
+        "input": "foot0_raw",
         "translation": [
           -0.562298,
           0.10618784,
@@ -457,18 +439,9 @@
       }
     },
     {
-      "round": {
-        "name": "foot1_ch",
-        "input": "foot1_raw",
-        "mode": "chamfer",
-        "radius": 0.04,
-        "segments": 0
-      }
-    },
-    {
       "transform": {
         "name": "foot1",
-        "input": "foot1_ch",
+        "input": "foot1_raw",
         "translation": [
           0.0037799974,
           0.09294129,
@@ -501,28 +474,19 @@
       }
     },
     {
-      "round": {
-        "name": "foot2_ch",
-        "input": "foot2_raw",
-        "mode": "chamfer",
-        "radius": 0.04,
-        "segments": 0
-      }
-    },
-    {
       "transform": {
         "name": "foot2",
-        "input": "foot2_ch",
+        "input": "foot2_raw",
         "translation": [
           0.7166308,
           0.073540725,
           -0.27
         ],
         "rotation": [
-          0.00032784857,
-          0.041957423,
-          -0.0078067197,
-          0.9990888
+          0.0003278486,
+          0.041957427,
+          -0.0078067207,
+          0.99908894
         ],
         "scale": null
       }
@@ -545,28 +509,19 @@
       }
     },
     {
-      "round": {
-        "name": "foot3_ch",
-        "input": "foot3_raw",
-        "mode": "chamfer",
-        "radius": 0.04,
-        "segments": 0
-      }
-    },
-    {
       "transform": {
         "name": "foot3",
-        "input": "foot3_ch",
+        "input": "foot3_raw",
         "translation": [
           -0.6758775,
           0.100751676,
           0.27
         ],
         "rotation": [
-          0.0020688327,
-          0.051983446,
-          -0.03971258,
-          0.99785584
+          0.002068833,
+          0.051983453,
+          -0.039712586,
+          0.99785596
         ],
         "scale": null
       }
@@ -589,18 +544,9 @@
       }
     },
     {
-      "round": {
-        "name": "foot4_ch",
-        "input": "foot4_raw",
-        "mode": "chamfer",
-        "radius": 0.04,
-        "segments": 0
-      }
-    },
-    {
       "transform": {
         "name": "foot4",
-        "input": "foot4_ch",
+        "input": "foot4_raw",
         "translation": [
           0.06832521,
           0.09873762,
@@ -633,18 +579,9 @@
       }
     },
     {
-      "round": {
-        "name": "foot5_ch",
-        "input": "foot5_raw",
-        "mode": "chamfer",
-        "radius": 0.04,
-        "segments": 0
-      }
-    },
-    {
       "transform": {
         "name": "foot5",
-        "input": "foot5_ch",
+        "input": "foot5_raw",
         "translation": [
           0.7369017,
           0.10994036,
@@ -3038,13 +2975,6 @@
     },
     {
       "visibility": {
-        "name": "core_ch",
-        "input": "core_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "name": "cap0_raw",
         "input": "cap0_raw",
         "visible": false
@@ -3164,22 +3094,8 @@
     },
     {
       "visibility": {
-        "name": "foot0_ch",
-        "input": "foot0_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "name": "foot1_raw",
         "input": "foot1_raw",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "foot1_ch",
-        "input": "foot1_ch",
         "visible": false
       }
     },
@@ -3192,22 +3108,8 @@
     },
     {
       "visibility": {
-        "name": "foot2_ch",
-        "input": "foot2_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "name": "foot3_raw",
         "input": "foot3_raw",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "foot3_ch",
-        "input": "foot3_ch",
         "visible": false
       }
     },
@@ -3220,22 +3122,8 @@
     },
     {
       "visibility": {
-        "name": "foot4_ch",
-        "input": "foot4_ch",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "name": "foot5_raw",
         "input": "foot5_raw",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "foot5_ch",
-        "input": "foot5_ch",
         "visible": false
       }
     }
@@ -3265,7 +3153,7 @@
           "format_version": 1,
           "name": "fn-stone-wall",
           "parts": [],
-          "version": 14977,
+          "version": 17674,
           "ops": [
             {
               "primitive": {
@@ -3285,25 +3173,16 @@
               }
             },
             {
-              "round": {
-                "name": "core_ch",
-                "input": "core_raw",
-                "mode": "chamfer",
-                "radius": 0.03,
-                "segments": 0
-              }
-            },
-            {
               "deform": {
                 "name": "core",
-                "input": "core_ch",
+                "input": "core_raw",
                 "mode": "taper",
                 "axis": "y",
                 "scale_end": [
                   1.0,
                   0.84
                 ],
-                "detail": 0.5
+                "detail": 3.0
               }
             },
             {
@@ -3676,18 +3555,9 @@
               }
             },
             {
-              "round": {
-                "name": "foot0_ch",
-                "input": "foot0_raw",
-                "mode": "chamfer",
-                "radius": 0.04,
-                "segments": 0
-              }
-            },
-            {
               "transform": {
                 "name": "foot0",
-                "input": "foot0_ch",
+                "input": "foot0_raw",
                 "translation": [
                   -0.562298,
                   0.10618784,
@@ -3720,18 +3590,9 @@
               }
             },
             {
-              "round": {
-                "name": "foot1_ch",
-                "input": "foot1_raw",
-                "mode": "chamfer",
-                "radius": 0.04,
-                "segments": 0
-              }
-            },
-            {
               "transform": {
                 "name": "foot1",
-                "input": "foot1_ch",
+                "input": "foot1_raw",
                 "translation": [
                   0.0037799974,
                   0.09294129,
@@ -3764,28 +3625,19 @@
               }
             },
             {
-              "round": {
-                "name": "foot2_ch",
-                "input": "foot2_raw",
-                "mode": "chamfer",
-                "radius": 0.04,
-                "segments": 0
-              }
-            },
-            {
               "transform": {
                 "name": "foot2",
-                "input": "foot2_ch",
+                "input": "foot2_raw",
                 "translation": [
                   0.7166308,
                   0.073540725,
                   -0.27
                 ],
                 "rotation": [
-                  0.00032784857,
-                  0.041957423,
-                  -0.0078067197,
-                  0.9990888
+                  0.0003278486,
+                  0.041957427,
+                  -0.0078067207,
+                  0.99908894
                 ],
                 "scale": null
               }
@@ -3808,28 +3660,19 @@
               }
             },
             {
-              "round": {
-                "name": "foot3_ch",
-                "input": "foot3_raw",
-                "mode": "chamfer",
-                "radius": 0.04,
-                "segments": 0
-              }
-            },
-            {
               "transform": {
                 "name": "foot3",
-                "input": "foot3_ch",
+                "input": "foot3_raw",
                 "translation": [
                   -0.6758775,
                   0.100751676,
                   0.27
                 ],
                 "rotation": [
-                  0.0020688327,
-                  0.051983446,
-                  -0.03971258,
-                  0.99785584
+                  0.002068833,
+                  0.051983453,
+                  -0.039712586,
+                  0.99785596
                 ],
                 "scale": null
               }
@@ -3852,18 +3695,9 @@
               }
             },
             {
-              "round": {
-                "name": "foot4_ch",
-                "input": "foot4_raw",
-                "mode": "chamfer",
-                "radius": 0.04,
-                "segments": 0
-              }
-            },
-            {
               "transform": {
                 "name": "foot4",
-                "input": "foot4_ch",
+                "input": "foot4_raw",
                 "translation": [
                   0.06832521,
                   0.09873762,
@@ -3896,18 +3730,9 @@
               }
             },
             {
-              "round": {
-                "name": "foot5_ch",
-                "input": "foot5_raw",
-                "mode": "chamfer",
-                "radius": 0.04,
-                "segments": 0
-              }
-            },
-            {
               "transform": {
                 "name": "foot5",
-                "input": "foot5_ch",
+                "input": "foot5_raw",
                 "translation": [
                   0.7369017,
                   0.10994036,
@@ -6301,13 +6126,6 @@
             },
             {
               "visibility": {
-                "name": "core_ch",
-                "input": "core_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
                 "name": "cap0_raw",
                 "input": "cap0_raw",
                 "visible": false
@@ -6427,22 +6245,8 @@
             },
             {
               "visibility": {
-                "name": "foot0_ch",
-                "input": "foot0_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
                 "name": "foot1_raw",
                 "input": "foot1_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot1_ch",
-                "input": "foot1_ch",
                 "visible": false
               }
             },
@@ -6455,22 +6259,8 @@
             },
             {
               "visibility": {
-                "name": "foot2_ch",
-                "input": "foot2_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
                 "name": "foot3_raw",
                 "input": "foot3_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot3_ch",
-                "input": "foot3_ch",
                 "visible": false
               }
             },
@@ -6483,22 +6273,8 @@
             },
             {
               "visibility": {
-                "name": "foot4_ch",
-                "input": "foot4_ch",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
                 "name": "foot5_raw",
                 "input": "foot5_raw",
-                "visible": false
-              }
-            },
-            {
-              "visibility": {
-                "name": "foot5_ch",
-                "input": "foot5_ch",
                 "visible": false
               }
             }
@@ -6509,8 +6285,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "90 edits: primitive `core_raw` (box) size=[2.0, 0.94, 0.6] at=[0.0, 0.47, 0.0] … hidden `foot5_ch`",
-        "author": "fences"
+        "label": "op delete `core_ch`",
+        "author": "lite-nature"
       }
     ],
     "current": 1

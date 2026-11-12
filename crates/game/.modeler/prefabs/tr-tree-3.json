@@ -2,19 +2,28 @@
   "format_version": 1,
   "name": "tr-tree-3",
   "parts": [],
-  "version": 15254,
+  "version": 16315,
   "ops": [
     {
       "lsystem": {
         "name": "tree_3",
-        "axiom": "!(0.2645)F(0.4)[/(15)&(122)!(0.17250000000000001)F(0.6)][/(87)&(122)!(0.17250000000000001)F(0.6)][/(159)&(122)!(0.17250000000000001)F(0.6)][/(231)&(122)!(0.17250000000000001)F(0.6)][/(303)&(122)!(0.17250000000000001)F(0.6)]!(0.23)F(2.6)S(9,0.63,0.18400000000000002)",
+        "axiom": "!(R0)F(0.22)[/(15)&(125)!(0.13)F(0.5)][/(87)&(125)!(0.13)F(0.5)][/(159)&(125)!(0.13)F(0.5)][/(231)&(125)!(0.13)F(0.5)][/(303)&(125)!(0.13)F(0.5)]!(R1)F(h1)T(N,R2)",
         "rules": [
           [
-            "B(l,w)",
+            "B(l,w,d)",
             [
               {
                 "p": 1.0,
-                "to": "!(w)F(l)[+(32)!(w*0.6)F(l*0.55)C]/(180)[+(32)!(w*0.6)F(l*0.55)C]!(w*0.7)F(l*0.4)C"
+                "to": "C"
+              }
+            ]
+          ],
+          [
+            "B(l,w,d) : d > 0",
+            [
+              {
+                "p": 1.0,
+                "to": "!(w)F(l*0.5)[&(65)L(0.85)]/(180)[&(65)L(0.8)]!(w*0.85)F(l*0.5)[+(sp)B(l*k,w*0.6,d-1)][-(sp)B(l*k,w*0.6,d-1)]/(90)&(8)B(l*k2,w*0.65,d-1)"
               }
             ]
           ],
@@ -23,44 +32,50 @@
             [
               {
                 "p": 1.0,
-                "to": "[L(1)]/(120)[&(40)L(0.9)]/(120)[&(40)L(0.9)]"
+                "to": "[L(1)][&(60)L(0.9)]/(72)[&(60)L(0.85)]/(72)[&(60)L(0.95)]/(72)[&(60)L(0.9)]/(72)[&(60)L(0.85)]"
               }
             ]
           ],
           [
-            "S(n,l,w)",
+            "T(n,w)",
             [
               {
                 "p": 1.0,
-                "to": "!(w)F(l*0.5)[L(1.0)]/(72)[&(35)L(0.95)]/(144)[&(35)L(0.95)]"
+                "to": "!(w)F(s*0.7)[&(30)B(bl*0.75,w*0.6,2)]/(160)&(5)B(bl*0.8,w*0.7,2)"
               }
             ]
           ],
           [
-            "S(n,l,w) : n > 0",
+            "T(n,w) : n > 0",
             [
               {
                 "p": 1.0,
-                "to": "!(w)F(l)[&(a1+dr*n/N)B(bl*(0.5+0.5*sin(pi*n/(N+1))),w*0.62)]/(ro)S(n-1,l*0.96,w*0.86)"
+                "to": "!(w)F(s)[&(a+da*n)B(bl*(0.45+0.6*n/N)*(0.9+0.1*sin(n*1.7)),w*0.6,2)]/(137.5)T(n-1,w*0.88)"
               }
             ]
           ]
         ],
         "constants": {
-          "N": 9.0,
-          "a1": 45.0,
-          "bl": 0.95,
-          "dr": 22.0,
-          "pi": 3.14159,
-          "ro": 137.5
+          "N": 8.0,
+          "R0": 0.28,
+          "R1": 0.22,
+          "R2": 0.18,
+          "a": 31.0,
+          "bl": 0.84,
+          "da": 3.0,
+          "h1": 2.4,
+          "k": 0.6,
+          "k2": 0.66,
+          "s": 0.57,
+          "sp": 36.0
         },
-        "iterations": 11,
+        "iterations": 12,
         "angle": 25.0,
         "length": 0.3,
         "length_scale": 1.0,
         "radius": 0.08,
         "radius_scale": 1.0,
-        "taper": 0.95,
+        "taper": 0.93,
         "branch_roll": 137.5,
         "jitter": 10.0,
         "length_jitter": 0.12,
@@ -69,19 +84,21 @@
           1.0,
           0.0
         ],
-        "tropism_strength": 0.08,
-        "seed": 42,
+        "tropism_strength": 0.04,
+        "seed": 21,
         "sides": 6,
         "leaf_size": [
-          1.15,
-          1.4
+          1.0,
+          1.0
         ],
         "leaf": {
           "shape": "ellipse",
           "angle": 35.0,
-          "curl": 30.0,
-          "fold": 25.0,
-          "stalk": 0.0
+          "curl": 0.0,
+          "fold": 0.0,
+          "stalk": 0.0,
+          "mode": "card",
+          "cross": false
         },
         "translation": [
           0.0,
@@ -271,6 +288,313 @@
           }
         }
       }
+    },
+    {
+      "material": {
+        "name": "tree_3",
+        "input": "tree_3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "tr-bark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "sc",
+                "scale": [
+                  5,
+                  1
+                ],
+                "type": "transform"
+              },
+              {
+                "coords": "sc",
+                "mode": "ridged",
+                "name": "streak",
+                "octaves": 3,
+                "seed": 4,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "blot",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "input": "streak",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#2e1f14"
+                  ],
+                  [
+                    0.5,
+                    "#4a3322"
+                  ],
+                  [
+                    1.0,
+                    "#664a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "blot",
+                "name": "bt",
+                "to": [
+                  0.82,
+                  1.12
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "streak",
+                "b": 0.008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.92,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tree_3_leaves",
+        "input": "tree_3_leaves",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "tr-leaf-card",
+          "scale": 1.0,
+          "graph": {
+            "domain": "card",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "angle": 0,
+                "angle_jitter": 180,
+                "cell": 0.1,
+                "name": "lv",
+                "per_cell": 3,
+                "scale": [
+                  0.8,
+                  1.25
+                ],
+                "seed": 7,
+                "shape": "leaf",
+                "size": [
+                  0.1,
+                  0.19
+                ],
+                "type": "scatter"
+              },
+              {
+                "name": "bn",
+                "octaves": 2,
+                "seed": 3,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "center": [
+                  0.5,
+                  0.52
+                ],
+                "name": "bc",
+                "radius": 0.4,
+                "type": "circle"
+              },
+              {
+                "amount": 0.16,
+                "by": "bn",
+                "input": "bc",
+                "name": "bd",
+                "type": "displace"
+              },
+              {
+                "a": "lv.edge",
+                "b": 2.5,
+                "name": "ek",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bd",
+                "b": "ek",
+                "name": "bs",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "bm",
+                "sdf": "bs",
+                "type": "mask"
+              },
+              {
+                "a": "bm",
+                "b": "lv.mask",
+                "name": "op",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "lv.id",
+                "name": "rid",
+                "seed": 5,
+                "type": "random"
+              },
+              {
+                "input": "rid",
+                "name": "lc",
+                "stops": [
+                  [
+                    0,
+                    "#3f6a22"
+                  ],
+                  [
+                    0.45,
+                    "#55862c"
+                  ],
+                  [
+                    0.8,
+                    "#6c9a34"
+                  ],
+                  [
+                    1,
+                    "#86a840"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "lv.local",
+                "name": "ll",
+                "type": "split"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "ll.y",
+                "name": "tipf",
+                "to": [
+                  0.78,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "lc",
+                "b": "tipf",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": [
+                  0,
+                  -0.9
+                ],
+                "b": [
+                  0,
+                  0.9
+                ],
+                "coords": "lv.local",
+                "name": "rib",
+                "type": "segment",
+                "width": 0.05
+              },
+              {
+                "name": "ribm",
+                "sdf": "rib",
+                "type": "mask"
+              },
+              {
+                "a": "c1",
+                "b": "#9cb860",
+                "name": "c2",
+                "opacity": "ribm",
+                "type": "blend"
+              },
+              {
+                "from": [
+                  0.5,
+                  0.15
+                ],
+                "name": "vg",
+                "to": [
+                  0.5,
+                  1.0
+                ],
+                "type": "gradient"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "vg",
+                "name": "vgr",
+                "to": [
+                  1.05,
+                  0.72
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c2",
+                "b": "vgr",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "opacity": "op",
+                "roughness": 0.75,
+                "transmission": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
     }
   ],
   "annotations": [],
@@ -298,19 +622,28 @@
           "format_version": 1,
           "name": "tr-tree-3",
           "parts": [],
-          "version": 15103,
+          "version": 16304,
           "ops": [
             {
               "lsystem": {
                 "name": "tree_3",
-                "axiom": "!(0.2645)F(0.4)[/(15)&(122)!(0.17250000000000001)F(0.6)][/(87)&(122)!(0.17250000000000001)F(0.6)][/(159)&(122)!(0.17250000000000001)F(0.6)][/(231)&(122)!(0.17250000000000001)F(0.6)][/(303)&(122)!(0.17250000000000001)F(0.6)]!(0.23)F(2.6)S(9,0.63,0.18400000000000002)",
+                "axiom": "!(R0)F(0.22)[/(15)&(125)!(0.13)F(0.5)][/(87)&(125)!(0.13)F(0.5)][/(159)&(125)!(0.13)F(0.5)][/(231)&(125)!(0.13)F(0.5)][/(303)&(125)!(0.13)F(0.5)]!(R1)F(h1)T(N,R2)",
                 "rules": [
                   [
-                    "B(l,w)",
+                    "B(l,w,d)",
                     [
                       {
                         "p": 1.0,
-                        "to": "!(w)F(l)[+(32)!(w*0.6)F(l*0.55)C]/(180)[+(32)!(w*0.6)F(l*0.55)C]!(w*0.7)F(l*0.4)C"
+                        "to": "C"
+                      }
+                    ]
+                  ],
+                  [
+                    "B(l,w,d) : d > 0",
+                    [
+                      {
+                        "p": 1.0,
+                        "to": "!(w)F(l*0.5)[&(65)L(0.85)]/(180)[&(65)L(0.8)]!(w*0.85)F(l*0.5)[+(sp)B(l*k,w*0.6,d-1)][-(sp)B(l*k,w*0.6,d-1)]/(90)&(8)B(l*k2,w*0.65,d-1)"
                       }
                     ]
                   ],
@@ -319,44 +652,50 @@
                     [
                       {
                         "p": 1.0,
-                        "to": "[L(1)]/(120)[&(40)L(0.9)]/(120)[&(40)L(0.9)]"
+                        "to": "[L(1)][&(60)L(0.9)]/(72)[&(60)L(0.85)]/(72)[&(60)L(0.95)]/(72)[&(60)L(0.9)]/(72)[&(60)L(0.85)]"
                       }
                     ]
                   ],
                   [
-                    "S(n,l,w)",
+                    "T(n,w)",
                     [
                       {
                         "p": 1.0,
-                        "to": "!(w)F(l*0.5)[L(1.0)]/(72)[&(35)L(0.95)]/(144)[&(35)L(0.95)]"
+                        "to": "!(w)F(s*0.7)[&(30)B(bl*0.75,w*0.6,2)]/(160)&(5)B(bl*0.8,w*0.7,2)"
                       }
                     ]
                   ],
                   [
-                    "S(n,l,w) : n > 0",
+                    "T(n,w) : n > 0",
                     [
                       {
                         "p": 1.0,
-                        "to": "!(w)F(l)[&(a1+dr*n/N)B(bl*(0.5+0.5*sin(pi*n/(N+1))),w*0.62)]/(ro)S(n-1,l*0.96,w*0.86)"
+                        "to": "!(w)F(s)[&(a+da*n)B(bl*(0.45+0.6*n/N)*(0.9+0.1*sin(n*1.7)),w*0.6,2)]/(137.5)T(n-1,w*0.88)"
                       }
                     ]
                   ]
                 ],
                 "constants": {
-                  "N": 9.0,
-                  "a1": 45.0,
-                  "bl": 0.95,
-                  "dr": 22.0,
-                  "pi": 3.14159,
-                  "ro": 137.5
+                  "N": 8.0,
+                  "R0": 0.28,
+                  "R1": 0.22,
+                  "R2": 0.18,
+                  "a": 31.0,
+                  "bl": 0.84,
+                  "da": 3.0,
+                  "h1": 2.4,
+                  "k": 0.6,
+                  "k2": 0.66,
+                  "s": 0.57,
+                  "sp": 36.0
                 },
-                "iterations": 11,
+                "iterations": 12,
                 "angle": 25.0,
                 "length": 0.3,
                 "length_scale": 1.0,
                 "radius": 0.08,
                 "radius_scale": 1.0,
-                "taper": 0.95,
+                "taper": 0.93,
                 "branch_roll": 137.5,
                 "jitter": 10.0,
                 "length_jitter": 0.12,
@@ -365,19 +704,21 @@
                   1.0,
                   0.0
                 ],
-                "tropism_strength": 0.08,
-                "seed": 42,
+                "tropism_strength": 0.04,
+                "seed": 21,
                 "sides": 6,
                 "leaf_size": [
-                  1.15,
-                  1.4
+                  1.0,
+                  1.0
                 ],
                 "leaf": {
                   "shape": "ellipse",
                   "angle": 35.0,
-                  "curl": 30.0,
-                  "fold": 25.0,
-                  "stalk": 0.0
+                  "curl": 0.0,
+                  "fold": 0.0,
+                  "stalk": 0.0,
+                  "mode": "card",
+                  "cross": false
                 },
                 "translation": [
                   0.0,
@@ -567,6 +908,313 @@
                   }
                 }
               }
+            },
+            {
+              "material": {
+                "name": "tree_3",
+                "input": "tree_3",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "tr-bark",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "sc",
+                        "scale": [
+                          5,
+                          1
+                        ],
+                        "type": "transform"
+                      },
+                      {
+                        "coords": "sc",
+                        "mode": "ridged",
+                        "name": "streak",
+                        "octaves": 3,
+                        "seed": 4,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "mode": "fbm",
+                        "name": "blot",
+                        "octaves": 3,
+                        "seed": 11,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "streak",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#2e1f14"
+                          ],
+                          [
+                            0.5,
+                            "#4a3322"
+                          ],
+                          [
+                            1.0,
+                            "#664a30"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "blot",
+                        "name": "bt",
+                        "to": [
+                          0.82,
+                          1.12
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "streak",
+                        "b": 0.008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.92,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "tree_3_leaves",
+                "input": "tree_3_leaves",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "tr-leaf-card",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "card",
+                    "tile": 1.0,
+                    "resolution": 512,
+                    "nodes": [
+                      {
+                        "angle": 0,
+                        "angle_jitter": 180,
+                        "cell": 0.1,
+                        "name": "lv",
+                        "per_cell": 3,
+                        "scale": [
+                          0.8,
+                          1.25
+                        ],
+                        "seed": 7,
+                        "shape": "leaf",
+                        "size": [
+                          0.1,
+                          0.19
+                        ],
+                        "type": "scatter"
+                      },
+                      {
+                        "name": "bn",
+                        "octaves": 2,
+                        "seed": 3,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "center": [
+                          0.5,
+                          0.52
+                        ],
+                        "name": "bc",
+                        "radius": 0.4,
+                        "type": "circle"
+                      },
+                      {
+                        "amount": 0.16,
+                        "by": "bn",
+                        "input": "bc",
+                        "name": "bd",
+                        "type": "displace"
+                      },
+                      {
+                        "a": "lv.edge",
+                        "b": 2.5,
+                        "name": "ek",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "bd",
+                        "b": "ek",
+                        "name": "bs",
+                        "op": "sub",
+                        "type": "math"
+                      },
+                      {
+                        "name": "bm",
+                        "sdf": "bs",
+                        "type": "mask"
+                      },
+                      {
+                        "a": "bm",
+                        "b": "lv.mask",
+                        "name": "op",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "id": "lv.id",
+                        "name": "rid",
+                        "seed": 5,
+                        "type": "random"
+                      },
+                      {
+                        "input": "rid",
+                        "name": "lc",
+                        "stops": [
+                          [
+                            0,
+                            "#3f6a22"
+                          ],
+                          [
+                            0.45,
+                            "#55862c"
+                          ],
+                          [
+                            0.8,
+                            "#6c9a34"
+                          ],
+                          [
+                            1,
+                            "#86a840"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "input": "lv.local",
+                        "name": "ll",
+                        "type": "split"
+                      },
+                      {
+                        "from": [
+                          -1,
+                          1
+                        ],
+                        "input": "ll.y",
+                        "name": "tipf",
+                        "to": [
+                          0.78,
+                          1.08
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "lc",
+                        "b": "tipf",
+                        "name": "c1",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": [
+                          0,
+                          -0.9
+                        ],
+                        "b": [
+                          0,
+                          0.9
+                        ],
+                        "coords": "lv.local",
+                        "name": "rib",
+                        "type": "segment",
+                        "width": 0.05
+                      },
+                      {
+                        "name": "ribm",
+                        "sdf": "rib",
+                        "type": "mask"
+                      },
+                      {
+                        "a": "c1",
+                        "b": "#9cb860",
+                        "name": "c2",
+                        "opacity": "ribm",
+                        "type": "blend"
+                      },
+                      {
+                        "from": [
+                          0.5,
+                          0.15
+                        ],
+                        "name": "vg",
+                        "to": [
+                          0.5,
+                          1.0
+                        ],
+                        "type": "gradient"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "vg",
+                        "name": "vgr",
+                        "to": [
+                          1.05,
+                          0.72
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c2",
+                        "b": "vgr",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "opacity": "op",
+                        "roughness": 0.75,
+                        "transmission": 0.25,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
             }
           ],
           "annotations": [],
@@ -575,8 +1223,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "3 edits: lsystem `tree_3` axiom=\"!(0.2645)F(0.4)[/(15)&(122)!(0.17250000000000001)F(0.6)][/(87)&(122)!(0.17250000000000001)F(0.6)][/(159)&(122)!(0.17250000000000001)F(0.6)][/(231)&(122)!(0.17250000000000001)F(0.6)][/(303)&(122)!(0.17250000000000001)F(0.6)]!(0.23)F(2.6)S(9,0.63,0.18400000000000002)\" rules=B(l,w)->!(w)F(l)[+(32)!(w*0.6)F(l*0.55)C]/(180)[+(32)!(w*0.6)F(l*0.55)C]!(w*0.7)F(l*0.4)C, C->[L(1)]/(120)[&(40)L(0.9)]/(120)[&(40)L(0.9)], S(n,l,w)->!(w)F(l*0.5)[L(1.0)]/(72)[&(35)L(0.95)]/(144)[&(35)L(0.95)], S(n,l,w) : n > 0->!(w)F(l)[&(a1+dr*n/N)B(bl*(0.5+0.5*sin(pi*n/(N+1))),w*0.62)]/(ro)S(n-1,l*0.96,w*0.86) iterations=11 angle=25 length=0.3 radius=0.08 seed=42 at=[0.0, -0.2, 0.0] … material `tree_3_leaves` <- `tree_3_leaves` pbr=tr-leaf",
-        "author": "trees"
+        "label": "3 edits: lsystem `tree_3` axiom=\"!(R0)F(0.22)[/(15)&(125)!(0.13)F(0.5)][/(87)&(125)!(0.13)F(0.5)][/(159)&(125)!(0.13)F(0.5)][/(231)&(125)!(0.13)F(0.5)][/(303)&(125)!(0.13)F(0.5)]!(R1)F(h1)T(N,R2)\" rules=B(l,w,d)->C, B(l,w,d) : d > 0->!(w)F(l*0.5)[&(65)L(0.85)]/(180)[&(65)L(0.8)]!(w*0.85)F(l*0.5)[+(sp)B(l*k,w*0.6,d-1)][-(sp)B(l*k,w*0.6,d-1)]/(90)&(8)B(l*k2,w*0.65,d-1), C->[L(1)][&(60)L(0.9)]/(72)[&(60)L(0.85)]/(72)[&(60)L(0.95)]/(72)[&(60)L(0.9)]/(72)[&(60)L(0.85)], T(n,w)->!(w)F(s*0.7)[&(30)B(bl*0.75,w*0.6,2)]/(160)&(5)B(bl*0.8,w*0.7,2), T(n,w) : n > 0->!(w)F(s)[&(a+da*n)B(bl*(0.45+0.6*n/N)*(0.9+0.1*sin(n*1.7)),w*0.6,2)]/(137.5)T(n-1,w*0.88) iterations=12 angle=25 length=0.3 radius=0.08 seed=21 at=[0.0, -0.2, 0.0] … material `tree_3_leaves` <- `tree_3_leaves` pbr=tr-leaf-card",
+        "author": "trees2"
       }
     ],
     "current": 1

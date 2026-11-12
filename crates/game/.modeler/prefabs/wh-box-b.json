@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "wh-box-b",
   "parts": [],
-  "version": 15514,
+  "version": 15711,
   "ops": [
     {
       "primitive": {
@@ -28,17 +28,6 @@
         "mode": "chamfer",
         "radius": 0.025,
         "segments": 0
-      }
-    },
-    {
-      "deform": {
-        "name": "body",
-        "input": "body_c",
-        "mode": "displace",
-        "amount": 0.018,
-        "scale": 0.7,
-        "seed": 5,
-        "detail": 0.2
       }
     },
     {
@@ -100,124 +89,6 @@
           0.495
         ],
         "rotation": null
-      }
-    },
-    {
-      "material": {
-        "name": "body",
-        "input": "body",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "wh-cardboard-dark",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 1.0,
-            "resolution": 256,
-            "nodes": [
-              {
-                "name": "fn",
-                "octaves": 3,
-                "seed": 411,
-                "size": 0.03,
-                "type": "noise"
-              },
-              {
-                "name": "bn",
-                "octaves": 3,
-                "seed": 412,
-                "size": 0.35,
-                "type": "noise"
-              },
-              {
-                "name": "sn",
-                "octaves": 2,
-                "seed": 413,
-                "size": 0.12,
-                "type": "noise"
-              },
-              {
-                "in": [
-                  0.55,
-                  0.8
-                ],
-                "input": "bn",
-                "name": "grime",
-                "type": "levels"
-              },
-              {
-                "in": [
-                  0.62,
-                  0.7
-                ],
-                "input": "sn",
-                "name": "spot",
-                "type": "levels"
-              },
-              {
-                "a": "grime",
-                "b": 0.55,
-                "name": "gm0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "spot",
-                "b": 0.25,
-                "name": "sp",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "gm0",
-                "b": "sp",
-                "name": "gm",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "fn",
-                "name": "col0",
-                "stops": [
-                  [
-                    0,
-                    "#5f4a31"
-                  ],
-                  [
-                    1,
-                    "#7a6042"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "col0",
-                "b": "#2a2119",
-                "c": "gm",
-                "name": "col",
-                "op": "mix",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0006,
-                "name": "h",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "base_color": "col",
-                "height": "h",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {}
-          }
-        }
       }
     },
     {
@@ -518,6 +389,149 @@
         "input": "body_c",
         "visible": false
       }
+    },
+    {
+      "deform": {
+        "name": "body_hi",
+        "input": "body_c",
+        "mode": "displace",
+        "amount": 0.018,
+        "scale": 0.7,
+        "seed": 5,
+        "detail": 0.2
+      }
+    },
+    {
+      "decimate": {
+        "name": "body",
+        "input": "body_hi",
+        "tris": 170
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-cardboard-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 411,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 3,
+                "seed": 412,
+                "size": 0.35,
+                "type": "noise"
+              },
+              {
+                "name": "sn",
+                "octaves": 2,
+                "seed": 413,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "bn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "sn",
+                "name": "spot",
+                "type": "levels"
+              },
+              {
+                "a": "grime",
+                "b": 0.55,
+                "name": "gm0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "spot",
+                "b": 0.25,
+                "name": "sp",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": "sp",
+                "name": "gm",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "fn",
+                "name": "col0",
+                "stops": [
+                  [
+                    0,
+                    "#5f4a31"
+                  ],
+                  [
+                    1,
+                    "#7a6042"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "col0",
+                "b": "#2a2119",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "body_hi",
+        "input": "body_hi",
+        "visible": false
+      }
     }
   ],
   "annotations": [],
@@ -545,7 +559,7 @@
           "format_version": 1,
           "name": "wh-box-b",
           "parts": [],
-          "version": 15514,
+          "version": 15649,
           "ops": [
             {
               "primitive": {
@@ -571,17 +585,6 @@
                 "mode": "chamfer",
                 "radius": 0.025,
                 "segments": 0
-              }
-            },
-            {
-              "deform": {
-                "name": "body",
-                "input": "body_c",
-                "mode": "displace",
-                "amount": 0.018,
-                "scale": 0.7,
-                "seed": 5,
-                "detail": 0.2
               }
             },
             {
@@ -643,124 +646,6 @@
                   0.495
                 ],
                 "rotation": null
-              }
-            },
-            {
-              "material": {
-                "name": "body",
-                "input": "body",
-                "base_color": null,
-                "roughness": null,
-                "metalness": null,
-                "pbr": {
-                  "material": "wh-cardboard-dark",
-                  "scale": 1.0,
-                  "graph": {
-                    "domain": "tile",
-                    "tile": 1.0,
-                    "resolution": 256,
-                    "nodes": [
-                      {
-                        "name": "fn",
-                        "octaves": 3,
-                        "seed": 411,
-                        "size": 0.03,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "bn",
-                        "octaves": 3,
-                        "seed": 412,
-                        "size": 0.35,
-                        "type": "noise"
-                      },
-                      {
-                        "name": "sn",
-                        "octaves": 2,
-                        "seed": 413,
-                        "size": 0.12,
-                        "type": "noise"
-                      },
-                      {
-                        "in": [
-                          0.55,
-                          0.8
-                        ],
-                        "input": "bn",
-                        "name": "grime",
-                        "type": "levels"
-                      },
-                      {
-                        "in": [
-                          0.62,
-                          0.7
-                        ],
-                        "input": "sn",
-                        "name": "spot",
-                        "type": "levels"
-                      },
-                      {
-                        "a": "grime",
-                        "b": 0.55,
-                        "name": "gm0",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "spot",
-                        "b": 0.25,
-                        "name": "sp",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "a": "gm0",
-                        "b": "sp",
-                        "name": "gm",
-                        "op": "add",
-                        "type": "math"
-                      },
-                      {
-                        "input": "fn",
-                        "name": "col0",
-                        "stops": [
-                          [
-                            0,
-                            "#5f4a31"
-                          ],
-                          [
-                            1,
-                            "#7a6042"
-                          ]
-                        ],
-                        "type": "ramp"
-                      },
-                      {
-                        "a": "col0",
-                        "b": "#2a2119",
-                        "c": "gm",
-                        "name": "col",
-                        "op": "mix",
-                        "type": "math"
-                      },
-                      {
-                        "a": "fn",
-                        "b": 0.0006,
-                        "name": "h",
-                        "op": "mul",
-                        "type": "math"
-                      },
-                      {
-                        "base_color": "col",
-                        "height": "h",
-                        "name": "out",
-                        "roughness": 0.95,
-                        "type": "output"
-                      }
-                    ],
-                    "params": {}
-                  }
-                }
               }
             },
             {
@@ -1061,6 +946,149 @@
                 "input": "body_c",
                 "visible": false
               }
+            },
+            {
+              "deform": {
+                "name": "body_hi",
+                "input": "body_c",
+                "mode": "displace",
+                "amount": 0.018,
+                "scale": 0.7,
+                "seed": 5,
+                "detail": 0.2
+              }
+            },
+            {
+              "decimate": {
+                "name": "body",
+                "input": "body_hi",
+                "tris": 170
+              }
+            },
+            {
+              "material": {
+                "name": "body",
+                "input": "body",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "wh-cardboard-dark",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "fn",
+                        "octaves": 3,
+                        "seed": 411,
+                        "size": 0.03,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "bn",
+                        "octaves": 3,
+                        "seed": 412,
+                        "size": 0.35,
+                        "type": "noise"
+                      },
+                      {
+                        "name": "sn",
+                        "octaves": 2,
+                        "seed": 413,
+                        "size": 0.12,
+                        "type": "noise"
+                      },
+                      {
+                        "in": [
+                          0.55,
+                          0.8
+                        ],
+                        "input": "bn",
+                        "name": "grime",
+                        "type": "levels"
+                      },
+                      {
+                        "in": [
+                          0.62,
+                          0.7
+                        ],
+                        "input": "sn",
+                        "name": "spot",
+                        "type": "levels"
+                      },
+                      {
+                        "a": "grime",
+                        "b": 0.55,
+                        "name": "gm0",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "spot",
+                        "b": 0.25,
+                        "name": "sp",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "gm0",
+                        "b": "sp",
+                        "name": "gm",
+                        "op": "add",
+                        "type": "math"
+                      },
+                      {
+                        "input": "fn",
+                        "name": "col0",
+                        "stops": [
+                          [
+                            0,
+                            "#5f4a31"
+                          ],
+                          [
+                            1,
+                            "#7a6042"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "a": "col0",
+                        "b": "#2a2119",
+                        "c": "gm",
+                        "name": "col",
+                        "op": "mix",
+                        "type": "math"
+                      },
+                      {
+                        "a": "fn",
+                        "b": 0.0006,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.95,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "visibility": {
+                "name": "body_hi",
+                "input": "body_hi",
+                "visible": false
+              }
             }
           ],
           "annotations": [],
@@ -1069,8 +1097,8 @@
         },
         "parent": 0,
         "children": [],
-        "label": "12 edits: primitive `body_raw` (box) size=[0.98, 0.96, 0.98] at=[0.0, -0.005, 0.0] … hidden `body_c`",
-        "author": "warehouse"
+        "label": "5 edits: op delete `body` … hidden `body_hi`",
+        "author": "lite-features"
       }
     ],
     "current": 1

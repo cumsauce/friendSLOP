@@ -8,8 +8,59 @@
   "components": {
     "Spot": {
       "type": "friendslop_world::map::Spot",
-      "fields": {"name": "string"},
+      "fields": {
+        "name": "string"
+      },
       "doc": "A named spot on the map; features find their place by name."
+    },
+    "Feature": {
+      "type": "friendslop_world::map::Feature",
+      "fields": {
+        "radius": "f32",
+        "height": "f32",
+        "depth": "f32",
+        "size": "vec2"
+      },
+      "doc": "Sizes of a spot's ground feature: radius, height, depth (m) or a rectangle size."
+    },
+    "Path": {
+      "type": "friendslop_world::map::Path",
+      "fields": {
+        "to": "string"
+      },
+      "doc": "A path from this marker to the named markers (comma-separated)."
+    },
+    "District": {
+      "type": "friendslop_world::map::District",
+      "fields": {
+        "kind": "string",
+        "size": "vec2",
+        "order": "u32"
+      },
+      "doc": "A district box (x, z size) centred here; lower order wins where boxes overlap. kind 'bounds' is the map's edge."
+    },
+    "Plot": {
+      "type": "friendslop_world::map::Plot",
+      "fields": {
+        "size": "vec2",
+        "turns": "i32",
+        "upper": "bool"
+      },
+      "doc": "A house plot: footprint (w, d), quarter turns, must have an upper floor."
+    },
+    "Hangout": {
+      "type": "friendslop_world::map::Hangout",
+      "fields": {
+        "trip": "bool"
+      },
+      "doc": "Where villagers hang out; trip: a far destination reached over the navmesh."
+    },
+    "Clear": {
+      "type": "friendslop_world::map::Clear",
+      "fields": {
+        "radius": "f32"
+      },
+      "doc": "Keep trees, bushes and rocks this far from here."
     }
   }
 }

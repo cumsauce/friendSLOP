@@ -31,7 +31,7 @@ use crate::world::MainCamera;
 
 pub use crate::rules::Duelist;
 /// Arena centre on the floor and half its width.
-pub use friendslop_world::places::{ARENA_HALF, arena_center};
+pub use friendslop_world::places::{arena_center, arena_half};
 pub const LIVES: u8 = 3;
 const SPEED: f32 = 5.0;
 const EYE: f32 = 1.6;
@@ -126,7 +126,7 @@ struct DuelInvites {
 
 /// The two corners duelists start from.
 pub fn spawn_points() -> [Vec3; 2] {
-    let d = ARENA_HALF - 1.0;
+    let d = arena_half() - 1.0;
     [
         arena_center() + Vec3::new(-d, 0.0, -d),
         arena_center() + Vec3::new(d, 0.0, d),
@@ -334,7 +334,7 @@ fn move_duelists(
         let speed = SPEED * super::stats::hrumph_speed(hrumph);
         let rot = Quat::from_rotation_y(d.yaw);
         let step = rot * Vec3::new(stick.0.x, 0.0, -stick.0.y) * speed * dt;
-        let lim = ARENA_HALF - BODY_RADIUS;
+        let lim = arena_half() - BODY_RADIUS;
         let rel = (d.pos + step - arena_center())
             .clamp(Vec3::new(-lim, 0.0, -lim), Vec3::new(lim, 0.0, lim));
         let pos = arena_center() + rel;
@@ -540,7 +540,7 @@ fn reset_view(
 
 /// A dusty frontier pit: sandy floor, a wooden plank fence with posts, bunting
 /// strung between tall corner poles, and barrels and hay bales outside. Visual
-/// only: the footprint is still `ARENA_HALF` and movement is clamped in
+/// only: the footprint is still `arena_half()` and movement is clamped in
 /// `move_duelists`, so gameplay is unchanged.
 fn spawn_arena(
     mut commands: Commands,
@@ -557,7 +557,7 @@ fn spawn_arena(
             DespawnOnExit(AppState::InGame),
         ));
     };
-    let size = ARENA_HALF * 2.0;
+    let size = arena_half() * 2.0;
     // Sand: a vertex-coloured grid with ripples and darker scuffs.
     spawn(
         meshes.add(sand_mesh(size)),
@@ -601,9 +601,9 @@ fn spawn_arena(
     for side in 0..4 {
         let rot = Quat::from_rotation_y(FRAC_PI_2 * side as f32);
         let along = rot * Vec3::X;
-        let out = rot * Vec3::Z * ARENA_HALF;
+        let out = rot * Vec3::Z * arena_half();
         for k in 0..=posts {
-            let t = -ARENA_HALF + size * k as f32 / posts as f32;
+            let t = -arena_half() + size * k as f32 / posts as f32;
             let at = arena_center() + out + along * t;
             let corner = k == 0 || k == posts;
             if corner {
@@ -642,7 +642,7 @@ fn spawn_arena(
     // Barrels and hay bales just outside the fence.
     let barrel = model("barrel.gltf");
     let bale = model("hay_bale.gltf");
-    let o = ARENA_HALF + 0.9;
+    let o = arena_half() + 0.9;
     for (x, z) in [(-o, -o + 1.2), (o - 0.6, o), (o, -o + 0.4)] {
         let at = arena_center() + Vec3::new(x, 0.0, z);
         place(&barrel, Transform::from_translation(at + Vec3::Y * 0.475));
@@ -727,7 +727,7 @@ fn bunting_mesh() -> Mesh {
         (1.0, 0.9, 0.3),
         (1.0, 1.0, 1.0),
     ];
-    let h = ARENA_HALF;
+    let h = arena_half();
     let corners = [
         Vec3::new(-h, 0.0, -h),
         Vec3::new(h, 0.0, -h),

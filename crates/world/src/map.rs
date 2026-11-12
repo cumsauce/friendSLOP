@@ -26,6 +26,12 @@ impl Plugin for MapPlugin {
             .register_type::<GltfSource>()
             .register_type::<SceneNodeId>()
             .register_type::<Spot>()
+            .register_type::<Feature>()
+            .register_type::<Path>()
+            .register_type::<District>()
+            .register_type::<Plot>()
+            .register_type::<Hangout>()
+            .register_type::<Clear>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
     }
 }
@@ -60,6 +66,59 @@ pub struct SceneNodeId(pub u64);
 #[reflect(Component, Default)]
 pub struct Spot {
     pub name: String,
+}
+
+/// Sizes of a spot's ground feature (the pond's radius, the hill's height,
+/// the lake's level and bed, the village's flat rectangle).
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Feature {
+    pub radius: f32,
+    pub height: f32,
+    pub depth: f32,
+    pub size: Vec2,
+}
+
+/// Paths from this marker to the named markers (comma-separated names).
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Path {
+    pub to: String,
+}
+
+/// A district: a box of `size` (x, z) centred on the marker. Where boxes
+/// overlap the lower `order` wins; `kind: "bounds"` is the map's edge.
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct District {
+    pub kind: String,
+    pub size: Vec2,
+    pub order: u32,
+}
+
+/// A house plot: footprint (w, d), quarter turns and whether its house must
+/// have an upper floor.
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Plot {
+    pub size: Vec2,
+    pub turns: i32,
+    pub upper: bool,
+}
+
+/// Where villagers hang out; `trip` spots are far destinations they reach
+/// over the navmesh.
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Hangout {
+    pub trip: bool,
+}
+
+/// Keep the map's dressing (trees, bushes, rocks) this far from here.
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Clear {
+    pub radius: f32,
 }
 
 /// A `.bsn` file's text.

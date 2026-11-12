@@ -36,8 +36,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(Update, turn_sails.run_if(in_state(AppState::InGame)));
 }
 
-pub const FOREST_CLEARING: Vec2 = Vec2::new(-28.0, -62.0);
-pub use friendslop_world::places::maze_at;
+pub use friendslop_world::places::{forest_clearing_at, maze_at};
 /// Maze cells per side and cell size (24 × 24 m).
 const MAZE_CELLS: usize = 8;
 const MAZE_CELL: f32 = 3.0;
@@ -79,7 +78,7 @@ fn in_set_piece(p: Vec2, margin: f32) -> bool {
     let half = MAZE_CELLS as f32 * MAZE_CELL / 2.0 + 2.0 + margin;
     (p.x - maze_at().x).abs() < half && (p.y - maze_at().y).abs() < half
         || p.distance(quarry_at()) < 13.0 + margin
-        || p.distance(FOREST_CLEARING) < 9.0 + margin
+        || p.distance(forest_clearing_at()) < 9.0 + margin
         || ((-48.0..-30.0).contains(&p.x) && (36.0..84.0).contains(&p.y))
 }
 
@@ -91,8 +90,8 @@ fn scatter(rng: &mut Rng, zone: Zone, n: usize, spacing: f32, margin: f32) -> Ve
             break;
         }
         let p = Vec2::new(
-            rng.range(-MAP_HALF, MAP_HALF),
-            rng.range(-MAP_HALF, MAP_HALF),
+            rng.range(-map_half(), map_half()),
+            rng.range(-map_half(), map_half()),
         );
         if !free(p, zone, margin)
             || in_set_piece(p, margin)
@@ -193,7 +192,7 @@ fn forest(d: &mut Dresser, rng: &mut Rng) {
 
     // The hidden clearing: a woodcutter's hut ruin, chopping stump, log pile
     // (modeler models; the walls, chimney, stump and bottom logs block).
-    let c = FOREST_CLEARING;
+    let c = forest_clearing_at();
     let (w, dp) = (5.0, 4.0);
     d.prop(
         "woodcutter_hut",
@@ -395,7 +394,7 @@ fn castle(d: &mut Dresser, x: &Extra, rng: &mut Rng) {
         );
     }
     // The collapsed tower: a ring of ragged stones with a doorway, walk in.
-    let tower = Vec2::new(-41.0, 44.0);
+    let tower = friendslop_world::places::ruins_tower_at();
     let segs = 14;
     let r = 3.8;
     for i in 0..segs {

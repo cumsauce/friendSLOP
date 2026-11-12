@@ -39,7 +39,7 @@ use landmass_rerecast::{Island3dBundle, LandmassRerecastPlugin, NavMeshHandle3d}
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::duel::{ARENA_HALF, arena_center};
+use crate::features::duel::{arena_center, arena_half};
 use crate::features::fps::{WalkSet, Walker};
 use crate::features::hide_and_seek::{HideSeek, HideSeekNews, Phase, Role};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
@@ -62,40 +62,19 @@ const MAX_CLIMB: f32 = 0.5;
 /// Steeper than this and the mesh ends (the quarry walls stay out of reach).
 const MAX_SLOPE_DEGS: f32 = 40.0;
 
-/// Where villagers like to hang out (x, z).
-const POINTS: [Vec2; 15] = [
-    Vec2::new(-8.5, 0.5),   // by the bonfire
-    Vec2::new(-6.5, -1.0),  // other side of the bonfire
-    Vec2::new(-12.0, -1.0), // under the ruins
-    Vec2::new(-16.5, -4.0), // ruins' west end
-    Vec2::new(9.0, 9.0),    // the pond
-    Vec2::new(13.0, 13.0),  // far side of the pond
-    Vec2::new(0.0, 2.0),    // the middle
-    Vec2::new(-4.0, 4.0),
-    Vec2::new(3.0, 8.0),
-    Vec2::new(-6.0, 11.0),
-    Vec2::new(8.0, 3.0),
-    Vec2::new(15.0, -3.0),
-    // Out in the wider districts (zones.rs): open meadow by the windmill and
-    // the west valley's grass.
-    Vec2::new(-8.0, -24.0),
-    Vec2::new(-30.0, 0.0),
-    Vec2::new(10.0, 32.0),
-];
+/// Where villagers like to hang out (x, z): the map's `Hangout` markers.
+fn points() -> &'static [Vec2] {
+    &friendslop_world::places::layout().hangouts
+}
 
 /// Where the navmesh lets villagers travel to (handoff #94): one spot per
-/// district, so trips between them cross the map overland. Only picked while
-/// a villager has a landmass agent; without the mesh the brain sticks to
-/// [`POINTS`], which straight-line steering can always reach.
-const DISTRICTS: [Vec2; 7] = [
-    Vec2::new(0.0, 0.0),     // the commune's middle
-    Vec2::new(57.0, 0.0),    // the east village market (buildings::market_at())
-    Vec2::new(42.0, 12.0),   // a village street by the two-storey houses
-    Vec2::new(-64.5, 44.0),  // beside the maze's gilded statue
-    Vec2::new(-38.0, 58.0),  // the castle ruins, just inside the archway
-    Vec2::new(-28.0, -62.0), // the forest clearing (zones::FOREST_CLEARING)
-    Vec2::new(-35.0, 13.0),  // the lake's shore, dry but close
-];
+/// district (`Hangout` markers with `trip`), so trips between them cross the
+/// map overland. Only picked while a villager has a landmass agent; without
+/// the mesh the brain sticks to [`points`], which straight-line steering can
+/// always reach.
+fn districts() -> &'static [Vec2] {
+    &friendslop_world::places::layout().trips
+}
 
 /// Server only: what a villager is up to.
 #[derive(Component, Debug)]
@@ -162,7 +141,7 @@ pub fn protocol(app: &mut App) {
 /// Push a point out of the duel arena (plus margin), if it's inside.
 pub fn outside_arena(p: Vec2) -> Vec2 {
     let c = arena_center().xz();
-    let half = ARENA_HALF + ARENA_MARGIN;
+    let half = arena_half() + ARENA_MARGIN;
     let d = p - c;
     if d.x.abs() >= half || d.y.abs() >= half {
         return p;
@@ -178,7 +157,10 @@ pub fn outside_arena(p: Vec2) -> Vec2 {
 
 fn spawn_villagers(mut commands: Commands, mut rng: ResMut<VillageRng>) {
     for i in 0..COUNT {
-        let home = POINTS[i % POINTS.len()];
+        let home = points()
+            .get(i % points().len().max(1))
+            .copied()
+            .unwrap_or_default();
         let pos = outside_arena(home + Vec2::new(rng.f() - 0.5, rng.f() - 0.5) * 2.0);
         commands.spawn((
             Villager {
@@ -253,9 +235,9 @@ fn think(
                     && nav.as_ref().is_some_and(|n| n.ready)
                     && rng.f() < 0.55
                 {
-                    &DISTRICTS
+                    districts()
                 } else {
-                    &POINTS
+                    points()
                 };
                 let p = spots[(rng.f() * spots.len() as f32) as usize % spots.len()];
                 brain.target = outside_arena(p + Vec2::new(rng.f() - 0.5, rng.f() - 0.5) * 3.0);
@@ -843,8 +825,8 @@ mod tests {
 
     #[test]
     fn points_and_pushes_stay_out_of_the_arena() {
-        let half = ARENA_HALF + ARENA_MARGIN;
-        for p in POINTS.iter().chain(DISTRICTS.iter()) {
+        let half = arena_half() + ARENA_MARGIN;
+        for p in points().iter().chain(districts().iter()) {
             let q = outside_arena(*p);
             assert_eq!(*p, q, "{p} is inside the arena");
         }
@@ -855,7 +837,7 @@ mod tests {
 
     #[test]
     fn districts_are_walkable_dry_land() {
-        for p in DISTRICTS {
+        for p in districts() {
             assert!(p.x.abs() < 88.0 && p.y.abs() < 88.0, "{p} leaves the map");
             assert!(
                 !crate::terrain::is_lake(p.x, p.y),
@@ -867,7 +849,7 @@ mod tests {
             );
         }
         // The lake stop in particular is on the shore, not in the water.
-        let shore = DISTRICTS[6];
+        let shore = districts()[6];
         assert!(
             (shore - crate::terrain::lake_at()).length() < 13.0,
             "{shore} isn't by the lake"

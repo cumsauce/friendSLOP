@@ -6,64 +6,10 @@
 
 use bevy::prelude::*;
 
-pub mod abuela;
-pub mod affair;
-pub mod afterlife;
-pub mod ambience;
-pub mod babble;
-pub mod bear;
-pub mod campaign;
-pub mod cat_palette;
-pub mod caught;
-pub mod climb;
-pub mod crows;
-pub mod dave_commune;
-pub mod discord_friends;
-pub mod duel;
-pub mod fart;
-pub mod fart_sound;
-pub mod fat_cat;
-pub mod fate;
-pub mod fps;
-pub mod fusion;
-pub mod gamble;
-pub mod gaslighting;
-pub mod goat;
-pub mod gods_tears;
-pub mod great_storm;
-pub mod halt;
-pub mod helicopter;
-pub mod hide_and_seek;
-pub mod infinite;
-pub mod interact;
-pub mod kitty_lemonade;
-pub mod landlord;
-pub mod morality;
-pub mod mushroom;
-pub mod mute_spell;
-pub mod objective;
-pub mod organ_currency;
-pub mod pets;
-pub mod punishment;
-pub mod random_dialogue;
-pub mod rats;
-pub mod romance;
-pub mod sesbian_lex;
-pub mod shipwreck;
-pub mod skills;
-pub mod smoking;
-pub mod stats;
-pub mod stillness;
-pub mod synth_audio;
-pub mod systemd;
-pub mod totems;
-pub mod underground;
-pub mod villagers;
-pub mod voice_lines;
-pub mod warehouse;
-pub mod wendys;
-pub mod whispers;
-pub mod world_seed;
+// The features live in the game-layer crates (see "Crates" in AGENTS.md);
+// `side` and `afterlife` re-export everything below them.
+pub use friendslop_afterlife::features::*;
+pub use friendslop_side::features::*;
 
 pub struct FeaturesProtocolPlugin;
 

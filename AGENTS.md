@@ -96,7 +96,17 @@ crates/game/src/
   web.rs        wasm32 helpers (localStorage)
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
                 FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading)
-  features/     one module per idea, see features/README.md
+  features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
+crates/base/src/     friendslop-base: player, assets, settings, voice, hud, people, spatial, rigged, graphics,
+                     textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
+                     villagers, morality, Duelist, EYE); `shared` (slices of world/camera/controls/ui/zones/
+                     scenery that features read); low features (bear, stillness, synth_audio, babble, ...)
+crates/play/         friendslop-play: fps, interact, duel, climb, stats, fate
+crates/places/       friendslop-places: warehouse, underground, smoking, skills, fart, fart_sound, helicopter
+crates/village/      friendslop-village: villagers, caught, punishment, hide_and_seek, romance, wendys, ...
+crates/story/        friendslop-story: campaign, objective, landlord, totems, gods_tears, abuela, gamble, ...
+crates/afterlife/    friendslop-afterlife: afterlife, fat_cat, kitty_lemonade, mute_spell, systemd
+crates/side/         friendslop-side: standalone ideas (affair, fusion, goat, rats, shipwreck, ...)
 crates/fusion/       the generated soundtrack (no Bevy): `cargo run -p fusion --bin fusion-render -- help`
 crates/art/          friendslop-art: procedural materials/meshes/textures (`art`), mipmaps (`mips`), mesh LODs (`lod`) and the UI theme (`theme`)
 crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy port, own licence files)
@@ -106,12 +116,12 @@ crates/world/        friendslop-world: the map: terrain, buildings, landmarks, s
 crates/structures/   friendslop-structures: building kit, house grammar, room graph + hallway kit, prop library + placer, merged meshes, world-space UVs, colliders
 crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers)
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
-crates/game/tests/   headless multiplayer tests (replicon test_app, no sockets)
+crates/game/tests/it/ headless multiplayer tests (replicon test_app, no sockets)
 ```
 
 ### Crates (how the code is layered)
 
-The workspace has two layers, and dependencies only ever point down:
+The workspace has three layers, and dependencies only ever point down:
 
 1. **Foundation crates**: reusable building blocks with **no game code**. They depend only on
    Bevy, avian and std, never on `friendslop`, and on each other only as listed:
@@ -119,15 +129,25 @@ The workspace has two layers, and dependencies only ever point down:
      `friendslop-structures`: nothing of ours.
    - `friendslop-art`: nothing of ours (`art`, `theme`, and the cat `palette` maths).
    - `friendslop-world`: `core`, `art` and `structures`.
-2. **The game** (`crates/game`, package `friendslop`): networking, players, the HUD and menus,
-   scenery and zones, and every idea in `features/`. It re-exports the foundation crates under
+2. **The game layer** (split so a change rebuilds only its crate and those above it; a single
+   47k-line crate took CI 18 minutes): `friendslop-base` → `play` → `places` → `village` →
+   `story` → {`afterlife`, `side`}. Each crate's `features` module re-exports every feature
+   below it and its lib.rs re-exports base's modules, so code keeps writing `crate::hud`,
+   `crate::features::fps`, `super::warehouse` unchanged.
+3. **The game** (`crates/game`, package `friendslop`): networking, menus, the UI, camera,
+   controls, scenery and zones, and the ordered plugin and protocol lists in `features/mod.rs`. It re-exports the foundation crates under
    their old module names (`crate::art`, `crate::theme`, `crate::kcc`, `crate::net_wire`,
    `crate::AppState`, `crate::terrain`, `crate::buildings`, `crate::landmarks`,
    `crate::surfaces`), so feature code uses them like any other module.
 
 Rules for growing it:
 
-- **Where new code goes.** Gameplay for an idea goes in `features/`, as always. Put something
+- **Where new code goes.** A new idea goes in `crates/<crate>/src/features/` of the lowest
+  game-layer crate that has everything it needs, usually `side` (a leaf nothing imports);
+  add `pub mod <idea>;` to that crate's lib.rs and register it in the game's
+  `features/mod.rs`. A type or constant that features in two crates need moves to
+  `friendslop-base::rules` (leave `pub use crate::rules::<x>::*;` at its old home). Never
+  make a lower crate import a higher one: move the shared bit down instead. Put something
   in a foundation crate instead when it needs no game state: generators (meshes, textures,
   sounds, maps), maths, file or wire formats, synths, controllers. A Bevy system that reads or
   writes game components stays in the game.
@@ -135,9 +155,10 @@ Rules for growing it:
   what a visit gives you, where a thing stands) in plain functions that take values and
   return values, and keep the systems as wiring. They're cheap to test and can move down to a
   crate later without a rewrite.
-- **Networking registration lives only in the game.** `replicate`, `add_*_message` and
-  `add_*_event` are called only from protocol functions in `crates/game`, appended in order. A
-  foundation crate never registers anything, so the order stays in one place.
+- **Networking registration has one order.** `replicate`, `add_*_message` and `add_*_event`
+  are called only from protocol functions, and those run only from the ordered list in
+  `crates/game` (`ProtocolPlugin` / `FeaturesProtocolPlugin`), appended at the end. A
+  foundation crate never registers anything.
 - **Every crate builds for the browser.** No threads, `std::fs`, `std::time::Instant` or
   `SystemTime` in them (see Web, below). Native-only dependencies are target-gated.
 - **Making a new crate.** Make one when a module has a clean seam (it only needs foundation

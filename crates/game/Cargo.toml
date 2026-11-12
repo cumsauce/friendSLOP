@@ -4,6 +4,15 @@ version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 
+[lib]
+doctest = false
+
+# main.rs has no tests of its own.
+[[bin]]
+name = "friendslop"
+path = "src/main.rs"
+test = false
+
 [features]
 # Faster rebuilds on desktop: Bevy as a shared library, so a small change
 # relinks in seconds (`cargo dev host`, see .cargo/config.toml). Never for
@@ -35,6 +44,14 @@ friendslop-wire = { path = "../wire" }
 friendslop-wfc = { path = "../wfc" }
 friendslop-structures = { path = "../structures" }
 friendslop-world = { path = "../world" }
+# The game layer (see "Crates" in AGENTS.md): shared infra and the features.
+friendslop-base = { path = "../base" }
+friendslop-play = { path = "../play" }
+friendslop-places = { path = "../places" }
+friendslop-village = { path = "../village" }
+friendslop-story = { path = "../story" }
+friendslop-afterlife = { path = "../afterlife" }
+friendslop-side = { path = "../side" }
 # The modeler's runtime: live wind sway for rigged trees (`extras.sway`), each
 # instance with its own phase (lod.rs, scenery.rs).
 modeler_bevy = { git = "https://github.com/cumsauce/modeler", rev = "ba0fd6ad741e26bb65f76e10e52f64b16b6c4bac" }

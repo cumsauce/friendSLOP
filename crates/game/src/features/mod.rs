@@ -55,6 +55,7 @@ pub mod smoking;
 pub mod stats;
 pub mod stillness;
 pub mod synth_audio;
+pub mod systemd;
 pub mod totems;
 pub mod underground;
 pub mod villagers;
@@ -122,6 +123,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(crate::voice::mic_protocol);
         app.add_plugins(world_seed::protocol);
         app.add_plugins(afterlife::protocol);
+        app.add_plugins(systemd::protocol);
     }
 }
 
@@ -185,5 +187,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(world_seed::plugin);
         app.add_plugins(whispers::plugin);
         app.add_plugins(afterlife::plugin);
+        app.add_plugins(systemd::plugin);
     }
 }

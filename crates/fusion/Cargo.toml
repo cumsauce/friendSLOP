@@ -10,5 +10,12 @@ description = "friendSLOP's generated, adaptive 90s jazz-fusion soundtrack: comp
 # MIT OR Apache-2.0, std only.
 foley-synth = { git = "https://github.com/cumsauce/foley", rev = "963d67eb2de81bd43b008b30cc0109f875c940f1" }
 
+serde.workspace = true
+ron = "0.12"
+friendslop-data = { path = "../data", default-features = false }
+
+[dev-dependencies]
+serde_json = "1"
+
 [lints]
 workspace = true

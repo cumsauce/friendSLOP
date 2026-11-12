@@ -17,11 +17,25 @@
 //! bebop and pentatonic runs in solos; unison kimes at section ends and the
 //! odd 7/8 bar.
 
+use std::collections::BTreeMap;
+use std::sync::{Arc, RwLock};
+
 use super::synth::{BUSES, Bus, Ev, Inst, RATE};
 use super::theory::{Chord, Quality, Quality::*, Voicing, voice_lead};
 
 /// What the game wants the music to say.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[derive(
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Debug,
+    Default,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialOrd,
+    Ord,
+)]
 pub enum Mood {
     /// The title screen: the signature theme.
     #[default]
@@ -55,7 +69,7 @@ pub enum Mood {
 
 /// How a mood sounds on top of what it plays: the band's overall colour
 /// and feel, so the same instruments fit each place.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Tone {
     /// Above ~1 kHz, the mix is cut (positive, warm and woolly) or lifted
     /// (negative, crisp): the top end's gain is `1 - 0.5 * warmth`.
@@ -83,41 +97,7 @@ impl Tone {
 impl Mood {
     /// The mood's colour and feel (see [`Tone`]).
     pub fn tone(self) -> Tone {
-        let t = |warmth, width, wow, lay_back_ms, loose_ms| Tone {
-            warmth,
-            width,
-            wow,
-            lay_back_ms,
-            loose_ms,
-        };
-        match self {
-            // The theme: polished but friendly.
-            Mood::Menu => t(0.1, 1.15, 0.25, 5.0, 3.0),
-            // Meadows: sunny and open, a lazy backbeat.
-            Mood::Explore => t(-0.05, 1.2, 0.2, 7.0, 4.0),
-            // City-pop: crisp, wide, tight in the pocket.
-            Mood::Village => t(-0.15, 1.15, 0.1, 3.0, 2.5),
-            // Woody and warm, a little loose, very wide like the trees.
-            Mood::Forest => t(0.3, 1.3, 0.35, 8.0, 5.0),
-            // Mysterious: dry and centred, played carefully.
-            Mood::Maze => t(0.15, 0.95, 0.2, 2.0, 2.0),
-            // Airy, shimmering, as wide as the sky.
-            Mood::Sky => t(-0.2, 1.4, 0.3, 5.0, 3.5),
-            // An old bolero record: warm, narrow, wobbly, behind the beat.
-            Mood::Abuela => t(0.5, 0.85, 0.7, 10.0, 6.0),
-            // Hiding: muffled and close, holding its breath.
-            Mood::Hiding => t(0.4, 0.8, 0.15, 1.0, 1.5),
-            // Seeking: bright and urgent, on top of the beat.
-            Mood::Seeking => t(-0.25, 1.05, 0.0, 0.0, 1.0),
-            // Duel: dusty western shred.
-            Mood::Duel => t(0.1, 1.1, 0.3, 2.0, 2.5),
-            // The landlord: harsh and pressing.
-            Mood::Landlord => t(-0.2, 0.9, 0.1, 0.0, 1.0),
-            // The stillness: soft, vast and drifting.
-            Mood::Still => t(0.35, 1.15, 0.6, 0.0, 0.0),
-            // Tunnels: dark, wide echoes, a dub drag.
-            Mood::Underground => t(0.45, 1.3, 0.45, 12.0, 5.0),
-        }
+        table().moods.get(&self).map_or(Tone::NEUTRAL, |ms| ms.tone)
     }
 
     pub const ALL: [Mood; 13] = [
@@ -152,14 +132,7 @@ impl Mood {
     /// Make-up gain (dB) so calm, sparse moods aren't a cliff quieter
     /// than busy ones when you walk between areas.
     pub fn level_db(self) -> f32 {
-        match self {
-            Mood::Forest | Mood::Abuela => 0.5,
-            Mood::Sky => 2.0,
-            Mood::Maze => 2.5,
-            Mood::Underground => 2.0,
-            Mood::Hiding | Mood::Still => 3.5,
-            _ => 0.0,
-        }
+        table().moods.get(&self).map_or(0.0, |ms| ms.level_db)
     }
 
     /// Moods that cut in at the very next bar line instead of after a
@@ -170,7 +143,7 @@ impl Mood {
 }
 
 /// The parts of a tune.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 pub enum Section {
     Intro,
     A,
@@ -185,7 +158,7 @@ pub enum Section {
 /// A progression: (semitones above the key, quality, beats).
 type Prog = &'static [(u8, Quality, u8)];
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 enum Groove {
     City,
     Laid,
@@ -199,7 +172,7 @@ enum Groove {
     March,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 enum Comp {
     City,
     Laid,
@@ -209,7 +182,7 @@ enum Comp {
     Tense,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 enum LeadKind {
     Synth,
     Brass,
@@ -221,7 +194,7 @@ enum LeadKind {
 }
 
 /// What the nylon guitar does in a style.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize)]
 enum Nylon {
     None,
     /// Bossa-nova comping (thumb on one and three, fingers syncopated)
@@ -233,7 +206,7 @@ enum Nylon {
 }
 
 /// What the horn section does in a style.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 enum Horns {
     None,
     /// Tight section stabs and shout figures answering the lead.
@@ -244,7 +217,7 @@ enum Horns {
 }
 
 /// Extra percussion layered over a groove.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
 struct Kit {
     shaker: bool,
     conga: bool,
@@ -290,663 +263,215 @@ struct Style {
     nylon: Nylon,
 }
 
-// --- Progressions -------------------------------------------------------
-// "Just the Two of Us": IVmaj9 - III7#9 - vim9 - vm9 I13.
-const JTTOU: Prog = &[
-    (5, Maj9, 4),
-    (4, Dom7s9, 4),
-    (9, Min9, 4),
-    (7, Min9, 2),
-    (0, Dom13, 2),
-];
-const CHROMATIC_TWO_FIVES: Prog = &[
-    (2, Min9, 2),
-    (7, Dom13, 2),
-    (1, Min9, 2),
-    (6, Dom13, 2),
-    (0, Maj9, 4),
-    (9, Dom7alt, 4),
-];
-// The city-pop "royal road": IV - V - iii - vi, then ii - bII (tritone sub).
-const ROYAL_ROAD: Prog = &[
-    (5, Maj9, 4),
-    (7, Sus9, 2),
-    (7, Dom13, 2),
-    (4, Min9, 2),
-    (9, Min9, 2),
-    (2, Min9, 2),
-    (1, Dom13s11, 2),
-];
-const VILLAGE_B: Prog = &[
-    (0, Maj9, 4),
-    (10, Min9, 2),
-    (3, Dom13, 2),
-    (8, Maj7s11, 4),
-    (7, Dom7alt, 4),
-];
-const EXPLORE_A: Prog = &[(0, Maj9, 8), (5, Maj7s11, 8)];
-const EXPLORE_B: Prog = &[(2, Min11, 4), (7, Sus9, 4), (0, Maj69, 4), (9, Dom7alt, 4)];
-const EXPLORE_HOOK: Prog = &[(5, Maj9, 4), (4, Min9, 4), (2, Min9, 4), (1, Dom13s11, 4)];
-const FOREST_A: Prog = &[(0, Maj7s11, 8), (9, Min11, 8)];
-// Descending lydian chords, ECM-style.
-const FOREST_B: Prog = &[(5, Maj7s11, 4), (4, Min9, 4), (3, Maj7s11, 4), (2, Sus9, 4)];
-// I - iii - IV - iv (the borrowed minor iv).
-const MINOR_FOUR: Prog = &[(0, Maj9, 4), (4, Min9, 4), (5, Maj7s11, 4), (5, Min6, 4)];
-const MAZE_A: Prog = &[(0, Min11, 8), (8, Maj7s11, 8)];
-// Phrygian bII lydian, then a sus and an altered V.
-const MAZE_B: Prog = &[
-    (0, Min11, 4),
-    (1, Maj7s11, 4),
-    (10, Sus9, 4),
-    (7, Dom7alt, 4),
-];
-const MAZE_HOOK: Prog = &[
-    (5, Min9, 4),
-    (10, Dom13, 4),
-    (3, Maj9, 4),
-    (8, Maj7s11, 2),
-    (7, Dom7alt, 2),
-];
-// The sewers (#127): a dorian i - iv vamp, then borrowed lydian chords
-// dripping down to the minor V.
-const SEWER_A: Prog = &[(0, Min9, 8), (5, Min11, 8)];
-const SEWER_B: Prog = &[
-    (8, Maj7s11, 4),
-    (3, Maj9, 4),
-    (1, Maj7s11, 4),
-    (7, Dom7b9, 4),
-];
-const SEWER_HOOK: Prog = &[
-    (0, Min11, 4),
-    (10, Sus9, 4),
-    (8, Maj7s11, 4),
-    (7, Dom7alt, 4),
-];
-const SKY_B: Prog = &[(9, Min11, 4), (2, Min9, 4), (7, Sus9, 4), (0, Maj69, 4)];
-const SKY_HOOK: Prog = &[(5, Maj7s11, 4), (7, Sus9, 4), (4, Min9, 4), (9, Min11, 4)];
-// A bolero cycle in minor: i - ii-V - i - V/iv - iv - bVII - bIII - ii-V.
-const BOLERO_A: Prog = &[
-    (0, Min6, 4),
-    (2, HalfDim, 2),
-    (7, Dom7b9, 2),
-    (0, Min6, 4),
-    (0, Dom7b9, 4),
-    (5, Min9, 4),
-    (10, Dom13, 4),
-    (3, Maj9, 4),
-    (2, HalfDim, 2),
-    (7, Dom7b9, 2),
-];
-const BOLERO_B: Prog = &[
-    (3, Maj9, 4),
-    (8, Maj7s11, 4),
-    (2, HalfDim, 4),
-    (7, Dom7alt, 4),
-];
-const HIDE_A: Prog = &[
-    (0, MinMaj9, 4),
-    (1, Maj7s11, 4),
-    (0, MinMaj9, 4),
-    (11, Dim7, 4),
-];
-const HIDE_B: Prog = &[
-    (8, Maj7s11, 4),
-    (7, Dom7b9, 4),
-    (0, Min11, 4),
-    (1, Dom13s11, 4),
-];
-// Dorian vamp i9 - IV9.
-const SEEK_A: Prog = &[(0, Min9, 8), (5, Dom9, 8)];
-const SEEK_B: Prog = &[
-    (8, Maj7s11, 4),
-    (10, Sus9, 4),
-    (0, Min11, 4),
-    (7, Dom7s9, 4),
-];
-// bVI - bVII - i.
-const SEEK_HOOK: Prog = &[(8, Maj7s11, 4), (10, Dom13, 4), (0, Min9, 8)];
-const DUEL_A: Prog = &[
-    (0, Min11, 4),
-    (10, Sus9, 4),
-    (8, Maj7s11, 4),
-    (7, Dom7alt, 4),
-];
-const DUEL_B: Prog = &[
-    (1, Maj7s11, 4),
-    (0, Min11, 4),
-    (1, Maj7s11, 4),
-    (7, Dom7s9, 4),
-];
-const DUEL_HOOK: Prog = &[
-    (8, Maj9, 2),
-    (10, Dom13, 2),
-    (0, Min9, 4),
-    (5, Min9, 2),
-    (7, Dom7alt, 2),
-    (0, Min11, 4),
-];
-const LANDLORD_A: Prog = &[
-    (0, MinMaj9, 4),
-    (1, Dom13s11, 4),
-    (0, MinMaj9, 4),
-    (11, Dim7, 4),
-];
-// Chromatically climbing sus chords: the rent goes up.
-const LANDLORD_B: Prog = &[(0, Sus9, 4), (1, Sus9, 4), (2, Sus9, 4), (7, Dom7alt, 4)];
-const LANDLORD_HOOK: Prog = &[
-    (8, Maj7s11, 4),
-    (7, Dom7alt, 4),
-    (0, MinMaj9, 4),
-    (2, HalfDim, 2),
-    (7, Dom7b9, 2),
-];
+// --- The score file -------------------------------------------------------
+// Every mood's songs live in `assets/data/music/moods.ron` (the synths stay in
+// code). The composer reads `&'static Style`s, so each version of the file is
+// parsed once and leaked: that only happens when someone edits it.
+
+/// `data/music/moods.ron`, as written.
+#[derive(serde::Deserialize, Default)]
+pub struct Score {
+    progressions: BTreeMap<String, Vec<(u8, Quality, u8)>>,
+    bass: BTreeMap<String, String>,
+    moods: BTreeMap<Mood, MoodScore>,
+}
+
+#[derive(serde::Deserialize)]
+struct MoodScore {
+    tone: Tone,
+    level_db: f32,
+    songs: Vec<SongScore>,
+}
+
+#[derive(serde::Deserialize)]
+enum NylonScore {
+    None,
+    Bossa,
+    Pick(Vec<Section>),
+}
+
+#[derive(serde::Deserialize)]
+struct SongScore {
+    bpm: f32,
+    swing: f32,
+    key: u8,
+    a: String,
+    b: String,
+    hook: String,
+    groove: Groove,
+    bass: Vec<String>,
+    comp: Comp,
+    lead: LeadKind,
+    arp: Option<Inst>,
+    pad: bool,
+    intensity: f32,
+    odd: f32,
+    modulate: f32,
+    kime: f32,
+    theme: bool,
+    bass_inst: Inst,
+    pad_inst: Inst,
+    horns: Horns,
+    kit: Kit,
+    answer: Option<Inst>,
+    nylon: NylonScore,
+}
+
+/// The score, read at run time (see [`friendslop_data`]).
+pub static SCORE: friendslop_data::Data<Score> = friendslop_data::Data::ron("data/music/moods.ron");
+
+/// One mood's songs, ready to play.
+struct MoodTable {
+    tone: Tone,
+    level_db: f32,
+    songs: Vec<&'static Style>,
+}
+
+struct Table {
+    moods: BTreeMap<Mood, MoodTable>,
+}
+
+/// What plays when the score is missing a mood (or the file is).
+const FALLBACK_PROG: Prog = &[(0, Maj9, 8), (5, Maj7s11, 8)];
+const FALLBACK: Style = Style {
+    bpm: 96.0,
+    swing: 0.1,
+    key: 0,
+    a: FALLBACK_PROG,
+    b: FALLBACK_PROG,
+    hook: FALLBACK_PROG,
+    groove: Groove::Laid,
+    bass: &["R-----.5..R---A."],
+    comp: Comp::Laid,
+    lead: LeadKind::Silent,
+    arp: None,
+    pad: true,
+    intensity: 0.4,
+    odd: 0.0,
+    modulate: 0.0,
+    kime: 0.0,
+    theme: false,
+    bass_inst: Inst::Bass,
+    pad_inst: Inst::Pad,
+    horns: Horns::None,
+    kit: KIT_NONE,
+    answer: None,
+    nylon: Nylon::None,
+};
+
+fn leak<T>(v: Vec<T>) -> &'static [T] {
+    Box::leak(v.into_boxed_slice())
+}
+
+fn build(score: &Score) -> Table {
+    let prog = |name: &str| -> Prog {
+        score
+            .progressions
+            .get(name)
+            .map_or(FALLBACK_PROG, |p| leak(p.clone()))
+    };
+    let bass = |names: &[String]| -> &'static [&'static str] {
+        let lines: Vec<&'static str> = names
+            .iter()
+            .filter_map(|n| score.bass.get(n))
+            .map(|l| &*Box::leak(l.clone().into_boxed_str()))
+            .collect();
+        if lines.is_empty() {
+            FALLBACK.bass
+        } else {
+            leak(lines)
+        }
+    };
+    let moods = score
+        .moods
+        .iter()
+        .map(|(&m, ms)| {
+            let songs = ms
+                .songs
+                .iter()
+                .map(|s| {
+                    &*Box::leak(Box::new(Style {
+                        bpm: s.bpm,
+                        swing: s.swing,
+                        key: s.key,
+                        a: prog(&s.a),
+                        b: prog(&s.b),
+                        hook: prog(&s.hook),
+                        groove: s.groove,
+                        bass: bass(&s.bass),
+                        comp: s.comp,
+                        lead: s.lead,
+                        arp: s.arp,
+                        pad: s.pad,
+                        intensity: s.intensity,
+                        odd: s.odd,
+                        modulate: s.modulate,
+                        kime: s.kime,
+                        theme: s.theme,
+                        bass_inst: s.bass_inst,
+                        pad_inst: s.pad_inst,
+                        horns: s.horns,
+                        kit: s.kit,
+                        answer: s.answer,
+                        nylon: match &s.nylon {
+                            NylonScore::None => Nylon::None,
+                            NylonScore::Bossa => Nylon::Bossa,
+                            NylonScore::Pick(at) => Nylon::Pick(leak(at.clone())),
+                        },
+                    }))
+                })
+                .collect();
+            (
+                m,
+                MoodTable {
+                    tone: ms.tone,
+                    level_db: ms.level_db,
+                    songs,
+                },
+            )
+        })
+        .collect();
+    Table { moods }
+}
+
+/// The score as the composer plays it, rebuilt when the file changes.
+fn table() -> &'static Table {
+    static TABLE: RwLock<Option<(usize, &'static Table)>> = RwLock::new(None);
+    let score = SCORE.get();
+    let key = Arc::as_ptr(&score) as usize;
+    if let Ok(t) = TABLE.read()
+        && let Some((k, t)) = *t
+        && k == key
+    {
+        return t;
+    }
+    let t: &'static Table = Box::leak(Box::new(build(&score)));
+    if let Ok(mut slot) = TABLE.write() {
+        *slot = Some((key, t));
+    }
+    t
+}
+
 // The victory cadence: bVI - bVII - I.
 const VICTORY: Prog = &[(8, Maj7s11, 2), (10, Dom13, 2), (0, Maj9, 4)];
 
-// --- Bass templates (one char per 16th) ----------------------------------
-// R root, P octave pop, G ghost (dead note), 5/3/7 chord tones,
-// A chromatic approach to the next chord, - hold, . rest.
-const SLAP1: &str = "R.GR.PGR..R.PGRA";
-const SLAP2: &str = "R..GP..RR.GP.5-A";
-const PUMP: &str = "R.R.P.R.R.R.P.RA";
-const LAID: &str = "R-----.5..R---A.";
-const PEDAL: &str = "R-------5-------";
-const SPARSE: &str = "R-----....R-....";
-// Dub: a held root, space, and a late push back to it.
-const DUB: &str = "R---..R-..5-.RA.";
-const BOLERO: &str = "R-------5---3-A-";
-const TENSE: &str = "R.R.R.R.R.R.R.R.";
-const DRIVE: &str = "R.RP.RG.R.RP.RGA";
-const SHRED: &str = "RGRPRGR5RGRPRG7A";
-const MARCH: &str = "R...R...R...R.A.";
-
-// Upbeat songs (more tunes for the wandering moods).
-// "Sunny Side": I - vi - ii - V, bright and bouncy.
-const SUNNY_A: Prog = &[(0, Maj9, 4), (9, Min9, 4), (2, Min9, 4), (7, Dom13, 4)];
-// iii - VI7 - ii - V: the turnaround that keeps it moving.
-const SUNNY_B: Prog = &[
-    (4, Min9, 4),
-    (9, Dom7s9, 4),
-    (2, Min9, 4),
-    (7, Sus9, 2),
-    (7, Dom13, 2),
-];
-// "Night Market": vi - IV - V - I, driving.
-const MARKET_A: Prog = &[(9, Min9, 4), (5, Maj9, 4), (7, Dom13, 4), (0, Maj69, 4)];
-const MARKET_B: Prog = &[
-    (2, Min9, 4),
-    (7, Dom13s11, 4),
-    (0, Maj9, 4),
-    (9, Dom7alt, 4),
-];
-const MARKET_HOOK: Prog = &[
-    (5, Maj9, 4),
-    (7, Dom13, 4),
-    (4, Min9, 4),
-    (9, Min9, 2),
-    (1, Dom13s11, 2),
-];
-// "Kite Day": lydian lift between I and II, sunny and open.
-const KITE_A: Prog = &[(0, Maj9, 4), (2, Dom13, 4), (0, Maj9, 4), (2, Dom13, 4)];
-const KITE_B: Prog = &[(9, Min11, 4), (5, Maj7s11, 4), (2, Min9, 4), (7, Sus9, 4)];
-const KITE_HOOK: Prog = &[(5, Maj9, 4), (7, Dom13, 4), (9, Min9, 4), (0, Maj69, 4)];
-
 /// How many songs a mood has to choose from.
 fn songs(m: Mood) -> usize {
-    match m {
-        Mood::Village => 3,
-        Mood::Explore => 2,
-        _ => 1,
-    }
+    table().moods.get(&m).map_or(1, |ms| ms.songs.len().max(1))
 }
 
 fn style(m: Mood) -> &'static Style {
     style_song(m, 0)
 }
 
-/// Mood `m`'s song number `song` (0 = its original).
+/// Mood `m`'s song number `song` (0 = its original; wraps round).
 fn style_song(m: Mood, song: u8) -> &'static Style {
-    const SUNNY: Style = Style {
-        bpm: 118.0,
-        swing: 0.08,
-        key: 7,
-        a: SUNNY_A,
-        b: SUNNY_B,
-        hook: ROYAL_ROAD,
-        groove: Groove::City,
-        bass: &[PUMP, SLAP2],
-        comp: Comp::City,
-        lead: LeadKind::Synth,
-        arp: None,
-        pad: false,
-        intensity: 0.62,
-        odd: 0.1,
-        modulate: 0.45,
-        kime: 0.35,
-        theme: false,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Pad,
-        horns: Horns::Both,
-        kit: Kit {
-            clap: true,
-            shaker: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::PolyBrass),
-        nylon: Nylon::None,
-    };
-    const MARKET: Style = Style {
-        bpm: 126.0,
-        swing: 0.04,
-        key: 10,
-        a: MARKET_A,
-        b: MARKET_B,
-        hook: MARKET_HOOK,
-        groove: Groove::Drive,
-        bass: &[DRIVE, SLAP1],
-        comp: Comp::Stabs,
-        lead: LeadKind::Brass,
-        arp: None,
-        pad: true,
-        intensity: 0.68,
-        odd: 0.2,
-        modulate: 0.35,
-        kime: 0.5,
-        theme: false,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Pad,
-        horns: Horns::Stabs,
-        kit: Kit {
-            clap: true,
-            conga: true,
-            ride: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::Kalimba),
-        nylon: Nylon::None,
-    };
-    const KITE: Style = Style {
-        bpm: 112.0,
-        swing: 0.1,
-        key: 0,
-        a: KITE_A,
-        b: KITE_B,
-        hook: KITE_HOOK,
-        groove: Groove::City,
-        bass: &[SLAP1, PUMP],
-        comp: Comp::Laid,
-        lead: LeadKind::Mini,
-        arp: Some(Inst::Kalimba),
-        pad: true,
-        intensity: 0.55,
-        odd: 0.0,
-        modulate: 0.3,
-        kime: 0.25,
-        theme: false,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Strings,
-        horns: Horns::Swells,
-        kit: Kit {
-            shaker: true,
-            conga: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::Flute),
-        nylon: Nylon::Pick(&[Section::Intro, Section::Breakdown]),
-    };
-    match (m, song) {
-        (Mood::Village, 1) => return &SUNNY,
-        (Mood::Village, 2) => return &MARKET,
-        (Mood::Explore, 1) => return &KITE,
-        _ => {}
-    }
-    const MENU: Style = Style {
-        bpm: 102.0,
-        swing: 0.12,
-        key: 1,
-        a: JTTOU,
-        b: CHROMATIC_TWO_FIVES,
-        hook: JTTOU,
-        groove: Groove::City,
-        bass: &[SLAP1, PUMP],
-        comp: Comp::City,
-        lead: LeadKind::Synth,
-        arp: None,
-        pad: true,
-        intensity: 0.55,
-        odd: 0.15,
-        modulate: 0.5,
-        kime: 0.4,
-        theme: true,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Pad,
-        horns: Horns::Both,
-        kit: Kit {
-            clap: true,
-            ride: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::PolyBrass),
-        nylon: Nylon::None,
-    };
-    const EXPLORE: Style = Style {
-        bpm: 92.0,
-        swing: 0.18,
-        key: 5,
-        a: EXPLORE_A,
-        b: EXPLORE_B,
-        hook: EXPLORE_HOOK,
-        groove: Groove::Laid,
-        bass: &[LAID],
-        comp: Comp::Laid,
-        lead: LeadKind::Mini,
-        arp: Some(Inst::Kalimba),
-        pad: true,
-        intensity: 0.35,
-        odd: 0.0,
-        modulate: 0.25,
-        kime: 0.15,
-        theme: false,
-        bass_inst: Inst::Fretless,
-        pad_inst: Inst::Strings,
-        horns: Horns::Swells,
-        kit: Kit {
-            shaker: true,
-            conga: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::Flute),
-        nylon: Nylon::Pick(&[Section::Intro, Section::A, Section::Breakdown]),
-    };
-    const VILLAGE: Style = Style {
-        bpm: 104.0,
-        swing: 0.14,
-        key: 3,
-        a: ROYAL_ROAD,
-        b: VILLAGE_B,
-        hook: JTTOU,
-        groove: Groove::City,
-        bass: &[SLAP1, SLAP2, PUMP],
-        comp: Comp::City,
-        lead: LeadKind::Brass,
-        arp: None,
-        pad: false,
-        intensity: 0.55,
-        odd: 0.2,
-        modulate: 0.4,
-        kime: 0.45,
-        theme: true,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Pad,
-        horns: Horns::Both,
-        kit: Kit {
-            clap: true,
-            shaker: true,
-            conga: true,
-            ..KIT_NONE
-        },
-        answer: None,
-        nylon: Nylon::None,
-    };
-    const FOREST: Style = Style {
-        bpm: 84.0,
-        swing: 0.08,
-        key: 2,
-        a: FOREST_A,
-        b: FOREST_B,
-        hook: MINOR_FOUR,
-        groove: Groove::Brush,
-        bass: &[PEDAL, LAID],
-        comp: Comp::Long,
-        lead: LeadKind::Flute,
-        arp: Some(Inst::Harp),
-        pad: true,
-        intensity: 0.3,
-        odd: 0.0,
-        modulate: 0.2,
-        kime: 0.0,
-        theme: false,
-        bass_inst: Inst::Fretless,
-        pad_inst: Inst::Strings,
-        horns: Horns::None,
-        kit: Kit {
-            shaker: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::Harp),
-        nylon: Nylon::Bossa,
-    };
-    const MAZE: Style = Style {
-        bpm: 76.0,
-        swing: 0.1,
-        key: 0,
-        a: MAZE_A,
-        b: MAZE_B,
-        hook: MAZE_HOOK,
-        groove: Groove::Sparse,
-        bass: &[SPARSE],
-        comp: Comp::Long,
-        lead: LeadKind::Bell,
-        arp: None,
-        pad: true,
-        intensity: 0.3,
-        odd: 0.0,
-        modulate: 0.15,
-        kime: 0.0,
-        theme: false,
-        bass_inst: Inst::Fretless,
-        pad_inst: Inst::Pad,
-        horns: Horns::Swells,
-        kit: KIT_NONE,
-        answer: Some(Inst::Strings),
-        nylon: Nylon::None,
-    };
-    const UNDERGROUND: Style = Style {
-        bpm: 84.0,
-        swing: 0.16,
-        key: 2,
-        a: SEWER_A,
-        b: SEWER_B,
-        hook: SEWER_HOOK,
-        groove: Groove::Laid,
-        bass: &[DUB],
-        comp: Comp::Stabs,
-        lead: LeadKind::Flute,
-        arp: Some(Inst::Kalimba),
-        pad: true,
-        intensity: 0.35,
-        odd: 0.0,
-        modulate: 0.15,
-        kime: 0.0,
-        theme: false,
-        bass_inst: Inst::Fretless,
-        pad_inst: Inst::Strings,
-        horns: Horns::None,
-        kit: Kit {
-            conga: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::EPiano),
-        nylon: Nylon::None,
-    };
-    const SKY: Style = Style {
-        bpm: 70.0,
-        swing: 0.15,
-        key: 8,
-        a: MINOR_FOUR,
-        b: SKY_B,
-        hook: SKY_HOOK,
-        groove: Groove::Dream,
-        bass: &[PEDAL],
-        comp: Comp::Long,
-        lead: LeadKind::Mini,
-        arp: Some(Inst::Bell),
-        pad: true,
-        intensity: 0.25,
-        odd: 0.0,
-        modulate: 0.3,
-        kime: 0.0,
-        theme: false,
-        bass_inst: Inst::Fretless,
-        pad_inst: Inst::Strings,
-        horns: Horns::Swells,
-        kit: Kit {
-            shaker: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::Kalimba),
-        nylon: Nylon::Pick(&[Section::Intro, Section::B, Section::Breakdown]),
-    };
-    const ABUELA: Style = Style {
-        bpm: 84.0,
-        swing: 0.05,
-        key: 9,
-        a: BOLERO_A,
-        b: BOLERO_B,
-        hook: BOLERO_A,
-        groove: Groove::Bolero,
-        bass: &[BOLERO],
-        comp: Comp::Bolero,
-        lead: LeadKind::Flute,
-        arp: None,
-        pad: true,
-        intensity: 0.4,
-        odd: 0.0,
-        modulate: 0.1,
-        kime: 0.0,
-        theme: false,
-        bass_inst: Inst::Fretless,
-        pad_inst: Inst::Strings,
-        horns: Horns::Swells,
-        kit: Kit {
-            shaker: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::Guitar),
-        nylon: Nylon::None,
-    };
-    const HIDING: Style = Style {
-        bpm: 96.0,
-        swing: 0.0,
-        key: 6,
-        a: HIDE_A,
-        b: HIDE_B,
-        hook: HIDE_A,
-        groove: Groove::Tense,
-        bass: &[TENSE],
-        comp: Comp::Tense,
-        lead: LeadKind::Silent,
-        arp: None,
-        pad: true,
-        intensity: 0.35,
-        odd: 0.0,
-        modulate: 0.3,
-        kime: 0.0,
-        theme: false,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Pad,
-        horns: Horns::None,
-        kit: KIT_NONE,
-        answer: None,
-        nylon: Nylon::None,
-    };
-    const SEEKING: Style = Style {
-        bpm: 128.0,
-        swing: 0.06,
-        key: 4,
-        a: SEEK_A,
-        b: SEEK_B,
-        hook: SEEK_HOOK,
-        groove: Groove::Drive,
-        bass: &[DRIVE, SLAP2],
-        comp: Comp::Stabs,
-        lead: LeadKind::Mini,
-        arp: None,
-        pad: false,
-        intensity: 0.75,
-        odd: 0.25,
-        modulate: 0.3,
-        kime: 0.5,
-        theme: false,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Pad,
-        horns: Horns::Stabs,
-        kit: Kit {
-            clap: true,
-            conga: true,
-            ..KIT_NONE
-        },
-        answer: Some(Inst::EPiano),
-        nylon: Nylon::None,
-    };
-    const DUEL: Style = Style {
-        bpm: 150.0,
-        swing: 0.0,
-        key: 11,
-        a: DUEL_A,
-        b: DUEL_B,
-        hook: DUEL_HOOK,
-        groove: Groove::Shred,
-        bass: &[SHRED, DRIVE],
-        comp: Comp::Stabs,
-        lead: LeadKind::Mini,
-        arp: None,
-        pad: false,
-        intensity: 0.95,
-        odd: 0.35,
-        modulate: 0.35,
-        kime: 0.7,
-        theme: false,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Pad,
-        horns: Horns::Stabs,
-        kit: Kit {
-            clap: true,
-            ride: true,
-            ..KIT_NONE
-        },
-        answer: None,
-        nylon: Nylon::None,
-    };
-    const LANDLORD: Style = Style {
-        bpm: 108.0,
-        swing: 0.08,
-        key: 1,
-        a: LANDLORD_A,
-        b: LANDLORD_B,
-        hook: LANDLORD_HOOK,
-        groove: Groove::March,
-        bass: &[MARCH],
-        comp: Comp::Tense,
-        lead: LeadKind::Brass,
-        arp: None,
-        pad: true,
-        intensity: 0.5,
-        odd: 0.15,
-        modulate: 0.6,
-        kime: 0.3,
-        theme: false,
-        bass_inst: Inst::Bass,
-        pad_inst: Inst::Strings,
-        horns: Horns::Both,
-        kit: KIT_NONE,
-        answer: Some(Inst::Strings),
-        nylon: Nylon::None,
-    };
-    match m {
-        Mood::Menu | Mood::Still => &MENU,
-        Mood::Explore => &EXPLORE,
-        Mood::Village => &VILLAGE,
-        Mood::Forest => &FOREST,
-        Mood::Maze => &MAZE,
-        Mood::Sky => &SKY,
-        Mood::Abuela => &ABUELA,
-        Mood::Hiding => &HIDING,
-        Mood::Seeking => &SEEKING,
-        Mood::Duel => &DUEL,
-        Mood::Landlord => &LANDLORD,
-        Mood::Underground => &UNDERGROUND,
-    }
+    let t = table();
+    t.moods
+        .get(&m)
+        .and_then(|ms| ms.songs.get(song as usize % ms.songs.len().max(1)))
+        .copied()
+        .unwrap_or(&FALLBACK)
 }
 
 /// The signature hook, written out (over "Just the Two of Us" in Db):
@@ -3855,4 +3380,33 @@ mod tests {
     const N12: [&str; 12] = [
         "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B",
     ];
+}
+
+#[cfg(test)]
+mod score_file {
+    use super::*;
+
+    #[test]
+    fn every_mood_has_songs_and_every_name_resolves() {
+        let score = SCORE.get();
+        for m in Mood::ALL {
+            let Some(ms) = score.moods.get(&m) else {
+                panic!("{m:?} has no songs in moods.ron");
+            };
+            assert!(!ms.songs.is_empty(), "{m:?}");
+            for s in &ms.songs {
+                for p in [&s.a, &s.b, &s.hook] {
+                    assert!(
+                        score.progressions.contains_key(p),
+                        "{m:?}: no progression {p}"
+                    );
+                }
+                for b in &s.bass {
+                    assert!(score.bass.contains_key(b), "{m:?}: no bass line {b}");
+                }
+            }
+        }
+        let mix = crate::synth::MIX.get();
+        assert_eq!((mix.trim.len(), mix.pump.len()), (BUSES, BUSES));
+    }
 }

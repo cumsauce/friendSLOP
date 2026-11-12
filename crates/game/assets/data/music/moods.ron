@@ -1,0 +1,328 @@
+// The soundtrack's score: every mood's songs (crates/fusion: the composer reads this,
+// the synths stay in code). Edit and save: the running game picks it up within a second,
+// and `cargo run -p fusion --bin fusion-render -- help` renders a mood to listen to.
+//
+// progressions: (semitones above the key, chord quality, beats). Qualities: Maj9, Maj7s11,
+//   Maj69, Min9, Min11, Min6, MinMaj9, Dom13, Dom9, Dom7s9, Dom7alt, Dom13s11, Dom7b9,
+//   Sus9, HalfDim, Dim7 (see crates/fusion/src/theory.rs).
+// bass: one char per 16th: R root, P octave pop, G ghost (dead note), 5/3/7 chord tones,
+//   A chromatic approach to the next chord, - hold, . rest.
+// Each mood: tone (warmth: + warm / - crisp, stereo width, tape wow 0..1, backbeat lay-back
+//   and hat looseness in ms), level_db (make-up gain), and its songs (the first is its
+//   own; more are picked at random). A song: bpm, swing, key (semitones above C), the A/B/
+//   hook progressions, groove, bass lines, comping, lead, arp, pad, intensity, chances of an
+//   odd 7/8 bar / a modulation / a kime, theme (plays the signature hook), instruments,
+//   horns, extra percussion, who answers the lead, and the nylon guitar.
+(
+    progressions: {
+        // "Just the Two of Us": IVmaj9 - III7#9 - vim9 - vm9 I13.
+        "JTTOU": [(5, Maj9, 4), (4, Dom7s9, 4), (9, Min9, 4), (7, Min9, 2), (0, Dom13, 2)],
+        "CHROMATIC_TWO_FIVES": [(2, Min9, 2), (7, Dom13, 2), (1, Min9, 2), (6, Dom13, 2), (0, Maj9, 4), (9, Dom7alt, 4)],
+        "EXPLORE_A": [(0, Maj9, 8), (5, Maj7s11, 8)],
+        "EXPLORE_B": [(2, Min11, 4), (7, Sus9, 4), (0, Maj69, 4), (9, Dom7alt, 4)],
+        "EXPLORE_HOOK": [(5, Maj9, 4), (4, Min9, 4), (2, Min9, 4), (1, Dom13s11, 4)],
+        // "Kite Day": lydian lift between I and II, sunny and open.
+        "KITE_A": [(0, Maj9, 4), (2, Dom13, 4), (0, Maj9, 4), (2, Dom13, 4)],
+        "KITE_B": [(9, Min11, 4), (5, Maj7s11, 4), (2, Min9, 4), (7, Sus9, 4)],
+        "KITE_HOOK": [(5, Maj9, 4), (7, Dom13, 4), (9, Min9, 4), (0, Maj69, 4)],
+        // The city-pop "royal road": IV - V - iii - vi, then ii - bII (tritone sub).
+        "ROYAL_ROAD": [(5, Maj9, 4), (7, Sus9, 2), (7, Dom13, 2), (4, Min9, 2), (9, Min9, 2), (2, Min9, 2), (1, Dom13s11, 2)],
+        "VILLAGE_B": [(0, Maj9, 4), (10, Min9, 2), (3, Dom13, 2), (8, Maj7s11, 4), (7, Dom7alt, 4)],
+        // Upbeat songs (more tunes for the wandering moods).
+        // "Sunny Side": I - vi - ii - V, bright and bouncy.
+        "SUNNY_A": [(0, Maj9, 4), (9, Min9, 4), (2, Min9, 4), (7, Dom13, 4)],
+        // iii - VI7 - ii - V: the turnaround that keeps it moving.
+        "SUNNY_B": [(4, Min9, 4), (9, Dom7s9, 4), (2, Min9, 4), (7, Sus9, 2), (7, Dom13, 2)],
+        // "Night Market": vi - IV - V - I, driving.
+        "MARKET_A": [(9, Min9, 4), (5, Maj9, 4), (7, Dom13, 4), (0, Maj69, 4)],
+        "MARKET_B": [(2, Min9, 4), (7, Dom13s11, 4), (0, Maj9, 4), (9, Dom7alt, 4)],
+        "MARKET_HOOK": [(5, Maj9, 4), (7, Dom13, 4), (4, Min9, 4), (9, Min9, 2), (1, Dom13s11, 2)],
+        "FOREST_A": [(0, Maj7s11, 8), (9, Min11, 8)],
+        // Descending lydian chords, ECM-style.
+        "FOREST_B": [(5, Maj7s11, 4), (4, Min9, 4), (3, Maj7s11, 4), (2, Sus9, 4)],
+        // I - iii - IV - iv (the borrowed minor iv).
+        "MINOR_FOUR": [(0, Maj9, 4), (4, Min9, 4), (5, Maj7s11, 4), (5, Min6, 4)],
+        "MAZE_A": [(0, Min11, 8), (8, Maj7s11, 8)],
+        // Phrygian bII lydian, then a sus and an altered V.
+        "MAZE_B": [(0, Min11, 4), (1, Maj7s11, 4), (10, Sus9, 4), (7, Dom7alt, 4)],
+        "MAZE_HOOK": [(5, Min9, 4), (10, Dom13, 4), (3, Maj9, 4), (8, Maj7s11, 2), (7, Dom7alt, 2)],
+        "SKY_B": [(9, Min11, 4), (2, Min9, 4), (7, Sus9, 4), (0, Maj69, 4)],
+        "SKY_HOOK": [(5, Maj7s11, 4), (7, Sus9, 4), (4, Min9, 4), (9, Min11, 4)],
+        // A bolero cycle in minor: i - ii-V - i - V/iv - iv - bVII - bIII - ii-V.
+        "BOLERO_A": [(0, Min6, 4), (2, HalfDim, 2), (7, Dom7b9, 2), (0, Min6, 4), (0, Dom7b9, 4), (5, Min9, 4), (10, Dom13, 4), (3, Maj9, 4), (2, HalfDim, 2), (7, Dom7b9, 2)],
+        "BOLERO_B": [(3, Maj9, 4), (8, Maj7s11, 4), (2, HalfDim, 4), (7, Dom7alt, 4)],
+        "HIDE_A": [(0, MinMaj9, 4), (1, Maj7s11, 4), (0, MinMaj9, 4), (11, Dim7, 4)],
+        "HIDE_B": [(8, Maj7s11, 4), (7, Dom7b9, 4), (0, Min11, 4), (1, Dom13s11, 4)],
+        // Dorian vamp i9 - IV9.
+        "SEEK_A": [(0, Min9, 8), (5, Dom9, 8)],
+        "SEEK_B": [(8, Maj7s11, 4), (10, Sus9, 4), (0, Min11, 4), (7, Dom7s9, 4)],
+        // bVI - bVII - i.
+        "SEEK_HOOK": [(8, Maj7s11, 4), (10, Dom13, 4), (0, Min9, 8)],
+        "SEWER_HOOK": [(0, Min11, 4), (10, Sus9, 4), (8, Maj7s11, 4), (7, Dom7alt, 4)],
+        "DUEL_B": [(1, Maj7s11, 4), (0, Min11, 4), (1, Maj7s11, 4), (7, Dom7s9, 4)],
+        "DUEL_HOOK": [(8, Maj9, 2), (10, Dom13, 2), (0, Min9, 4), (5, Min9, 2), (7, Dom7alt, 2), (0, Min11, 4)],
+        "LANDLORD_A": [(0, MinMaj9, 4), (1, Dom13s11, 4), (0, MinMaj9, 4), (11, Dim7, 4)],
+        // Chromatically climbing sus chords: the rent goes up.
+        "LANDLORD_B": [(0, Sus9, 4), (1, Sus9, 4), (2, Sus9, 4), (7, Dom7alt, 4)],
+        "LANDLORD_HOOK": [(8, Maj7s11, 4), (7, Dom7alt, 4), (0, MinMaj9, 4), (2, HalfDim, 2), (7, Dom7b9, 2)],
+        // The sewers (#127): a dorian i - iv vamp, then borrowed lydian chords
+        // dripping down to the minor V.
+        "SEWER_A": [(0, Min9, 8), (5, Min11, 8)],
+        "SEWER_B": [(8, Maj7s11, 4), (3, Maj9, 4), (1, Maj7s11, 4), (7, Dom7b9, 4)],
+    },
+    bass: {
+        "SLAP1": "R.GR.PGR..R.PGRA",
+        "SLAP2": "R..GP..RR.GP.5-A",
+        "PUMP": "R.R.P.R.R.R.P.RA",
+        "LAID": "R-----.5..R---A.",
+        "PEDAL": "R-------5-------",
+        "SPARSE": "R-----....R-....",
+        // Dub: a held root, space, and a late push back to it.
+        "DUB": "R---..R-..5-.RA.",
+        "BOLERO": "R-------5---3-A-",
+        "TENSE": "R.R.R.R.R.R.R.R.",
+        "DRIVE": "R.RP.RG.R.RP.RGA",
+        "SHRED": "RGRPRGR5RGRPRG7A",
+        "MARCH": "R...R...R...R.A.",
+    },
+    moods: {
+        Menu: (
+            tone: (warmth: 0.1, width: 1.15, wow: 0.25, lay_back_ms: 5.0, loose_ms: 3.0),
+            level_db: 0.0,
+            songs: [
+            (
+                bpm: 102.0, swing: 0.12, key: 1,
+                a: "JTTOU", b: "CHROMATIC_TWO_FIVES", hook: "JTTOU",
+                groove: City, bass: ["SLAP1", "PUMP"],
+                comp: City, lead: Synth, arp: None, pad: true,
+                intensity: 0.55, odd: 0.15, modulate: 0.5, kime: 0.4,
+                theme: true, bass_inst: Bass, pad_inst: Pad,
+                horns: Both, kit: (shaker: false, conga: false, clap: true, ride: true),
+                answer: Some(PolyBrass), nylon: None,
+            ),
+            ],
+        ),
+        Explore: (
+            tone: (warmth: -0.05, width: 1.2, wow: 0.2, lay_back_ms: 7.0, loose_ms: 4.0),
+            level_db: 0.0,
+            songs: [
+            (
+                bpm: 92.0, swing: 0.18, key: 5,
+                a: "EXPLORE_A", b: "EXPLORE_B", hook: "EXPLORE_HOOK",
+                groove: Laid, bass: ["LAID"],
+                comp: Laid, lead: Mini, arp: Some(Kalimba), pad: true,
+                intensity: 0.35, odd: 0.0, modulate: 0.25, kime: 0.15,
+                theme: false, bass_inst: Fretless, pad_inst: Strings,
+                horns: Swells, kit: (shaker: true, conga: true, clap: false, ride: false),
+                answer: Some(Flute), nylon: Pick([Intro, A, Breakdown]),
+            ),
+            (
+                bpm: 112.0, swing: 0.1, key: 0,
+                a: "KITE_A", b: "KITE_B", hook: "KITE_HOOK",
+                groove: City, bass: ["SLAP1", "PUMP"],
+                comp: Laid, lead: Mini, arp: Some(Kalimba), pad: true,
+                intensity: 0.55, odd: 0.0, modulate: 0.3, kime: 0.25,
+                theme: false, bass_inst: Bass, pad_inst: Strings,
+                horns: Swells, kit: (shaker: true, conga: true, clap: false, ride: false),
+                answer: Some(Flute), nylon: Pick([Intro, Breakdown]),
+            ),
+            ],
+        ),
+        Village: (
+            tone: (warmth: -0.15, width: 1.15, wow: 0.1, lay_back_ms: 3.0, loose_ms: 2.5),
+            level_db: 0.0,
+            songs: [
+            (
+                bpm: 104.0, swing: 0.14, key: 3,
+                a: "ROYAL_ROAD", b: "VILLAGE_B", hook: "JTTOU",
+                groove: City, bass: ["SLAP1", "SLAP2", "PUMP"],
+                comp: City, lead: Brass, arp: None, pad: false,
+                intensity: 0.55, odd: 0.2, modulate: 0.4, kime: 0.45,
+                theme: true, bass_inst: Bass, pad_inst: Pad,
+                horns: Both, kit: (shaker: true, conga: true, clap: true, ride: false),
+                answer: None, nylon: None,
+            ),
+            (
+                bpm: 118.0, swing: 0.08, key: 7,
+                a: "SUNNY_A", b: "SUNNY_B", hook: "ROYAL_ROAD",
+                groove: City, bass: ["PUMP", "SLAP2"],
+                comp: City, lead: Synth, arp: None, pad: false,
+                intensity: 0.62, odd: 0.1, modulate: 0.45, kime: 0.35,
+                theme: false, bass_inst: Bass, pad_inst: Pad,
+                horns: Both, kit: (shaker: true, conga: false, clap: true, ride: false),
+                answer: Some(PolyBrass), nylon: None,
+            ),
+            (
+                bpm: 126.0, swing: 0.04, key: 10,
+                a: "MARKET_A", b: "MARKET_B", hook: "MARKET_HOOK",
+                groove: Drive, bass: ["DRIVE", "SLAP1"],
+                comp: Stabs, lead: Brass, arp: None, pad: true,
+                intensity: 0.68, odd: 0.2, modulate: 0.35, kime: 0.5,
+                theme: false, bass_inst: Bass, pad_inst: Pad,
+                horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: true),
+                answer: Some(Kalimba), nylon: None,
+            ),
+            ],
+        ),
+        Forest: (
+            tone: (warmth: 0.3, width: 1.3, wow: 0.35, lay_back_ms: 8.0, loose_ms: 5.0),
+            level_db: 0.5,
+            songs: [
+            (
+                bpm: 84.0, swing: 0.08, key: 2,
+                a: "FOREST_A", b: "FOREST_B", hook: "MINOR_FOUR",
+                groove: Brush, bass: ["PEDAL", "LAID"],
+                comp: Long, lead: Flute, arp: Some(Harp), pad: true,
+                intensity: 0.3, odd: 0.0, modulate: 0.2, kime: 0.0,
+                theme: false, bass_inst: Fretless, pad_inst: Strings,
+                horns: None, kit: (shaker: true, conga: false, clap: false, ride: false),
+                answer: Some(Harp), nylon: Bossa,
+            ),
+            ],
+        ),
+        Maze: (
+            tone: (warmth: 0.15, width: 0.95, wow: 0.2, lay_back_ms: 2.0, loose_ms: 2.0),
+            level_db: 2.5,
+            songs: [
+            (
+                bpm: 76.0, swing: 0.1, key: 0,
+                a: "MAZE_A", b: "MAZE_B", hook: "MAZE_HOOK",
+                groove: Sparse, bass: ["SPARSE"],
+                comp: Long, lead: Bell, arp: None, pad: true,
+                intensity: 0.3, odd: 0.0, modulate: 0.15, kime: 0.0,
+                theme: false, bass_inst: Fretless, pad_inst: Pad,
+                horns: Swells, kit: (shaker: false, conga: false, clap: false, ride: false),
+                answer: Some(Strings), nylon: None,
+            ),
+            ],
+        ),
+        Sky: (
+            tone: (warmth: -0.2, width: 1.4, wow: 0.3, lay_back_ms: 5.0, loose_ms: 3.5),
+            level_db: 2.0,
+            songs: [
+            (
+                bpm: 70.0, swing: 0.15, key: 8,
+                a: "MINOR_FOUR", b: "SKY_B", hook: "SKY_HOOK",
+                groove: Dream, bass: ["PEDAL"],
+                comp: Long, lead: Mini, arp: Some(Bell), pad: true,
+                intensity: 0.25, odd: 0.0, modulate: 0.3, kime: 0.0,
+                theme: false, bass_inst: Fretless, pad_inst: Strings,
+                horns: Swells, kit: (shaker: true, conga: false, clap: false, ride: false),
+                answer: Some(Kalimba), nylon: Pick([Intro, B, Breakdown]),
+            ),
+            ],
+        ),
+        Abuela: (
+            tone: (warmth: 0.5, width: 0.85, wow: 0.7, lay_back_ms: 10.0, loose_ms: 6.0),
+            level_db: 0.5,
+            songs: [
+            (
+                bpm: 84.0, swing: 0.05, key: 9,
+                a: "BOLERO_A", b: "BOLERO_B", hook: "BOLERO_A",
+                groove: Bolero, bass: ["BOLERO"],
+                comp: Bolero, lead: Flute, arp: None, pad: true,
+                intensity: 0.4, odd: 0.0, modulate: 0.1, kime: 0.0,
+                theme: false, bass_inst: Fretless, pad_inst: Strings,
+                horns: Swells, kit: (shaker: true, conga: false, clap: false, ride: false),
+                answer: Some(Guitar), nylon: None,
+            ),
+            ],
+        ),
+        Hiding: (
+            tone: (warmth: 0.4, width: 0.8, wow: 0.15, lay_back_ms: 1.0, loose_ms: 1.5),
+            level_db: 3.5,
+            songs: [
+            (
+                bpm: 96.0, swing: 0.0, key: 6,
+                a: "HIDE_A", b: "HIDE_B", hook: "HIDE_A",
+                groove: Tense, bass: ["TENSE"],
+                comp: Tense, lead: Silent, arp: None, pad: true,
+                intensity: 0.35, odd: 0.0, modulate: 0.3, kime: 0.0,
+                theme: false, bass_inst: Bass, pad_inst: Pad,
+                horns: None, kit: (shaker: false, conga: false, clap: false, ride: false),
+                answer: None, nylon: None,
+            ),
+            ],
+        ),
+        Seeking: (
+            tone: (warmth: -0.25, width: 1.05, wow: 0.0, lay_back_ms: 0.0, loose_ms: 1.0),
+            level_db: 0.0,
+            songs: [
+            (
+                bpm: 128.0, swing: 0.06, key: 4,
+                a: "SEEK_A", b: "SEEK_B", hook: "SEEK_HOOK",
+                groove: Drive, bass: ["DRIVE", "SLAP2"],
+                comp: Stabs, lead: Mini, arp: None, pad: false,
+                intensity: 0.75, odd: 0.25, modulate: 0.3, kime: 0.5,
+                theme: false, bass_inst: Bass, pad_inst: Pad,
+                horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: false),
+                answer: Some(EPiano), nylon: None,
+            ),
+            ],
+        ),
+        Duel: (
+            tone: (warmth: 0.1, width: 1.1, wow: 0.3, lay_back_ms: 2.0, loose_ms: 2.5),
+            level_db: 0.0,
+            songs: [
+            (
+                bpm: 150.0, swing: 0.0, key: 11,
+                a: "SEWER_HOOK", b: "DUEL_B", hook: "DUEL_HOOK",
+                groove: Shred, bass: ["SHRED", "DRIVE"],
+                comp: Stabs, lead: Mini, arp: None, pad: false,
+                intensity: 0.95, odd: 0.35, modulate: 0.35, kime: 0.7,
+                theme: false, bass_inst: Bass, pad_inst: Pad,
+                horns: Stabs, kit: (shaker: false, conga: false, clap: true, ride: true),
+                answer: None, nylon: None,
+            ),
+            ],
+        ),
+        Landlord: (
+            tone: (warmth: -0.2, width: 0.9, wow: 0.1, lay_back_ms: 0.0, loose_ms: 1.0),
+            level_db: 0.0,
+            songs: [
+            (
+                bpm: 108.0, swing: 0.08, key: 1,
+                a: "LANDLORD_A", b: "LANDLORD_B", hook: "LANDLORD_HOOK",
+                groove: March, bass: ["MARCH"],
+                comp: Tense, lead: Brass, arp: None, pad: true,
+                intensity: 0.5, odd: 0.15, modulate: 0.6, kime: 0.3,
+                theme: false, bass_inst: Bass, pad_inst: Strings,
+                horns: Both, kit: (shaker: false, conga: false, clap: false, ride: false),
+                answer: Some(Strings), nylon: None,
+            ),
+            ],
+        ),
+        Still: (
+            tone: (warmth: 0.35, width: 1.15, wow: 0.6, lay_back_ms: 0.0, loose_ms: 0.0),
+            level_db: 3.5,
+            songs: [
+            (
+                bpm: 102.0, swing: 0.12, key: 1,
+                a: "JTTOU", b: "CHROMATIC_TWO_FIVES", hook: "JTTOU",
+                groove: City, bass: ["SLAP1", "PUMP"],
+                comp: City, lead: Synth, arp: None, pad: true,
+                intensity: 0.55, odd: 0.15, modulate: 0.5, kime: 0.4,
+                theme: true, bass_inst: Bass, pad_inst: Pad,
+                horns: Both, kit: (shaker: false, conga: false, clap: true, ride: true),
+                answer: Some(PolyBrass), nylon: None,
+            ),
+            ],
+        ),
+        Underground: (
+            tone: (warmth: 0.45, width: 1.3, wow: 0.45, lay_back_ms: 12.0, loose_ms: 5.0),
+            level_db: 2.0,
+            songs: [
+            (
+                bpm: 84.0, swing: 0.16, key: 2,
+                a: "SEWER_A", b: "SEWER_B", hook: "SEWER_HOOK",
+                groove: Laid, bass: ["DUB"],
+                comp: Stabs, lead: Flute, arp: Some(Kalimba), pad: true,
+                intensity: 0.35, odd: 0.0, modulate: 0.15, kime: 0.0,
+                theme: false, bass_inst: Fretless, pad_inst: Strings,
+                horns: None, kit: (shaker: false, conga: true, clap: false, ride: false),
+                answer: Some(EPiano), nylon: None,
+            ),
+            ],
+        ),
+    },
+)

@@ -116,6 +116,7 @@ crates/wire/         friendslop-wire: the iroh wire format shared by the desktop
 crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares
 crates/world/        friendslop-world: the map: terrain, buildings, landmarks, surfaces, places
 crates/structures/   friendslop-structures: building kit, house grammar, room graph + hallway kit, prop library + placer, merged meshes, world-space UVs, colliders
+crates/data/         friendslop-data: data files (maps, tuning, writing) loaded at run time, re-read when edited
 crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers)
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/it/ headless multiplayer tests (replicon test_app, no sockets)
@@ -128,9 +129,9 @@ The workspace has three layers, and dependencies only ever point down:
 1. **Foundation crates**: reusable building blocks with **no game code**. They depend only on
    Bevy, avian and std, never on `friendslop`, and on each other only as listed:
    - `fusion`, `friendslop-wire`, `friendslop-kcc`, `friendslop-core`, `friendslop-wfc`,
-     `friendslop-structures`: nothing of ours.
+     `friendslop-structures`, `friendslop-data`: nothing of ours.
    - `friendslop-art`: nothing of ours (`art`, `theme`, and the cat `palette` maths).
-   - `friendslop-world`: `core`, `art` and `structures`.
+   - `friendslop-world`: `core`, `art`, `structures` and `data`.
 2. **The game layer** (split so a change rebuilds only its crate and those above it; a single
    47k-line crate took CI 18 minutes): `friendslop-base` → `play` → `places` → `village` →
    `story` → {`afterlife`, `side`}. Each crate's `features` module re-exports every feature
@@ -153,6 +154,17 @@ Rules for growing it:
   in a foundation crate instead when it needs no game state: generators (meshes, textures,
   sounds, maps), maths, file or wire formats, synths, controllers. A Bevy system that reads or
   writes game components stays in the game.
+- **Data, not constants.** Anything a friend might want to tweak lives in a data file under
+  `crates/game/assets/`, not in Rust: positions and layout (the modeler map), tuning numbers
+  (timers, costs, speeds, chances, health, counts: `assets/data/<crate>/<feature>.ron`), and
+  writing (dialogue, names, story text: `assets/data/text/...`). Declare one with
+  `friendslop_data::Data` (`pub static TUNING: Data<Tuning> = Data::ron("data/...")`, a
+  `#[derive(Deserialize, Default)]` struct with doc comments, the file commented too), read it
+  with `TUNING.get()`, and add it to the crate's `data_files()`. It's read at run time, never
+  compiled in (no `include_str!`): editing it needs no rebuild, the desktop game re-reads it
+  within a second, and the browser fetches it before you can host or join. Each data file gets a
+  test that it parses and has every field. Keep in code only what isn't a choice: maths,
+  structure, UI layout, key bindings, offsets inside a model, generators' algorithms.
 - **Write features as pure functions plus thin systems.** Put the decisions (who gets blamed,
   what a visit gives you, where a thing stands) in plain functions that take values and
   return values, and keep the systems as wiring. They're cheap to test and can move down to a
@@ -183,18 +195,18 @@ Rules for growing it:
   from `crates/game`. The vocabulary of components a map may carry is
   `crates/game/.modeler/components.json` (each type must also be `register_type`d in the game);
   its header is the salting. `friendslop_world::map` loads the scene (jackdaw's BSN parser, not
-  its runtime), and `terrain::BAKED` embeds each `<area>.<terrain>.heights` so `height_at` uses
-  them on every peer. The whole world's ground is `commune-map`'s hidden `ground` terrain (hills
+  its runtime), and `terrain::HEIGHTS` loads `<area>.<terrain>.heights` (a data file, see above) so
+  `height_at` uses them on every peer. The whole world's ground is `commune-map`'s hidden `ground` terrain (hills
   noise, flat pads for the commune, village and ruins, pads that raise the hill and ridge and sink
   the lake and quarry): reshape it there. Only the edge-of-world rim hills are added in code, and
   `procedural_height_at` is the fallback when the heights file is missing. The commune's picnic corner (`commune-map`) is the example. The map's whole layout is markers there, read by
-  `friendslop_world::places` from the embedded scene: `Spot` (every fixed place, `<name>_at()`;
+  `friendslop_world::places` from `commune.map.json` (a data file): `Spot` (every fixed place, `<name>_at()`;
   a test checks each name in `places::PLACES`), `Feature` (a spot's sizes: pond, hill, lake,
   quarry, arena, village flat), `Path` (the ground's paths), `District` (zone boxes),
   `Plot` (house plots), `Hangout` (villagers' spots and trips), `Clear` (ground kept free
   of trees and rocks) and `Block` (static colliders for the map's set pieces). Set pieces are
   prefab instances on the map (snapped to the ground) with `Block` markers for their colliders,
-  read from the embedded `commune.map.json`, so collisions never wait on a model file.
+  read from `commune.map.json`, so collisions never wait on a model file.
   A place's sizes are its spot's `Feature` and marker box (`places::sizes(name)`). `places::layout()` holds them. No positions or sizes in code: change
   the map in the modeler and re-export. Props the map places claim their ground.
 - **Claim ground, don't get imported.** A feature that needs clear ground calls

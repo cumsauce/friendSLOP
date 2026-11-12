@@ -15,3 +15,8 @@ pub mod terrain;
 // The map was carved out of the game crate; these keep its paths working.
 pub(crate) use friendslop_art::art;
 pub(crate) use friendslop_core::AppState;
+
+/// The map's data files (loaded at run time, see `friendslop_data`).
+pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
+    vec![&places::COMMUNE, &terrain::HEIGHTS]
+}

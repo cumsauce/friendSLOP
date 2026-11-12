@@ -11,6 +11,7 @@ pub(crate) use friendslop_base::{
 };
 
 pub mod features {
+    #![allow(unused_imports)]
     pub use friendslop_base::features::*;
     pub use friendslop_play::features::*;
     pub mod fart;

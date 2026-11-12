@@ -12,6 +12,8 @@
 //! FRIENDSLOP_SCREENSHOT_WAIT=12
 //! # optional: force a HUD state for visual checks against the Figma frames
 //! # (play, busy, clickable, chapter, tab; see `Scene`)
+//! FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt  (lines `out.png x,y,z,lx,ly,lz`; edit and save it
+//!   while the game runs to take more pictures without restarting)
 //! FRIENDSLOP_SCREENSHOT_SCENE=busy
 //! # optional: window size in logical pixels (scale factor forced to 1)
 //! FRIENDSLOP_SCREENSHOT_SIZE=1920x1080
@@ -59,6 +61,8 @@ pub enum Scene {
     Settings,
     /// The loading curtain, shot before it lifts.
     Loading,
+    /// The world with no UI at all (README pictures).
+    Clean,
 }
 
 impl Scene {
@@ -72,6 +76,7 @@ impl Scene {
             "title" => Scene::Title,
             "settings" => Scene::Settings,
             "loading" => Scene::Loading,
+            "clean" => Scene::Clean,
             _ => return None,
         })
     }
@@ -80,7 +85,9 @@ impl Scene {
     fn default_wait(self) -> f32 {
         match self {
             // After the chapter card (9 s).
-            Scene::Play | Scene::Tab | Scene::Busy | Scene::Clickable => DEFAULT_WAIT,
+            Scene::Play | Scene::Tab | Scene::Busy | Scene::Clickable | Scene::Clean => {
+                DEFAULT_WAIT
+            }
             // Before the chapter intro shrinks away.
             Scene::Chapter => 2.0,
             // Real seconds after the title screen opens.
@@ -126,6 +133,11 @@ pub struct ScreenshotJob {
     /// Live mode: keep running and save the picture again every this many
     /// seconds (for watching UI work against a design), instead of quitting.
     pub every: Option<f32>,
+    /// Shot-list mode (`FRIENDSLOP_SCREENSHOT_SHOTS`, desktop only): a file of
+    /// `out.png x,y,z,lx,ly,lz` lines the running game watches. Saving it
+    /// moves the camera to each line in turn and saves that picture, so you
+    /// can frame shots without restarting. The game keeps running.
+    pub shots: Option<String>,
 }
 
 impl ScreenshotJob {
@@ -155,6 +167,7 @@ impl ScreenshotJob {
             scene,
             size: size.and_then(parse_size),
             every: None,
+            shots: None,
         })
     }
 
@@ -170,9 +183,74 @@ impl ScreenshotJob {
         job.every = var("FRIENDSLOP_SCREENSHOT_EVERY")
             .as_deref()
             .and_then(parse_every);
+        job.shots = var("FRIENDSLOP_SCREENSHOT_SHOTS").filter(|f| !f.trim().is_empty());
         Some(job)
     }
 }
+
+/// One line of a shot list: `out.png x,y,z,lx,ly,lz`. Blank lines and
+/// `#` comments are skipped, and so is anything malformed.
+pub fn parse_shot(line: &str) -> Option<(String, (Vec3, Vec3))> {
+    let line = line.trim();
+    if line.is_empty() || line.starts_with('#') {
+        return None;
+    }
+    let (path, camera) = line.split_once(char::is_whitespace)?;
+    Some((path.to_owned(), parse_camera(camera)?))
+}
+
+/// Shot-list mode: what's waiting, and the file as last read.
+#[derive(Resource, Default)]
+struct ShotQueue {
+    seen: String,
+    pending: std::collections::VecDeque<(String, (Vec3, Vec3))>,
+    /// Real time of the last look at the file.
+    checked: f32,
+}
+
+/// Seconds a new camera spot settles (models and trees stream in) before
+/// its picture.
+const SHOT_SETTLE: f32 = 2.5;
+
+/// Shot-list mode: reread the file when it changes and start the next shot
+/// once the last one is saved.
+#[cfg(not(target_arch = "wasm32"))]
+fn run_shot_list(
+    time: Res<Time<Real>>,
+    mut job: ResMut<ScreenshotJob>,
+    mut queue: ResMut<ShotQueue>,
+    mut progress: ResMut<Progress>,
+) {
+    let Some(file) = job.shots.clone() else {
+        return;
+    };
+    let now = time.elapsed_secs();
+    if now - queue.checked > 0.5 {
+        queue.checked = now;
+        if let Ok(text) = std::fs::read_to_string(&file)
+            && text != queue.seen
+        {
+            queue.pending = text.lines().filter_map(parse_shot).collect();
+            queue.seen = text;
+        }
+    }
+    // Idle (the last picture is saved, or the first one never asked for)?
+    let idle = progress.requested && progress.saved_frames.is_none();
+    if !idle {
+        return;
+    }
+    let Some((path, camera)) = queue.pending.pop_front() else {
+        return;
+    };
+    info!("shot list: {path}");
+    job.path = path;
+    job.camera = Some(camera);
+    progress.requested = false;
+    progress.ready_at = Some(now - job.wait + SHOT_SETTLE);
+}
+
+#[cfg(target_arch = "wasm32")]
+fn run_shot_list() {}
 
 /// `"1920x1080"` into a size. Anything malformed or tiny is ignored.
 /// Seconds between live re-saves (at least half a second).
@@ -213,6 +291,13 @@ struct Progress {
     saved_frames: Option<u32>,
 }
 
+/// The clean scene: every UI root hidden, so only the world is drawn.
+fn hide_ui(mut roots: Query<&mut Visibility, (With<Node>, Without<ChildOf>)>) {
+    for mut v in &mut roots {
+        *v = Visibility::Hidden;
+    }
+}
+
 /// Screenshot mode. Does nothing unless `FRIENDSLOP_SCREENSHOT` is set.
 pub struct ScreenshotPlugin;
 
@@ -228,7 +313,9 @@ impl Plugin for ScreenshotPlugin {
         let scene = job.scene;
         app.insert_resource(job)
             .init_resource::<Progress>()
+            .init_resource::<ShotQueue>()
             .add_systems(Startup, size_window)
+            .add_systems(Update, run_shot_list.before(take))
             .add_systems(
                 Update,
                 take.run_if(in_state(if scene.on_title() {
@@ -245,6 +332,9 @@ impl Plugin for ScreenshotPlugin {
             );
         match scene {
             Scene::Play | Scene::Chapter | Scene::Title | Scene::Loading => {}
+            Scene::Clean => {
+                app.add_systems(PostUpdate, hide_ui);
+            }
             Scene::Settings => {
                 app.add_systems(Update, open_settings.run_if(in_state(AppState::Menu)));
             }
@@ -391,6 +481,11 @@ fn take(
     if let Some(frames) = progress.saved_frames.as_mut() {
         *frames += 1;
         if *frames > 2 {
+            if job.shots.is_some() {
+                // Shot list: go idle until the list hands over the next one.
+                progress.saved_frames = None;
+                return;
+            }
             match job.every {
                 // Live mode: wait `every` seconds, then take the next one.
                 Some(every) => {
@@ -426,6 +521,19 @@ fn take(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn shot_lines() {
+        let Some((p, (eye, at))) = parse_shot("  a.png 1,2,3, 0,0,0") else {
+            panic!("shot")
+        };
+        assert_eq!(
+            (p.as_str(), eye, at),
+            ("a.png", Vec3::new(1.0, 2.0, 3.0), Vec3::ZERO)
+        );
+        assert_eq!(parse_shot("# note"), None);
+        assert_eq!(parse_shot("b.png 1,2"), None);
+    }
 
     #[test]
     fn off_without_a_path() {
@@ -484,6 +592,7 @@ mod tests {
             "title",
             "settings",
             "loading",
+            "clean",
         ] {
             assert!(Scene::parse(s).is_some(), "{s}");
         }

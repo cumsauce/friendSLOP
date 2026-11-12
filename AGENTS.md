@@ -97,7 +97,7 @@ crates/game/src/
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
-                FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading)
+                FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading/clean)
   features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
 crates/base/src/     friendslop-base: player, assets, settings, voice, hud, people, spatial, rigged, graphics,
                      textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
@@ -231,6 +231,10 @@ To check UI against its design, screenshot mode can force a HUD state:
 `FRIENDSLOP_SCREENSHOT_SCENE=play|busy|clickable|chapter|tab|title|settings|loading` (title and settings run without `host`; and
 `FRIENDSLOP_SCREENSHOT_SIZE=1920x1080`), e.g. `scripts/screenshot.sh busy.png "" busy`. Add
 `FRIENDSLOP_SCREENSHOT_EVERY=3` to keep the game running and re-save the picture every 3 s.
+To frame shots without restarting, add `FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt` (desktop only):
+the running game watches that file, and every save of it moves the camera to each
+`out.png x,y,z,lx,ly,lz` line in turn and saves the picture (~2.5 s each). Scene `clean` hides all
+UI (README banner: `docs/banner.jpg`).
 
 Web (#106): native-only deps (bevy_replicon_iroh, tokio, clipboard) are target-gated in
 `crates/game/Cargo.toml`; the browser has its own iroh transport (`net_web.rs`) that must stay

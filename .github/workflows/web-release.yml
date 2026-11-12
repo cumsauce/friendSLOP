@@ -1,0 +1,46 @@
+name: Web release
+
+# Manual only: Actions tab -> "Web release" -> Run workflow (or
+# `gh workflow run web-release.yml`). Builds the browser version (#106) as a
+# static site zip (index.html + wasm + assets) and adds it to the existing
+# "latest" release made by release.yml. Run it after a release when the web zip
+# should be updated (a new release replaces "latest" and drops the old zip).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: web-release
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          lfs: true # the web bundle serves the real asset files
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-web
+      - name: wasm-bindgen-cli + binaryen
+        run: |
+          version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
+          cargo install wasm-bindgen-cli --version "$version" --locked
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends binaryen clang llvm
+      - run: scripts/build-web.sh dist/web
+      - name: package
+        run: cd dist/web && zip -qr ../../friendslop-web.zip .
+      - name: add to the "latest" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload latest friendslop-web.zip --clobber
+      # (The site itself is deployed on every push to main by web.yml, #230.)
+

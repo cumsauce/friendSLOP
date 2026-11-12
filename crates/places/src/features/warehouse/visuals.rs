@@ -584,11 +584,10 @@ fn build_inside(
     // Furnish each cell: stacked crates where it's blocked up, shelving
     // against its walls, a stain, a pallet; a few lights that barely work.
     let mut lamps = 0;
-    for z in 0..H {
-        for x in 0..W {
+    for (z, row) in plan.cells.iter().enumerate().take(H) {
+        for (x, &mask) in row.iter().enumerate().take(W) {
             let c = cell_centre(x, z);
             let cw = Vec3::new(c.x, y, c.y);
-            let mask = plan.cells[z][x];
             if let Some(kit) = kit.as_ref().filter(|_| in_bath((x, z))) {
                 bathroom::furnish(&mut commands, kit, seed, (x, z), mask, hum.as_ref());
                 continue;

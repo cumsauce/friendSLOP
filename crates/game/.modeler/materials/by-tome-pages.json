@@ -1,0 +1,124 @@
+{
+  "name": "by-tome-pages",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 64,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 471,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#ffcc55"
+        ],
+        [
+          1,
+          "#ffe9a0"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "n",
+      "b": 0.0004,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "col",
+      "b": 0.8,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "height": "h",
+      "metallic": 0.3,
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "by-tome-pages",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 64,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 471,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#ffcc55"
+                ],
+                [
+                  1,
+                  "#ffe9a0"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "n",
+              "b": 0.0004,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col",
+              "b": 0.8,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "height": "h",
+              "metallic": 0.3,
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +h +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

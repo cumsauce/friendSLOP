@@ -1,0 +1,585 @@
+{
+  "format_version": 1,
+  "name": "tr-tree-3",
+  "parts": [],
+  "version": 15254,
+  "ops": [
+    {
+      "lsystem": {
+        "name": "tree_3",
+        "axiom": "!(0.2645)F(0.4)[/(15)&(122)!(0.17250000000000001)F(0.6)][/(87)&(122)!(0.17250000000000001)F(0.6)][/(159)&(122)!(0.17250000000000001)F(0.6)][/(231)&(122)!(0.17250000000000001)F(0.6)][/(303)&(122)!(0.17250000000000001)F(0.6)]!(0.23)F(2.6)S(9,0.63,0.18400000000000002)",
+        "rules": [
+          [
+            "B(l,w)",
+            [
+              {
+                "p": 1.0,
+                "to": "!(w)F(l)[+(32)!(w*0.6)F(l*0.55)C]/(180)[+(32)!(w*0.6)F(l*0.55)C]!(w*0.7)F(l*0.4)C"
+              }
+            ]
+          ],
+          [
+            "C",
+            [
+              {
+                "p": 1.0,
+                "to": "[L(1)]/(120)[&(40)L(0.9)]/(120)[&(40)L(0.9)]"
+              }
+            ]
+          ],
+          [
+            "S(n,l,w)",
+            [
+              {
+                "p": 1.0,
+                "to": "!(w)F(l*0.5)[L(1.0)]/(72)[&(35)L(0.95)]/(144)[&(35)L(0.95)]"
+              }
+            ]
+          ],
+          [
+            "S(n,l,w) : n > 0",
+            [
+              {
+                "p": 1.0,
+                "to": "!(w)F(l)[&(a1+dr*n/N)B(bl*(0.5+0.5*sin(pi*n/(N+1))),w*0.62)]/(ro)S(n-1,l*0.96,w*0.86)"
+              }
+            ]
+          ]
+        ],
+        "constants": {
+          "N": 9.0,
+          "a1": 45.0,
+          "bl": 0.95,
+          "dr": 22.0,
+          "pi": 3.14159,
+          "ro": 137.5
+        },
+        "iterations": 11,
+        "angle": 25.0,
+        "length": 0.3,
+        "length_scale": 1.0,
+        "radius": 0.08,
+        "radius_scale": 1.0,
+        "taper": 0.95,
+        "branch_roll": 137.5,
+        "jitter": 10.0,
+        "length_jitter": 0.12,
+        "tropism": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "tropism_strength": 0.08,
+        "seed": 42,
+        "sides": 6,
+        "leaf_size": [
+          1.15,
+          1.4
+        ],
+        "leaf": {
+          "shape": "ellipse",
+          "angle": 35.0,
+          "curl": 30.0,
+          "fold": 25.0,
+          "stalk": 0.0
+        },
+        "translation": [
+          0.0,
+          -0.2,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "tree_3",
+        "input": "tree_3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "tr-bark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "sc",
+                "scale": [
+                  5,
+                  1
+                ],
+                "type": "transform"
+              },
+              {
+                "coords": "sc",
+                "mode": "ridged",
+                "name": "streak",
+                "octaves": 3,
+                "seed": 4,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "blot",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "input": "streak",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#2e1f14"
+                  ],
+                  [
+                    0.5,
+                    "#4a3322"
+                  ],
+                  [
+                    1.0,
+                    "#664a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "blot",
+                "name": "bt",
+                "to": [
+                  0.82,
+                  1.12
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "streak",
+                "b": 0.008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.92,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tree_3_leaves",
+        "input": "tree_3_leaves",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "tr-leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 2,
+                "seed": 32,
+                "size": 0.0625,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#3d6a24"
+                  ],
+                  [
+                    0.5,
+                    "#4f8a2c"
+                  ],
+                  [
+                    1.0,
+                    "#74a83c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.9,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "ft",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "format_version": 1,
+          "name": "tr-tree-3",
+          "parts": [],
+          "version": 15051,
+          "ops": [],
+          "annotations": [],
+          "next_annotation_id": 0
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "new model `tr-tree-3`"
+      },
+      {
+        "model": {
+          "format_version": 1,
+          "name": "tr-tree-3",
+          "parts": [],
+          "version": 15103,
+          "ops": [
+            {
+              "lsystem": {
+                "name": "tree_3",
+                "axiom": "!(0.2645)F(0.4)[/(15)&(122)!(0.17250000000000001)F(0.6)][/(87)&(122)!(0.17250000000000001)F(0.6)][/(159)&(122)!(0.17250000000000001)F(0.6)][/(231)&(122)!(0.17250000000000001)F(0.6)][/(303)&(122)!(0.17250000000000001)F(0.6)]!(0.23)F(2.6)S(9,0.63,0.18400000000000002)",
+                "rules": [
+                  [
+                    "B(l,w)",
+                    [
+                      {
+                        "p": 1.0,
+                        "to": "!(w)F(l)[+(32)!(w*0.6)F(l*0.55)C]/(180)[+(32)!(w*0.6)F(l*0.55)C]!(w*0.7)F(l*0.4)C"
+                      }
+                    ]
+                  ],
+                  [
+                    "C",
+                    [
+                      {
+                        "p": 1.0,
+                        "to": "[L(1)]/(120)[&(40)L(0.9)]/(120)[&(40)L(0.9)]"
+                      }
+                    ]
+                  ],
+                  [
+                    "S(n,l,w)",
+                    [
+                      {
+                        "p": 1.0,
+                        "to": "!(w)F(l*0.5)[L(1.0)]/(72)[&(35)L(0.95)]/(144)[&(35)L(0.95)]"
+                      }
+                    ]
+                  ],
+                  [
+                    "S(n,l,w) : n > 0",
+                    [
+                      {
+                        "p": 1.0,
+                        "to": "!(w)F(l)[&(a1+dr*n/N)B(bl*(0.5+0.5*sin(pi*n/(N+1))),w*0.62)]/(ro)S(n-1,l*0.96,w*0.86)"
+                      }
+                    ]
+                  ]
+                ],
+                "constants": {
+                  "N": 9.0,
+                  "a1": 45.0,
+                  "bl": 0.95,
+                  "dr": 22.0,
+                  "pi": 3.14159,
+                  "ro": 137.5
+                },
+                "iterations": 11,
+                "angle": 25.0,
+                "length": 0.3,
+                "length_scale": 1.0,
+                "radius": 0.08,
+                "radius_scale": 1.0,
+                "taper": 0.95,
+                "branch_roll": 137.5,
+                "jitter": 10.0,
+                "length_jitter": 0.12,
+                "tropism": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "tropism_strength": 0.08,
+                "seed": 42,
+                "sides": 6,
+                "leaf_size": [
+                  1.15,
+                  1.4
+                ],
+                "leaf": {
+                  "shape": "ellipse",
+                  "angle": 35.0,
+                  "curl": 30.0,
+                  "fold": 25.0,
+                  "stalk": 0.0
+                },
+                "translation": [
+                  0.0,
+                  -0.2,
+                  0.0
+                ],
+                "rotation": null
+              }
+            },
+            {
+              "material": {
+                "name": "tree_3",
+                "input": "tree_3",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "tr-bark",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 256,
+                    "nodes": [
+                      {
+                        "name": "sc",
+                        "scale": [
+                          5,
+                          1
+                        ],
+                        "type": "transform"
+                      },
+                      {
+                        "coords": "sc",
+                        "mode": "ridged",
+                        "name": "streak",
+                        "octaves": 3,
+                        "seed": 4,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "mode": "fbm",
+                        "name": "blot",
+                        "octaves": 3,
+                        "seed": 11,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "streak",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#2e1f14"
+                          ],
+                          [
+                            0.5,
+                            "#4a3322"
+                          ],
+                          [
+                            1.0,
+                            "#664a30"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "blot",
+                        "name": "bt",
+                        "to": [
+                          0.82,
+                          1.12
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "bt",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "a": "streak",
+                        "b": 0.008,
+                        "name": "h",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "height": "h",
+                        "name": "out",
+                        "roughness": 0.92,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            },
+            {
+              "material": {
+                "name": "tree_3_leaves",
+                "input": "tree_3_leaves",
+                "base_color": null,
+                "roughness": null,
+                "metalness": null,
+                "pbr": {
+                  "material": "tr-leaf",
+                  "scale": 1.0,
+                  "graph": {
+                    "domain": "tile",
+                    "tile": 1.0,
+                    "resolution": 128,
+                    "nodes": [
+                      {
+                        "mode": "fbm",
+                        "name": "n",
+                        "octaves": 3,
+                        "seed": 31,
+                        "size": 0.25,
+                        "type": "noise"
+                      },
+                      {
+                        "mode": "fbm",
+                        "name": "nf",
+                        "octaves": 2,
+                        "seed": 32,
+                        "size": 0.0625,
+                        "type": "noise"
+                      },
+                      {
+                        "input": "n",
+                        "name": "c0",
+                        "stops": [
+                          [
+                            0.0,
+                            "#3d6a24"
+                          ],
+                          [
+                            0.5,
+                            "#4f8a2c"
+                          ],
+                          [
+                            1.0,
+                            "#74a83c"
+                          ]
+                        ],
+                        "type": "ramp"
+                      },
+                      {
+                        "from": [
+                          0,
+                          1
+                        ],
+                        "input": "nf",
+                        "name": "ft",
+                        "to": [
+                          0.9,
+                          1.08
+                        ],
+                        "type": "remap"
+                      },
+                      {
+                        "a": "c0",
+                        "b": "ft",
+                        "name": "col",
+                        "op": "mul",
+                        "type": "math"
+                      },
+                      {
+                        "base_color": "col",
+                        "name": "out",
+                        "roughness": 0.8,
+                        "type": "output"
+                      }
+                    ],
+                    "params": {}
+                  }
+                }
+              }
+            }
+          ],
+          "annotations": [],
+          "next_annotation_id": 0,
+          "derived_from_ops": true
+        },
+        "parent": 0,
+        "children": [],
+        "label": "3 edits: lsystem `tree_3` axiom=\"!(0.2645)F(0.4)[/(15)&(122)!(0.17250000000000001)F(0.6)][/(87)&(122)!(0.17250000000000001)F(0.6)][/(159)&(122)!(0.17250000000000001)F(0.6)][/(231)&(122)!(0.17250000000000001)F(0.6)][/(303)&(122)!(0.17250000000000001)F(0.6)]!(0.23)F(2.6)S(9,0.63,0.18400000000000002)\" rules=B(l,w)->!(w)F(l)[+(32)!(w*0.6)F(l*0.55)C]/(180)[+(32)!(w*0.6)F(l*0.55)C]!(w*0.7)F(l*0.4)C, C->[L(1)]/(120)[&(40)L(0.9)]/(120)[&(40)L(0.9)], S(n,l,w)->!(w)F(l*0.5)[L(1.0)]/(72)[&(35)L(0.95)]/(144)[&(35)L(0.95)], S(n,l,w) : n > 0->!(w)F(l)[&(a1+dr*n/N)B(bl*(0.5+0.5*sin(pi*n/(N+1))),w*0.62)]/(ro)S(n-1,l*0.96,w*0.86) iterations=11 angle=25 length=0.3 radius=0.08 seed=42 at=[0.0, -0.2, 0.0] … material `tree_3_leaves` <- `tree_3_leaves` pbr=tr-leaf",
+        "author": "trees"
+      }
+    ],
+    "current": 1
+  },
+  "derived_from_ops": true
+}

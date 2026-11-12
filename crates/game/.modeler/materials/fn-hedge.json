@@ -1,0 +1,402 @@
+{
+  "name": "fn-hedge",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 91,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "amount": 0.03,
+      "by": "n",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "name": "w",
+      "seed": 92,
+      "size": 0.07,
+      "type": "worley"
+    },
+    {
+      "id": "w.id",
+      "max": 1,
+      "min": 0,
+      "name": "wr",
+      "seed": 93,
+      "type": "random"
+    },
+    {
+      "a": "wr",
+      "b": "clump",
+      "c": 0.55,
+      "name": "t0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "input": "t0",
+      "name": "c0",
+      "stops": [
+        [
+          0,
+          "#244d17"
+        ],
+        [
+          0.5,
+          "#3a6e22"
+        ],
+        [
+          1,
+          "#679c3a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c0",
+      "b": "shade",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "clump",
+      "b": 0.02,
+      "name": "hn",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hd",
+      "b": "hn",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    },
+    {
+      "name": "clump",
+      "octaves": 2,
+      "seed": 94,
+      "size": 0.334,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.0,
+        0.05
+      ],
+      "input": "w.f1",
+      "name": "far",
+      "type": "levels"
+    },
+    {
+      "a": 1.0,
+      "b": "far",
+      "name": "dome",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "dome",
+      "name": "shade",
+      "to": [
+        0.45,
+        1.05
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "dome",
+      "b": 0.015,
+      "name": "hd",
+      "op": "mul",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fn-hedge",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 91,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.03,
+              "by": "n",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "w",
+              "seed": 92,
+              "size": 0.07,
+              "type": "worley"
+            },
+            {
+              "id": "w.id",
+              "max": 1,
+              "min": 0,
+              "name": "wr",
+              "seed": 93,
+              "type": "random"
+            },
+            {
+              "in": [
+                0.0,
+                0.025
+              ],
+              "input": "w.edge",
+              "name": "leafm",
+              "type": "levels"
+            },
+            {
+              "a": "wr",
+              "b": "n",
+              "c": 0.5,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "c0",
+              "stops": [
+                [
+                  0,
+                  "#2c5a1c"
+                ],
+                [
+                  0.5,
+                  "#3f7326"
+                ],
+                [
+                  1,
+                  "#5f9436"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#16290e",
+              "b": "c0",
+              "c": "leafm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "leafm",
+              "b": 0.012,
+              "name": "hl",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "n",
+              "b": 0.01,
+              "name": "hn",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hl",
+              "b": "hn",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+n +wp +w +wr +leafm +t0 +c0 +col +hl +hn +h +out"
+      },
+      {
+        "model": {
+          "name": "fn-hedge",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 91,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "amount": 0.03,
+              "by": "n",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "w",
+              "seed": 92,
+              "size": 0.07,
+              "type": "worley"
+            },
+            {
+              "id": "w.id",
+              "max": 1,
+              "min": 0,
+              "name": "wr",
+              "seed": 93,
+              "type": "random"
+            },
+            {
+              "a": "wr",
+              "b": "clump",
+              "c": 0.55,
+              "name": "t0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "input": "t0",
+              "name": "c0",
+              "stops": [
+                [
+                  0,
+                  "#244d17"
+                ],
+                [
+                  0.5,
+                  "#3a6e22"
+                ],
+                [
+                  1,
+                  "#679c3a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c0",
+              "b": "shade",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "clump",
+              "b": 0.02,
+              "name": "hn",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hd",
+              "b": "hn",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            },
+            {
+              "name": "clump",
+              "octaves": 2,
+              "seed": 94,
+              "size": 0.334,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.0,
+                0.05
+              ],
+              "input": "w.f1",
+              "name": "far",
+              "type": "levels"
+            },
+            {
+              "a": 1.0,
+              "b": "far",
+              "name": "dome",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "dome",
+              "name": "shade",
+              "to": [
+                0.45,
+                1.05
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "dome",
+              "b": 0.015,
+              "name": "hd",
+              "op": "mul",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+clump +far +dome +shade +hd ~t0 ~c0 ~col ~hn ~h -leafm -hl"
+      }
+    ],
+    "current": 1
+  }
+}

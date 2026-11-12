@@ -1,0 +1,154 @@
+{
+  "name": "tr-leaf",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 31,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "mode": "fbm",
+      "name": "nf",
+      "octaves": 2,
+      "seed": 32,
+      "size": 0.0625,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c0",
+      "stops": [
+        [
+          0.0,
+          "#3d6a24"
+        ],
+        [
+          0.5,
+          "#4f8a2c"
+        ],
+        [
+          1.0,
+          "#74a83c"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "nf",
+      "name": "ft",
+      "to": [
+        0.9,
+        1.08
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c0",
+      "b": "ft",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.8,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "tr-leaf",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "mode": "fbm",
+              "name": "nf",
+              "octaves": 2,
+              "seed": 32,
+              "size": 0.0625,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c0",
+              "stops": [
+                [
+                  0.0,
+                  "#3d6a24"
+                ],
+                [
+                  0.5,
+                  "#4f8a2c"
+                ],
+                [
+                  1.0,
+                  "#74a83c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "nf",
+              "name": "ft",
+              "to": [
+                0.9,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c0",
+              "b": "ft",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.8,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +nf +c0 +ft +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

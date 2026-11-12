@@ -1,0 +1,188 @@
+{
+  "name": "pn-bark",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "st",
+      "scale": [
+        6,
+        1
+      ],
+      "type": "transform"
+    },
+    {
+      "coords": "st",
+      "mode": "ridged",
+      "name": "streak",
+      "octaves": 4,
+      "seed": 3,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "mode": "fbm",
+      "name": "blot",
+      "octaves": 3,
+      "seed": 7,
+      "size": 0.25,
+      "type": "noise"
+    },
+    {
+      "input": "streak",
+      "name": "c0",
+      "stops": [
+        [
+          0,
+          "#2e1f15"
+        ],
+        [
+          0.55,
+          "#5a3d27"
+        ],
+        [
+          1,
+          "#7d5a3a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "blot",
+      "name": "bt",
+      "to": [
+        0.82,
+        1.12
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "c0",
+      "b": "bt",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "streak",
+      "b": 0.01,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.92,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pn-bark",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "st",
+              "scale": [
+                6,
+                1
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "st",
+              "mode": "ridged",
+              "name": "streak",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "mode": "fbm",
+              "name": "blot",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.25,
+              "type": "noise"
+            },
+            {
+              "input": "streak",
+              "name": "c0",
+              "stops": [
+                [
+                  0,
+                  "#2e1f15"
+                ],
+                [
+                  0.55,
+                  "#5a3d27"
+                ],
+                [
+                  1,
+                  "#7d5a3a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "blot",
+              "name": "bt",
+              "to": [
+                0.82,
+                1.12
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "c0",
+              "b": "bt",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "streak",
+              "b": 0.01,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.92,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+st +streak +blot +c0 +bt +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

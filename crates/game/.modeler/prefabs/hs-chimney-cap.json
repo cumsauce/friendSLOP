@@ -1,0 +1,559 @@
+{
+  "format_version": 1,
+  "name": "hs-chimney-cap",
+  "parts": [],
+  "version": 21382,
+  "ops": [
+    {
+      "primitive": {
+        "name": "band",
+        "kind": "box",
+        "size": [
+          0.68,
+          0.08,
+          0.68
+        ],
+        "translation": [
+          0.0,
+          -0.12,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "cap",
+        "kind": "box",
+        "size": [
+          0.74,
+          0.08,
+          0.74
+        ],
+        "translation": [
+          0.0,
+          0.04,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "pot_a",
+        "profile": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.09,
+              0.0
+            ],
+            [
+              0.11,
+              0.05
+            ],
+            [
+              0.09,
+              0.32
+            ],
+            [
+              0.11,
+              0.36
+            ],
+            [
+              0.09,
+              0.36
+            ],
+            [
+              0.07,
+              0.33
+            ],
+            [
+              0.0,
+              0.33
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 0,
+        "translation": [
+          -0.14,
+          0.08,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "pot_b",
+        "profile": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.08,
+              0.0
+            ],
+            [
+              0.1,
+              0.05
+            ],
+            [
+              0.08,
+              0.24
+            ],
+            [
+              0.1,
+              0.28
+            ],
+            [
+              0.08,
+              0.28
+            ],
+            [
+              0.06,
+              0.25
+            ],
+            [
+              0.0,
+              0.25
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 0,
+        "translation": [
+          0.15,
+          0.08,
+          0.02
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "band",
+        "input": "band",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wn",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "amount": 0.06,
+                "by": "wn",
+                "name": "wc",
+                "type": "warp"
+              },
+              {
+                "coords": "wc",
+                "name": "g",
+                "size": [
+                  0.5,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "name": "chipn",
+                "octaves": 3,
+                "seed": 32,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "chipn",
+                "name": "chip",
+                "to": [
+                  -0.012,
+                  0.012
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g.edge",
+                "b": "chip",
+                "name": "e2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "in": [
+                  0.01,
+                  0.03
+                ],
+                "input": "e2",
+                "name": "blk",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 33,
+                "type": "random"
+              },
+              {
+                "name": "face",
+                "octaves": 3,
+                "seed": 34,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "a": "tone",
+                "b": "face",
+                "c": 0.45,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "sc",
+                "stops": [
+                  [
+                    0,
+                    "#6f6a62"
+                  ],
+                  [
+                    0.5,
+                    "#8f8a80"
+                  ],
+                  [
+                    1,
+                    "#a9a398"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5a554e",
+                "b": "sc",
+                "c": "blk",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "blk",
+                "b": 0.012,
+                "name": "hb",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "face",
+                "b": 0.006,
+                "name": "hf",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "hb",
+                "b": "hf",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cap",
+        "input": "cap",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wn",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "amount": 0.06,
+                "by": "wn",
+                "name": "wc",
+                "type": "warp"
+              },
+              {
+                "coords": "wc",
+                "name": "g",
+                "size": [
+                  0.5,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "name": "chipn",
+                "octaves": 3,
+                "seed": 32,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "chipn",
+                "name": "chip",
+                "to": [
+                  -0.012,
+                  0.012
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g.edge",
+                "b": "chip",
+                "name": "e2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "in": [
+                  0.01,
+                  0.03
+                ],
+                "input": "e2",
+                "name": "blk",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 33,
+                "type": "random"
+              },
+              {
+                "name": "face",
+                "octaves": 3,
+                "seed": 34,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "a": "tone",
+                "b": "face",
+                "c": 0.45,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "sc",
+                "stops": [
+                  [
+                    0,
+                    "#6f6a62"
+                  ],
+                  [
+                    0.5,
+                    "#8f8a80"
+                  ],
+                  [
+                    1,
+                    "#a9a398"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5a554e",
+                "b": "sc",
+                "c": "blk",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "blk",
+                "b": 0.012,
+                "name": "hb",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "face",
+                "b": 0.006,
+                "name": "hf",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "hb",
+                "b": "hf",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pot_a",
+        "input": "pot_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-glaze-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 43,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0.0,
+                    "#9a302a"
+                  ],
+                  [
+                    1.0,
+                    "#c8473c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.5,
+                "name": "out",
+                "roughness": 0.22,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pot_b",
+        "input": "pot_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-glaze-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 43,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0.0,
+                    "#9a302a"
+                  ],
+                  [
+                    1.0,
+                    "#c8473c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.5,
+                "name": "out",
+                "roughness": 0.22,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

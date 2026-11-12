@@ -242,6 +242,17 @@ impl<M: Palette> Kit<M> {
     /// [`Kit::end_prop`] belong to it. Nested calls keep the outer prop.
     /// Returns whether this call started one (pass it to `end_prop`).
     pub fn begin_prop(&mut self, name: &'static str, base: Vec3, scale: Vec3) -> bool {
+        self.begin_prop_turned(name, base, Quat::IDENTITY, scale)
+    }
+
+    /// [`Kit::begin_prop`] for a prop turned by `rot` in the local frame.
+    pub fn begin_prop_turned(
+        &mut self,
+        name: &'static str,
+        base: Vec3,
+        rot: Quat,
+        scale: Vec3,
+    ) -> bool {
         if self.prop.is_some() {
             return false;
         }
@@ -249,10 +260,17 @@ impl<M: Palette> Kit<M> {
         self.props.push(PropMark {
             name,
             at: self.world(base),
-            rot: self.yaw,
+            rot: self.yaw * rot,
             scale,
         });
         true
+    }
+
+    /// A model-only prop: drawn where a model for `name` exists, nothing
+    /// otherwise (trim that the boxes don't have: window frames, doors).
+    pub fn mark(&mut self, name: &'static str, at: Vec3, rot: Quat, scale: Vec3) {
+        let started = self.begin_prop_turned(name, at, rot, scale);
+        self.end_prop(started);
     }
 
     /// Stop drawing the prop `begin_prop` started (if `started`).

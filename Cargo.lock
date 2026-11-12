@@ -3646,6 +3646,7 @@ dependencies = [
  "friendslop-art",
  "friendslop-base",
  "friendslop-core",
+ "friendslop-data",
  "friendslop-kcc",
  "friendslop-places",
  "friendslop-play",
@@ -3743,6 +3744,16 @@ name = "friendslop-core"
 version = "0.1.0"
 dependencies = [
  "bevy",
+]
+
+[[package]]
+name = "friendslop-data"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "ron",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -3915,6 +3926,7 @@ dependencies = [
  "bevy",
  "friendslop-art",
  "friendslop-core",
+ "friendslop-data",
  "friendslop-structures",
  "jackdaw_bsn",
  "serde",

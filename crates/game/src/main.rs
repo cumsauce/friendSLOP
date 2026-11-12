@@ -29,7 +29,11 @@ fn main() -> AppExit {
                     ..default()
                 })
                 .set(AssetPlugin {
-                    file_path: asset_root().display().to_string(),
+                    file_path: {
+                        // Data files (maps, tuning, writing) read from the same folder.
+                        friendslop_data::set_root(asset_root());
+                        asset_root().display().to_string()
+                    },
                     // No .meta files ship; on the web each check is a 404 round trip.
                     meta_check: bevy::asset::AssetMetaCheck::Never,
                     ..default()

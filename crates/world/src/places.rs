@@ -5,21 +5,26 @@
 //! and features follow. A new place: add a marker with a `Spot` component,
 //! its name to the end of [`PLACES`] and a `<name>_at()` function below.
 //!
-//! The rest of the layout lives there too, read once into [`layout()`]:
+//! The rest of the layout lives there too, rebuilt into [`layout()`] whenever the file loads:
 //! feature sizes, paths, districts, house plots, villager hangouts and
 //! ground kept clear (the components in `crates/game/.modeler/components.json`).
 
 use bevy::prelude::*;
 
+use std::sync::{Arc, RwLock};
+
+use friendslop_data::Data;
+
 /// The commune's map as plain data (the modeler writes `commune.map.json`
-/// beside the scene), embedded so every peer reads the same layout before
-/// any asset loads, the browser included.
-const COMMUNE_MAP: &str = include_str!("../../game/assets/maps/commune.map.json");
+/// beside the scene), loaded at run time (see `friendslop_data`): read from
+/// disk on desktop, fetched before the curtain lifts in the browser, and
+/// re-read when it's re-exported.
+pub static COMMUNE: Data<MapFile> = Data::json("maps/commune.map.json");
 
 /// A map as the modeler writes it beside the scene (`modeler::scene::MapFile`).
 #[derive(serde::Deserialize, Default)]
-struct MapFile {
-    entities: Vec<MapEntity>,
+pub struct MapFile {
+    pub entities: Vec<MapEntity>,
 }
 
 /// One entity of a modeler map: a marker or a placed model, with the
@@ -96,28 +101,20 @@ impl MapEntity {
     }
 }
 
-/// Reads a modeler `.map.json`; an unreadable map reads as empty (the
-/// map test catches it).
-pub fn read_map(json: &str) -> Vec<MapEntity> {
-    serde_json::from_str::<MapFile>(json)
-        .map(|m| m.entities)
-        .unwrap_or_default()
-}
-
 /// The commune map's entities.
-pub fn commune() -> &'static [MapEntity] {
-    static MAP: std::sync::OnceLock<Vec<MapEntity>> = std::sync::OnceLock::new();
-    MAP.get_or_init(|| read_map(COMMUNE_MAP))
+pub fn commune() -> Arc<MapFile> {
+    COMMUNE.get()
 }
 
 /// The entity called `name` on the commune map.
-pub fn entity(name: &str) -> Option<&'static MapEntity> {
-    commune().iter().find(|e| e.name == name)
+pub fn entity(name: &str) -> Option<MapEntity> {
+    commune().entities.iter().find(|e| e.name == name).cloned()
 }
 
 /// Where the commune map puts the spot called `name` (x, z).
 pub fn spot(name: &str) -> Option<Vec2> {
     commune()
+        .entities
         .iter()
         .find(|e| e.spot().as_deref() == Some(name))
         .map(|e| e.at())
@@ -160,14 +157,10 @@ pub fn at(name: &str) -> Vec2 {
     spot(name).unwrap_or_default()
 }
 
-/// [`PLACES`]`[i]`, looked up once (the terrain asks per height sample).
+/// [`PLACES`]`[i]` (the layout keeps them, so the terrain's per-sample
+/// lookups stay cheap).
 fn placed(i: usize) -> Vec2 {
-    static TABLE: std::sync::OnceLock<Vec<Vec2>> = std::sync::OnceLock::new();
-    TABLE
-        .get_or_init(|| PLACES.iter().map(|p| at(p)).collect())
-        .get(i)
-        .copied()
-        .unwrap_or_default()
+    layout().places.get(i).copied().unwrap_or_default()
 }
 
 /// The `parliament` spot on the commune map.
@@ -341,6 +334,10 @@ pub struct Layout {
     pub village: Sizes,
     /// Static colliders the map places (see [`MapBlock`]).
     pub blocks: Vec<MapBlock>,
+    /// [`PLACES`]' positions, in order.
+    pub places: Vec<Vec2>,
+    /// Ground the map's placed models stand on: centre and radius.
+    pub props: Vec<(Vec2, f32)>,
     /// Every spot's sizes, by name (see [`sizes`]).
     pub spots: std::collections::HashMap<String, Sizes>,
 }
@@ -442,6 +439,20 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
                 }
             })
             .collect(),
+        places: PLACES
+            .iter()
+            .map(|p| {
+                map.iter()
+                    .find(|e| e.spot().as_deref() == Some(*p))
+                    .map(|e| e.at())
+                    .unwrap_or_default()
+            })
+            .collect(),
+        props: map
+            .iter()
+            .filter(|e| e.gltf.is_some())
+            .map(|e| (e.at(), 1.2))
+            .collect(),
         spots: map
             .iter()
             .filter_map(|e| Some((e.spot()?, sizes(&e.spot()?))))
@@ -450,9 +461,22 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
 }
 
 /// The commune map's layout (read once; the terrain asks per sample).
-pub fn layout() -> &'static Layout {
-    static LAYOUT: std::sync::OnceLock<Layout> = std::sync::OnceLock::new();
-    LAYOUT.get_or_init(|| layout_of(commune()))
+pub fn layout() -> Arc<Layout> {
+    static LAYOUT: RwLock<Option<(usize, Arc<Layout>)>> = RwLock::new(None);
+    let map = commune();
+    // Rebuilt only when the map file was (re)loaded.
+    let key = Arc::as_ptr(&map) as usize;
+    if let Ok(cached) = LAYOUT.read()
+        && let Some((k, l)) = cached.as_ref()
+        && *k == key
+    {
+        return l.clone();
+    }
+    let l = Arc::new(layout_of(&map.entities));
+    if let Ok(mut cached) = LAYOUT.write() {
+        *cached = Some((key, l.clone()));
+    }
+    l
 }
 
 /// The commune's middle, where paths meet.
@@ -480,13 +504,6 @@ pub fn arena_half() -> f32 {
     layout().arena.radius
 }
 
-/// Keeps the dressing off the models the commune map places.
-pub fn claim_map_props() {
-    for e in commune().iter().filter(|e| e.gltf.is_some()) {
-        crate::footprints::claim(e.at(), 1.2);
-    }
-}
-
 #[cfg(test)]
 mod map_tests {
     use super::*;
@@ -500,10 +517,10 @@ mod map_tests {
         assert_eq!(bonfire_at(), Vec2::new(-8.5, -1.5));
         assert_eq!(wendys_at(), at("wendys"));
         assert_eq!(landlord_at(), Vec3::new(13.0, 0.0, -4.0));
-        let crates = commune().iter().find(|e| e.name == "picnic_crates");
+        let crates = entity("picnic_crates");
         assert_eq!(
-            crates.and_then(|e| e.gltf.as_deref()),
-            Some("models/prefabs/fu-crates.gltf")
+            crates.and_then(|e| e.gltf),
+            Some("models/prefabs/fu-crates.gltf".to_string())
         );
         assert!(spot("nowhere").is_none());
         let l = layout();

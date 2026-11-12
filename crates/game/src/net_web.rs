@@ -210,8 +210,19 @@ fn handle_net_commands(
     clipboard: Res<Clipboard>,
     mut status: ResMut<NetStatus>,
     mut next: ResMut<NextState<AppState>>,
+    ready: Option<Res<friendslop_data::FilesReady>>,
+    mut pending: Local<Vec<NetCommand>>,
 ) {
-    for request in requests.read() {
+    // The world is built from the data files (map, heights): hold a host or
+    // join until the browser has fetched them all.
+    pending.extend(requests.read().cloned());
+    if !ready.is_some_and(|r| r.0) {
+        if !pending.is_empty() {
+            status.message = "Loading the map...".into();
+        }
+        return;
+    }
+    for request in std::mem::take(&mut *pending).iter() {
         match request {
             NetCommand::Host => {
                 commands.queue(teardown_transport);

@@ -20,9 +20,10 @@ pub fn claim(at: Vec2, radius: f32) {
 
 /// Is `p` (with `margin` metres of footprint of its own) on claimed ground?
 pub fn claimed(p: Vec2, margin: f32) -> bool {
-    CLAIMS
-        .read()
-        .is_ok_and(|c| c.iter().any(|(at, r)| p.distance(*at) < r + margin))
+    let near = |(at, r): &(Vec2, f32)| p.distance(*at) < r + margin;
+    // Models the map places claim their own ground.
+    CLAIMS.read().is_ok_and(|c| c.iter().any(near))
+        || crate::places::layout().props.iter().any(near)
 }
 
 #[cfg(test)]

@@ -1,0 +1,104 @@
+{
+  "name": "bt-eye",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 32,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 2,
+      "seed": 167,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#ffe030"
+        ],
+        [
+          1,
+          "#fff080"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col",
+      "b": 6.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "name": "out",
+      "roughness": 0.3,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bt-eye",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 32,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 2,
+              "seed": 167,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#ffe030"
+                ],
+                [
+                  1,
+                  "#fff080"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 6.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.3,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -1,0 +1,363 @@
+{
+  "name": "bt-tiles",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.6667,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.41667,
+        0.41667
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.01,
+        0.025
+      ],
+      "input": "g.edge",
+      "name": "grout",
+      "type": "levels"
+    },
+    {
+      "id": "g.id",
+      "max": 0.96,
+      "min": 0.86,
+      "name": "tone",
+      "seed": 162,
+      "type": "random"
+    },
+    {
+      "name": "grime",
+      "octaves": 4,
+      "seed": 161,
+      "size": 0.2,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.55,
+        0.9
+      ],
+      "input": "grime",
+      "name": "gm",
+      "type": "levels"
+    },
+    {
+      "a": "gm",
+      "b": 0.35,
+      "name": "gm2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "tone",
+      "b": "gm2",
+      "name": "face",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": 0.3,
+      "b": "face",
+      "c": "grout",
+      "name": "v",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "v",
+      "b": 2.2,
+      "name": "albedo",
+      "op": "pow",
+      "type": "math"
+    },
+    {
+      "a": "grout",
+      "b": 0.002,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": 0.9,
+      "b": 0.25,
+      "c": "grout",
+      "name": "r0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "r1",
+      "b": 0.0,
+      "c": 1.0,
+      "name": "rough",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "base_color": "albedo",
+      "height": "h",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    },
+    {
+      "a": "r0",
+      "b": "gm2",
+      "name": "r1",
+      "op": "add",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bt-tiles",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.6667,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.41667,
+                0.41667
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.01,
+                0.025
+              ],
+              "input": "g.edge",
+              "name": "grout",
+              "type": "levels"
+            },
+            {
+              "id": "g.id",
+              "max": 0.96,
+              "min": 0.86,
+              "name": "tone",
+              "seed": 162,
+              "type": "random"
+            },
+            {
+              "name": "grime",
+              "octaves": 4,
+              "seed": 161,
+              "size": 0.2,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.55,
+                0.9
+              ],
+              "input": "grime",
+              "name": "gm",
+              "type": "levels"
+            },
+            {
+              "a": "gm",
+              "b": 0.35,
+              "name": "gm2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "tone",
+              "b": "gm2",
+              "name": "face",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": 0.3,
+              "b": "face",
+              "c": "grout",
+              "name": "v",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "grout",
+              "b": 0.002,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.9,
+              "b": 0.25,
+              "c": "grout",
+              "name": "r0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "r0",
+              "b": "gm2",
+              "name": "rough",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+g +grout +tone +grime +gm +gm2 +face +v +albedo +h +r0 +rough +out"
+      },
+      {
+        "model": {
+          "name": "bt-tiles",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.6667,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.41667,
+                0.41667
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.01,
+                0.025
+              ],
+              "input": "g.edge",
+              "name": "grout",
+              "type": "levels"
+            },
+            {
+              "id": "g.id",
+              "max": 0.96,
+              "min": 0.86,
+              "name": "tone",
+              "seed": 162,
+              "type": "random"
+            },
+            {
+              "name": "grime",
+              "octaves": 4,
+              "seed": 161,
+              "size": 0.2,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.55,
+                0.9
+              ],
+              "input": "grime",
+              "name": "gm",
+              "type": "levels"
+            },
+            {
+              "a": "gm",
+              "b": 0.35,
+              "name": "gm2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "tone",
+              "b": "gm2",
+              "name": "face",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": 0.3,
+              "b": "face",
+              "c": "grout",
+              "name": "v",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "v",
+              "b": 2.2,
+              "name": "albedo",
+              "op": "pow",
+              "type": "math"
+            },
+            {
+              "a": "grout",
+              "b": 0.002,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.9,
+              "b": 0.25,
+              "c": "grout",
+              "name": "r0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "r1",
+              "b": 0.0,
+              "c": 1.0,
+              "name": "rough",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "a": "r0",
+              "b": "gm2",
+              "name": "r1",
+              "op": "add",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+r1 ~rough"
+      }
+    ],
+    "current": 1
+  }
+}

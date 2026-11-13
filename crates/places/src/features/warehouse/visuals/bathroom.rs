@@ -4,7 +4,7 @@
 //! next, and every cell laid out the same way so you lose track of where you
 //! are. Plus the fart monster's body, its clouds and the gassing.
 
-use std::f32::consts::{FRAC_PI_2, PI};
+use std::f32::consts::PI;
 
 use bevy::asset::RenderAssetUsages;
 use bevy::audio::Volume;
@@ -22,6 +22,7 @@ pub fn plugin(app: &mut App) {
             dress_fart_monsters,
             animate_fart_monsters,
             load_bath_models,
+            tile_floors,
             drift_clouds,
             bathroom_air.after(darkness),
         )
@@ -94,19 +95,13 @@ fn tile_texture(images: &mut Assets<Image>) -> Handle<Image> {
     images.add(image)
 }
 
-/// Meshes and materials for the bathroom, made once per build.
+/// Meshes and materials for the bathroom, made once per build. Everything
+/// else in it is a modeler model (`assets/models/features/`).
 pub(super) struct Kit {
     cube: Handle<Mesh>,
     floor: Handle<Mesh>,
-    blob: Handle<Mesh>,
-    log: Handle<Mesh>,
     tiles: Handle<StandardMaterial>,
     pub wall: Handle<StandardMaterial>,
-    partition: Handle<StandardMaterial>,
-    poop: Handle<StandardMaterial>,
-    puddle: Handle<StandardMaterial>,
-    chrome: Handle<StandardMaterial>,
-    tube: Handle<StandardMaterial>,
 }
 
 pub(super) fn kit(
@@ -125,15 +120,65 @@ pub(super) fn kit(
     Kit {
         cube: cube.clone(),
         floor: meshes.add(Cuboid::new(CELL, 0.02, CELL)),
-        blob: meshes.add(Sphere::new(0.07)),
-        log: meshes.add(Capsule3d::new(0.045, 0.14)),
         tiles,
         wall: mat(materials, Color::srgb(0.66, 0.72, 0.66), 0.6),
-        partition: mat(materials, Color::srgb(0.5, 0.56, 0.5), 0.7),
-        poop: mat(materials, Color::srgb(0.3, 0.18, 0.08), 0.5),
-        puddle: mat(materials, Color::srgb(0.36, 0.3, 0.14), 0.15),
-        chrome: mat(materials, Color::srgb(0.6, 0.6, 0.62), 0.25),
-        tube: glow(materials, Color::srgb(0.9, 1.0, 0.92), 4.0),
+    }
+}
+
+/// The modeler's tile surface (`models/surfaces/bath_tiles.gltf`, source
+/// `bt-swatch-tiles`): 4 x 4 tiles to a 1.67 m texture, the same size as
+/// the generated one, which stays until (or unless) the swatch loads.
+const TILE_SWATCH: &str = "models/surfaces/bath_tiles.gltf";
+
+/// A bathroom floor still wearing the generated tiles.
+#[derive(Component)]
+struct BathFloor;
+
+/// Swap the generated tile texture for the modeler swatch's once it loads.
+fn tile_floors(
+    mut commands: Commands,
+    mut swatch: Local<Option<Handle<Gltf>>>,
+    floors: Query<(Entity, &MeshMaterial3d<StandardMaterial>), With<BathFloor>>,
+    assets: Option<Res<AssetServer>>,
+    gltfs: Option<Res<Assets<Gltf>>>,
+    gltf_materials: Option<Res<Assets<bevy::gltf::GltfMaterial>>>,
+    materials: Option<ResMut<Assets<StandardMaterial>>>,
+) {
+    if floors.is_empty() {
+        return;
+    }
+    let (Some(assets), Some(gltfs), Some(gltf_materials), Some(mut materials)) =
+        (assets, gltfs, gltf_materials, materials)
+    else {
+        return;
+    };
+    let h = swatch
+        .get_or_insert_with(|| assets.load(TILE_SWATCH))
+        .clone();
+    if assets.load_state(&h).is_failed() {
+        // No swatch (no LFS data): keep the generated tiles for good.
+        for (e, _) in &floors {
+            commands.entity(e).remove::<BathFloor>();
+        }
+        return;
+    }
+    if !assets.is_loaded_with_dependencies(&h) {
+        return;
+    }
+    let look = (gltfs.get(&h))
+        .and_then(|g| g.materials.first())
+        .and_then(|m| gltf_materials.get(m));
+    for (e, m) in &floors {
+        commands.entity(e).remove::<BathFloor>();
+        let (Some(look), Some(mut floor)) = (look, materials.get_mut(&m.0)) else {
+            continue;
+        };
+        if let Some(t) = look.base_color_texture.clone() {
+            floor.base_color = Color::srgb(0.9, 0.95, 0.9);
+            floor.base_color_texture = Some(t);
+            floor.metallic_roughness_texture = look.metallic_roughness_texture.clone();
+            floor.perceptual_roughness = 1.0;
+        }
     }
 }
 
@@ -187,7 +232,7 @@ fn load_bath_models(
         return;
     };
     for (e, m) in &new {
-        commands.entity(e).insert(WorldAssetRoot(
+        commands.entity(e).try_insert(WorldAssetRoot(
             assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{}", m.0))),
         ));
     }
@@ -235,13 +280,14 @@ pub(super) fn furnish(
     let cw = Vec3::new(c.x, INSIDE_Y, c.y);
     let mut dirt = Rng::new(seed ^ (x as u32 * 31 + z as u32 * 977) ^ 0xd127);
     // Tiles underfoot.
-    bit(
-        commands,
-        &kit.floor,
-        &kit.tiles,
+    commands.spawn((
+        Mesh3d(kit.floor.clone()),
+        MeshMaterial3d(kit.tiles.clone()),
         Transform::from_translation(cw + Vec3::Y * 0.011),
-        None,
-    );
+        BathFloor,
+        InteriorPart,
+        DespawnOnExit(AppState::InGame),
+    ));
     if mask == 0 {
         // Bricked up: solid tile, with a door far out of reach.
         slab(
@@ -254,26 +300,13 @@ pub(super) fn furnish(
         return;
     }
     // A buzzing tube on long wires, far overhead, and its hum.
+    // The model's rods are 1.6 m long, up from the tube to the ceiling.
     let hang = CEILING - 1.6;
-    slab(
+    model(
         commands,
-        kit,
-        &kit.tube,
-        at(cw + Vec3::Y * hang, Vec3::new(1.8, 0.08, 0.18)),
-        false,
+        "bath_tube.gltf",
+        Transform::from_translation(cw + Vec3::Y * hang),
     );
-    for side in [-0.8f32, 0.8] {
-        slab(
-            commands,
-            kit,
-            &kit.chrome,
-            at(
-                cw + Vec3::new(side, (hang + CEILING) / 2.0, 0.0),
-                Vec3::new(0.02, CEILING - hang, 0.02),
-            ),
-            false,
-        );
-    }
     let base = 240_000.0;
     commands.spawn((
         InteriorPart,
@@ -307,15 +340,15 @@ pub(super) fn furnish(
     // Something brown on the floor.
     if dirt.roll() < 0.6 {
         let p = cw + Vec3::new(dirt.roll() - 0.5, 0.0, dirt.roll() - 0.5) * 2.0;
-        slab(
+        // The puddle model is a 1 m blot: stretch it to this one's size.
+        model(
             commands,
-            kit,
-            &kit.puddle,
-            at(
-                p + Vec3::Y * 0.025,
-                Vec3::new(0.6 + dirt.roll() * 0.8, 0.01, 0.5 + dirt.roll() * 0.7),
-            ),
-            false,
+            "bath_puddle.gltf",
+            Transform::from_translation(p + Vec3::Y * 0.025).with_scale(Vec3::new(
+                0.6 + dirt.roll() * 0.8,
+                1.0,
+                0.5 + dirt.roll() * 0.7,
+            )),
         );
     }
     let mut stalled: Vec<Vec3> = Vec::new();
@@ -331,27 +364,23 @@ pub(super) fn furnish(
         let corner = stalled.iter().any(|&d: &Vec3| d.dot(dir).abs() < 0.5);
         if layout.roll() < 0.8 && !corner {
             stalled.push(dir);
-            stalls(commands, kit, cw, dir, &mut layout, &mut dirt);
+            stalls(commands, cw, dir, &mut layout, &mut dirt);
         } else {
-            high_door(commands, kit, cw, dir, &mut layout);
+            high_door(commands, cw, dir, &mut layout);
         }
     }
 }
 
 /// A door on the wall, metres off the floor. Nobody can reach it.
-fn high_door(commands: &mut Commands, kit: &Kit, cw: Vec3, dir: Vec3, layout: &mut Rng) {
+fn high_door(commands: &mut Commands, cw: Vec3, dir: Vec3, layout: &mut Rng) {
     let along = Vec3::new(dir.z.abs(), 0.0, dir.x.abs());
     let lift = 3.0 + layout.roll() * 4.0;
     let p = cw + dir * (CELL / 2.0 - 0.17) + along * (layout.roll() - 0.5) * 2.0;
-    slab(
+    // The partition it hangs on (1.1 x 2.3 m along the model's x).
+    model(
         commands,
-        kit,
-        &kit.partition,
-        at(
-            p + Vec3::Y * (lift + 1.05),
-            along * 1.1 + Vec3::Y * 2.3 + dir.abs() * 0.03,
-        ),
-        false,
+        "high_partition.gltf",
+        Transform::from_translation(p + Vec3::Y * (lift + 1.05)).with_rotation(door_turn(along)),
     );
     // The stall door model, stretched to this door's 0.9 x 2 m (its latch
     // stands in for the old chrome knob).
@@ -365,14 +394,7 @@ fn high_door(commands: &mut Commands, kit: &Kit, cw: Vec3, dir: Vec3, layout: &m
 }
 
 /// Three stalls in a row against the wall on `dir`'s side.
-fn stalls(
-    commands: &mut Commands,
-    kit: &Kit,
-    cw: Vec3,
-    dir: Vec3,
-    layout: &mut Rng,
-    dirt: &mut Rng,
-) {
+fn stalls(commands: &mut Commands, cw: Vec3, dir: Vec3, layout: &mut Rng, dirt: &mut Rng) {
     const DEPTH: f32 = 1.45;
     const WIDE: f32 = 1.2;
     const TALL: f32 = 2.0;
@@ -390,27 +412,28 @@ fn stalls(
         if (k == 1 || k == 2) && layout.roll() < 0.5 {
             for (from, len) in [(0.0, 0.35), (DEPTH - 0.35, 0.35)] {
                 let mid = back - dir * (from + len / 2.0) + along * off;
-                slab(
+                solid(
                     commands,
-                    kit,
-                    &kit.partition,
                     at(
                         mid + Vec3::Y * y,
                         thin * len + along * 0.05 + Vec3::Y * TALL,
                     ),
-                    true,
+                    avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+                );
+                // The stub model is 0.35 m deep along its z.
+                model(
+                    commands,
+                    "stall_stub.gltf",
+                    Transform::from_translation(mid + Vec3::Y * y)
+                        .with_rotation(Quat::from_rotation_arc(Vec3::Z, thin)),
                 );
             }
-            // Over the hole, the partition carries on.
-            slab(
+            // Over the hole, the partition carries on (1.45 m along z).
+            model(
                 commands,
-                kit,
-                &kit.partition,
-                at(
-                    line + Vec3::Y * (GAP + TALL - 0.2),
-                    thin * DEPTH + along * 0.05 + Vec3::Y * 0.4,
-                ),
-                false,
+                "stall_bar.gltf",
+                Transform::from_translation(line + Vec3::Y * (GAP + TALL - 0.2))
+                    .with_rotation(Quat::from_rotation_arc(Vec3::Z, thin)),
             );
         } else {
             // A whole partition: the modeler-made panel (1.45 m deep along
@@ -431,21 +454,16 @@ fn stalls(
             );
         }
     }
-    // The rail along the front.
-    slab(
+    // The rail along the front (3.65 m along the model's x).
+    model(
         commands,
-        kit,
-        &kit.chrome,
-        at(
-            front + Vec3::Y * (GAP + TALL),
-            along * (WIDE * 3.0 + 0.05) + thin * 0.05 + Vec3::Y * 0.05,
-        ),
-        false,
+        "stall_rail.gltf",
+        Transform::from_translation(front + Vec3::Y * (GAP + TALL)).with_rotation(door_turn(along)),
     );
     for i in 0..3 {
         let mid = (i as f32 - 1.0) * WIDE;
         door(commands, front, dir, along, mid, layout);
-        toilet(commands, kit, back, dir, along, mid, dirt);
+        toilet(commands, back, dir, along, mid, dirt);
     }
 }
 
@@ -496,15 +514,7 @@ fn door(commands: &mut Commands, front: Vec3, dir: Vec3, along: Vec3, mid: f32, 
 }
 
 /// A dirty toilet at the back of a stall.
-fn toilet(
-    commands: &mut Commands,
-    kit: &Kit,
-    back: Vec3,
-    dir: Vec3,
-    along: Vec3,
-    mid: f32,
-    dirt: &mut Rng,
-) {
+fn toilet(commands: &mut Commands, back: Vec3, dir: Vec3, along: Vec3, mid: f32, dirt: &mut Rng) {
     let base = back - dir * 0.45 + along * mid;
     // The modeler-made toilet (tank, bowl, seat, filthy water), its tank
     // towards the wall, and the bowl's solid cylinder as before.
@@ -527,19 +537,18 @@ fn toilet(
     let mess = dirt.roll();
     if mess < 0.45 {
         for k in 0..(1 + dirt.below(3)) {
-            let r = Quat::from_rotation_y(dirt.roll() * PI) * Quat::from_rotation_z(FRAC_PI_2);
+            // The log model lies along its x.
+            let r = Quat::from_rotation_y(dirt.roll() * PI);
             let spot = if up || k > 0 {
                 base - dir * (0.35 + dirt.roll() * 0.25) + along * (dirt.roll() - 0.5) * 0.5
             } else {
                 base + along * 0.1
             };
             let h = if up || k > 0 { 0.05 } else { 0.46 };
-            bit(
+            model(
                 commands,
-                &kit.log,
-                &kit.poop,
+                "poop_log.gltf",
                 Transform::from_translation(spot + Vec3::Y * h).with_rotation(r),
-                None,
             );
         }
     }
@@ -549,38 +558,34 @@ fn toilet(
                 + along * (dirt.roll() - 0.5) * 0.6
                 + dir * (0.05 + dirt.roll() * 0.1)
                 + Vec3::Y * (0.42 + dirt.roll() * 0.05);
-            bit(
+            model(
                 commands,
-                &kit.blob,
-                &kit.poop,
-                Transform::from_translation(p).with_scale(Vec3::new(1.0, 0.4, 1.0)),
-                None,
+                "poop_blob.gltf",
+                Transform::from_translation(p)
+                    .with_rotation(Quat::from_rotation_y(dirt.roll() * PI)),
             );
         }
     }
     if mess > 0.7 {
-        slab(
+        // Smeared up the wall: the 1 m smear model (in its x/y, facing
+        // +z) turned to face into the stall and shrunk to size.
+        let p = back - dir * 0.01 + along * (mid + dirt.roll() * 0.4 - 0.2) + Vec3::Y * 1.2;
+        model(
             commands,
-            kit,
-            &kit.poop,
-            at(
-                back - dir * 0.005 + along * (mid + dirt.roll() * 0.4 - 0.2) + Vec3::Y * 1.2,
-                along * 0.25 + Vec3::Y * (0.4 + dirt.roll() * 0.5) + dir.abs() * 0.01,
-            ),
-            false,
+            "poop_smear.gltf",
+            Transform::from_translation(p)
+                .looking_to(dir, Vec3::Y)
+                .with_scale(Vec3::new(0.25, 0.4 + dirt.roll() * 0.5, 1.0)),
         );
     }
     if mess > 0.85 {
         // Overflowing.
-        slab(
+        model(
             commands,
-            kit,
-            &kit.puddle,
-            at(
-                base - dir * 0.4 + Vec3::Y * 0.02,
-                along * 0.9 + dir.abs() * 0.8 + Vec3::Y * 0.01,
-            ),
-            false,
+            "bath_puddle.gltf",
+            Transform::from_translation(base - dir * 0.4 + Vec3::Y * 0.02)
+                .with_rotation(door_turn(along))
+                .with_scale(Vec3::new(0.9, 1.0, 0.8)),
         );
     }
 }
@@ -685,10 +690,6 @@ fn dress_fart_monsters(
         return;
     };
     for (e, m) in &new {
-        let skin = mat(&mut materials, Color::srgb(0.45, 0.47, 0.26), 0.6);
-        let cheek = mat(&mut materials, Color::srgb(0.55, 0.43, 0.3), 0.5);
-        let mouth = mat(&mut materials, Color::srgb(0.08, 0.05, 0.03), 1.0);
-        let eye = glow(&mut materials, Color::srgb(1.0, 0.9, 0.2), 6.0);
         let cloud = materials.add(StandardMaterial {
             base_color: Color::srgba(0.55, 0.7, 0.2, 0.35),
             emissive: LinearRgba::rgb(0.05, 0.09, 0.01),
@@ -696,74 +697,37 @@ fn dress_fart_monsters(
             unlit: true,
             ..default()
         });
-        let ball = meshes.add(Sphere::new(1.0));
-        let stub = meshes.add(Cylinder::new(0.13, 0.5));
         commands
             .entity(e)
             .insert((
                 FartDressed {
                     puffs: m.puffs,
                     cloud,
-                    puff: ball.clone(),
+                    puff: meshes.add(Sphere::new(1.0)),
                 },
                 Transform::from_translation(m.pos),
                 Visibility::default(),
             ))
             .with_children(|p| {
-                p.spawn((FartBody, Transform::default(), Visibility::default()))
-                    .with_children(|b| {
-                        // Squat and swollen, with an enormous behind (+z).
-                        b.spawn((
-                            Mesh3d(ball.clone()),
-                            MeshMaterial3d(skin.clone()),
-                            Transform::from_xyz(0.0, 1.05, 0.0)
-                                .with_scale(Vec3::new(0.7, 0.75, 0.65)),
-                        ));
-                        for side in [-1.0f32, 1.0] {
-                            b.spawn((
-                                Mesh3d(ball.clone()),
-                                MeshMaterial3d(cheek.clone()),
-                                Transform::from_xyz(side * 0.3, 0.8, 0.42)
-                                    .with_scale(Vec3::splat(0.44)),
-                            ));
-                            b.spawn((
-                                Mesh3d(stub.clone()),
-                                MeshMaterial3d(skin.clone()),
-                                Transform::from_xyz(side * 0.3, 0.25, 0.0),
-                            ));
-                            b.spawn((
-                                Mesh3d(stub.clone()),
-                                MeshMaterial3d(skin.clone()),
-                                Transform::from_xyz(side * 0.68, 1.1, -0.1)
-                                    .with_rotation(Quat::from_rotation_z(side * 0.9))
-                                    .with_scale(Vec3::new(0.6, 0.7, 0.6)),
-                            ));
-                        }
-                        b.spawn((
-                            Mesh3d(ball.clone()),
-                            MeshMaterial3d(skin.clone()),
-                            Transform::from_xyz(0.0, 1.85, -0.1).with_scale(Vec3::splat(0.3)),
-                        ))
-                        .with_children(|h| {
-                            for side in [-1.0f32, 1.0] {
-                                h.spawn((
-                                    Mesh3d(ball.clone()),
-                                    MeshMaterial3d(eye.clone()),
-                                    Transform::from_xyz(side * 0.35, 0.2, -0.85)
-                                        .with_scale(Vec3::splat(0.14)),
-                                    NotShadowCaster,
-                                ));
-                            }
-                            h.spawn((
-                                Mesh3d(ball.clone()),
-                                MeshMaterial3d(mouth.clone()),
-                                Transform::from_xyz(0.0, -0.35, -0.85)
-                                    .with_scale(Vec3::new(0.45, 0.15, 0.1)),
-                            ));
-                        });
-                    });
+                // The rigged modeler body (squat, swollen, its enormous
+                // behind towards +z), shuffling with `idle` / `waddle`.
+                p.spawn((
+                    FartBody,
+                    crate::rigged::Rigged { path: FART_MONSTER },
+                    crate::rigged::RigClip::looping("idle"),
+                    Transform::default(),
+                    Visibility::default(),
+                ));
             });
     }
+}
+
+/// The fart monster's rigged model (source `bt-fart-monster`).
+const FART_MONSTER: &str = "models/features/fart_monster.gltf";
+
+/// The clip for a monster that is (or isn't) waddling.
+fn fart_clip(waddling: bool) -> crate::rigged::RigClip {
+    crate::rigged::RigClip::looping(if waddling { "waddle" } else { "idle" }).fade(0.3)
 }
 
 #[allow(clippy::type_complexity)]
@@ -773,9 +737,8 @@ fn animate_fart_monsters(
     mut spooked: ResMut<Spooked>,
     audio: Option<ResMut<Assets<AudioSource>>>,
     mut monsters: Query<(&FartMonster, &mut FartDressed, &mut Transform, &Children)>,
-    mut bodies: Query<&mut Transform, (With<FartBody>, Without<FartDressed>)>,
+    mut bodies: Query<&mut crate::rigged::RigClip, With<FartBody>>,
 ) {
-    let t = time.elapsed_secs();
     let k = 1.0 - (-12.0 * time.delta_secs()).exp();
     let mut audio = audio;
     for (m, mut dressed, mut tf, children) in &mut monsters {
@@ -785,13 +748,12 @@ fn animate_fart_monsters(
             tf.translation.lerp(m.pos, k)
         };
         tf.rotation = tf.rotation.slerp(Quat::from_rotation_y(m.yaw), k);
-        let pace = if m.waddling { 7.0 } else { 3.5 };
         for child in children.iter() {
-            if let Ok(mut body) = bodies.get_mut(child) {
-                let lean = if m.waddling { 0.25 } else { 0.0 };
-                body.rotation =
-                    Quat::from_rotation_x(-lean) * Quat::from_rotation_z((t * pace).sin() * 0.14);
-                body.translation.y = (t * pace * 2.0).sin().abs() * 0.05;
+            if let Ok(mut clip) = bodies.get_mut(child) {
+                let want = fart_clip(m.waddling);
+                if *clip != want {
+                    *clip = want;
+                }
             }
         }
         if dressed.puffs == m.puffs {
@@ -919,6 +881,12 @@ pub(super) fn status_line(seed: Option<u32>, feet: Vec3) -> Option<&'static str>
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_monster_waddles_when_it_moves() {
+        assert_eq!(fart_clip(true).name, "waddle");
+        assert_eq!(fart_clip(false).name, "idle");
+    }
 
     #[test]
     fn tiles_have_grout() {

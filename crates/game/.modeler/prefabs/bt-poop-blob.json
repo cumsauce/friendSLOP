@@ -1,0 +1,127 @@
+{
+  "format_version": 1,
+  "name": "bt-poop-blob",
+  "parts": [],
+  "version": 39,
+  "ops": [
+    {
+      "sdf": {
+        "name": "blob",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.07,
+              0.028,
+              0.065
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.045,
+              0.004,
+              0.02
+            ],
+            "size": [
+              0.035,
+              0.022,
+              0.03
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "at": [
+              -0.04,
+              0.002,
+              -0.03
+            ],
+            "size": [
+              0.03,
+              0.02,
+              0.035
+            ]
+          }
+        ],
+        "blend": 0.02,
+        "warps": [
+          {
+            "mode": "displace",
+            "amount": 0.004,
+            "scale": 0.025,
+            "seed": 5
+          }
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "blob",
+        "input": "blob",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-poop",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 162,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2a160a"
+                  ],
+                  [
+                    0.6,
+                    "#4a2c12"
+                  ],
+                  [
+                    1,
+                    "#5c3a18"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

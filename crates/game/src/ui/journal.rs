@@ -294,6 +294,9 @@ fn fill(
     )>,
     totems: Query<&Totem>,
     lines: Query<(&Text, &InSlot)>,
+    quiet: Query<(&Text, &crate::hud::Calm)>,
+    gas: Query<(&Player, &crate::features::fart::Gas)>,
+    cats: Query<&crate::features::fat_cat::FatCat>,
     content: Query<Entity, With<Content>>,
     mut last: Local<Option<Page>>,
 ) {
@@ -373,7 +376,18 @@ fn fill(
         v.sort();
         v
     };
-    let tables = slot_lines(HudSlot::Scoreboard);
+    let mut tables = slot_lines(HudSlot::Scoreboard);
+    // Everything the quiet HUD hides between changes (`hud::Calm`).
+    let gas = gas.iter().find(|(p, _)| Some(p.id) == me).map(|(_, g)| g.0);
+    let cat = cats.iter().find(|c| Some(c.owner) == me).map(|c| c.size);
+    let calm: Vec<(String, String)> = quiet
+        .iter()
+        .map(|(t, c)| (c.label.to_string(), t.0.clone()))
+        .collect();
+    let now = right_now(&calm, gas, cat);
+    if !now.is_empty() {
+        tables.insert(0, now);
+    }
     let mine = me
         .map(|me| {
             tables
@@ -414,6 +428,27 @@ fn fill(
         Tab::Credits => credits(c),
     });
     *last = Some(page);
+}
+
+/// The Bag tab's "Right now" block: every quiet HUD line (label, text), your
+/// gas and your cat's size, whether or not they're on screen at the moment.
+pub fn right_now(calm: &[(String, String)], gas: Option<u8>, cat: Option<f32>) -> String {
+    let mut out: Vec<String> = calm
+        .iter()
+        .filter(|(_, t)| !t.trim().is_empty())
+        .map(|(l, t)| format!("{l}: {}", t.replace('\n', " · ")))
+        .collect();
+    out.sort();
+    if let Some(g) = gas {
+        out.push(format!("Fart gas: {}", super::status::gas_lines(g).0));
+    }
+    if let Some(s) = cat {
+        out.push(format!("Your cat: {}", super::status::cat_size(s)));
+    }
+    if out.is_empty() {
+        return String::new();
+    }
+    format!("RIGHT NOW\n{}", out.join("\n"))
 }
 
 fn look_tabs(
@@ -695,6 +730,21 @@ fn credits(c: &mut ChildSpawnerCommands) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn right_now_lists_every_quiet_line() {
+        let calm = vec![
+            ("Rent".to_string(), "RENT 5\nclick him".to_string()),
+            ("Skills".to_string(), "".to_string()),
+        ];
+        let s = right_now(&calm, Some(40), Some(2.0));
+        assert!(s.starts_with("RIGHT NOW"));
+        assert!(s.contains("Rent: RENT 5 · click him"));
+        assert!(!s.contains("Skills"));
+        assert!(s.contains("Fart gas: 40%"));
+        assert!(s.contains("Your cat: 2.0×"));
+        assert!(right_now(&[], None, None).is_empty());
+    }
 
     #[test]
     fn keys_open_close_and_jump() {

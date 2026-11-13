@@ -40,6 +40,13 @@ pub fn name_for(id: u64, local: bool) -> String {
     }
 }
 
+/// Is a badge on screen (the quiet rule, `hud::Calm`): while anyone else is
+/// here (it's the roster), while they're muted or talking, or for a moment
+/// after their gods' tears change.
+pub fn badge_shown(b: &BadgeState, others_here: bool, tears_alpha: f32) -> bool {
+    others_here || b.muted || b.speaking || tears_alpha > 0.0
+}
+
 /// Local player first, then by id; at most [`MAX_BADGES`].
 pub fn roster(mut badges: Vec<BadgeState>) -> Vec<BadgeState> {
     badges.sort_by_key(|b| (!b.local, b.id));
@@ -98,15 +105,28 @@ fn update(
     players: Query<(&Player, Option<&Transformation>, Option<&MicMuted>)>,
     strip: Query<(Entity, Option<&Children>), With<Strip>>,
     badges: Query<&Badge>,
-    mut looks: Query<(&mut BackgroundColor, &mut BorderColor), With<Badge>>,
-    mut parts: Query<(
-        &Part,
-        &ChildOf,
-        Option<&mut Text>,
-        Option<&mut TextColor>,
-        Option<&mut ImageNode>,
-        &mut Node,
-    )>,
+    mut looks: Query<
+        (
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &mut crate::hud::Recent,
+            &mut Node,
+        ),
+        (With<Badge>, Without<Part>),
+    >,
+    time: Res<Time>,
+    all: Res<crate::hud::ShowAll>,
+    mut parts: Query<
+        (
+            &Part,
+            &ChildOf,
+            Option<&mut Text>,
+            Option<&mut TextColor>,
+            Option<&mut ImageNode>,
+            &mut Node,
+        ),
+        Without<Badge>,
+    >,
 ) {
     let Ok((strip, kids)) = strip.single() else {
         return;
@@ -163,9 +183,17 @@ fn update(
         } else {
             (INK, BORDER, CREAM)
         };
-        if let Ok((mut bg, mut border)) = looks.get_mut(*entity) {
+        if let Ok((mut bg, mut border, mut seen, mut node)) = looks.get_mut(*entity) {
             bg.set_if_neq(BackgroundColor(fill));
             border.set_if_neq(BorderColor::all(line));
+            let t = crate::hud::tuning();
+            let age = seen.tick(u64::from(b.tears), time.delta_secs());
+            let a = crate::hud::calm_alpha(age, false, false, &t);
+            let up = all.0 || badge_shown(b, want.len() > 1, a);
+            let d = if up { Display::Flex } else { Display::None };
+            if node.display != d {
+                node.display = d;
+            }
         }
         for (part, parent, text, color, image, mut node) in &mut parts {
             if parent.parent() != *entity {
@@ -205,6 +233,7 @@ fn update(
 fn badge(icons: &Icons, b: &BadgeState) -> impl Bundle {
     (
         Badge(b.id),
+        crate::hud::Recent::default(),
         Node {
             width: px(BADGE.x),
             height: px(BADGE.y),
@@ -281,6 +310,19 @@ mod tests {
             speaking: false,
             local,
         }
+    }
+
+    #[test]
+    fn a_lone_quiet_badge_hides() {
+        let me = b(0, true);
+        assert!(!badge_shown(&me, false, 0.0));
+        assert!(badge_shown(&me, true, 0.0));
+        assert!(badge_shown(&me, false, 0.5));
+        let talking = BadgeState {
+            speaking: true,
+            ..b(0, true)
+        };
+        assert!(badge_shown(&talking, false, 0.0));
     }
 
     #[test]

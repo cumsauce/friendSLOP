@@ -30,4 +30,40 @@
     // The way-out posts' labels.
     exit_label: "climb back up to the street",
     ride_label: "ride the J (back up to the street)",
+    // Andrew's calls and the thing he sends (fulton_hunt.rs; his lines are in
+    // data/text/fulton_calls.ron).
+    hunt: (
+        // He calls when you first reach these levels (0 is the top).
+        call_levels: [6, 14, 22],
+        // Ringing this long answers it anyway.
+        ring_secs: 10.0,
+        // Seconds between lines.
+        line_gap: 0.7,
+        // His voice per call: (pitch Hz, speed). Angrier, higher, faster.
+        voice: [(92.0, 1.0), (118.0, 1.15), (150.0, 1.35)],
+        // After the third call, the one he sent arrives this many seconds later.
+        spawn_delay: 12.0,
+        // Its speeds (m/s): wandering and searching, and chasing. You walk 5 and run 10.5.
+        walk_speed: 3.0,
+        chase_speed: 6.5,
+        // It sees this far (m) in a cone this wide (degrees), never through walls.
+        view_range: 20.0,
+        view_degrees: 110.0,
+        // It grabs you this close (m).
+        catch_range: 1.4,
+        // The director: every 9 s it hears roughly where you are and heads for a
+        // cell within 3 cells of you.
+        director_secs: 9.0,
+        director_radius: 3,
+        // Out of sight, it keeps heading where it last saw you for this long.
+        lose_secs: 5.0,
+        // Then it checks the lockers within 4 cells for 20 s, opening the one
+        // you're in with this chance...
+        search_radius: 4,
+        search_secs: 20.0,
+        find_chance: 0.35,
+        // ...then backs off at least 6 cells for 25 s before drifting back.
+        retreat_cells: 6,
+        retreat_secs: 25.0,
+    ),
 )

@@ -39,7 +39,8 @@ and systemd (PID 1) kills you.
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
 golden, nights are dim and blue. Some nights you hear whispers behind you.
-**In New York:** find the J to Brooklyn in Fulton St station, 40 levels down, for Pelf.
+**In New York:** find the J to Brooklyn in Fulton St station, 40 levels down, for Pelf, while
+Andrew calls, gets angry, and sends something after you (hide in lockers).
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
@@ -436,6 +437,22 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   cash; chose a teleport down (like the city's trail post) because the street has one floor.
   Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
   in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
+  **Andrew and the thing he sends** (the user: "once sufficiently deep in the subway station,
+  your phone will get a call from andrew ... he calls 2 more times with increasing anger. that
+  last time, he says hes sending someone to go get you. it is a monster that will persue you
+  around the subway. you can evade him by hiding (he has a view cone but has like the alien
+  isolation director ai)", and "andrews lines should be spoken with a SAM"). At levels 6, 14 and
+  22 your phone rings (E answers, or it answers itself); he asks where you are, you say you're
+  coming, angrier each time, his lines spoken by a retro speech synth (the `samiam` crate) that
+  gets higher and faster. After the third ("I'm sending someone to come get you") a gaunt
+  thing in an MTA vest turns up on your level, far from you. The server runs its brain: a
+  director that always roughly knows where you are and sends it near you every 9 s, plus a
+  110° view cone with line of sight down the corridors. Seen, it chases (faster than walking,
+  slower than running); lost, it goes where it saw you, checks the lockers nearby (opening
+  yours 35% of the time), then backs off for 25 s. New tile: a lockers dead end; click the
+  locker to climb in, walk out to leave. Caught: it drags you back up to the street and
+  Andrew starts calling again from the top. Lines in `data/text/fulton_calls.ron`, tuning in
+  `data/side/fulton.ron` (`features/fulton_hunt.rs`).
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was

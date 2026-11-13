@@ -1,0 +1,541 @@
+{
+  "format_version": 1,
+  "name": "fs-room-wall",
+  "parts": [],
+  "version": 43848,
+  "ops": [
+    {
+      "primitive": {
+        "name": "wall",
+        "kind": "box",
+        "size": [
+          6.0,
+          3.99,
+          0.197
+        ],
+        "translation": [
+          0.0,
+          1.995,
+          -2.8985
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "band",
+        "kind": "box",
+        "size": [
+          6.0,
+          0.4,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          2.6,
+          -2.78
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "skirt",
+        "kind": "box",
+        "size": [
+          6.0,
+          0.25,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          0.125,
+          -2.775
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "trim",
+        "inputs": [
+          "band",
+          "skirt"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "bench_seat",
+        "kind": "box",
+        "size": [
+          2.2,
+          0.08,
+          0.45
+        ],
+        "translation": [
+          0.0,
+          0.46,
+          -2.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bench_leg_l",
+        "kind": "box",
+        "size": [
+          0.08,
+          0.42,
+          0.4
+        ],
+        "translation": [
+          -0.95,
+          0.21,
+          -2.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bench_leg_r",
+        "kind": "box",
+        "size": [
+          0.08,
+          0.42,
+          0.4
+        ],
+        "translation": [
+          0.95,
+          0.21,
+          -2.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "bench",
+        "inputs": [
+          "bench_seat",
+          "bench_leg_l",
+          "bench_leg_r"
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "band",
+        "input": "band",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "skirt",
+        "input": "skirt",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bench_seat",
+        "input": "bench_seat",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bench_leg_l",
+        "input": "bench_leg_l",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bench_leg_r",
+        "input": "bench_leg_r",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "wall",
+        "input": "wall",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.01,
+                  0.025
+                ],
+                "input": "g.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 0.96,
+                "min": 0.86,
+                "name": "tone",
+                "seed": 162,
+                "type": "random"
+              },
+              {
+                "name": "grime",
+                "octaves": 4,
+                "seed": 161,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.9
+                ],
+                "input": "grime",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.35,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "tone",
+                "b": "gm2",
+                "name": "face",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": "face",
+                "c": "grout",
+                "name": "v",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "v",
+                "b": 2.2,
+                "name": "albedo",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "grout",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.9,
+                "b": 0.25,
+                "c": "grout",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "albedo",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "trim",
+        "input": "trim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.6,
+                  0.6
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "input": "g",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 0,
+                "name": "sx",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 0,
+                "name": "sy",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "sx",
+                "b": "sy",
+                "name": "d",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "d",
+                "name": "chk",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "g2",
+                "size": [
+                  0.3,
+                  0.3
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.006
+                ],
+                "input": "g2.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "a": "#141414",
+                "b": "#e8e6e0",
+                "c": "chk",
+                "name": "c0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#808078",
+                "b": "c0",
+                "c": "grout",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.2,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "grout",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bench",
+        "input": "bench",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-wood",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.015,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "n",
+                "length": 0.12,
+                "name": "grain",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.35,
+                  0.65
+                ],
+                "input": "grain",
+                "name": "g2",
+                "type": "levels"
+              },
+              {
+                "name": "big",
+                "octaves": 3,
+                "seed": 16,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "g2",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#6e4a2a"
+                  ],
+                  [
+                    0.5,
+                    "#946640"
+                  ],
+                  [
+                    1.0,
+                    "#b07e50"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "big",
+                "name": "bt",
+                "to": [
+                  0.85,
+                  1.1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "bt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "g2",
+                "name": "r",
+                "to": [
+                  0.8,
+                  0.65
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g2",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

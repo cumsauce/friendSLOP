@@ -239,6 +239,45 @@ pub fn city_floor() -> Vec<(Transform, avian3d::prelude::Collider)> {
     )
 }
 
+/// The map's boxes as colliders. A flat slab lying on the street (a
+/// sidewalk) is split around the holes in the street like the floor, or it
+/// would cover the stairs down.
+pub fn wall_colliders(walls: &[Wall]) -> Vec<(Transform, avian3d::prelude::Collider)> {
+    let holes = friendslop_world::holes::in_floor(CITY_Y);
+    let mut out = Vec::new();
+    for w in walls {
+        let top = w.centre.y + w.size.y / 2.0;
+        let slab = w.yaw.abs() < 1e-3 && w.size.y < 0.5 && (top - CITY_Y).abs() < 0.5;
+        let half = Vec2::new(w.size.x, w.size.z) / 2.0;
+        if slab
+            && holes
+                .iter()
+                .any(|h| overlaps(h.bounds(), w.centre.xz(), half))
+        {
+            out.extend(friendslop_world::holes::slab_colliders(
+                w.centre.xz() - half,
+                w.centre.xz() + half,
+                top,
+                w.size.y,
+                &holes,
+            ));
+            continue;
+        }
+        out.push((
+            Transform::from_translation(w.centre).with_rotation(Quat::from_rotation_y(w.yaw)),
+            avian3d::prelude::Collider::cuboid(w.size.x, w.size.y, w.size.z),
+        ));
+    }
+    out
+}
+
+fn overlaps((min, max): (Vec2, Vec2), centre: Vec2, half: Vec2) -> bool {
+    min.x < centre.x + half.x
+        && max.x > centre.x - half.x
+        && min.y < centre.y + half.y
+        && max.y > centre.y - half.y
+}
+
 /// Local: show the city's streets only while this screen's camera is near the city.
 fn cull_city(
     mut commands: Commands,
@@ -312,11 +351,11 @@ fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
             DespawnOnExit(AppState::InGame),
         ));
     }
-    for w in &c.walls {
+    for (at, collider) in wall_colliders(&c.walls) {
         commands.spawn((
-            Transform::from_translation(w.centre).with_rotation(Quat::from_rotation_y(w.yaw)),
+            at,
             avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(w.size.x, w.size.y, w.size.z),
+            collider,
             DespawnOnExit(AppState::InGame),
         ));
     }

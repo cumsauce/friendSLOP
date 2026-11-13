@@ -82,6 +82,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(wallet::protocol);
         app.add_plugins(trains::protocol);
         app.add_plugins(ragdoll::protocol);
+        app.add_plugins(trains::protocol_runs);
     }
 }
 

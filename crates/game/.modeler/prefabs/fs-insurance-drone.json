@@ -1,0 +1,741 @@
+{
+  "format_version": 1,
+  "name": "fs-insurance-drone",
+  "parts": [],
+  "version": 41,
+  "ops": [
+    {
+      "primitive": {
+        "name": "body_raw",
+        "kind": "box",
+        "size": [
+          0.22,
+          0.07,
+          0.3
+        ],
+        "translation": [
+          0.0,
+          0.12,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "round": {
+        "name": "body",
+        "input": "body_raw",
+        "mode": "fillet",
+        "radius": 0.02,
+        "segments": 0
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm_a",
+        "kind": "box",
+        "size": [
+          0.6,
+          0.02,
+          0.03
+        ],
+        "translation": [
+          0.0,
+          0.13,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.38268346,
+          0.0,
+          0.9238795
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm_b",
+        "kind": "box",
+        "size": [
+          0.6,
+          0.02,
+          0.03
+        ],
+        "translation": [
+          0.0,
+          0.13,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          -0.38268346,
+          0.0,
+          0.9238795
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "rotor_1",
+        "kind": "cylinder",
+        "size": [
+          0.09,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          0.212,
+          0.144,
+          0.212
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rotor_2",
+        "kind": "cylinder",
+        "size": [
+          0.09,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          -0.212,
+          0.144,
+          0.212
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rotor_3",
+        "kind": "cylinder",
+        "size": [
+          0.09,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          0.212,
+          0.144,
+          -0.212
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rotor_4",
+        "kind": "cylinder",
+        "size": [
+          0.09,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          -0.212,
+          0.144,
+          -0.212
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "camera",
+        "kind": "sphere",
+        "size": [
+          0.035,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.07,
+          0.11
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_l",
+        "kind": "box",
+        "size": [
+          0.015,
+          0.08,
+          0.2
+        ],
+        "translation": [
+          -0.08,
+          0.04,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_r",
+        "kind": "box",
+        "size": [
+          0.015,
+          0.08,
+          0.2
+        ],
+        "translation": [
+          0.08,
+          0.04,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "parcel",
+        "kind": "box",
+        "size": [
+          0.1,
+          0.05,
+          0.1
+        ],
+        "translation": [
+          0.0,
+          0.062,
+          -0.03
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d8"
+                  ],
+                  [
+                    1,
+                    "#f0f0f0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "arm_a",
+        "input": "arm_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "arm_b",
+        "input": "arm_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rotor_1",
+        "input": "rotor_1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rotor_2",
+        "input": "rotor_2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rotor_3",
+        "input": "rotor_3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rotor_4",
+        "input": "rotor_4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "camera",
+        "input": "camera",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_l",
+        "input": "leg_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_r",
+        "input": "leg_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "drone-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1a1a"
+                  ],
+                  [
+                    1,
+                    "#303030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "parcel",
+        "input": "parcel",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wallet-leather",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#3b2214"
+                  ],
+                  [
+                    1,
+                    "#5a3420"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "body_raw",
+        "input": "body_raw",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

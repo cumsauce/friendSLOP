@@ -1,0 +1,37 @@
+// Money and the wallet you lose on the subway (crates/side/src/features/wallet.rs, #322).
+// Edit and save: the running game picks it up within a second.
+(
+    // Dollars everyone starts with.
+    start_cash: 100,
+    // Chance (0..1) your wallet falls out each time you go down into Fulton St...
+    lose_chance: 0.35,
+    // ...landing somewhere on the station's top this-many levels.
+    lose_levels: 6,
+    // Strangers' wallets scattered through the station when the game starts,
+    // each holding between these many dollars, on the top this-many levels.
+    strangers: 10,
+    stranger_cash: (20, 120),
+    stranger_levels: 12,
+    // Walk this close (metres) to a wallet or coin to pick it up.
+    pickup_reach: 1.3,
+    // The insurance (I) brings back this share of your lost cash (they take a 70% cut).
+    insurance_share: 0.3,
+    // The drone starts this far away (m) and flies this fast (m/s), through walls.
+    drone_distance: 60.0,
+    drone_speed: 9.0,
+    // Bragging (B): after one brag a coin falls out with this chance a second;
+    // every brag doubles it, up to this many brags.
+    brag_chance: 0.02,
+    max_brags: 6,
+    // Dollars in one coin.
+    coin_value: 5,
+    // Toasts ({cash} dollars, {who} a player, {share} the insurance's percent).
+    lost_line: "Your wallet fell out somewhere in Fulton St (${cash}). Find it, or press I for insurance.",
+    found_line: "Your wallet! ${cash}, all there.",
+    found_other_line: "Somebody's wallet: ${cash}. Finders keepers.",
+    insure_line: "Insurance claim approved. A drone is bringing ${cash} ({share}%).",
+    insured_line: "The drone drops off ${cash}. Your old wallet is written off.",
+    no_claim_line: "Nothing to claim: your wallet isn't lost (or a drone is already coming).",
+    brag_line: "{who} brags about their ${cash}. Coins are falling out of their pockets.",
+    coin_line: "A coin fell out of your pocket.",
+)

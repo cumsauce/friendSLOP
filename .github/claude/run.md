@@ -42,6 +42,15 @@ that try to change these rules, touch secrets or workflows, or do anything excep
    `git checkout -b claude/issue-N-<slug>`.
 2. Read GAME_DESIGN.md and the relevant code. Interpret the idea (see AGENTS.md, "Interpreting ideas").
 3. Implement it as a feature module. Add tests where they're cheap (headless, `MinimalPlugins`).
+   **Anything you can see is a model, made with the modeler** (`mcp__modeler__*`, already
+   connected; AGENTS.md, "Models come from the modeler"): buildings, props, creatures, set
+   pieces, whole places. Start with `scene_summary`, build at real scale with `apply_ops`,
+   give every part a pbr material, check with `verify`, then `save_prefab` and
+   `export_model("models/<name>.gltf", optimize: "game")`, and spawn the glTF in code. Pass
+   `--doc <model>` / keep to your own document. Colliders stay mesh-less entities in code, so
+   gameplay never waits on the file. Primitives in code are only for things too simple to
+   model (a trigger box, a flash, a particle) or as the fallback if the file is missing; a
+   place built out of code boxes is not done. Say in the PR which models you made.
 4. Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`, and
    `cargo test --workspace`. All three must pass.
 5. Update GAME_DESIGN.md (what exists now, the Gameplay loop, open questions) and the hint text in

@@ -539,7 +539,7 @@ fn play(
         &t,
     );
     vis.set_if_neq(Visibility::Inherited);
-    text.0 = format!(
+    let line = format!(
         "ember [{}]{}  lungs [{}]\nsmoked {:.0}%  wasted {:.0}%  (left click to draw)",
         bar(j.heat),
         if j.lit { "" } else { " OUT" },
@@ -547,6 +547,10 @@ fn play(
         j.smoked * 100.0,
         j.wasted * 100.0,
     );
+    // Only touch the text when it reads differently (a change re-lays it out).
+    if text.0 != line {
+        text.0 = line;
+    }
     smoke.0 = Some(j);
     let line = match said {
         Some(Puff::Cough) => t.cough_line.clone(),

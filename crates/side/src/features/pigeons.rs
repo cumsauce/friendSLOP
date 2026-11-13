@@ -366,6 +366,16 @@ fn think(
         if !awake.get(fi).copied().unwrap_or(false) {
             continue;
         }
+        // Most frames no bird in a flock is due: skip the snapshot and grid then.
+        let due = birds
+            .iter()
+            .any(|p| p.flock == fi && p.think_in - dt <= 0.0);
+        if !due {
+            for mut p in birds.iter_mut().filter(|p| p.flock == fi) {
+                p.think_in -= dt;
+            }
+            continue;
+        }
         let snapshot: Vec<Boid> = birds
             .iter()
             .filter(|p| p.flock == fi)
@@ -451,6 +461,7 @@ fn fly_all(
                     ground,
                 },
                 Mesh3d(looks.drop.clone()),
+                bevy::light::NotShadowCaster,
                 MeshMaterial3d(looks.splat_mat.clone()),
                 Transform::from_translation(p.boid.pos - Vec3::Y * 0.1),
                 DespawnOnExit(AppState::InGame),
@@ -498,24 +509,30 @@ fn droppings(
             commands.spawn((
                 Splat(t.splat_secs),
                 Mesh3d(looks.splat.clone()),
+                bevy::light::NotShadowCaster,
                 MeshMaterial3d(looks.splat_mat.clone()),
                 Transform::from_translation(at),
                 DespawnOnExit(AppState::InGame),
             ));
         }
     }
-    // Splats fade out; past the cap the oldest go first.
-    let mut all: Vec<(Entity, f32)> = Vec::new();
+    // Splats fade out; past the cap the oldest go first (sorted only then).
+    let mut alive: usize = 0;
     for (e, mut s) in &mut splats {
         s.0 -= dt;
         if s.0 <= 0.0 {
             commands.entity(e).despawn();
         } else {
-            all.push((e, s.0));
+            alive += 1;
         }
     }
-    let over = (all.len() + landed).saturating_sub(t.max_splats);
+    let over = (alive + landed).saturating_sub(t.max_splats);
     if over > 0 {
+        let mut all: Vec<(Entity, f32)> = splats
+            .iter()
+            .filter(|(_, s)| s.0 > 0.0)
+            .map(|(e, s)| (e, s.0))
+            .collect();
         all.sort_by(|a, b| a.1.total_cmp(&b.1));
         for (e, _) in all.into_iter().take(over) {
             commands.entity(e).despawn();

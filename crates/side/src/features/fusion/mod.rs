@@ -434,6 +434,15 @@ pub fn place_mood(at: Vec3) -> (Mood, f32) {
         };
         return (mood, mood.base_intensity());
     }
+    // New York: the bodega's radio inside it, the city's beat on its streets.
+    if crate::rules::nyc::in_city(at.x, at.z) && at.y < crate::rules::nyc::CITY_Y + 40.0 {
+        let mood = if crate::features::nyc::in_shop(at.xz(), "bodega") {
+            Mood::Bodega
+        } else {
+            Mood::Nyc
+        };
+        return (mood, mood.base_intensity());
+    }
     if at.y > heaven().top - 4.0 && at.xz().distance(chair.xz()) < 14.0 {
         return (Mood::Abuela, Mood::Abuela.base_intensity());
     }
@@ -561,6 +570,8 @@ fn direct(
             | Mood::Underground
             | Mood::Wendys
             | Mood::WendysAttic
+            | Mood::Nyc
+            | Mood::Bodega
     );
     let intensity = if in_game && wandering {
         (intensity + movement_nudge(&motion)).clamp(0.05, 0.9)

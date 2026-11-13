@@ -1,0 +1,313 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-crosswalk-tile",
+  "parts": [],
+  "version": 30058,
+  "ops": [
+    {
+      "primitive": {
+        "name": "asphalt",
+        "kind": "box",
+        "size": [
+          10.0,
+          0.2,
+          10.0
+        ],
+        "translation": [
+          0.0,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stripe",
+        "kind": "box",
+        "size": [
+          4.0,
+          0.008,
+          0.6
+        ],
+        "translation": [
+          0.0,
+          0.004,
+          -4.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "stripes",
+        "input": "stripe",
+        "count": 8,
+        "offset": [
+          0.0,
+          0.0,
+          1.2
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "stop_l",
+        "kind": "box",
+        "size": [
+          0.4,
+          0.008,
+          10.0
+        ],
+        "translation": [
+          -2.8,
+          0.004,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stop_r",
+        "kind": "box",
+        "size": [
+          0.4,
+          0.008,
+          10.0
+        ],
+        "translation": [
+          2.8,
+          0.004,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "asphalt",
+        "input": "asphalt",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-asphalt",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 5.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 141,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "name": "m",
+                "octaves": 3,
+                "seed": 142,
+                "size": 2.5,
+                "type": "noise"
+              },
+              {
+                "a": "n",
+                "b": "m",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#232325"
+                  ],
+                  [
+                    1,
+                    "#3c3c3e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.92,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stripe",
+        "input": "stripe",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 125,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d0"
+                  ],
+                  [
+                    1,
+                    "#e8e8e0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stop_l",
+        "input": "stop_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 125,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d0"
+                  ],
+                  [
+                    1,
+                    "#e8e8e0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stop_r",
+        "input": "stop_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 125,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d0"
+                  ],
+                  [
+                    1,
+                    "#e8e8e0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

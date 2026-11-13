@@ -1,0 +1,416 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-road-tile",
+  "parts": [],
+  "version": 30055,
+  "ops": [
+    {
+      "primitive": {
+        "name": "asphalt",
+        "kind": "box",
+        "size": [
+          10.0,
+          0.2,
+          10.0
+        ],
+        "translation": [
+          0.0,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "dash0",
+        "kind": "box",
+        "size": [
+          3.0,
+          0.008,
+          0.12
+        ],
+        "translation": [
+          -2.5,
+          0.004,
+          -1.667
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "dashes0",
+        "input": "dash0",
+        "count": 2,
+        "offset": [
+          5.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "dash1",
+        "kind": "box",
+        "size": [
+          3.0,
+          0.008,
+          0.12
+        ],
+        "translation": [
+          -2.5,
+          0.004,
+          1.667
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "dashes1",
+        "input": "dash1",
+        "count": 2,
+        "offset": [
+          5.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "edash0",
+        "kind": "box",
+        "size": [
+          3.0,
+          0.008,
+          0.06
+        ],
+        "translation": [
+          -2.5,
+          0.004,
+          -4.97
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "edashes0",
+        "input": "edash0",
+        "count": 2,
+        "offset": [
+          5.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "edash1",
+        "kind": "box",
+        "size": [
+          3.0,
+          0.008,
+          0.06
+        ],
+        "translation": [
+          -2.5,
+          0.004,
+          4.97
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "edashes1",
+        "input": "edash1",
+        "count": 2,
+        "offset": [
+          5.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "asphalt",
+        "input": "asphalt",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-asphalt",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 5.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 141,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "name": "m",
+                "octaves": 3,
+                "seed": 142,
+                "size": 2.5,
+                "type": "noise"
+              },
+              {
+                "a": "n",
+                "b": "m",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#232325"
+                  ],
+                  [
+                    1,
+                    "#3c3c3e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.92,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "dash0",
+        "input": "dash0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 125,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d0"
+                  ],
+                  [
+                    1,
+                    "#e8e8e0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "dash1",
+        "input": "dash1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 125,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d0"
+                  ],
+                  [
+                    1,
+                    "#e8e8e0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "edash0",
+        "input": "edash0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 125,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d0"
+                  ],
+                  [
+                    1,
+                    "#e8e8e0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "edash1",
+        "input": "edash1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 125,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d8d8d0"
+                  ],
+                  [
+                    1,
+                    "#e8e8e0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

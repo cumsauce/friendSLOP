@@ -1,0 +1,1689 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-traffic-light",
+  "parts": [],
+  "version": 30023,
+  "ops": [
+    {
+      "primitive": {
+        "name": "base",
+        "kind": "cylinder",
+        "size": [
+          0.2,
+          0.6,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.3,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pole",
+        "kind": "cylinder",
+        "size": [
+          0.1,
+          6.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          3.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm",
+        "kind": "box",
+        "size": [
+          0.12,
+          0.15,
+          4.5
+        ],
+        "translation": [
+          0.0,
+          5.675,
+          2.25
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "brace",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.05,
+          2.0
+        ],
+        "translation": [
+          0.0,
+          5.2,
+          0.85
+        ],
+        "rotation": [
+          -0.2419219,
+          0.0,
+          0.0,
+          0.9702957
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "cap",
+        "kind": "sphere",
+        "size": [
+          0.12,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          6.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_box",
+        "kind": "box",
+        "size": [
+          0.36,
+          1.0,
+          0.36
+        ],
+        "translation": [
+          0.0,
+          5.1,
+          4.3
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_back",
+        "kind": "box",
+        "size": [
+          0.02,
+          1.1,
+          0.4
+        ],
+        "translation": [
+          -0.19,
+          5.1,
+          4.3
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_lamp0",
+        "kind": "cylinder",
+        "size": [
+          0.12,
+          0.04,
+          0.0
+        ],
+        "translation": [
+          0.19,
+          5.42,
+          4.3
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_visor0",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.02,
+          0.28
+        ],
+        "translation": [
+          0.28,
+          5.55,
+          4.3
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_lamp1",
+        "kind": "cylinder",
+        "size": [
+          0.12,
+          0.04,
+          0.0
+        ],
+        "translation": [
+          0.19,
+          5.1,
+          4.3
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_visor1",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.02,
+          0.28
+        ],
+        "translation": [
+          0.28,
+          5.23,
+          4.3
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_lamp2",
+        "kind": "cylinder",
+        "size": [
+          0.12,
+          0.04,
+          0.0
+        ],
+        "translation": [
+          0.19,
+          4.78,
+          4.3
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_a_visor2",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.02,
+          0.28
+        ],
+        "translation": [
+          0.28,
+          4.91,
+          4.3
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_box",
+        "kind": "box",
+        "size": [
+          0.36,
+          1.0,
+          0.36
+        ],
+        "translation": [
+          0.0,
+          5.1,
+          2.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_back",
+        "kind": "box",
+        "size": [
+          0.02,
+          1.1,
+          0.4
+        ],
+        "translation": [
+          -0.19,
+          5.1,
+          2.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_lamp0",
+        "kind": "cylinder",
+        "size": [
+          0.12,
+          0.04,
+          0.0
+        ],
+        "translation": [
+          0.19,
+          5.42,
+          2.2
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_visor0",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.02,
+          0.28
+        ],
+        "translation": [
+          0.28,
+          5.55,
+          2.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_lamp1",
+        "kind": "cylinder",
+        "size": [
+          0.12,
+          0.04,
+          0.0
+        ],
+        "translation": [
+          0.19,
+          5.1,
+          2.2
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_visor1",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.02,
+          0.28
+        ],
+        "translation": [
+          0.28,
+          5.23,
+          2.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_lamp2",
+        "kind": "cylinder",
+        "size": [
+          0.12,
+          0.04,
+          0.0
+        ],
+        "translation": [
+          0.19,
+          4.78,
+          2.2
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "sig_b_visor2",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.02,
+          0.28
+        ],
+        "translation": [
+          0.28,
+          4.91,
+          2.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ped",
+        "kind": "box",
+        "size": [
+          0.36,
+          0.4,
+          0.3
+        ],
+        "translation": [
+          0.0,
+          2.8,
+          0.25
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ped_lamp",
+        "kind": "box",
+        "size": [
+          0.26,
+          0.3,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          2.8,
+          0.41
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "sign",
+        "kind": "box",
+        "size": [
+          0.9,
+          0.18,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          3.69,
+          0.12
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "base",
+        "input": "base",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pole",
+        "input": "pole",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "arm",
+        "input": "arm",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "brace",
+        "input": "brace",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cap",
+        "input": "cap",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_box",
+        "input": "sig_a_box",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-yellow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 126,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d0a020"
+                  ],
+                  [
+                    1,
+                    "#e0b030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_back",
+        "input": "sig_a_back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_lamp0",
+        "input": "sig_a_lamp0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-red-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 121,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#c0201a"
+                  ],
+                  [
+                    1,
+                    "#ff3020"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": [
+                  3.0,
+                  0.3,
+                  0.2
+                ],
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_visor0",
+        "input": "sig_a_visor0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_lamp1",
+        "input": "sig_a_lamp1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-amber-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 123,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e09020"
+                  ],
+                  [
+                    1,
+                    "#ffb030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": [
+                  2.0,
+                  1.0,
+                  0.1
+                ],
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_visor1",
+        "input": "sig_a_visor1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_lamp2",
+        "input": "sig_a_lamp2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-green-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#20c050"
+                  ],
+                  [
+                    1,
+                    "#30ff70"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": [
+                  0.3,
+                  2.5,
+                  0.8
+                ],
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_a_visor2",
+        "input": "sig_a_visor2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_box",
+        "input": "sig_b_box",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-paint-yellow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 126,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d0a020"
+                  ],
+                  [
+                    1,
+                    "#e0b030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_back",
+        "input": "sig_b_back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_lamp0",
+        "input": "sig_b_lamp0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-red-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 121,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#c0201a"
+                  ],
+                  [
+                    1,
+                    "#ff3020"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": [
+                  3.0,
+                  0.3,
+                  0.2
+                ],
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_visor0",
+        "input": "sig_b_visor0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_lamp1",
+        "input": "sig_b_lamp1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-amber-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 123,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e09020"
+                  ],
+                  [
+                    1,
+                    "#ffb030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": [
+                  2.0,
+                  1.0,
+                  0.1
+                ],
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_visor1",
+        "input": "sig_b_visor1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_lamp2",
+        "input": "sig_b_lamp2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-green-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#20c050"
+                  ],
+                  [
+                    1,
+                    "#30ff70"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": [
+                  0.3,
+                  2.5,
+                  0.8
+                ],
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sig_b_visor2",
+        "input": "sig_b_visor2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ped",
+        "input": "ped",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ped_lamp",
+        "input": "ped_lamp",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-amber-lamp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 123,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e09020"
+                  ],
+                  [
+                    1,
+                    "#ffb030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": [
+                  2.0,
+                  1.0,
+                  0.1
+                ],
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sign",
+        "input": "sign",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sign-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 163,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1c4a2c"
+                  ],
+                  [
+                    1,
+                    "#245a36"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

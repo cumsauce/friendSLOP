@@ -1,0 +1,120 @@
+{
+  "name": "ns-glass",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 7,
+      "size": 0.5,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#2a3a44"
+        ],
+        [
+          1,
+          "#4a6070"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fn",
+      "name": "r",
+      "to": [
+        0.03,
+        0.12
+      ],
+      "type": "remap"
+    },
+    {
+      "alpha": "blend",
+      "base_color": "col",
+      "metallic": 0.3,
+      "name": "out",
+      "opacity": 0.3,
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "ns-glass",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 7,
+              "size": 0.5,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#2a3a44"
+                ],
+                [
+                  1,
+                  "#4a6070"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.03,
+                0.12
+              ],
+              "type": "remap"
+            },
+            {
+              "alpha": "blend",
+              "base_color": "col",
+              "metallic": 0.3,
+              "name": "out",
+              "opacity": 0.3,
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

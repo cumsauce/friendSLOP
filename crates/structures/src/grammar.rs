@@ -434,35 +434,8 @@ pub fn build<M: Palette>(k: &mut Kit<M>, design: &Design, style: &Style<M>) -> V
             ];
         }
         k.walls(w, d, y0, storey, [&south, &north, &east, &west], wall);
-        // Trim models in the holes: frames, doors, shop windows.
-        let sides: [(&[Hole], Quat, fn(f32, f32, f32) -> Vec2); 4] = [
-            (&south, Quat::IDENTITY, |c, _, hz| Vec2::new(c, hz)),
-            (&north, Quat::from_rotation_y(PI), |c, _, hz| {
-                Vec2::new(-c, -hz)
-            }),
-            (&east, Quat::from_rotation_y(FRAC_PI_2), |c, hx, _| {
-                Vec2::new(hx, -c)
-            }),
-            (&west, Quat::from_rotation_y(-FRAC_PI_2), |c, hx, _| {
-                Vec2::new(-hx, c)
-            }),
-        ];
-        for (holes, rot, place) in sides {
-            for hole in holes {
-                let p = place(hole.c, hx, hz);
-                let at = Vec3::new(p.x, y0 + hole.y0, p.y);
-                if hole.y0 <= 1e-3 {
-                    if (hole.w - crate::DOOR_W).abs() < 1e-3 {
-                        k.mark("door", at, rot, Vec3::ONE);
-                    }
-                } else if hole.w > 1.5 {
-                    k.mark("shopfront", at, rot, Vec3::ONE);
-                } else {
-                    let size = Vec3::new(hole.w, hole.y1 - hole.y0, 1.0);
-                    k.mark("window", at, rot, size);
-                }
-            }
-        }
+        // Trim models in the holes: frames, doors, shop windows, barn doors.
+        k.trim(w, d, y0, [&south, &north, &east, &west]);
         // Shutters either side of front windows.
         if design.shutters {
             for hole in south.iter().filter(|h| h.y0 > 0.5 && h.w <= 1.0) {

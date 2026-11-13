@@ -1,0 +1,2583 @@
+{
+  "format_version": 1,
+  "name": "vb-cottage",
+  "parts": [],
+  "version": 23342,
+  "ops": [
+    {
+      "primitive": {
+        "name": "ct_walls_outer",
+        "kind": "box",
+        "size": [
+          9.25,
+          3.0,
+          6.25
+        ],
+        "translation": [
+          0.0,
+          1.5,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_walls_inner",
+        "kind": "box",
+        "size": [
+          8.75,
+          5.0,
+          5.75
+        ],
+        "translation": [
+          0.0,
+          1.5,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "ct_walls_ring",
+        "op": "difference",
+        "a": "ct_walls_outer",
+        "b": "ct_walls_inner"
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_walls_cut0",
+        "kind": "box",
+        "size": [
+          1.4,
+          2.3,
+          1.2
+        ],
+        "translation": [
+          -1.8,
+          1.15,
+          3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_walls_cut1",
+        "kind": "box",
+        "size": [
+          1.0,
+          1.0,
+          1.2
+        ],
+        "translation": [
+          2.25,
+          1.5,
+          3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_walls_cut2",
+        "kind": "box",
+        "size": [
+          1.0,
+          1.0,
+          1.2
+        ],
+        "translation": [
+          2.25,
+          1.5,
+          -3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_walls_cut3",
+        "kind": "box",
+        "size": [
+          1.0,
+          1.0,
+          1.2
+        ],
+        "translation": [
+          -2.25,
+          1.5,
+          -3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_walls_cut4",
+        "kind": "box",
+        "size": [
+          1.2,
+          2.3,
+          1.4
+        ],
+        "translation": [
+          4.5,
+          1.15,
+          0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_walls_cut5",
+        "kind": "box",
+        "size": [
+          1.2,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          -4.5,
+          1.5,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "ct_walls_cuts",
+        "inputs": [
+          "ct_walls_cut0",
+          "ct_walls_cut1",
+          "ct_walls_cut2",
+          "ct_walls_cut3",
+          "ct_walls_cut4",
+          "ct_walls_cut5"
+        ]
+      }
+    },
+    {
+      "boolean": {
+        "name": "ct_walls",
+        "op": "difference",
+        "a": "ct_walls_ring",
+        "b": "ct_walls_cuts"
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_plinth_outer",
+        "kind": "box",
+        "size": [
+          9.35,
+          0.4,
+          6.35
+        ],
+        "translation": [
+          0.0,
+          0.2,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_plinth_inner",
+        "kind": "box",
+        "size": [
+          8.75,
+          2.4,
+          5.75
+        ],
+        "translation": [
+          0.0,
+          0.2,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "ct_plinth_ring",
+        "op": "difference",
+        "a": "ct_plinth_outer",
+        "b": "ct_plinth_inner"
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_plinth_cut0",
+        "kind": "box",
+        "size": [
+          1.4,
+          2.3,
+          1.2
+        ],
+        "translation": [
+          -1.8,
+          1.15,
+          3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_plinth_cut1",
+        "kind": "box",
+        "size": [
+          1.2,
+          2.3,
+          1.4
+        ],
+        "translation": [
+          4.5,
+          1.15,
+          0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "ct_plinth_cuts",
+        "inputs": [
+          "ct_plinth_cut0",
+          "ct_plinth_cut1"
+        ]
+      }
+    },
+    {
+      "boolean": {
+        "name": "ct_plinth",
+        "op": "difference",
+        "a": "ct_plinth_ring",
+        "b": "ct_plinth_cuts"
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st0",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          -4.4,
+          1.7,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st1",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          -4.4,
+          1.7,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st2",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          -3.0,
+          1.7,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st3",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          -3.0,
+          1.7,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st4",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          -1.5,
+          1.7,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st5",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          -1.5,
+          1.7,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st6",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          1.7,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st7",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          1.7,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st8",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          1.5,
+          1.7,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st9",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          1.5,
+          1.7,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st10",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          3.0,
+          1.7,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st11",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          3.0,
+          1.7,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st12",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          4.4,
+          1.7,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st13",
+        "kind": "box",
+        "size": [
+          0.16,
+          2.6,
+          0.05
+        ],
+        "translation": [
+          4.4,
+          1.7,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st14",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          -4.645,
+          1.7,
+          -2.9
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st15",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          4.645,
+          1.7,
+          -2.9
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st16",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          -4.645,
+          1.7,
+          -1.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st17",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          4.645,
+          1.7,
+          -1.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st18",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          -4.645,
+          1.7,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st19",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          4.645,
+          1.7,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st20",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          -4.645,
+          1.7,
+          1.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st21",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          4.645,
+          1.7,
+          1.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st22",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          -4.645,
+          1.7,
+          2.9
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st23",
+        "kind": "box",
+        "size": [
+          0.05,
+          2.6,
+          0.16
+        ],
+        "translation": [
+          4.645,
+          1.7,
+          2.9
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st24",
+        "kind": "box",
+        "size": [
+          9.25,
+          0.18,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          0.48,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st25",
+        "kind": "box",
+        "size": [
+          9.25,
+          0.18,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          0.48,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st26",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.18,
+          6.25
+        ],
+        "translation": [
+          -4.645,
+          0.48,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st27",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.18,
+          6.25
+        ],
+        "translation": [
+          4.645,
+          0.48,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st28",
+        "kind": "box",
+        "size": [
+          9.25,
+          0.18,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          2.9,
+          -3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st29",
+        "kind": "box",
+        "size": [
+          9.25,
+          0.18,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          2.9,
+          3.145
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st30",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.18,
+          6.25
+        ],
+        "translation": [
+          -4.645,
+          2.9,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st31",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.18,
+          6.25
+        ],
+        "translation": [
+          4.645,
+          2.9,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st32",
+        "kind": "box",
+        "size": [
+          2.745906,
+          0.14,
+          0.05
+        ],
+        "translation": [
+          -3.75,
+          1.7,
+          -3.145
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.47630462,
+          0.8792803
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st33",
+        "kind": "box",
+        "size": [
+          2.745906,
+          0.14,
+          0.05
+        ],
+        "translation": [
+          -3.75,
+          1.7,
+          3.145
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.47630462,
+          0.8792803
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st34",
+        "kind": "box",
+        "size": [
+          2.745906,
+          0.14,
+          0.05
+        ],
+        "translation": [
+          0.75,
+          1.7,
+          -3.145
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.47630462,
+          0.8792803
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st35",
+        "kind": "box",
+        "size": [
+          2.745906,
+          0.14,
+          0.05
+        ],
+        "translation": [
+          0.75,
+          1.7,
+          3.145
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.47630462,
+          0.8792803
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st36",
+        "kind": "box",
+        "size": [
+          2.745906,
+          0.14,
+          0.05
+        ],
+        "translation": [
+          3.7,
+          1.7,
+          -3.145
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.47630462,
+          0.8792803
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_st37",
+        "kind": "box",
+        "size": [
+          2.745906,
+          0.14,
+          0.05
+        ],
+        "translation": [
+          3.7,
+          1.7,
+          3.145
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.47630462,
+          0.8792803
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "ct_tim_raw",
+        "inputs": [
+          "ct_st0",
+          "ct_st1",
+          "ct_st2",
+          "ct_st3",
+          "ct_st4",
+          "ct_st5",
+          "ct_st6",
+          "ct_st7",
+          "ct_st8",
+          "ct_st9",
+          "ct_st10",
+          "ct_st11",
+          "ct_st12",
+          "ct_st13",
+          "ct_st14",
+          "ct_st15",
+          "ct_st16",
+          "ct_st17",
+          "ct_st18",
+          "ct_st19",
+          "ct_st20",
+          "ct_st21",
+          "ct_st22",
+          "ct_st23",
+          "ct_st24",
+          "ct_st25",
+          "ct_st26",
+          "ct_st27",
+          "ct_st28",
+          "ct_st29",
+          "ct_st30",
+          "ct_st31",
+          "ct_st32",
+          "ct_st33",
+          "ct_st34",
+          "ct_st35",
+          "ct_st36",
+          "ct_st37"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_tc0",
+        "kind": "box",
+        "size": [
+          1.7,
+          2.6,
+          1.2
+        ],
+        "translation": [
+          -1.8,
+          1.15,
+          3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_tc1",
+        "kind": "box",
+        "size": [
+          1.3,
+          1.3,
+          1.2
+        ],
+        "translation": [
+          2.25,
+          1.5,
+          3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_tc2",
+        "kind": "box",
+        "size": [
+          1.3,
+          1.3,
+          1.2
+        ],
+        "translation": [
+          2.25,
+          1.5,
+          -3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_tc3",
+        "kind": "box",
+        "size": [
+          1.3,
+          1.3,
+          1.2
+        ],
+        "translation": [
+          -2.25,
+          1.5,
+          -3.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_tc4",
+        "kind": "box",
+        "size": [
+          1.2,
+          2.6,
+          1.7
+        ],
+        "translation": [
+          4.5,
+          1.15,
+          0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_tc5",
+        "kind": "box",
+        "size": [
+          1.2,
+          1.3,
+          1.3
+        ],
+        "translation": [
+          -4.5,
+          1.5,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "ct_tcs",
+        "inputs": [
+          "ct_tc0",
+          "ct_tc1",
+          "ct_tc2",
+          "ct_tc3",
+          "ct_tc4",
+          "ct_tc5"
+        ]
+      }
+    },
+    {
+      "boolean": {
+        "name": "ct_timber",
+        "op": "difference",
+        "a": "ct_tim_raw",
+        "b": "ct_tcs"
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_roof_slab_s",
+        "kind": "box",
+        "size": [
+          9.9,
+          0.16,
+          4.6415005
+        ],
+        "translation": [
+          0.0,
+          4.2069635,
+          1.7785171
+        ],
+        "rotation": [
+          0.35826376,
+          0.0,
+          0.0,
+          0.9336204
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_roof_fascia_s",
+        "kind": "box",
+        "size": [
+          9.9,
+          0.22,
+          0.06
+        ],
+        "translation": [
+          0.0,
+          2.575,
+          3.45
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_roof_slab_n",
+        "kind": "box",
+        "size": [
+          9.9,
+          0.16,
+          4.6415005
+        ],
+        "translation": [
+          0.0,
+          4.2069635,
+          -1.7785171
+        ],
+        "rotation": [
+          -0.35826376,
+          0.0,
+          0.0,
+          0.9336204
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_roof_fascia_n",
+        "kind": "box",
+        "size": [
+          9.9,
+          0.22,
+          0.06
+        ],
+        "translation": [
+          0.0,
+          2.575,
+          -3.45
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_roof_cap",
+        "kind": "box",
+        "size": [
+          10.0,
+          0.22,
+          0.32
+        ],
+        "translation": [
+          0.0,
+          5.84,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "ct_roof_gable_e",
+        "profile": [
+          [
+            [
+              -0.0,
+              -3.125
+            ],
+            [
+              -0.0,
+              3.125
+            ],
+            [
+              -2.8325,
+              0.0
+            ]
+          ]
+        ],
+        "height": 0.25,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          4.375,
+          3.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "extrude": {
+        "name": "ct_roof_gable_w",
+        "profile": [
+          [
+            [
+              -0.0,
+              -3.125
+            ],
+            [
+              -0.0,
+              3.125
+            ],
+            [
+              -2.8325,
+              0.0
+            ]
+          ]
+        ],
+        "height": 0.25,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          -4.625,
+          3.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "ct_roof",
+        "inputs": [
+          "ct_roof_slab_s",
+          "ct_roof_slab_n",
+          "ct_roof_cap"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "ct_gables",
+        "inputs": [
+          "ct_roof_gable_e",
+          "ct_roof_gable_w"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "ct_fascia",
+        "inputs": [
+          "ct_roof_fascia_s",
+          "ct_roof_fascia_n"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_chimney_body",
+        "kind": "box",
+        "size": [
+          0.6,
+          3.5,
+          0.6
+        ],
+        "translation": [
+          3.6,
+          4.75,
+          -0.6
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ct_chimney_band",
+        "kind": "box",
+        "size": [
+          0.72,
+          0.15,
+          0.72
+        ],
+        "translation": [
+          3.6,
+          6.225,
+          -0.6
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "ct_chimney",
+        "inputs": [
+          "ct_chimney_body",
+          "ct_chimney_band"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "ct_plaster",
+        "inputs": [
+          "ct_walls",
+          "ct_gables"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "ct_plaster",
+        "input": "ct_plaster",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-plaster",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.5,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 101,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 2,
+                "seed": 102,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "fn",
+                "b": "bn",
+                "c": 0.5,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#cfc6b6"
+                  ],
+                  [
+                    0.5,
+                    "#e4dccd"
+                  ],
+                  [
+                    1,
+                    "#f1ebdf"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "fn",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ct_plinth",
+        "input": "ct_plinth",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wn",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "amount": 0.06,
+                "by": "wn",
+                "name": "wc",
+                "type": "warp"
+              },
+              {
+                "coords": "wc",
+                "name": "g",
+                "size": [
+                  0.5,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "name": "chipn",
+                "octaves": 3,
+                "seed": 32,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "chipn",
+                "name": "chip",
+                "to": [
+                  -0.012,
+                  0.012
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g.edge",
+                "b": "chip",
+                "name": "e2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "in": [
+                  0.01,
+                  0.03
+                ],
+                "input": "e2",
+                "name": "blk",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 33,
+                "type": "random"
+              },
+              {
+                "name": "face",
+                "octaves": 3,
+                "seed": 34,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "a": "tone",
+                "b": "face",
+                "c": 0.45,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "sc",
+                "stops": [
+                  [
+                    0,
+                    "#6f6a62"
+                  ],
+                  [
+                    0.5,
+                    "#8f8a80"
+                  ],
+                  [
+                    1,
+                    "#a9a398"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5a554e",
+                "b": "sc",
+                "c": "blk",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "blk",
+                "b": 0.012,
+                "name": "hb",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "face",
+                "b": 0.006,
+                "name": "hf",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "hb",
+                "b": "hf",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ct_timber",
+        "input": "ct_timber",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wv",
+                "octaves": 2,
+                "seed": 61,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "amount": 0.05,
+                "by": "wv",
+                "name": "wp",
+                "type": "warp"
+              },
+              {
+                "coords": "wp",
+                "name": "g",
+                "size": [
+                  1.0,
+                  0.02
+                ],
+                "stagger": 0.36,
+                "type": "tile_grid"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "gr",
+                "seed": 62,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 63,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "a": "gr",
+                "b": "fn",
+                "c": 0.4,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#3e2a1a"
+                  ],
+                  [
+                    0.55,
+                    "#5a3e28"
+                  ],
+                  [
+                    1,
+                    "#6e4e33"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "wc",
+                "b": 1.0,
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": 0.0012,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ct_fascia",
+        "input": "ct_fascia",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wv",
+                "octaves": 2,
+                "seed": 61,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "amount": 0.05,
+                "by": "wv",
+                "name": "wp",
+                "type": "warp"
+              },
+              {
+                "coords": "wp",
+                "name": "g",
+                "size": [
+                  1.0,
+                  0.02
+                ],
+                "stagger": 0.36,
+                "type": "tile_grid"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "gr",
+                "seed": 62,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 63,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "a": "gr",
+                "b": "fn",
+                "c": 0.4,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#3e2a1a"
+                  ],
+                  [
+                    0.55,
+                    "#5a3e28"
+                  ],
+                  [
+                    1,
+                    "#6e4e33"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "wc",
+                "b": 1.0,
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": 0.0012,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ct_roof",
+        "input": "ct_roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "vb-slate",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.25,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 81,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 82,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "a": "tone",
+                "b": "fn",
+                "c": 0.35,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "sc",
+                "stops": [
+                  [
+                    0,
+                    "#3d424d"
+                  ],
+                  [
+                    0.5,
+                    "#4f5663"
+                  ],
+                  [
+                    1,
+                    "#626a78"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "g.edge",
+                "b": 0.004,
+                "c": 0.016,
+                "name": "gv",
+                "op": "smoothstep",
+                "type": "math"
+              },
+              {
+                "a": "#22252b",
+                "b": "sc",
+                "c": "gv",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gv",
+                "b": 0.006,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h0",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ct_chimney",
+        "input": "ct_chimney",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wn",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "amount": 0.06,
+                "by": "wn",
+                "name": "wc",
+                "type": "warp"
+              },
+              {
+                "coords": "wc",
+                "name": "g",
+                "size": [
+                  0.5,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "name": "chipn",
+                "octaves": 3,
+                "seed": 32,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "chipn",
+                "name": "chip",
+                "to": [
+                  -0.012,
+                  0.012
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g.edge",
+                "b": "chip",
+                "name": "e2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "in": [
+                  0.01,
+                  0.03
+                ],
+                "input": "e2",
+                "name": "blk",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 33,
+                "type": "random"
+              },
+              {
+                "name": "face",
+                "octaves": 3,
+                "seed": 34,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "a": "tone",
+                "b": "face",
+                "c": 0.45,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "sc",
+                "stops": [
+                  [
+                    0,
+                    "#6f6a62"
+                  ],
+                  [
+                    0.5,
+                    "#8f8a80"
+                  ],
+                  [
+                    1,
+                    "#a9a398"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5a554e",
+                "b": "sc",
+                "c": "blk",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "blk",
+                "b": 0.012,
+                "name": "hb",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "face",
+                "b": 0.006,
+                "name": "hf",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "hb",
+                "b": "hf",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_cut0",
+        "input": "ct_walls_cut0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_cut1",
+        "input": "ct_walls_cut1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_cut2",
+        "input": "ct_walls_cut2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_cut3",
+        "input": "ct_walls_cut3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_cut4",
+        "input": "ct_walls_cut4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_cut5",
+        "input": "ct_walls_cut5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_cuts",
+        "input": "ct_walls_cuts",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_outer",
+        "input": "ct_walls_outer",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_inner",
+        "input": "ct_walls_inner",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls_ring",
+        "input": "ct_walls_ring",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_plinth_cut0",
+        "input": "ct_plinth_cut0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_plinth_cut1",
+        "input": "ct_plinth_cut1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_plinth_cuts",
+        "input": "ct_plinth_cuts",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_plinth_outer",
+        "input": "ct_plinth_outer",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_plinth_inner",
+        "input": "ct_plinth_inner",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_plinth_ring",
+        "input": "ct_plinth_ring",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st0",
+        "input": "ct_st0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st1",
+        "input": "ct_st1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st2",
+        "input": "ct_st2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st3",
+        "input": "ct_st3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st4",
+        "input": "ct_st4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st5",
+        "input": "ct_st5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st6",
+        "input": "ct_st6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st7",
+        "input": "ct_st7",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st8",
+        "input": "ct_st8",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st9",
+        "input": "ct_st9",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st10",
+        "input": "ct_st10",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st11",
+        "input": "ct_st11",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st12",
+        "input": "ct_st12",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st13",
+        "input": "ct_st13",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st14",
+        "input": "ct_st14",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st15",
+        "input": "ct_st15",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st16",
+        "input": "ct_st16",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st17",
+        "input": "ct_st17",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st18",
+        "input": "ct_st18",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st19",
+        "input": "ct_st19",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st20",
+        "input": "ct_st20",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st21",
+        "input": "ct_st21",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st22",
+        "input": "ct_st22",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st23",
+        "input": "ct_st23",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st24",
+        "input": "ct_st24",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st25",
+        "input": "ct_st25",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st26",
+        "input": "ct_st26",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st27",
+        "input": "ct_st27",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st28",
+        "input": "ct_st28",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st29",
+        "input": "ct_st29",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st30",
+        "input": "ct_st30",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st31",
+        "input": "ct_st31",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st32",
+        "input": "ct_st32",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st33",
+        "input": "ct_st33",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st34",
+        "input": "ct_st34",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st35",
+        "input": "ct_st35",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st36",
+        "input": "ct_st36",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_st37",
+        "input": "ct_st37",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tc0",
+        "input": "ct_tc0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tc1",
+        "input": "ct_tc1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tc2",
+        "input": "ct_tc2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tc3",
+        "input": "ct_tc3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tc4",
+        "input": "ct_tc4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tc5",
+        "input": "ct_tc5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tim_raw",
+        "input": "ct_tim_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_tcs",
+        "input": "ct_tcs",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_roof_slab_s",
+        "input": "ct_roof_slab_s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_roof_slab_n",
+        "input": "ct_roof_slab_n",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_roof_cap",
+        "input": "ct_roof_cap",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_roof_gable_e",
+        "input": "ct_roof_gable_e",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_roof_gable_w",
+        "input": "ct_roof_gable_w",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_roof_fascia_s",
+        "input": "ct_roof_fascia_s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_roof_fascia_n",
+        "input": "ct_roof_fascia_n",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_chimney_body",
+        "input": "ct_chimney_body",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_chimney_band",
+        "input": "ct_chimney_band",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_walls",
+        "input": "ct_walls",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ct_gables",
+        "input": "ct_gables",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

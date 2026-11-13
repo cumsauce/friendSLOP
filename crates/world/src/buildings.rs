@@ -188,18 +188,26 @@ fn walls(
 fn cottage(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat), split: bool) {
     let (hx, hz) = (w / 2.0, d / 2.0);
     let dx = -w * 0.2;
-    walls(
-        k,
-        w,
-        d,
-        0.0,
-        STOREY,
-        &[door(dx), window(w * 0.25)],
-        &[window(-w * 0.25), window(w * 0.25)],
-        &[door(-0.5)],
-        &[window(0.0)],
-        wall,
+    let (south, north, east, west) = (
+        [door(dx), window(w * 0.25)],
+        [window(-w * 0.25), window(w * 0.25)],
+        [door(-0.5)],
+        [window(0.0)],
     );
+    // Outer walls, roof and chimney are the `cottage` model (made for the
+    // pinned 9 x 6 one); the floor, inner wall and furniture stay in code.
+    let p = k.begin_prop("cottage", Vec3::ZERO, Vec3::ONE);
+    walls(k, w, d, 0.0, STOREY, &south, &north, &east, &west, wall);
+    k.roof(Vec2::ZERO, w, d, STOREY, d * 0.45, roof.0, roof.1, wall);
+    // Chimney.
+    k.block(
+        Vec3::new(hx - 1.2, STOREY, -0.9),
+        Vec3::new(hx - 0.6, STOREY + d * 0.45 + 0.8, -0.3),
+        Mat::Stone,
+        Solid::None,
+    );
+    k.end_prop(p);
+    k.trim(w, d, 0.0, [&south, &north, &east, &west]);
     k.block(
         Vec3::new(-hx, 0.0, -hz),
         Vec3::new(hx, 0.03, hz),
@@ -234,14 +242,6 @@ fn cottage(k: &mut Kit, w: f32, d: f32, wall: Mat, roof: (Mat, Mat), split: bool
         Mat::Timber,
     );
     k.lamp(Vec3::new(-w * 0.15, 2.3, -d * 0.12));
-    k.roof(Vec2::ZERO, w, d, STOREY, d * 0.45, roof.0, roof.1, wall);
-    // Chimney.
-    k.block(
-        Vec3::new(hx - 1.2, STOREY, -0.9),
-        Vec3::new(hx - 0.6, STOREY + d * 0.45 + 0.8, -0.3),
-        Mat::Stone,
-        Solid::None,
-    );
 }
 
 /// Footprint of the watchtower (x by z) and its lookout height.
@@ -264,6 +264,9 @@ fn tower(k: &mut Kit) {
     };
     let mut west = vec![door(hz * 0.5)];
     west.extend(slits(-1.0));
+    // The stone shell, posts and roof are the `tower` model; ramps,
+    // landings and floors stay drawn from code.
+    let p = k.begin_prop("tower", Vec3::ZERO, Vec3::ONE);
     walls(
         k,
         TOWER_W,
@@ -283,6 +286,28 @@ fn tower(k: &mut Kit) {
         Mat::Stone,
         Solid::Wall,
     );
+    // Roof on posts.
+    for (sx, sz) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
+        let c = Vec3::new(sx * hx, top, sz * hz);
+        k.block(
+            c - Vec3::new(0.15, 0.0, 0.15),
+            c + Vec3::new(0.15, 2.4, 0.15),
+            Mat::Timber,
+            Solid::Wall,
+        );
+    }
+    k.roof(
+        Vec2::ZERO,
+        TOWER_W,
+        TOWER_D,
+        top + 2.4,
+        2.0,
+        Mat::Slate,
+        Mat::SlateDark,
+        Mat::Timber,
+    );
+    k.end_prop(p);
+    k.trim(TOWER_W, TOWER_D, 0.0, [&[], &[], &[], &[door(hz * 0.5)]]);
     let (south, north) = (hz * 0.5 + 0.05, -hz * 0.5 - 0.05);
     let lane_w = hz - 0.1 - T / 2.0;
     let inner = Vec2::new(hx - T / 2.0, hz - T / 2.0);
@@ -336,26 +361,6 @@ fn tower(k: &mut Kit) {
         LOOKOUT_Y,
         Mat::Plank,
     );
-    // Roof on posts.
-    for (sx, sz) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
-        let c = Vec3::new(sx * hx, top, sz * hz);
-        k.block(
-            c - Vec3::new(0.15, 0.0, 0.15),
-            c + Vec3::new(0.15, 2.4, 0.15),
-            Mat::Timber,
-            Solid::Wall,
-        );
-    }
-    k.roof(
-        Vec2::ZERO,
-        TOWER_W,
-        TOWER_D,
-        top + 2.4,
-        2.0,
-        Mat::Slate,
-        Mat::SlateDark,
-        Mat::Timber,
-    );
 }
 
 /// Barn footprint (x by z) and loft height.
@@ -380,18 +385,49 @@ fn barn(k: &mut Kit) {
         y0: 3.4,
         y1: 4.3,
     };
+    let (south, north, east, west) = (
+        [big, high(-4.5), high(4.5)],
+        [door(-4.0), high(2.0)],
+        [high(-2.0)],
+        [door(2.5), high(-2.5)],
+    );
+    // Walls, tie beam and roof are the `barn` model; floors, the loft, its
+    // stairs and the bales stay drawn from code.
+    let p = k.begin_prop("barn", Vec3::ZERO, Vec3::ONE);
     walls(
         k,
         BARN_W,
         BARN_D,
         0.0,
         h,
-        &[big, high(-4.5), high(4.5)],
-        &[door(-4.0), high(2.0)],
-        &[high(-2.0)],
-        &[door(2.5), high(-2.5)],
+        &south,
+        &north,
+        &east,
+        &west,
         Mat::BarnRed,
     );
+    // A tie beam across the barn for the lamp's cord to hang from.
+    k.bar(
+        Vec2::new(-hx, 1.5),
+        Vec2::new(hx, 1.5),
+        5.1,
+        0.25,
+        0.25,
+        Mat::Timber,
+        Solid::None,
+    );
+    k.roof(
+        Vec2::ZERO,
+        BARN_W,
+        BARN_D,
+        h,
+        4.5,
+        Mat::Slate,
+        Mat::SlateDark,
+        Mat::BarnRed,
+    );
+    k.end_prop(p);
+    k.trim(BARN_W, BARN_D, 0.0, [&south, &north, &east, &west]);
     k.block(
         Vec3::new(-hx, 0.0, -hz),
         Vec3::new(hx, 0.03, hz),
@@ -460,32 +496,18 @@ fn barn(k: &mut Kit) {
         Vec3::new(1.4, 0.8, 2.2),
         Mat::Wood,
     );
-    // A tie beam across the barn for the lamp's cord to hang from.
-    k.bar(
-        Vec2::new(-hx, 1.5),
-        Vec2::new(hx, 1.5),
-        5.1,
-        0.25,
-        0.25,
-        Mat::Timber,
-        Solid::None,
-    );
     k.lights.push(k.world(Vec3::new(0.0, 4.2, 1.5)));
     k.lamp(Vec3::new(0.0, 4.2, 1.5));
-    k.roof(
-        Vec2::ZERO,
-        BARN_W,
-        BARN_D,
-        h,
-        4.5,
-        Mat::Slate,
-        Mat::SlateDark,
-        Mat::BarnRed,
-    );
 }
 
 /// A market stall facing local +z: counter, posts and a striped canopy.
 fn stall(k: &mut Kit, cloth: Mat) {
+    let model = if cloth == Mat::Red {
+        "stall_red"
+    } else {
+        "stall_blue"
+    };
+    let p = k.begin_prop(model, Vec3::ZERO, Vec3::ONE);
     k.prop(
         Vec3::new(0.0, 0.0, 0.0),
         Vec3::new(2.4, 0.95, 0.8),
@@ -520,10 +542,12 @@ fn stall(k: &mut Kit, cloth: Mat) {
             mat,
         );
     }
+    k.end_prop(p);
 }
 
 /// The well: stone ring, water, two posts and a little roof.
 fn well(k: &mut Kit) {
+    let p = k.begin_prop("well", Vec3::ZERO, Vec3::ONE);
     k.put(
         Shape::Cylinder,
         Vec3::Y * 0.45,
@@ -568,6 +592,7 @@ fn well(k: &mut Kit) {
         Mat::TileDark,
         Mat::Timber,
     );
+    k.end_prop(p);
 }
 
 use crate::places::barn_at;
@@ -868,6 +893,14 @@ pub const PROP_MODELS: &[&str] = &[
     "shopfront",
     "awning",
     "chimney_cap",
+    "barn_door",
+    // The pinned village buildings' shells (`vb-*` sources).
+    "tower",
+    "barn",
+    "cottage",
+    "stall_red",
+    "stall_blue",
+    "well",
 ];
 
 fn has_model(name: &str) -> bool {

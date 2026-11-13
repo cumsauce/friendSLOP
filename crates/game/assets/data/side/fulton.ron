@@ -19,8 +19,8 @@
     // How many levels deep it goes. The J is on the last one.
     levels: 40,
     // Cells across (x) and deep (z) on every level; a cell is 6 m.
-    width: 5,
-    depth: 5,
+    width: 6,
+    depth: 6,
     // The signed way across one level is at least this many cells long.
     min_path: 7,
     // Same seed, same station (on every peer).
@@ -33,6 +33,12 @@
     platform_every: 3,
     platform_cells: 3,
     platform_max: 6,
+    // Big rooms (concourses, fare halls) a few cells across among the
+    // corridors, so a level isn't all hallways: the chance a level has any,
+    // at most how many, their sizes in cells (also tried turned round), and
+    // how many doors each has (at least, at most). The corridors are run up
+    // to their doors; chance 0 turns them off.
+    rooms: (chance: 0.7, max: 2, sizes: [(2, 2), (3, 2), (3, 3)], doors: (2, 3)),
     // The reward for reaching the J: this much Pelf (the stats' wealth, max 10).
     reward_pelf: 3,
     // Toasts.

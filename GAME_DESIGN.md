@@ -479,7 +479,7 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   long time. when you do reach it you get a reward"). A subway entrance on the avenue's west
   sidewalk (-14, 228): walk down its stairs, through a real hole in the street (ground holes,
   `friendslop_world::holes`), and partway down you're on the top level of a station 40 levels deep
-  under the city. Each level is a 5 x 5 grid of 6 m white-tiled corridor cells filled by seeded
+  under the city. Each level is a 6 x 6 grid of 6 m white-tiled corridor cells filled by seeded
   wave function collapse from a modeler tile kit (`fs-tile-*`), with one stairway down whose
   bottom is where the next level starts. Hanging "J Brooklyn" signs (ahead, left/right, down
   the stairs) mark the one way through, at least 7 cells across every level: well over 2 km
@@ -501,6 +501,15 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   They're WFC tile pieces (`fs-tile-track*`) whose track sides only meet track sides; the bed
   sinks into the level below, whose cells under it are solid. No trains. Andrew's thing walks
   the platforms, not the tracks.
+  **Big rooms** (the user: "fulton street needs some rooms ... large rooms that are bigger than
+  the grid ... so theres a bit of a break up and its not just all hallways ... maybe its time
+  to generalize these systems"): most levels (70%) get one or two halls 2 x 2 to 3 x 3 cells
+  with no walls inside, tiled walls with benches round the outside, square columns where four
+  of their cells meet, and 2 or 3 doors the corridors are run up to. Rooms are now part of the
+  shared WFC crate (`friendslop_wfc::rooms`: place rooms, pick doors, say which side of a room
+  cell is inside, wall or door), so the warehouse or anything else on a grid can use them too;
+  the warehouse doesn't yet. The grid grew from 5 x 5 to 6 x 6 so rooms fit and the way
+  stays long. Pieces `fs-room-floor/wall/column`; sizes, chance and doors in `fulton.ron`.
   Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
   in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
   **Andrew and the thing he sends** (the user: "once sufficiently deep in the subway station,

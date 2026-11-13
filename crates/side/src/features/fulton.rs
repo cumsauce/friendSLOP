@@ -26,6 +26,14 @@
 //! under it there are solid ([`Kind::Under`]) and the generator keeps that
 //! level winding round them.
 //!
+//! Big rooms ("large rooms that are bigger than the grid ... so its not just
+//! all hallways"): before WFC runs, a level may get a room or two several
+//! cells across ([`Tuning::rooms`], placed by `friendslop_wfc::rooms`). Each
+//! room cell is pinned to a tile open on its inside sides and its doors, so
+//! the corridors are run up to the doors. They're drawn from the kit's
+//! `room` pieces: floor, a wall on each outside side, a column wherever four
+//! room cells meet.
+//!
 //! The reward (server): reaching the J platform raises your Pelf (the stats'
 //! wealth, `stats.rs`) by [`Tuning::reward_pelf`], once per player per game.
 //! A post on the platform rides the J back up to the street, and one on the
@@ -88,6 +96,9 @@ pub struct Tuning {
     /// ...and at most (the level below has to wind round them).
     #[serde(default)]
     pub platform_max: usize,
+    /// Big rooms several cells across, among the corridors.
+    #[serde(default)]
+    pub rooms: Rooms,
     /// Pelf for reaching the J.
     pub reward_pelf: u8,
     /// Toast on entering.
@@ -121,6 +132,20 @@ pub struct EntranceHole {
     /// How far down its lining goes, and how far above the street it starts.
     pub depth: f32,
     pub lip: f32,
+}
+
+/// Big rooms: rectangles of cells with no walls between them, stamped on a
+/// level before WFC runs the corridors up to their doors.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Rooms {
+    /// The chance a level gets rooms at all.
+    pub chance: f32,
+    /// At most this many on one level.
+    pub max: usize,
+    /// Their sizes in cells (each also tried turned round).
+    pub sizes: Vec<(usize, usize)>,
+    /// How many doors each has, at least and at most.
+    pub doors: (usize, usize),
 }
 
 /// Andrew's calls and the thing he sends after you (`fulton_hunt.rs`).
@@ -234,6 +259,20 @@ pub struct TileSet {
     pub sign_ahead: String,
     /// Sign: down the stairs.
     pub sign_down: String,
+    /// The big rooms' pieces.
+    #[serde(default)]
+    pub room: RoomKit,
+}
+
+/// The pieces a big room is drawn with (each a model one cell across).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct RoomKit {
+    /// Floor and ceiling of one room cell, no walls.
+    pub floor: String,
+    /// One cell's wall, modelled along its N edge; turned onto each walled side.
+    pub wall: String,
+    /// A column, modelled at the cell's middle; stood where four room cells meet.
+    pub column: String,
 }
 
 pub static TILES: friendslop_data::Data<TileSet> =
@@ -263,6 +302,8 @@ pub enum Kind {
     Platform,
     /// Solid ground under a track bed from the level above (no model).
     Under,
+    /// A cell of a big room (index into the level's rooms).
+    Room(u8),
 }
 
 /// One filled cell: its open sides, what it is and how far it's turned.
@@ -298,6 +339,8 @@ pub struct Level {
     pub goal_entry: wfc::Side,
     /// The signed way: `arrive` to `goal`, both included.
     pub path: Vec<wfc::Cell>,
+    /// The big rooms on it.
+    pub rooms: Vec<wfc::Room>,
 }
 
 impl Level {
@@ -411,6 +454,8 @@ fn path_to(level: &Level, d: &[Option<u32>]) -> Vec<wfc::Cell> {
 /// A track socket also says which way its deck lies (the piece's turned N),
 /// so a run's platform stays on one side of its track bed.
 fn socket(f: &Fill, s: wfc::Side) -> u8 {
+    // (A room's open sides are plain corridor sockets: its inside sides
+    // only ever meet its own pinned cells.)
     if f.mask & bit(s) == 0 {
         0
     } else if f.track & bit(s) != 0 {
@@ -456,6 +501,31 @@ struct LevelAsk<'a> {
     platform_cells: usize,
     /// ...and at most.
     platform_max: usize,
+    rooms: &'a Rooms,
+}
+
+/// A level's big rooms and their doors: up to `ask.max` rooms on cells
+/// `free` allows, a cell apart, each with doors onto cells that aren't solid.
+fn place_rooms(
+    rng: &mut wfc::Rng,
+    (w, h): (usize, usize),
+    ask: &Rooms,
+    free: impl Fn(wfc::Cell) -> bool,
+    solid: impl Fn(wfc::Cell) -> bool,
+) -> Vec<(wfc::Room, Vec<(wfc::Cell, wfc::Side)>)> {
+    let count = 1 + rng.below(ask.max.max(1));
+    let rooms = wfc::rooms::place(rng, (w, h), count.min(ask.max), &ask.sizes, 1, free);
+    let (lo, hi) = (ask.doors.0.max(1), ask.doors.1.max(ask.doors.0.max(1)));
+    rooms
+        .into_iter()
+        .map(|r| {
+            let n = lo + rng.below(hi - lo + 1);
+            let doors = wfc::rooms::doors(rng, &r, (w, h), n, |c, s| {
+                wfc::neighbour(w, h, c, s).is_some_and(|n| !solid(n))
+            });
+            (r, doors)
+        })
+        .collect()
 }
 
 /// One level: WFC with the arrival and the goal pinned, rolled again until the
@@ -469,6 +539,7 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
         under,
         platform_cells,
         platform_max,
+        rooms: room_ask,
     } = *ask;
     let goal_kind = if last { Kind::Platform } else { Kind::Stairs };
     let platforms = platform_cells > 0;
@@ -506,6 +577,42 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
         let goal_tile = tiles.len() - 1;
         tiles.push(special(Kind::Under, entry));
         let under_tile = tiles.len() - 1;
+        // Big rooms (not in the last tries, which settle for anything).
+        let rooms = if attempt < 120 && rng.roll() < room_ask.chance {
+            place_rooms(
+                rng,
+                (w, h),
+                room_ask,
+                |c| {
+                    let near = |a: wfc::Cell| a.0.abs_diff(c.0) + a.1.abs_diff(c.1) <= 1;
+                    !is_under(c) && !near(arrive) && !near(goal)
+                },
+                is_under,
+            )
+        } else {
+            Vec::new()
+        };
+        let mut room_tile = vec![None; w * h];
+        for (ri, (room, doors)) in rooms.iter().enumerate() {
+            for c in room.cells() {
+                let edges = wfc::Side::ALL.map(|s| room.edge(c, s, doors));
+                let mask = wfc::Side::ALL
+                    .into_iter()
+                    .filter(|s| edges[s.index()] != wfc::Edge::Wall)
+                    .fold(0, |m, s| m | bit(s));
+                tiles.push((
+                    mask,
+                    Fill {
+                        mask,
+                        track: 0,
+                        kind: Kind::Room(ri as u8),
+                        turns: 0,
+                    },
+                    1.0,
+                ));
+                room_tile[c.1 * w + c.0] = Some(tiles.len() - 1);
+            }
+        }
         let mut problem = wfc::Wfc::new(
             w,
             h,
@@ -520,7 +627,9 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
         for z in 0..h {
             for x in 0..w {
                 let c = (x, z);
-                let allowed = if c == goal {
+                let allowed = if let Some(t) = room_tile[z * w + x] {
+                    vec![t]
+                } else if c == goal {
                     vec![goal_tile]
                 } else if is_under(c) {
                     vec![under_tile]
@@ -540,6 +649,7 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
             goal,
             goal_entry: entry,
             path: Vec::new(),
+            rooms: rooms.iter().map(|r| r.0).collect(),
         };
         let solved = problem.solve_until(
             rng,
@@ -549,13 +659,11 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
             |s| {
                 let l = build(s);
                 let tracks = l.cells.iter().filter(|f| f.track != 0).count();
-                // Every platform can be walked onto from the way in.
+                // Every platform and room can be walked into from the way in.
                 let d = l.distances();
-                let reached = l
-                    .cells
-                    .iter()
-                    .zip(&d)
-                    .all(|(f, d)| f.track == 0 || d.is_some());
+                let reached = l.cells.iter().zip(&d).all(|(f, d)| {
+                    (f.track == 0 && !matches!(f.kind, Kind::Room(_))) || d.is_some()
+                });
                 // The landing below opens away from the stairs' entry: that
                 // cell can't be under a track bed.
                 let below_exit = wfc::neighbour(w, h, goal, entry.opposite())
@@ -653,6 +761,7 @@ fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
         goal,
         goal_entry: entry,
         path: Vec::new(),
+        rooms: Vec::new(),
     };
     let d = level.distances();
     level.path = path_to(&level, &d);
@@ -682,6 +791,7 @@ pub fn generate(t: &Tuning, set: &TileSet) -> Vec<Level> {
                 0
             },
             platform_max: t.platform_max.max(t.platform_cells.max(2)),
+            rooms: &t.rooms,
         };
         let level = if vars.is_empty() {
             fallback(w, h, &ask)
@@ -821,8 +931,29 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
             }
         }
     }
+    for at in room_columns(t, li, level) {
+        out.push(Block {
+            centre: at + Vec3::Y * (ROOM_H / 2.0),
+            size: Vec3::new(COLUMN_SIZE, ROOM_H, COLUMN_SIZE),
+            rotation: Quat::IDENTITY,
+        });
+    }
     out
 }
+
+/// Where the big rooms' columns stand (on the floor): every inside corner,
+/// where four of a room's cells meet.
+pub fn room_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
+    level
+        .rooms
+        .iter()
+        .flat_map(|r| r.inner_corners())
+        .map(|c| cell_world(t, li, c) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0))
+        .collect()
+}
+
+/// A room column's collider (it stands on the floor at its point).
+pub const COLUMN_SIZE: f32 = 0.6;
 
 /// A subway platform piece's own colliders, in its own frame (track along x,
 /// deck on -z, bed on +z): the deck, solid down to the bed; the bed; the
@@ -1356,13 +1487,40 @@ fn stream_levels(
                     Kind::Corridor(Some(i)) => set.pieces.get(i as usize).map(|p| p.model.as_str()),
                     Kind::Stairs => Some(set.stairs.as_str()),
                     Kind::Platform => Some(set.platform.as_str()),
+                    Kind::Room(_) => Some(set.room.floor.as_str()),
                     Kind::Corridor(None) | Kind::Landing | Kind::Under => None,
                 };
                 let Some(file) = file else { continue };
+                let at = cell_world(&t, li, (x, z));
                 commands.spawn((
                     model(&assets, file),
-                    Transform::from_translation(cell_world(&t, li, (x, z)))
-                        .with_rotation(f.rotation()),
+                    Transform::from_translation(at).with_rotation(f.rotation()),
+                    ChildOf(root),
+                ));
+                // A room cell's walls: the wall piece turned onto each walled side.
+                if matches!(f.kind, Kind::Room(_)) && !set.room.wall.is_empty() {
+                    for side in wfc::Side::ALL {
+                        if f.mask & bit(side) != 0 {
+                            continue;
+                        }
+                        let turn = Fill {
+                            turns: side.index() as u8,
+                            ..f
+                        };
+                        commands.spawn((
+                            model(&assets, &set.room.wall),
+                            Transform::from_translation(at).with_rotation(turn.rotation()),
+                            ChildOf(root),
+                        ));
+                    }
+                }
+            }
+        }
+        if !set.room.column.is_empty() {
+            for at in room_columns(&t, li, level) {
+                commands.spawn((
+                    model(&assets, &set.room.column),
+                    Transform::from_translation(at),
                     ChildOf(root),
                 ));
             }
@@ -1650,6 +1808,44 @@ mod tests {
     }
 
     #[test]
+    fn big_rooms_break_up_the_corridors_and_join_the_way() {
+        let (t, set) = data();
+        assert!(t.rooms.chance > 0.0 && !t.rooms.sizes.is_empty());
+        assert!(!set.room.floor.is_empty() && !set.room.wall.is_empty());
+        let levels = generate(&t, &set);
+        let mut with_rooms = 0;
+        for (li, l) in levels.iter().enumerate() {
+            if !l.rooms.is_empty() {
+                with_rooms += 1;
+            }
+            let d = l.distances();
+            for (ri, r) in l.rooms.iter().enumerate() {
+                assert!(r.size.0 * r.size.1 >= 4, "level {li}");
+                for c in r.cells() {
+                    let f = l.fill(c);
+                    assert_eq!(f.kind, Kind::Room(ri as u8), "level {li} {c:?}");
+                    // No walls inside a room, and you can walk into it.
+                    for s in wfc::Side::ALL {
+                        if let Some(n) = wfc::neighbour(l.width, l.depth, c, s)
+                            && r.contains(n)
+                        {
+                            assert!(l.open(c, s), "level {li} {c:?} {s:?}");
+                        }
+                    }
+                    assert!(d[c.1 * l.width + c.0].is_some(), "level {li} {c:?}");
+                }
+                // Not on the arrival or the stairs.
+                assert!(!r.contains(l.arrive) && !r.contains(l.goal));
+            }
+        }
+        assert!(
+            with_rooms * 3 >= levels.len(),
+            "{with_rooms} of {}",
+            levels.len()
+        );
+    }
+
+    #[test]
     fn the_same_seed_builds_the_same_station() {
         let (t, set) = data();
         let a = generate(&t, &set);
@@ -1740,6 +1936,7 @@ mod tests {
             goal: (2, 2),
             goal_entry: wfc::Side::North,
             path: vec![(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)],
+            rooms: Vec::new(),
         };
         let t = Tuning {
             width: 3,

@@ -12,8 +12,13 @@
 //! `None`; [`Wfc::solve_until`] retries until an acceptance predicate passes.
 //! Everything is pure and seeded by the crate's own [`Rng`], so every peer
 //! gets the same result from the same seed. No threads, files or clocks.
+//!
+//! [`rooms`] stamps rooms bigger than one cell on the grid before solving.
 
 use std::collections::VecDeque;
+
+pub mod rooms;
+pub use rooms::{Edge, Room};
 
 /// A grid cell, `(x, y)`. `y` grows "south".
 pub type Cell = (usize, usize);

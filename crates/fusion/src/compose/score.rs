@@ -103,6 +103,10 @@ pub enum Gen {
         #[serde(default)]
         chance: Option<(f32, f32)>,
     },
+    /// The melody doubled in parallel: each note it plays this bar, `steps`
+    /// scale steps away in the chord's scale (-2: a third below, -5: a sixth
+    /// below, 2: a third above). Rests when the melody does.
+    Harmony { steps: i8 },
     /// A horn section: stabs and shouts, swells, or both.
     Horns {
         style: String,
@@ -195,6 +199,9 @@ pub(super) enum G {
     },
     Answer {
         chance: (f32, f32),
+    },
+    Harmony {
+        steps: i8,
     },
     Horns {
         style: &'static HornStyle,
@@ -614,6 +621,11 @@ fn resolve(
             },
             Inst::NONE,
             r.answer_default,
+        ),
+        Gen::Harmony { steps } => (
+            G::Harmony { steps: *steps },
+            Inst::NONE,
+            (r.lead.0.saturating_sub(12), r.lead.1),
         ),
         Gen::Horns {
             style,

@@ -127,6 +127,8 @@ enum Part {
     BoxLabel(VideoOption),
     /// One of the Controls page's two columns of bindings.
     Help(usize),
+    /// "Esc close", or "B close" after a gamepad was used.
+    CloseHint,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -358,7 +360,10 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
     ));
     p.spawn((
         button(148.0, 42.0, 12.0, PAPER, 1018.0, 20.0),
-        children![label("Esc   close", 17.0, INK, 11.0, 8.0, B)],
+        children![(
+            Part::CloseHint,
+            label("Esc   close", 17.0, INK, 11.0, 8.0, B)
+        )],
     ))
     .observe(close);
     for (i, (page, name)) in [
@@ -730,6 +735,7 @@ fn refresh(
     on: Res<OnPage>,
     s: Res<Settings>,
     pad: Res<PadSettings>,
+    last: Res<crate::controls::PadLast>,
     muted: Res<VoiceMuted>,
     q: Res<GraphicsQuality>,
     mut nodes: Query<&mut Node>,
@@ -777,12 +783,16 @@ fn refresh(
                     t.0 = want;
                 }
             }
-            Part::Help(i) => {
-                if let Some(mut t) = text {
-                    let want = help_column(i, false);
-                    if t.0 != want {
-                        t.0 = want;
-                    }
+            Part::Help(_) | Part::CloseHint => {
+                let want = match *part {
+                    Part::Help(i) => help_column(i, last.0),
+                    _ if last.0 => "B   close".to_string(),
+                    _ => "Esc   close".to_string(),
+                };
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want;
                 }
             }
             Part::Fill(v) | Part::Handle(v) => {

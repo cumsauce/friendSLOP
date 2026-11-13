@@ -27,6 +27,8 @@ use std::collections::HashMap;
 
 use bevy::input::InputSystems;
 use bevy::input::gamepad::{Gamepad, GamepadButton};
+use bevy::input::keyboard::KeyboardInput;
+use bevy::input::mouse::{AccumulatedMouseMotion, MouseButtonInput};
 use bevy::input::touch::Touches;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -54,6 +56,34 @@ pub const PAD_BINDINGS: &[(&str, &str)] = &[
     ("Menu (Start)", "settings (and Leave game)"),
     ("In menus", "D-pad / stick move, A press, B back"),
 ];
+
+/// Whether a gamepad was the last thing used (#361): prompts and menus name
+/// its buttons then.
+#[derive(Resource, Default, Debug, Clone, Copy, PartialEq)]
+pub struct PadLast(pub bool);
+
+/// Real devices only: `gather` presses keys for the pad in `ButtonInput`,
+/// but never sends keyboard or mouse messages.
+fn track_last_input(
+    pads: Query<&Gamepad>,
+    mut keys: MessageReader<KeyboardInput>,
+    mut clicks: MessageReader<MouseButtonInput>,
+    motion: Res<AccumulatedMouseMotion>,
+    touches: Res<Touches>,
+    mut last: ResMut<PadLast>,
+) {
+    let pad = pads.iter().any(|p| {
+        p.get_just_pressed().next().is_some()
+            || p.left_stick().length() > 0.5
+            || p.right_stick().length() > 0.5
+    });
+    let other = keys.read().count() > 0
+        || clicks.read().count() > 0
+        || motion.delta.length() > 4.0
+        || touches.any_just_pressed();
+    let want = pad || (!other && last.0);
+    last.set_if_neq(PadLast(want));
+}
 
 /// Touch-stick deadzone (the pad's is a setting, [`PadSettings`]).
 const DEADZONE: f32 = 0.15;
@@ -415,6 +445,8 @@ pub fn plugin(app: &mut App) {
         .init_resource::<TouchMode>()
         .init_resource::<TouchState>()
         .init_resource::<PadSettings>()
+        .init_resource::<PadLast>()
+        .add_systems(PreUpdate, track_last_input.after(InputSystems))
         .add_systems(OnEnter(AppState::InGame), (spawn_overlay, spawn_sheet))
         .add_systems(PreUpdate, gather.after(InputSystems))
         .add_systems(

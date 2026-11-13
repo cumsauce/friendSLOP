@@ -539,6 +539,13 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 body(14.0, PERIWINKLE),
                 at(26.0, 580.0, b),
             ));
+            ui.spawn((
+                Text::new("D-pad move  ·  A select  ·  B back  ·  View settings"),
+                body(14.0, CREAM),
+                at(26.0, 606.0, b),
+                Visibility::Hidden,
+                crate::ui::pad_nav::PadHint,
+            ));
         });
 }
 

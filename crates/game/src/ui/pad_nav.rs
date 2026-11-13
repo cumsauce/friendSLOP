@@ -42,6 +42,24 @@ pub struct PadFocus {
     pub pad_click: bool,
 }
 
+/// Shown only after a gamepad was used (`controls::PadLast`): button hints.
+#[derive(Component, Clone, Copy, Default, Debug)]
+pub struct PadHint;
+
+fn show_hints(
+    last: Res<crate::controls::PadLast>,
+    mut hints: Query<&mut Visibility, With<PadHint>>,
+) {
+    let want = if last.0 {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
+    for mut v in &mut hints {
+        v.set_if_neq(want);
+    }
+}
+
 /// Seconds before a held direction repeats, then between repeats.
 const REPEAT_FIRST: f32 = 0.35;
 const REPEAT_NEXT: f32 = 0.12;
@@ -52,7 +70,7 @@ const FOCUS_RING: Color = Color::srgb_u8(0xFF, 0xD2, 0x4A);
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<PadFocus>()
-        .add_systems(Update, (navigate, ring).chain());
+        .add_systems(Update, ((navigate, ring).chain(), show_hints));
 }
 
 /// Does the pad drive the UI rather than the game? In the menu, and in game

@@ -301,7 +301,34 @@ fn raise_islands(mut commands: Commands, assets: Option<Res<AssetServer>>) {
         ) {
             spire.with_child(look);
         }
+        // The way up: a glowing square at the spire's foot, on its climbing face.
+        let foot = at + out * (SPIRE_WIDTH / 2.0 + 0.5);
+        let floor = if i == 0 {
+            crate::terrain::height_at(foot.x, foot.y)
+        } else {
+            island_below_top(i)
+        };
+        let last = i + 1 == islands().len();
+        super::doorway::spawn(
+            &mut commands,
+            Vec3::new(foot.x, floor, foot.y),
+            super::doorway::yaw_towards(-out),
+            super::doorway::Doorway::new(
+                super::doorway::Way::Up,
+                if last {
+                    "heaven".to_string()
+                } else {
+                    format!("floating island {}", i + 1)
+                },
+            )
+            .size(SPIRE_WIDTH, 2.4),
+        );
     }
+}
+
+/// The top of the island under island `i`'s spire (`i` > 0).
+fn island_below_top(i: usize) -> f32 {
+    island(i.saturating_sub(1)).top
 }
 
 /// Is `at` up on (or just over) a sky island? (The `sky` music signal.)

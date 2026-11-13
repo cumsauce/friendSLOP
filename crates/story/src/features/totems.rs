@@ -438,6 +438,15 @@ fn dress_doors(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, door) in &new {
+        // The way into the vault, marked from outside (it walks towards the
+        // vault's middle). Local, like the rest of the door's look.
+        let inwards = Vec2::new((vault_at().x - door.at.x).signum(), 0.0);
+        crate::features::doorway::spawn(
+            &mut commands,
+            Vec3::new(door.at.x, 0.0, door.at.y) - inwards.extend(0.0).xzy() * 0.35,
+            crate::features::doorway::yaw_towards(inwards),
+            crate::features::doorway::Doorway::way_in("the vault").size(1.2, 1.4),
+        );
         // The rune glows in the door's magic colour; the slab itself is a
         // modeler-made model (timber, iron bands, a gold ring round the rune).
         let mat = materials.add(StandardMaterial {

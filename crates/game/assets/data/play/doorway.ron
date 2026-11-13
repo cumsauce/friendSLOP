@@ -1,0 +1,31 @@
+// Ways in and out (crates/play/src/features/doorway.rs): the glowing marker
+// and floating label on every entrance and exit.
+// Edit and save: the running game picks it up within a second.
+(
+    // Labels show within this many metres of the camera...
+    label_radius: 10.0,
+    // ...and only while the camera is at most this far below the doorway's
+    // floor, or this far above it (eyes are 1.6 m up; floors above and below
+    // stay quiet).
+    label_below: 1.0,
+    label_above: 5.0,
+    // Label text size (the kind word is three quarters of it).
+    label_size: 15.0,
+    // Glow colours (r, g, b, 0..1): mint in, butter out, lilac up or down.
+    colour_in: (0.42, 0.8, 0.68),
+    colour_out: (1.0, 0.86, 0.48),
+    colour_stairs: (0.7, 0.6, 0.98),
+    // How strong the glow is at its brightest and dimmest (0..1).
+    glow_max: 0.85,
+    glow_min: 0.45,
+    // Pulses per second.
+    pulse_hz: 0.5,
+    // Depth of the threshold strip and thickness of the arch frame (m).
+    strip_depth: 0.35,
+    frame: 0.07,
+    // The words above the place's name.
+    word_in: "way in",
+    word_out: "way out",
+    word_down: "way down",
+    word_up: "way up",
+)

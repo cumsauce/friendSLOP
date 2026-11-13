@@ -321,11 +321,41 @@ fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
         ));
     }
     // The way in and out is the PATH train now (#321, `trains.rs`), not a trail post.
+    // Each shop's door (on its avenue side) glows with the shop's name.
+    let t = tuning();
+    for (i, room) in c.rooms.iter().enumerate() {
+        let Some((name, _)) = t.shops.get(i) else {
+            continue;
+        };
+        if let Some((at, inwards)) = shop_door(room) {
+            crate::features::doorway::spawn(
+                &mut commands,
+                at,
+                crate::features::doorway::yaw_towards(inwards),
+                crate::features::doorway::Doorway::way_in(name.clone()).size(1.8, 2.5),
+            );
+        }
+    }
     commands.insert_resource(Rooms(c));
 }
 
 #[derive(Resource)]
 struct Rooms(City);
+
+/// A shop's front door: the middle of its wall facing the avenue (x = 0),
+/// on the street, and the way in (x, z). `None` for a missing room.
+pub fn shop_door(room: &Room) -> Option<(Vec3, Vec2)> {
+    if room.min.x > room.max.x {
+        return None;
+    }
+    let mid = (room.min + room.max) / 2.0;
+    let (x, inwards) = if mid.x > 0.0 {
+        (room.min.x, Vec2::X)
+    } else {
+        (room.max.x, -Vec2::X)
+    };
+    Some((Vec3::new(x, CITY_Y, mid.y), inwards))
+}
 
 /// Local: step into a shop (or the Oculus) and its line shows.
 fn where_am_i(

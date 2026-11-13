@@ -261,6 +261,13 @@ fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             .labelled("vote to go in"),
         DespawnOnExit(AppState::InGame),
     ));
+    // The rolling shutter glows as the way in (you walk in northwards, +z).
+    crate::features::doorway::spawn(
+        &mut commands,
+        d - Vec3::Z * 0.3,
+        crate::features::doorway::yaw_towards(Vec2::Y),
+        crate::features::doorway::Doorway::way_in("the warehouse").size(3.0, 3.0),
+    );
     // One sick, buzzing lamp over the door.
     commands.spawn((
         PointLight {
@@ -569,16 +576,23 @@ fn build_inside(
         "wh_shutter.gltf",
         Transform::from_translation(ex),
     );
-    commands.spawn((
-        InsideDoor,
-        InteriorPart,
-        Transform::from_translation(ex + Vec3::Z * 0.3),
-        Visibility::default(),
-        Clickable::at_height(1.4)
-            .radius(100.0)
-            .labelled("leave the warehouse"),
-        DespawnOnExit(AppState::InGame),
-    ));
+    commands
+        .spawn((
+            InsideDoor,
+            InteriorPart,
+            Transform::from_translation(ex + Vec3::Z * 0.3),
+            Visibility::default(),
+            Clickable::at_height(1.4)
+                .radius(100.0)
+                .labelled("leave the warehouse"),
+            DespawnOnExit(AppState::InGame),
+        ))
+        // The way out glows on the floor in front of the loading door.
+        .with_child((
+            crate::features::doorway::Doorway::way_out("outside").size(3.0, 3.0),
+            Transform::from_translation(Vec3::Z * 0.2),
+            Visibility::default(),
+        ));
     commands.spawn((
         InteriorPart,
         PointLight {

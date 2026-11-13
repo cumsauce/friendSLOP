@@ -439,6 +439,23 @@ fn build_restaurant(
         Transform::from_translation(c),
         DespawnOnExit(AppState::InGame),
     ));
+    // The front door (walk in southwards, +z) and the foot of the attic
+    // stairs in the backroom (they climb westwards, -x).
+    {
+        use crate::features::doorway::{Doorway, Way, spawn, yaw_towards};
+        spawn(
+            &mut commands,
+            c + Vec3::new(0.0, 0.1, -FRONT - 0.15),
+            yaw_towards(Vec2::Y),
+            Doorway::way_in("Wendy's").size(1.6, 2.4),
+        );
+        spawn(
+            &mut commands,
+            c + Vec3::new(5.4, 0.1, 8.0),
+            yaw_towards(-Vec2::X),
+            Doorway::new(Way::Up, "the attic").size(1.2, 2.4),
+        );
+    }
     for &(at, color, range) in LIGHTS {
         commands.spawn((
             PointLight {

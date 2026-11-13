@@ -7,6 +7,8 @@
 //! - One low, golden shadow-casting sun (#131) tuned for the ~60 m play area, a cool shadowless
 //!   bounce light and a sky-tinted ambient.
 //! - Fog in the exact horizon colour, so the edge of the world melts into the sky.
+//! - A day/night cycle (#284) on the wall clock, so everyone shares the time of day: the sun
+//!   swings across the sky and goes golden at dusk, then a dim blue moon, darker sky and fog.
 //! - TonyMcMapface tonemapping and mild bloom so the bonfire and emissives glow.
 
 use bevy::asset::RenderAssetUsages;
@@ -34,7 +36,117 @@ const CLOUD_WRAP: f32 = 260.0;
 pub fn plugin(app: &mut App) {
     app.add_observer(dress_camera)
         .add_systems(OnEnter(AppState::InGame), spawn_atmosphere)
-        .add_systems(Update, drift_clouds.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            (drift_clouds, day_night).run_if(in_state(AppState::InGame)),
+        );
+}
+
+/// Day/night tuning: `assets/data/game/day_night.ron` (read at run time).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct DayNight {
+    /// How long one whole day lasts, in minutes.
+    pub day_minutes: f32,
+    /// How bright the night still is, 0..1.
+    pub night_brightness: f32,
+}
+
+pub static DAY_NIGHT: friendslop_data::Data<DayNight> =
+    friendslop_data::Data::ron("data/game/day_night.ron");
+
+/// Time of day 0..1 (0 = midnight, 0.25 = dawn, 0.5 = noon, 0.75 = dusk) from wall-clock
+/// seconds, so every peer agrees without anything on the wire (#284).
+pub fn time_of_day(epoch_secs: f64, day_minutes: f32) -> f32 {
+    let len = (day_minutes.max(0.1) as f64) * 60.0;
+    (epoch_secs.rem_euclid(len) / len) as f32
+}
+
+/// How high the sun is: -1 at midnight, 0 at dawn and dusk, 1 at noon.
+pub fn sun_height(t: f32) -> f32 {
+    -(t * std::f32::consts::TAU).cos()
+}
+
+/// Daylight 0..1 from the sun's height, with a soft twilight band around the horizon.
+pub fn daylight(height: f32) -> f32 {
+    let x = ((height + 0.15) / 0.45).clamp(0.0, 1.0);
+    x * x * (3.0 - 2.0 * x)
+}
+
+/// The scene's base values, so the cycle scales them instead of drifting.
+const SUN_LUX: f32 = 15_000.0;
+const BOUNCE_LUX: f32 = 2_600.0;
+const AMBIENT: f32 = 1_100.0;
+
+#[derive(Component)]
+struct Sun;
+#[derive(Component)]
+struct Bounce;
+#[derive(Component)]
+struct SkyDome;
+
+/// Swing the sun over the sky and dim light, sky and fog at night. Places that black the
+/// world out (warehouse, underground, infinite) set the sun to 0 lux: leave it alone then.
+#[allow(clippy::type_complexity)]
+fn day_night(
+    mut sun: Query<(&mut DirectionalLight, &mut Transform), (With<Sun>, Without<Bounce>)>,
+    mut bounce: Query<&mut DirectionalLight, (With<Bounce>, Without<Sun>)>,
+    ambient: Option<ResMut<GlobalAmbientLight>>,
+    mut fog: Query<&mut DistanceFog, With<MainCamera>>,
+    sky: Query<&MeshMaterial3d<StandardMaterial>, With<SkyDome>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let Ok((mut light, mut tf)) = sun.single_mut() else {
+        return;
+    };
+    if light.illuminance == 0.0 {
+        return;
+    }
+    let tuning = DAY_NIGHT.get();
+    let t = time_of_day(
+        crate::settings::since_epoch().as_secs_f64(),
+        tuning.day_minutes,
+    );
+    let h = sun_height(t);
+    let day = daylight(h);
+    let night = tuning.night_brightness.clamp(0.0, 1.0);
+    let lit = night + (1.0 - night) * day;
+    // Golden near the horizon, white at noon; the night "sun" is a cool moon from the same side.
+    let warm = Color::srgb(1.0, 0.9, 0.55).mix(&Color::srgb(1.0, 0.92, 0.8), h.clamp(0.0, 1.0));
+    light.color = warm.mix(&Color::srgb(0.55, 0.65, 1.0), 1.0 - day);
+    light.illuminance = (SUN_LUX * lit).max(1.0);
+    // Sun travels east to west; at night the moon takes the opposite arc. Never lower than
+    // ~10 degrees so shadows stay sane.
+    let a = t * std::f32::consts::TAU;
+    let dir = if h >= 0.0 {
+        Vec3::new(-a.sin(), h.max(0.18), 0.45)
+    } else {
+        Vec3::new(a.sin(), (-h).max(0.18), 0.45)
+    };
+    *tf = Transform::from_translation(dir.normalize() * 10.0).looking_at(Vec3::ZERO, Vec3::Y);
+    for mut b in &mut bounce {
+        b.illuminance = BOUNCE_LUX * lit;
+    }
+    if let Some(mut ambient) = ambient {
+        ambient.brightness = AMBIENT * lit;
+    }
+    let tint = Color::srgb(0.08, 0.1, 0.25).mix(&Color::WHITE, lit);
+    let dusk = (1.0 - h.abs() * 3.0).clamp(0.0, 1.0);
+    let tint = tint.mix(&Color::srgb(1.0, 0.92, 0.6), dusk * 0.5);
+    let tl = tint.to_linear();
+    let base = hdr(horizon_colour());
+    for mut f in &mut fog {
+        f.color = Color::LinearRgba(LinearRgba::new(
+            base.red * tl.red,
+            base.green * tl.green,
+            base.blue * tl.blue,
+            1.0,
+        ));
+    }
+    for m in &sky {
+        if let Some(mut mat) = materials.get_mut(&m.0) {
+            mat.base_color = tint;
+        }
+    }
 }
 
 /// The colour where sky meets ground; fog uses it so the world edge disappears.
@@ -115,6 +227,7 @@ fn spawn_atmosphere(
         }
         .build(),
         crate::graphics::SunShadows,
+        Sun,
         Transform::from_xyz(9.0, 6.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         DespawnOnExit(AppState::InGame),
     ));
@@ -127,6 +240,7 @@ fn spawn_atmosphere(
             ..default()
         },
         Transform::from_xyz(-6.0, 3.0, -4.0).looking_at(Vec3::ZERO, Vec3::Y),
+        Bounce,
         DespawnOnExit(AppState::InGame),
     ));
 
@@ -145,6 +259,7 @@ fn spawn_atmosphere(
     commands.spawn((
         Mesh3d(meshes.add(sky_dome())),
         MeshMaterial3d(sky),
+        SkyDome,
         NotShadowCaster,
         NotShadowReceiver,
         DespawnOnExit(AppState::InGame),
@@ -251,5 +366,17 @@ fn drift_clouds(time: Res<Time>, mut clouds: Query<(&mut Transform, &Cloud)>) {
         if tf.translation.x > CLOUD_WRAP {
             tf.translation.x -= 2.0 * CLOUD_WRAP;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn noon_is_bright_and_midnight_dark() {
+        assert!(daylight(sun_height(0.5)) > 0.99);
+        assert!(daylight(sun_height(0.0)) < 0.01);
+        assert!((time_of_day(90.0, 1.0) - 0.5).abs() < 1e-6);
     }
 }

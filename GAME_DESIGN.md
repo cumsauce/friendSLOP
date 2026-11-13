@@ -37,7 +37,8 @@ Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 
 and systemd (PID 1) kills you.
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
-Some nights you hear whispers behind you.
+**Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
+golden, nights are dim and blue. Some nights you hear whispers behind you.
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
@@ -271,6 +272,12 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   only in colours cats can see: blues and yellows, no red-green difference. Every material is
   run through a cat-vision filter (then lightened and saturated), and the sky is bright blue. So
   the "red" mushroom and the green floor both look yellowish to us, like they would to a cat.
+- **Day/night cycle** (#284, doomy, "surprise me"; `atmosphere.rs`). One day lasts 24 minutes
+  (`data/game/day_night.ron`). It runs off the real clock, so everyone in a session sees the
+  same time of day with nothing sent over the network. The sun swings east to west, gets low and
+  golden at dawn and dusk (sky and fog warm up too), and at night a dim blue moon takes over
+  while sky, fog and ambient light drop to 12%. Purely visual for now: nothing in play cares
+  what time it is. Warehouse, underground and endless-hallway darkness still win while you're in them.
 - **Nicer look** (#47). All art is generated in code (`art.rs`), no downloaded assets: a
   seamless procedural grass texture on the floor, a warm sun with soft shadows, sky-blue ambient
   light and distance haze, and a meadow of grass tufts, flowers and pebbles. Creatures got
@@ -1087,8 +1094,8 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
 - The horror ARG (#182) runs Watcher, scraps, then a broadcast and `SIGNAL.txt` outside the game.
   What does the Watcher want, is it tied to the whispers or the landlord, and where does the ARG go next?
-- Night whispers (#235) follow your real clock, since the game has no night. Should the game
-  get its own night, and should anything be behind the whispers?
+- The game has day and night now (#284), but nothing cares what time it is: what should
+  change at night? Night whispers (#235) still follow your real clock.
 - The shipwreck's pirates hand out doubloons (#185). What should they buy?
 - Hide and seek: should found hiders seek, or just watch? Should the world change each round?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?

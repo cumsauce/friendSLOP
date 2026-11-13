@@ -61,5 +61,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::random_dialogue::RANDOM_WORDS,
         &rules::villagers::NAMES,
         &rules::surf::TUNING,
+        &textures::GLASS,
     ]
 }

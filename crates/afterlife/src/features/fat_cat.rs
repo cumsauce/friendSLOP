@@ -586,7 +586,7 @@ fn blink(
             crate::spatial::play_wav_at(
                 &mut commands,
                 at,
-                0.6,
+                0.35,
                 crate::spatial::Carry::CALL,
                 || {
                     super::bear::wav_bytes(
@@ -600,14 +600,16 @@ fn blink(
     }
 }
 
-/// A short square-ish bomb beep.
+/// A soft blip for the fuse: a short sine "bip" that dies away like a
+/// marimba, not a square alarm.
 pub fn beep_samples(rate: u32) -> Vec<f32> {
-    let n = (0.08 * rate as f32) as usize;
+    let n = (0.09 * rate as f32) as usize;
     (0..n)
         .map(|i| {
             let t = i as f32 / rate as f32;
-            let env = (1.0 - i as f32 / n as f32).min(t * 400.0);
-            0.35 * env * (t * 1800.0 * std::f32::consts::TAU).sin().signum()
+            let env = (t * 600.0).min(1.0) * (-t * 45.0).exp();
+            let w = t * 1050.0 * std::f32::consts::TAU;
+            0.22 * env * (w.sin() + 0.2 * (w * 4.0).sin())
         })
         .collect()
 }
@@ -926,7 +928,7 @@ pub fn meow_tick(left: f32, seen: bool, dt: f32) -> (f32, bool) {
     }
 }
 
-/// A cat you can't see lets out a horrible meow, deeper the bigger it is, at
+/// A cat you can't see lets out a mew, deeper the bigger it is, at
 /// most every [`MEOW_EVERY`] seconds. Each peer judges by its own screen.
 fn meow(
     mut commands: Commands,
@@ -954,73 +956,47 @@ fn meow(
         let seed = (cat.owner as u32).wrapping_mul(2_654_435_761) ^ next.count;
         let size = cat.size;
         let mouth = cat.pos + Vec3::Y * 0.7 * size;
-        let carry = if size > 3.0 {
-            crate::spatial::Carry::LOUD
-        } else {
-            crate::spatial::Carry::CALL
-        };
-        crate::spatial::play_wav_at(&mut commands, mouth, 1.0, carry, move || {
+        let carry = crate::spatial::Carry::CALL;
+        crate::spatial::play_wav_at(&mut commands, mouth, 0.7, carry, move || {
             let s = meow_samples(super::synth_audio::RATE, size, seed);
             super::bear::wav_bytes(&s, super::synth_audio::RATE)
         });
     }
 }
 
-/// A horrific meow: a detuned, ring-modulated, distorted "mrrrEEEOOOWWW"
-/// whose vowel sweeps from m to ee to ow. Bigger cats meow lower and longer.
+/// A soft, cartoony "mew" that fits the babbling voices: a sine with a
+/// couple of gentle harmonics, gliding up then down. Bigger cats mew lower
+/// and a little longer.
 pub fn meow_samples(rate: u32, size: f32, seed: u32) -> Vec<f32> {
-    use std::f32::consts::{PI, TAU};
+    use std::f32::consts::TAU;
     let size = size.max(0.1);
-    let length = (1.4 + 0.25 * size.sqrt()).min(3.5);
-    let pitch_k = (1.0 / size.sqrt()).clamp(0.3, 1.0);
-    let wobble = 0.9 + (seed % 7) as f32 * 0.04;
+    let length = (0.45 + 0.12 * size.sqrt()).min(1.1);
+    let pitch_k = (1.0 / size.sqrt()).clamp(0.45, 1.0);
+    let wobble = 0.92 + (seed % 7) as f32 * 0.03;
     let n = (length * rate as f32) as usize;
     let mut out = Vec::with_capacity(n);
-    let detune = [1.0f32, 1.017, 0.983, 1.49];
-    let mut phases = [0.0f32; 4];
-    // Two resonant band-pass filters for the vowel (state-variable).
-    let mut f1 = (0.0f32, 0.0f32);
-    let mut f2 = (0.0f32, 0.0f32);
+    let mut phase = 0.0f32;
     for i in 0..n {
         let t = i as f32 / rate as f32;
         let p = t / length;
-        // "mrr" low, then up into the scream, then a long sag down.
-        let contour = if p < 0.25 {
-            380.0 + 600.0 * (p / 0.25)
+        // "mi" up, then "ew" down.
+        let contour = if p < 0.3 {
+            620.0 + 280.0 * (p / 0.3)
         } else {
-            980.0 - 700.0 * ((p - 0.25) / 0.75).powf(0.7)
+            900.0 - 340.0 * ((p - 0.3) / 0.7)
         };
-        // Vibrato that gets wilder as the meow goes on.
-        let vib = 1.0 + (0.01 + 0.06 * p) * (TAU * 6.5 * wobble * t).sin();
+        let vib = 1.0 + 0.012 * (TAU * 5.5 * t).sin();
         let f0 = contour * vib * pitch_k * wobble;
-        let mut voice = 0.0;
-        for (k, ph) in phases.iter_mut().enumerate() {
-            let inc = f0 * detune[k] / rate as f32;
-            *ph = (*ph + inc).fract();
-            let gain = if k == 3 { 0.4 } else { 1.0 };
-            voice += super::synth_audio::saw(*ph, inc) * gain;
-        }
-        // Ring modulation: a sickly metallic growl under it.
-        voice *= 0.6 + 0.4 * (TAU * 47.0 * pitch_k * t).sin();
-        // Vowel: m (300 Hz) -> ee (2400 Hz) -> ow (700 Hz).
-        let vowel = (p * PI).sin();
-        let form1 = 300.0 + 500.0 * vowel;
-        let form2 = 700.0 + 1700.0 * vowel * (1.0 - p * 0.6);
-        let band = |state: &mut (f32, f32), freq: f32, x: f32| {
-            let f = 2.0 * (PI * freq / rate as f32).sin();
-            let q = 0.25;
-            let high = x - state.0 - q * state.1;
-            state.1 += f * high;
-            state.0 += f * state.1;
-            state.1
-        };
-        let shaped = band(&mut f1, form1, voice) + 0.7 * band(&mut f2, form2, voice);
-        // Clip it hard: horrific, as requested.
-        let crushed = (shaped * 3.0).tanh();
-        let env = (p * 12.0).min(1.0) * ((1.0 - p) * 3.0).min(1.0);
-        out.push(crushed * env);
+        phase = (phase + f0 / rate as f32).fract();
+        // Brighter in the middle ("ee"), rounder at the ends ("m", "w").
+        let open = (p * std::f32::consts::PI).sin();
+        let voice = (phase * TAU).sin()
+            + 0.25 * open * (phase * TAU * 2.0).sin()
+            + 0.08 * open * (phase * TAU * 3.0).sin();
+        let env = (p * 14.0).min(1.0) * ((1.0 - p) * 4.0).min(1.0);
+        out.push(0.45 * voice * env);
     }
-    super::synth_audio::master(&mut out, rate, 6000.0, 0.75);
+    super::synth_audio::master(&mut out, rate, 5000.0, 0.5);
     out
 }
 
@@ -1112,8 +1088,8 @@ mod tests {
     }
 
     #[test]
-    fn meows_wait_thirty_seconds_and_looking_resets_the_wait() {
-        let (left, now) = meow_tick(tuning().meow_every, false, 29.0);
+    fn meows_wait_and_looking_resets_the_wait() {
+        let (left, now) = meow_tick(tuning().meow_every, false, tuning().meow_every - 1.0);
         assert!(!now && (left - 1.0).abs() < 1e-4);
         assert_eq!(meow_tick(left, true, 0.1), (tuning().meow_every, false));
         let (left, now) = meow_tick(0.5, false, 1.0);
@@ -1122,14 +1098,14 @@ mod tests {
     }
 
     #[test]
-    fn meow_is_loud_but_safe_and_bigger_cats_meow_longer() {
+    fn meow_is_soft_and_bigger_cats_meow_longer() {
         let rate = crate::features::synth_audio::RATE;
         let small = meow_samples(rate, 1.0, 3);
         let big = meow_samples(rate, 16.0, 3);
         assert!(big.len() > small.len());
         for s in [&small, &big] {
             let peak = s.iter().fold(0.0f32, |m, x| m.max(x.abs()));
-            assert!(peak > 0.5 && peak <= 0.76, "peak {peak}");
+            assert!(peak > 0.3 && peak <= 0.55, "peak {peak}");
             assert!(s.iter().all(|x| x.is_finite()));
         }
     }

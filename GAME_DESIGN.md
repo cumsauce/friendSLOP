@@ -267,7 +267,8 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   later two whisperers and a low murmur start just behind your head for 7 s and stay behind you
   however you turn. Made from shaped noise (breathy formant vowels, "s"/"sh" hisses, a muffled
   murmur). Only you hear it; each player rolls their own night.
-  Procedural sounds (bear, HALT, voice lines, farts) render at 44.1 kHz with band-limited
+  Procedural sounds (bear, HALT, voice lines, farts; HALT now babbles in a low, slow version of
+  the shared Animal Crossing style voice instead of a buzzing drone) render at 44.1 kHz with band-limited
   oscillators, a gentle low-pass, click-free fades, normalised levels and dithered output.
   **3D sound** (`spatial.rs`, polish): world sounds are heard where they are, through our own
   little mixer (1/distance falloff past a near radius, equal-power level and arrival-time
@@ -440,10 +441,11 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   four cross streets, sidewalks, curbs, crosswalks, yellow cabs, street lamps, hydrants, brick
   and brownstone walk-ups with water towers, glass and concrete towers with setback crowns.
   At the south end stand One World Trade Center (a tapered glass tower, 541 m to the spire tip,
-  tall enough to make out over the rim from the valley) and the Oculus, white ribs fanning out
-  over a hall with rails you can walk into ("no trains running yet"). Four shops face the avenue
+  tall enough to make out over the rim from the valley) and the Oculus (72 x 44 m, ribs 34 m up and wings to 51 m, a smaller take on the real 111 m hall),
+  white ribs arching over a glass hall with a balcony of shops on each side up two stairs. Four shops face the avenue
   and you can walk in: a bodega (with a cat), a 99¢ pizza place, a laundromat and a diner; step
-  in and its line shows. Getting there: the PATH train (below); the old trail posts are gone. All
+  in and its line shows. Glass in places you can walk into (the Oculus, the shops, the PATH car,
+  the plane, Wendy's, the helicopter: `data/base/glass.ron`) is see-through. Getting there: the PATH train (below); the old trail posts are gone. All
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
 - **Trains** (#321, doomy: "instead of a sign to click, players board the train headed to the
@@ -871,14 +873,14 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
 - **Fat cat companion** (#145). Everyone gets their own enormous orange tabby (built from
   primitives: a huge body, sagging belly, stripes, stubby legs, whiskers) that waddles after you
   everywhere, even indoors and underground (if it falls 30 m behind it just pops up behind you).
-  While it's off your screen, at most every 30 s (looking at it restarts the wait, #192, corvy), it lets out a horrific synthesized meow (detuned, ring-modulated, clipped
-  "mrrrEEEOOWW"), heard in 3D by everyone; the bigger it is the deeper, longer and further it
-  carries. Whenever none of it is on your screen it grows (+0.008x per second, ten times slower since #195, corvy; up to 25x) and it
+  While it's off your screen, at most every 75 s (looking at it restarts the wait, #192, corvy), it lets out a soft cartoon
+  "mew" (it used to be a horrific scream; softened to sit with the babbling voices), heard in 3D by
+  everyone; the bigger it is the deeper and longer. Whenever none of it is on your screen it grows (+0.008x per second, ten times slower since #195, corvy; up to 25x) and it
   only grows while unwatched. Only its owner's view counts. Your client tells the server whether
   it's on screen; the server grows it. Bottom-left shows your cat's size. It walks the villagers'
   navmesh to you (round trees, walls and the pond) and only straight-lines where there's no mesh
   (indoors, underground). **Petting** (click any cat, from close by) shrinks it by 0.6x. At
-  **critical mass (10x)** its fuse lights: it flashes red and beeps like a bomb, faster and faster,
+  **critical mass (10x)** its fuse lights: it flashes red and blips (a soft marimba-like bip), faster and faster,
   and the HUD shouts at its owner. Pet it back under 10x within 30 s or it **explodes**: a big
   orange flash, everyone within 10 m is flung 8 m away, and it's a merely fat cat (1x) again.
   While the fuse is lit the cat is also **hungry** (#238, corvy: "if the cat gets too big,

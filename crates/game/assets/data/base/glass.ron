@@ -1,0 +1,21 @@
+// See-through glass (crates/base/src/textures.rs): the glass in these models
+// (the places you can walk into) lets you look out and in. Glass in other
+// models (towers, house windows with nothing behind them) stays solid.
+// Edit and save: models spawned afterwards pick it up.
+(
+    // Model files under assets/.
+    models: [
+        "models/prefabs/nyc-oculus.gltf",
+        "models/prefabs/nyc-bodega.gltf",
+        "models/prefabs/nyc-diner.gltf",
+        "models/prefabs/nyc-pizza.gltf",
+        "models/prefabs/nyc-laundromat.gltf",
+        "models/path-car.gltf",
+        "models/plane-car.gltf",
+        "models/plane-gate.gltf",
+        "models/features/wendys.gltf",
+        "models/features/heli_body.gltf",
+    ],
+    // How much of the glass's tint stays: 0 is clear, 1 the old solid glass.
+    opacity: 0.25,
+)

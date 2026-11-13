@@ -72,7 +72,7 @@ machine is OUT OF ORDER until someone finds its three parts in the city's shops 
 The bodega sells **statement hats** everyone can see. Pigeon flocks wheel overhead and poop on you;
 now and then they all poop at once.
 
-**Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -832,8 +832,15 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   takes one and gives you a cig. Click him with none and you flirt; every third flirt he gives you
   a joint. P smokes a cig (or a joint if you have no cigs): smoke puffs rise from you for 8 s,
   greener for a joint, seen by everyone. Pockets show bottom-right (`features/smoking.rs`).
-  Smoking does nothing else yet. (Read "romance" as flirting by clicking him, separate from the
+  Cigs do nothing else yet; joints get you high (#370, below). (Read "romance" as flirting by clicking him, separate from the
   fart-smitten romance of #97.)
+- **Effects of weed** (#370, hadalade: "Weed should cause noticeable visual changes, increasing
+  in magnitude with how much weed a player has consumed. The screen should wobble and the colors
+  pallets of objects should slowly shift."). Every joint you light (Sewer Paul's or High Places')
+  adds one to your high, stacking up to 5 and wearing off over ~90 s each. While high your view
+  rocks and rolls and every colour slowly turns round the colour wheel (more saturated), both
+  stronger the more you've smoked; sober, the hues ease back. Only you see your own high
+  (`features/weed.rs`, tuning in `data/places/weed.ron`).
 - **The affair** (#160, doomy: "allow me to cheat on my wife with a beautiful chinese
   intelligence officer", details left to us). Your wife (a commune person in an apron; it's a
   commune, so she's married to all of you) walks back and forth between the bonfire and the east
@@ -1465,7 +1472,7 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
 - Who is Jegg, and what happens once Jegg's soul is whole? Does the warehouse have more in it? (#130)
   It can have a nightmare bathroom now (#161): are there other biomes in there?
 - You can pick up human meat burgers at Wendy's (#117). What are they for?
-- You can smoke cigs and joints from Sewer Paul (#129). Should smoking do anything to you?
+- Joints make your view wobble and colours shift (#370). Should cigs do anything, or being high change play?
 - The tunnels under the map (#127) connect four places, and the friends' evil rat twins live
   there now (#159). What else is hidden down there, and should your rat do anything evil?
 - You can date a Discord friend now (#159). Should dating them lead anywhere?

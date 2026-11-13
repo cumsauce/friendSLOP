@@ -140,6 +140,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(wendys::plugin);
         app.add_plugins(underground::plugin);
         app.add_plugins(smoking::plugin);
+        app.add_plugins(weed::plugin);
         app.add_plugins(caught::plugin);
         app.add_plugins(affair::plugin);
         app.add_plugins(gamble::plugin);

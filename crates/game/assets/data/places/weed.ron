@@ -1,0 +1,20 @@
+// Tuning for the effects of weed (crates/places/src/features/weed.rs, #370).
+// Edit and save: the running game picks it up within a second.
+(
+    // How much one joint adds to your high.
+    per_joint: 1.0,
+    // The most your high can stack to (five joints deep).
+    max_high: 5.0,
+    // How much high wears off per second (one joint lasts about 90 s).
+    fade_per_sec: 0.011,
+    // Wobble roll (radians) at a high of 1.
+    roll: 0.06,
+    // Wobble pitch/yaw sway (radians) at a high of 1.
+    sway: 0.025,
+    // How fast the wobble rocks (cycles per second).
+    wobble_hz: 0.35,
+    // How fast hues turn round the colour wheel (radians per second) at a high of 1.
+    hue_speed: 0.15,
+    // Extra saturation at a high of 1.
+    saturation: 0.25,
+)

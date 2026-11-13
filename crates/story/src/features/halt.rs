@@ -342,6 +342,7 @@ fn speak_rant(
     mut last: Local<Option<(Entity, Option<u8>)>>,
     mut commands: Commands,
     audio: Option<Res<Assets<AudioSource>>>,
+    bank: Option<Res<crate::features::babble::Bank>>,
 ) {
     let Some((entity, h)) = halt.iter().next() else {
         *last = None;
@@ -355,14 +356,45 @@ fn speak_rant(
         && audio.is_some()
     {
         let said = MONOLOGUE.get(usize::from(i)).copied().unwrap_or("");
+        // The babble bank once loaded (like every other voice); the old
+        // drone without it.
+        let bytes = bank
+            .as_ref()
+            .zip(audio.as_ref())
+            .and_then(|(b, a)| a.get(&b.0))
+            .map(|src| src.bytes.clone());
         play_synth(&mut commands, move || {
-            wav_bytes(&drone(said, u32::from(i), RATE), RATE)
+            wav_bytes(&rant_voice(said, u32::from(i), bytes.as_deref()), RATE)
         });
     }
     *last = Some((entity, now));
 }
 
 use crate::features::synth_audio::RATE;
+
+/// HALT's voice: the same babble as everyone else, low and slow, with a
+/// faint machine hum under it. Falls back to [`drone`] without the bank.
+pub fn rant_voice(said: &str, seed: u32, bytes: Option<&[u8]>) -> Vec<f32> {
+    use crate::features::babble;
+    let Some(bank) = bytes
+        .and_then(babble::parse_wav)
+        .filter(|b| b.len() >= babble::bank_len())
+    else {
+        return drone(said, seed, RATE);
+    };
+    let voice = babble::Voice {
+        timbre: babble::Timbre::Low,
+        pitch: 0.72,
+        letter: 0.075,
+    };
+    let mut out = babble::speak(&bank, voice, said, seed, RATE);
+    for (i, s) in out.iter_mut().enumerate() {
+        let t = i as f32 / RATE as f32;
+        *s += 0.04 * (t * 82.0 * std::f32::consts::TAU).sin();
+    }
+    crate::features::synth_audio::master(&mut out, RATE, 7000.0, 0.55);
+    out
+}
 
 /// A deep, buzzing machine voice: one low, square-ish blip per word.
 pub fn drone(said: &str, seed: u32, rate: u32) -> Vec<f32> {

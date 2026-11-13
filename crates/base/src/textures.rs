@@ -18,14 +18,73 @@ use bevy::render::render_resource::{TextureDimension, TextureFormat};
 pub const MAX_SIDE: u32 = 1024;
 
 pub fn plugin(app: &mut App) {
-    app.init_resource::<Pending>().add_systems(
-        PostUpdate,
-        // Right after this frame's asset events, before the image's first
-        // upload.
-        (queue, mipmap, no_anisotropy)
-            .chain()
-            .after(bevy::asset::AssetEventSystems),
-    );
+    app.init_resource::<Pending>()
+        .add_systems(
+            PostUpdate,
+            // Right after this frame's asset events, before the image's first
+            // upload.
+            (queue, mipmap, no_anisotropy)
+                .chain()
+                .after(bevy::asset::AssetEventSystems),
+        )
+        .add_systems(Update, see_through);
+}
+
+/// Which models' glass you can see through (the places you can walk into),
+/// and how clear it is. `data/base/glass.ron`.
+#[derive(serde::Deserialize, Default)]
+pub struct Glass {
+    /// Model files (under `assets/`) whose glass materials turn see-through.
+    pub models: Vec<String>,
+    /// How much of the glass colour stays (0 clear, 1 the old solid glass).
+    pub opacity: f32,
+}
+
+pub static GLASS: friendslop_data::Data<Glass> = friendslop_data::Data::ron("data/base/glass.ron");
+
+/// Should a material called `material` in `model` be see-through?
+pub fn is_window(model: &str, material: &str, glass: &Glass) -> bool {
+    material.contains("glass")
+        && !material.contains("sill")
+        && glass.models.iter().any(|m| m == model)
+}
+
+/// Glass in a place you can enter turns see-through as it spawns, so you can
+/// look out of (and into) it.
+fn see_through(
+    added: Query<
+        (
+            &MeshMaterial3d<StandardMaterial>,
+            &bevy::gltf::GltfMaterialName,
+        ),
+        Added<bevy::gltf::GltfMaterialName>,
+    >,
+    server: Res<AssetServer>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let glass = GLASS.get();
+    for (handle, name) in &added {
+        let Some(path) = server.get_path(handle.0.id()) else {
+            continue;
+        };
+        let model = path.path().to_string_lossy().replace('\\', "/");
+        if !is_window(&model, &name.0, &glass) {
+            continue;
+        }
+        let Some(m) = materials.get(handle.0.id()) else {
+            continue;
+        };
+        if matches!(m.alpha_mode, AlphaMode::Blend) {
+            continue;
+        }
+        let Some(mut m) = materials.get_mut(handle.0.id()) else {
+            continue;
+        };
+        m.alpha_mode = AlphaMode::Blend;
+        m.base_color = m.base_color.with_alpha(glass.opacity);
+        m.double_sided = true;
+        m.cull_mode = None;
+    }
 }
 
 /// Brushed-metal (anisotropic) materials go wrong under the reflection
@@ -134,6 +193,18 @@ fn mipmap(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_glass_in_listed_models() {
+        let g = Glass {
+            models: vec!["models/path-car.gltf".into()],
+            opacity: 0.2,
+        };
+        assert!(is_window("models/path-car.gltf", "ns-glass-1", &g));
+        assert!(!is_window("models/path-car.gltf", "ns-steel-1", &g));
+        assert!(!is_window("models/path-car.gltf", "glass_sill", &g));
+        assert!(!is_window("models/prefabs/nyc-wtc.gltf", "sp-glass-0", &g));
+    }
 
     #[test]
     fn only_model_textures() {

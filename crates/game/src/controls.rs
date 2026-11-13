@@ -14,11 +14,13 @@
 //! touched. Gamepad: left stick move, right stick look, A jump, B or RT use,
 //! LB (or clicking the left stick) run, X fart, Y help, Back scoreboard,
 //! D-pad up camera, down mute, left journal, right answer the phone, right
-//! stick click "Enter", Start frees the cursor / leaves. Holding RB or LT
-//! (#361) switches the face buttons and D-pad to a second / third set of keys
-//! so every keyboard-only action reaches a pad (Steam Deck): a cheat sheet
-//! shows while one is held ([`PAD_LAYERS`]). In the menu, A or Start hosts.
-//! Stick feel (look speed, response curve, deadzone) is
+//! stick click "Enter". Holding RB or LT (#361) switches the face buttons
+//! and D-pad to a second / third set of keys so every keyboard-only action
+//! reaches a pad (Steam Deck): a cheat sheet shows while one is held
+//! ([`PAD_LAYERS`]). Start opens the settings notebook (its "Leave game"
+//! button leaves). Menus (the title screen, the notebook) take the pad
+//! instead: D-pad / left stick move the focus, A clicks, B backs out
+//! (`ui::pad_nav`). Stick feel (look speed, response curve, deadzone) is
 //! `assets/data/game/controls.ron`.
 
 use std::collections::HashMap;
@@ -31,7 +33,6 @@ use bevy::window::PrimaryWindow;
 
 use crate::AppState;
 use crate::features::fps::FpsView;
-use crate::net::NetCommand;
 pub use friendslop_base::controls::*;
 
 /// Radians of look per pixel dragged on a touch screen.
@@ -296,6 +297,8 @@ struct TouchState {
     mouse: bool,
     /// The pad layer held this frame (shows the cheat sheet).
     layer: Option<PadLayer>,
+    /// A menu had the pad: ignore A / B / RT until they're let go.
+    pad_hold: bool,
 }
 
 #[derive(Component)]
@@ -318,12 +321,7 @@ pub fn plugin(app: &mut App) {
         .init_resource::<TouchMode>()
         .init_resource::<TouchState>()
         .add_systems(OnEnter(AppState::InGame), (spawn_overlay, spawn_sheet))
-        .add_systems(
-            PreUpdate,
-            (gather, menu_pad.run_if(in_state(AppState::Menu)))
-                .chain()
-                .after(InputSystems),
-        )
+        .add_systems(PreUpdate, gather.after(InputSystems))
         .add_systems(
             Update,
             (draw_overlay, draw_sheet).run_if(in_state(AppState::InGame)),
@@ -345,6 +343,7 @@ fn gather(
     window: Query<&Window, With<PrimaryWindow>>,
     time: Res<Time>,
     state: Res<State<AppState>>,
+    overlay: Res<crate::ui::Overlay>,
     mut mode: ResMut<TouchMode>,
     mut st: ResMut<TouchState>,
     mut out: ResMut<VirtualInput>,
@@ -422,11 +421,35 @@ fn gather(
     }
     out.run = st.running;
 
-    // Gamepads: the first connected one(s) all count.
+    // Gamepads: the first connected one(s) all count. While a menu owns the
+    // pad (`ui::pad_nav`), A and the D-pad drive it instead, B backs out
+    // (Esc), and buttons still held when the menu closes wait for release.
     let dt = time.delta_secs();
     let tune = PAD.get();
+    let ui = crate::ui::pad_nav::ui_owns_pad(state.get(), &overlay);
+    let held_any = gamepads.iter().any(|p| {
+        p.pressed(GamepadButton::South)
+            || p.pressed(GamepadButton::East)
+            || p.pressed(GamepadButton::RightTrigger)
+            || p.pressed(GamepadButton::RightTrigger2)
+    });
+    st.pad_hold = ui || (st.pad_hold && held_any);
     st.layer = None;
     for pad in &gamepads {
+        for (button, key) in [
+            (GamepadButton::Select, KeyCode::Tab),
+            (GamepadButton::Start, KeyCode::Escape),
+        ] {
+            if pad.pressed(button) {
+                want_keys.push(key);
+            }
+        }
+        if ui {
+            if pad.pressed(GamepadButton::East) {
+                want_keys.push(KeyCode::Escape);
+            }
+            continue;
+        }
         let move_stick = axis(pad.left_stick());
         if move_stick != Vec2::ZERO {
             out.stick = move_stick;
@@ -434,7 +457,6 @@ fn gather(
         let look = look_response(pad.right_stick(), tune.deadzone, tune.look_curve);
         out.look += Vec2::new(look.x, -look.y * tune.look_vertical) * tune.look_speed * dt;
         out.run |= pad.pressed(GamepadButton::LeftTrigger) || pad.pressed(GamepadButton::LeftThumb);
-        want_mouse |= pad.pressed(GamepadButton::RightTrigger2);
         let layer = pad_layer(
             pad.pressed(GamepadButton::RightTrigger),
             pad.pressed(GamepadButton::LeftTrigger2),
@@ -443,14 +465,12 @@ fn gather(
             st.layer = Some(layer);
         }
         let held = PAD_SLOTS.map(|b| pad.pressed(b));
-        if layer == PadLayer::Base {
+        if layer == PadLayer::Base && !st.pad_hold {
             out.jump |= held[0];
-            want_mouse |= held[1];
+            want_mouse |= held[1] || pad.pressed(GamepadButton::RightTrigger2);
         }
         want_keys.extend(pad_keys(layer, held));
         for (button, key) in [
-            (GamepadButton::Select, KeyCode::Tab),
-            (GamepadButton::Start, KeyCode::Escape),
             (GamepadButton::RightThumb, KeyCode::Enter),
         ] {
             if pad.pressed(button) {
@@ -491,16 +511,6 @@ fn gather(
     if !in_game {
         out.stick = Vec2::ZERO;
         out.look = Vec2::ZERO;
-    }
-}
-
-/// A gamepad can't point at the menu's buttons: A or Start hosts.
-fn menu_pad(gamepads: Query<&Gamepad>, mut net: MessageWriter<NetCommand>) {
-    if gamepads
-        .iter()
-        .any(|p| p.just_pressed(GamepadButton::South) || p.just_pressed(GamepadButton::Start))
-    {
-        net.write(NetCommand::Host);
     }
 }
 

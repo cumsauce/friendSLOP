@@ -8,6 +8,7 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
+use super::pad_nav::{PadFocusable, PadNudge, PadSlider};
 use super::{at, body, head};
 use crate::AppState;
 use crate::graphics::{GraphicsQuality, Preset, VideoOption};
@@ -219,6 +220,7 @@ fn button(w: f32, h: f32, radius: f32, fill: Color, x: f32, y: f32) -> impl Bund
         },
         BackgroundColor(fill),
         BorderColor::all(BORDER),
+        PadFocusable,
     )
 }
 
@@ -395,6 +397,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
                     ..at(x, y, B)
                 },
                 BackgroundColor(PAPER),
+                PadFocusable,
                 children![
                     checkbox(check, Check::Video(o), 12.0, 24.0),
                     (
@@ -484,6 +487,8 @@ fn slider(c: &mut ChildSpawnerCommands, v: Volume, y: f32) {
                 height: px(26),
                 ..at(20.0, y + 8.0 - 8.0, 0.0)
             },
+            PadFocusable,
+            PadSlider,
             children![
                 (
                     Node {
@@ -531,7 +536,14 @@ fn slider(c: &mut ChildSpawnerCommands, v: Volume, y: f32) {
             move |_: On<PointerDrag>, nodes: SliderNodes, mut s: ResMut<Settings>| {
                 set_from_cursor(track, &nodes, v, &mut s);
             },
-        );
+        )
+        .observe(move |n: On<PadNudge>, mut s: ResMut<Settings>| {
+            let f = field(&mut s, v);
+            let want = volume_at(*f + n.steps as f32 * 0.05);
+            if *f != want {
+                *f = want;
+            }
+        });
 }
 
 type SliderNodes<'w, 's> = (
@@ -572,6 +584,7 @@ fn check_row(
             height: px(36),
             ..at(20.0, y - 4.0, 0.0)
         },
+        PadFocusable,
         children![
             label(name, size, INK, 0.0, 4.0, 0.0),
             checkbox(check, what, 330.0, 0.0),

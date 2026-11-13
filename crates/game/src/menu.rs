@@ -158,6 +158,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             BoxShadow::new(I_INK, px(0), px(5), px(0), px(0)),
             BaseColor(fill),
             Hovered::default(),
+            crate::ui::pad_nav::PadFocusable,
             Squishy::default(),
             UiTransform::default(),
             children![(
@@ -173,6 +174,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             body(18.0, color),
             at(x, y, b),
             Hovered::default(),
+            crate::ui::pad_nav::PadFocusable,
         )
     };
     commands
@@ -279,7 +281,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                     crate::ui::settings_panel::toggle(&mut panel);
                 },
             );
-            ui.spawn(link("·", PERIWINKLE, 120.0, 461.0));
+            ui.spawn((Text::new("·"), body(18.0, PERIWINKLE), at(120.0, 461.0, b)));
             ui.spawn(link("Whose fault is it", PERIWINKLE, 151.0, 461.0))
                 .observe(
                     |_: On<PointerClick>,

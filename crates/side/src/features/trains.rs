@@ -164,6 +164,8 @@ const TRACK_W: f32 = 2.6;
 const PLATFORM_Z: (f32, f32) = (1.45, 5.05);
 /// The far end of the station from the tunnel (x): the platform's start.
 const STATION_X: f32 = -10.0;
+/// Where the platform's GTA VI ads stand along it (x, between the doors; #359).
+const AD_X: [f32; 2] = [-7.0, 0.0];
 /// A surface station's ramp from the platform's far end: its run and drop (m).
 const RAMP_SLOPE: f32 = 0.32;
 const RAMP_DROP: f32 = 1.6;
@@ -856,6 +858,21 @@ fn build(
             }
             for file in files {
                 commands.spawn((model(&assets, file), at, DespawnOnExit(AppState::InGame)));
+            }
+            // GTA VI ads at the back of the platform, facing the track (#359).
+            if l.vehicle == Vehicle::Train {
+                for x in AD_X {
+                    commands.spawn((
+                        model(&assets, "features/gta6-ad.gltf"),
+                        Transform::from_translation(at.transform_point(Vec3::new(
+                            x,
+                            0.0,
+                            PLATFORM_Z.1 - 0.4,
+                        )))
+                        .with_rotation(at.rotation * Quat::from_rotation_y(std::f32::consts::PI)),
+                        DespawnOnExit(AppState::InGame),
+                    ));
+                }
             }
             let portal = at.with_translation(at.transform_point(Vec3::X * PORTAL_X));
             if l.vehicle == Vehicle::Train {

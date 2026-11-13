@@ -200,7 +200,11 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   paddling round, lantern posts strung with bulbs along the paths to the campfire and the pond
   (`crates/world/src/landmarks.rs`), and a generated, adaptive 90s jazz-fusion soundtrack (`features/fusion`,
   asked for in chat: "change the music ... jazz fusion ... 90s/FM synth vibe ... adapts to the
-  game state"; it replaced the looping "Catsong"). The music lives in its own Bevy-free crate
+  game state"; it replaced the looping "Catsong"). #324 redid the creepy Wendy's-attic song and
+  the fart shame alarm with the plain-song composer: the attic is a broken music box (vibes riff,
+  organ, creaking upright, a ticking woodblock, far-off choir) over harmonic-minor chords, the
+  alarm a cartoon chase (march kit, octave-hopping bass, clav stabs, a squealing mini-synth riff
+  over a siren-like I / tritone see-saw, cowbell, a trumpet a third below). The music lives in its own Bevy-free crate
   (`crates/fusion`; `features/fusion` is just the game glue). Live FM voices (DX7-style EP,
   slap and fretless bass, lead/brass with portamento, bell pad, kalimba), subtractive voices (a
   CS-80 style horn section that shouts, pushes and swells around the lead, string machine,

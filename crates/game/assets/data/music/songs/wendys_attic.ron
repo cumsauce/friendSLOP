@@ -1,18 +1,22 @@
 #![enable(implicit_some)]
 // WendysAttic: song 1 (its own song). See moods.ron for what the fields mean.
-// "Who's Up There": the jingle's chords slowed and turned
-// minor on warped tape. Vibes pick at it like a music box,
-// the doo-wah singers hang far off, an organ holds, a pan flute
-// drifts in, tabla swoops in the dark and a woodblock ticks.
+// "Who's Up There" (#324, written out): a music box gone wrong. Vibes
+// pick a little riff over a harmonic-minor creep, an organ holds the
+// chords, the upright creaks back to the root, a woodblock ticks like a
+// clock nobody wound, and far-off voices double the tune a sixth below
+// in the chorus.
 (
-    mood: "WendysAttic",
-    bpm: 68.0, swing: 0.1, key: 7,
-    a: "ATTIC_A", b: "ATTIC_B", hook: "ATTIC_HOOK",
-    groove: Sparse, bass: ["PEDAL", "SPARSE"],
-    comp: Long, lead: Flute, arp: Some(Vibes), pad: true,
-    intensity: 0.25, odd: 0.0, modulate: 0.0, kime: 0.0,
-    theme: false, bass_inst: Upright, pad_inst: Choir,
-    horns: None, kit: (shaker: false, conga: true, clap: false, ride: false),
-    answer: Some(PanFlute), nylon: None,
-    keys: Some(Organ), hand: Some(Tabla), perc: [Woodblock],
+    mood: "WendysAttic", band: "street",
+    bpm: 64.0, swing: 0.1, key: 7,
+    a: "CREEP_A", b: "CREEP_B", hook: "CREEP_HOOK",
+    intensity: 0.3, odd: 0.0, modulate: 0.0, kime: 0.0,
+    parts: [
+        (play: Drums(groove: "Sparse")),
+        (play: Lane(lane: "Woodblock"), not: [Intro]),
+        (play: Bass(lines: ["CREEP", "PEDAL"]), inst: Upright, bus: "bass", layer: [((not: [Intro]), 0.7), ((above: 0.3), 0.7)]),
+        (play: Chords(comp: "Long"), inst: Organ),
+        (play: Melody(style: "riff"), inst: Vibes),
+        (play: Harmony(steps: -5), inst: Choir, sections: [Hook]),
+        (play: Pad(), inst: Choir, sections: [B, Breakdown]),
+    ],
 )

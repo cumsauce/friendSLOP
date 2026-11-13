@@ -1032,6 +1032,21 @@ pub fn track_blocks(f: Fill) -> Vec<Block> {
     out
 }
 
+/// The GTA VI ad board (#359: "add gta 6 ads to all subway stations").
+pub const AD_MODEL: &str = "gta6-ad.gltf";
+
+/// Where a platform piece's ad stands, in its own frame (it faces +z, the
+/// track): at the back of the deck of a through platform (track on both
+/// ends), when the back is a wall, not a way on.
+pub fn ad_spot(f: Fill) -> Option<Vec3> {
+    let own_mask = turned(f.mask, (4 - f.turns % 4) % 4);
+    (f.track.count_ones() == 2 && own_mask & bit(wfc::Side::North) == 0).then_some(Vec3::new(
+        0.0,
+        0.0,
+        -CELL / 2.0 + 0.35,
+    ))
+}
+
 /// Which sign hangs where.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SignKind {
@@ -1588,6 +1603,16 @@ fn stream_levels(
                     Transform::from_translation(at).with_rotation(f.rotation()),
                     ChildOf(root),
                 ));
+                // A subway platform's ad (#359): against its back wall,
+                // facing the track, where the back of the deck is shut.
+                if let Some(local) = ad_spot(f) {
+                    commands.spawn((
+                        model(&assets, AD_MODEL),
+                        Transform::from_translation(at + f.rotation() * local)
+                            .with_rotation(f.rotation()),
+                        ChildOf(root),
+                    ));
+                }
                 // A room cell's walls: the wall piece turned onto each walled side.
                 if matches!(f.kind, Kind::Room(_)) && !set.room.wall.is_empty() {
                     for side in wfc::Side::ALL {
@@ -1986,6 +2011,33 @@ mod tests {
             track_blocks(run)
                 .iter()
                 .all(|b| b.rotation == Quat::IDENTITY)
+        );
+    }
+
+    #[test]
+    fn through_platforms_get_a_gta6_ad_against_a_shut_back() {
+        let run = Fill {
+            mask: 0b1010,
+            track: 0b1010,
+            kind: Kind::Corridor(Some(0)),
+            turns: 0,
+        };
+        let at = ad_spot(run).expect("a through platform gets an ad");
+        assert!(at.z < -PLATFORM_EDGE_Z, "on the deck, not the track: {at}");
+        // An open back (a way on) or a tunnel end gets none.
+        assert!(
+            ad_spot(Fill {
+                mask: 0b1011,
+                ..run
+            })
+            .is_none()
+        );
+        assert!(
+            ad_spot(Fill {
+                track: 0b0010,
+                ..run
+            })
+            .is_none()
         );
     }
 

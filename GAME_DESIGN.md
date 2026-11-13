@@ -546,6 +546,11 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
   They're WFC tile pieces (`fs-tile-track*`) whose track sides only meet track sides; the bed
   sinks into the level below, whose cells under it are solid. No trains. Andrew's thing walks
   the platforms, not the tracks.
+- **GTA VI ads** (#359, andrew: "add gta 6 ads to all subway stations ... it's coming out next
+  week"): a lit freestanding ad board (`gta6-ad` model: sunset bands, palm, "GRAND THEFT AUTO
+  VI / OUT NEXT WEEK") stands on every subway platform: two along the back of each PATH train
+  platform (valley, World Trade Center; not the airport gates), and one against the back wall
+  of each through platform cell on Fulton St's platform levels. Decoration only.
   **Big rooms** (the user: "fulton street needs some rooms ... large rooms that are bigger than
   the grid ... so theres a bit of a break up and its not just all hallways ... maybe its time
   to generalize these systems"): most levels (70%) get one or two halls 2 x 2 to 3 x 3 cells

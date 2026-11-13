@@ -33,6 +33,7 @@ pub mod features {
     pub mod rats;
     pub mod sesbian_lex;
     pub mod shipwreck;
+    pub mod surf;
     pub mod watcher;
 }
 

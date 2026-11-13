@@ -1,0 +1,100 @@
+{
+  "format_version": 1,
+  "name": "surf-door-sign",
+  "parts": [],
+  "version": 63,
+  "ops": [
+    {
+      "primitive": {
+        "name": "board",
+        "kind": "box",
+        "size": [
+          2.4,
+          0.8,
+          0.08
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "letters",
+        "text": "SURF",
+        "font": "",
+        "size": 0.5,
+        "depth": 0.05,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          0.0,
+          -0.25,
+          0.09
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "board",
+        "input": "board",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3550",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "letters",
+        "input": "letters",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-neon",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ff4fd8",
+                "emissive": "#ff4fd8",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

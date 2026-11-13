@@ -1,0 +1,781 @@
+{
+  "format_version": 1,
+  "name": "surf-hall",
+  "parts": [],
+  "version": 58,
+  "ops": [
+    {
+      "primitive": {
+        "name": "start_pad",
+        "kind": "box",
+        "size": [
+          10.0,
+          1.0,
+          10.0
+        ],
+        "translation": [
+          0.0,
+          -0.5,
+          -5.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "finish_pad",
+        "kind": "box",
+        "size": [
+          16.0,
+          1.0,
+          20.0
+        ],
+        "translation": [
+          0.0,
+          -34.5,
+          -160.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wall_l",
+        "kind": "box",
+        "size": [
+          1.0,
+          58.0,
+          180.0
+        ],
+        "translation": [
+          -22.5,
+          -21.0,
+          -86.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wall_r",
+        "kind": "box",
+        "size": [
+          1.0,
+          58.0,
+          180.0
+        ],
+        "translation": [
+          22.5,
+          -21.0,
+          -86.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wall_back",
+        "kind": "box",
+        "size": [
+          46.0,
+          58.0,
+          1.0
+        ],
+        "translation": [
+          0.0,
+          -21.0,
+          4.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wall_end",
+        "kind": "box",
+        "size": [
+          46.0,
+          58.0,
+          1.0
+        ],
+        "translation": [
+          0.0,
+          -21.0,
+          -176.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "void_floor",
+        "kind": "box",
+        "size": [
+          46.0,
+          1.0,
+          182.0
+        ],
+        "translation": [
+          0.0,
+          -50.5,
+          -86.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "sign_finish",
+        "text": "FINISH",
+        "font": "",
+        "size": 2.5,
+        "depth": 0.3125,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          0.0,
+          -31.0,
+          -175.9
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_1_v0",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          -6.0,
+          -16.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_1_v1",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          -14.0,
+          -76.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_1_v2",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          -6.0,
+          -16.0,
+          -16.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_1_v3",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          -6.0,
+          -24.0,
+          -76.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_1_v4",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          6.0,
+          -16.0,
+          -16.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_1_v5",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          6.0,
+          -24.0,
+          -76.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "hull": {
+        "name": "ramp_1",
+        "inputs": [
+          "ramp_1_v0",
+          "ramp_1_v1",
+          "ramp_1_v2",
+          "ramp_1_v3",
+          "ramp_1_v4",
+          "ramp_1_v5"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_2_v0",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          -20.0,
+          -84.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_2_v1",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          -28.0,
+          -144.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_2_v2",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          -6.0,
+          -30.0,
+          -84.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_2_v3",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          -6.0,
+          -38.0,
+          -144.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_2_v4",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          6.0,
+          -30.0,
+          -84.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ramp_2_v5",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.02,
+          0.02
+        ],
+        "translation": [
+          6.0,
+          -38.0,
+          -144.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "hull": {
+        "name": "ramp_2",
+        "inputs": [
+          "ramp_2_v0",
+          "ramp_2_v1",
+          "ramp_2_v2",
+          "ramp_2_v3",
+          "ramp_2_v4",
+          "ramp_2_v5"
+        ]
+      }
+    },
+    {
+      "text": {
+        "name": "sign_surf",
+        "text": "SURF",
+        "font": "",
+        "size": 3.0,
+        "depth": 0.375,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          0.0,
+          3.0,
+          -14.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "ramp_1",
+        "input": "ramp_1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-ramp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#2f7fd8",
+                "metallic": 0.1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ramp_2",
+        "input": "ramp_2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-ramp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#2f7fd8",
+                "metallic": 0.1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "start_pad",
+        "input": "start_pad",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3550",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "finish_pad",
+        "input": "finish_pad",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-neon",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ff4fd8",
+                "emissive": "#ff4fd8",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wall_l",
+        "input": "wall_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3550",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wall_r",
+        "input": "wall_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3550",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wall_back",
+        "input": "wall_back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3550",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wall_end",
+        "input": "wall_end",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3550",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "void_floor",
+        "input": "void_floor",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-void",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#0a2a3a",
+                "emissive": "#06303f",
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sign_surf",
+        "input": "sign_surf",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-neon",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ff4fd8",
+                "emissive": "#ff4fd8",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sign_finish",
+        "input": "sign_finish",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "surf-neon",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ff4fd8",
+                "emissive": "#ff4fd8",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_1_v0",
+        "input": "ramp_1_v0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_1_v1",
+        "input": "ramp_1_v1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_1_v2",
+        "input": "ramp_1_v2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_1_v3",
+        "input": "ramp_1_v3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_1_v4",
+        "input": "ramp_1_v4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_1_v5",
+        "input": "ramp_1_v5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_2_v0",
+        "input": "ramp_2_v0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_2_v1",
+        "input": "ramp_2_v1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_2_v2",
+        "input": "ramp_2_v2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_2_v3",
+        "input": "ramp_2_v3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_2_v4",
+        "input": "ramp_2_v4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ramp_2_v5",
+        "input": "ramp_2_v5",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

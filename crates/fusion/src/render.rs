@@ -8,6 +8,7 @@ use std::sync::Arc;
 use crate::compose::{Cue, Mood};
 use crate::dsp::{Biquad, Eq};
 use crate::engine::Engine;
+use crate::inst::Engine as Sound;
 use crate::synth::{BLOCK, BUSES, Band, Bank, Bus, Ev, Inst, RATE};
 use crate::theory::{Chord, Quality, voice_lead};
 
@@ -28,9 +29,7 @@ pub const TOUR: &[(f32, Mood, f32)] = &[
 pub const TOUR_SECS: f32 = 106.0;
 const TOUR_VICTORY: f32 = 25.0;
 
-pub const BUS_NAMES: [&str; BUSES] = [
-    "drums", "bass", "keys", "lead", "pad", "perc", "brass", "guitar",
-];
+pub const BUS_NAMES: [&str; BUSES] = Bus::NAMES;
 
 /// Render `secs` of the score, asking `plan` what the game wants at each
 /// second. `mute` leaves buses out (bit per bus). Also returns where each
@@ -151,20 +150,16 @@ pub fn audition(inst: Inst) -> Vec<f32> {
         Chord::new(0, Quality::Maj9),
         Chord::new(9, Quality::Dom7alt),
     ];
+    let roots: Vec<u8> = match crate::inst::table().get(inst).map(|s| &s.engine) {
+        Some(Sound::Kit { samples, .. }) => samples.iter().map(|s| s.root).collect(),
+        _ => Vec::new(),
+    };
     match inst.bus() {
         Bus::Drums => {
             for k in 0..16 {
                 let vel = [1.0, 0.5, 0.75, 0.35][k % 4];
-                let note = match inst {
-                    Inst::Conga => [53, 58, 64, 71][k % 4],
-                    Inst::Tom => [55, 50, 45, 50][k % 4],
-                    Inst::Timbales => [65, 60, 65, 65][k % 4],
-                    Inst::Bongo => [72, 67, 72, 67][k % 4],
-                    Inst::Cajon => [36, 38, 36, 38][k % 4],
-                    Inst::Tabla => [41, 64, 64, 66][k % 4],
-                    Inst::Woodblock => [76, 77, 76, 76][k % 4],
-                    _ => 60,
-                };
+                // Each of the drum's samples in turn.
+                let note = roots.get(k % roots.len().max(1)).copied().unwrap_or(60);
                 evs.push(ev(k as f32 * beat * 0.5, note, vel, 0.0, false));
             }
         }
@@ -319,10 +314,7 @@ pub fn wav(stereo: &[f32]) -> Vec<u8> {
 
 /// Look an instrument, mood or bus up by name (case-insensitive).
 pub fn inst_by_name(name: &str) -> Option<Inst> {
-    Inst::ALL
-        .iter()
-        .copied()
-        .find(|i| format!("{i:?}").eq_ignore_ascii_case(name))
+    Inst::find(name)
 }
 
 pub fn mood_by_name(name: &str) -> Option<Mood> {
@@ -342,7 +334,9 @@ mod tests {
 
     #[test]
     fn every_instrument_auditions() {
-        for inst in Inst::ALL {
+        let all = Inst::all();
+        assert!(!all.is_empty(), "no instruments loaded");
+        for inst in all {
             let a = audition(inst);
             assert!(a.iter().all(|x| x.is_finite()), "{inst:?}");
             let (peak, _) = peak_rms_db(&a);

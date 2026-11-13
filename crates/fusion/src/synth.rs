@@ -25,145 +25,18 @@
 use std::f32::consts::TAU;
 use std::sync::Arc;
 
-use super::drums;
 use super::dsp::{AutoPan, Chorus, Echo, Eq, Reverb, StereoEq, Svf, saw, square};
+use crate::inst::{Engine, Foley, Hit, KitSample, Pan, Spec, Table, Voice, table};
 
 /// Engine sample rate.
 pub const RATE: u32 = 44_100;
 const INV_RATE: f32 = 1.0 / RATE as f32;
 
-/// Which instrument (and mixer bus) a note is for.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
-pub enum Inst {
-    // Live FM voices.
-    EPiano,
-    Bass,
-    Fretless,
-    Lead,
-    Brass,
-    Pad,
-    Kalimba,
-    // Live subtractive voices.
-    /// Mono Minimoog-style lead.
-    Mini,
-    /// The horn section: poly saw brass with a filter swell.
-    PolyBrass,
-    /// String-machine pad.
-    Strings,
-    // Sampled: the synthesized kit and percussion...
-    Kick,
-    Snare,
-    Ghost,
-    Hat,
-    OpenHat,
-    Crash,
-    Ride,
-    Clap,
-    Shaker,
-    Conga,
-    Tom,
-    Rim,
-    Cowbell,
-    /// A reversed-cymbal riser that peaks on the next downbeat.
-    Swell,
-    // ...and foley note blocks.
-    Bell,
-    Chime,
-    Xylo,
-    Flute,
-    Harp,
-    /// Live: a nylon-string guitar (plucked-string model).
-    Guitar,
-    // Live plucked strings (the same string model, other strings and bodies).
-    /// Funk clavinet: a bright, short pluck through an envelope filter.
-    Clav,
-    /// Steel-string acoustic guitar.
-    SteelGuitar,
-    /// Overdriven electric guitar.
-    ElectricGuitar,
-    /// Upright (double) bass: a round, dead-ish pluck.
-    Upright,
-    /// Slapped bass string: a snappy pluck with a hard click.
-    SlapBass,
-    // Live FM / additive voices.
-    /// Drawbar organ with a key click and a rotating-speaker wobble.
-    Organ,
-    /// Vibraphone: soft mallet bars with motor tremolo.
-    Vibes,
-    /// Marimba: woody bars with a short ring.
-    Marimba,
-    /// Steel drum (steel pan).
-    SteelDrum,
-    // Sampled hand percussion.
-    Timbales,
-    Bongo,
-    Cajon,
-    Tabla,
-    Tambourine,
-    Guiro,
-    Claves,
-    Woodblock,
-    /// Live: a breathy pan flute that scoops into each note.
-    PanFlute,
-    /// Live: a jazz vocal group singing "doo-ah" in close harmony.
-    Choir,
-}
+pub use crate::inst::Inst;
 
-impl Inst {
-    pub const ALL: [Inst; 49] = [
-        Inst::EPiano,
-        Inst::Bass,
-        Inst::Fretless,
-        Inst::Lead,
-        Inst::Brass,
-        Inst::Pad,
-        Inst::Kalimba,
-        Inst::Mini,
-        Inst::PolyBrass,
-        Inst::Strings,
-        Inst::Kick,
-        Inst::Snare,
-        Inst::Ghost,
-        Inst::Hat,
-        Inst::OpenHat,
-        Inst::Crash,
-        Inst::Ride,
-        Inst::Clap,
-        Inst::Shaker,
-        Inst::Conga,
-        Inst::Tom,
-        Inst::Rim,
-        Inst::Cowbell,
-        Inst::Swell,
-        Inst::Bell,
-        Inst::Chime,
-        Inst::Xylo,
-        Inst::Flute,
-        Inst::Harp,
-        Inst::Guitar,
-        Inst::Clav,
-        Inst::SteelGuitar,
-        Inst::ElectricGuitar,
-        Inst::Upright,
-        Inst::SlapBass,
-        Inst::Organ,
-        Inst::Vibes,
-        Inst::Marimba,
-        Inst::SteelDrum,
-        Inst::Timbales,
-        Inst::Bongo,
-        Inst::Cajon,
-        Inst::Tabla,
-        Inst::Tambourine,
-        Inst::Guiro,
-        Inst::Claves,
-        Inst::Woodblock,
-        Inst::PanFlute,
-        Inst::Choir,
-    ];
-}
-
-/// Mixer buses, faded independently (vertical re-orchestration).
+/// Mixer buses, faded independently (vertical re-orchestration). These are
+/// the band's slots, which the composer layers; `mix.ron` sets each one's
+/// sound and `instruments.ron` puts instruments on them by name.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Bus {
     Drums = 0,
@@ -177,145 +50,21 @@ pub enum Bus {
 }
 pub const BUSES: usize = 8;
 
-impl Inst {
-    pub fn bus(self) -> Bus {
-        use Inst::*;
-        match self {
-            Kick | Snare | Ghost | Hat | OpenHat | Crash | Ride | Clap | Shaker | Conga | Tom
-            | Rim | Cowbell | Swell | Timbales | Bongo | Cajon | Tabla | Tambourine | Guiro
-            | Claves | Woodblock => Bus::Drums,
-            Bass | Fretless | Upright | SlapBass => Bus::Bass,
-            EPiano | Clav | Organ => Bus::Keys,
-            Guitar | SteelGuitar | ElectricGuitar => Bus::Guitar,
-            Lead | Brass | Flute | Mini | PanFlute => Bus::Lead,
-            Pad | Strings | Choir => Bus::Pad,
-            Bell | Chime | Xylo | Harp | Kalimba | Vibes | Marimba | SteelDrum => Bus::Perc,
-            PolyBrass => Bus::Brass,
-        }
-    }
-
-    fn sampled(self) -> bool {
-        !matches!(
-            self,
-            Inst::EPiano
-                | Inst::Bass
-                | Inst::Fretless
-                | Inst::Lead
-                | Inst::Brass
-                | Inst::Pad
-                | Inst::Kalimba
-                | Inst::Flute
-                | Inst::Mini
-                | Inst::PolyBrass
-                | Inst::Strings
-                | Inst::Guitar
-                | Inst::Clav
-                | Inst::SteelGuitar
-                | Inst::ElectricGuitar
-                | Inst::Upright
-                | Inst::SlapBass
-                | Inst::Organ
-                | Inst::Vibes
-                | Inst::Marimba
-                | Inst::SteelDrum
-                | Inst::PanFlute
-                | Inst::Choir
-        )
-    }
-
-    /// Played by the plucked-string model.
-    fn plucked(self) -> bool {
-        matches!(
-            self,
-            Inst::Guitar
-                | Inst::Clav
-                | Inst::SteelGuitar
-                | Inst::ElectricGuitar
-                | Inst::Upright
-                | Inst::SlapBass
-        )
-    }
-
-    /// Reverb send.
-    fn send(self) -> f32 {
-        use Inst::*;
-        match self {
-            EPiano => 0.2,
-            Bass | Kick | Fretless => 0.0,
-            Lead | Brass | Mini => 0.26,
-            Flute => 0.6,
-            Pad | Strings => 0.42,
-            PolyBrass => 0.3,
-            Snare | Ghost | Tom | Rim | Conga => 0.14,
-            Clap => 0.28,
-            Hat | OpenHat | Cowbell | Shaker | Ride => 0.07,
-            Crash => 0.18,
-            Swell => 0.45,
-            Bell | Chime | Xylo | Harp | Kalimba => 0.38,
-            // A classical guitar in a big room.
-            Guitar => 0.68,
-            SteelGuitar => 0.45,
-            ElectricGuitar => 0.22,
-            Clav | Organ => 0.15,
-            Upright | SlapBass => 0.03,
-            Vibes | SteelDrum => 0.4,
-            Marimba => 0.3,
-            PanFlute => 0.62,
-            Choir => 0.5,
-            Timbales | Bongo | Cajon | Tabla | Woodblock => 0.14,
-            Tambourine | Guiro | Claves => 0.1,
-        }
-    }
-
-    /// Echo (dotted-eighth delay) send.
-    fn echo(self) -> f32 {
-        use Inst::*;
-        match self {
-            Mini => 0.3,
-            Lead => 0.26,
-            Brass => 0.12,
-            Flute => 0.3,
-            Kalimba => 0.3,
-            Bell | Harp => 0.22,
-            EPiano => 0.07,
-            PolyBrass => 0.05,
-            Clap => 0.06,
-            Guitar => 0.14,
-            SteelGuitar => 0.1,
-            ElectricGuitar => 0.22,
-            Vibes | SteelDrum => 0.18,
-            PanFlute => 0.32,
-            Choir => 0.06,
-            _ => 0.0,
-        }
-    }
-
-    /// Stereo position, -1 left .. 1 right (some voices spread per note).
-    fn pan(self) -> f32 {
-        use Inst::*;
-        match self {
-            Hat | OpenHat => 0.3,
-            Ride => -0.35,
-            Shaker => 0.45,
-            Ghost => -0.05,
-            Conga => -0.4,
-            Rim | Cowbell => -0.3,
-            Crash => -0.25,
-            Swell => 0.2,
-            Bell | Chime | Xylo => 0.4,
-            Harp => -0.3,
-            Flute => 0.15,
-            PanFlute => -0.12,
-            Timbales => 0.35,
-            Bongo => -0.45,
-            Tabla => -0.2,
-            Tambourine => 0.5,
-            Guiro => 0.4,
-            Claves => -0.35,
-            Woodblock => 0.3,
-            _ => 0.0,
-        }
-    }
+impl Bus {
+    pub const ALL: [Bus; BUSES] = [
+        Bus::Drums,
+        Bus::Bass,
+        Bus::Keys,
+        Bus::Lead,
+        Bus::Pad,
+        Bus::Perc,
+        Bus::Brass,
+        Bus::Guitar,
+    ];
+    /// The buses' names, as `mix.ron` and `instruments.ron` write them.
+    pub const NAMES: [&str; BUSES] = [
+        "drums", "bass", "keys", "lead", "pad", "perc", "brass", "guitar",
+    ];
 }
 
 /// Fast sine of `x` cycles (any range). Parabolic approximation with one
@@ -356,13 +105,50 @@ fn pan_gains(pan: f32) -> (f32, f32) {
     ((0.5 * (1.0 - pan)).sqrt(), (0.5 * (1.0 + pan)).sqrt())
 }
 
+/// Up to `N` values stored inline, so voices can copy their patch without
+/// allocating. Read from a list in the data file (extra values are dropped).
+#[derive(Clone, Copy, Debug)]
+pub struct Fixed<T, const N: usize> {
+    v: [T; N],
+    n: usize,
+}
+
+impl<T: Copy + Default, const N: usize> Default for Fixed<T, N> {
+    fn default() -> Self {
+        Self {
+            v: [T::default(); N],
+            n: 0,
+        }
+    }
+}
+
+impl<T, const N: usize> Fixed<T, N> {
+    fn as_slice(&self) -> &[T] {
+        &self.v[..self.n]
+    }
+}
+
+impl<'de, T: serde::Deserialize<'de> + Copy + Default, const N: usize> serde::Deserialize<'de>
+    for Fixed<T, N>
+{
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        let all = Vec::<T>::deserialize(d)?;
+        let mut f = Self::default();
+        for (slot, x) in f.v.iter_mut().zip(all) {
+            *slot = x;
+            f.n += 1;
+        }
+        Ok(f)
+    }
+}
+
 // --- FM ----------------------------------------------------------------
 
 /// One FM patch: carrier at 1x, modulator 1 (with feedback) and a second
 /// modulator, each with its own decaying index, through an ADSR, plus an
 /// optional pure sine at the fundamental for weight.
-#[derive(Clone, Copy, Debug)]
-struct Patch {
+#[derive(Clone, Copy, Debug, Default, serde::Deserialize)]
+pub struct Patch {
     r1: f32,
     i1_peak: f32,
     i1_sus: f32,
@@ -389,336 +175,22 @@ struct Patch {
     /// Slow drift of the brightness (fraction of the index) on held notes.
     i_lfo: f32,
     /// Extra pure sines over the carrier, (ratio, level): organ drawbars.
-    bars: &'static [(f32, f32)],
+    bars: Fixed<(f32, f32), 8>,
     /// Amplitude tremolo depth (0 = off) and rate in Hz: vibes motor, Leslie.
     trem: f32,
     trem_rate: f32,
-}
-
-const EP: Patch = Patch {
-    // "E.PIANO 1": a warm 1:1 pair plus a 14:1 tine "ding" that dies fast.
-    r1: 1.0,
-    i1_peak: 1.5,
-    i1_sus: 0.22,
-    i1_tau: 0.55,
-    r2: 14.0,
-    i2_peak: 1.25,
-    i2_tau: 0.02,
-    fb: 0.0,
-    attack: 0.002,
-    decay: 1.7,
-    sustain: 0.0,
-    release: 0.2,
-    detune: 0.06,
-    gain: 0.15,
-    vibrato: 0.0,
-    swell: false,
-    sub: 0.0,
-    ks: 0.5,
-    i_lfo: 0.0,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const BASS: Patch = Patch {
-    // FM slap: a hard, fast-decaying 1:1 index (the thumb) with grit from
-    // feedback, a 3:1 click, and a clean fundamental under it all.
-    r1: 1.0,
-    i1_peak: 3.0,
-    i1_sus: 0.4,
-    i1_tau: 0.06,
-    r2: 3.0,
-    i2_peak: 1.0,
-    i2_tau: 0.01,
-    fb: 0.22,
-    attack: 0.001,
-    decay: 0.8,
-    sustain: 0.4,
-    release: 0.05,
-    detune: 0.0,
-    gain: 0.36,
-    vibrato: 0.0,
-    swell: false,
-    sub: 0.55,
-    ks: 0.3,
-    i_lfo: 0.0,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const FRETLESS: Patch = Patch {
-    // Fretless "mwah": a round fundamental whose brightness blooms just
-    // after the attack, singing a little in the sustain.
-    r1: 1.0,
-    i1_peak: 1.2,
-    i1_sus: 0.5,
-    i1_tau: 0.12,
-    r2: 2.0,
-    i2_peak: 0.25,
-    i2_tau: 0.05,
-    fb: 0.12,
-    attack: 0.012,
-    decay: 1.4,
-    sustain: 0.55,
-    release: 0.09,
-    detune: 0.0,
-    gain: 0.34,
-    vibrato: 0.0035,
-    swell: true,
-    sub: 0.6,
-    ks: 0.2,
-    i_lfo: 0.0,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const LEAD: Patch = Patch {
-    // Singing FM lead: self-feedback makes a soft saw, 2:1 adds body.
-    r1: 1.0,
-    i1_peak: 1.8,
-    i1_sus: 1.1,
-    i1_tau: 0.25,
-    r2: 2.0,
-    i2_peak: 0.35,
-    i2_tau: 1.0,
-    fb: 0.55,
-    attack: 0.012,
-    decay: 0.8,
-    sustain: 0.8,
-    release: 0.14,
-    detune: 0.0,
-    gain: 0.16,
-    vibrato: 0.0045,
-    swell: false,
-    sub: 0.0,
-    ks: 0.35,
-    i_lfo: 0.15,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const BRASS: Patch = Patch {
-    // FM brass lead: the index swells in over the attack, like a horn
-    // leaning into a note.
-    r1: 1.0,
-    i1_peak: 2.4,
-    i1_sus: 1.6,
-    i1_tau: 0.09,
-    r2: 1.0,
-    i2_peak: 0.0,
-    i2_tau: 1.0,
-    fb: 0.35,
-    attack: 0.03,
-    decay: 0.6,
-    sustain: 0.75,
-    release: 0.16,
-    detune: 0.08,
-    gain: 0.15,
-    vibrato: 0.004,
-    swell: true,
-    sub: 0.0,
-    ks: 0.35,
-    i_lfo: 0.12,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const PAD: Patch = Patch {
-    // Bell pad: 3.5:1 shimmer over a mellow 1:1, detuned ensemble.
-    r1: 1.0,
-    i1_peak: 0.6,
-    i1_sus: 0.35,
-    i1_tau: 1.5,
-    r2: 3.5,
-    i2_peak: 0.5,
-    i2_tau: 0.8,
-    fb: 0.0,
-    attack: 0.45,
-    decay: 2.0,
-    sustain: 0.7,
-    release: 1.4,
-    detune: 0.1,
-    gain: 0.06,
-    vibrato: 0.0,
-    swell: false,
-    sub: 0.0,
-    ks: 0.4,
-    i_lfo: 0.45,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const KALIMBA: Patch = Patch {
-    // Kalimba/marimba: a woody 3:1 knock and an 8:1 tine click over a
-    // pure tone that rings briefly.
-    r1: 3.0,
-    i1_peak: 1.1,
-    i1_sus: 0.0,
-    i1_tau: 0.045,
-    r2: 8.0,
-    i2_peak: 0.9,
-    i2_tau: 0.006,
-    fb: 0.0,
-    attack: 0.001,
-    decay: 0.55,
-    sustain: 0.0,
-    release: 0.3,
-    detune: 0.0,
-    gain: 0.16,
-    vibrato: 0.0,
-    swell: false,
-    sub: 0.0,
-    ks: 0.6,
-    i_lfo: 0.0,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const ORGAN: Patch = Patch {
-    // Drawbar organ: no FM on the carrier, just pure sines stacked at the
-    // drawbar footages (16', 8', 4', 2 2/3', 2', 1 1/3', 1'), a 7:1 key
-    // click that dies in a few ms, and a rotating speaker's wobble.
-    r1: 1.0,
-    i1_peak: 0.0,
-    i1_sus: 0.0,
-    i1_tau: 1.0,
-    r2: 7.0,
-    i2_peak: 1.6,
-    i2_tau: 0.004,
-    fb: 0.0,
-    attack: 0.004,
-    decay: 1.0,
-    sustain: 1.0,
-    release: 0.07,
-    detune: 0.0,
-    gain: 0.06,
-    vibrato: 0.002,
-    swell: false,
-    sub: 0.0,
-    ks: 0.0,
-    i_lfo: 0.0,
-    bars: &[
-        (0.5, 0.7),
-        (2.0, 0.8),
-        (3.0, 0.45),
-        (4.0, 0.4),
-        (6.0, 0.15),
-        (8.0, 0.25),
-    ],
-    trem: 0.22,
-    trem_rate: 6.3,
-};
-
-const VIBES: Patch = Patch {
-    // Vibraphone: a soft 4:1 mallet knock and a 10:1 tick over a pure,
-    // long-ringing bar, pulsed by the motor's tremolo.
-    r1: 4.0,
-    i1_peak: 0.9,
-    i1_sus: 0.0,
-    i1_tau: 0.06,
-    r2: 10.0,
-    i2_peak: 0.4,
-    i2_tau: 0.004,
-    fb: 0.0,
-    attack: 0.002,
-    decay: 2.6,
-    sustain: 0.0,
-    release: 0.6,
-    detune: 0.0,
-    gain: 0.15,
-    vibrato: 0.0,
-    swell: false,
-    sub: 0.0,
-    ks: 0.5,
-    i_lfo: 0.0,
-    bars: &[],
-    trem: 0.45,
-    trem_rate: 5.2,
-};
-
-const MARIMBA: Patch = Patch {
-    // Marimba: a woody 4:1 knock and a 10:1 click over a round
-    // fundamental that rings briefly (the resonator tube).
-    r1: 4.0,
-    i1_peak: 0.8,
-    i1_sus: 0.0,
-    i1_tau: 0.025,
-    r2: 10.0,
-    i2_peak: 0.5,
-    i2_tau: 0.003,
-    fb: 0.0,
-    attack: 0.001,
-    decay: 0.4,
-    sustain: 0.0,
-    release: 0.2,
-    detune: 0.0,
-    gain: 0.15,
-    vibrato: 0.0,
-    swell: false,
-    sub: 0.35,
-    ks: 0.5,
-    i_lfo: 0.0,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-const STEEL_DRUM: Patch = Patch {
-    // Steel pan: an all-harmonic 1:1 pair that blooms and fades, a
-    // slightly sharp 3:1 (the "twelfth" partial) beating against it, and a
-    // detuned second carrier for the shimmer of the hammered note.
-    r1: 1.0,
-    i1_peak: 1.5,
-    i1_sus: 0.3,
-    i1_tau: 0.15,
-    r2: 3.01,
-    i2_peak: 0.5,
-    i2_tau: 0.3,
-    fb: 0.0,
-    attack: 0.002,
-    decay: 1.1,
-    sustain: 0.0,
-    release: 0.3,
-    detune: 0.04,
-    gain: 0.12,
-    vibrato: 0.0,
-    swell: false,
-    sub: 0.0,
-    ks: 0.4,
-    i_lfo: 0.0,
-    bars: &[],
-    trem: 0.0,
-    trem_rate: 0.0,
-};
-
-fn patch(inst: Inst) -> &'static Patch {
-    match inst {
-        Inst::Organ => &ORGAN,
-        Inst::Vibes => &VIBES,
-        Inst::Marimba => &MARIMBA,
-        Inst::SteelDrum => &STEEL_DRUM,
-        Inst::EPiano => &EP,
-        Inst::Bass => &BASS,
-        Inst::Fretless => &FRETLESS,
-        Inst::Brass => &BRASS,
-        Inst::Pad => &PAD,
-        Inst::Kalimba => &KALIMBA,
-        _ => &LEAD,
-    }
+    /// Higher notes die sooner (tines, bars).
+    pitch_decay: bool,
 }
 
 #[derive(Clone, Copy, Debug)]
 struct FmVoice {
     active: bool,
     inst: Inst,
-    p: &'static Patch,
+    /// Plays a bass line: one note at a time, never stolen.
+    bass: bool,
+    bus: usize,
+    p: Patch,
     freq: f32,
     target: f32,
     glide: f32,
@@ -757,8 +229,10 @@ impl FmVoice {
     fn idle() -> Self {
         Self {
             active: false,
-            inst: Inst::EPiano,
-            p: &EP,
+            inst: Inst::NONE,
+            bass: false,
+            bus: 0,
+            p: Patch::default(),
             freq: 0.0,
             target: 0.0,
             glide: 0.0,
@@ -791,14 +265,12 @@ impl FmVoice {
         }
     }
 
-    fn start(&mut self, inst: Inst, note: u8, vel: f32, len: u32, pan: f32) {
-        let p = patch(inst);
+    fn start(&mut self, ev: &Ev, s: &Spec, pan: f32) {
+        let Engine::Fm(p) = s.engine else { return };
+        let (inst, note, vel, len) = (ev.inst, ev.note, ev.vel, ev.len);
         let f = hz(note as f32);
         // Higher notes on a real tine piano (or a kalimba) die sooner.
-        let pitch_k = if matches!(
-            inst,
-            Inst::EPiano | Inst::Kalimba | Inst::Vibes | Inst::Marimba | Inst::SteelDrum
-        ) {
+        let pitch_k = if p.pitch_decay {
             (1.0 - (note as f32 - 60.0) / 60.0).clamp(0.5, 1.3)
         } else {
             1.0
@@ -813,6 +285,8 @@ impl FmVoice {
         *self = Self {
             active: true,
             inst,
+            bass: s.voice == Voice::Bass,
+            bus: s.bus,
             p,
             freq: f,
             target: f,
@@ -838,8 +312,8 @@ impl FmVoice {
             vel,
             gl: pl * g,
             gr: pr * g,
-            send: inst.send(),
-            echo: inst.echo(),
+            send: s.send,
+            echo: s.echo,
             ..Self::idle()
         };
         self.att_step = 1.0 / self.att_left as f32;
@@ -881,7 +355,7 @@ impl FmVoice {
         // Drawbars, leaving out any that would sound above ~15 kHz.
         let mut bars = [(0.0f32, 0.0f32); 8];
         let mut nb = 0;
-        for &(r, a) in p.bars.iter().take(8) {
+        for &(r, a) in p.bars.as_slice() {
             if r * self.target < 15_000.0 {
                 bars[nb] = (r, a);
                 nb += 1;
@@ -975,10 +449,10 @@ impl FmVoice {
 
 // --- Subtractive ---------------------------------------------------------
 
-#[derive(Clone, Copy, Debug)]
-struct SubPatch {
+#[derive(Clone, Copy, Debug, Default, serde::Deserialize)]
+pub struct SubPatch {
     /// Detune of the saws in cents (one saw per entry, up to three).
-    saws: &'static [f32],
+    saws: Fixed<f32, 3>,
     square: f32,
     /// Square one octave down.
     sub_osc: f32,
@@ -1007,99 +481,12 @@ struct SubPatch {
     f_lfo: f32,
 }
 
-const POLY_BRASS: SubPatch = SubPatch {
-    // CS-80 / GS-1 style brass: two detuned saws, the filter blooming open
-    // over the attack and settling back, a little scoop into the pitch.
-    saws: &[-7.0, 6.0],
-    square: 0.0,
-    sub_osc: 0.0,
-    cut_key: 1.1,
-    cut_base: 250.0,
-    env_oct: 3.4,
-    f_attack: 0.075,
-    f_decay: 0.45,
-    f_sustain: 0.5,
-    k: 1.3,
-    four_pole: false,
-    attack: 0.025,
-    decay: 0.6,
-    sustain: 0.85,
-    release: 0.22,
-    scoop: -0.35,
-    scoop_tau: 0.035,
-    vibrato: 0.0035,
-    vib_rate: 5.2,
-    vib_delay: 0.4,
-    gain: 0.055,
-    f_lfo: 0.25,
-};
-
-const STRINGS: SubPatch = SubPatch {
-    // String machine: three saws spread wide, mellow and slow.
-    saws: &[-11.0, 0.0, 10.0],
-    square: 0.0,
-    sub_osc: 0.0,
-    cut_key: 2.6,
-    cut_base: 600.0,
-    env_oct: 0.8,
-    f_attack: 0.6,
-    f_decay: 1.5,
-    f_sustain: 0.6,
-    k: 1.6,
-    four_pole: false,
-    attack: 0.38,
-    decay: 1.0,
-    sustain: 1.0,
-    release: 1.1,
-    scoop: 0.0,
-    scoop_tau: 0.1,
-    vibrato: 0.0025,
-    vib_rate: 4.6,
-    vib_delay: 0.0,
-    gain: 0.032,
-    f_lfo: 0.5,
-};
-
-const MINI: SubPatch = SubPatch {
-    // Minimoog lead: saw + square + sub through a resonant 24 dB ladder-ish
-    // filter with a snappy envelope, delayed vibrato, glide.
-    saws: &[0.0],
-    square: 0.55,
-    sub_osc: 0.3,
-    cut_key: 1.3,
-    cut_base: 220.0,
-    env_oct: 3.2,
-    f_attack: 0.006,
-    f_decay: 0.32,
-    f_sustain: 0.42,
-    k: 0.75,
-    four_pole: true,
-    attack: 0.005,
-    decay: 0.5,
-    sustain: 0.85,
-    release: 0.12,
-    scoop: 0.0,
-    scoop_tau: 0.1,
-    vibrato: 0.0055,
-    vib_rate: 5.5,
-    vib_delay: 0.32,
-    gain: 0.13,
-    f_lfo: 0.15,
-};
-
-fn sub_patch(inst: Inst) -> &'static SubPatch {
-    match inst {
-        Inst::PolyBrass => &POLY_BRASS,
-        Inst::Strings => &STRINGS,
-        _ => &MINI,
-    }
-}
-
 #[derive(Clone, Copy, Debug)]
 struct SubVoice {
     active: bool,
     inst: Inst,
-    p: &'static SubPatch,
+    bus: usize,
+    p: SubPatch,
     freq: f32,
     target: f32,
     glide: f32,
@@ -1137,8 +524,9 @@ impl SubVoice {
     fn idle() -> Self {
         Self {
             active: false,
-            inst: Inst::Mini,
-            p: &MINI,
+            inst: Inst::NONE,
+            bus: 0,
+            p: SubPatch::default(),
             freq: 0.0,
             target: 0.0,
             glide: 0.0,
@@ -1172,8 +560,9 @@ impl SubVoice {
         }
     }
 
-    fn start(&mut self, inst: Inst, note: u8, vel: f32, len: u32, pan: f32) {
-        let p = sub_patch(inst);
+    fn start(&mut self, ev: &Ev, s: &Spec, pan: f32) {
+        let Engine::Sub(p) = s.engine else { return };
+        let (inst, note, vel, len) = (ev.inst, ev.note, ev.vel, ev.len);
         let vel = vel.clamp(0.0, 1.0);
         let f = hz(note as f32);
         let (pl, pr) = pan_gains(pan);
@@ -1184,6 +573,7 @@ impl SubVoice {
         *self = Self {
             active: true,
             inst,
+            bus: s.bus,
             p,
             freq: f,
             target: f,
@@ -1202,8 +592,8 @@ impl SubVoice {
             vel,
             gl: pl * g,
             gr: pr * g,
-            send: inst.send(),
-            echo: inst.echo(),
+            send: s.send,
+            echo: s.echo,
             ..Self::idle()
         };
     }
@@ -1225,10 +615,10 @@ impl SubVoice {
         let dg = (g1 - g0) / n.max(1) as f32;
         let mut g = g0;
         let mut dets = [1.0f32; 3];
-        for (d, c) in dets.iter_mut().zip(p.saws) {
+        for (d, c) in dets.iter_mut().zip(p.saws.as_slice()) {
             *d = exp2_fast(c / 1200.0);
         }
-        let nsaw = p.saws.len().min(3);
+        let nsaw = p.saws.as_slice().len().min(3);
         let saw_g = 1.0 / (nsaw as f32).sqrt();
         let env_oct = p.env_oct * (0.55 + 0.45 * self.vel);
         let vib_delay = (p.vib_delay * RATE as f32) as u32;
@@ -1330,8 +720,8 @@ impl SubVoice {
 const STRING_LEN: usize = 2048;
 
 /// How one kind of string sounds on the plucked-string model.
-#[derive(Clone, Copy, Debug)]
-struct StringPatch {
+#[derive(Clone, Copy, Debug, Default, serde::Deserialize)]
+pub struct StringPatch {
     /// Ring time (T60, s) at 110 Hz, falling as `(110 / f)^0.4` above,
     /// and its limits.
     t60: f32,
@@ -1360,161 +750,8 @@ struct StringPatch {
     wah: f32,
     gain: f32,
     release: f32,
-    /// Stereo spread by pitch (0 = centred).
-    spread: f32,
     /// One note at a time (a bass line).
     mono: bool,
-}
-
-const NYLON: StringPatch = StringPatch {
-    t60: 7.0,
-    t60_min: 1.8,
-    t60_max: 8.0,
-    c: 0.64,
-    c_vel: 0.12,
-    c_bright: 0.06,
-    at: 0.18,
-    nail: 0.03,
-    nail_vel: 0.07,
-    passes: (2, 3),
-    lp: 2200.0,
-    lp_vel: 2800.0,
-    lp_bright: 1200.0,
-    drive: 0.0,
-    wah: 0.0,
-    gain: 0.3,
-    release: 0.12,
-    spread: 0.4,
-    mono: false,
-};
-
-const CLAV: StringPatch = StringPatch {
-    // Struck near the end by a hammer pad: bright, short, damped the moment
-    // the key comes up, and quacking through an envelope filter.
-    t60: 1.4,
-    t60_min: 0.5,
-    t60_max: 2.0,
-    c: 0.3,
-    c_vel: 0.1,
-    c_bright: 0.08,
-    at: 0.06,
-    nail: 0.12,
-    nail_vel: 0.15,
-    passes: (1, 1),
-    lp: 5000.0,
-    lp_vel: 5000.0,
-    lp_bright: 2000.0,
-    drive: 0.0,
-    wah: 3.0,
-    gain: 0.24,
-    release: 0.025,
-    spread: 0.3,
-    mono: false,
-};
-
-const STEEL: StringPatch = StringPatch {
-    // Steel strings and a pick: long, bright and jangly.
-    t60: 9.0,
-    t60_min: 2.5,
-    t60_max: 10.0,
-    c: 0.42,
-    c_vel: 0.1,
-    c_bright: 0.06,
-    at: 0.14,
-    nail: 0.12,
-    nail_vel: 0.12,
-    passes: (1, 2),
-    lp: 4500.0,
-    lp_vel: 5000.0,
-    lp_bright: 1500.0,
-    drive: 0.0,
-    wah: 0.0,
-    gain: 0.26,
-    release: 0.15,
-    spread: 0.4,
-    mono: false,
-};
-
-const ELECTRIC: StringPatch = StringPatch {
-    // A bridge pickup into a cranked amp: overdrive, then a cabinet that
-    // cuts the fizz.
-    t60: 6.0,
-    t60_min: 2.0,
-    t60_max: 8.0,
-    c: 0.35,
-    c_vel: 0.08,
-    c_bright: 0.05,
-    at: 0.12,
-    nail: 0.1,
-    nail_vel: 0.05,
-    passes: (1, 2),
-    lp: 3400.0,
-    lp_vel: 600.0,
-    lp_bright: 800.0,
-    drive: 5.0,
-    wah: 0.0,
-    gain: 0.12,
-    release: 0.08,
-    spread: 0.25,
-    mono: false,
-};
-
-const UPRIGHT: StringPatch = StringPatch {
-    // Gut strings plucked with the side of a finger: round, woody and
-    // dying away fast.
-    t60: 2.6,
-    t60_min: 1.0,
-    t60_max: 3.5,
-    c: 0.7,
-    c_vel: 0.08,
-    c_bright: 0.04,
-    at: 0.22,
-    nail: 0.02,
-    nail_vel: 0.02,
-    passes: (3, 3),
-    lp: 900.0,
-    lp_vel: 1100.0,
-    lp_bright: 400.0,
-    drive: 0.0,
-    wah: 0.0,
-    gain: 0.55,
-    release: 0.1,
-    spread: 0.0,
-    mono: true,
-};
-
-const SLAP: StringPatch = StringPatch {
-    // A roundwound string thumped near the neck and snapping on the frets.
-    t60: 4.0,
-    t60_min: 2.0,
-    t60_max: 5.0,
-    c: 0.35,
-    c_vel: 0.1,
-    c_bright: 0.05,
-    at: 0.08,
-    nail: 0.35,
-    nail_vel: 0.25,
-    passes: (1, 1),
-    lp: 2500.0,
-    lp_vel: 5000.0,
-    lp_bright: 1500.0,
-    drive: 0.0,
-    wah: 0.0,
-    gain: 0.4,
-    release: 0.05,
-    spread: 0.0,
-    mono: true,
-};
-
-fn string_patch(inst: Inst) -> &'static StringPatch {
-    match inst {
-        Inst::Clav => &CLAV,
-        Inst::SteelGuitar => &STEEL,
-        Inst::ElectricGuitar => &ELECTRIC,
-        Inst::Upright => &UPRIGHT,
-        Inst::SlapBass => &SLAP,
-        _ => &NYLON,
-    }
 }
 
 /// One string polarisation: a delay line closed through a one-pole loss
@@ -1584,7 +821,8 @@ impl StringLoop {
 struct PluckVoice {
     active: bool,
     inst: Inst,
-    p: &'static StringPatch,
+    bus: usize,
+    p: StringPatch,
     note: u8,
     a: StringLoop,
     b: StringLoop,
@@ -1617,8 +855,9 @@ impl PluckVoice {
     fn idle() -> Self {
         Self {
             active: false,
-            inst: Inst::Guitar,
-            p: &NYLON,
+            inst: Inst::NONE,
+            bus: 0,
+            p: StringPatch::default(),
             note: 0,
             a: StringLoop::default(),
             b: StringLoop::default(),
@@ -1643,9 +882,11 @@ impl PluckVoice {
         }
     }
 
-    fn start(&mut self, inst: Inst, note: u8, vel: f32, len: u32, bright: f32, noise: &mut u32) {
-        let p = string_patch(inst);
+    fn start(&mut self, ev: &Ev, s: &Spec, pan: f32, bright: f32, noise: &mut u32) {
+        let Engine::String(p) = s.engine else { return };
+        let (inst, note, vel, len) = (ev.inst, ev.note, ev.vel, ev.len);
         self.inst = inst;
+        self.bus = s.bus;
         self.p = p;
         let vel = vel.clamp(0.05, 1.0);
         let f = hz(note as f32);
@@ -1701,14 +942,12 @@ impl PluckVoice {
         la.rotate_right(STRING_LEN - n);
         lb.rotate_right(STRING_LEN - n);
         self.w = 0;
-        // Lower strings sit a little left, higher ones right (a stereo mic).
-        let pan = ((note as f32 - 60.0) / 24.0).clamp(-p.spread, p.spread);
         let (pl, pr) = pan_gains(pan);
         let g = p.gain * dyn_gain(vel);
         self.gl = pl * g;
         self.gr = pr * g;
-        self.send = inst.send();
-        self.echo = inst.echo();
+        self.send = s.send;
+        self.echo = s.echo;
         // The body and the thumb soften the top end; harder plucks open it.
         let fc = (p.lp + p.lp_vel * vel + p.lp_bright * bright).min(0.4 * RATE as f32);
         self.lp_a = 1.0 - (-std::f32::consts::TAU * fc / RATE as f32).exp();
@@ -1784,11 +1023,40 @@ impl PluckVoice {
 /// the breath, so a note starts with a "chiff", blooms and settles; harder
 /// notes blow brighter, softer ones are mostly air. Low notes are bottles
 /// (purer, breathier), high ones flutes (brighter). Vibrato arrives late.
+/// How one kind of pipe is blown (flute and bottle; pan flute: purer,
+/// airier, scooping into each note).
+#[derive(Clone, Copy, Debug, Default, serde::Deserialize)]
+pub struct BlowPatch {
+    /// Breath vibrato depth.
+    vibrato: f32,
+    /// Starts this many semitones off and slides up over `scoop_time` s.
+    scoop: f32,
+    scoop_time: f32,
+    /// Attack time, plus this much more for a soft note.
+    attack: f32,
+    attack_soft: f32,
+    release: f32,
+    /// The "tu" on the onset.
+    chiff: f32,
+    /// Breath noise: this much, less `air_high` up the range (bottle to
+    /// flute) and `air_vel` for harder notes.
+    air: f32,
+    air_high: f32,
+    air_vel: f32,
+    /// How much velocity brightens the tone.
+    tone_vel: f32,
+    gain: f32,
+    /// Output level on top of `gain`.
+    level: f32,
+}
+
 #[derive(Clone, Copy, Debug)]
 struct BlowVoice {
     active: bool,
-    /// `Flute` (bottle/flute) or `PanFlute` (purer, airier, scoops in).
     inst: Inst,
+    bus: usize,
+    send: f32,
+    echo: f32,
     /// Breath vibrato depth.
     vib_amt: f32,
     freq: f32,
@@ -1822,7 +1090,10 @@ impl BlowVoice {
     fn idle() -> Self {
         Self {
             active: false,
-            inst: Inst::Flute,
+            inst: Inst::NONE,
+            bus: 0,
+            send: 0.0,
+            echo: 0.0,
             vib_amt: 0.0025,
             freq: 440.0,
             target: 440.0,
@@ -1850,55 +1121,37 @@ impl BlowVoice {
         }
     }
 
-    fn start(&mut self, inst: Inst, note: u8, vel: f32, len: u32, seed: u32) {
+    fn start(&mut self, ev: &Ev, s: &Spec, pan: f32, seed: u32) {
+        let Engine::Blown(p) = s.engine else { return };
+        let (note, vel, len) = (ev.note, ev.vel, ev.len);
         let vel = vel.clamp(0.05, 1.0);
         let f = hz(note as f32);
         // 0 = bottle (low), 1 = flute (high).
         let reg = ((note as f32 - 62.0) / 20.0).clamp(0.0, 1.0);
-        let (pl, pr) = pan_gains(inst.pan());
-        let g = 0.12 * dyn_gain(vel);
-        if inst == Inst::PanFlute {
-            // A row of stopped pipes: nearly pure, lots of air, a strong
-            // "tu" on the onset, and each note bent up into from a little
-            // flat, with a wide breath vibrato.
-            *self = Self {
-                active: true,
-                inst,
-                vib_amt: 0.0045,
-                freq: f * exp2_fast(-0.7 / 12.0),
-                target: f,
-                glide: per_sample(0.045),
-                ph: 0.0,
-                mph: 0.25,
-                att: INV_RATE / (0.03 + 0.06 * (1.0 - vel)),
-                k_rel: per_sample(0.12),
-                hold: len.max(RATE / 25),
-                chiff: 1.0,
-                noise: seed | 1,
-                air: 0.9 - 0.2 * vel,
-                vel: vel * 0.4,
-                gl: pl * g * 1.1,
-                gr: pr * g * 1.1,
-                ..Self::idle()
-            };
-            return;
-        }
+        let (pl, pr) = pan_gains(pan);
+        let g = p.gain * dyn_gain(vel);
         *self = Self {
             active: true,
-            freq: f,
+            inst: ev.inst,
+            bus: s.bus,
+            send: s.send,
+            echo: s.echo,
+            vib_amt: p.vibrato,
+            freq: f * exp2_fast(p.scoop / 12.0),
             target: f,
+            glide: per_sample(p.scoop_time),
             ph: 0.0,
             mph: 0.25,
             // Soft notes take longer to speak.
-            att: INV_RATE / (0.05 + 0.09 * (1.0 - vel)),
-            k_rel: per_sample(0.09),
+            att: INV_RATE / (p.attack + p.attack_soft * (1.0 - vel)),
+            k_rel: per_sample(p.release),
             hold: len.max(RATE / 25),
-            chiff: 0.6,
+            chiff: p.chiff,
             noise: seed | 1,
-            air: 0.7 - 0.15 * reg - 0.1 * vel,
-            vel,
-            gl: pl * g,
-            gr: pr * g,
+            air: p.air - p.air_high * reg - p.air_vel * vel,
+            vel: vel * p.tone_vel,
+            gl: pl * g * p.level,
+            gr: pr * g * p.level,
             ..Self::idle()
         };
     }
@@ -1970,8 +1223,8 @@ impl BlowVoice {
             out.l[i] += s * self.gl;
             out.r[i] += s * self.gr;
             let m = s * (self.gl + self.gr);
-            out.send[i] += m * self.inst.send();
-            out.echo[i] += m * self.inst.echo();
+            out.send[i] += m * self.send;
+            out.echo[i] += m * self.echo;
             self.age = self.age.saturating_add(1);
             g += dg;
         }
@@ -1991,9 +1244,36 @@ const SINGERS: usize = 3;
 /// formant band-passes. The vowel opens from "oo" to "ah" as the note
 /// speaks, the "doo-ah" of close-harmony backing vocals; low notes sing
 /// with men's formants, high ones with women's. A little breath on top.
+/// How the choir sings.
+#[derive(Clone, Copy, Debug, Default, serde::Deserialize)]
+pub struct ChoirPatch {
+    gain: f32,
+    /// Source low-pass: Hz, plus per velocity and per brightness.
+    cutoff: f32,
+    cutoff_vel: f32,
+    cutoff_bright: f32,
+    /// Attack time, plus this much more for a soft note.
+    attack: f32,
+    attack_soft: f32,
+    release: f32,
+    /// Time constant of the "oo" opening to "ah".
+    vowel_time: f32,
+    /// From this note up, women's formants (scaled by `high_scale`).
+    high_from: u8,
+    high_scale: f32,
+    /// Formant centres (Hz), damping and level for "oo" and "ah".
+    oo: [(f32, f32, f32); 3],
+    ah: [(f32, f32, f32); 3],
+}
+
 #[derive(Clone, Copy, Debug)]
 struct ChoirVoice {
     active: bool,
+    bus: usize,
+    send: f32,
+    echo: f32,
+    oo: [(f32, f32, f32); 3],
+    ah: [(f32, f32, f32); 3],
     freq: f32,
     ph: [f32; SINGERS],
     vib: [f32; SINGERS],
@@ -2021,22 +1301,15 @@ struct ChoirVoice {
 
 const CHOIR_VOICES: usize = 8;
 
-/// Formant centres (Hz), damping and level for "oo" and "ah".
-const OO: [(f32, f32, f32); 3] = [
-    (320.0, 0.25, 1.0),
-    (800.0, 0.14, 0.45),
-    (2300.0, 0.08, 0.12),
-];
-const AH: [(f32, f32, f32); 3] = [
-    (730.0, 0.18, 1.0),
-    (1100.0, 0.12, 0.6),
-    (2500.0, 0.08, 0.22),
-];
-
 impl ChoirVoice {
     fn idle() -> Self {
         Self {
             active: false,
+            bus: 0,
+            send: 0.0,
+            echo: 0.0,
+            oo: [(0.0, 0.0, 0.0); 3],
+            ah: [(0.0, 0.0, 0.0); 3],
             freq: 220.0,
             ph: [0.0; SINGERS],
             vib: [0.0; SINGERS],
@@ -2059,26 +1332,37 @@ impl ChoirVoice {
         }
     }
 
-    fn start(&mut self, note: u8, vel: f32, len: u32, pan: f32, bright: f32, seed: u32) {
+    fn start(&mut self, ev: &Ev, s: &Spec, pan: f32, bright: f32, seed: u32) {
+        let Engine::Choir(p) = s.engine else { return };
+        let (note, vel, len) = (ev.note, ev.vel, ev.len);
         let vel = vel.clamp(0.05, 1.0);
         let (pl, pr) = pan_gains(pan);
-        let g = 0.11 * dyn_gain(vel);
-        let fc = 1800.0 + 2500.0 * vel + 1500.0 * bright;
+        let g = p.gain * dyn_gain(vel);
+        let fc = p.cutoff + p.cutoff_vel * vel + p.cutoff_bright * bright;
         let r = |k: u32| {
             ((seed.wrapping_mul(2_654_435_761).rotate_left(k * 7)) as f32) / u32::MAX as f32
         };
         *self = Self {
             active: true,
+            bus: s.bus,
+            send: s.send,
+            echo: s.echo,
+            oo: p.oo,
+            ah: p.ah,
             freq: hz(note as f32),
             // Each singer a few cents off, vibrato starting out of step.
             det: [exp2_fast(-0.08 / 12.0), 1.0, exp2_fast(0.07 / 12.0)],
             vib: [r(1), r(2), r(3)],
             ph: [r(4), r(5), r(6)],
             src_a: 1.0 - (-TAU * fc * INV_RATE).exp(),
-            k_vowel: per_sample(0.12),
-            fscale: if note >= 60 { 1.18 } else { 1.0 },
-            att: INV_RATE / (0.06 + 0.08 * (1.0 - vel)),
-            k_rel: per_sample(0.3),
+            k_vowel: per_sample(p.vowel_time),
+            fscale: if note >= p.high_from {
+                p.high_scale
+            } else {
+                1.0
+            },
+            att: INV_RATE / (p.attack + p.attack_soft * (1.0 - vel)),
+            k_rel: per_sample(p.release),
             hold: len.max(RATE / 20),
             noise: seed | 1,
             gl: pl * g,
@@ -2092,14 +1376,13 @@ impl ChoirVoice {
         let n = out.l.len();
         let dg = (g1 - g0) / n.max(1) as f32;
         let mut g = g0;
-        let send = Inst::Choir.send();
-        let echo = Inst::Choir.echo();
+        let (send, echo) = (self.send, self.echo);
         // Formants are set once per block: the vowel moves slowly.
         let v = self.vowel;
         let mut fk = [(0.0f32, 0.0f32, 0.0f32); 3];
         for (j, slot) in fk.iter_mut().enumerate() {
-            let (f0, d0, a0) = OO[j];
-            let (f1, d1, a1) = AH[j];
+            let (f0, d0, a0) = self.oo[j];
+            let (f1, d1, a1) = self.ah[j];
             let f = (f0 + (f1 - f0) * v) * self.fscale;
             let d = d0 + (d1 - d0) * v;
             let a = a0 + (a1 - a0) * v;
@@ -2194,153 +1477,48 @@ pub struct Bank {
     pub samples: Vec<Sample>,
 }
 
-/// A foley note-block instrument to render into the bank.
-struct Recipe {
-    inst: Inst,
-    foley: u32,
-    /// MIDI notes to render (pitched instruments), each its own sample.
-    notes: &'static [u8],
-    character: f32,
-    secs: f32,
-    gain: f32,
-}
-
 /// foley's note `n` sounds at base_hz * 2^((n-12)/12); find the n for a MIDI note.
 fn foley_note(foley: u32, midi: u8) -> f32 {
     let base = foley_synth::base_hz(foley).unwrap_or(440.0);
     12.0 + 12.0 * (hz(midi as f32) / base).log2()
 }
 
-const RECIPES: &[Recipe] = &[
-    Recipe {
-        inst: Inst::Bell,
-        foley: 6,
-        notes: &[72, 76, 80, 84, 88],
-        character: 0.5,
-        secs: 1.6,
-        gain: 0.2,
-    },
-    Recipe {
-        inst: Inst::Chime,
-        foley: 8,
-        notes: &[84, 90, 96],
-        character: 0.5,
-        secs: 1.4,
-        gain: 0.12,
-    },
-    Recipe {
-        inst: Inst::Xylo,
-        foley: 9,
-        notes: &[72, 78, 84],
-        character: 0.5,
-        secs: 0.5,
-        gain: 0.2,
-    },
-    Recipe {
-        inst: Inst::Harp,
-        foley: 0,
-        notes: &[60, 66, 72, 78, 84],
-        character: 0.55,
-        secs: 1.4,
-        gain: 0.2,
-    },
-];
+/// One sample to render into the bank.
+enum Job<'a> {
+    Foley(Inst, &'a Foley, u8),
+    Drum(Inst, KitSample),
+}
 
-/// The synthesized kit: (instrument, root note, generator, peak gain).
-type DrumGen = fn() -> Vec<f32>;
-const KIT: &[(Inst, u8, DrumGen, f32)] = &[
-    (Inst::Kick, 36, drums::kick, 0.5),
-    (Inst::Snare, 38, || drums::snare(0.15, 1.0), 0.6),
-    (Inst::Ghost, 38, || drums::snare(0.06, 0.7), 0.2),
-    (Inst::Hat, 42, drums::hat, 0.12),
-    (Inst::OpenHat, 46, drums::open_hat, 0.1),
-    (Inst::Crash, 49, drums::crash, 0.17),
-    (Inst::Ride, 51, drums::ride, 0.11),
-    (Inst::Clap, 39, drums::clap, 0.34),
-    (Inst::Shaker, 70, drums::shaker, 0.07),
-    (
-        Inst::Conga,
-        53,
-        || drums::membrane(175.0, 0.22, 0.08, 0.35),
-        0.36,
-    ),
-    (
-        Inst::Conga,
-        58,
-        || drums::membrane(233.0, 0.18, 0.08, 0.4),
-        0.34,
-    ),
-    (
-        Inst::Conga,
-        64,
-        || drums::membrane(330.0, 0.12, 0.1, 0.6),
-        0.32,
-    ),
-    (
-        Inst::Conga,
-        71,
-        || drums::membrane(494.0, 0.09, 0.12, 0.5),
-        0.28,
-    ),
-    (
-        Inst::Tom,
-        45,
-        || drums::membrane(110.0, 0.32, 0.3, 0.25),
-        0.5,
-    ),
-    (
-        Inst::Tom,
-        50,
-        || drums::membrane(147.0, 0.28, 0.3, 0.25),
-        0.48,
-    ),
-    (
-        Inst::Tom,
-        55,
-        || drums::membrane(196.0, 0.24, 0.3, 0.25),
-        0.46,
-    ),
-    (Inst::Rim, 37, drums::rim, 0.28),
-    (Inst::Cowbell, 56, drums::cowbell, 0.16),
-    (Inst::Swell, 57, drums::swell, 0.2),
-    (Inst::Timbales, 65, || drums::timbale(390.0), 0.32),
-    (Inst::Timbales, 60, || drums::timbale(290.0), 0.32),
-    (
-        Inst::Bongo,
-        72,
-        || drums::membrane(470.0, 0.08, 0.1, 0.55),
-        0.38,
-    ),
-    (
-        Inst::Bongo,
-        67,
-        || drums::membrane(350.0, 0.1, 0.1, 0.5),
-        0.38,
-    ),
-    (Inst::Cajon, 36, || drums::cajon(0.0), 0.45),
-    (Inst::Cajon, 38, || drums::cajon(1.0), 0.38),
-    (Inst::Tabla, 64, || drums::tabla(false), 0.3),
-    (Inst::Tabla, 41, || drums::tabla(true), 0.4),
-    (Inst::Tambourine, 54, drums::tambourine, 0.12),
-    (Inst::Guiro, 73, drums::guiro, 0.12),
-    (Inst::Claves, 75, drums::claves, 0.18),
-    (Inst::Woodblock, 76, || drums::woodblock(1100.0), 0.22),
-    (Inst::Woodblock, 77, || drums::woodblock(800.0), 0.22),
-];
+/// Every sample the instruments file asks for: the note blocks first, then
+/// the kit.
+fn jobs(t: &Table) -> Vec<Job<'_>> {
+    let mut out = Vec::new();
+    for &i in &t.order {
+        if let Some(Engine::Foley { recipe, .. }) = t.get(i).map(|s| &s.engine) {
+            out.extend(recipe.notes.iter().map(|&n| Job::Foley(i, recipe, n)));
+        }
+    }
+    for &i in &t.order {
+        if let Some(Engine::Kit { samples, .. }) = t.get(i).map(|s| &s.engine) {
+            out.extend(samples.iter().map(|&k| Job::Drum(i, k)));
+        }
+    }
+    out
+}
 
-/// How many [`Bank::build_step`] calls finish the bank.
+/// How many [`Bank::build_step`] calls finish the bank (none until the
+/// instruments file is in).
 pub fn bank_steps() -> usize {
-    RECIPES.iter().map(|r| r.notes.len()).sum::<usize>() + KIT.len()
+    jobs(&table()).len()
 }
 
 impl Bank {
     /// Render the `i`th sample (0..[`bank_steps`]) into the bank. Split
     /// into steps so the web build can spread the work across frames.
     pub fn build_step(&mut self, i: usize) {
-        let mut k = i;
-        for r in RECIPES {
-            if k < r.notes.len() {
-                let midi = r.notes[k];
+        let t = table();
+        match jobs(&t).get(i) {
+            Some(&Job::Foley(inst, r, midi)) => {
                 let n = foley_note(r.foley, midi);
                 let seed = 0xF05_10Au64 + i as u64 * 7919;
                 let Some(mut data) = foley_synth::note(r.foley, n, r.character, seed, RATE) else {
@@ -2348,18 +1526,21 @@ impl Bank {
                 };
                 trim(&mut data, r.secs, r.gain);
                 self.samples.push(Sample {
-                    inst: r.inst,
+                    inst,
                     root: midi,
                     data,
                 });
-                return;
             }
-            k -= r.notes.len();
-        }
-        if let Some(&(inst, root, make, gain)) = KIT.get(k) {
-            let mut data = make();
-            trim(&mut data, 10.0, gain);
-            self.samples.push(Sample { inst, root, data });
+            Some(&Job::Drum(inst, k)) => {
+                let mut data = k.make.render();
+                trim(&mut data, 10.0, k.peak);
+                self.samples.push(Sample {
+                    inst,
+                    root: k.root,
+                    data,
+                });
+            }
+            None => {}
         }
     }
 
@@ -2414,7 +1595,7 @@ struct SampleVoice {
     gr: f32,
     send: f32,
     echo: f32,
-    bus: Bus,
+    bus: usize,
     choke: bool,
     /// Velocity tone: a one-pole low-pass (state, coefficient).
     lp: f32,
@@ -2437,80 +1618,78 @@ pub struct Ev {
 
 // --- Mixer -----------------------------------------------------------------
 
-/// The band's balance: `assets/data/music/mix.ron`, per bus (drums, bass,
-/// keys, lead, pad, perc, brass, guitar).
+/// The band's balance and bus sound: `assets/data/music/mix.ron`, one entry
+/// per bus, by name ([`Bus::NAMES`]).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Mix {
-    /// Bus trims: the kit is synthesized hot, the band sits up with it.
-    pub trim: Vec<f32>,
-    /// How deep each bus ducks under a full-strength kick.
-    pub pump: Vec<f32>,
+    pub buses: std::collections::BTreeMap<String, BusMix>,
+}
+
+/// One bus: level, ducking, EQ and effects.
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct BusMix {
+    /// Bus trim: the kit is synthesized hot, the band sits up with it.
+    pub trim: f32,
+    /// How deep the bus ducks under a full-strength kick.
+    pub pump: f32,
+    /// Up to six bands, in order.
+    pub eq: Vec<Eq>,
+    /// Suitcase tremolo: (rate Hz, depth).
+    pub autopan: Option<(f32, f32)>,
+    /// Chorus: (rate Hz, centre ms, depth ms, mix).
+    pub chorus: Option<(f32, f32, f32, f32)>,
 }
 
 pub static MIX: friendslop_data::Data<Mix> = friendslop_data::Data::ron("data/music/mix.ron");
 
-/// Per-bus EQ: carve each part its own space so the low mids (where EP,
-/// pads and brass all pile up) stay clear, the bass has weight and the
-/// leads have presence.
-fn bus_eq(b: usize) -> StereoEq {
-    // Each part keeps some body in the 200-300 Hz low mids (the mix used to
-    // carve them all out and sound hollow and tinny); the scoops are gentle
-    // and the presence boosts small.
-    match b {
-        0 => StereoEq::new(&[
-            Eq::Hp(32.0, 0.7),
-            Eq::Peak(110.0, 1.0, 1.5),
-            Eq::Peak(420.0, 1.0, -1.0),
-            Eq::HighShelf(9000.0, -0.5),
-        ]),
-        1 => StereoEq::new(&[
-            Eq::Hp(30.0, 0.7),
-            Eq::LowShelf(95.0, 2.5),
-            Eq::Peak(240.0, 1.0, 1.5),
-            Eq::Peak(450.0, 1.0, -1.5),
-            Eq::Peak(1700.0, 1.2, 1.0),
-        ]),
-        2 => StereoEq::new(&[
-            Eq::Hp(90.0, 0.7),
-            Eq::Peak(260.0, 0.9, 2.0),
-            Eq::Peak(560.0, 0.9, -1.0),
-            Eq::Peak(1800.0, 0.9, 1.0),
-            Eq::HighShelf(4500.0, 0.5),
-        ]),
-        3 => StereoEq::new(&[
-            Eq::Hp(130.0, 0.7),
-            Eq::Peak(300.0, 0.9, 1.5),
-            Eq::Peak(750.0, 1.0, -0.5),
-            Eq::Peak(2200.0, 0.8, 1.5),
-            Eq::Lp(12000.0, 0.7),
-        ]),
-        4 => StereoEq::new(&[
-            Eq::Hp(140.0, 0.7),
-            Eq::Peak(280.0, 0.8, 2.0),
-            Eq::Peak(620.0, 0.8, -2.0),
-            Eq::HighShelf(5000.0, 0.5),
-        ]),
-        5 => StereoEq::new(&[
-            Eq::Hp(200.0, 0.7),
-            Eq::Peak(350.0, 0.9, 1.0),
-            Eq::Lp(12000.0, 0.7),
-        ]),
-        6 => StereoEq::new(&[
-            Eq::Hp(120.0, 0.7),
-            Eq::Peak(300.0, 0.9, 1.5),
-            Eq::Peak(520.0, 0.9, -1.0),
-            Eq::Peak(2400.0, 0.9, 1.0),
-        ]),
-        // The nylon guitar's body: the air resonance and the top plate,
-        // the boxy low mids pulled out, a little clarity up top.
-        _ => StereoEq::new(&[
-            Eq::Hp(75.0, 0.7),
-            Eq::Peak(105.0, 1.4, 2.0),
-            Eq::Peak(220.0, 1.2, 1.5),
-            Eq::Peak(420.0, 0.9, -3.0),
-            Eq::Peak(2500.0, 0.8, 0.5),
-            Eq::HighShelf(6000.0, -4.0),
-        ]),
+/// The buses' processing, built from [`MIX`]: a bus the file doesn't list
+/// passes straight through.
+struct BusFx {
+    /// Which version of the file this is (0: not loaded yet).
+    key: usize,
+    eq: Vec<StereoEq>,
+    autopan: Vec<Option<AutoPan>>,
+    chorus: Vec<Option<Chorus>>,
+    trim: [f32; BUSES],
+    pump: [f32; BUSES],
+}
+
+impl BusFx {
+    fn key() -> usize {
+        let mix = MIX.get();
+        if MIX.loaded() {
+            Arc::as_ptr(&mix) as usize
+        } else {
+            0
+        }
+    }
+
+    fn build() -> Self {
+        let key = Self::key();
+        let mix = MIX.get();
+        let bus = |b: usize| mix.buses.get(Bus::NAMES[b]).filter(|_| key != 0);
+        Self {
+            key,
+            eq: (0..BUSES)
+                .map(|b| StereoEq::new(bus(b).map_or(&[][..], |m| &m.eq)))
+                .collect(),
+            autopan: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.autopan)
+                        .map(|(r, d)| AutoPan::new(r, d))
+                })
+                .collect(),
+            chorus: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.chorus)
+                        .map(|(r, c, d, x)| Chorus::new(r, c, d, x))
+                })
+                .collect(),
+            trim: std::array::from_fn(|b| bus(b).map_or(1.0, |m| m.trim)),
+            pump: std::array::from_fn(|b| bus(b).map_or(0.0, |m| m.pump)),
+        }
     }
 }
 
@@ -2535,11 +1714,9 @@ pub struct Band {
     br: Vec<[f32; BLOCK]>,
     send: Vec<f32>,
     echo_send: Vec<f32>,
-    eq: Vec<StereoEq>,
-    keys_chorus: Chorus,
-    pad_chorus: Chorus,
-    brass_chorus: Chorus,
-    suitcase: AutoPan,
+    fx: BusFx,
+    /// The instruments, refreshed once per block.
+    table: Arc<Table>,
     echo: Echo,
     verb: Reverb,
     limiter: f32,
@@ -2642,7 +1819,7 @@ impl Band {
                 gr: 0.0,
                 send: 0.0,
                 echo: 0.0,
-                bus: Bus::Drums,
+                bus: 0,
                 choke: false,
                 lp: 0.0,
                 lp_a: 1.0,
@@ -2653,11 +1830,8 @@ impl Band {
             br: vec![[0.0; BLOCK]; BUSES],
             send: vec![0.0; BLOCK],
             echo_send: vec![0.0; BLOCK],
-            eq: (0..BUSES).map(bus_eq).collect(),
-            keys_chorus: Chorus::new(0.55, 6.5, 2.2, 0.5),
-            pad_chorus: Chorus::new(0.32, 9.0, 3.5, 0.7),
-            brass_chorus: Chorus::new(0.8, 5.5, 1.6, 0.45),
-            suitcase: AutoPan::new(4.2, 0.22),
+            fx: BusFx::build(),
+            table: table(),
             echo: Echo::new(),
             verb: Reverb::new(),
             limiter: 1.0,
@@ -2708,35 +1882,65 @@ impl Band {
             + self.choir.iter().filter(|v| v.active).count()
     }
 
+    /// Where an instrument's note sits in the stereo field.
+    fn place(&mut self, pan: &Pan, note: u8) -> f32 {
+        let mut p = pan.at;
+        if let Some((c, w)) = pan.note {
+            p += (note as f32 - c) / w;
+        }
+        if pan.rand != 0.0 {
+            p += (self.rand() - 0.5) * pan.rand;
+        }
+        if let Some(c) = pan.clamp {
+            let c = c.abs();
+            p = p.max(-c).min(c);
+        }
+        p * pan.scale
+    }
+
     pub fn play(&mut self, ev: &Ev) {
-        let bus = ev.inst.bus() as usize;
+        let table = self.table.clone();
+        let Some(s) = table.get(ev.inst) else {
+            return;
+        };
+        let bus = s.bus;
         // Don't spend voices on a bus that is faded out.
         if self.bus_target[bus] < 0.01 && self.bus_gain[bus] < 0.01 {
             return;
         }
-        if ev.inst.sampled() {
-            self.play_sample(ev);
-            return;
-        }
-        match ev.inst {
-            Inst::Lead | Inst::Brass => {
-                if ev.glide && self.lead.active && !self.lead.releasing && self.lead.inst == ev.inst
+        match (&s.engine, s.voice) {
+            (Engine::Kit { hit, .. } | Engine::Foley { hit, .. }, _) => {
+                self.play_sample(ev, s, *hit);
+            }
+            (Engine::Fm(_), Voice::Lead) => {
+                if let Some(time) = s.glide
+                    && ev.glide
+                    && self.lead.active
+                    && !self.lead.releasing
+                    && self.lead.inst == ev.inst
                 {
-                    self.lead.glide_to(ev.note, ev.vel, ev.len, 0.05);
+                    self.lead.glide_to(ev.note, ev.vel, ev.len, time);
                 } else {
-                    self.lead.start(ev.inst, ev.note, ev.vel, ev.len, 0.08);
-                    self.lead.iscale *= 0.75 + 0.5 * self.bright;
+                    let pan = self.place(&s.pan, ev.note);
+                    self.lead.start(ev, s, pan);
+                    self.lead.iscale *= (1.0 - 0.5 * s.bright) + s.bright * self.bright;
                 }
             }
-            Inst::Mini => {
-                if ev.glide && self.mini.active && !self.mini.releasing {
-                    self.mini.glide_to(ev.note, ev.vel, ev.len, 0.045);
+            (Engine::Sub(_), Voice::Lead) => {
+                if let Some(time) = s.glide
+                    && ev.glide
+                    && self.mini.active
+                    && !self.mini.releasing
+                    && self.mini.inst == ev.inst
+                {
+                    self.mini.glide_to(ev.note, ev.vel, ev.len, time);
                 } else {
-                    self.mini.start(ev.inst, ev.note, ev.vel, ev.len, 0.06);
-                    self.mini.cut_mul = exp2_fast(self.bright - 0.5);
+                    let pan = self.place(&s.pan, ev.note);
+                    self.mini.start(ev, s, pan);
+                    self.mini.cut_mul = exp2_fast(s.bright * (self.bright - 0.5));
                 }
             }
-            Inst::Choir => {
+            (Engine::Choir(_), _) => {
                 let slot = self
                     .choir
                     .iter()
@@ -2752,19 +1956,20 @@ impl Band {
                         best
                     });
                 // Basses left, sopranos right, like a choir on risers.
-                let pan = ((ev.note as f32 - 62.0) / 16.0).clamp(-0.6, 0.6);
+                let pan = self.place(&s.pan, ev.note);
                 let seed = (self.rand() * u32::MAX as f32) as u32;
                 let bright = self.bright;
-                self.choir[slot].start(ev.note, ev.vel, ev.len, pan, bright, seed);
+                self.choir[slot].start(ev, s, pan, bright, seed);
             }
-            Inst::Flute | Inst::PanFlute => {
-                if ev.glide
+            (Engine::Blown(_), _) => {
+                if let Some(time) = s.glide
+                    && ev.glide
                     && let Some(v) = self
                         .blow
                         .iter_mut()
                         .find(|v| v.active && !v.releasing && v.inst == ev.inst)
                 {
-                    v.glide_to(ev.note, ev.vel, ev.len, 0.06);
+                    v.glide_to(ev.note, ev.vel, ev.len, time);
                     return;
                 }
                 let slot = self.blow.iter().position(|v| !v.active).unwrap_or_else(|| {
@@ -2776,13 +1981,15 @@ impl Band {
                     }
                     best
                 });
+                let pan = self.place(&s.pan, ev.note);
                 let seed = (self.rand() * u32::MAX as f32) as u32;
-                self.blow[slot].start(ev.inst, ev.note, ev.vel, ev.len, seed);
+                self.blow[slot].start(ev, s, pan, seed);
             }
-            inst if inst.plucked() => {
+            (Engine::String(p), _) => {
                 // The same note again re-plucks its string; a bass is one
                 // string at a time.
-                let mono = string_patch(inst).mono;
+                let mono = p.mono;
+                let inst = ev.inst;
                 let slot = self
                     .pluck
                     .iter()
@@ -2808,52 +2015,44 @@ impl Band {
                         }
                         best
                     });
+                // Lower strings sit a little left, higher ones right (a
+                // stereo mic).
+                let pan = self.place(&s.pan, ev.note);
                 let bright = self.bright;
                 let mut noise = self.rng;
-                self.pluck[slot].start(inst, ev.note, ev.vel, ev.len, bright, &mut noise);
+                self.pluck[slot].start(ev, s, pan, bright, &mut noise);
                 self.rng = noise | 1;
             }
-            Inst::PolyBrass | Inst::Strings => {
+            (Engine::Sub(_), _) => {
                 // Horns spread across the section, strings wide.
-                let spread = if ev.inst == Inst::Strings { 0.9 } else { 0.6 };
-                let pan = ((ev.note as f32 - 68.0) / 14.0).clamp(-1.0, 1.0) * spread;
+                let pan = self.place(&s.pan, ev.note);
                 let slot = self.free_sub();
-                self.sub[slot].start(ev.inst, ev.note, ev.vel, ev.len, pan);
-                self.sub[slot].cut_mul = exp2_fast(1.3 * (self.bright - 0.5));
+                self.sub[slot].start(ev, s, pan);
+                self.sub[slot].cut_mul = exp2_fast(s.bright * (self.bright - 0.5));
             }
-            inst => {
-                let slot = self.free_fm(inst);
+            (Engine::Fm(_), voice) => {
+                let slot = self.free_fm(voice == Voice::Bass);
                 let v = &mut self.fm[slot];
-                // Fretless slides; the bass is otherwise re-plucked.
-                if inst == Inst::Fretless && ev.glide && v.active && v.inst == inst && !v.releasing
+                // A fretless slides; the bass is otherwise re-plucked.
+                if let Some(time) = s.glide
+                    && ev.glide
+                    && v.active
+                    && v.inst == ev.inst
+                    && !v.releasing
                 {
-                    v.glide_to(ev.note, ev.vel, ev.len, 0.07);
+                    v.glide_to(ev.note, ev.vel, ev.len, time);
                     return;
                 }
-                let pan = match inst {
-                    Inst::EPiano => (ev.note as f32 - 62.0) / 24.0,
-                    Inst::Pad => (self.rand() - 0.5) * 0.8,
-                    Inst::Kalimba => 0.25 + (self.rand() - 0.5) * 0.5,
-                    // Mallets across the bars, low left to high right.
-                    Inst::Vibes | Inst::Marimba => (ev.note as f32 - 70.0) / 24.0,
-                    Inst::SteelDrum => -0.2 + (self.rand() - 0.5) * 0.4,
-                    _ => 0.0,
-                };
-                self.fm[slot].start(inst, ev.note, ev.vel, ev.len, pan.clamp(-0.6, 0.6));
-                let b = if inst == Inst::Bass { 0.4 } else { 0.8 };
-                self.fm[slot].iscale *= 1.0 + b * (self.bright - 0.5);
+                let pan = self.place(&s.pan, ev.note);
+                self.fm[slot].start(ev, s, pan);
+                self.fm[slot].iscale *= 1.0 + s.bright * (self.bright - 0.5);
             }
         }
     }
 
-    fn free_fm(&self, inst: Inst) -> usize {
+    fn free_fm(&self, bass: bool) -> usize {
         // The bass is monophonic: a new bass note replaces the old one.
-        if matches!(inst, Inst::Bass | Inst::Fretless)
-            && let Some(i) = self
-                .fm
-                .iter()
-                .position(|v| v.active && matches!(v.inst, Inst::Bass | Inst::Fretless))
-        {
+        if bass && let Some(i) = self.fm.iter().position(|v| v.active && v.bass) {
             return i;
         }
         if let Some(i) = self.fm.iter().position(|v| !v.active) {
@@ -2863,11 +2062,7 @@ impl Band {
         let mut best = 0;
         let mut score = f32::MAX;
         for (i, v) in self.fm.iter().enumerate() {
-            let bass = if matches!(v.inst, Inst::Bass | Inst::Fretless) {
-                10.0
-            } else {
-                0.0
-            };
+            let bass = if v.bass { 10.0 } else { 0.0 };
             let s = v.amp - if v.releasing { 1.0 } else { 0.0 } - v.age as f32 * 1e-7 + bass;
             if s < score {
                 score = s;
@@ -2893,70 +2088,33 @@ impl Band {
         best
     }
 
-    fn play_sample(&mut self, ev: &Ev) {
+    fn play_sample(&mut self, ev: &Ev, s: &Spec, hit: Hit) {
         let Some(idx) = self.bank.find(ev.inst, ev.note) else {
             return;
         };
         let root = self.bank.samples[idx].root;
         // Only the toms, congas and note-block instruments play at pitch.
-        let pitched = !matches!(
-            ev.inst,
-            Inst::Kick
-                | Inst::Snare
-                | Inst::Ghost
-                | Inst::Hat
-                | Inst::OpenHat
-                | Inst::Crash
-                | Inst::Ride
-                | Inst::Clap
-                | Inst::Shaker
-                | Inst::Rim
-                | Inst::Cowbell
-                | Inst::Swell
-                | Inst::Cajon
-                | Inst::Tambourine
-                | Inst::Guiro
-                | Inst::Claves
-        );
-        let rate = if pitched {
+        let rate = if hit.pitched {
             2f32.powf((ev.note as f32 - root as f32) / 12.0)
         } else {
             1.0
         };
-        let pan = match ev.inst {
-            // Toms across the kit, high to low.
-            Inst::Tom => (50.0 - ev.note as f32) / 14.0,
-            Inst::Conga => -0.55 + (ev.note as f32 - 53.0) / 40.0,
-            i => i.pan(),
-        };
+        // Toms across the kit, high to low.
+        let pan = self.place(&s.pan, ev.note);
         let vel = ev.vel.clamp(0.0, 1.2);
         // Sidechain: the kick (and, less, the snare and clap) push the band
         // aside for a moment so they punch through.
-        let push = match ev.inst {
-            Inst::Kick => vel.min(1.0),
-            Inst::Snare | Inst::Clap => 0.45 * vel.min(1.0),
-            _ => 0.0,
-        };
+        let push = hit.push * vel.min(1.0);
         self.pump = self.pump.max(push);
         // Hit harder, louder (a little more than linear) and brighter: soft
         // hits lose the top end the way a real stick or mallet does.
         let tone = vel.min(1.0).powf(1.5);
-        let floor = match ev.inst {
-            Inst::Kick => 2500.0,
-            Inst::Hat
-            | Inst::OpenHat
-            | Inst::Crash
-            | Inst::Ride
-            | Inst::Shaker
-            | Inst::Tambourine
-            | Inst::Guiro => 5000.0,
-            _ => 1500.0,
-        };
+        let floor = hit.tone_floor;
         let fc = (floor + (20_000.0 - floor) * tone).min(0.45 * RATE as f32);
         let lp_a = 1.0 - (-std::f32::consts::TAU * fc / RATE as f32).exp();
         let vel = vel * (vel / 0.7).powf(0.3);
         // An open hat is choked by the next closed one, like a real kit.
-        if ev.inst == Inst::Hat {
+        if hit.chokes {
             for v in self.smp.iter_mut().filter(|v| v.active && v.choke) {
                 v.active = false;
             }
@@ -2982,10 +2140,10 @@ impl Band {
             rate,
             gl: pl * vel,
             gr: pr * vel,
-            send: ev.inst.send(),
-            echo: ev.inst.echo(),
-            bus: ev.inst.bus(),
-            choke: ev.inst == Inst::OpenHat,
+            send: s.send,
+            echo: s.echo,
+            bus: s.bus,
+            choke: hit.choked,
             lp: 0.0,
             lp_a,
         };
@@ -2994,6 +2152,11 @@ impl Band {
     /// Mix `out.len() / 2` stereo frames (at most [`BLOCK`]).
     pub fn render(&mut self, out: &mut [f32]) {
         let n = (out.len() / 2).min(BLOCK);
+        // Pick up edited data files.
+        self.table = table();
+        if BusFx::key() != self.fx.key {
+            self.fx = BusFx::build();
+        }
         for b in 0..BUSES {
             self.bl[b][..n].fill(0.0);
             self.br[b][..n].fill(0.0);
@@ -3026,36 +2189,36 @@ impl Band {
             };
         }
         for v in self.fm.iter_mut().filter(|v| v.active) {
-            let b = v.inst.bus() as usize;
+            let b = v.bus;
             v.render(out!(b), g0[b], g1[b]);
         }
         if self.lead.active {
-            let b = self.lead.inst.bus() as usize;
+            let b = self.lead.bus;
             self.lead.render(out!(b), g0[b], g1[b]);
         }
         if self.mini.active {
-            let b = self.mini.inst.bus() as usize;
+            let b = self.mini.bus;
             self.mini.render(out!(b), g0[b], g1[b]);
         }
         for v in self.sub.iter_mut().filter(|v| v.active) {
-            let b = v.inst.bus() as usize;
+            let b = v.bus;
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.pluck.iter_mut().filter(|v| v.active) {
-            let b = v.inst.bus() as usize;
+            let b = v.bus;
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.blow.iter_mut().filter(|v| v.active) {
-            let b = Bus::Lead as usize;
+            let b = v.bus;
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.choir.iter_mut().filter(|v| v.active) {
-            let b = Bus::Pad as usize;
+            let b = v.bus;
             v.render(out!(b), g0[b], g1[b]);
         }
         for v in self.smp.iter_mut().filter(|v| v.active) {
             let data = &self.bank.samples[v.idx].data;
-            let b = v.bus as usize;
+            let b = v.bus;
             let dg = (g1[b] - g0[b]) / n as f32;
             let mut g = g0[b];
             let (l, r) = (&mut bl[b], &mut br[b]);
@@ -3085,12 +2248,12 @@ impl Band {
             self.pump *= fall;
         }
         // Bus processing.
-        let mix = MIX.get();
+        let fx = &mut self.fx;
         for b in 0..BUSES {
             let (l, r) = (&mut bl[b][..n], &mut br[b][..n]);
-            self.eq[b].process(l, r);
-            let t = mix.trim.get(b).copied().unwrap_or(1.0);
-            let depth = mix.pump.get(b).copied().unwrap_or(0.0);
+            fx.eq[b].process(l, r);
+            let t = fx.trim[b];
+            let depth = fx.pump[b];
             if depth > 0.0 {
                 for ((x, y), p) in l.iter_mut().zip(r.iter_mut()).zip(&pump[..n]) {
                     // A smooth dip (squared) so the duck doesn't click.
@@ -3102,14 +2265,11 @@ impl Band {
                 l.iter_mut().for_each(|x| *x *= t);
                 r.iter_mut().for_each(|x| *x *= t);
             }
-            match b {
-                2 => {
-                    self.suitcase.process(l, r);
-                    self.keys_chorus.process(l, r);
-                }
-                4 => self.pad_chorus.process(l, r),
-                6 => self.brass_chorus.process(l, r),
-                _ => {}
+            if let Some(a) = &mut fx.autopan[b] {
+                a.process(l, r);
+            }
+            if let Some(c) = &mut fx.chorus[b] {
+                c.process(l, r);
             }
         }
         // Sum the buses into the first one, add the echo.
@@ -3210,30 +2370,20 @@ mod tests {
     #[test]
     fn every_voice_sounds() {
         let bank = Arc::new(Bank::default());
-        for inst in [
-            Inst::EPiano,
-            Inst::Bass,
-            Inst::Fretless,
-            Inst::Lead,
-            Inst::Brass,
-            Inst::Pad,
-            Inst::Kalimba,
-            Inst::Mini,
-            Inst::PolyBrass,
-            Inst::Strings,
-            Inst::Guitar,
-            Inst::Clav,
-            Inst::SteelGuitar,
-            Inst::ElectricGuitar,
-            Inst::Upright,
-            Inst::SlapBass,
-            Inst::Organ,
-            Inst::Vibes,
-            Inst::Marimba,
-            Inst::SteelDrum,
-            Inst::PanFlute,
-            Inst::Choir,
-        ] {
+        let t = table();
+        let live: Vec<Inst> = t
+            .order
+            .iter()
+            .copied()
+            .filter(|&i| {
+                !matches!(
+                    t.get(i).map(|s| &s.engine),
+                    Some(Engine::Kit { .. } | Engine::Foley { .. })
+                )
+            })
+            .collect();
+        assert!(live.len() > 10, "instruments.ron didn't load");
+        for inst in live {
             let mut band = Band::new(bank.clone());
             band.bus_target = [1.0; BUSES];
             band.bus_gain = [1.0; BUSES];
@@ -3270,7 +2420,7 @@ mod tests {
         band.echo_amt = 0.0;
         band.play(&Ev {
             at: 0,
-            inst: Inst::Guitar,
+            inst: Inst::named("Guitar"),
             note,
             vel,
             len: RATE * 8,

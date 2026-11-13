@@ -2,6 +2,7 @@
 //!
 //! - [`theory`]: chords, chord-scales, voice-led rootless voicings.
 //! - [`compose`]: the music director and composer, one bar at a time.
+//! - [`inst`]: the instruments, by name, from `instruments.ron`.
 //! - [`synth`]: FM voices (DX7-style EP, slap and fretless bass, leads,
 //!   bell pad, kalimba), subtractive voices (CS-80 style horn section,
 //!   string machine, Minimoog lead), a sample bank (the synthesized kit
@@ -18,6 +19,7 @@ pub mod compose;
 pub mod drums;
 pub mod dsp;
 pub mod engine;
+pub mod inst;
 pub mod render;
 pub mod synth;
 pub mod theory;

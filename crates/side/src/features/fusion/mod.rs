@@ -19,7 +19,7 @@
 //! hundred floats of work per sample, no allocation), so the main thread
 //! never waits on it. Music is local: every peer hears its own take.
 
-pub use fusion::{compose, drums, dsp, engine, synth, theory};
+pub use fusion::{compose, drums, dsp, engine, inst, synth, theory};
 
 use std::num::NonZero;
 use std::sync::Arc;
@@ -242,6 +242,10 @@ fn finish_bank(
     };
     #[cfg(target_arch = "wasm32")]
     let bank = {
+        // The kit comes from the instruments file: wait until it's fetched.
+        if !inst::INSTRUMENTS.loaded() {
+            return;
+        }
         if build.step < synth::bank_steps() {
             let step = build.step;
             build.bank.build_step(step);

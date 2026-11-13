@@ -95,6 +95,7 @@ crates/game/src/
   controls.rs   touch overlay + gamepad, fed into the same keys / WalkInput as keyboard+mouse
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
+  probes.rs     reflections: world env map on the camera, FRIENDSLOP_BAKE=1 bakes every probe
   lod.rs        trees: lighter far meshes, dithered in by distance (#227); modeler LOD nodes; tree wind
   rigged.rs     rigged modeler models: `Rigged { path }` + `RigClip` crossfades their named clips; tails/ears/bobbles get modeler_anim springs
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
@@ -269,6 +270,16 @@ cargo fmt --all
 cargo clippy -p friendslop --target wasm32-unknown-unknown   # the web build must keep compiling (CI)
 scripts/build-web.sh && python3 -m http.server -d dist/web   # browser build (needs wasm-bindgen-cli)
 ```
+
+### Reflections (baked probes)
+
+Shiny materials reflect baked environment maps (`assets/probes/<name>_{diffuse,specular}.ktx2`,
+`friendslop_art::envmap` + `crates/game/src/probes.rs`). The camera has the outdoor "world" map,
+which dims with the ambient light (night and dark places turn it down). A place with its own look
+registers a bake point with `friendslop_base::probes::ProbeBakes::add` and spawns
+`probes::probe(..)` over its box (Fulton St does). After changing a place, re-bake:
+`FRIENDSLOP_BAKE=1 BEVY_ASSET_ROOT=crates/game target/debug/friendslop host` (it quits when done).
+Tuning in `data/game/probes.ron`.
 
 ### Starting somewhere else
 

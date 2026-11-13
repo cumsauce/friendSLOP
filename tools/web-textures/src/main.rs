@@ -54,6 +54,10 @@ fn walk(dir: &Path, max: u32, before: &mut u64, after: &mut u64, ktx: &mut usize
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
+            // Baked reflection probes are RGB9E5 cubemaps every GPU samples: keep them.
+            if path.file_name().is_some_and(|n| n == "probes") {
+                continue;
+            }
             walk(&path, max, before, after, ktx);
             continue;
         }

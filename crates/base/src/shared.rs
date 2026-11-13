@@ -145,11 +145,13 @@ pub mod ui {
     pub struct Overlay {
         pub journal: bool,
         pub intro: bool,
+        /// The settings notebook, opened with Esc in game (#317).
+        pub settings: bool,
     }
 
     impl Overlay {
         pub fn any(self) -> bool {
-            self.journal || self.intro
+            self.journal || self.intro || self.settings
         }
     }
 

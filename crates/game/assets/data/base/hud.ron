@@ -1,0 +1,20 @@
+// When quiet HUD elements show (crates/base/src/hud.rs, `Calm`). Everything
+// that hides is still listed in the journal (Tab / J, the Bag tab's "Right now").
+// Edit and save: the running game picks it up within a second.
+(
+    // Seconds an element stays fully visible after its value changes.
+    show_secs: 4.0,
+    // Seconds it then takes to fade away.
+    fade_secs: 1.0,
+    // Metres: within this of an element's place (the landlord, Dave's
+    // parliament, your cat) it stays up.
+    near_metres: 12.0,
+    // A countdown at or under this many seconds counts as urgent (the rent raise).
+    urgent_secs: 20.0,
+    // A meter at or over this percent counts as urgent (HALT's wrath, your cat's size).
+    urgent_percent: 75.0,
+    // The fart meter shows once it's filled past this percent (and always when ready).
+    gas_show_percent: 50.0,
+    // Seconds from joining that the key hints (Tab / J journal, M mic) stay up.
+    hint_secs: 90.0,
+)

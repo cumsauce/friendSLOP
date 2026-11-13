@@ -273,7 +273,7 @@ scripts/build-web.sh && python3 -m http.server -d dist/web   # browser build (ne
 ### Checking UI
 
 To check UI against its design, screenshot mode can force a HUD state:
-`FRIENDSLOP_SCREENSHOT_SCENE=play|busy|clickable|chapter|tab|title|settings|loading` (title and settings run without `host`; and
+`FRIENDSLOP_SCREENSHOT_SCENE=play|busy|full|clickable|chapter|tab|title|settings|loading` (full: busy with every quiet HUD element forced up) (title and settings run without `host`; and
 `FRIENDSLOP_SCREENSHOT_SIZE=1920x1080`), e.g. `scripts/screenshot.sh busy.png "" busy`. Add
 `FRIENDSLOP_SCREENSHOT_EVERY=3` to keep the game running and re-save the picture every 3 s.
 To frame shots without restarting, add `FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt` (desktop only):

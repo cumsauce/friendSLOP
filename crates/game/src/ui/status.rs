@@ -57,6 +57,16 @@ pub fn gas_lines(gas: u8) -> (String, f32, &'static str) {
     (label, gas as f32 / 100.0, hint)
 }
 
+/// Is the gas card up: filled past `show_percent`, or ready to fart.
+pub fn gas_shown(gas: u8, min_gas: u8, show_percent: f32) -> bool {
+    gas >= min_gas || gas as f32 >= show_percent
+}
+
+/// Is your cat big enough that its size must stay on screen.
+pub fn cat_urgent(size: f32, urgent_percent: f32) -> bool {
+    size / MAX_SIZE * 100.0 >= urgent_percent
+}
+
 /// "4.2× / 25×".
 pub fn cat_size(size: f32) -> String {
     format!("{:.1}× / {:.0}×", size.clamp(1.0, MAX_SIZE), MAX_SIZE)
@@ -244,6 +254,10 @@ fn bomb(icons: &Icons) -> impl Bundle {
 #[allow(clippy::too_many_arguments)]
 fn update(
     time: Res<Time<Real>>,
+    clock: Res<crate::hud::HudClock>,
+    at: Res<crate::hud::LocalAt>,
+    all: Res<crate::hud::ShowAll>,
+    mut cat_seen: Local<crate::hud::Recent>,
     me: Option<Res<LocalPlayer>>,
     muted: Option<Res<VoiceMuted>>,
     activity: Option<Res<VoiceActivity>>,
@@ -272,12 +286,25 @@ fn update(
     let talking = !muted && activity.is_some_and(|a| a.transmitting);
     // Blink like a bomb, twice a second (colour only; nothing moves).
     let blink = ((time.elapsed_secs() * 4.0) as u32).is_multiple_of(2);
+    // The quiet rule (`hud::Calm`): gas once it's worth knowing, the mic chip
+    // only when muted (or as a key hint early on), the cat when its size
+    // steps up, when you're near it or when it's getting big.
+    let t = crate::hud::tuning();
+    let min_gas = crate::features::fart::tuning().min_gas;
+    let gas_up = all.0 || gas_shown(gas, min_gas, t.gas_show_percent);
+    let mic_up = all.0 || muted || crate::hud::hints_up(clock.0, &t);
+    let cat_up = cat.is_some_and(|(c, ..)| {
+        let age = cat_seen.tick(crate::hud::key_of(c.size.floor() as u32), time.delta_secs());
+        let near = crate::hud::is_near(at.0, Some(c.pos), t.near_metres);
+        all.0 || crate::hud::calm_alpha(age, near, cat_urgent(c.size, t.urgent_percent), &t) > 0.0
+    });
 
     for (card, mut node, mut bg) in &mut cards {
         let show = match card {
             Card::Bomb => fuse.is_some(),
-            Card::Cat => cat.is_some() && fuse.is_none(),
-            Card::Gas | Card::Mic => true,
+            Card::Cat => cat_up && fuse.is_none(),
+            Card::Gas => gas_up,
+            Card::Mic => mic_up,
         };
         let d = if show { Display::Flex } else { Display::None };
         if node.display != d {
@@ -286,7 +313,7 @@ fn update(
         if *card == Card::Mic {
             // The fuse card replaces the cat card but sits above the gas
             // meter, so keep the cat card's room (54 + 8) under the mic.
-            let want = px(if fuse.is_some() { 62.0 } else { 0.0 });
+            let want = px(if fuse.is_some() && mic_up { 62.0 } else { 0.0 });
             if node.margin.bottom != want {
                 node.margin.bottom = want;
             }
@@ -370,5 +397,14 @@ mod tests {
         assert_eq!(cat_size(4.2), "4.2× / 25×");
         assert_eq!(cat_size(24.8), "24.8× / 25×");
         assert_eq!(cat_size(99.0), "25.0× / 25×");
+    }
+
+    #[test]
+    fn gas_shows_past_the_line_or_when_ready_and_big_cats_stay() {
+        assert!(!gas_shown(10, 20, 50.0));
+        assert!(gas_shown(20, 20, 50.0));
+        assert!(gas_shown(60, 101, 50.0));
+        assert!(!cat_urgent(2.0, 75.0));
+        assert!(cat_urgent(20.0, 75.0));
     }
 }

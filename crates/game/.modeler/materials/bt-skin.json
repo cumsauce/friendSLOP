@@ -1,0 +1,126 @@
+{
+  "name": "bt-skin",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 4,
+      "seed": 163,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "name": "w",
+      "octaves": 3,
+      "seed": 164,
+      "size": 0.015,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#5a5c2c"
+        ],
+        [
+          0.5,
+          "#737746"
+        ],
+        [
+          1,
+          "#8a7a4a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "w",
+      "b": 0.002,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bt-skin",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 163,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "name": "w",
+              "octaves": 3,
+              "seed": 164,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#5a5c2c"
+                ],
+                [
+                  0.5,
+                  "#737746"
+                ],
+                [
+                  1,
+                  "#8a7a4a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "w",
+              "b": 0.002,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +w +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

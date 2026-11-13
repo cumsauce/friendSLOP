@@ -197,19 +197,6 @@ fn mat(materials: &mut Assets<StandardMaterial>, c: Color, rough: f32) -> Handle
     })
 }
 
-fn glow(
-    materials: &mut Assets<StandardMaterial>,
-    c: Color,
-    power: f32,
-) -> Handle<StandardMaterial> {
-    let l = c.to_linear();
-    materials.add(StandardMaterial {
-        base_color: c,
-        emissive: LinearRgba::rgb(l.red * power, l.green * power, l.blue * power),
-        ..default()
-    })
-}
-
 /// A box (mesh, material, centre, size), optionally solid.
 fn block(
     commands: &mut Commands,

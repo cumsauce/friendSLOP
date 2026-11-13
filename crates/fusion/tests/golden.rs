@@ -162,7 +162,11 @@ fn compare(what: &str, want: &BTreeMap<String, String>, got: &BTreeMap<String, S
         .iter()
         .filter(|(k, v)| want.get(*k) != Some(*v))
         .map(|(k, _)| k.as_str())
-        .chain(want.keys().filter(|k| !got.contains_key(*k)).map(String::as_str))
+        .chain(
+            want.keys()
+                .filter(|k| !got.contains_key(*k))
+                .map(String::as_str),
+        )
         .collect();
     assert!(
         diff.is_empty(),

@@ -1,14 +1,23 @@
 // Trains (#321, crates/side/src/features/trains.rs).
-// Each line runs between two stops; a train waits at both. Walk into the car,
-// stand in it for `board_secs`, and you ride: a short trip in a car rattling
-// through the tunnel while the announcer (a retro speech synth) says the stop,
-// then you're in the train at the other end. Add a line to add a train.
+// Each line runs between two stations; a train waits at both. Walk into the
+// car, stand in it for `board_secs`, and it pulls out with you into its
+// tunnel; then a short trip in a car rattling through the dark while the
+// announcer (a retro speech synth) says the stop, and the other station's
+// train comes out of its tunnel with you in it. Add a line to add a train.
 // Edit and save: the running game picks it up within a second.
 (
     // Seconds standing in a waiting train before it leaves with you.
     board_secs: 2.0,
-    // Seconds the ride takes.
+    // Seconds the train takes to pull out of the station into its tunnel.
+    depart_secs: 6.0,
+    // Seconds in the ride car between the stations.
     ride_secs: 9.0,
+    // Seconds the train takes to come out of the tunnel and stop.
+    arrive_secs: 7.0,
+    // Seconds a train that left without riders stays away before the next comes in.
+    away_secs: 4.0,
+    // How far into its tunnel the train goes (m, its middle from the platform).
+    run_out: 32.0,
     // Where the ride cars hang (x, y, z), deep under the city: one per line,
     // 30 m apart along x. Nobody sees them from outside.
     ride_at: (40.0, -300.0, 300.0),
@@ -23,20 +32,26 @@
             stops: (
                 (
                     name: "the valley",
-                    // The car's middle (x, z) and which way it points (degrees about up).
-                    at: (10.0, 86.0),
+                    // The car's middle (x, z) at the platform, and which way it
+                    // points (degrees about up): it leaves along its +x into the
+                    // tunnel, and the platform is on its +z side.
+                    at: (-10.0, 66.0),
                     yaw: 0.0,
                     // On the city floor (true) or on the valley's ground (false).
                     city: false,
+                    // How far under the floor the track is (m): 0 on the surface,
+                    // else an underground hall (its model is 7 m tall).
+                    depth: 0.0,
                     // Said on the way to this stop.
                     announce: "This is a Valley bound PATH train. Next and last stop: the Valley. Mind the gap, and mind the goats.",
                 ),
                 (
                     name: "World Trade Center",
-                    // Inside the Oculus hall.
-                    at: (-55.0, 224.0),
+                    // Under the Oculus hall: its stairs come up inside it.
+                    at: (-55.0, 226.0),
                     yaw: 0.0,
                     city: true,
+                    depth: 7.0,
                     announce: "This is a World Trade Center bound PATH train. Next and last stop: World Trade Center.",
                 ),
             ),

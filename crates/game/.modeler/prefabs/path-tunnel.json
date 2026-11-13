@@ -1,0 +1,1149 @@
+{
+  "format_version": 1,
+  "name": "path-tunnel",
+  "parts": [],
+  "version": 45264,
+  "ops": [
+    {
+      "primitive": {
+        "name": "shell",
+        "kind": "box",
+        "size": [
+          40.0,
+          5.3,
+          5.4
+        ],
+        "translation": [
+          20.0,
+          2.35,
+          -0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bore",
+        "kind": "box",
+        "size": [
+          40.2,
+          4.4,
+          4.2
+        ],
+        "translation": [
+          20.0,
+          2.2,
+          -0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "tube",
+        "op": "difference",
+        "a": "shell",
+        "b": "bore"
+      }
+    },
+    {
+      "primitive": {
+        "name": "head_raw",
+        "kind": "box",
+        "size": [
+          0.4,
+          6.8,
+          9.6
+        ],
+        "translation": [
+          -0.2,
+          3.1,
+          0.8
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "mouth",
+        "kind": "box",
+        "size": [
+          0.6,
+          4.4,
+          4.2
+        ],
+        "translation": [
+          -0.2,
+          2.2,
+          -0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "headwall",
+        "op": "difference",
+        "a": "head_raw",
+        "b": "mouth"
+      }
+    },
+    {
+      "primitive": {
+        "name": "lintel",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.5,
+          5.0
+        ],
+        "translation": [
+          -0.5,
+          4.65,
+          -0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "ballast",
+        "kind": "box",
+        "size": [
+          40.0,
+          0.07,
+          4.2
+        ],
+        "translation": [
+          20.0,
+          -0.015,
+          -0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "back",
+        "kind": "box",
+        "size": [
+          0.4,
+          4.4,
+          4.2
+        ],
+        "translation": [
+          39.7,
+          2.2,
+          -0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail_a",
+        "kind": "box",
+        "size": [
+          40.4,
+          0.16,
+          0.07
+        ],
+        "translation": [
+          19.8,
+          0.08,
+          -0.715
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail_b",
+        "kind": "box",
+        "size": [
+          40.4,
+          0.16,
+          0.07
+        ],
+        "translation": [
+          19.8,
+          0.08,
+          0.715
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "lamp0",
+        "kind": "box",
+        "size": [
+          1.2,
+          0.15,
+          0.1
+        ],
+        "translation": [
+          4.6,
+          3.675,
+          -2.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "lamp1",
+        "kind": "box",
+        "size": [
+          1.2,
+          0.15,
+          0.1
+        ],
+        "translation": [
+          13.6,
+          3.675,
+          -2.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "lamp2",
+        "kind": "box",
+        "size": [
+          1.2,
+          0.15,
+          0.1
+        ],
+        "translation": [
+          22.6,
+          3.675,
+          -2.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "lamp3",
+        "kind": "box",
+        "size": [
+          1.2,
+          0.15,
+          0.1
+        ],
+        "translation": [
+          31.6,
+          3.675,
+          -2.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "tube",
+        "input": "tube",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sidewalk",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 5.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  1.25,
+                  1.25
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.004,
+                  0.01
+                ],
+                "input": "g.edge",
+                "name": "jm",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "r",
+                "seed": 151,
+                "type": "random"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 152,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "name": "gum",
+                "seed": 153,
+                "size": 0.35,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.02,
+                  0.03
+                ],
+                "input": "gum.f1",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "r",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#8a8780"
+                  ],
+                  [
+                    1,
+                    "#aaa69e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#3a3a38",
+                "b": "c0",
+                "c": "gm",
+                "name": "c1",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#55534e",
+                "b": "c1",
+                "c": "jm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "jm",
+                "b": 0.004,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "headwall",
+        "input": "headwall",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sidewalk",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 5.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  1.25,
+                  1.25
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.004,
+                  0.01
+                ],
+                "input": "g.edge",
+                "name": "jm",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "r",
+                "seed": 151,
+                "type": "random"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 152,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "name": "gum",
+                "seed": 153,
+                "size": 0.35,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.02,
+                  0.03
+                ],
+                "input": "gum.f1",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "r",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#8a8780"
+                  ],
+                  [
+                    1,
+                    "#aaa69e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#3a3a38",
+                "b": "c0",
+                "c": "gm",
+                "name": "c1",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#55534e",
+                "b": "c1",
+                "c": "jm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "jm",
+                "b": 0.004,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lintel",
+        "input": "lintel",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e2e0da"
+                  ],
+                  [
+                    1,
+                    "#f2f0ea"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "ballast",
+        "input": "ballast",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tar",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 15,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e1e1e"
+                  ],
+                  [
+                    1,
+                    "#323232"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.85,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fn",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "back",
+        "input": "back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tar",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 15,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e1e1e"
+                  ],
+                  [
+                    1,
+                    "#323232"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.85,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fn",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rail_a",
+        "input": "rail_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rail_b",
+        "input": "rail_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lamp0",
+        "input": "lamp0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lamp1",
+        "input": "lamp1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lamp2",
+        "input": "lamp2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lamp3",
+        "input": "lamp3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "shell",
+        "input": "shell",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bore",
+        "input": "bore",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "head_raw",
+        "input": "head_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "mouth",
+        "input": "mouth",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

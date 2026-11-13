@@ -51,9 +51,11 @@ Step in front of a cab and you're punted and ragdoll for a couple of seconds bef
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
 
-**Far south:** a PATH train waits at a platform on the valley's south edge. Step in and it
-rides you (a short tunnel trip, a robot voice calling the stop) to the Oculus in New York
-City: One World Trade Center and 4 shops to walk into. The train in the Oculus rides you back.
+**Far south:** a PATH train waits at a little station near the valley's south edge. Step in
+and it pulls out into a tunnel under a grassy mound, rattles along (a robot voice calling the
+stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
+up into the Oculus. The city has One World Trade Center and 4 shops to walk into. The train
+under the Oculus rides you back.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
@@ -444,15 +446,22 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
 - **Trains** (#321, doomy: "instead of a sign to click, players board the train headed to the
   oculus station ... a little transition in the subway when loading between zones with the SAM
-  announcing the stop. can generalize this, we might have more trains"). A PATH car waits at a
-  platform on the valley's south edge (10, 86) and another inside the Oculus. Stand in one for
-  2 s ("stand clear of the closing doors") and the server moves you into a closed ride car deep
-  under the city, tunnel lights streaming past its windows, while a retro speech synth (`samiam`,
-  like Andrew's calls) announces the next stop; after 9 s you're standing in the train at the
-  other end. Arriving doesn't send you straight back: step off and on again to return. Lines are
-  data (`data/side/trains.ron`: two stops each, with spot, facing, valley or city ground and the
-  announcement); add a line and another train appears. Models `path-car` and `path-platform`
-  (modeler); colliders are boxes in code (`features/trains.rs`).
+  announcing the stop. can generalize this, we might have more trains"). Later (lume): "i want
+  it to actually leave the station before doing the transition scene ... comes back out the
+  tunnel below the oculus, then you need to go up in the oculus to exit". Each stop is a
+  station: the valley's stands on a concrete plinth (-10, 66) with a ramp, a canopy and a
+  tunnel into an earth mound; World Trade Center's is a hall 7 m under the Oculus with stairs
+  up through a hole in its floor. Stand in a waiting car for 2 s ("stand clear of the closing
+  doors") and it pulls out with you into its tunnel (6 s); inside, you're moved into a closed
+  ride car deep under the city, tunnel lights streaming past, while a retro speech synth
+  (`samiam`) announces the next stop; after 9 s the other station's train comes out of its
+  tunnel with you aboard and stops at the platform (7 s). A train that leaves empty comes back
+  after 4 s. Everyone sees the cars move (a replicated `Run` per stop). Arriving doesn't send
+  you straight back: step off and on again. Lines are data (`data/side/trains.ron`: two stops
+  each, with spot, facing, city or valley ground, depth under it, the announcement, and the
+  timings); add a line and another train appears. Models `path-car`, `path-platform`,
+  `path-tunnel`, `path-mound`, `path-station`, `path-hall` (modeler); colliders are boxes in
+  code (`features/trains.rs`). The valley stop moved off the hill it was sunk into.
 - **Surf map** (#306, doomy: "surf map in one of the buildings in nyc", no details: surprise
   me). The brownstone on the avenue's east side (27, 239.6) has a neon SURF sign over its
   door; walk up the stoop into the door and you're on the start pad of a surf hall, bigger on
@@ -477,7 +486,7 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   is an impossible number of levels with stairs between platforms. you try to find the J train
   towards brooklyn. the signage directs you in a specific path, but you dont reach it for a very
   long time. when you do reach it you get a reward"). A subway entrance on the avenue's west
-  sidewalk (-14, 228): walk down its stairs, through a real hole in the street (ground holes,
+  sidewalk by the bodega (-14, 167), away from the Oculus: walk down its stairs, through a real hole in the street (ground holes,
   `friendslop_world::holes`), and partway down you're on the top level of a station 40 levels deep
   under the city. Each level is a 6 x 6 grid of 6 m white-tiled corridor cells filled by seeded
   wave function collapse from a modeler tile kit (`fs-tile-*`), with one stairway down whose

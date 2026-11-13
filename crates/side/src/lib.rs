@@ -29,6 +29,7 @@ pub mod features {
     pub mod gaslighting;
     pub mod goat;
     pub mod hats;
+    pub mod hi;
     pub mod high_places;
     pub mod ice_cream;
     pub mod infinite;
@@ -61,6 +62,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::ambience::TUNING,
         &features::discord_friends::TUNING,
         &features::gaslighting::TUNING,
+        &features::hi::TUNING,
         &features::goat::TUNING,
         &features::infinite::TUNING,
         &features::rats::TUNING,

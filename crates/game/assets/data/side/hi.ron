@@ -1,0 +1,16 @@
+// Tuning and lines for saying hi (crates/side/src/features/hi.rs, #371).
+// Edit and save: the running game picks it up within a second.
+(
+    // How far (metres) a hi carries: friends and villagers this close hear it.
+    reach: 12.0,
+    // Seconds before you can say hi again.
+    cooldown: 2.0,
+    // What villagers say back. {name} is the villager, {you} who said hi.
+    replies: [
+        "{name}: hi {you}!",
+        "{name}: oh, hi {you}",
+        "{name}: hiii!",
+        "{name}: hey {you}, hi",
+        "{name} waves back: hi!",
+    ],
+)

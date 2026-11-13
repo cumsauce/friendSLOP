@@ -12,6 +12,8 @@ pub struct Tuning {
     pub door: (f32, f32),
     /// How close (m) to the door takes you in.
     pub door_reach: f32,
+    /// The neon sign over the door (x, y, z).
+    pub sign_at: (f32, f32, f32),
     /// Where you come back out (x, z).
     pub street: (f32, f32),
     /// The start pad's top (x, y, z): the hall's origin.

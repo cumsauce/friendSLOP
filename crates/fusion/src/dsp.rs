@@ -98,7 +98,7 @@ pub struct Biquad {
 }
 
 /// One EQ band.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, serde::Deserialize)]
 pub enum Eq {
     Hp(f32, f32),
     Lp(f32, f32),

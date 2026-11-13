@@ -74,6 +74,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(clues::protocol);
         app.add_plugins(broadcast::protocol);
         app.add_plugins(nyc::protocol);
+        app.add_plugins(crate::atmosphere::protocol);
     }
 }
 

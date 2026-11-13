@@ -7,7 +7,8 @@
 //! - One low, golden shadow-casting sun (#131) tuned for the ~60 m play area, a cool shadowless
 //!   bounce light and a sky-tinted ambient.
 //! - Fog in the exact horizon colour, so the edge of the world melts into the sky.
-//! - A day/night cycle (#284) on the wall clock, so everyone shares the time of day: the sun
+//! - A day/night cycle (#284) counted from when the host started (the game opens
+//!   in the morning), so everyone shares the time of day: the sun
 //!   swings across the sky and goes golden at dusk, then a dim blue moon, darker sky and fog.
 //! - TonyMcMapface tonemapping and mild bloom so the bonfire and emissives glow.
 
@@ -17,6 +18,8 @@ use bevy::light::{CascadeShadowConfigBuilder, NotShadowCaster, NotShadowReceiver
 use bevy::mesh::{Indices, PrimitiveTopology};
 use bevy::post_process::bloom::Bloom;
 use bevy::prelude::*;
+
+use bevy_replicon::prelude::*;
 
 use crate::AppState;
 use crate::art;
@@ -39,7 +42,28 @@ pub fn plugin(app: &mut App) {
         .add_systems(
             Update,
             (drift_clouds, day_night).run_if(in_state(AppState::InGame)),
-        );
+        )
+        .add_systems(OnEnter(ServerState::Running), start_day);
+}
+
+/// Registered on every peer (appended last in the features protocol list).
+pub fn protocol(app: &mut App) {
+    app.replicate::<DayStart>();
+}
+
+/// When the host's session began (seconds since the epoch), replicated so every peer
+/// counts the day from the same moment and the game opens in the morning.
+#[derive(Component, serde::Serialize, serde::Deserialize, Clone, Copy, Debug, PartialEq)]
+pub struct DayStart(pub f64);
+
+fn start_day(mut commands: Commands, existing: Query<(), With<DayStart>>) {
+    if existing.is_empty() {
+        commands.spawn((
+            Replicated,
+            DayStart(crate::settings::since_epoch().as_secs_f64()),
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
 }
 
 /// Day/night tuning: `assets/data/game/day_night.ron` (read at run time).
@@ -49,16 +73,20 @@ pub struct DayNight {
     pub day_minutes: f32,
     /// How bright the night still is, 0..1.
     pub night_brightness: f32,
+    /// The hour of day (0..24) a new game starts at.
+    pub start_hour: f32,
 }
 
 pub static DAY_NIGHT: friendslop_data::Data<DayNight> =
     friendslop_data::Data::ron("data/game/day_night.ron");
 
-/// Time of day 0..1 (0 = midnight, 0.25 = dawn, 0.5 = noon, 0.75 = dusk) from wall-clock
-/// seconds, so every peer agrees without anything on the wire (#284).
-pub fn time_of_day(epoch_secs: f64, day_minutes: f32) -> f32 {
+/// Time of day 0..1 (0 = midnight, 0.25 = dawn, 0.5 = noon, 0.75 = dusk) from the seconds
+/// since the session started, beginning at `start_hour` (#284). Every peer counts from the
+/// host's [`DayStart`], so they agree.
+pub fn time_of_day(elapsed_secs: f64, day_minutes: f32, start_hour: f32) -> f32 {
     let len = (day_minutes.max(0.1) as f64) * 60.0;
-    (epoch_secs.rem_euclid(len) / len) as f32
+    let start = (start_hour as f64 / 24.0).rem_euclid(1.0);
+    ((elapsed_secs.rem_euclid(len) / len + start).rem_euclid(1.0)) as f32
 }
 
 /// How high the sun is: -1 at midnight, 0 at dawn and dusk, 1 at noon.
@@ -94,6 +122,7 @@ fn day_night(
     mut fog: Query<&mut DistanceFog, With<MainCamera>>,
     sky: Query<&MeshMaterial3d<StandardMaterial>, With<SkyDome>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    started: Query<&DayStart>,
 ) {
     let Ok((mut light, mut tf)) = sun.single_mut() else {
         return;
@@ -102,10 +131,9 @@ fn day_night(
         return;
     }
     let tuning = DAY_NIGHT.get();
-    let t = time_of_day(
-        crate::settings::since_epoch().as_secs_f64(),
-        tuning.day_minutes,
-    );
+    let now = crate::settings::since_epoch().as_secs_f64();
+    let start = started.iter().next().map_or(now, |d| d.0);
+    let t = time_of_day(now - start, tuning.day_minutes, tuning.start_hour);
     let h = sun_height(t);
     let day = daylight(h);
     let night = tuning.night_brightness.clamp(0.0, 1.0);
@@ -377,6 +405,13 @@ mod tests {
     fn noon_is_bright_and_midnight_dark() {
         assert!(daylight(sun_height(0.5)) > 0.99);
         assert!(daylight(sun_height(0.0)) < 0.01);
-        assert!((time_of_day(90.0, 1.0) - 0.5).abs() < 1e-6);
+        assert!((time_of_day(90.0, 1.0, 0.0) - 0.5).abs() < 1e-6);
+    }
+
+    #[test]
+    fn a_new_game_starts_at_the_start_hour() {
+        assert!((time_of_day(0.0, 24.0, 9.5) - 9.5 / 24.0).abs() < 1e-6);
+        // Half a day later it's half past nine at night.
+        assert!((time_of_day(12.0 * 60.0, 24.0, 9.5) - 21.5 / 24.0).abs() < 1e-5);
     }
 }

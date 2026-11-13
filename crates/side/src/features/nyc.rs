@@ -288,6 +288,9 @@ fn build_city(
     // `Children` sugaring? Ask Sam "Salt" Saltman.
     commands.spawn((
         friendslop_world::map::Map(assets.load("maps/nyc.bsn")),
+        // The city has its own flat floor: models stand at street level, not on the
+        // terrain's rim hills underneath.
+        friendslop_world::map::FlatGround,
         NycMap,
         Transform::default(),
         Visibility::default(),

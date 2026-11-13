@@ -218,14 +218,23 @@ fn spawn_maps(world: &mut World) {
     }
 }
 
+/// Put on a [`Map`] whose models stand on their own flat floor at the heights the map
+/// gives them (New York's street level), instead of on the valley's terrain.
+#[derive(Component, Default, Clone, Copy, Debug)]
+pub struct FlatGround;
+
 fn load_gltf_sources(
     mut commands: Commands,
     assets: Res<AssetServer>,
-    mut added: Query<(Entity, &GltfSource, &mut Transform), Added<GltfSource>>,
+    mut added: Query<(Entity, &GltfSource, &mut Transform, Option<&ChildOf>), Added<GltfSource>>,
+    flat: Query<(), With<FlatGround>>,
 ) {
-    for (e, g, mut t) in &mut added {
-        // A map places models above its ground, like the rest of the map.
-        t.translation.y += crate::terrain::height_at(t.translation.x, t.translation.z);
+    for (e, g, mut t, parent) in &mut added {
+        // A map places models above its ground, like the rest of the map, unless the map
+        // has its own flat floor.
+        if !parent.is_some_and(|p| flat.contains(p.parent())) {
+            t.translation.y += crate::terrain::height_at(t.translation.x, t.translation.z);
+        }
         commands.entity(e).insert((
             WorldAssetRoot(
                 assets.load(GltfAssetLabel::Scene(g.scene_index).from_asset(g.path.clone())),

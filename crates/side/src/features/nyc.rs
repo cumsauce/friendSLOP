@@ -174,6 +174,11 @@ fn room(map: &friendslop_world::places::MapFile, name: &str) -> Option<Room> {
     })
 }
 
+/// Is (x, z) inside the shop called `name` (one of [`SHOPS`])? Reads the map's room spot.
+pub fn in_shop(p: Vec2, name: &str) -> bool {
+    room(&MAP.get(), name).is_some_and(|r| r.contains(p))
+}
+
 /// Read the city out of its map file.
 pub fn city(map: &friendslop_world::places::MapFile) -> City {
     let walls = map

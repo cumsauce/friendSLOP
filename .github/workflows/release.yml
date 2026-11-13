@@ -3,8 +3,16 @@ name: Release
 # Manual only: Actions tab -> "Release" -> Run workflow (or `gh workflow run release.yml`).
 # Publishes a "latest" build so friends can just download and play (desktop only;
 # the browser zip is a separate run of web-release.yml, which adds it to "latest").
+# `platforms`: all rebuilds "latest" from scratch; a single OS (`-f platforms=mac`)
+# builds only that one and replaces just its download in "latest".
 on:
   workflow_dispatch:
+    inputs:
+      platforms:
+        description: Which builds to make
+        type: choice
+        default: all
+        options: [all, mac, linux, windows]
 
 permissions:
   contents: write
@@ -13,18 +21,30 @@ concurrency:
   group: release
   cancel-in-progress: true
 
+env:
+  ALL: >-
+    [{"os":"ubuntu-latest","asset":"friendslop-linux-x86_64.tar.gz","only":"linux"},
+     {"os":"macos-latest","asset":"friendslop-macos-arm64.tar.gz","only":"mac"},
+     {"os":"windows-latest","asset":"friendslop-windows-x86_64.zip","only":"windows"}]
+
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.pick.outputs.include }}
+    steps:
+      - id: pick
+        env:
+          WANT: ${{ inputs.platforms || 'all' }}
+        run: |
+          echo "include=$(echo "$ALL" | jq -c --arg w "$WANT" 'map(select($w == "all" or .only == $w))')" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: [plan]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            asset: friendslop-linux-x86_64.tar.gz
-          - os: macos-latest
-            asset: friendslop-macos-arm64.tar.gz
-          - os: windows-latest
-            asset: friendslop-windows-x86_64.zip
+        include: ${{ fromJSON(needs.plan.outputs.include) }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -74,8 +94,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          WANT: ${{ inputs.platforms || 'all' }}
         run: |
-          gh release delete latest --yes --cleanup-tag || true
-          gh release create latest dist/* --title "Latest build" \
-            --notes "Built from ${{ github.sha }}. Download for your OS, unzip, run. The browser version (friendslop-web.zip) is added by the separate \"Web release\" workflow. Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'." \
-            --target ${{ github.sha }} --prerelease
+          notes="Built from ${{ github.sha }}. Download for your OS, unzip, run. The browser version (friendslop-web.zip) is added by the separate \"Web release\" workflow. Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'."
+          if [ "$WANT" != all ] && gh release view latest >/dev/null 2>&1; then
+            # One OS: swap just its download, keep the others.
+            gh release upload latest dist/* --clobber
+            gh release edit latest --notes "$notes (The $WANT build is from ${{ github.sha }}.)"
+          else
+            gh release delete latest --yes --cleanup-tag || true
+            gh release create latest dist/* --title "Latest build" --notes "$notes" \
+              --target ${{ github.sha }} --prerelease
+          fi

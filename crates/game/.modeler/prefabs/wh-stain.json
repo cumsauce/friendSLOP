@@ -1,0 +1,337 @@
+{
+  "format_version": 1,
+  "name": "wh-stain",
+  "parts": [],
+  "version": 22449,
+  "ops": [
+    {
+      "extrude": {
+        "name": "pool",
+        "profile": [
+          [
+            [
+              -0.48,
+              -0.1
+            ],
+            [
+              -0.3,
+              -0.42
+            ],
+            [
+              0.05,
+              -0.47
+            ],
+            [
+              0.3,
+              -0.3
+            ],
+            [
+              0.5,
+              -0.05
+            ],
+            [
+              0.42,
+              0.3
+            ],
+            [
+              0.1,
+              0.48
+            ],
+            [
+              -0.2,
+              0.38
+            ],
+            [
+              -0.45,
+              0.2
+            ]
+          ]
+        ],
+        "height": 0.006,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "round": 0.08,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "drip_a",
+        "profile": [
+          [
+            [
+              0.45,
+              0.25
+            ],
+            [
+              0.62,
+              0.32
+            ],
+            [
+              0.6,
+              0.42
+            ],
+            [
+              0.48,
+              0.38
+            ]
+          ]
+        ],
+        "height": 0.005,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "round": 0.03,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "drip_b",
+        "profile": [
+          [
+            [
+              -0.55,
+              -0.32
+            ],
+            [
+              -0.48,
+              -0.36
+            ],
+            [
+              -0.44,
+              -0.28
+            ],
+            [
+              -0.52,
+              -0.25
+            ]
+          ]
+        ],
+        "height": 0.005,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "round": 0.02,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "pool",
+        "input": "pool",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-oil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 77,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#0d0b09"
+                  ],
+                  [
+                    1,
+                    "#2b241c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rough",
+                "stops": [
+                  [
+                    0,
+                    0.15
+                  ],
+                  [
+                    1,
+                    0.6
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drip_a",
+        "input": "drip_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-oil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 77,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#0d0b09"
+                  ],
+                  [
+                    1,
+                    "#2b241c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rough",
+                "stops": [
+                  [
+                    0,
+                    0.15
+                  ],
+                  [
+                    1,
+                    0.6
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drip_b",
+        "input": "drip_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-oil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 77,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#0d0b09"
+                  ],
+                  [
+                    1,
+                    "#2b241c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rough",
+                "stops": [
+                  [
+                    0,
+                    0.15
+                  ],
+                  [
+                    1,
+                    0.6
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

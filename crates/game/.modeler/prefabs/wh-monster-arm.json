@@ -1,0 +1,172 @@
+{
+  "format_version": 1,
+  "name": "wh-monster-arm",
+  "parts": [],
+  "version": 22840,
+  "ops": [
+    {
+      "skin": {
+        "name": "arm",
+        "chains": [
+          [
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.055
+            ],
+            [
+              0.0,
+              -0.75,
+              0.02,
+              0.04
+            ],
+            [
+              0.0,
+              -0.8,
+              0.02,
+              0.045
+            ],
+            [
+              0.0,
+              -1.55,
+              -0.03,
+              0.035
+            ],
+            [
+              0.0,
+              -1.62,
+              -0.04,
+              0.05
+            ]
+          ],
+          [
+            [
+              0.0,
+              -1.62,
+              -0.04,
+              0.03
+            ],
+            [
+              0.04,
+              -1.82,
+              -0.08,
+              0.012
+            ]
+          ],
+          [
+            [
+              0.0,
+              -1.62,
+              -0.04,
+              0.03
+            ],
+            [
+              0.0,
+              -1.85,
+              -0.06,
+              0.012
+            ]
+          ],
+          [
+            [
+              0.0,
+              -1.62,
+              -0.04,
+              0.03
+            ],
+            [
+              -0.04,
+              -1.82,
+              -0.08,
+              0.012
+            ]
+          ]
+        ],
+        "smooth": true
+      }
+    },
+    {
+      "decimate": {
+        "name": "arm_lo",
+        "input": "arm",
+        "tris": 1200
+      }
+    },
+    {
+      "material": {
+        "name": "arm_lo",
+        "input": "arm_lo",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-skin",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 13,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#050506"
+                  ],
+                  [
+                    1,
+                    "#16141a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "h",
+                "stops": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.002
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "arm",
+        "input": "arm",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

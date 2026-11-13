@@ -6,7 +6,7 @@
 pub(crate) mod bathroom;
 
 use bevy::audio::{AudioSource, Volume};
-use std::f32::consts::FRAC_PI_2;
+use std::f32::consts::{FRAC_PI_2, PI, TAU};
 
 use bevy::light::NotShadowCaster;
 use bevy::world_serialization::WorldInstanceReady;
@@ -235,13 +235,8 @@ fn block(
 }
 
 /// The building outside, its door and lamp, and Jegg.
-fn build_outside(
-    mut commands: Commands,
-    assets: Option<Res<AssetServer>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
-) {
-    let (Some(assets), Some(mut meshes), Some(mut materials)) = (assets, meshes, materials) else {
+fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+    let Some(assets) = assets else {
         return;
     };
     // Modeler-made (sources in `.modeler/`, prefabs `sp-warehouse-exterior`,
@@ -251,7 +246,6 @@ fn build_outside(
             assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
         )
     };
-    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     let y0 = outside_floor();
     let c = Vec3::new(outside_at().x, y0, outside_at().y);
     let (sx, sz, hy) = (outside_size().x, outside_size().y, outside_height());
@@ -297,7 +291,6 @@ fn build_outside(
         DespawnOnExit(AppState::InGame),
     ));
     // Junk in the yard.
-    let crate_mat = mat(&mut materials, Color::srgb(0.5, 0.37, 0.22), 0.9);
     for (i, off) in [
         Vec2::new(-4.5, -1.0),
         Vec2::new(-5.4, -0.6),
@@ -309,14 +302,18 @@ fn build_outside(
         let at = Vec3::new(d.x + off.x, 0.0, d.z + off.y);
         let at = at.with_y(crate::terrain::height_at(at.x, at.z));
         if i == 2 {
-            block(
-                &mut commands,
-                &cube,
-                &crate_mat,
-                at + Vec3::Y * 0.45,
-                Vec3::splat(0.9),
-                true,
-            );
+            // `wh-crate`: 0.9 m, origin on the ground under its middle.
+            commands.spawn((
+                model("wh_crate.gltf"),
+                Transform::from_translation(at).with_rotation(Quat::from_rotation_y(0.4)),
+                DespawnOnExit(AppState::InGame),
+            ));
+            commands.spawn((
+                Transform::from_translation(at + Vec3::Y * 0.45).with_scale(Vec3::splat(0.9)),
+                avian3d::prelude::RigidBody::Static,
+                avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+                DespawnOnExit(AppState::InGame),
+            ));
         } else {
             commands.spawn((
                 model("oil_drum.gltf"),
@@ -403,11 +400,7 @@ fn build_inside(
     } else {
         INSIDE_WALL
     };
-    let floor = mat(&mut materials, Color::srgb(0.22, 0.22, 0.23), 0.95);
     let wall = mat(&mut materials, Color::srgb(0.3, 0.29, 0.27), 0.95);
-    let stain = mat(&mut materials, Color::srgb(0.16, 0.14, 0.12), 1.0);
-    let exit_sign = glow(&mut materials, Color::srgb(0.3, 1.0, 0.45), 3.0);
-    let shutter = mat(&mut materials, Color::srgb(0.3, 0.3, 0.32), 0.6);
     let (gw, gh) = (W as f32 * CELL, H as f32 * CELL);
     let y = INSIDE_Y;
     let top = y + INSIDE_WALL;
@@ -444,36 +437,78 @@ fn build_inside(
             avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
         ));
     };
-    // Floor, ceiling and the outer shell.
-    part(
+    // Only a collider: models (or the bathroom kit) draw what you see.
+    let collider = |commands: &mut Commands, at: Vec3, size: Vec3| {
+        commands.spawn((
+            InteriorPart,
+            Transform::from_translation(at).with_scale(size),
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+            DespawnOnExit(AppState::InGame),
+        ));
+    };
+    // Floor, ceiling and the outer shell: colliders here, and the
+    // modeler's floor and ceiling tiles (5 m, `wh-floor-tile`,
+    // `wh-ceiling-tile`) and wall panels (`wh-outer-wall`) per cell.
+    collider(
         &mut commands,
-        &floor,
         Vec3::new(0.0, y - 0.25, 0.0),
         Vec3::new(gw + 1.0, 0.5, gh + 1.0),
-        true,
     );
+    for z in 0..H {
+        for x in 0..W {
+            if in_bath((x, z)) {
+                continue;
+            }
+            let c = cell_centre(x, z);
+            let turn = Quat::from_rotation_y((x * 3 + z * 5) as f32 * FRAC_PI_2);
+            prop(
+                &mut commands,
+                "wh_floor_tile.gltf",
+                Transform::from_xyz(c.x, y, c.y).with_rotation(turn),
+            );
+            prop(
+                &mut commands,
+                "wh_ceiling_tile.gltf",
+                Transform::from_xyz(c.x, y + ceiling((x, z)), c.y).with_rotation(turn),
+            );
+            // The shell's walls along the grid's edge, facing in.
+            for (edge, yaw, dir) in [
+                (z == 0, 0.0, -Vec3::Z),
+                (z == H - 1, PI, Vec3::Z),
+                (x == 0, FRAC_PI_2, -Vec3::X),
+                (x == W - 1, -FRAC_PI_2, Vec3::X),
+            ] {
+                if edge {
+                    prop(
+                        &mut commands,
+                        "wh_outer_wall.gltf",
+                        Transform::from_translation(Vec3::new(c.x, y, c.y) + dir * (CELL / 2.0))
+                            .with_rotation(Quat::from_rotation_y(yaw)),
+                    );
+                }
+            }
+        }
+    }
     if let Some(kit) = &kit {
         // A ceiling per cell: the bathroom's is far higher.
         for z in 0..H {
             for x in 0..W {
                 let c = cell_centre(x, z);
-                let m = if in_bath((x, z)) { &kit.wall } else { &wall };
-                part(
-                    &mut commands,
-                    m,
-                    Vec3::new(c.x, y + ceiling((x, z)) + 0.25, c.y),
-                    Vec3::new(CELL + 0.02, 0.5, CELL + 0.02),
-                    true,
-                );
+                let at = Vec3::new(c.x, y + ceiling((x, z)) + 0.25, c.y);
+                let size = Vec3::new(CELL + 0.02, 0.5, CELL + 0.02);
+                if in_bath((x, z)) {
+                    part(&mut commands, &kit.wall, at, size, true);
+                } else {
+                    collider(&mut commands, at, size);
+                }
             }
         }
     } else {
-        part(
+        collider(
             &mut commands,
-            &wall,
             Vec3::new(0.0, top + 0.25, 0.0),
             Vec3::new(gw + 1.0, 0.5, gh + 1.0),
-            true,
         );
     }
     for (at, size) in [
@@ -494,25 +529,58 @@ fn build_inside(
             Vec3::new(0.4, tall, gh),
         ),
     ] {
-        part(&mut commands, &wall, at, size, true);
+        collider(&mut commands, at, size);
     }
-    // The loading door from the inside, with a weak green sign over it.
+    // The bathroom's stretch of the shell is drawn in its tiles.
+    if let Some(kit) = &kit {
+        for z in 0..H {
+            for x in 0..W {
+                if !in_bath((x, z)) {
+                    continue;
+                }
+                let c = cell_centre(x, z);
+                for (edge, off, sz) in [
+                    (
+                        z == 0,
+                        Vec2::new(0.0, -CELL / 2.0 - 0.2),
+                        Vec2::new(CELL, 0.4),
+                    ),
+                    (
+                        z == H - 1,
+                        Vec2::new(0.0, CELL / 2.0 + 0.2),
+                        Vec2::new(CELL, 0.4),
+                    ),
+                    (
+                        x == 0,
+                        Vec2::new(-CELL / 2.0 - 0.2, 0.0),
+                        Vec2::new(0.4, CELL),
+                    ),
+                    (
+                        x == W - 1,
+                        Vec2::new(CELL / 2.0 + 0.2, 0.0),
+                        Vec2::new(0.4, CELL),
+                    ),
+                ] {
+                    if edge {
+                        part(
+                            &mut commands,
+                            &kit.wall,
+                            Vec3::new(c.x + off.x, y + tall / 2.0, c.y + off.y),
+                            Vec3::new(sz.x, tall, sz.y),
+                            false,
+                        );
+                    }
+                }
+            }
+        }
+    }
+    // The loading door from the inside, with a weak green sign over it
+    // (`wh-shutter`: its back on the wall, the sign 4 m up).
     let ex = exit_at();
-    for k in 0..9 {
-        part(
-            &mut commands,
-            &shutter,
-            Vec3::new(ex.x, y + 0.2 + k as f32 * 0.38, ex.z + 0.05),
-            Vec3::new(3.0, 0.33, 0.08),
-            false,
-        );
-    }
-    part(
+    prop(
         &mut commands,
-        &exit_sign,
-        Vec3::new(ex.x, y + 3.75, ex.z + 0.08),
-        Vec3::new(0.9, 0.3, 0.06),
-        false,
+        "wh_shutter.gltf",
+        Transform::from_translation(ex),
     );
     commands.spawn((
         InsideDoor,
@@ -637,12 +705,14 @@ fn build_inside(
             }
             if rng.roll() < 0.6 {
                 let at = cw + Vec3::new(rng.roll() - 0.5, 0.01, rng.roll() - 0.5) * 2.5;
-                part(
+                // `wh-stain` is about a metre across.
+                let size = Vec3::new(0.8 + rng.roll(), 1.0, 0.6 + rng.roll());
+                prop(
                     &mut commands,
-                    &stain,
-                    at,
-                    Vec3::new(0.8 + rng.roll(), 0.02, 0.6 + rng.roll()),
-                    false,
+                    "wh_stain.gltf",
+                    Transform::from_translation(at - Vec3::Y * 0.005)
+                        .with_rotation(Quat::from_rotation_y(rng.roll() * TAU))
+                        .with_scale(size),
                 );
             }
             for (bit, dir) in [(N, -Vec3::Z), (E, Vec3::X), (S, Vec3::Z), (WEST, -Vec3::X)] {
@@ -867,26 +937,28 @@ struct MonsterDecoy;
 #[derive(Component)]
 struct MonsterArm(f32);
 
-#[derive(Component)]
-struct MonsterEye;
-
 fn dress_monsters(
     mut commands: Commands,
     new: Query<(Entity, &Monster), Without<MonsterDressed>>,
     mut spooked: ResMut<Spooked>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
     audio: Option<ResMut<Assets<AudioSource>>>,
     assets: Option<Res<AssetServer>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    if assets.is_none() {
         return;
-    };
+    }
     let mut audio = audio;
     for (e, m) in &new {
-        let skin = mat(&mut materials, Color::srgb(0.03, 0.03, 0.035), 0.4);
-        let eye = glow(&mut materials, Color::srgb(1.0, 0.95, 0.85), 8.0);
-        let limb = meshes.add(Cylinder::new(0.06, 1.0));
+        // Modeler-made (`wh-monster-body`, `-arm`, `-head`): feet at the
+        // origin, arms hanging from their shoulder, the head (and its
+        // glowing eyes) centred; all face -z. Missing files draw nothing.
+        let model = |file: &str| {
+            assets.as_ref().map(|a| {
+                WorldAssetRoot(
+                    a.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
+                )
+            })
+        };
         commands
             .entity(e)
             .insert((
@@ -898,51 +970,29 @@ fn dress_monsters(
                 p.spawn((MonsterBody, Transform::default(), Visibility::default()))
                     .with_children(|b| {
                         // Tall, thin and hunched, arms down past its knees.
-                        b.spawn((
-                            Mesh3d(meshes.add(Capsule3d::new(0.22, 1.3))),
-                            MeshMaterial3d(skin.clone()),
-                            Transform::from_xyz(0.0, 1.6, 0.0)
-                                .with_rotation(Quat::from_rotation_x(-0.25))
-                                .with_scale(Vec3::new(1.0, 1.0, 0.7)),
-                        ));
+                        let mut body = b.spawn((Transform::default(), Visibility::default()));
+                        if let Some(m) = model("wh_monster_body.gltf") {
+                            body.insert(m);
+                        }
                         for side in [-1.0f32, 1.0] {
-                            b.spawn((
-                                Mesh3d(limb.clone()),
-                                MeshMaterial3d(skin.clone()),
-                                Transform::from_xyz(side * 0.14, 0.5, 0.05)
-                                    .with_scale(Vec3::new(1.0, 1.05, 1.0)),
-                            ));
                             b.spawn((
                                 MonsterArm(side),
                                 Transform::from_xyz(side * 0.3, 2.25, -0.15),
                                 Visibility::default(),
                             ))
                             .with_children(|a| {
-                                a.spawn((
-                                    Mesh3d(limb.clone()),
-                                    MeshMaterial3d(skin.clone()),
-                                    Transform::from_xyz(0.0, -0.85, 0.0)
-                                        .with_scale(Vec3::new(0.8, 1.7, 0.8)),
-                                ));
+                                let mut arm =
+                                    a.spawn((Transform::default(), Visibility::default()));
+                                if let Some(m) = model("wh_monster_arm.gltf") {
+                                    arm.insert(m);
+                                }
                             });
                         }
-                        b.spawn((
-                            Mesh3d(meshes.add(Sphere::new(0.2))),
-                            MeshMaterial3d(skin.clone()),
-                            Transform::from_xyz(0.0, 2.5, -0.35)
-                                .with_scale(Vec3::new(0.9, 1.25, 0.9)),
-                        ))
-                        .with_children(|h| {
-                            for side in [-1.0f32, 1.0] {
-                                h.spawn((
-                                    MonsterEye,
-                                    Mesh3d(meshes.add(Sphere::new(0.035))),
-                                    MeshMaterial3d(eye.clone()),
-                                    Transform::from_xyz(side * 0.08, 0.03, -0.18),
-                                    NotShadowCaster,
-                                ));
-                            }
-                        });
+                        let mut head =
+                            b.spawn((Transform::from_xyz(0.0, 2.5, -0.35), Visibility::default()));
+                        if let Some(m) = model("wh_monster_head.gltf") {
+                            head.insert(m);
+                        }
                     });
                 p.spawn((
                     MonsterDecoy,

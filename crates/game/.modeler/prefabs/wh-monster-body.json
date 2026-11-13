@@ -1,0 +1,243 @@
+{
+  "format_version": 1,
+  "name": "wh-monster-body",
+  "parts": [],
+  "version": 22844,
+  "ops": [
+    {
+      "skin": {
+        "name": "body",
+        "chains": [
+          [
+            "hip",
+            [
+              0.0,
+              1.5,
+              -0.06,
+              0.15
+            ],
+            "chest",
+            [
+              0.0,
+              2.3,
+              -0.3,
+              0.12
+            ]
+          ],
+          [
+            "chest",
+            [
+              0.22,
+              2.2,
+              -0.2,
+              0.08
+            ],
+            [
+              0.3,
+              2.25,
+              -0.15,
+              0.06
+            ]
+          ],
+          [
+            "hip",
+            [
+              0.14,
+              0.95,
+              0.02,
+              0.08
+            ],
+            [
+              0.15,
+              0.5,
+              0.06,
+              0.055
+            ],
+            [
+              0.14,
+              0.06,
+              0.05,
+              0.045
+            ]
+          ],
+          [
+            [
+              0.14,
+              0.04,
+              0.05,
+              0.04
+            ],
+            [
+              0.15,
+              0.03,
+              -0.12,
+              0.03
+            ]
+          ]
+        ],
+        "joints": {
+          "chest": [
+            0.0,
+            2.0,
+            -0.2,
+            0.17
+          ],
+          "hip": [
+            0.0,
+            1.0,
+            0.0,
+            0.13
+          ]
+        },
+        "mirror": "x"
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-skin",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 13,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#050506"
+                  ],
+                  [
+                    1,
+                    "#16141a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "h",
+                "stops": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.002
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "body_lo",
+        "input": "body",
+        "tris": 3000
+      }
+    },
+    {
+      "material": {
+        "name": "body_lo",
+        "input": "body_lo",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-skin",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 13,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#050506"
+                  ],
+                  [
+                    1,
+                    "#16141a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "h",
+                "stops": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    1,
+                    0.002
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "body",
+        "input": "body",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

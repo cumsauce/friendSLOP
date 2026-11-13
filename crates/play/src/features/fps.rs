@@ -427,6 +427,9 @@ fn walk_controls(
     walkers: Query<(&Player, &Walker)>,
     duelists: Query<&Duelist>,
     mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>,
+    window: Query<&Window, With<PrimaryWindow>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut was_focused: Local<bool>,
     mut view: ResMut<FpsView>,
     mut was_walking: Local<bool>,
     time: Res<Time<Real>>,
@@ -458,11 +461,18 @@ fn walk_controls(
     } else {
         CursorGrabMode::None
     };
+    // macOS only grants a cursor lock to a focused window, and a lock asked for
+    // while unfocused is silently dropped. So ask again when the window gains
+    // focus or is clicked, even if `grab_mode` already says Locked.
+    let focused = window.single().is_ok_and(|w| w.focused);
+    let retry = grab && ((focused && !*was_focused) || mouse.just_pressed(MouseButton::Left));
+    *was_focused = focused;
     if let Ok(mut c) = cursor.single_mut()
-        && c.grab_mode != want
+        && (c.grab_mode != want || retry)
     {
         c.grab_mode = want;
         c.visible = !grab;
+        c.set_changed();
     }
     if !view.first_person {
         if *was_walking {

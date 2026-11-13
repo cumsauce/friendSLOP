@@ -1,0 +1,4697 @@
+{
+ "format_version": 1,
+ "name": "vb-tower",
+ "parts": [],
+ "version": 22368,
+ "ops": [
+  {
+   "primitive": {
+    "name": "tw_walls_outer",
+    "kind": "box",
+    "size": [
+     9.25,
+     17.1,
+     4.65
+    ],
+    "translation": [
+     0.0,
+     8.55,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_inner",
+    "kind": "box",
+    "size": [
+     8.75,
+     19.1,
+     4.15
+    ],
+    "translation": [
+     0.0,
+     8.55,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_walls_ring",
+    "op": "difference",
+    "a": "tw_walls_outer",
+    "b": "tw_walls_inner"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut0",
+    "kind": "box",
+    "size": [
+     0.6,
+     1.2,
+     1.2
+    ],
+    "translation": [
+     1.5,
+     5.6,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut1",
+    "kind": "box",
+    "size": [
+     0.6,
+     1.2,
+     1.2
+    ],
+    "translation": [
+     1.5,
+     9.6,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut2",
+    "kind": "box",
+    "size": [
+     0.6,
+     1.2,
+     1.2
+    ],
+    "translation": [
+     1.5,
+     13.6,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut3",
+    "kind": "box",
+    "size": [
+     0.6,
+     1.2,
+     1.2
+    ],
+    "translation": [
+     1.5,
+     5.6,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut4",
+    "kind": "box",
+    "size": [
+     0.6,
+     1.2,
+     1.2
+    ],
+    "translation": [
+     1.5,
+     9.6,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut5",
+    "kind": "box",
+    "size": [
+     0.6,
+     1.2,
+     1.2
+    ],
+    "translation": [
+     1.5,
+     13.6,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut6",
+    "kind": "box",
+    "size": [
+     1.2,
+     1.2,
+     0.6
+    ],
+    "translation": [
+     4.5,
+     5.6,
+     -0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut7",
+    "kind": "box",
+    "size": [
+     1.2,
+     1.2,
+     0.6
+    ],
+    "translation": [
+     4.5,
+     9.6,
+     -0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut8",
+    "kind": "box",
+    "size": [
+     1.2,
+     1.2,
+     0.6
+    ],
+    "translation": [
+     4.5,
+     13.6,
+     -0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut9",
+    "kind": "box",
+    "size": [
+     1.2,
+     2.3,
+     1.4
+    ],
+    "translation": [
+     -4.5,
+     1.15,
+     1.1
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut10",
+    "kind": "box",
+    "size": [
+     1.2,
+     1.2,
+     0.6
+    ],
+    "translation": [
+     -4.5,
+     5.6,
+     -1.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut11",
+    "kind": "box",
+    "size": [
+     1.2,
+     1.2,
+     0.6
+    ],
+    "translation": [
+     -4.5,
+     9.6,
+     -1.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_walls_cut12",
+    "kind": "box",
+    "size": [
+     1.2,
+     1.2,
+     0.6
+    ],
+    "translation": [
+     -4.5,
+     13.6,
+     -1.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "group": {
+    "name": "tw_walls_cuts",
+    "inputs": [
+     "tw_walls_cut0",
+     "tw_walls_cut1",
+     "tw_walls_cut2",
+     "tw_walls_cut3",
+     "tw_walls_cut4",
+     "tw_walls_cut5",
+     "tw_walls_cut6",
+     "tw_walls_cut7",
+     "tw_walls_cut8",
+     "tw_walls_cut9",
+     "tw_walls_cut10",
+     "tw_walls_cut11",
+     "tw_walls_cut12"
+    ]
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_walls",
+    "op": "difference",
+    "a": "tw_walls_ring",
+    "b": "tw_walls_cuts"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_plinth_outer",
+    "kind": "box",
+    "size": [
+     9.41,
+     0.6,
+     4.81
+    ],
+    "translation": [
+     0.0,
+     0.3,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_plinth_inner",
+    "kind": "box",
+    "size": [
+     8.75,
+     2.6,
+     4.15
+    ],
+    "translation": [
+     0.0,
+     0.3,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_plinth_ring",
+    "op": "difference",
+    "a": "tw_plinth_outer",
+    "b": "tw_plinth_inner"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_plinth_cut0",
+    "kind": "box",
+    "size": [
+     1.2,
+     2.3,
+     1.4
+    ],
+    "translation": [
+     -4.5,
+     1.15,
+     1.1
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "group": {
+    "name": "tw_plinth_cuts",
+    "inputs": [
+     "tw_plinth_cut0"
+    ]
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_plinth",
+    "op": "difference",
+    "a": "tw_plinth_ring",
+    "b": "tw_plinth_cuts"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band0_outer",
+    "kind": "box",
+    "size": [
+     9.37,
+     0.18,
+     4.77
+    ],
+    "translation": [
+     0.0,
+     3.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band0_inner",
+    "kind": "box",
+    "size": [
+     8.75,
+     2.18,
+     4.15
+    ],
+    "translation": [
+     0.0,
+     3.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_band0",
+    "op": "difference",
+    "a": "tw_band0_outer",
+    "b": "tw_band0_inner"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band1_outer",
+    "kind": "box",
+    "size": [
+     9.37,
+     0.18,
+     4.77
+    ],
+    "translation": [
+     0.0,
+     7.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band1_inner",
+    "kind": "box",
+    "size": [
+     8.75,
+     2.18,
+     4.15
+    ],
+    "translation": [
+     0.0,
+     7.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_band1",
+    "op": "difference",
+    "a": "tw_band1_outer",
+    "b": "tw_band1_inner"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band2_outer",
+    "kind": "box",
+    "size": [
+     9.37,
+     0.18,
+     4.77
+    ],
+    "translation": [
+     0.0,
+     11.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band2_inner",
+    "kind": "box",
+    "size": [
+     8.75,
+     2.18,
+     4.15
+    ],
+    "translation": [
+     0.0,
+     11.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_band2",
+    "op": "difference",
+    "a": "tw_band2_outer",
+    "b": "tw_band2_inner"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band3_outer",
+    "kind": "box",
+    "size": [
+     9.37,
+     0.18,
+     4.77
+    ],
+    "translation": [
+     0.0,
+     15.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_band3_inner",
+    "kind": "box",
+    "size": [
+     8.75,
+     2.18,
+     4.15
+    ],
+    "translation": [
+     0.0,
+     15.97,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "boolean": {
+    "name": "tw_band3",
+    "op": "difference",
+    "a": "tw_band3_outer",
+    "b": "tw_band3_inner"
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin0",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     0.825,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin1",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     1.725,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin2",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     2.625,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin3",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     3.525,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin4",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     4.425,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin5",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     5.325,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin6",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     6.225,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin7",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     7.125,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin8",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     8.025,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin9",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     8.925,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin10",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     9.825,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin11",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     10.725,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin12",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     11.625,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin13",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     12.525,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin14",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     13.425,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin15",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     14.325,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin16",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     15.225,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin17",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     16.125,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin18",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     0.825,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin19",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     1.725,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin20",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     2.625,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin21",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     3.525,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin22",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     4.425,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin23",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     5.325,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin24",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     6.225,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin25",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     7.125,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin26",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     8.025,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin27",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     8.925,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin28",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     9.825,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin29",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     10.725,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin30",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     11.625,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin31",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     12.525,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin32",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     13.425,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin33",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     14.325,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin34",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     -4.315,
+     15.225,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin35",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     -4.49,
+     16.125,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin36",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     0.825,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin37",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     1.725,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin38",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     2.625,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin39",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     3.525,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin40",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     4.425,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin41",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     5.325,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin42",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     6.225,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin43",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     7.125,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin44",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     8.025,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin45",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     8.925,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin46",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     9.825,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin47",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     10.725,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin48",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     11.625,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin49",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     12.525,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin50",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     13.425,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin51",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     14.325,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin52",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     15.225,
+     -2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin53",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     16.125,
+     -2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin54",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     0.825,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin55",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     1.725,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin56",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     2.625,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin57",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     3.525,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin58",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     4.425,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin59",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     5.325,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin60",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     6.225,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin61",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     7.125,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin62",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     8.025,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin63",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     8.925,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin64",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     9.825,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin65",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     10.725,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin66",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     11.625,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin67",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     12.525,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin68",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     13.425,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin69",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     14.325,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin70",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.45,
+     0.35
+    ],
+    "translation": [
+     4.315,
+     15.225,
+     2.19
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_quoin71",
+    "kind": "box",
+    "size": [
+     0.35,
+     0.45,
+     0.7
+    ],
+    "translation": [
+     4.49,
+     16.125,
+     2.015
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "group": {
+    "name": "tw_quoins",
+    "inputs": [
+     "tw_quoin0",
+     "tw_quoin1",
+     "tw_quoin2",
+     "tw_quoin3",
+     "tw_quoin4",
+     "tw_quoin5",
+     "tw_quoin6",
+     "tw_quoin7",
+     "tw_quoin8",
+     "tw_quoin9",
+     "tw_quoin10",
+     "tw_quoin11",
+     "tw_quoin12",
+     "tw_quoin13",
+     "tw_quoin14",
+     "tw_quoin15",
+     "tw_quoin16",
+     "tw_quoin17",
+     "tw_quoin18",
+     "tw_quoin19",
+     "tw_quoin20",
+     "tw_quoin21",
+     "tw_quoin22",
+     "tw_quoin23",
+     "tw_quoin24",
+     "tw_quoin25",
+     "tw_quoin26",
+     "tw_quoin27",
+     "tw_quoin28",
+     "tw_quoin29",
+     "tw_quoin30",
+     "tw_quoin31",
+     "tw_quoin32",
+     "tw_quoin33",
+     "tw_quoin34",
+     "tw_quoin35",
+     "tw_quoin36",
+     "tw_quoin37",
+     "tw_quoin38",
+     "tw_quoin39",
+     "tw_quoin40",
+     "tw_quoin41",
+     "tw_quoin42",
+     "tw_quoin43",
+     "tw_quoin44",
+     "tw_quoin45",
+     "tw_quoin46",
+     "tw_quoin47",
+     "tw_quoin48",
+     "tw_quoin49",
+     "tw_quoin50",
+     "tw_quoin51",
+     "tw_quoin52",
+     "tw_quoin53",
+     "tw_quoin54",
+     "tw_quoin55",
+     "tw_quoin56",
+     "tw_quoin57",
+     "tw_quoin58",
+     "tw_quoin59",
+     "tw_quoin60",
+     "tw_quoin61",
+     "tw_quoin62",
+     "tw_quoin63",
+     "tw_quoin64",
+     "tw_quoin65",
+     "tw_quoin66",
+     "tw_quoin67",
+     "tw_quoin68",
+     "tw_quoin69",
+     "tw_quoin70",
+     "tw_quoin71"
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon0",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     -3.75,
+     17.35,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon1",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     -3.75,
+     17.35,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon2",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     -2.25,
+     17.35,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon3",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     -2.25,
+     17.35,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon4",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     -0.75,
+     17.35,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon5",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     -0.75,
+     17.35,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon6",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     0.75,
+     17.35,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon7",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     0.75,
+     17.35,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon8",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     2.25,
+     17.35,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon9",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     2.25,
+     17.35,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon10",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     3.75,
+     17.35,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon11",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.5,
+     0.33
+    ],
+    "translation": [
+     3.75,
+     17.35,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon12",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.5,
+     0.7
+    ],
+    "translation": [
+     -4.5,
+     17.35,
+     -1.1
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon13",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.5,
+     0.7
+    ],
+    "translation": [
+     4.5,
+     17.35,
+     -1.1
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon14",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.5,
+     0.7
+    ],
+    "translation": [
+     -4.5,
+     17.35,
+     1.1
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_merlon15",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.5,
+     0.7
+    ],
+    "translation": [
+     4.5,
+     17.35,
+     1.1
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "group": {
+    "name": "tw_merlons",
+    "inputs": [
+     "tw_merlon0",
+     "tw_merlon1",
+     "tw_merlon2",
+     "tw_merlon3",
+     "tw_merlon4",
+     "tw_merlon5",
+     "tw_merlon6",
+     "tw_merlon7",
+     "tw_merlon8",
+     "tw_merlon9",
+     "tw_merlon10",
+     "tw_merlon11",
+     "tw_merlon12",
+     "tw_merlon13",
+     "tw_merlon14",
+     "tw_merlon15"
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel0",
+    "kind": "box",
+    "size": [
+     0.9,
+     0.14,
+     0.33
+    ],
+    "translation": [
+     1.5,
+     6.27,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel1",
+    "kind": "box",
+    "size": [
+     0.9,
+     0.14,
+     0.33
+    ],
+    "translation": [
+     1.5,
+     10.27,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel2",
+    "kind": "box",
+    "size": [
+     0.9,
+     0.14,
+     0.33
+    ],
+    "translation": [
+     1.5,
+     14.27,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel3",
+    "kind": "box",
+    "size": [
+     0.9,
+     0.14,
+     0.33
+    ],
+    "translation": [
+     1.5,
+     6.27,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel4",
+    "kind": "box",
+    "size": [
+     0.9,
+     0.14,
+     0.33
+    ],
+    "translation": [
+     1.5,
+     10.27,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel5",
+    "kind": "box",
+    "size": [
+     0.9,
+     0.14,
+     0.33
+    ],
+    "translation": [
+     1.5,
+     14.27,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel6",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.14,
+     0.9
+    ],
+    "translation": [
+     4.5,
+     6.27,
+     -0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel7",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.14,
+     0.9
+    ],
+    "translation": [
+     4.5,
+     10.27,
+     -0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel8",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.14,
+     0.9
+    ],
+    "translation": [
+     4.5,
+     14.27,
+     -0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel9",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.14,
+     0.9
+    ],
+    "translation": [
+     -4.5,
+     6.27,
+     -1.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel10",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.14,
+     0.9
+    ],
+    "translation": [
+     -4.5,
+     10.27,
+     -1.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_lintel11",
+    "kind": "box",
+    "size": [
+     0.33,
+     0.14,
+     0.9
+    ],
+    "translation": [
+     -4.5,
+     14.27,
+     -1.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "group": {
+    "name": "tw_lintels",
+    "inputs": [
+     "tw_lintel0",
+     "tw_lintel1",
+     "tw_lintel2",
+     "tw_lintel3",
+     "tw_lintel4",
+     "tw_lintel5",
+     "tw_lintel6",
+     "tw_lintel7",
+     "tw_lintel8",
+     "tw_lintel9",
+     "tw_lintel10",
+     "tw_lintel11"
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_spine",
+    "kind": "box",
+    "size": [
+     6.0,
+     17.1,
+     0.2
+    ],
+    "translation": [
+     0.0,
+     8.55,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_post0",
+    "kind": "box",
+    "size": [
+     0.3,
+     2.4,
+     0.3
+    ],
+    "translation": [
+     -4.5,
+     18.3,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace1x",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.12,
+     0.12
+    ],
+    "translation": [
+     -4.15,
+     19.15,
+     -2.2
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     -0.38268346,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace1z",
+    "kind": "box",
+    "size": [
+     0.12,
+     0.12,
+     0.7
+    ],
+    "translation": [
+     -4.5,
+     19.15,
+     -1.85
+    ],
+    "rotation": [
+     0.38268346,
+     0.0,
+     0.0,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_post1",
+    "kind": "box",
+    "size": [
+     0.3,
+     2.4,
+     0.3
+    ],
+    "translation": [
+     -4.5,
+     18.3,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace2x",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.12,
+     0.12
+    ],
+    "translation": [
+     -4.15,
+     19.15,
+     2.2
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     -0.38268346,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace2z",
+    "kind": "box",
+    "size": [
+     0.12,
+     0.12,
+     0.7
+    ],
+    "translation": [
+     -4.5,
+     19.15,
+     1.85
+    ],
+    "rotation": [
+     -0.38268346,
+     0.0,
+     0.0,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_post2",
+    "kind": "box",
+    "size": [
+     0.3,
+     2.4,
+     0.3
+    ],
+    "translation": [
+     4.5,
+     18.3,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace3x",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.12,
+     0.12
+    ],
+    "translation": [
+     4.15,
+     19.15,
+     -2.2
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.38268346,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace3z",
+    "kind": "box",
+    "size": [
+     0.12,
+     0.12,
+     0.7
+    ],
+    "translation": [
+     4.5,
+     19.15,
+     -1.85
+    ],
+    "rotation": [
+     0.38268346,
+     0.0,
+     0.0,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_post3",
+    "kind": "box",
+    "size": [
+     0.3,
+     2.4,
+     0.3
+    ],
+    "translation": [
+     4.5,
+     18.3,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace4x",
+    "kind": "box",
+    "size": [
+     0.7,
+     0.12,
+     0.12
+    ],
+    "translation": [
+     4.15,
+     19.15,
+     2.2
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.38268346,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_brace4z",
+    "kind": "box",
+    "size": [
+     0.12,
+     0.12,
+     0.7
+    ],
+    "translation": [
+     4.5,
+     19.15,
+     1.85
+    ],
+    "rotation": [
+     -0.38268346,
+     0.0,
+     0.0,
+     0.9238795
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_plate_s",
+    "kind": "box",
+    "size": [
+     9.3,
+     0.2,
+     0.3
+    ],
+    "translation": [
+     0.0,
+     19.4,
+     2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_plate_n",
+    "kind": "box",
+    "size": [
+     9.3,
+     0.2,
+     0.3
+    ],
+    "translation": [
+     0.0,
+     19.4,
+     -2.2
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_plate_e",
+    "kind": "box",
+    "size": [
+     0.3,
+     0.2,
+     4.4
+    ],
+    "translation": [
+     4.5,
+     19.4,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_plate_w",
+    "kind": "box",
+    "size": [
+     0.3,
+     0.2,
+     4.4
+    ],
+    "translation": [
+     -4.5,
+     19.4,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "group": {
+    "name": "tw_timber",
+    "inputs": [
+     "tw_post0",
+     "tw_post1",
+     "tw_post2",
+     "tw_post3",
+     "tw_brace1x",
+     "tw_brace1z",
+     "tw_brace2x",
+     "tw_brace2z",
+     "tw_brace3x",
+     "tw_brace3z",
+     "tw_brace4x",
+     "tw_brace4z",
+     "tw_plate_s",
+     "tw_plate_n",
+     "tw_plate_e",
+     "tw_plate_w"
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_roof_slab_s",
+    "kind": "box",
+    "size": [
+     9.9,
+     0.16,
+     3.581371
+    ],
+    "translation": [
+     0.0,
+     20.35465,
+     1.3788139
+    ],
+    "rotation": [
+     0.3605967,
+     0.0,
+     0.0,
+     0.93272185
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_roof_fascia_s",
+    "kind": "box",
+    "size": [
+     9.9,
+     0.22,
+     0.06
+    ],
+    "translation": [
+     0.0,
+     19.07091,
+     2.65
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_roof_slab_n",
+    "kind": "box",
+    "size": [
+     9.9,
+     0.16,
+     3.581371
+    ],
+    "translation": [
+     0.0,
+     20.35465,
+     -1.3788139
+    ],
+    "rotation": [
+     -0.3605967,
+     0.0,
+     0.0,
+     0.93272185
+    ]
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_roof_fascia_n",
+    "kind": "box",
+    "size": [
+     9.9,
+     0.22,
+     0.06
+    ],
+    "translation": [
+     0.0,
+     19.07091,
+     -2.65
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "primitive": {
+    "name": "tw_roof_cap",
+    "kind": "box",
+    "size": [
+     10.0,
+     0.22,
+     0.32
+    ],
+    "translation": [
+     0.0,
+     21.64,
+     0.0
+    ],
+    "rotation": null
+   }
+  },
+  {
+   "extrude": {
+    "name": "tw_roof_gable_e",
+    "profile": [
+     [
+      [
+       -0.0,
+       -2.325
+      ],
+      [
+       -0.0,
+       2.325
+      ],
+      [
+       -2.1336365,
+       0.0
+      ]
+     ]
+    ],
+    "height": 0.25,
+    "scale_top": [
+     1.0,
+     1.0
+    ],
+    "slices": 0,
+    "translation": [
+     4.375,
+     19.5,
+     0.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     -0.70710677,
+     0.70710677
+    ]
+   }
+  },
+  {
+   "extrude": {
+    "name": "tw_roof_gable_w",
+    "profile": [
+     [
+      [
+       -0.0,
+       -2.325
+      ],
+      [
+       -0.0,
+       2.325
+      ],
+      [
+       -2.1336365,
+       0.0
+      ]
+     ]
+    ],
+    "height": 0.25,
+    "scale_top": [
+     1.0,
+     1.0
+    ],
+    "slices": 0,
+    "translation": [
+     -4.625,
+     19.5,
+     0.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     -0.70710677,
+     0.70710677
+    ]
+   }
+  },
+  {
+   "group": {
+    "name": "tw_roof",
+    "inputs": [
+     "tw_roof_slab_s",
+     "tw_roof_slab_n",
+     "tw_roof_cap"
+    ]
+   }
+  },
+  {
+   "group": {
+    "name": "tw_gables",
+    "inputs": [
+     "tw_roof_gable_e",
+     "tw_roof_gable_w",
+     "tw_roof_fascia_s",
+     "tw_roof_fascia_n"
+    ]
+   }
+  },
+  {
+   "group": {
+    "name": "tw_stone",
+    "inputs": [
+     "tw_walls",
+     "tw_plinth",
+     "tw_band0",
+     "tw_band1",
+     "tw_band2",
+     "tw_band3",
+     "tw_merlons",
+     "tw_spine"
+    ]
+   }
+  },
+  {
+   "material": {
+    "name": "tw_stone",
+    "input": "tw_stone",
+    "base_color": null,
+    "roughness": null,
+    "metalness": null,
+    "pbr": {
+     "material": "zn-stonework",
+     "scale": 1.0,
+     "graph": {
+      "domain": "tile",
+      "tile": 2.0,
+      "resolution": 256,
+      "nodes": [
+       {
+        "name": "wn",
+        "octaves": 3,
+        "seed": 31,
+        "size": 0.4,
+        "type": "noise"
+       },
+       {
+        "amount": 0.06,
+        "by": "wn",
+        "name": "wc",
+        "type": "warp"
+       },
+       {
+        "coords": "wc",
+        "name": "g",
+        "size": [
+         0.5,
+         0.25
+        ],
+        "stagger": 0.5,
+        "type": "tile_grid"
+       },
+       {
+        "name": "chipn",
+        "octaves": 3,
+        "seed": 32,
+        "size": 0.04,
+        "type": "noise"
+       },
+       {
+        "from": [
+         0,
+         1
+        ],
+        "input": "chipn",
+        "name": "chip",
+        "to": [
+         -0.012,
+         0.012
+        ],
+        "type": "remap"
+       },
+       {
+        "a": "g.edge",
+        "b": "chip",
+        "name": "e2",
+        "op": "add",
+        "type": "math"
+       },
+       {
+        "in": [
+         0.01,
+         0.03
+        ],
+        "input": "e2",
+        "name": "blk",
+        "type": "levels"
+       },
+       {
+        "id": "g.id",
+        "max": 1,
+        "min": 0,
+        "name": "tone",
+        "seed": 33,
+        "type": "random"
+       },
+       {
+        "name": "face",
+        "octaves": 3,
+        "seed": 34,
+        "size": 0.15,
+        "type": "noise"
+       },
+       {
+        "a": "tone",
+        "b": "face",
+        "c": 0.45,
+        "name": "t0",
+        "op": "mix",
+        "type": "math"
+       },
+       {
+        "input": "t0",
+        "name": "sc",
+        "stops": [
+         [
+          0,
+          "#6f6a62"
+         ],
+         [
+          0.5,
+          "#8f8a80"
+         ],
+         [
+          1,
+          "#a9a398"
+         ]
+        ],
+        "type": "ramp"
+       },
+       {
+        "a": "#5a554e",
+        "b": "sc",
+        "c": "blk",
+        "name": "col",
+        "op": "mix",
+        "type": "math"
+       },
+       {
+        "a": "blk",
+        "b": 0.012,
+        "name": "hb",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "a": "face",
+        "b": 0.006,
+        "name": "hf",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "a": "hb",
+        "b": "hf",
+        "name": "h",
+        "op": "add",
+        "type": "math"
+       },
+       {
+        "base_color": "col",
+        "height": "h",
+        "name": "out",
+        "roughness": 0.9,
+        "type": "output"
+       }
+      ],
+      "params": {}
+     }
+    }
+   }
+  },
+  {
+   "material": {
+    "name": "tw_quoins",
+    "input": "tw_quoins",
+    "base_color": null,
+    "roughness": null,
+    "metalness": null,
+    "pbr": {
+     "material": "stone",
+     "scale": 1.0,
+     "graph": {
+      "domain": "tile",
+      "tile": 0.5,
+      "resolution": 512,
+      "nodes": [
+       {
+        "mode": "fbm",
+        "name": "n",
+        "octaves": 5,
+        "seed": 21,
+        "size": 0.06,
+        "type": "noise"
+       },
+       {
+        "input": "n",
+        "name": "col",
+        "stops": [
+         [
+          0,
+          "#4a4a4e"
+         ],
+         [
+          1,
+          "#8a8a90"
+         ]
+        ],
+        "type": "ramp"
+       },
+       {
+        "from": [
+         0,
+         1
+        ],
+        "input": "n",
+        "name": "h",
+        "to": [
+         0,
+         0.004
+        ],
+        "type": "remap"
+       },
+       {
+        "base_color": "col",
+        "height": "h",
+        "name": "out",
+        "roughness": 0.8,
+        "type": "output"
+       }
+      ],
+      "params": {}
+     }
+    }
+   }
+  },
+  {
+   "material": {
+    "name": "tw_lintels",
+    "input": "tw_lintels",
+    "base_color": null,
+    "roughness": null,
+    "metalness": null,
+    "pbr": {
+     "material": "zn-timber",
+     "scale": 1.0,
+     "graph": {
+      "domain": "tile",
+      "tile": 1.0,
+      "resolution": 256,
+      "nodes": [
+       {
+        "name": "wv",
+        "octaves": 2,
+        "seed": 61,
+        "size": 0.25,
+        "type": "noise"
+       },
+       {
+        "amount": 0.05,
+        "by": "wv",
+        "name": "wp",
+        "type": "warp"
+       },
+       {
+        "coords": "wp",
+        "name": "g",
+        "size": [
+         1.0,
+         0.02
+        ],
+        "stagger": 0.36,
+        "type": "tile_grid"
+       },
+       {
+        "id": "g.id",
+        "max": 1,
+        "min": 0,
+        "name": "gr",
+        "seed": 62,
+        "type": "random"
+       },
+       {
+        "name": "fn",
+        "octaves": 3,
+        "seed": 63,
+        "size": 0.04,
+        "type": "noise"
+       },
+       {
+        "a": "gr",
+        "b": "fn",
+        "c": 0.4,
+        "name": "t0",
+        "op": "mix",
+        "type": "math"
+       },
+       {
+        "input": "t0",
+        "name": "wc",
+        "stops": [
+         [
+          0,
+          "#3e2a1a"
+         ],
+         [
+          0.55,
+          "#5a3e28"
+         ],
+         [
+          1,
+          "#6e4e33"
+         ]
+        ],
+        "type": "ramp"
+       },
+       {
+        "a": "wc",
+        "b": 1.0,
+        "name": "col",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "a": "t0",
+        "b": 0.0012,
+        "name": "h",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "base_color": "col",
+        "height": "h",
+        "name": "out",
+        "roughness": 0.7,
+        "type": "output"
+       }
+      ],
+      "params": {}
+     }
+    }
+   }
+  },
+  {
+   "material": {
+    "name": "tw_timber",
+    "input": "tw_timber",
+    "base_color": null,
+    "roughness": null,
+    "metalness": null,
+    "pbr": {
+     "material": "zn-timber",
+     "scale": 1.0,
+     "graph": {
+      "domain": "tile",
+      "tile": 1.0,
+      "resolution": 256,
+      "nodes": [
+       {
+        "name": "wv",
+        "octaves": 2,
+        "seed": 61,
+        "size": 0.25,
+        "type": "noise"
+       },
+       {
+        "amount": 0.05,
+        "by": "wv",
+        "name": "wp",
+        "type": "warp"
+       },
+       {
+        "coords": "wp",
+        "name": "g",
+        "size": [
+         1.0,
+         0.02
+        ],
+        "stagger": 0.36,
+        "type": "tile_grid"
+       },
+       {
+        "id": "g.id",
+        "max": 1,
+        "min": 0,
+        "name": "gr",
+        "seed": 62,
+        "type": "random"
+       },
+       {
+        "name": "fn",
+        "octaves": 3,
+        "seed": 63,
+        "size": 0.04,
+        "type": "noise"
+       },
+       {
+        "a": "gr",
+        "b": "fn",
+        "c": 0.4,
+        "name": "t0",
+        "op": "mix",
+        "type": "math"
+       },
+       {
+        "input": "t0",
+        "name": "wc",
+        "stops": [
+         [
+          0,
+          "#3e2a1a"
+         ],
+         [
+          0.55,
+          "#5a3e28"
+         ],
+         [
+          1,
+          "#6e4e33"
+         ]
+        ],
+        "type": "ramp"
+       },
+       {
+        "a": "wc",
+        "b": 1.0,
+        "name": "col",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "a": "t0",
+        "b": 0.0012,
+        "name": "h",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "base_color": "col",
+        "height": "h",
+        "name": "out",
+        "roughness": 0.7,
+        "type": "output"
+       }
+      ],
+      "params": {}
+     }
+    }
+   }
+  },
+  {
+   "material": {
+    "name": "tw_gables",
+    "input": "tw_gables",
+    "base_color": null,
+    "roughness": null,
+    "metalness": null,
+    "pbr": {
+     "material": "zn-timber",
+     "scale": 1.0,
+     "graph": {
+      "domain": "tile",
+      "tile": 1.0,
+      "resolution": 256,
+      "nodes": [
+       {
+        "name": "wv",
+        "octaves": 2,
+        "seed": 61,
+        "size": 0.25,
+        "type": "noise"
+       },
+       {
+        "amount": 0.05,
+        "by": "wv",
+        "name": "wp",
+        "type": "warp"
+       },
+       {
+        "coords": "wp",
+        "name": "g",
+        "size": [
+         1.0,
+         0.02
+        ],
+        "stagger": 0.36,
+        "type": "tile_grid"
+       },
+       {
+        "id": "g.id",
+        "max": 1,
+        "min": 0,
+        "name": "gr",
+        "seed": 62,
+        "type": "random"
+       },
+       {
+        "name": "fn",
+        "octaves": 3,
+        "seed": 63,
+        "size": 0.04,
+        "type": "noise"
+       },
+       {
+        "a": "gr",
+        "b": "fn",
+        "c": 0.4,
+        "name": "t0",
+        "op": "mix",
+        "type": "math"
+       },
+       {
+        "input": "t0",
+        "name": "wc",
+        "stops": [
+         [
+          0,
+          "#3e2a1a"
+         ],
+         [
+          0.55,
+          "#5a3e28"
+         ],
+         [
+          1,
+          "#6e4e33"
+         ]
+        ],
+        "type": "ramp"
+       },
+       {
+        "a": "wc",
+        "b": 1.0,
+        "name": "col",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "a": "t0",
+        "b": 0.0012,
+        "name": "h",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "base_color": "col",
+        "height": "h",
+        "name": "out",
+        "roughness": 0.7,
+        "type": "output"
+       }
+      ],
+      "params": {}
+     }
+    }
+   }
+  },
+  {
+   "material": {
+    "name": "tw_roof",
+    "input": "tw_roof",
+    "base_color": null,
+    "roughness": null,
+    "metalness": null,
+    "pbr": {
+     "material": "zn-shingle",
+     "scale": 1.0,
+     "graph": {
+      "domain": "tile",
+      "tile": 1.0,
+      "resolution": 256,
+      "nodes": [
+       {
+        "name": "g",
+        "size": [
+         0.25,
+         0.25
+        ],
+        "stagger": 0.5,
+        "type": "tile_grid"
+       },
+       {
+        "id": "g.id",
+        "max": 1,
+        "min": 0,
+        "name": "tone",
+        "seed": 81,
+        "type": "random"
+       },
+       {
+        "name": "fn",
+        "octaves": 3,
+        "seed": 82,
+        "size": 0.05,
+        "type": "noise"
+       },
+       {
+        "a": "tone",
+        "b": "fn",
+        "c": 0.35,
+        "name": "t0",
+        "op": "mix",
+        "type": "math"
+       },
+       {
+        "input": "t0",
+        "name": "sc",
+        "stops": [
+         [
+          0,
+          "#6f2e22"
+         ],
+         [
+          0.5,
+          "#8c3f2e"
+         ],
+         [
+          1,
+          "#a5543a"
+         ]
+        ],
+        "type": "ramp"
+       },
+       {
+        "a": "g.edge",
+        "b": 0.004,
+        "c": 0.016,
+        "name": "gv",
+        "op": "smoothstep",
+        "type": "math"
+       },
+       {
+        "a": "#3a1a12",
+        "b": "sc",
+        "c": "gv",
+        "name": "col",
+        "op": "mix",
+        "type": "math"
+       },
+       {
+        "a": "gv",
+        "b": 0.006,
+        "name": "h0",
+        "op": "mul",
+        "type": "math"
+       },
+       {
+        "base_color": "col",
+        "height": "h0",
+        "name": "out",
+        "roughness": 0.85,
+        "type": "output"
+       }
+      ],
+      "params": {}
+     }
+    }
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut0",
+    "input": "tw_walls_cut0",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut1",
+    "input": "tw_walls_cut1",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut2",
+    "input": "tw_walls_cut2",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut3",
+    "input": "tw_walls_cut3",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut4",
+    "input": "tw_walls_cut4",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut5",
+    "input": "tw_walls_cut5",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut6",
+    "input": "tw_walls_cut6",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut7",
+    "input": "tw_walls_cut7",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut8",
+    "input": "tw_walls_cut8",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut9",
+    "input": "tw_walls_cut9",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut10",
+    "input": "tw_walls_cut10",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut11",
+    "input": "tw_walls_cut11",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cut12",
+    "input": "tw_walls_cut12",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_cuts",
+    "input": "tw_walls_cuts",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_outer",
+    "input": "tw_walls_outer",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_inner",
+    "input": "tw_walls_inner",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls_ring",
+    "input": "tw_walls_ring",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plinth_cut0",
+    "input": "tw_plinth_cut0",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plinth_cuts",
+    "input": "tw_plinth_cuts",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plinth_outer",
+    "input": "tw_plinth_outer",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plinth_inner",
+    "input": "tw_plinth_inner",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plinth_ring",
+    "input": "tw_plinth_ring",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band0_outer",
+    "input": "tw_band0_outer",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band0_inner",
+    "input": "tw_band0_inner",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band1_outer",
+    "input": "tw_band1_outer",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band1_inner",
+    "input": "tw_band1_inner",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band2_outer",
+    "input": "tw_band2_outer",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band2_inner",
+    "input": "tw_band2_inner",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band3_outer",
+    "input": "tw_band3_outer",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band3_inner",
+    "input": "tw_band3_inner",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin0",
+    "input": "tw_quoin0",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin1",
+    "input": "tw_quoin1",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin2",
+    "input": "tw_quoin2",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin3",
+    "input": "tw_quoin3",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin4",
+    "input": "tw_quoin4",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin5",
+    "input": "tw_quoin5",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin6",
+    "input": "tw_quoin6",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin7",
+    "input": "tw_quoin7",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin8",
+    "input": "tw_quoin8",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin9",
+    "input": "tw_quoin9",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin10",
+    "input": "tw_quoin10",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin11",
+    "input": "tw_quoin11",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin12",
+    "input": "tw_quoin12",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin13",
+    "input": "tw_quoin13",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin14",
+    "input": "tw_quoin14",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin15",
+    "input": "tw_quoin15",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin16",
+    "input": "tw_quoin16",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin17",
+    "input": "tw_quoin17",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin18",
+    "input": "tw_quoin18",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin19",
+    "input": "tw_quoin19",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin20",
+    "input": "tw_quoin20",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin21",
+    "input": "tw_quoin21",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin22",
+    "input": "tw_quoin22",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin23",
+    "input": "tw_quoin23",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin24",
+    "input": "tw_quoin24",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin25",
+    "input": "tw_quoin25",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin26",
+    "input": "tw_quoin26",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin27",
+    "input": "tw_quoin27",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin28",
+    "input": "tw_quoin28",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin29",
+    "input": "tw_quoin29",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin30",
+    "input": "tw_quoin30",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin31",
+    "input": "tw_quoin31",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin32",
+    "input": "tw_quoin32",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin33",
+    "input": "tw_quoin33",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin34",
+    "input": "tw_quoin34",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin35",
+    "input": "tw_quoin35",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin36",
+    "input": "tw_quoin36",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin37",
+    "input": "tw_quoin37",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin38",
+    "input": "tw_quoin38",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin39",
+    "input": "tw_quoin39",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin40",
+    "input": "tw_quoin40",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin41",
+    "input": "tw_quoin41",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin42",
+    "input": "tw_quoin42",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin43",
+    "input": "tw_quoin43",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin44",
+    "input": "tw_quoin44",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin45",
+    "input": "tw_quoin45",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin46",
+    "input": "tw_quoin46",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin47",
+    "input": "tw_quoin47",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin48",
+    "input": "tw_quoin48",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin49",
+    "input": "tw_quoin49",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin50",
+    "input": "tw_quoin50",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin51",
+    "input": "tw_quoin51",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin52",
+    "input": "tw_quoin52",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin53",
+    "input": "tw_quoin53",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin54",
+    "input": "tw_quoin54",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin55",
+    "input": "tw_quoin55",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin56",
+    "input": "tw_quoin56",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin57",
+    "input": "tw_quoin57",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin58",
+    "input": "tw_quoin58",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin59",
+    "input": "tw_quoin59",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin60",
+    "input": "tw_quoin60",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin61",
+    "input": "tw_quoin61",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin62",
+    "input": "tw_quoin62",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin63",
+    "input": "tw_quoin63",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin64",
+    "input": "tw_quoin64",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin65",
+    "input": "tw_quoin65",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin66",
+    "input": "tw_quoin66",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin67",
+    "input": "tw_quoin67",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin68",
+    "input": "tw_quoin68",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin69",
+    "input": "tw_quoin69",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin70",
+    "input": "tw_quoin70",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_quoin71",
+    "input": "tw_quoin71",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon0",
+    "input": "tw_merlon0",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon1",
+    "input": "tw_merlon1",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon2",
+    "input": "tw_merlon2",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon3",
+    "input": "tw_merlon3",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon4",
+    "input": "tw_merlon4",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon5",
+    "input": "tw_merlon5",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon6",
+    "input": "tw_merlon6",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon7",
+    "input": "tw_merlon7",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon8",
+    "input": "tw_merlon8",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon9",
+    "input": "tw_merlon9",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon10",
+    "input": "tw_merlon10",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon11",
+    "input": "tw_merlon11",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon12",
+    "input": "tw_merlon12",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon13",
+    "input": "tw_merlon13",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon14",
+    "input": "tw_merlon14",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlon15",
+    "input": "tw_merlon15",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel0",
+    "input": "tw_lintel0",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel1",
+    "input": "tw_lintel1",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel2",
+    "input": "tw_lintel2",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel3",
+    "input": "tw_lintel3",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel4",
+    "input": "tw_lintel4",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel5",
+    "input": "tw_lintel5",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel6",
+    "input": "tw_lintel6",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel7",
+    "input": "tw_lintel7",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel8",
+    "input": "tw_lintel8",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel9",
+    "input": "tw_lintel9",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel10",
+    "input": "tw_lintel10",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_lintel11",
+    "input": "tw_lintel11",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_post0",
+    "input": "tw_post0",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_post1",
+    "input": "tw_post1",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_post2",
+    "input": "tw_post2",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_post3",
+    "input": "tw_post3",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace1x",
+    "input": "tw_brace1x",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace1z",
+    "input": "tw_brace1z",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace2x",
+    "input": "tw_brace2x",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace2z",
+    "input": "tw_brace2z",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace3x",
+    "input": "tw_brace3x",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace3z",
+    "input": "tw_brace3z",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace4x",
+    "input": "tw_brace4x",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_brace4z",
+    "input": "tw_brace4z",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plate_s",
+    "input": "tw_plate_s",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plate_n",
+    "input": "tw_plate_n",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plate_e",
+    "input": "tw_plate_e",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plate_w",
+    "input": "tw_plate_w",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_roof_slab_s",
+    "input": "tw_roof_slab_s",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_roof_slab_n",
+    "input": "tw_roof_slab_n",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_roof_cap",
+    "input": "tw_roof_cap",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_roof_gable_e",
+    "input": "tw_roof_gable_e",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_roof_gable_w",
+    "input": "tw_roof_gable_w",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_roof_fascia_s",
+    "input": "tw_roof_fascia_s",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_roof_fascia_n",
+    "input": "tw_roof_fascia_n",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_walls",
+    "input": "tw_walls",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_plinth",
+    "input": "tw_plinth",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band0",
+    "input": "tw_band0",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band1",
+    "input": "tw_band1",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band2",
+    "input": "tw_band2",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_band3",
+    "input": "tw_band3",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_merlons",
+    "input": "tw_merlons",
+    "visible": false
+   }
+  },
+  {
+   "visibility": {
+    "name": "tw_spine",
+    "input": "tw_spine",
+    "visible": false
+   }
+  }
+ ],
+ "annotations": [],
+ "next_annotation_id": 0,
+ "derived_from_ops": true
+}

@@ -14,7 +14,7 @@
 //! fill the hole, standing a little proud of the wall so no faces are
 //! coplanar (z-fighting). No game code.
 
-use std::f32::consts::FRAC_PI_2;
+use std::f32::consts::{FRAC_PI_2, PI};
 use std::fmt::Debug;
 use std::hash::Hash;
 
@@ -560,6 +560,46 @@ impl<M: Palette> Kit<M> {
             let size = Vec3::new(d + t, rise * (d + t) / d + 0.02, t);
             let rot = Quat::from_rotation_y(FRAC_PI_2);
             self.put(Shape::Gable, at, size, rot, wall, Solid::Wall, false);
+        }
+    }
+
+    /// Model-only trim in the holes of [`Kit::walls`] with the same
+    /// arguments: door frames ([`DOOR_W`] doorways), barn doors (wider
+    /// doorways, `barn_door` is modelled for a 3 x 3.2 m hole and scaled),
+    /// shop windows (wide raised holes) and window frames.
+    pub fn trim(&mut self, w: f32, d: f32, y0: f32, holes: [&[Hole]; 4]) {
+        let (hx, hz) = (w / 2.0, d / 2.0);
+        let [south, north, east, west] = holes;
+        let sides: [(&[Hole], Quat, fn(f32, f32, f32) -> Vec2); 4] = [
+            (south, Quat::IDENTITY, |c, _, hz| Vec2::new(c, hz)),
+            (north, Quat::from_rotation_y(PI), |c, _, hz| {
+                Vec2::new(-c, -hz)
+            }),
+            (east, Quat::from_rotation_y(FRAC_PI_2), |c, hx, _| {
+                Vec2::new(hx, -c)
+            }),
+            (west, Quat::from_rotation_y(-FRAC_PI_2), |c, hx, _| {
+                Vec2::new(-hx, c)
+            }),
+        ];
+        for (holes, rot, place) in sides {
+            for hole in holes {
+                let p = place(hole.c, hx, hz);
+                let at = Vec3::new(p.x, y0 + hole.y0, p.y);
+                if hole.y0 <= 1e-3 {
+                    if (hole.w - DOOR_W).abs() < 1e-3 {
+                        self.mark("door", at, rot, Vec3::ONE);
+                    } else if hole.w > DOOR_W {
+                        let size = Vec3::new(hole.w / 3.0, (hole.y1 - hole.y0) / 3.2, 1.0);
+                        self.mark("barn_door", at, rot, size);
+                    }
+                } else if hole.w > 1.5 {
+                    self.mark("shopfront", at, rot, Vec3::ONE);
+                } else {
+                    let size = Vec3::new(hole.w, hole.y1 - hole.y0, 1.0);
+                    self.mark("window", at, rot, size);
+                }
+            }
         }
     }
 

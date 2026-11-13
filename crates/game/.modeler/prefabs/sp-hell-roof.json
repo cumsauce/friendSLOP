@@ -1,0 +1,376 @@
+{
+  "format_version": 1,
+  "name": "sp-hell-roof",
+  "parts": [],
+  "version": 22441,
+  "ops": [
+    {
+      "primitive": {
+        "name": "slab",
+        "kind": "box",
+        "size": [
+          36.0,
+          1.0,
+          36.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "deform": {
+        "name": "rock_hi",
+        "input": "slab",
+        "mode": "displace",
+        "amount": 0.6,
+        "scale": 4.0,
+        "octaves": 5,
+        "seed": 3,
+        "noise": "ridged",
+        "detail": 0.5
+      }
+    },
+    {
+      "decimate": {
+        "name": "rock",
+        "input": "rock_hi",
+        "tris": 8000
+      }
+    },
+    {
+      "material": {
+        "name": "rock",
+        "input": "rock",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "by-crag",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "nb",
+                "octaves": 4,
+                "seed": 421,
+                "size": 0.8,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 422,
+                "size": 0.13333333333333333,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wc",
+                "seed": 423,
+                "size": 0.7,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.03
+                ],
+                "input": "wc.edge",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "cm",
+                "name": "cmi",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "input": "nb",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#5f564d"
+                  ],
+                  [
+                    0.45,
+                    "#7c7369"
+                  ],
+                  [
+                    0.8,
+                    "#8d8478"
+                  ],
+                  [
+                    1,
+                    "#9a9083"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.85,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "ft",
+                "name": "b2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#3f3832",
+                "b": "b2",
+                "c": "cm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "cm",
+                "b": 0.012,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "nb",
+                "b": 0.01,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "rough",
+                "to": [
+                  0.78,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "slab",
+        "input": "slab",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rock_hi",
+        "input": "rock_hi",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "rock",
+        "input": "rock",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-hellrock",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "nb",
+                "octaves": 4,
+                "seed": 421,
+                "size": 0.8,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "nf",
+                "octaves": 3,
+                "seed": 422,
+                "size": 0.13333333333333333,
+                "type": "noise"
+              },
+              {
+                "jitter": 1.0,
+                "name": "wc",
+                "seed": 423,
+                "size": 0.7,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.03
+                ],
+                "input": "wc.edge",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "cm",
+                "name": "cmi",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "input": "nb",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#3a0f0a"
+                  ],
+                  [
+                    0.45,
+                    "#5a1a10"
+                  ],
+                  [
+                    0.8,
+                    "#6e2414"
+                  ],
+                  [
+                    1,
+                    "#7a2c18"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "ft",
+                "to": [
+                  0.85,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "base",
+                "b": "ft",
+                "name": "b2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#1a0704",
+                "b": "b2",
+                "c": "cm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "cm",
+                "b": 0.012,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "nb",
+                "b": 0.01,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "nf",
+                "name": "rough",
+                "to": [
+                  0.78,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "cmi",
+                "b": [
+                  1.0,
+                  0.25,
+                  0.04
+                ],
+                "name": "glow",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "glow",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

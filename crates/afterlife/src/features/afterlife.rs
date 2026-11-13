@@ -983,7 +983,6 @@ fn dig_hell(
         unlit: true,
         ..default()
     });
-    let wall = crate::art::soft(&mut materials, Color::srgb(0.3, 0.07, 0.05));
     let light = materials.add(StandardMaterial {
         base_color: Color::srgba(1.0, 1.0, 1.0, 0.7),
         emissive: LinearRgba::rgb(8.0, 8.0, 7.0),
@@ -992,21 +991,23 @@ fn dig_hell(
         ..default()
     });
     let centre = hell_at().extend(lava_y()).xzy();
-    let spawn_solid = |commands: &mut Commands,
-                       mesh: Handle<Mesh>,
-                       mat: Handle<StandardMaterial>,
-                       tf: Transform,
-                       collider: Collider| {
-        commands.spawn((
-            Mesh3d(mesh),
-            MeshMaterial3d(mat),
-            tf,
-            RigidBody::Static,
-            collider,
-            avian_rerecast::ExcludeColliderFromNavmesh,
-            DespawnOnExit(AppState::InGame),
-        ));
-    };
+    // Walls and roof are modeler rock (prefabs `sp-hell-wall`, 4.3 x 28 x 1
+    // with its rough face toward -z, and `sp-hell-roof`, 36 x 1 x 36) stretched
+    // over code colliders, so the pit closes even without the files.
+    let spawn_solid =
+        |commands: &mut Commands, file: &str, fit: Vec3, tf: Transform, collider: Collider| {
+            let mut solid = commands.spawn((
+                tf,
+                Visibility::default(),
+                RigidBody::Static,
+                collider,
+                avian_rerecast::ExcludeColliderFromNavmesh,
+                DespawnOnExit(AppState::InGame),
+            ));
+            if let Some(assets) = &assets {
+                solid.with_child((model(assets, file), Transform::from_scale(fit)));
+            }
+        };
     // The lava lake (no collider: you sink into it).
     commands.spawn((
         Mesh3d(meshes.add(Cylinder::new(pit_radius(), 0.2))),
@@ -1017,14 +1018,14 @@ fn dig_hell(
     // Walls all round and a ceiling, so it's dark and closed.
     let sides = 28;
     let panel = 2.0 * pit_radius() * (std::f32::consts::PI / sides as f32).tan() + 0.4;
-    let panel_mesh = meshes.add(Cuboid::new(panel, pit_height() + 2.0, 1.0));
+    let panel_fit = Vec3::new(panel / 4.3, (pit_height() + 2.0) / 28.0, 1.0);
     for i in 0..sides {
         let a = i as f32 / sides as f32 * std::f32::consts::TAU;
         let out = Vec3::new(a.cos(), 0.0, a.sin());
         spawn_solid(
             &mut commands,
-            panel_mesh.clone(),
-            wall.clone(),
+            "hell_wall.gltf",
+            panel_fit,
             Transform::from_translation(
                 centre + out * (pit_radius() + 0.5) + Vec3::Y * (pit_height() / 2.0),
             )
@@ -1035,8 +1036,8 @@ fn dig_hell(
     let roof = 2.0 * pit_radius() + 4.0;
     spawn_solid(
         &mut commands,
-        meshes.add(Cuboid::new(roof, 1.0, roof)),
-        wall.clone(),
+        "hell_roof.gltf",
+        Vec3::new(roof / 36.0, 1.0, roof / 36.0),
         Transform::from_translation(centre + Vec3::Y * (pit_height() + 0.5)),
         Collider::cuboid(roof, 1.0, roof),
     );

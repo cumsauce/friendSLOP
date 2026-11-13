@@ -208,7 +208,6 @@ fn hear_chat(
     me: Option<Res<LocalPlayer>>,
     villagers: Query<&Villager>,
     toast: Option<ResMut<Toast>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
     if state.is_none_or(|s| *s.get() != AppState::InGame) {
@@ -234,16 +233,12 @@ fn hear_chat(
         toast.show(text);
     }
     if ev.chat == Chat::Dating
-        && let (Some(v), Some(mut meshes), Some(mut materials)) = (
-            villagers.iter().find(|v| v.id == ev.friend),
-            meshes,
-            materials,
-        )
+        && let (Some(v), Some(mut materials)) =
+            (villagers.iter().find(|v| v.id == ev.friend), materials)
     {
         let ground = crate::terrain::height_at(v.pos.x, v.pos.y);
         super::romance::spawn_hearts(
             &mut commands,
-            &mut meshes,
             &mut materials,
             Vec3::new(v.pos.x, ground + 1.8, v.pos.y),
         );

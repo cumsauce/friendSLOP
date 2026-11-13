@@ -68,7 +68,8 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   the burnt parliament and clock tower, the commune flag pole, the duel
   fence, barrel and hay bale, the storm's fallen tree, lamppost, slates and
   stele, the warehouse exterior, oil drum and lantern, gravestone, lectern,
-  the totem vault, totem base and magic door, the gambling table and wheel,
+  the totem vault, totem base, totem post and magic door, the gambling table
+  and wheel, Marmalade's wizard hat, the hearts, the hell pit's rock walls and roof,
   the magic mushroom, music box, teacup, RPG and rocket, god's tear, crow
   egg, Abuela's rocking chair and knitting, the toilets, stall doors and
   panels, and the underground's manhole, cellar door, trapdoor, grate, jar

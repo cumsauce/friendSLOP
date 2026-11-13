@@ -117,8 +117,10 @@ fn maybe_fall_in_love(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(swoon)
-        .add_systems(Update, float_hearts.run_if(in_state(AppState::InGame)));
+    app.add_observer(swoon).add_systems(
+        Update,
+        (shape_hearts, float_hearts).run_if(in_state(AppState::InGame)),
+    );
 }
 
 /// A floating heart: seconds alive, and its sideways wobble phase.
@@ -134,7 +136,6 @@ fn swoon(
     smitten: On<Smitten>,
     mut commands: Commands,
     state: Option<Res<State<AppState>>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
     audio: Option<Res<Assets<AudioSource>>>,
 ) {
@@ -153,13 +154,12 @@ fn swoon(
             wav_bytes(&aww(AWW_RATE), AWW_RATE)
         });
     }
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(mut materials) = materials else {
         return;
     };
     let ground = crate::terrain::height_at(smitten.at.x, smitten.at.y);
     spawn_hearts(
         &mut commands,
-        &mut meshes,
         &mut materials,
         Vec3::new(smitten.at.x, ground + 1.8, smitten.at.y),
     );
@@ -169,12 +169,9 @@ fn swoon(
 /// Abuela, see abuela.rs).
 pub fn spawn_hearts(
     commands: &mut Commands,
-    meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
     above: Vec3,
 ) {
-    let lobe = meshes.add(Sphere::new(0.1));
-    let point = meshes.add(Cuboid::new(0.2, 0.2, 0.08));
     let pink = materials.add(StandardMaterial {
         base_color: Color::srgb(1.0, 0.35, 0.6),
         emissive: LinearRgba::rgb(1.2, 0.2, 0.5),
@@ -200,20 +197,38 @@ pub fn spawn_hearts(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|heart| {
-                // A heart: a square on its corner with two round lobes on top.
-                heart.spawn((
-                    Mesh3d(point.clone()),
-                    MeshMaterial3d(pink.clone()),
-                    Transform::from_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_4)),
-                ));
-                for side in [-1.0, 1.0] {
-                    heart.spawn((
-                        Mesh3d(lobe.clone()),
-                        MeshMaterial3d(pink.clone()),
-                        Transform::from_xyz(side * 0.07, 0.07, 0.0),
-                    ));
-                }
+                heart.spawn((HeartShape, MeshMaterial3d(pink.clone())));
             });
+    }
+}
+
+/// A heart's look: the modeler heart (prefab `sp-heart`, 0.35 m across,
+/// centred) put on as the entity's mesh, worn in whatever glowing material
+/// it was spawned with. Sesbian Lex and the affair use it too.
+#[derive(Component)]
+pub struct HeartShape;
+
+/// The heart model's mesh (the asset server loads the file once).
+pub fn heart_mesh(assets: &AssetServer) -> Handle<Mesh> {
+    assets.load(
+        GltfAssetLabel::Primitive {
+            mesh: 0,
+            primitive: 0,
+        }
+        .from_asset("models/features/heart.gltf"),
+    )
+}
+
+fn shape_hearts(
+    mut commands: Commands,
+    new: Query<Entity, Added<HeartShape>>,
+    assets: Option<Res<AssetServer>>,
+) {
+    let Some(assets) = assets else {
+        return;
+    };
+    for e in &new {
+        commands.entity(e).insert(Mesh3d(heart_mesh(&assets)));
     }
 }
 

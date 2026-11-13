@@ -535,15 +535,16 @@ fn spawn_booth(
     });
 }
 
-/// A starry wizard hat on Marmalade's head, and a little staff.
+/// A starry wizard hat on Marmalade's head, and tabby stripes.
 fn dress_wizard(
     mut commands: Commands,
     new: Query<(Entity, &HeadAnchor), Added<HeadAnchor>>,
     wizards: Query<(), With<Wizard>>,
+    assets: Option<Res<AssetServer>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let (Some(assets), Some(mut meshes), Some(mut materials)) = (assets, meshes, materials) else {
         return;
     };
     for (anchor, head) in &new {
@@ -551,42 +552,19 @@ fn dress_wizard(
             continue;
         }
         let r = head.radius;
-        let hat = crate::art::soft(&mut materials, Color::srgb(0.2, 0.2, 0.55));
-        let star = materials.add(StandardMaterial {
-            base_color: Color::srgb(1.0, 0.9, 0.4),
-            emissive: LinearRgba::rgb(1.2, 0.9, 0.2),
-            unlit: true,
-            ..default()
-        });
         let stripe = crate::art::soft(&mut materials, Color::srgb(0.8, 0.42, 0.15));
-        let cone = meshes.add(Cone::new(1.0, 1.0));
-        let disc = meshes.add(Cylinder::new(1.0, 1.0));
         let ball = meshes.add(Sphere::new(1.0));
         commands.entity(anchor).with_children(|h| {
-            // Brim and a tall, slightly bent cone.
+            // The hat (prefab `sp-wizard-hat`): velvet cone, gold band and
+            // stars, built for a head of radius 1.
             h.spawn((
-                Mesh3d(disc.clone()),
-                MeshMaterial3d(hat.clone()),
-                Transform::from_xyz(0.0, r * 0.75, 0.0).with_scale(Vec3::new(
-                    r * 1.5,
-                    r * 0.06,
-                    r * 1.5,
-                )),
+                WorldAssetRoot(
+                    assets.load(
+                        GltfAssetLabel::Scene(0).from_asset("models/features/wizard_hat.gltf"),
+                    ),
+                ),
+                Transform::from_scale(Vec3::splat(r)),
             ));
-            h.spawn((
-                Mesh3d(cone.clone()),
-                MeshMaterial3d(hat.clone()),
-                Transform::from_xyz(0.0, r * 1.6, r * 0.1)
-                    .with_rotation(Quat::from_rotation_x(-0.18))
-                    .with_scale(Vec3::new(r * 0.85, r * 1.7, r * 0.85)),
-            ));
-            for (x, y, z) in [(0.3, 1.2, -0.55), (-0.35, 1.5, -0.4), (0.05, 1.95, -0.3)] {
-                h.spawn((
-                    Mesh3d(ball.clone()),
-                    MeshMaterial3d(star.clone()),
-                    Transform::from_xyz(r * x, r * y, r * z).with_scale(Vec3::splat(r * 0.11)),
-                ));
-            }
             // Tabby stripes on the forehead.
             for x in [-0.25, 0.0, 0.25] {
                 h.spawn((

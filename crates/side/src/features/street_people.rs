@@ -226,7 +226,7 @@ pub fn performance(bpm: f32, bars: u32, scale: bool, seed: u32, rate: u32) -> Ve
         for e in 0..eighths {
             let t0 = e as f32 * step;
             let on_beat = e % 2 == 0;
-            if e % 4 == 0 || (e % 8 == 7 && hash(seed, e) % 2 == 0) {
+            if e % 4 == 0 || (e % 8 == 7 && hash(seed, e).is_multiple_of(2)) {
                 add(t0, 0.35, &|t| {
                     let f = 50.0 + 110.0 * (-t * 30.0).exp();
                     (tau * f * t).sin() * (-t * 8.0).exp() * 0.9

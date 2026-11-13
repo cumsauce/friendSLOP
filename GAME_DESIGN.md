@@ -72,7 +72,7 @@ machine is OUT OF ORDER until someone finds its three parts in the city's shops 
 The bodega sells **statement hats** everyone can see. Pigeon flocks wheel overhead and poop on you;
 now and then they all poop at once.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins.
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T).
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -1235,7 +1235,15 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   6 s after loading it shrinks into the quest card on its own (it replaced the big centre
   banner).
 
+## What exists: saying hi (#371)
+
+Press **T** to say hi. Friends within 12 m see it, and villagers that close say hi back
+(toast lines from `data/side/hi.ron`; 2 s cooldown). It changes nothing else.
+
 ## Ideas so far
+
+- andrew (#371): "Hi", no details (surprise me). Built as a T key greeting that nearby friends
+  see and nearby villagers answer.
 
 - Freyja Moth (#1): sesbian lex, "none of that fluffy shit... no holds barred", ideally more
   than two people, one a he/him butch and one who calls themselves daddy. Built as a group pile

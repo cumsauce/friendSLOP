@@ -261,32 +261,14 @@ fn cull_city(
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
-    app.add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build_city)
+    app.add_systems(OnEnter(AppState::InGame), build_city)
         .add_systems(
             Update,
             (where_am_i, cull_city).run_if(in_state(AppState::InGame)),
         );
 }
 
-#[derive(Component)]
-struct Post {
-    to_city: bool,
-}
-
-fn click(ev: On<Clicked>, mut commands: Commands, posts: Query<&Post>) {
-    if let Ok(p) = posts.get(ev.entity) {
-        commands.client_trigger(Travel { to_city: p.to_city });
-    }
-}
-
-fn build_city(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    assets: Res<AssetServer>,
-) {
-    let t = tuning();
+fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
     let c = city(&MAP.get());
     // The models, all from the modeler map. SALT: not needing `Cargo.lock` for this
     // `.bsn` either; x didn't set us up for success, we need more SME's, we haven't
@@ -318,44 +300,7 @@ fn build_city(
             DespawnOnExit(AppState::InGame),
         ));
     }
-    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let wood = materials.add(Color::srgb(0.45, 0.3, 0.18));
-    let sign = materials.add(Color::srgb(0.1, 0.35, 0.2));
-    // The trail posts: one at the valley's south edge, one in the city.
-    for (at, to_city, label) in [
-        (v2(t.trail_post), true, "walk to New York City"),
-        (
-            v2(t.arrival) + Vec2::new(2.5, -2.0),
-            false,
-            "walk back to the valley",
-        ),
-    ] {
-        let y = if to_city {
-            crate::terrain::height_at(at.x, at.y)
-        } else {
-            CITY_Y
-        };
-        commands
-            .spawn((
-                Post { to_city },
-                Transform::from_xyz(at.x, y, at.y),
-                Visibility::default(),
-                Clickable::at_height(1.6).radius(60.0).labelled(label),
-                DespawnOnExit(AppState::InGame),
-            ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(cube.clone()),
-                    MeshMaterial3d(wood.clone()),
-                    Transform::from_xyz(0.0, 1.1, 0.0).with_scale(Vec3::new(0.15, 2.2, 0.15)),
-                ));
-                p.spawn((
-                    Mesh3d(cube.clone()),
-                    MeshMaterial3d(sign.clone()),
-                    Transform::from_xyz(0.0, 1.9, 0.0).with_scale(Vec3::new(1.4, 0.4, 0.06)),
-                ));
-            });
-    }
+    // The way in and out is the PATH train now (#321, `trains.rs`), not a trail post.
     commands.insert_resource(Rooms(c));
 }
 

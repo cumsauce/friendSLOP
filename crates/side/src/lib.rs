@@ -35,6 +35,7 @@ pub mod features {
     pub mod shipwreck;
     pub mod surf;
     pub mod wallet;
+    pub mod trains;
     pub mod watcher;
 }
 
@@ -69,5 +70,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::broadcast::TUNING,
         &features::broadcast::WRITING,
         &features::wallet::TUNING,
+        &features::trains::TUNING,
     ]
 }

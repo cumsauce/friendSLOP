@@ -22,6 +22,7 @@ pub mod features {
     pub mod broadcast;
     pub mod clues;
     pub mod discord_friends;
+    pub mod fulton;
     pub mod fusion;
     pub mod gaslighting;
     pub mod goat;
@@ -54,6 +55,8 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::nyc::TUNING,
         &features::nyc::MAP,
         &features::nyc_traffic::TUNING,
+        &features::fulton::TUNING,
+        &features::fulton::TILES,
         &features::clues::TUNING,
         &features::clues::WRITING,
         &features::broadcast::TUNING,

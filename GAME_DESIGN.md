@@ -39,6 +39,7 @@ and systemd (PID 1) kills you.
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
 golden, nights are dim and blue. Some nights you hear whispers behind you.
+**In New York:** find the J to Brooklyn in Fulton St station, 40 levels down, for Pelf.
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
@@ -419,6 +420,22 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   (10, 86) and you're walked over the rim; the post by where you arrive walks you back. All
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
+- **Fulton St station** (the user: "a fulton street station wfc station u can enter in nyc. it
+  is an impossible number of levels with stairs between platforms. you try to find the J train
+  towards brooklyn. the signage directs you in a specific path, but you dont reach it for a very
+  long time. when you do reach it you get a reward"). A subway entrance on the avenue's west
+  sidewalk (-14, 228): walk into it and you're on the top level of a station 40 levels deep
+  under the city. Each level is a 5 x 5 grid of 6 m white-tiled corridor cells filled by seeded
+  wave function collapse from a modeler tile kit (`fs-tile-*`), with one stairway down whose
+  bottom is where the next level starts. Hanging "J Brooklyn" signs (ahead, left/right, down
+  the stairs) mark the one way through, at least 7 cells across every level: well over 2 km
+  of walking. The last level is the J platform with a train waiting. Reaching it raises your
+  **Pelf** by 3 (the stats' wealth, max 10), once per player per game, given by the server.
+  A post on the platform rides the J back up to the street; one on the top level climbs out.
+  Chose Pelf as the reward because it's the game's per-player "money" stat and NYC has no
+  cash; chose a teleport down (like the city's trail post) because the street has one floor.
+  Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
+  in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was

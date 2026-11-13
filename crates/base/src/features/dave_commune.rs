@@ -238,6 +238,12 @@ fn spawn_commune(mut commands: Commands, assets: Res<AssetServer>) {
         Text::new("Commune of Dave: power generates parasites"),
         crate::hud::title(),
         crate::hud::slot(crate::hud::HudSlot::TopCenter),
+        // Quiet: shows when you arrive near the parliament, then lives in the journal.
+        crate::hud::Calm::new("Commune of Dave").near(Vec3::new(
+            parliament_at().x,
+            0.0,
+            parliament_at().y,
+        )),
         DespawnOnExit(AppState::InGame),
     ));
 }

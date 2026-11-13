@@ -280,6 +280,7 @@ fn spawn_ui(mut commands: Commands) {
         TextFont::from_font_size(13.0),
         SkillsText,
         crate::hud::slot(crate::hud::HudSlot::BottomRight),
+        crate::hud::Calm::new("Skills"),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -303,7 +304,7 @@ fn mine<'a>(
 fn show_skills(
     me: Option<Res<LocalPlayer>>,
     players: Query<(&Player, &Skills, Has<Asleep>)>,
-    mut text: Query<&mut Text, With<SkillsText>>,
+    mut text: Query<(&mut Text, &mut crate::hud::Calm), With<SkillsText>>,
 ) {
     let Some((s, asleep)) = mine(&me, &players) else {
         return;
@@ -316,9 +317,13 @@ fn show_skills(
     if asleep {
         want = format!("zzz (Z to get up)\n{want}");
     }
-    for mut t in &mut text {
+    // Quiet: shows on a level-up, stays while you sleep (how to get up).
+    for (mut t, mut calm) in &mut text {
         if t.0 != want {
             t.0.clone_from(&want);
+        }
+        if calm.urgent != asleep {
+            calm.urgent = asleep;
         }
     }
 }

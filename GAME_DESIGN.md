@@ -1028,6 +1028,19 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   features still put in HUD slots sit around these on matching ink chips. The full chapter
   checklist and the join code moved to Tab; your own stat lines no longer mirror into the
   corner (they're on Tab).
+- **Quiet HUD** (UI polish, asked by the owner: "not everything is necessary to see all the
+  time"). One rule (`hud::Calm`, tuning in `data/base/hud.ron`): a non-urgent element shows for
+  ~4 s when its value changes, then fades; it stays up while you're near its place or while
+  it's urgent; otherwise it lives in the journal (Bag tab, "Right now" lists every one).
+  Always on: the danger lane, dialogue/subtitles, the event feed, the crosshair and prompt, and
+  the quest card, which folds to its one "now:" line a few seconds after the chapter, jobs or
+  tier change. The rent line shows near the landlord, when the rent or payment changes, in its
+  last 20 s before a raise and in the boss fight; HALT's meters when they move or wrath is 75+;
+  skills on a level-up or while asleep; "Commune of Dave" near the parliament; the gas meter
+  from 50% or when ready; the cat's size when it grows a whole step, when you're near it or
+  past 75% of max (the fuse card always); the mic chip only when muted; your own team badge
+  only when muted, talking, your tears just changed, or others are here. The "Tab / J
+  journal" and "M mic" hints show for the first 90 s of a session.
 - **The commune journal and chapter intro** (UI polish, phase 2 of the same brief). Hold Tab to
   peek at the journal, J keeps it open, H opens it on Help, Esc closes it (Esc no longer leaves
   the game while it's open; the mouse is freed so its tabs can be clicked). Tabs: **Party** (a

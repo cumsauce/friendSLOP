@@ -191,6 +191,7 @@ fn spawn_halt_ui(mut commands: Commands) {
         TextFont::from_font_size(13.0),
         HaltText,
         crate::hud::slot(crate::hud::HudSlot::TopRight),
+        crate::hud::Calm::new("HALT"),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
@@ -291,7 +292,7 @@ pub fn halt_title(h: &Halt, user: &str) -> String {
 
 fn show_halt(
     halt: Query<&Halt>,
-    mut text: Query<&mut Text, (With<HaltText>, Without<HaltQuote>)>,
+    mut text: Query<(&mut Text, &mut crate::hud::Calm), (With<HaltText>, Without<HaltQuote>)>,
     mut quote: Query<&mut Text, (With<HaltQuote>, Without<HaltText>)>,
     mut window: Query<&mut Window, With<PrimaryWindow>>,
     mut user: Local<Option<String>>,
@@ -306,9 +307,14 @@ fn show_halt(
         return;
     };
     let line = halt_status(h);
-    for mut t in &mut text {
+    // Up while wrath is high; otherwise only when the meters move.
+    let urgent = h.wrath as f32 >= crate::hud::tuning().urgent_percent;
+    for (mut t, mut calm) in &mut text {
         if t.0 != line {
             t.0 = line.clone();
+        }
+        if calm.urgent != urgent {
+            calm.urgent = urgent;
         }
     }
     let said = halt_quote(h, &user, os_name(), &clock_hhmm());

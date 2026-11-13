@@ -365,10 +365,17 @@ impl Plugin for HudPlugin {
             app.add_plugins(FrameTimeDiagnosticsPlugin::default());
         }
         app.init_resource::<Toast>()
+            .init_resource::<ShowAll>()
+            .init_resource::<HudClock>()
+            .init_resource::<LocalAt>()
             .add_systems(OnEnter(AppState::InGame), spawn_slots)
-            .add_systems(OnExit(AppState::InGame), |mut t: ResMut<Toast>| {
-                *t = Toast::default();
-            })
+            .add_systems(
+                OnExit(AppState::InGame),
+                |mut t: ResMut<Toast>, mut c: ResMut<HudClock>| {
+                    *t = Toast::default();
+                    c.0 = 0.0;
+                },
+            )
             .add_systems(
                 Update,
                 (
@@ -379,6 +386,9 @@ impl Plugin for HudPlugin {
                     show_fps,
                     hide_empty,
                     fade_lines,
+                    track_local,
+                    calm_lines,
+                    journal_hint,
                     apply_font,
                 )
                     .chain()
@@ -593,6 +603,21 @@ fn tick_toast(time: Res<Time>, mut toast: ResMut<Toast>) {
     }
 }
 
+/// The "Tab / J journal" hint shows for the first part of a session only.
+fn journal_hint(
+    clock: Res<HudClock>,
+    all: Res<ShowAll>,
+    mut hint: Query<&mut Node, With<JournalHint>>,
+) {
+    let up = all.0 || hints_up(clock.0, &tuning());
+    let d = if up { Display::Flex } else { Display::None };
+    for mut n in &mut hint {
+        if n.display != d {
+            n.display = d;
+        }
+    }
+}
+
 /// F3 flips the FPS counter. The Scoreboard and Help panels stay hidden:
 /// the journal (`ui::journal`) shows their lines now.
 fn toggle_overlays(
@@ -628,7 +653,12 @@ fn show_fps(diag: Res<DiagnosticsStore>, mut text: Query<(&mut Text, &Visibility
 }
 
 /// Collapse empty lines so their chips disappear.
-fn hide_empty(mut texts: Query<(&Text, &mut Node), (With<InSlot>, Without<Fade>, Changed<Text>)>) {
+fn hide_empty(
+    mut texts: Query<
+        (&Text, &mut Node),
+        (With<InSlot>, Without<Fade>, Without<Calm>, Changed<Text>),
+    >,
+) {
     for (t, mut n) in &mut texts {
         let d = if t.0.trim().is_empty() {
             Display::None
@@ -659,7 +689,7 @@ fn fade_lines(
         Option<&mut Pop>,
     )>,
 ) {
-    for (t, mut f, mut n, mut color, mut bg, mut chip, pop) in &mut texts {
+    for (t, mut f, mut n, mut color, mut bg, chip, pop) in &mut texts {
         if f.last != t.0 {
             f.last.clone_from(&t.0);
             f.age = 0.0;
@@ -680,15 +710,208 @@ fn fade_lines(
         if n.display != d {
             n.display = d;
         }
-        if (color.0.alpha() - a).abs() > 0.01 {
-            color.0.set_alpha(a);
-            bg.0 = PANEL.with_alpha(PANEL.alpha() * a);
-            if let Some((border, line, shadow)) = chip.as_mut() {
-                **border = BorderColor::all(line.0.with_alpha(line.0.alpha() * a));
-                for s in shadow.0.iter_mut() {
-                    s.color = theme::SHADOW.with_alpha(theme::SHADOW.alpha() * a);
-                }
-            }
+        tint(a, &mut color, &mut bg, chip);
+    }
+}
+
+// ---- Quiet HUD (declutter): one visibility rule for every non-urgent element.
+//
+// An element shows for a few seconds when its value changes, stays up while
+// it's relevant (you're near its place, or it's urgent), and otherwise hides;
+// the journal's "Right now" list still has every one of them.
+
+/// When quiet HUD elements show (`data/base/hud.ron`).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Seconds an element stays fully visible after its value changes.
+    pub show_secs: f32,
+    /// Seconds it then takes to fade away.
+    pub fade_secs: f32,
+    /// Metres: within this of an element's place it stays up.
+    pub near_metres: f32,
+    /// A countdown at or under this many seconds counts as urgent.
+    pub urgent_secs: f32,
+    /// A meter at or over this percent counts as urgent.
+    pub urgent_percent: f32,
+    /// The fart meter shows once it's filled past this percent (and when ready).
+    pub gas_show_percent: f32,
+    /// Seconds from joining that the key hints stay up.
+    pub hint_secs: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/base/hud.ron");
+
+/// The current HUD tuning.
+pub fn tuning() -> std::sync::Arc<Tuning> {
+    TUNING.get()
+}
+
+/// How visible a quiet element is: fully while `near` or `urgent`, else for
+/// `show_secs` after its value last changed (`age`), then fading out.
+pub fn calm_alpha(age: f32, near: bool, urgent: bool, t: &Tuning) -> f32 {
+    if near || urgent {
+        return 1.0;
+    }
+    if t.fade_secs <= 0.0 {
+        return if age <= t.show_secs { 1.0 } else { 0.0 };
+    }
+    (1.0 - (age - t.show_secs) / t.fade_secs).clamp(0.0, 1.0)
+}
+
+/// Is `me` within `radius` metres of `at` (on the ground plane)?
+pub fn is_near(me: Option<Vec3>, at: Option<Vec3>, radius: f32) -> bool {
+    match (me, at) {
+        (Some(m), Some(a)) => m.xz().distance(a.xz()) <= radius,
+        _ => false,
+    }
+}
+
+/// Are the key hints still up, `secs` into the session?
+pub fn hints_up(secs: f32, t: &Tuning) -> bool {
+    secs < t.hint_secs
+}
+
+/// Hash anything into a change key for [`Recent`] / [`Calm::key`].
+pub fn key_of(v: impl std::hash::Hash) -> u64 {
+    use std::hash::Hasher;
+    let mut h = std::collections::hash_map::DefaultHasher::new();
+    v.hash(&mut h);
+    h.finish()
+}
+
+/// How long ago a value last changed. Widgets that aren't slotted lines keep
+/// one of these and feed it to [`calm_alpha`].
+#[derive(Component, Clone, Debug, Default)]
+pub struct Recent {
+    last: Option<u64>,
+    age: f32,
+}
+
+impl Recent {
+    /// Note the value's key this frame; returns seconds since it changed.
+    /// The first value seen counts as a change (it shows on arrival).
+    pub fn tick(&mut self, key: u64, dt: f32) -> f32 {
+        if self.last != Some(key) {
+            self.last = Some(key);
+            self.age = 0.0;
+        } else {
+            self.age += dt;
+        }
+        self.age
+    }
+}
+
+/// Put on a slotted HUD line to make it quiet: it shows when its value
+/// changes, while you're near `near` or while `urgent`, and otherwise lives
+/// in the journal under `label`.
+#[derive(Component, Clone, Debug, Default)]
+pub struct Calm {
+    /// What the journal calls it ("Rent", "Skills").
+    pub label: &'static str,
+    /// The place it's about.
+    pub near: Option<Vec3>,
+    /// Must be seen right now (a short countdown, a full meter).
+    pub urgent: bool,
+    /// What counts as a change (default: the text). Set it to leave out a
+    /// ticking countdown.
+    pub key: Option<u64>,
+    recent: Recent,
+}
+
+impl Calm {
+    pub fn new(label: &'static str) -> Self {
+        Self { label, ..default() }
+    }
+    pub fn near(mut self, at: Vec3) -> Self {
+        self.near = Some(at);
+        self
+    }
+}
+
+/// Forces every quiet element up (screenshot checks).
+#[derive(Resource, Default, Debug)]
+pub struct ShowAll(pub bool);
+
+/// Seconds since this session's HUD appeared (for the key hints).
+#[derive(Resource, Default, Debug)]
+pub struct HudClock(pub f32);
+
+/// Where the local player stands, if known.
+#[derive(Resource, Default, Debug)]
+pub struct LocalAt(pub Option<Vec3>);
+
+fn track_local(
+    time: Res<Time>,
+    me: Option<Res<crate::player::LocalPlayer>>,
+    players: Query<(&crate::player::Player, &GlobalTransform)>,
+    mut at: ResMut<LocalAt>,
+    mut clock: ResMut<HudClock>,
+) {
+    clock.0 += time.delta_secs();
+    let want = me.and_then(|me| {
+        players
+            .iter()
+            .find(|(p, _)| p.id == me.0)
+            .map(|(_, t)| t.translation())
+    });
+    if at.0 != want {
+        at.0 = want;
+    }
+}
+
+/// Apply the quiet rule to every [`Calm`] line.
+#[allow(clippy::type_complexity)]
+fn calm_lines(
+    time: Res<Time>,
+    at: Res<LocalAt>,
+    all: Res<ShowAll>,
+    mut texts: Query<(
+        &Text,
+        &mut Calm,
+        &mut Node,
+        &mut TextColor,
+        &mut BackgroundColor,
+        Option<(&mut BorderColor, &ChipLine, &mut BoxShadow)>,
+    )>,
+) {
+    let t = tuning();
+    for (text, mut calm, mut n, mut color, mut bg, chip) in &mut texts {
+        let key = calm.key.unwrap_or_else(|| key_of(&text.0));
+        let age = calm.recent.tick(key, time.delta_secs());
+        let near = is_near(at.0, calm.near, t.near_metres);
+        let a = if all.0 {
+            1.0
+        } else {
+            calm_alpha(age, near, calm.urgent, &t)
+        };
+        let d = if text.0.trim().is_empty() || a <= 0.0 {
+            Display::None
+        } else {
+            Display::Flex
+        };
+        if n.display != d {
+            n.display = d;
+        }
+        tint(a, &mut color, &mut bg, chip);
+    }
+}
+
+/// Fade a chip line's text, panel, outline and shadow to `a`.
+fn tint(
+    a: f32,
+    color: &mut TextColor,
+    bg: &mut BackgroundColor,
+    chip: Option<(Mut<BorderColor>, &ChipLine, Mut<BoxShadow>)>,
+) {
+    if (color.0.alpha() - a).abs() <= 0.01 {
+        return;
+    }
+    color.0.set_alpha(a);
+    bg.0 = PANEL.with_alpha(PANEL.alpha() * a);
+    if let Some((mut border, line, mut shadow)) = chip {
+        *border = BorderColor::all(line.0.with_alpha(line.0.alpha() * a));
+        for s in shadow.0.iter_mut() {
+            s.color = theme::SHADOW.with_alpha(theme::SHADOW.alpha() * a);
         }
     }
 }
@@ -716,6 +939,56 @@ mod tests {
         assert_eq!(fade_alpha(0.0), 1.0);
         assert!(fade_alpha(FADE_HOLD + FADE_OUT / 2.0) < 1.0);
         assert_eq!(fade_alpha(FADE_HOLD + FADE_OUT + 0.1), 0.0);
+    }
+
+    fn t() -> Tuning {
+        Tuning {
+            show_secs: 4.0,
+            fade_secs: 1.0,
+            near_metres: 10.0,
+            urgent_secs: 20.0,
+            urgent_percent: 75.0,
+            gas_show_percent: 50.0,
+            hint_secs: 60.0,
+        }
+    }
+
+    #[test]
+    fn quiet_lines_show_on_change_then_fade() {
+        let t = t();
+        assert_eq!(calm_alpha(0.0, false, false, &t), 1.0);
+        assert_eq!(calm_alpha(3.9, false, false, &t), 1.0);
+        let mid = calm_alpha(4.5, false, false, &t);
+        assert!(mid > 0.0 && mid < 1.0);
+        assert_eq!(calm_alpha(5.1, false, false, &t), 0.0);
+    }
+
+    #[test]
+    fn quiet_lines_stay_while_near_or_urgent() {
+        let t = t();
+        assert_eq!(calm_alpha(99.0, true, false, &t), 1.0);
+        assert_eq!(calm_alpha(99.0, false, true, &t), 1.0);
+        let here = Some(Vec3::new(1.0, 5.0, 1.0));
+        assert!(is_near(here, Some(Vec3::new(5.0, 0.0, 5.0)), 10.0));
+        assert!(!is_near(here, Some(Vec3::new(50.0, 0.0, 5.0)), 10.0));
+        assert!(!is_near(None, Some(Vec3::ZERO), 10.0));
+        assert!(!is_near(here, None, 10.0));
+    }
+
+    #[test]
+    fn recent_restarts_on_a_new_value_only() {
+        let mut r = Recent::default();
+        assert_eq!(r.tick(1, 1.0), 0.0);
+        assert_eq!(r.tick(1, 1.0), 1.0);
+        assert_eq!(r.tick(1, 1.0), 2.0);
+        assert_eq!(r.tick(2, 1.0), 0.0);
+        assert_eq!(key_of(("rent", 3)), key_of(("rent", 3)));
+    }
+
+    #[test]
+    fn key_hints_go_after_a_while() {
+        assert!(hints_up(10.0, &t()));
+        assert!(!hints_up(61.0, &t()));
     }
 
     #[test]

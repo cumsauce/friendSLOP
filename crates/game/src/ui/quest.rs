@@ -31,6 +31,17 @@ pub fn plugin(app: &mut App) {
     );
 }
 
+/// Full card or just the "now:" line: the whole card shows for a moment when
+/// the chapter, jobs or tier change (`hud::calm_alpha`), then folds to one line.
+pub fn full_card(age: f32, t: &crate::hud::Tuning) -> bool {
+    crate::hud::calm_alpha(age, false, false, t) > 0.0
+}
+
+/// Card height and the "now:" line's top, full or folded.
+fn shape(full: bool) -> (f32, f32) {
+    if full { (136.0, 100.0) } else { (40.0, 8.0) }
+}
+
 /// The four lines for a campaign state.
 pub fn lines(c: &Campaign) -> [String; 4] {
     [
@@ -95,11 +106,15 @@ fn spawn(mut commands: Commands, root: Query<Entity, With<HudRoot>>) {
 }
 
 fn update(
+    time: Res<Time>,
+    all: Res<crate::hud::ShowAll>,
+    mut seen: Local<crate::hud::Recent>,
+    mut last: Local<f32>,
     campaign: Query<&Campaign>,
-    mut card: Query<&mut Visibility, With<QuestCard>>,
-    mut texts: Query<(&Line, &mut Text)>,
+    mut card: Query<(&mut Visibility, &mut Node), With<QuestCard>>,
+    mut texts: Query<(&Line, &mut Text, &mut Node), Without<QuestCard>>,
 ) {
-    let Ok(mut vis) = card.single_mut() else {
+    let Ok((mut vis, mut card_node)) = card.single_mut() else {
         return;
     };
     let Ok(c) = campaign.single() else {
@@ -108,7 +123,31 @@ fn update(
     };
     vis.set_if_neq(Visibility::Inherited);
     let [chapter, title, progress, next] = lines(c);
-    for (line, mut text) in &mut texts {
+    // `hud_tick` runs this a few times a second: count real time between runs.
+    let now = time.elapsed_secs();
+    let dt = (now - *last).max(0.0);
+    *last = now;
+    let age = seen.tick(
+        crate::hud::key_of((c.chapter, c.done_count(), c.tier())),
+        dt,
+    );
+    let full = all.0 || full_card(age, &crate::hud::tuning());
+    let (h, next_top) = shape(full);
+    if card_node.height != px(h) {
+        card_node.height = px(h);
+    }
+    for (line, mut text, mut node) in &mut texts {
+        let d = if full || *line == Line::Next {
+            Display::Flex
+        } else {
+            Display::None
+        };
+        if node.display != d {
+            node.display = d;
+        }
+        if *line == Line::Next && node.top != px(next_top - 2.0) {
+            node.top = px(next_top - 2.0);
+        }
         let want = match line {
             Line::Chapter => &chapter,
             Line::Title => &title,
@@ -133,5 +172,17 @@ mod tests {
         assert!(progress.starts_with("Jobs 0/"), "{progress}");
         assert!(progress.ends_with(&format!("Heaven Pass 0/{}", heaven_tiers())));
         assert!(next.contains("now: "));
+    }
+
+    #[test]
+    fn card_folds_to_one_line_after_a_while() {
+        let t = crate::hud::Tuning {
+            show_secs: 4.0,
+            fade_secs: 1.0,
+            ..Default::default()
+        };
+        assert!(full_card(0.0, &t));
+        assert!(!full_card(6.0, &t));
+        assert_eq!(shape(false).0, 40.0);
     }
 }

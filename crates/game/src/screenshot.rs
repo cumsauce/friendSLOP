@@ -11,7 +11,7 @@
 //! # the 9 s "CHAPTER 1" card is gone)
 //! FRIENDSLOP_SCREENSHOT_WAIT=12
 //! # optional: force a HUD state for visual checks against the Figma frames
-//! # (play, busy, clickable, chapter, tab; see `Scene`)
+//! # (play, busy, full, clickable, chapter, tab; see `Scene`)
 //! FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt  (lines `out.png x,y,z,lx,ly,lz`; edit and save it
 //!   while the game runs to take more pictures without restarting)
 //! FRIENDSLOP_SCREENSHOT_SCENE=busy
@@ -64,6 +64,8 @@ pub enum Scene {
     Loading,
     /// The world with no UI at all (README pictures).
     Clean,
+    /// Busy, with every quiet HUD element forced up (`hud::ShowAll`).
+    Full,
 }
 
 impl Scene {
@@ -78,6 +80,7 @@ impl Scene {
             "settings" => Scene::Settings,
             "loading" => Scene::Loading,
             "clean" => Scene::Clean,
+            "full" => Scene::Full,
             _ => return None,
         })
     }
@@ -86,9 +89,12 @@ impl Scene {
     fn default_wait(self) -> f32 {
         match self {
             // After the chapter card (9 s).
-            Scene::Play | Scene::Tab | Scene::Busy | Scene::Clickable | Scene::Clean => {
-                DEFAULT_WAIT
-            }
+            Scene::Play
+            | Scene::Tab
+            | Scene::Busy
+            | Scene::Full
+            | Scene::Clickable
+            | Scene::Clean => DEFAULT_WAIT,
             // Before the chapter intro shrinks away.
             Scene::Chapter => 2.0,
             // Real seconds after the title screen opens.
@@ -361,7 +367,10 @@ impl Plugin for ScreenshotPlugin {
             Scene::Settings => {
                 app.add_systems(Update, open_settings.run_if(in_state(AppState::Menu)));
             }
-            Scene::Busy => {
+            Scene::Busy | Scene::Full => {
+                if scene == Scene::Full {
+                    app.insert_resource(crate::hud::ShowAll(true));
+                }
                 app.add_systems(
                     Update,
                     (stage_attack, stage_critical_cat)

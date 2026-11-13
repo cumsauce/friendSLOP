@@ -305,8 +305,19 @@ fn spawn_landlord(mut commands: Commands) {
         Text::new(""),
         TenancyText,
         crate::hud::slot(crate::hud::HudSlot::TopRight),
+        crate::hud::Calm::new("Rent").near(landlord_at()),
         DespawnOnExit(AppState::InGame),
     ));
+}
+
+/// Must the rent line be on screen: the raise is `urgent_secs` away or the
+/// boss fight is on.
+pub fn rent_urgent(t: &Tenancy, urgent_secs: f32) -> bool {
+    match t.act {
+        Act3::Legal => t.next_raise <= urgent_secs,
+        Act3::Boss => true,
+        _ => false,
+    }
 }
 
 /// What the HUD says about the tenancy.
@@ -333,14 +344,25 @@ pub fn describe(t: &Tenancy) -> String {
 fn show_tenancy(
     time: Res<Time>,
     tenancy: Query<&Tenancy>,
-    mut text: Query<&mut Text, With<TenancyText>>,
+    mut text: Query<(&mut Text, &mut crate::hud::Calm), With<TenancyText>>,
     mut body: Query<(&mut Transform, &mut RigClip), With<LandlordBody>>,
 ) {
     let Ok(t) = tenancy.single() else { return };
     let want = describe(t);
-    for mut text in &mut text {
+    // Quiet: up near the landlord, while the raise is close or in the boss
+    // fight, and for a moment when the rent or what's paid changes (not every
+    // tick of the countdown).
+    let urgent = rent_urgent(t, crate::hud::tuning().urgent_secs);
+    let key = crate::hud::key_of((t.act as u8, t.rent, t.paid, t.heists, t.hp));
+    for (mut text, mut calm) in &mut text {
         if text.0 != want {
             text.0.clone_from(&want);
+        }
+        if calm.urgent != urgent {
+            calm.urgent = urgent;
+        }
+        if calm.key != Some(key) {
+            calm.key = Some(key);
         }
     }
     let (scale, bob) = match t.act {

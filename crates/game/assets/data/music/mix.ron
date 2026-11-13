@@ -1,10 +1,101 @@
-// The soundtrack's mix, one number per bus:
-//   [drums, bass, keys, lead, pad, perc, brass, guitar]
+// The soundtrack's mix: one entry per mixer bus. The bus names are the band's
+// slots (drums, bass, keys, lead, pad, perc, brass, guitar); instruments.ron
+// puts each instrument on one of them.
 // Edit and save: the running game picks it up within a second.
+//
+//   trim     bus level: the kit is synthesized hot, the band sits up with it.
+//   pump     how deep the bus ducks under a full-strength kick: pads and bass
+//            breathe most, the lead least, the drums and percussion not at all.
+//   eq       up to six bands, in order: Hp(hz, q), Lp(hz, q), Peak(hz, q, db),
+//            LowShelf(hz, db), HighShelf(hz, db), Bp(hz, q). Each part keeps
+//            some body in the 200-300 Hz low mids; the scoops are gentle and
+//            the presence boosts small.
+//   autopan  a suitcase-piano tremolo: (rate Hz, depth).
+//   chorus   (rate Hz, centre ms, depth ms, mix).
 (
-    // Bus trims: the kit is synthesized hot, the band sits up with it.
-    trim: [1.0, 1.55, 1.6, 1.5, 1.6, 1.45, 1.6, 1.7],
-    // How deep each bus ducks under a full-strength kick: pads and bass breathe
-    // most, the lead least, the drums and percussion not at all.
-    pump: [0.0, 0.35, 0.22, 0.1, 0.4, 0.0, 0.22, 0.18],
+    buses: {
+        "drums": (
+            trim: 1.0,
+            pump: 0.0,
+            eq: [Hp(32.0, 0.7), Peak(110.0, 1.0, 1.5), Peak(420.0, 1.0, -1.0), HighShelf(9000.0, -0.5)],
+            autopan: None,
+            chorus: None,
+        ),
+        "bass": (
+            trim: 1.55,
+            pump: 0.35,
+            eq: [
+                Hp(30.0, 0.7),
+                LowShelf(95.0, 2.5),
+                Peak(240.0, 1.0, 1.5),
+                Peak(450.0, 1.0, -1.5),
+                Peak(1700.0, 1.2, 1.0),
+            ],
+            autopan: None,
+            chorus: None,
+        ),
+        "keys": (
+            trim: 1.6,
+            pump: 0.22,
+            eq: [
+                Hp(90.0, 0.7),
+                Peak(260.0, 0.9, 2.0),
+                Peak(560.0, 0.9, -1.0),
+                Peak(1800.0, 0.9, 1.0),
+                HighShelf(4500.0, 0.5),
+            ],
+            autopan: Some((4.2, 0.22)),
+            chorus: Some((0.55, 6.5, 2.2, 0.5)),
+        ),
+        "lead": (
+            trim: 1.5,
+            pump: 0.1,
+            eq: [
+                Hp(130.0, 0.7),
+                Peak(300.0, 0.9, 1.5),
+                Peak(750.0, 1.0, -0.5),
+                Peak(2200.0, 0.8, 1.5),
+                Lp(12000.0, 0.7),
+            ],
+            autopan: None,
+            chorus: None,
+        ),
+        "pad": (
+            trim: 1.6,
+            pump: 0.4,
+            eq: [Hp(140.0, 0.7), Peak(280.0, 0.8, 2.0), Peak(620.0, 0.8, -2.0), HighShelf(5000.0, 0.5)],
+            autopan: None,
+            chorus: Some((0.32, 9.0, 3.5, 0.7)),
+        ),
+        "perc": (
+            trim: 1.45,
+            pump: 0.0,
+            eq: [Hp(200.0, 0.7), Peak(350.0, 0.9, 1.0), Lp(12000.0, 0.7)],
+            autopan: None,
+            chorus: None,
+        ),
+        "brass": (
+            trim: 1.6,
+            pump: 0.22,
+            eq: [Hp(120.0, 0.7), Peak(300.0, 0.9, 1.5), Peak(520.0, 0.9, -1.0), Peak(2400.0, 0.9, 1.0)],
+            autopan: None,
+            chorus: Some((0.8, 5.5, 1.6, 0.45)),
+        ),
+        // The nylon guitar's body: the air resonance and the top plate, the
+        // boxy low mids pulled out, a little clarity up top.
+        "guitar": (
+            trim: 1.7,
+            pump: 0.18,
+            eq: [
+                Hp(75.0, 0.7),
+                Peak(105.0, 1.4, 2.0),
+                Peak(220.0, 1.2, 1.5),
+                Peak(420.0, 0.9, -3.0),
+                Peak(2500.0, 0.8, 0.5),
+                HighShelf(6000.0, -4.0),
+            ],
+            autopan: None,
+            chorus: None,
+        ),
+    },
 )

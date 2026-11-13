@@ -38,7 +38,9 @@ Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 
 and systemd (PID 1) kills you.
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
-Some nights (real clock, 10pm-5am) you hear whispers behind you.
+Some nights (real clock, 10pm-5am) you hear whispers behind you. Every few minutes a
+tall faceless Watcher stands far off behind one of you; look at it or walk up and it
+vanishes in static.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
@@ -371,6 +373,14 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   feet everyone sees, bigger with level, drying over 20 s), Smoking and Dueling (tracked and
   levelled; no bonus yet). Levels show bottom-right, with a toast on each level-up
   (`features/skills.rs`).
+- **The Watcher** (#277, Horror ARG 1/3 of catherine's #182: "a tall, faceless figure stands
+  far off, facing one of you. It vanishes in a burst of static when someone looks right at it
+  or walks up to it"). Every 150-420 s the server picks a player and puts one replicated
+  figure 45 m behind their back (a little off to the side), facing them: a black column with
+  long thin arms and a blank pale head (placeholder primitives). Everyone sees the same one.
+  It vanishes when anyone looks within 9 degrees of it or comes within 12 m (or after 60 s),
+  and every peer sees a flicker of white static specks there and hears a crackle. Tuning in
+  `data/side/watcher.ron` (`features/watcher.rs`). Milestones 2 and 3 of the ARG are not built.
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
@@ -1057,6 +1067,8 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
+- The Watcher (#277) only stares and vanishes for now. What does it want, and is it tied to the
+  night whispers?
 - Night whispers (#235) follow your real clock, since the game has no night. Should the game
   get its own night, and should anything be behind the whispers?
 - The shipwreck's pirates hand out doubloons (#185). What should they buy?

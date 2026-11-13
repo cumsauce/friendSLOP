@@ -1,0 +1,17 @@
+// Tuning for the Watcher (crates/side/src/features/watcher.rs, #277).
+// Edit and save: the running game picks it up within a second.
+(
+    // Shortest and longest wait between sightings, in seconds.
+    min_secs: 150.0,
+    max_secs: 420.0,
+    // How far from the watched player it stands (metres).
+    distance: 45.0,
+    // It vanishes when anyone comes this close (metres).
+    vanish_near: 12.0,
+    // ...or when anyone looks within this many degrees of it.
+    look_degrees: 9.0,
+    // It gives up and fades on its own after this long, seconds.
+    linger_secs: 60.0,
+    // How tall it is (metres).
+    height: 3.2,
+)

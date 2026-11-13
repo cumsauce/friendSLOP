@@ -145,10 +145,10 @@ pub fn audition(inst: Inst) -> Vec<f32> {
         glide,
     };
     let prog = [
-        Chord::new(2, Quality::Min9),
-        Chord::new(7, Quality::Dom13),
-        Chord::new(0, Quality::Maj9),
-        Chord::new(9, Quality::Dom7alt),
+        Chord::new(2, Quality::named("Min9")),
+        Chord::new(7, Quality::named("Dom13")),
+        Chord::new(0, Quality::named("Maj9")),
+        Chord::new(9, Quality::named("Dom7alt")),
     ];
     let roots: Vec<u8> = match crate::inst::table().get(inst).map(|s| &s.engine) {
         Some(Sound::Kit { samples, .. }) => samples.iter().map(|s| s.root).collect(),

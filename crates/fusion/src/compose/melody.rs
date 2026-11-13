@@ -1,43 +1,7 @@
-//! Melody: the lead's motifs and runs, answers, kimes and the signature theme.
+//! Melody: the lead's motifs and runs, answers, kimes and themes.
 
+use super::library::LeadStyle;
 use super::*;
-
-/// The signature hook, written out (over "Just the Two of Us" in Db):
-/// per bar, (16th step, length in 16ths, MIDI note).
-pub(super) const THEME: [&[(u8, u8, u8)]; 4] = [
-    &[(0, 2, 70), (2, 2, 73), (4, 5, 77), (10, 2, 75), (12, 4, 73)],
-    &[(2, 2, 69), (4, 2, 72), (6, 4, 75), (10, 2, 73), (12, 4, 72)],
-    &[(0, 3, 73), (3, 3, 77), (6, 2, 80), (8, 4, 77)],
-    &[
-        (0, 2, 75),
-        (2, 2, 78),
-        (4, 2, 80),
-        (6, 2, 78),
-        (8, 2, 77),
-        (10, 2, 75),
-        (12, 4, 70),
-    ],
-];
-pub(super) const THEME_KEY: u8 = 1;
-
-/// Syncopated one-bar rhythm cells for motifs: (step, length).
-pub(super) const CELLS: [&[(u8, u8)]; 8] = [
-    &[(0, 2), (2, 2), (4, 4), (10, 2), (12, 4)],
-    &[(2, 1), (3, 1), (4, 2), (6, 4), (12, 3)],
-    &[(0, 3), (3, 3), (6, 2), (8, 6)],
-    &[(0, 1), (1, 1), (2, 1), (3, 3), (6, 1), (7, 5)],
-    &[(4, 2), (6, 2), (8, 2), (10, 6)],
-    &[(0, 6), (6, 2), (8, 2), (10, 2), (12, 4)],
-    &[(1, 2), (3, 3), (6, 3), (9, 3), (12, 4)],
-    &[(0, 2), (3, 2), (6, 2), (8, 8)],
-];
-
-/// Unison hit rhythms (steps) for kimes, 4/4 and 7/8.
-pub(super) const KIMES: [&[u8]; 3] = [&[0, 3, 6, 10, 12], &[0, 2, 5, 8, 11, 14], &[0, 3, 6, 8, 12]];
-pub(super) const KIME_78: &[u8] = &[0, 2, 4, 7, 10, 12];
-
-pub(super) const LEAD_LO: u8 = 62;
-pub(super) const LEAD_HI: u8 = 84;
 
 #[derive(Clone, Copy, Debug, Default)]
 pub(super) struct MNote {
@@ -79,13 +43,12 @@ impl Composer {
     /// Call and response: when the lead leaves a gap, a second voice echoes
     /// its last few notes in the same rhythm, a third or a sixth lower and
     /// fitted to the chords now sounding.
-    pub(super) fn write_answer(&mut self, bar: &mut Bar) {
-        let s = self.style();
-        let Some(inst) = s.answer else {
+    pub(super) fn write_answer(&mut self, bar: &mut Bar, part: &'static Part) {
+        let G::Answer { chance } = &part.play else {
             return;
         };
-        let kind = self.plan.kind;
-        if !matches!(kind, Section::A | Section::Hook | Section::B) || self.frag.n < 2 {
+        let inst = part.inst;
+        if self.frag.n < 2 {
             return;
         }
         let steps = self.steps;
@@ -95,17 +58,11 @@ impl Composer {
             0
         };
         let from = from.next_multiple_of(2);
-        if from + 5 > steps || !self.chance(0.45 + 0.35 * self.intensity) {
+        if from + 5 > steps || !self.chance(chance.0 + chance.1 * self.intensity) {
             return;
         }
-        let (lo, hi) = match inst {
-            who if [pk().poly_brass, pk().epiano, pk().clav, pk().organ].contains(&who) => (60, 76),
-            who if who == pk().pan_flute => (64, 84),
-            who if who == pk().strings => (57, 74),
-            // Blown bottles live lower than a flute.
-            who if who == pk().flute => (60, 79),
-            _ => (62, 86),
-        };
+        let (lo, hi) = part.register;
+        let hi = hi.max(lo.saturating_add(11));
         let k = self.frag.n.min(3);
         let notes = self.frag.notes;
         let first = notes[self.frag.n - k];
@@ -124,7 +81,7 @@ impl Composer {
             while note < lo {
                 note += 12;
             }
-            if at_step.is_multiple_of(4) || ln >= 3 {
+            if self.on_beat(at_step) || ln >= 3 {
                 note = ch.nearest_strong(note);
             }
             if note == prev {
@@ -153,12 +110,32 @@ impl Composer {
 impl Composer {
     /// A unison hit figure: bass, keys, lead and kit together, ending on a
     /// held chord.
-    pub(super) fn write_kime(&mut self, bar: &mut Bar, crash: bool) {
-        let rhythm = if self.steps == 14 {
-            KIME_78
-        } else {
-            KIMES[self.pick(KIMES.len())]
+    pub(super) fn write_kime(&mut self, bar: &mut Bar, part: &'static Part, crash: bool) {
+        let G::Kime {
+            rhythms,
+            kit,
+            bass,
+            keys,
+            horn,
+        } = &part.play
+        else {
+            return;
         };
+        let rhythm: &[u8] = if self.steps < self.full {
+            &rhythms.odd
+        } else if rhythms.rhythms.is_empty() {
+            &[]
+        } else {
+            &rhythms.rhythms[self.pick(rhythms.rhythms.len())]
+        };
+        if rhythm.is_empty() {
+            return;
+        }
+        let (lead_lo, lead_hi) = (self.lead_lo, self.lead_hi);
+        let regs = &self.style().feel.registers;
+        let (keys_lo, keys_hi) = regs.keys;
+        let (horn_lo, horn_hi) = regs.horn;
+        let low = regs.bass;
         let lead = self.lead_inst();
         // The lead line walks down the chord tones from high up.
         let mut top = self
@@ -181,18 +158,18 @@ impl Composer {
             };
             let len = self.len(len_steps);
             // Kit.
-            Self::push(bar, hit(at, pk().kick, 36, 1.0));
-            Self::push(bar, hit(at, pk().snare, 38, 0.9));
+            Self::push(bar, hit(at, kit.kick.0, kit.kick.1, 1.0));
+            Self::push(bar, hit(at, kit.snare.0, kit.snare.1, 0.9));
             if k == 0 && crash || lastk {
-                Self::push(bar, hit(at, pk().crash, 49, 0.85));
+                Self::push(bar, hit(at, kit.crash.0, kit.crash.1, 0.85));
             }
             // Bass in octaves with the lead's pitch class, else the root.
-            let root = ch.root_from(31);
+            let root = ch.root_from(low);
             Self::push(
                 bar,
                 Ev {
                     at,
-                    inst: pk().bass,
+                    inst: *bass,
                     note: if k % 2 == 1 { root + 12 } else { root },
                     vel: 1.0,
                     len,
@@ -200,14 +177,13 @@ impl Composer {
                 },
             );
             // Keys stab.
-            self.ep = voice_lead(ch, &self.ep, 50, 62);
-            let keys = self.style().keys;
+            self.ep = voice_lead(ch, &self.ep, keys_lo, keys_hi);
             for &n in &{ self.ep } {
                 Self::push(
                     bar,
                     Ev {
                         at,
-                        inst: keys,
+                        inst: *keys,
                         note: n,
                         vel: 0.9,
                         len,
@@ -216,15 +192,15 @@ impl Composer {
                 );
             }
             // Horns hit with the band.
-            if self.style().horns != Horns::None {
-                self.horn = no_top_rub(voice_lead(ch, &self.horn, 60, 69));
+            if let Some(horn_inst) = *horn {
+                self.horn = no_top_rub(voice_lead(ch, &self.horn, horn_lo, horn_hi));
                 let horn = self.horn;
                 for &n in &horn[1..] {
                     Self::push(
                         bar,
                         Ev {
                             at,
-                            inst: pk().poly_brass,
+                            inst: horn_inst,
                             note: n,
                             vel: 0.95,
                             len,
@@ -235,11 +211,11 @@ impl Composer {
             }
             // Lead.
             top = ch.nearest_strong(top);
-            while top > LEAD_HI {
+            while top > lead_hi.max(lead_lo.saturating_add(11)) {
                 top -= 12;
             }
             #[cfg(test)]
-            if st.is_multiple_of(4) {
+            if self.on_beat(st) {
                 self.strong_log.push((top, ch));
             }
             if let Some(inst) = lead {
@@ -258,7 +234,7 @@ impl Composer {
             self.last_note = top;
             // Next hit: a chord tone a step or two below.
             let next_ch = self.chord(next.min(steps.saturating_sub(1)));
-            top = next_ch.nearest_strong(top.saturating_sub(2).max(LEAD_LO + 2));
+            top = next_ch.nearest_strong(top.saturating_sub(2).max(lead_lo + 2));
             if top == self.last_note {
                 top = next_ch.nearest_strong(top.saturating_sub(3));
             }
@@ -269,30 +245,33 @@ impl Composer {
 }
 
 impl Composer {
+    /// Who plays the melody now (none without a melody part).
     pub(super) fn lead_inst(&self) -> Option<Inst> {
-        // In solos the band's two synth players trade every two bars.
+        let part = self.style().lead_part()?;
+        // In solos the band's players trade every two bars.
         let trade = self.plan.kind == Section::Solo && (self.plan.bar / 2) % 2 == 1;
-        match self.style().lead {
-            LeadKind::Synth if trade => Some(pk().mini),
-            LeadKind::Mini | LeadKind::Brass if trade => Some(pk().lead),
-            LeadKind::Synth => Some(pk().lead),
-            LeadKind::Brass => Some(pk().brass),
-            LeadKind::Flute => Some(pk().flute),
-            LeadKind::Bell => Some(pk().bell),
-            LeadKind::Mini => Some(pk().mini),
-            LeadKind::Silent => None,
-        }
+        let traded = match &part.play {
+            G::Melody { style, .. } if trade => style.trade.get(&part.inst).copied(),
+            _ => None,
+        };
+        Some(traded.unwrap_or(part.inst))
+    }
+
+    /// The melody's style (the band's for a silent lead).
+    pub(super) fn lead_style(&self) -> &'static LeadStyle {
+        self.style().lead_style
     }
 }
 
 impl Composer {
     pub(super) fn new_motif(&mut self) -> Motif {
+        let span = self.lead_style().min_span;
         // A motif needs a shape you can hear: retry flat ones.
         let mut m = self.motif_try();
         for _ in 0..4 {
             let cs = m.notes[..m.n].iter().map(|x| x.c);
             let range = cs.clone().max().unwrap_or(0) - cs.min().unwrap_or(0);
-            if range >= 3 {
+            if range >= span {
                 break;
             }
             m = self.motif_try();
@@ -303,21 +282,29 @@ impl Composer {
 
 impl Composer {
     pub(super) fn motif_try(&mut self) -> Motif {
-        let cell = CELLS[self.pick(CELLS.len())];
+        let ls = self.lead_style();
         let mut m = Motif::default();
+        if ls.cells.is_empty() {
+            return m;
+        }
+        let cell = &ls.cells[self.pick(ls.cells.len())];
         let mut c: i8 = 0;
         let n = cell.len().min(m.notes.len());
         for (k, &(step, len)) in cell.iter().take(n).enumerate() {
             m.notes[k] = MNote { step, len, c };
             // Arch contour: rise through the first half, fall after.
             let rising = k * 2 < n;
-            let leap = [1i8, 1, 2, 2, 3][self.pick(5)];
-            let dir = if self.chance(if rising { 0.75 } else { 0.25 }) {
+            let leap = ls
+                .leaps
+                .get(self.pick(ls.leaps.len()))
+                .copied()
+                .unwrap_or(1);
+            let dir = if self.chance(if rising { ls.rise } else { ls.fall }) {
                 1
             } else {
                 -1
             };
-            c = (c + dir * leap).clamp(-5, 6);
+            c = (c + dir * leap).clamp(ls.contour.0, ls.contour.1.max(ls.contour.0));
         }
         m.n = n;
         m
@@ -332,7 +319,7 @@ impl Composer {
             return line;
         }
         let first = self.chord(m.notes[0].step as u32);
-        let anchor = first.nearest_strong(fold(from));
+        let anchor = first.nearest_strong(fold(from, self.lead_lo, self.lead_hi));
         for &mn in m.notes.iter().take(m.n) {
             let step = mn.step as i32 + shift as i32;
             if !(0..self.steps as i32).contains(&step) {
@@ -348,11 +335,19 @@ impl Composer {
 }
 
 impl Composer {
-    pub(super) fn write_lead(&mut self, bar: &mut Bar) {
+    pub(super) fn write_lead(&mut self, bar: &mut Bar, part: &'static Part) {
+        let G::Melody {
+            style: ls,
+            theme,
+            solo_runs,
+        } = &part.play
+        else {
+            return;
+        };
         let Some(inst) = self.lead_inst() else {
             return;
         };
-        let s = self.style();
+        let (lo, hi) = (self.lead_lo, self.lead_hi);
         let i = self.intensity;
         let kind = self.plan.kind;
         let pb = self.plan.bar;
@@ -364,14 +359,17 @@ impl Composer {
                 // Hold the 9th of the tonic, swelling in.
                 let ch = self.chord(0);
                 let mut l = Line::new();
-                let nine = fold(ch.root_from(72) + 2);
+                let nine = fold(ch.root_from(72) + 2, lo, hi);
                 l.push(0, 2, ch.nearest_strong(nine.saturating_sub(2)));
-                l.push(2, 14, ch.nearest_strong(nine));
+                l.push(2, (self.full - 2) as u8, ch.nearest_strong(nine));
                 l
             }
-            Section::Hook if s.theme => {
+            Section::Hook if theme.is_some_and(|t| !t.bars.is_empty()) => {
+                let Some(t) = theme else {
+                    return;
+                };
                 let mut l = Line::new();
-                let shift = (self.plan.key + 12 - THEME_KEY) % 12;
+                let shift = (self.plan.key + 12 - t.key % 12) % 12;
                 let shift = if shift > 6 {
                     shift as i32 - 12
                 } else {
@@ -380,7 +378,7 @@ impl Composer {
                 if pb == 7 && i > 0.4 {
                     self.pent_run(&mut l, false);
                 } else {
-                    for &(st, ln, n) in THEME[pb as usize % 4] {
+                    for &(st, ln, n) in &t.bars[pb as usize % t.bars.len()] {
                         l.push(st, ln, (n as i32 + shift).clamp(0, 127) as u8);
                     }
                 }
@@ -389,28 +387,28 @@ impl Composer {
             Section::Solo => {
                 let r = self.rand();
                 let mut l = Line::new();
-                if s.groove == Groove::Shred || r < 0.25 + 0.3 * i {
+                if *solo_runs || r < ls.solo_run.0 + ls.solo_run.1 * i {
                     let up = if self.climb.abs() > 0.3 {
                         self.climb > 0.0
                     } else {
                         phrase % 2 == 1
                     };
                     self.pent_run(&mut l, up);
-                } else if r < 0.6 {
+                } else if r < ls.solo_bebop {
                     self.bebop_line(&mut l);
                 } else if phrase == 3 {
                     self.cadence(&mut l);
                 } else {
                     let m = self.motif;
-                    let shift = if self.chance(0.5) { 2 } else { 0 };
-                    let invert = self.chance(0.3);
+                    let shift = if self.chance(ls.solo_shift) { 2 } else { 0 };
+                    let invert = self.chance(ls.solo_invert);
                     l = self.realize(&m, last + 3, shift, invert);
                 }
                 l
             }
             Section::A | Section::Hook | Section::B => {
                 // Calm music breathes: whole phrases left out.
-                if kind == Section::A && i < 0.4 && (pb / 4).is_multiple_of(2) {
+                if kind == Section::A && i < ls.calm && (pb / 4).is_multiple_of(2) {
                     return;
                 }
                 let m = if kind == Section::Hook {
@@ -422,16 +420,20 @@ impl Composer {
                 // The story of eight bars: state an idea, answer it, develop
                 // it, come home; then state it again a step higher, climb to
                 // a peak in bar seven and resolve.
-                const ARC: [u8; 8] = [71, 72, 74, 72, 73, 76, 79, 72];
+                let arc = ls
+                    .arc
+                    .get(pb as usize % ls.arc.len().max(1))
+                    .copied()
+                    .unwrap_or(72);
                 // Climbing lifts the line a little higher each phrase.
                 let lean = (self.climb * 3.0).round() as i32;
-                let height = (ARC[pb as usize % 8] as i32 + (i * 2.0) as i32 + lean) as u8;
+                let height = (arc as i32 + (i * 2.0) as i32 + lean) as u8;
                 match phrase {
                     // Call: the motif, restated (sequenced up) in the second
                     // half so the listener recognises it.
                     0 => {
                         let from = if second_half {
-                            self.anchor + if self.chance(0.6) { 2 } else { 0 }
+                            self.anchor + if self.chance(ls.restate) { 2 } else { 0 }
                         } else {
                             self.anchor = height;
                             height
@@ -440,19 +442,19 @@ impl Composer {
                     }
                     // Response: a short answer, or rest.
                     1 => {
-                        if self.chance(0.45 - 0.2 * i) {
+                        if self.chance(ls.rest.0 - ls.rest.1 * i) {
                             return;
                         }
                         self.response(&m)
                     }
                     // Development, heading for the phrase's peak.
-                    2 if second_half && i > 0.5 && self.chance(0.4) => {
+                    2 if second_half && i > 0.5 && self.chance(ls.dev_run) => {
                         let mut l = Line::new();
                         self.pent_run(&mut l, self.climb > -0.3);
                         l
                     }
                     // On the move up or down: a run that way.
-                    2 if self.climb.abs() > 0.5 && self.chance(0.5) => {
+                    2 if self.climb.abs() > 0.5 && self.chance(ls.climb_run) => {
                         let mut l = Line::new();
                         self.pent_run(&mut l, self.climb > 0.0);
                         l
@@ -465,14 +467,17 @@ impl Composer {
                             let mut half = m;
                             half.n = m.n.div_ceil(2);
                             let mut l = self.realize(&half, height, 0, false);
-                            self.tail_into(&mut l, 8);
+                            self.tail_into(&mut l, (self.full / 2) as u8);
                             l
                         }
                     },
                     // Cadence.
                     _ => {
                         let mut l = Line::new();
-                        if i > 0.65 && kind != Section::Hook && self.chance(0.4) {
+                        if i > ls.cadence_run.0
+                            && kind != Section::Hook
+                            && self.chance(ls.cadence_run.1)
+                        {
                             self.pent_run(&mut l, true);
                         } else {
                             self.cadence(&mut l);
@@ -482,8 +487,8 @@ impl Composer {
                 }
             }
         };
-        let approach = !(kind == Section::Hook && s.theme);
-        self.emit_line(bar, inst, line, approach);
+        let themed = kind == Section::Hook && theme.is_some_and(|t| !t.bars.is_empty());
+        self.emit_line(bar, inst, ls, line, !themed);
     }
 }
 
@@ -542,17 +547,19 @@ impl Composer {
     pub(super) fn bebop_line(&mut self, l: &mut Line) {
         let start = if self.chance(0.5) { 0 } else { 2 };
         let ch0 = self.chord(start);
-        let mut n = ch0.nearest_strong(fold(self.last_note + 7));
+        let (lo, hi) = (self.lead_lo, self.lead_hi);
+        let pass = self.lead_style().bebop_pass;
+        let mut n = ch0.nearest_strong(fold(self.last_note + 7, lo, hi));
         let mut st = start;
-        while st < self.steps.min(16) {
+        while st < self.steps.min(self.full) {
             l.push(st as u8, 2, n);
             let ch = self.chord(st + 2);
             let down = ch.scale_step(n, -1);
             // Passing tone between two scale tones a whole step apart; at the
             // bottom of the range, turn back up by a chord tone.
-            n = if down < LEAD_LO + 1 {
+            n = if down < lo + 1 {
                 ch.nearest_strong(n + 4)
-            } else if (st + 2) % 4 != 0 && n - down == 2 && self.chance(0.6) {
+            } else if !self.on_beat(st + 2) && n - down == 2 && self.chance(pass) {
                 n - 1
             } else {
                 down
@@ -566,22 +573,18 @@ impl Composer {
     /// A pentatonic run in 16ths, up or down, ending on a chord tone.
     pub(super) fn pent_run(&mut self, l: &mut Line, up: bool) {
         let mut up = up;
-        let pent_of = |ch: Chord| -> [u8; 5] {
-            if ch.q.is_minor() {
-                [0, 3, 5, 7, 10]
-            } else if matches!(ch.q, Dom7alt | Dom7s9) {
-                [1, 4, 6, 8, 11] // minor pentatonic a half step up: all altered tones
-            } else {
-                [0, 2, 4, 7, 9]
-            }
-        };
+        let (lo, hi) = (self.lead_lo, self.lead_hi);
         let start = if self.chance(0.5) { 0 } else { 4 };
         let len = 8 + self.pick(5) as u32;
-        let mut n = fold(if up {
-            self.last_note.saturating_sub(5)
-        } else {
-            self.last_note + 7
-        });
+        let mut n = fold(
+            if up {
+                self.last_note.saturating_sub(5)
+            } else {
+                self.last_note + 7
+            },
+            lo,
+            hi,
+        );
         for k in 0..len {
             let st = start + k;
             if st >= self.steps {
@@ -594,8 +597,8 @@ impl Composer {
             // a run that reaches the edge of the range turns around rather
             // than jumping an octave.
             let r = ch_here.root;
-            let pent = pent_of(ch_here);
-            if (up && n + 2 > LEAD_HI) || (!up && n < LEAD_LO + 2) {
+            let pent = ch_here.q.pent();
+            if (up && n + 2 > hi) || (!up && n < lo + 2) {
                 up = !up;
             }
             let mut m = n as i32;
@@ -615,7 +618,15 @@ impl Composer {
     /// Enforce the rules and write a line out: strong beats land on chord
     /// tones, weak notes on scale tones, chromatic approach tones before
     /// strong targets, everything in the lead's range.
-    pub(super) fn emit_line(&mut self, bar: &mut Bar, inst: Inst, mut line: Line, approach: bool) {
+    pub(super) fn emit_line(
+        &mut self,
+        bar: &mut Bar,
+        inst: Inst,
+        ls: &LeadStyle,
+        mut line: Line,
+        approach: bool,
+    ) {
+        let (lead_lo, lead_hi) = (self.lead_lo, self.lead_hi);
         let n = line.n;
         if n == 0 {
             return;
@@ -634,12 +645,12 @@ impl Composer {
         let n = m;
         line.n = n;
         // Move the whole line by octaves into range, so its shape survives.
-        let hi = line.notes[..n].iter().map(|x| x.2).max().unwrap_or(LEAD_HI);
-        let lo = line.notes[..n].iter().map(|x| x.2).min().unwrap_or(LEAD_LO);
-        let shift: i32 = if hi > LEAD_HI + 2 {
-            -12 * ((hi - LEAD_HI + 9) / 12) as i32
-        } else if lo + 2 < LEAD_LO {
-            12 * ((LEAD_LO - lo + 9) / 12) as i32
+        let hi = line.notes[..n].iter().map(|x| x.2).max().unwrap_or(lead_hi);
+        let lo = line.notes[..n].iter().map(|x| x.2).min().unwrap_or(lead_lo);
+        let shift: i32 = if hi > lead_hi + 2 {
+            -12 * ((hi - lead_hi + 9) / 12) as i32
+        } else if lo + 2 < lead_lo {
+            12 * ((lead_lo - lo + 9) / 12) as i32
         } else {
             0
         };
@@ -647,8 +658,8 @@ impl Composer {
         for k in 0..n {
             let (st, _, raw) = line.notes[k];
             let ch = self.chord(st as u32);
-            let note = soft_fold((raw as i32 + shift).clamp(0, 127) as u8);
-            let mut out = if st % 4 == 0 {
+            let note = soft_fold((raw as i32 + shift).clamp(0, 127) as u8, lead_lo, lead_hi);
+            let mut out = if self.on_beat(st as u32) {
                 ch.nearest_strong(note)
             } else if approach {
                 ch.nearest_scale(note)
@@ -672,7 +683,7 @@ impl Composer {
             if let Some(p) = prev
                 && out == p
                 && note != p
-                && st % 4 == 0
+                && self.on_beat(st as u32)
             {
                 let up = note > p;
                 let mut t = out;
@@ -696,11 +707,11 @@ impl Composer {
                 let (st, ln, _) = line.notes[k];
                 let (nst, _, target) = line.notes[k + 1];
                 if !approached
-                    && st % 4 != 0
+                    && !self.on_beat(st as u32)
                     && ln <= 2
-                    && nst % 4 == 0
+                    && self.on_beat(nst as u32)
                     && nst - st <= 2
-                    && self.chance(0.35)
+                    && self.chance(ls.approach)
                 {
                     approached = true;
                     let below = target.saturating_sub(1);
@@ -712,33 +723,35 @@ impl Composer {
         let i = self.intensity;
         // Dynamics follow the phrase's arc: swell into the peak, ease off
         // into the cadence.
-        const SHAPE: [f32; 8] = [0.9, 0.92, 0.97, 0.9, 0.95, 1.0, 1.1, 0.9];
-        let shape = SHAPE[self.plan.bar as usize % 8];
+        let shape = ls
+            .shape
+            .get(self.plan.bar as usize % ls.shape.len().max(1))
+            .copied()
+            .unwrap_or(1.0);
         self.frag = Line::new();
-        self.lead_this_bar = true;
         for k in 0..n {
             let (st, ln, note) = line.notes[k];
             let ch = self.chord(st as u32);
-            let note = soft_fold(note);
+            let note = soft_fold(note, lead_lo, lead_hi);
             self.frag.push(st, ln, note);
             self.lead_end = self.lead_end.max(st as u32 + ln as u32);
-            if st % 4 == 0 {
+            if self.on_beat(st as u32) {
                 debug_assert!(ch.is_strong(note));
                 #[cfg(test)]
                 self.strong_log.push((note, ch));
             }
             let next_st = if k + 1 < n { line.notes[k + 1].0 } else { 99 };
             let legato = next_st as u32 <= st as u32 + ln as u32;
-            let strong = st % 4 == 0 || ln >= 4;
+            let strong = self.on_beat(st as u32) || ln >= 4;
             let vel = (if strong { 0.85 } else { 0.68 }) * (0.8 + 0.3 * i) * shape;
             let jitter = (self.rand() * 120.0) as u32;
             let at = self.at(st as u32) + jitter;
             let len = self.len(ln as f32 * if legato { 1.02 } else { 0.85 });
             let prev = self.last_note;
-            let glide = [pk().lead, pk().mini].contains(&inst)
+            let glide = ls.glides.contains(&inst)
                 && k > 0
                 && (prev as i32 - note as i32).abs() <= 5
-                && self.chance(0.3);
+                && self.chance(ls.glide);
             Self::push(
                 bar,
                 Ev {

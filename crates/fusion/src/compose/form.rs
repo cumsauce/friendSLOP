@@ -12,6 +12,9 @@ pub(super) struct Plan {
     pub(super) fixed: Option<Chord>,
     /// Approach chord over the second half of the last bar.
     pub(super) tail: Option<Chord>,
+    /// Steps per bar, and per beat.
+    pub(super) steps: u32,
+    pub(super) beat: u32,
 }
 
 impl Plan {
@@ -24,12 +27,14 @@ impl Plan {
             return c;
         }
         if bar + 1 >= self.bars
-            && step >= 8
+            && step >= self.steps / 2
             && let Some(t) = self.tail
         {
             return t;
         }
-        let beat = (bar as u32 * 4 + step / 4) % self.prog_beats();
+        let per = self.beat.max(1);
+        let beats = (self.steps / per).max(1);
+        let beat = (bar as u32 * beats + step / per) % self.prog_beats();
         let mut acc = 0;
         for &(off, q, b) in self.prog {
             if beat < acc + b as u32 {
@@ -37,7 +42,7 @@ impl Plan {
             }
             acc += b as u32;
         }
-        Chord::new(self.key, Maj9)
+        Chord::new(self.key, Quality::NONE)
     }
 
     pub(super) fn first(&self) -> Chord {
@@ -45,91 +50,95 @@ impl Plan {
     }
 }
 
-/// The key ladder: semitones above the tune's key for each storey climbed
-/// (up the major scale: do, re, mi, fa, sol).
-pub(super) const LIFT: [u8; 5] = [0, 2, 4, 5, 7];
-/// The highest storey the key follows.
-pub const LIFT_MAX: u8 = LIFT.len() as u8 - 1;
+/// The highest storey the game reports (the form's `lift` ladder says how
+/// far up the key goes on each; past its top it stays there).
+pub const LIFT_MAX: u8 = 4;
+
+/// The form's victory cadence.
+pub(super) fn victory(form: &'static library::Form) -> Prog {
+    if form.victory.is_empty() {
+        FALLBACK_PROG
+    } else {
+        &form.victory
+    }
+}
 impl Composer {
     /// Plan the section after `prev` in mood `m`.
     pub(super) fn plan_section(&mut self, m: Mood, prev: Section, fresh: bool) -> Plan {
         // A new visit picks a song; after a breakdown the band may move on
         // to another one.
-        let n = songs(m);
+        let n = self.song_count(m);
         if n > 1 && fresh {
             self.song[m as usize % Mood::ALL.len()] = self.pick(n) as u8;
-        } else if n > 1 && prev == Section::Breakdown && self.chance(0.6) {
+        } else if n > 1
+            && prev == Section::Breakdown
+            && self.chance(
+                self.song_style(m, self.song[m as usize % Mood::ALL.len()])
+                    .form
+                    .new_song,
+            )
+        {
             let now = self.song[m as usize % Mood::ALL.len()] as usize;
             self.song[m as usize % Mood::ALL.len()] = ((now + 1 + self.pick(n - 1)) % n) as u8;
         }
-        let s = style_song(m, self.song[m as usize % Mood::ALL.len()]);
-        let i = self.intensity;
+        let s = self.song_style(m, self.song[m as usize % Mood::ALL.len()]);
+        let form = s.form;
+        let ctx = Ctx {
+            section: prev,
+            intensity: self.intensity,
+            bar: 0,
+            lead: s.has_lead(),
+            urgent: m.urgent(),
+        };
         let kind = if m == Mood::Still {
             Section::Still
-        } else if fresh {
-            if i < 0.6 && !m.urgent() {
-                Section::Intro
-            } else {
-                Section::A
+        } else if !form.cycle.is_empty() {
+            // A fixed song shape: round and round.
+            let at = form.cycle.iter().position(|k| *k == prev);
+            match at {
+                Some(k) if !fresh => form.cycle[(k + 1) % form.cycle.len()],
+                _ => form.cycle[0],
             }
+        } else if fresh {
+            self.follow(&form.start, &ctx).unwrap_or(Section::A)
         } else {
-            match prev {
-                Section::Intro | Section::Breakdown | Section::Victory | Section::Still => {
-                    Section::A
-                }
-                Section::A => Section::Hook,
-                Section::Hook => {
-                    if self.chance(0.6) {
-                        Section::B
-                    } else if i > 0.45 && s.lead != LeadKind::Silent {
-                        Section::Solo
-                    } else {
-                        Section::A
-                    }
-                }
-                Section::B => {
-                    if i > 0.45 && s.lead != LeadKind::Silent {
-                        Section::Solo
-                    } else if i < 0.35 {
-                        Section::Breakdown
-                    } else {
-                        Section::Hook
-                    }
-                }
-                Section::Solo => {
-                    if self.chance(0.3) {
-                        Section::Breakdown
-                    } else {
-                        Section::Hook
-                    }
-                }
+            match form.next.get(&prev) {
+                Some(edges) => self.follow(edges, &ctx).unwrap_or(Section::A),
+                None => Section::A,
             }
         };
         if fresh {
             self.key_shift = 0;
         } else if kind != Section::Still && self.chance(s.modulate) {
-            self.key_shift += if self.chance(0.5) { 1 } else { 2 };
-            if self.key_shift > 4 {
+            self.key_shift += if self.chance(form.modulate_half) {
+                1
+            } else {
+                2
+            };
+            if self.key_shift > form.modulate_top {
                 // Back down home (a fourth up is the same pitch classes).
                 self.key_shift = 0;
             }
         }
         let key = (s.key + self.key_shift) % 12;
-        let (prog, bars) = match kind {
-            Section::Intro => (s.a, 4),
-            Section::A => (s.a, 8),
-            Section::Hook => (s.hook, 8),
-            Section::B => (s.b, 8),
-            Section::Solo => (if self.chance(0.5) { s.a } else { s.b }, 8),
-            Section::Breakdown => (s.a, 4),
-            Section::Victory => (VICTORY, 2),
-            Section::Still => (s.a, 2),
+        let plan = form.sections.get(&kind);
+        let bars = plan.map_or(8, |p| p.bars.max(1));
+        let slots: &[library::Slot] = plan.map_or(&[], |p| &p.prog);
+        let slot = match slots.len() {
+            0 => library::Slot::A,
+            1 => slots[0],
+            n => slots[self.pick(n)],
+        };
+        let prog = match slot {
+            library::Slot::A => s.a,
+            library::Slot::B => s.b,
+            library::Slot::Hook => s.hook,
         };
         let fixed = (kind == Section::Still).then(|| self.chord(0));
-        if matches!(kind, Section::B | Section::Solo) || fresh {
+        if plan.is_some_and(|p| p.motif) || fresh {
             self.motif = self.new_motif();
         }
-        self.comp_var = self.pick(4);
+        self.comp_var = self.pick(form.variants.max(1));
         if fresh {
             self.hook = self.new_motif();
         }
@@ -141,7 +150,23 @@ impl Composer {
             prog,
             fixed,
             tail: None,
+            steps: s.steps,
+            beat: (s.steps / s.beats).max(1),
         }
+    }
+
+    /// The first edge whose condition holds and whose chance comes up.
+    fn follow(&mut self, edges: &[library::Edge], ctx: &Ctx) -> Option<Section> {
+        for e in edges {
+            if !e.when.holds(ctx) {
+                continue;
+            }
+            match e.chance {
+                Some(p) if !self.chance(p) => continue,
+                _ => return Some(e.to),
+            }
+        }
+        None
     }
 }
 
@@ -149,13 +174,14 @@ impl Composer {
     /// An approach chord into `to`: its V7alt, its tritone sub, or (for
     /// minor targets) a V7b9.
     pub(super) fn approach(&mut self, to: Chord) -> Chord {
-        if to.q.is_minor() {
-            Chord::new(to.root + 7, Dom7b9)
-        } else if self.chance(0.5) {
-            Chord::new(to.root + 1, Dom13s11)
-        } else {
-            Chord::new(to.root + 7, Dom7alt)
-        }
+        let a = &self.style().form.approach;
+        let list = if to.q.is_minor() { &a.minor } else { &a.other };
+        let (up, q) = match list.len() {
+            0 => (7, Quality::NONE),
+            1 => list[0],
+            n => list[self.pick(n)],
+        };
+        Chord::new(to.root + up, q)
     }
 }
 
@@ -183,8 +209,9 @@ impl Composer {
         } else {
             self.lift - 1
         };
-        let d = LIFT[to as usize] as i32 - LIFT[self.lift as usize] as i32;
-        let next = self.raw_chord(16);
+        let form = self.style().form;
+        let d = form.lift(to) as i32 - form.lift(self.lift) as i32;
+        let next = self.raw_chord(self.full);
         let target = Chord::new((next.root as i32 + d).rem_euclid(12) as u8, next.q);
         self.bridge = self.approach(target);
         self.lift_to = Some(to);
@@ -197,7 +224,7 @@ impl Composer {
     /// below a bass guitar's low E.
     pub(super) fn transpose(&self, bar: &mut Bar) {
         const LOW_E: u8 = 28;
-        let up = LIFT[self.lift as usize];
+        let up = self.style().form.lift(self.lift);
         if up == 0 {
             return;
         }

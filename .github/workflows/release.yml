@@ -1,11 +1,14 @@
 name: Release
 
-# Manual only: Actions tab -> "Release" -> Run workflow (or `gh workflow run release.yml`).
+# On every push to main (mac only, #318), or by hand: Actions tab -> "Release" -> Run workflow (or `gh workflow run release.yml`).
 # Publishes a "latest" build so friends can just download and play (desktop only;
 # the browser zip is a separate run of web-release.yml, which adds it to "latest").
 # `platforms`: all rebuilds "latest" from scratch; a single OS (`-f platforms=mac`)
 # builds only that one and replaces just its download in "latest".
 on:
+  # Every merge to main rebuilds just the mac download (#318).
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       platforms:
@@ -35,7 +38,7 @@ jobs:
     steps:
       - id: pick
         env:
-          WANT: ${{ inputs.platforms || 'all' }}
+          WANT: ${{ inputs.platforms || (github.event_name == 'push' && 'mac') || 'all' }}
         run: |
           echo "include=$(echo "$ALL" | jq -c --arg w "$WANT" 'map(select($w == "all" or .only == $w))')" >> "$GITHUB_OUTPUT"
 
@@ -94,7 +97,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          WANT: ${{ inputs.platforms || 'all' }}
+          WANT: ${{ inputs.platforms || (github.event_name == 'push' && 'mac') || 'all' }}
         run: |
           notes="Built from ${{ github.sha }}. Download for your OS, unzip, run. The browser version (friendslop-web.zip) is added by the separate \"Web release\" workflow. Unsigned: on macOS right-click → Open; on Windows click 'More info → Run anyway'."
           if [ "$WANT" != all ] && gh release view latest >/dev/null 2>&1; then

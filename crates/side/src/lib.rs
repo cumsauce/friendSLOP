@@ -41,6 +41,7 @@ pub mod features {
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
         &fusion::compose::SCORE,
+        &fusion::compose::LIBRARY,
         &fusion::synth::MIX,
         &fusion::inst::INSTRUMENTS,
         &features::affair::TUNING,

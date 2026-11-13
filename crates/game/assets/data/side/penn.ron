@@ -1,0 +1,63 @@
+// Penn Station (#357, crates/side/src/features/penn.rs).
+// Ride the 1 train from its stop in the trees at the city's north end. Penn
+// Station's concourse (with Rose Pizza and its bathroom) floats high over New
+// York like Miami does: nobody can see it from outside.
+// Edit and save: the running game picks it up within a second.
+(
+    // The stop in trains.ron the concourse is built round (its frame is the model's origin).
+    stop: "Penn Station",
+    // Stand this close (m) to the bathroom door and the person in front of you starts talking.
+    queue_reach: 2.0,
+    // Seconds each line of the conversation stays up.
+    line_secs: 3.2,
+    // Seconds of silence while they're in there.
+    silence_secs: 15.0,
+    // Walk this far (m) from the door once you've been and the next person is in line.
+    reset_dist: 12.0,
+    // Shown when you walk into Rose Pizza's corner.
+    pizza_line: "ROSE PIZZA. the slice has been under the heat lamp since the nixon administration. it's perfect.",
+    // Shown when you buy a slice.
+    slice_line: "you fold it. grease runs to your elbow. the 7:42 to ronkonkoma is boarding on track 19.",
+    // Shown when the person goes in, and when the silence is over.
+    gone_in_line: "they go in. the door clicks. you're alone with what they said.",
+    free_line: "the bathroom's free.",
+    // Shown when you try the stall before it's your turn, and when you use it.
+    occupied_line: "occupied. someone knocks back from inside, which is worse.",
+    used_line: "you used the Penn Station bathroom. you will never speak of this.",
+    // Shown when you look in the mirror (it's tiny and filthy).
+    mirror_line: "the mirror is the size of a postcard and coated in something. a blur that might be you looks back.",
+    // What the person in front of you says, one conversation per visit, in turn.
+    // "you:" lines are what you hear yourself say back.
+    conversations: [
+        [
+            "them: you ever notice the trains here don't go anywhere? they just go.",
+            "you: they go to new jersey.",
+            "them: that's what i said.",
+            "them: my uncle was a pigeon. not like, spiritually.",
+        ],
+        [
+            "them: is this the line for the bathroom or for the other thing?",
+            "you: what other thing?",
+            "them: exactly. good. we're on the same page.",
+            "them: don't eat the rose pizza after 2am. eat it at 1:59.",
+        ],
+        [
+            "them: i've been in this line since they tore the old station down.",
+            "you: that was 1963.",
+            "them: and i've never once been the front.",
+            "them: today's my day. i can feel it in my knees.",
+        ],
+        [
+            "them: what's your sign?",
+            "you: uh, the bathroom sign?",
+            "them: classic restroom. i knew it. you've got restroom energy.",
+            "them: anyway i'm a track 13. we don't get along.",
+        ],
+        [
+            "them: i'm not going in there to pee.",
+            "you: ok.",
+            "them: i'm going in there to make a phone call to 1997.",
+            "them: wish me luck.",
+        ],
+    ],
+)

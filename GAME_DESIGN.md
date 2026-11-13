@@ -59,6 +59,9 @@ Kung Fu Tee, Tiger Sugah) where your dollars buy drinks that stack a speed buzz.
 under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
 for **Miami**, an island floating high over the city: walk into Factory Town for Miami Music
 Week (EDM, lasers, a dancing crowd) and buy a bump of ketamine from the guy by the bar.
+Beside JFK the 1 train runs to **Penn Station**: a dingy concourse with Rose Pizza and a
+bathroom where someone is always in line ahead of you, talks nonsense at you, goes in, and
+leaves you 15 seconds of silence before it's your turn.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
@@ -480,6 +483,24 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
   timings); add a line and another train appears. Models `path-car`, `path-platform`,
   `path-tunnel`, `path-viaduct`, `path-station`, `path-hall` (modeler); colliders are boxes in
   code (`features/trains.rs`). The valley stop moved off the hill it was sunk into.
+- **Penn Station** (#357, catherine: "add rose pizza in Penn Station and it's bathroom. when
+  you get to the bathroom someone is always in front of you and you always have to have a really
+  weird nonsensical conversation with them before they go in and then you get 15 seconds of
+  silence ... then you can use the bathroom. the mirror is so dirty and small and shitty u can
+  barely see yourself. important detail. make it look like the real place"). The 1 train (a
+  line in `trains.ron`) runs from Chambers St, a stop in the trees at the city's north end
+  across from JFK, to Penn Station: a low, dingy LIRR-style concourse (the `penn-station`
+  model) floating 1000 m over New York like Miami, with tiled columns, fluorescent tubes, a
+  departures board ("TRACK TBA"), Rose Pizza's counter and ovens under a red neon sign (click
+  the counter for a slice), and a tiled restroom with a sink, a urinal, a stall and a tiny
+  filthy mirror (click it: you're a blur). The queue is per player and local: a stranger always
+  stands at the door; walk up and they say a nonsense conversation at you a line every 3.2 s
+  (five conversations, one per visit), go in, and then 15 s of nothing. Then the toilet's
+  yours (click it; before that it's "occupied"). Walk 12 m off and the next stranger is in
+  line. Chose: everyone has their own stranger (others don't see yours), the silence is no
+  HUD text (the music keeps playing), and the mirror is a smeared dull plate, not a real
+  reflection. Writing and timings in `data/side/penn.ron`; `FRIENDSLOP_START=penn`
+  (`features/penn.rs`).
 - **Miami Music Week** (#345, doomy: "in new york you can go to JFK and from there u can fly
   like the train into miami and go to factory town for miami music week. should be EDM music
   and stuff and people and you can also do ketamine"). Trains lines can now be planes
@@ -1340,6 +1361,8 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
 
 ## Open questions
 
+- Penn Station (#357): should the bathroom line be shared (friends queueing together), and
+  does Rose Pizza's slice do anything?
 - Miami (#345): is there anything to *do* at Miami Music Week besides dance and get high? Should
   ketamine (or Miami at all) matter to the Commune's goal?
 

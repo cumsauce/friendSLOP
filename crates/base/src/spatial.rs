@@ -89,6 +89,40 @@ impl Default for Ears {
     }
 }
 
+/// The space the listener is in, set by whichever feature owns it (Fulton
+/// St station's tiled halls): how much more of every world sound goes to the
+/// diffuse tail, how long that tail rings, and whether the music hushes.
+#[derive(Resource, Clone, Copy, Debug, PartialEq)]
+pub struct Room {
+    /// Multiplies every sound's send to the tail (1 = the open air).
+    pub wet: f32,
+    /// Seconds the tail takes to die away by 60 dB (for sounds starting now).
+    pub rt60: f32,
+    /// No music in here: only the room.
+    pub hush_music: bool,
+}
+
+impl Room {
+    /// Outdoors: a short, dark tail.
+    pub const OPEN: Room = Room {
+        wet: 1.0,
+        rt60: 1.1,
+        hush_music: false,
+    };
+
+    /// A shape heard in this room.
+    pub fn apply(&self, mut s: Shape) -> Shape {
+        s.wet *= self.wet;
+        s
+    }
+}
+
+impl Default for Room {
+    fn default() -> Self {
+        Self::OPEN
+    }
+}
+
 /// The entity voice chat listens from: kept on [`Ears`] every frame.
 #[derive(Component)]
 struct EarsEntity;
@@ -239,13 +273,14 @@ pub struct SpatialSound {
     clip: Arc<Clip>,
     link: Arc<Link>,
     looping: bool,
+    rt60: f32,
 }
 
 impl Decodable for SpatialSound {
     type Decoder = SpatialSource;
 
     fn decoder(&self) -> SpatialSource {
-        SpatialSource::new(self.clip.clone(), self.link.clone(), self.looping)
+        SpatialSource::new(self.clip.clone(), self.link.clone(), self.looping).with_rt60(self.rt60)
     }
 }
 
@@ -267,10 +302,10 @@ struct Tail {
 }
 
 impl Tail {
-    fn new(rate: u32) -> Self {
+    fn new(rate: u32, rt60: f32) -> Self {
         let r = rate as f32;
         let lens = [1031.0f32, 1327.0, 1523.0, 1871.0].map(|l| (l * r / 44_100.0) as usize + 1);
-        let rt60 = 1.1;
+        let rt60 = rt60.clamp(0.2, 8.0);
         Self {
             lines: lens.map(|l| vec![0.0; l]),
             at: [0; 4],
@@ -318,6 +353,8 @@ pub struct SpatialSource {
     w: usize,
     lp: [[f32; 2]; 2],
     tail: Tail,
+    /// The tail rings on at most this long after the clip ends.
+    tail_secs: f32,
     left_in_block: usize,
     after_end: usize,
     peak: f32,
@@ -328,7 +365,8 @@ impl SpatialSource {
     pub fn new(clip: Arc<Clip>, link: Arc<Link>, looping: bool) -> Self {
         let rate = clip.rate;
         let mut s = Self {
-            tail: Tail::new(rate),
+            tail: Tail::new(rate, Room::OPEN.rt60),
+            tail_secs: TAIL_SECS,
             clip,
             link,
             looping,
@@ -354,6 +392,15 @@ impl SpatialSource {
         s
     }
 
+    /// Ring on in a room whose tail takes `rt60` seconds to die away.
+    pub fn with_rt60(mut self, rt60: f32) -> Self {
+        if (rt60 - Room::OPEN.rt60).abs() > 1e-3 {
+            self.tail = Tail::new(self.clip.rate, rt60);
+            self.tail_secs = TAIL_SECS.max(rt60 * 1.2);
+        }
+        self
+    }
+
     fn delay_samples(&self, secs: f32) -> f32 {
         (secs * self.clip.rate as f32).clamp(0.0, (ITD_LEN - 2) as f32)
     }
@@ -362,7 +409,7 @@ impl SpatialSource {
     fn begin_block(&mut self) -> bool {
         if !self.looping && self.pos >= self.clip.samples.len() {
             self.after_end += BLOCK;
-            let max_tail = (TAIL_SECS * self.clip.rate as f32) as usize;
+            let max_tail = (self.tail_secs * self.clip.rate as f32) as usize;
             if self.after_end > max_tail || (self.after_end > BLOCK * 4 && self.peak < 1e-5) {
                 return false;
             }
@@ -650,6 +697,7 @@ impl Clips {
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Ears>()
+        .init_resource::<Room>()
         .add_systems(Startup, spawn_ears)
         .add_systems(PostUpdate, follow_ears.after(TransformSystems::Propagate));
     // Headless apps (tests) have no audio: sounds asked for are dropped.
@@ -720,6 +768,7 @@ fn start_sounds(
     mut commands: Commands,
     mut pending: Query<(Entity, &mut PendingSound, &GlobalTransform)>,
     ears: Res<Ears>,
+    room: Option<Res<Room>>,
     sources: Option<Res<Assets<AudioSource>>>,
     server: Option<Res<AssetServer>>,
     mut clips: ResMut<Clips>,
@@ -746,12 +795,14 @@ fn start_sounds(
                 }
             },
         };
+        let room = room.as_deref().copied().unwrap_or_default();
         let link = Arc::new(Link::default());
-        link.store(&shape(&ears, at.translation(), p.carry, 0.0));
+        link.store(&room.apply(shape(&ears, at.translation(), p.carry, 0.0)));
         let handle = sounds.add(SpatialSound {
             clip,
             link: link.clone(),
             looping: p.looping,
+            rt60: room.rt60,
         });
         // A looping source never ends, so `ONCE` (Bevy's `LOOP` would buffer
         // the stream and freeze its position).
@@ -812,10 +863,11 @@ fn occlude(
     }
 }
 
-fn steer(ears: Res<Ears>, emitters: Query<(&GlobalTransform, &Emitter)>) {
+fn steer(ears: Res<Ears>, room: Option<Res<Room>>, emitters: Query<(&GlobalTransform, &Emitter)>) {
+    let room = room.as_deref().copied().unwrap_or_default();
     for (at, e) in &emitters {
         e.link
-            .store(&shape(&ears, at.translation(), e.carry, e.occluded));
+            .store(&room.apply(shape(&ears, at.translation(), e.carry, e.occluded)));
     }
 }
 
@@ -907,6 +959,31 @@ mod tests {
         let tail = energy(0, n, frames) + energy(1, n, frames);
         let ratio_db = 10.0 * (tail / dry).log10();
         assert!((-30.0..-8.0).contains(&ratio_db), "tail {ratio_db} dB");
+    }
+
+    #[test]
+    fn a_tiled_hall_rings_longer_and_wetter() {
+        let rate = 44_100;
+        let clip = Arc::new(Clip::new(vec![0.3; rate as usize / 20], rate));
+        let tail = |room: Room| {
+            let link = Arc::new(Link::default());
+            link.store(&room.apply(shape(&ears(), Vec3::NEG_Z * 3.0, Carry::CALL, 0.0)));
+            let mut src = SpatialSource::new(clip.clone(), link, false).with_rt60(room.rt60);
+            let out = render(&mut src, rate as usize * 20);
+            assert!(out.iter().all(|s| s.is_finite() && s.abs() < 1.5));
+            let n = clip.samples.len() * 2;
+            let e: f32 = out[n.min(out.len())..].iter().map(|s| s * s).sum();
+            (out.len() / 2, e)
+        };
+        let (open_len, open_e) = tail(Room::OPEN);
+        let hall = Room {
+            wet: 6.0,
+            rt60: 2.8,
+            hush_music: true,
+        };
+        let (hall_len, hall_e) = tail(hall);
+        assert!(hall_len > open_len, "{hall_len} vs {open_len}");
+        assert!(hall_e > open_e * 10.0, "{hall_e} vs {open_e}");
     }
 
     #[test]

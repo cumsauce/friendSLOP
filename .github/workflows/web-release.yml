@@ -34,6 +34,16 @@ jobs:
           version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
           cargo install wasm-bindgen-cli --version "$version" --locked
           sudo apt-get update && sudo apt-get install -y --no-install-recommends binaryen clang llvm
+      # The web profile's fat-LTO link of the whole game needs more memory
+      # than the runner has (it was killed mid-link). Add swap.
+      - name: more swap for the LTO link
+        run: |
+          sudo swapoff -a || true
+          sudo fallocate -l 16G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          free -h
       - run: scripts/build-web.sh dist/web
       - name: package
         run: cd dist/web && zip -qr ../../friendslop-web.zip .

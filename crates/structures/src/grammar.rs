@@ -16,7 +16,7 @@
 //! reachable by stairs, and solid boxes touching but never overlapping (the
 //! tests check all of it over many seeds). No game code.
 
-use std::f32::consts::{FRAC_PI_2, PI};
+use std::f32::consts::PI;
 
 use bevy::prelude::*;
 

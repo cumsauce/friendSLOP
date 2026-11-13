@@ -19,6 +19,7 @@ pub mod features {
     pub use friendslop_village::features::*;
     pub mod affair;
     pub mod ambience;
+    pub mod boba;
     pub mod broadcast;
     pub mod clues;
     pub mod discord_friends;
@@ -31,9 +32,11 @@ pub mod features {
     pub mod miami;
     pub mod nyc;
     pub mod nyc_traffic;
+    pub mod penn;
     pub mod rats;
     pub mod sesbian_lex;
     pub mod shipwreck;
+    pub mod street_people;
     pub mod surf;
     pub mod trains;
     pub mod vessel;
@@ -74,5 +77,8 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::wallet::TUNING,
         &features::trains::TUNING,
         &features::miami::TUNING,
+        &features::boba::TUNING,
+        &features::penn::TUNING,
+        &features::street_people::TUNING,
     ]
 }

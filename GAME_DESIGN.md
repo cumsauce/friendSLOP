@@ -46,6 +46,8 @@ Andrew calls, gets angry, and sends something after you (hide in lockers). Every
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
 brownstone with the neon SURF sign: a surf map, two steep ramps to glide down to a timed finish.
+The streets and stations have tweakers screaming at nobody, preachers telling you you're
+going to hell, and bucket drummers (thickest on the PATH platform and round Fulton St).
 Step in front of a cab and you're punted and ragdoll for a couple of seconds before getting up.
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
@@ -54,16 +56,21 @@ TV broadcasts a riddle that leads outside the game.
 **Far south:** a PATH train waits at a little station near the valley's south edge. Step in
 and it pulls out along a stone viaduct, rattles along in the dark (a robot voice calling the
 stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
-up into the Oculus. The city has One World Trade Center, 4 shops to walk into, and the Vessel on a plaza west of the bodega: a copper honeycomb of stairs you can climb 18 levels to a ring walkway 42 m up. The train
+up into the Oculus. The city has One World Trade Center, 4 shops to walk into, 3 boba shops (Gong Chaw,
+Kung Fu Tee, Tiger Sugah) where your dollars buy drinks that stack a speed buzz, and the Vessel on a
+plaza west of the bodega: a copper honeycomb of stairs you can climb 18 levels to a ring walkway 42 m up. The train
 under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
 for **Miami**, an island floating high over the city: walk into Factory Town for Miami Music
 Week (EDM, lasers, a dancing crowd) and buy a bump of ketamine from the guy by the bar.
+Beside JFK the 1 train runs to **Penn Station**: a dingy concourse with Rose Pizza and a
+bathroom where someone is always in line ahead of you, talks nonsense at you, goes in, and
+leaves you 15 seconds of silence before it's your turn.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free, and dollars buy nothing yet. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
+free, and dollars only buy boba so far. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
 
 ## What exists
 
@@ -451,6 +458,18 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   colliders are ramps, parapets and landing slabs built from the same numbers. `FRIENDSLOP_START=vessel` / `vessel_top`.
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
+- **Boba shops** (#356, catherine: "have them be fully staffed and modeled and even have music
+  and allow prime to buy boba which gives temporary status effects that can stack. have the
+  names and visuals parody real life boba places in nyc"). Three shops on the avenue's east side
+  south of the diner (x 26, z 262/276/290, doors facing the avenue): **Gong Chaw** (mint), **Kung
+  Fu Tee** (taro) and **Tiger Sugah** (peach), parodies of Gong Cha, Kung Fu Tea and Tiger Sugar.
+  One modeler model (`nyc-boba`: glass shopfront, neon sign, counter with cups, tea urns, menu
+  board, tables) exported per shop with its sign and paint. Two staff behind every counter. Inside,
+  the music turns to the bubbly "Boba" mood ("Pearls"). Click one of the three cups on the counter
+  to buy that drink with your dollars ($6-9): each adds a timed stack (20-90 s) that makes you walk
+  and run faster (+8% to +30% each) and tints your screen in its colour; up to 5 stack, the
+  status shows bottom-right. Read "prime" as "players". Drinks, prices, effects, names and lines in
+  `data/side/boba.ron`; the stacks in `rules/boba.rs` (`features/boba.rs`).
 - **Trains** (#321, doomy: "instead of a sign to click, players board the train headed to the
   oculus station ... a little transition in the subway when loading between zones with the SAM
   announcing the stop. can generalize this, we might have more trains"). Later (lume): "i want
@@ -470,6 +489,33 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   timings); add a line and another train appears. Models `path-car`, `path-platform`,
   `path-tunnel`, `path-viaduct`, `path-station`, `path-hall` (modeler); colliders are boxes in
   code (`features/trains.rs`). The valley stop moved off the hill it was sunk into.
+- **Penn Station** (#357, catherine: "add rose pizza in Penn Station and it's bathroom. when
+  you get to the bathroom someone is always in front of you and you always have to have a really
+  weird nonsensical conversation with them before they go in and then you get 15 seconds of
+  silence ... then you can use the bathroom. the mirror is so dirty and small and shitty u can
+  barely see yourself. important detail. make it look like the real place"). The 1 train (a
+  line in `trains.ron`) runs from Chambers St, a stop in the trees at the city's north end
+  across from JFK, to Penn Station: a low, dingy LIRR-style concourse (the `penn-station`
+  model) floating 1000 m over New York like Miami, with tiled columns, fluorescent tubes, a
+  departures board ("TRACK TBA"), Rose Pizza's counter and ovens under a red neon sign (click
+  the counter for a slice), and a tiled restroom with a sink, a urinal, a stall and a tiny
+  filthy mirror (click it: you're a blur). The queue is per player and local: a stranger always
+  stands at the door; walk up and they say a nonsense conversation at you a line every 3.2 s
+  (five conversations, one per visit), go in, and then 15 s of nothing. Then the toilet's
+  yours (click it; before that it's "occupied"). Walk 12 m off and the next stranger is in
+  line. Chose: everyone has their own stranger (others don't see yours), the silence is no
+  HUD text (the music keeps playing), and the mirror is a smeared dull plate, not a real
+  reflection. Writing and timings in `data/side/penn.ron`; `FRIENDSLOP_START=penn`
+  (`features/penn.rs`).
+- **Street people** (#358, catherine: "add random preachers, street performers and tweakers to
+  the city and especially to Penn Station and the subway station"). Fifteen locals in New York
+  (`data/side/street_people.ron`: kind and spot): tweakers pace and scream one side of an
+  argument nonstop, preachers turn to the nearest player and tell them they're going to hell,
+  performers bob at a bucket drum and pad (`models/props/street-drum.gltf`) playing a synth
+  groove, or 30% of the time one scale up and down on the pad. Voices are the `samiam` synth,
+  heard where they stand; all local dressing (nothing replicated, nobody blocks you). "Especially" went to the
+  stations: four in Penn Station's concourse, four on the PATH platform under the Oculus and
+  three round the Fulton St entrance (11 of the 15).
 - **Miami Music Week** (#345, doomy: "in new york you can go to JFK and from there u can fly
   like the train into miami and go to factory town for miami music week. should be EDM music
   and stuff and people and you can also do ketamine"). Trains lines can now be planes
@@ -536,6 +582,11 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   They're WFC tile pieces (`fs-tile-track*`) whose track sides only meet track sides; the bed
   sinks into the level below, whose cells under it are solid. No trains. Andrew's thing walks
   the platforms, not the tracks.
+- **GTA VI ads** (#359, andrew: "add gta 6 ads to all subway stations ... it's coming out next
+  week"): a lit freestanding ad board (`gta6-ad` model: sunset bands, palm, "GRAND THEFT AUTO
+  VI / OUT NEXT WEEK") stands on every subway platform: two along the back of each PATH train
+  platform (valley, World Trade Center; not the airport gates), and one against the back wall
+  of each through platform cell on Fulton St's platform levels. Decoration only.
   **Big rooms** (the user: "fulton street needs some rooms ... large rooms that are bigger than
   the grid ... so theres a bit of a break up and its not just all hallways ... maybe its time
   to generalize these systems"): most levels (70%) get one or two halls 2 x 2 to 3 x 3 cells
@@ -1022,9 +1073,17 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
 - **Touch and gamepad controls** (#106). Touch (overlay appears on first touch): thumb anywhere
   on the left third is a joystick, drag on the right to look, round buttons for Jump, Use (click
   at the crosshair), Run (toggle), Fart, Help, Score, View and Leave. Climbing is still "hold
-  forward". Gamepad: left stick move, right stick look, A jump, B/RB/RT use, LB or left-stick
-  click run, X fart, Y help, Back scoreboard, D-pad up view, Start = Esc; in the menu A/Start
-  hosts. Both press the same keys/mouse buttons features already listen to (`controls.rs`).
+  forward". Gamepad: left stick move, right stick look, A jump, B/RT use, LB or left-stick
+  click run, X fart, Y help, Back scoreboard, D-pad up view / down mute / left journal / right
+  answer phone, right-stick click Enter, Start = Esc; in the menu A/Start hosts. Both press the
+  same keys/mouse buttons features already listen to (`controls.rs`).
+- **Better gamepad / Steam Deck** (#361, bben: "surprise me"). Read as "every action should be
+  reachable from a pad". Holding **RB** or **LT** switches the face buttons and D-pad to a second
+  and third set of keys (RB: yes/no, sleep, piss, cast, pry, hide & seek, lex; LT: smoke, brag,
+  insure, mute spell, duel picks 1-4), with a cheat sheet at the bottom of the screen while held.
+  Right-stick look has a response curve (fine aim near centre), its own deadzone and slower
+  vertical look, tuned in `data/game/controls.ron`. RB no longer means "use" (B and RT still do).
+  Open: no button remapping, no pad navigation of the menus beyond "A hosts".
 - **Video settings** (#106, #132, doomy: "cyberpunk 2077 ... does this ux well ... include
   what's important and maybe have presets"). Settings → Video opens a card with a **Preset**
   (Low / Medium / High; reads Custom once you change anything) and each option on its own:
@@ -1311,9 +1370,14 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   a data file.
 - doomy (#306): a surf map in one of NYC's buildings, details left to us: a brownstone door
   into a two-ramp surf hall with surf air control and a run timer.
+- catherine (#356): fully staffed, modeled boba shops in the city with music, buying boba for
+  stacking timed status effects, names parodying real NYC boba places. Read "prime" as "players";
+  chose three shops and a speed buzz plus a screen tint as the effect.
 
 ## Open questions
 
+- Penn Station (#357): should the bathroom line be shared (friends queueing together), and
+  does Rose Pizza's slice do anything?
 - Miami (#345): is there anything to *do* at Miami Music Week besides dance and get high? Should
   ketamine (or Miami at all) matter to the Commune's goal?
 

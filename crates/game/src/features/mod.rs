@@ -84,6 +84,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(ragdoll::protocol);
         app.add_plugins(trains::protocol_runs);
         app.add_plugins(miami::protocol);
+        app.add_plugins(boba::protocol);
     }
 }
 
@@ -163,5 +164,8 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(vessel::plugin);
         app.add_plugins(ragdoll::plugin);
         app.add_plugins(miami::plugin);
+        app.add_plugins(boba::plugin);
+        app.add_plugins(penn::plugin);
+        app.add_plugins(street_people::plugin);
     }
 }

@@ -1,0 +1,52 @@
+// New York's boba shops (#356, crates/side/src/features/boba.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Most drinks working on you at once; past it, the one nearest to
+    // wearing off goes.
+    max_stacks: 5,
+    // Shown when you can't pay.
+    broke_line: "${price}? you've got ${cash}. the cashier waits.",
+    // Shown when you buy ({drink}, {price}, {stacks} how many are working now).
+    bought_line: "{drink} (${price}). x{stacks} boba in you.",
+    // The shops: name, model file, where it stands (x, z) on the city floor,
+    // its turn in degrees (-90: the door faces the avenue to the west),
+    // the line shown when you step in, and three drinks sold at the counter
+    // (one per cup, left to right as you face the counter).
+    // A drink: name, price ($), seconds it lasts, walking speed it adds per
+    // stack (0.1 = +10%), and the screen tint it gives (r, g, b).
+    shops: [
+        (
+            name: "Gong Chaw",
+            model: "models/nyc-boba-gong-chaw.gltf",
+            at: (26.0, 262.0), yaw: -90.0,
+            line: "Gong Chaw: \"pearls are complimentary for ONE topping. the second is $0.80.\"",
+            drinks: [
+                (name: "Pearl Milk Tea", price: 6, secs: 60.0, speed: 0.10, tint: (0.55, 0.40, 0.25)),
+                (name: "Winter Melon Slush", price: 7, secs: 40.0, speed: 0.15, tint: (0.55, 0.85, 0.65)),
+                (name: "Earl Grey Foam", price: 8, secs: 90.0, speed: 0.08, tint: (0.80, 0.75, 0.60)),
+            ],
+        ),
+        (
+            name: "Kung Fu Tee",
+            model: "models/nyc-boba-kung-fu-tee.gltf",
+            at: (26.0, 276.0), yaw: -90.0,
+            line: "Kung Fu Tee: the cashier is doing a crane stance. your order will be ready when you are ready.",
+            drinks: [
+                (name: "Taro Slush", price: 7, secs: 45.0, speed: 0.12, tint: (0.70, 0.55, 0.90)),
+                (name: "Kung Fu Punch", price: 6, secs: 20.0, speed: 0.30, tint: (0.95, 0.30, 0.30)),
+                (name: "Matcha Milk", price: 7, secs: 75.0, speed: 0.09, tint: (0.45, 0.80, 0.35)),
+            ],
+        ),
+        (
+            name: "Tiger Sugah",
+            model: "models/nyc-boba-tiger-sugah.gltf",
+            at: (26.0, 290.0), yaw: -90.0,
+            line: "Tiger Sugah: the line goes out the door. the stripes are brown sugar. the tiger is a guy named Kevin.",
+            drinks: [
+                (name: "Brown Sugar Tiger Stripes", price: 9, secs: 60.0, speed: 0.18, tint: (0.75, 0.45, 0.15)),
+                (name: "Mango Pomelo", price: 8, secs: 50.0, speed: 0.12, tint: (1.00, 0.75, 0.20)),
+                (name: "Lychee Jelly Tea", price: 6, secs: 35.0, speed: 0.14, tint: (1.00, 0.70, 0.80)),
+            ],
+        ),
+    ],
+)

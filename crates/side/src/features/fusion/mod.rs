@@ -465,6 +465,7 @@ fn direct(
     tenancy: Query<&Tenancy>,
     campaign: Query<&Campaign>,
     motion: Res<Motion>,
+    shame: Option<Res<crate::features::fart::Shame>>,
 ) {
     let in_game = state.is_some_and(|s| *s.get() == AppState::InGame);
     let cam = camera.iter().next().map(|g| g.translation());
@@ -499,6 +500,8 @@ fn direct(
         (Mood::Menu, Mood::Menu.base_intensity())
     } else if still.iter().any(|s| s.frozen) {
         (Mood::Still, 0.2)
+    } else if shame.is_some_and(|s| s.active()) {
+        (Mood::FartAlert, Mood::FartAlert.base_intensity())
     } else if let Some(d) = mine {
         (Mood::Duel, if d.lives <= 1 { 1.0 } else { 0.9 })
     } else if let Some(h) = hide.iter().next().filter(|h| h.phase == Phase::Hiding) {
@@ -531,7 +534,7 @@ fn direct(
     // band every bar); game events take over at once.
     let instant = matches!(
         want,
-        Mood::Menu | Mood::Still | Mood::Duel | Mood::Hiding | Mood::Seeking
+        Mood::Menu | Mood::Still | Mood::Duel | Mood::Hiding | Mood::Seeking | Mood::FartAlert
     );
     if want != dir.candidate {
         dir.candidate = want;

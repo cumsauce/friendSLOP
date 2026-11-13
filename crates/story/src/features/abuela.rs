@@ -446,7 +446,6 @@ fn hear_abuela(
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
     audio: Option<Res<Assets<AudioSource>>>,
-    meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
     toast: Option<ResMut<Toast>>,
     mut words: Query<&mut WordsBox>,
@@ -466,10 +465,9 @@ fn hear_abuela(
             wav_bytes(&voice(&spanish, seed, RATE), RATE)
         });
     }
-    if let (Some(mut meshes), Some(mut materials)) = (meshes, materials) {
+    if let Some(mut materials) = materials {
         crate::features::romance::spawn_hearts(
             &mut commands,
-            &mut meshes,
             &mut materials,
             chair_at() + Vec3::Y * 1.6,
         );

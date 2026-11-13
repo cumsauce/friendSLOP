@@ -465,10 +465,9 @@ fn hearts(
     time: Res<Time>,
     lovers: Query<(&Affair, &GlobalTransform)>,
     officer: Query<&GlobalTransform, With<Officer>>,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut since: Local<f32>,
-    mut kit: Local<Option<(Handle<Mesh>, Handle<StandardMaterial>)>>,
+    mut kit: Local<Option<Handle<StandardMaterial>>>,
 ) {
     *since += time.delta_secs();
     if *since < 0.5 {
@@ -484,27 +483,30 @@ fn hearts(
         return;
     }
     spots.extend(officer.iter().map(|tf| tf.translation()));
-    let (mesh, mat) = kit
+    let mat = kit
         .get_or_insert_with(|| {
-            (
-                meshes.add(Sphere::new(0.09)),
-                materials.add(StandardMaterial {
-                    base_color: Color::srgb(1.0, 0.4, 0.65),
-                    emissive: LinearRgba::rgb(0.8, 0.15, 0.4),
-                    unlit: true,
-                    ..default()
-                }),
-            )
+            materials.add(StandardMaterial {
+                base_color: Color::srgb(1.0, 0.4, 0.65),
+                emissive: LinearRgba::rgb(0.8, 0.15, 0.4),
+                unlit: true,
+                ..default()
+            })
         })
         .clone();
     for at in spots {
-        commands.spawn((
-            Heart { age: 0.0 },
-            Mesh3d(mesh.clone()),
-            MeshMaterial3d(mat.clone()),
-            Transform::from_translation(at + Vec3::Y * 1.9),
-            DespawnOnExit(AppState::InGame),
-        ));
+        // The modeler heart (romance's), small: about the old 18 cm bead.
+        commands
+            .spawn((
+                Heart { age: 0.0 },
+                Transform::from_translation(at + Vec3::Y * 1.9),
+                Visibility::default(),
+                DespawnOnExit(AppState::InGame),
+            ))
+            .with_child((
+                crate::features::romance::HeartShape,
+                MeshMaterial3d(mat.clone()),
+                Transform::from_scale(Vec3::splat(0.55)),
+            ));
     }
 }
 

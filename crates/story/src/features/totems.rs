@@ -386,12 +386,11 @@ fn dress_totems(
     mut commands: Commands,
     new: Query<(Entity, &Totem), Added<Totem>>,
     assets: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for (entity, totem) in &new {
-        // The core and orb glow in the magic's colour, so they stay meshes
-        // here; the stone plinth and gold rings are a modeler-made model.
+        // The carved post and orb glow in the magic's colour (a modeler mesh
+        // in a code material); the stone plinth and gold rings are a model.
         let glow = materials.add(StandardMaterial {
             base_color: totem.magic.color(),
             emissive: LinearRgba::from(totem.magic.color()) * 0.6,
@@ -406,22 +405,20 @@ fn dress_totems(
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {
-                p.spawn((
-                    Mesh3d(meshes.add(Cylinder::new(0.15, 0.6))),
-                    MeshMaterial3d(glow.clone()),
-                    Transform::from_xyz(0.0, 0.3, 0.0),
-                ));
+                // The carved post and orb (prefab `sp-totem-crystal`): its
+                // mesh, worn in the glow material.
                 p.spawn((
                     Mesh3d(
-                        meshes.add(
-                            Sphere::new(0.18)
-                                .mesh()
-                                .ico(1)
-                                .unwrap_or_else(|_| Sphere::new(0.18).into()),
+                        assets.load(
+                            GltfAssetLabel::Primitive {
+                                mesh: 0,
+                                primitive: 0,
+                            }
+                            .from_asset("models/features/totem_crystal.gltf"),
                         ),
                     ),
                     MeshMaterial3d(glow.clone()),
-                    Transform::from_xyz(0.0, 0.75, 0.0),
+                    Transform::default(),
                 ));
                 p.spawn((
                     WorldAssetRoot(assets.load(

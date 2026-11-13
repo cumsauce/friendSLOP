@@ -1,0 +1,229 @@
+{
+  "format_version": 1,
+  "name": "sp-heart",
+  "parts": [],
+  "version": 22369,
+  "ops": [
+    {
+      "sdf": {
+        "name": "heart_hi",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              -0.072,
+              0.06,
+              0.0
+            ],
+            "size": [
+              0.1,
+              0.1,
+              0.06
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "blend": 0.03,
+            "at": [
+              0.072,
+              0.06,
+              0.0
+            ],
+            "size": [
+              0.1,
+              0.1,
+              0.06
+            ]
+          },
+          {
+            "shape": "capsule",
+            "blend": 0.04,
+            "radius": [
+              0.07,
+              0.012
+            ],
+            "from": [
+              -0.07,
+              0.04,
+              0.0
+            ],
+            "to": [
+              0.0,
+              -0.17,
+              0.0
+            ]
+          },
+          {
+            "shape": "capsule",
+            "blend": 0.04,
+            "radius": [
+              0.07,
+              0.012
+            ],
+            "from": [
+              0.07,
+              0.04,
+              0.0
+            ],
+            "to": [
+              0.0,
+              -0.17,
+              0.0
+            ]
+          }
+        ],
+        "resolution": 0.005
+      }
+    },
+    {
+      "decimate": {
+        "name": "heart",
+        "input": "heart_hi",
+        "tris": 900
+      }
+    },
+    {
+      "material": {
+        "name": "heart",
+        "input": "heart",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-velvet",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 502.6548245743669,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 502.6548245743669,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "w",
+                "name": "w01",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "w01",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#3e2260"
+                  ],
+                  [
+                    1,
+                    "#6a3f96"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.88,
+                  1.08
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "w01",
+                "b": 0.0012,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.93,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "heart_hi",
+        "input": "heart_hi",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

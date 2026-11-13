@@ -1,0 +1,190 @@
+{
+  "name": "ns-goods",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.2,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.12,
+        0.2
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0,
+      "name": "rc",
+      "seed": 5,
+      "type": "random"
+    },
+    {
+      "input": "rc",
+      "name": "col0",
+      "stops": [
+        [
+          0,
+          "#c02020"
+        ],
+        [
+          0.2,
+          "#f0c020"
+        ],
+        [
+          0.4,
+          "#2060c0"
+        ],
+        [
+          0.6,
+          "#20a040"
+        ],
+        [
+          0.8,
+          "#f07020"
+        ],
+        [
+          1,
+          "#e8e8e8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "in": [
+        0.004,
+        0.01
+      ],
+      "input": "g.edge",
+      "name": "gap",
+      "type": "levels"
+    },
+    {
+      "a": "#202020",
+      "b": "col0",
+      "c": "gap",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "gap",
+      "b": 0.004,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "ns-goods",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.2,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.12,
+                0.2
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0,
+              "name": "rc",
+              "seed": 5,
+              "type": "random"
+            },
+            {
+              "input": "rc",
+              "name": "col0",
+              "stops": [
+                [
+                  0,
+                  "#c02020"
+                ],
+                [
+                  0.2,
+                  "#f0c020"
+                ],
+                [
+                  0.4,
+                  "#2060c0"
+                ],
+                [
+                  0.6,
+                  "#20a040"
+                ],
+                [
+                  0.8,
+                  "#f07020"
+                ],
+                [
+                  1,
+                  "#e8e8e8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "in": [
+                0.004,
+                0.01
+              ],
+              "input": "g.edge",
+              "name": "gap",
+              "type": "levels"
+            },
+            {
+              "a": "#202020",
+              "b": "col0",
+              "c": "gap",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "gap",
+              "b": 0.004,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+g +rc +col0 +gap +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

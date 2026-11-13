@@ -51,6 +51,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::discord_friends::LINES,
         &features::watcher::TUNING,
         &features::nyc::TUNING,
+        &features::nyc::MAP,
         &features::clues::TUNING,
         &features::clues::WRITING,
         &features::broadcast::TUNING,

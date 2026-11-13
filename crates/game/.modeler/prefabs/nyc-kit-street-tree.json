@@ -1,0 +1,816 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-street-tree",
+  "parts": [],
+  "version": 30052,
+  "ops": [
+    {
+      "primitive": {
+        "name": "grate",
+        "kind": "box",
+        "size": [
+          1.5,
+          0.03,
+          1.5
+        ],
+        "translation": [
+          0.0,
+          0.015,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "soil",
+        "kind": "box",
+        "size": [
+          1.2,
+          0.035,
+          1.2
+        ],
+        "translation": [
+          0.0,
+          0.0175,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "trunk",
+        "kind": "cone",
+        "size": [
+          0.16,
+          4.2,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          2.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "branch1",
+        "kind": "box",
+        "size": [
+          0.1,
+          1.8,
+          0.1
+        ],
+        "translation": [
+          0.45,
+          3.6,
+          0.1
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.25881904,
+          0.9659258
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "branch2",
+        "kind": "box",
+        "size": [
+          0.1,
+          1.8,
+          0.1
+        ],
+        "translation": [
+          -0.35,
+          3.8,
+          -0.2
+        ],
+        "rotation": [
+          0.085089795,
+          0.018863954,
+          0.215616,
+          0.9725809
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "canopy0",
+        "kind": "sphere",
+        "size": [
+          1.8,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          5.2,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "canopy1",
+        "kind": "sphere",
+        "size": [
+          1.3,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          1.1,
+          4.6,
+          0.3
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "canopy2",
+        "kind": "sphere",
+        "size": [
+          1.4,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -1.0,
+          4.8,
+          -0.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "canopy3",
+        "kind": "sphere",
+        "size": [
+          1.2,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.2,
+          4.4,
+          -1.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "canopy4",
+        "kind": "sphere",
+        "size": [
+          1.2,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.2,
+          6.2,
+          0.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "grate",
+        "input": "grate",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 111,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1a1b1c"
+                  ],
+                  [
+                    1,
+                    "#2a2b2c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "soil",
+        "input": "soil",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-soil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 172,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2e241a"
+                  ],
+                  [
+                    1,
+                    "#3e3022"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.98,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "trunk",
+        "input": "trunk",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-bark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 127,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#3a2c20"
+                  ],
+                  [
+                    1,
+                    "#54402e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "branch1",
+        "input": "branch1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-bark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 127,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#3a2c20"
+                  ],
+                  [
+                    1,
+                    "#54402e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "branch2",
+        "input": "branch2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-bark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 127,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#3a2c20"
+                  ],
+                  [
+                    1,
+                    "#54402e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "canopy0",
+        "input": "canopy0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "w",
+                "seed": 131,
+                "size": 0.15,
+                "type": "worley"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 132,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "w.f1",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2a4a1c"
+                  ],
+                  [
+                    0.6,
+                    "#4a7a2c"
+                  ],
+                  [
+                    1,
+                    "#6a9a3a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "w.f1",
+                "b": 0.03,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "canopy1",
+        "input": "canopy1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "w",
+                "seed": 131,
+                "size": 0.15,
+                "type": "worley"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 132,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "w.f1",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2a4a1c"
+                  ],
+                  [
+                    0.6,
+                    "#4a7a2c"
+                  ],
+                  [
+                    1,
+                    "#6a9a3a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "w.f1",
+                "b": 0.03,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "canopy2",
+        "input": "canopy2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "w",
+                "seed": 131,
+                "size": 0.15,
+                "type": "worley"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 132,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "w.f1",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2a4a1c"
+                  ],
+                  [
+                    0.6,
+                    "#4a7a2c"
+                  ],
+                  [
+                    1,
+                    "#6a9a3a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "w.f1",
+                "b": 0.03,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "canopy3",
+        "input": "canopy3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "w",
+                "seed": 131,
+                "size": 0.15,
+                "type": "worley"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 132,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "w.f1",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2a4a1c"
+                  ],
+                  [
+                    0.6,
+                    "#4a7a2c"
+                  ],
+                  [
+                    1,
+                    "#6a9a3a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "w.f1",
+                "b": 0.03,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "canopy4",
+        "input": "canopy4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-leaf",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "w",
+                "seed": 131,
+                "size": 0.15,
+                "type": "worley"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 132,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "w.f1",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2a4a1c"
+                  ],
+                  [
+                    0.6,
+                    "#4a7a2c"
+                  ],
+                  [
+                    1,
+                    "#6a9a3a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "w.f1",
+                "b": 0.03,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "c",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

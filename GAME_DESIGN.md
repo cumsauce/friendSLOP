@@ -43,6 +43,9 @@ golden, nights are dim and blue. Some nights you hear whispers behind you.
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
 
+**Far south:** a trail post at the valley's south edge walks you over the rim hills to New
+York City: One World Trade Center, the Oculus (no trains yet) and 4 shops to walk into.
+
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
@@ -402,6 +405,20 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   and decodes to a pointer at `SIGNAL.txt` in the game's repository: a "recovered transmission"
   you can only read outside the game. It rests for 3 minutes between broadcasts. Lines in
   `data/text/broadcast.ron`, tuning in `data/side/broadcast.ron` (`features/broadcast.rs`).
+- **New York City** (#283, doomy: "if you go far south youll make out WTC one and the path
+  station oculus ... make sure it really looks like new york and have at least 4 enterable
+  buildings in addition to the train station"). Past the valley's south rim hills (z 116..330) is
+  a flat city floor: first a strip of forest carrying on over the rim, then a wide avenue with
+  four cross streets, sidewalks, curbs, crosswalks, yellow cabs, street lamps, hydrants, brick
+  and brownstone walk-ups with water towers, glass and concrete towers with setback crowns.
+  At the south end stand One World Trade Center (a tapered glass tower, 541 m to the spire tip,
+  tall enough to make out over the rim from the valley) and the Oculus, white ribs fanning out
+  over a hall with rails you can walk into ("no trains running yet"). Four shops face the avenue
+  and you can walk in: a bodega (with a cat), a 99¢ pizza place, a laundromat and a diner; step
+  in and its line shows. Getting there: click the trail post at the valley's south edge
+  (10, 86) and you're walked over the rim; the post by where you arrive walks you back. All
+  code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
+  `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
@@ -1088,10 +1105,15 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
 - catherine (#235): once a night, a low chance of creepy whispering and murmuring that sounds
   like it's behind you. With no in-game night we used the player's real clock (22:00-05:00),
   one 15% roll per night per player, and kept the voices behind you as you turn.
+- doomy (#283): New York City far south, with WTC One, the PATH Oculus (not working yet) and
+  4+ enterable buildings. Read "far south" as past the rim hills, reached by a trail post (the
+  valley's soft wall stays), and "the forest a bit" as a strip of trees over the rim.
 
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
+- New York City (#283) has a train station whose trains don't run yet. Where would they go, and
+  is the city part of the goal or just somewhere to visit?
 - The horror ARG (#182) runs Watcher, scraps, then a broadcast and `SIGNAL.txt` outside the game.
   What does the Watcher want, is it tied to the whispers or the landlord, and where does the ARG go next?
 - The game has day and night now (#284), but nothing cares what time it is: what should

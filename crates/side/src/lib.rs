@@ -26,6 +26,7 @@ pub mod features {
     pub mod gaslighting;
     pub mod goat;
     pub mod infinite;
+    pub mod nyc;
     pub mod rats;
     pub mod sesbian_lex;
     pub mod shipwreck;
@@ -49,6 +50,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::shipwreck::CREW,
         &features::discord_friends::LINES,
         &features::watcher::TUNING,
+        &features::nyc::TUNING,
         &features::clues::TUNING,
         &features::clues::WRITING,
         &features::broadcast::TUNING,

@@ -167,8 +167,12 @@ pub fn step(
     };
     let flat = Quat::from_rotation_y(yaw) * Vec3::new(stick.x, 0.0, -stick.y) * speed * dt;
     let mut next = pos + flat;
-    next.x = next.x.clamp(-EDGE, EDGE);
-    next.z = next.z.clamp(-EDGE, EDGE);
+    if let Some(kept) = crate::rules::nyc::keep_in_city(pos, next) {
+        next = kept; // New York City has its own edges (#283)
+    } else {
+        next.x = next.x.clamp(-EDGE, EDGE);
+        next.z = next.z.clamp(-EDGE, EDGE);
+    }
     let ground = crate::rules::depths::ground_at(next.x, next.z, pos.y);
     // Standing on the ground where we were: follow it up and down slopes
     // (no little falls walking downhill) unless we jump.
@@ -268,9 +272,14 @@ pub fn kcc_move_walkers(
             dt,
             &move_and_slide,
         );
-        // The soft wall at the edge of the world (the old `step` clamped too).
-        pos.x = pos.x.clamp(-EDGE, EDGE);
-        pos.z = pos.z.clamp(-EDGE, EDGE);
+        // The soft wall at the edge of the world (the old `step` clamped too),
+        // or New York City's own edges (#283).
+        if let Some(kept) = crate::rules::nyc::keep_in_city(walker.pos, pos) {
+            pos = kept;
+        } else {
+            pos.x = pos.x.clamp(-EDGE, EDGE);
+            pos.z = pos.z.clamp(-EDGE, EDGE);
+        }
         if walker.pos != pos {
             walker.pos = pos;
         }

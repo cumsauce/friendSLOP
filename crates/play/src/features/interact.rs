@@ -33,6 +33,8 @@ use crate::world::MainCamera;
 pub struct Tuning {
     /// Default pick radius on screen, in pixels.
     pub click_radius: f32,
+    /// How far (metres) your aim line may pass beside a thing and still use it.
+    pub aim_slack: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -146,6 +148,80 @@ pub fn pick(
         .map(|(e, _, _)| e)
 }
 
+/// One clickable as seen from the camera, for [`pick_forgiving`].
+#[derive(Clone, Copy, Debug)]
+pub struct Candidate {
+    pub entity: Entity,
+    /// Its pick point on screen and the pick radius there, in pixels.
+    pub screen: Vec2,
+    pub radius_px: f32,
+    /// How close the aim line passes to it (anywhere from its feet to its pick point), metres.
+    pub gap: f32,
+    pub in_reach: bool,
+}
+
+/// The forgiving pick: a thing counts as aimed at if the cursor is within its screen
+/// radius *or* the aim line passes within `slack` metres of its body. Things in reach win
+/// over things out of reach, then the best-aimed one wins.
+pub fn pick_forgiving(
+    cursor: Vec2,
+    slack: f32,
+    candidates: impl IntoIterator<Item = Candidate>,
+) -> Option<Entity> {
+    let slack = slack.max(0.01);
+    candidates
+        .into_iter()
+        .filter_map(|c| {
+            let score = (c.screen.distance(cursor) / c.radius_px.max(1.0)).min(c.gap / slack);
+            (score < 1.0).then_some((c.entity, !c.in_reach, score))
+        })
+        .min_by(|a, b| a.1.cmp(&b.1).then(a.2.total_cmp(&b.2)))
+        .map(|(e, _, _)| e)
+}
+
+/// Shortest distance from the ray (`origin`, unit `dir`, forwards only) to the upright
+/// segment from `foot` up `height` metres.
+pub fn ray_gap(origin: Vec3, dir: Vec3, foot: Vec3, height: f32) -> f32 {
+    const STEPS: usize = 12;
+    (0..=STEPS)
+        .map(|i| {
+            let p = foot + Vec3::Y * (height * i as f32 / STEPS as f32);
+            let t = (p - origin).dot(dir).max(0.0);
+            p.distance(origin + dir * t)
+        })
+        .fold(f32::INFINITY, f32::min)
+}
+
+/// Every visible clickable seen from the camera through `cursor`.
+fn candidates(
+    camera: &Camera,
+    cam_tf: &GlobalTransform,
+    cursor: Vec2,
+    here: Option<Vec3>,
+    clickables: &Query<(Entity, &Clickable, &GlobalTransform, &InheritedVisibility)>,
+) -> Vec<Candidate> {
+    let Ok(ray) = camera.viewport_to_world(cam_tf, cursor) else {
+        return Vec::new();
+    };
+    clickables
+        .iter()
+        .filter(|(_, _, _, vis)| vis.get())
+        .filter_map(|(e, c, tf, _)| {
+            let foot = tf.translation();
+            let screen = camera
+                .world_to_viewport(cam_tf, foot + Vec3::Y * c.height)
+                .ok()?;
+            Some(Candidate {
+                entity: e,
+                screen,
+                radius_px: c.radius_px,
+                gap: ray_gap(ray.origin, *ray.direction, foot, c.height + 0.25),
+                in_reach: here.is_some_and(|h| within(h, foot, REACH)),
+            })
+        })
+        .collect()
+}
+
 pub fn plugin(app: &mut App) {
     app.add_observer(show_denied)
         .init_resource::<AimHover>()
@@ -205,17 +281,10 @@ fn hover_hint(
         let window = window.single().ok()?;
         let cursor = aim_point(window, &view)?;
         let (camera, cam_tf) = camera.single().ok()?;
-        let candidates = clickables.iter().filter_map(|(e, c, tf, vis)| {
-            if !vis.get() {
-                return None;
-            }
-            let at = tf.translation() + Vec3::Y * c.height;
-            let p = camera.world_to_viewport(cam_tf, at).ok()?;
-            Some((e, p, c.radius_px))
-        });
-        let target = pick(cursor, candidates)?;
-        let (_, c, tf, _) = clickables.get(target).ok()?;
         let here = walkers.iter().find(|(p, _)| p.id == me.0)?.1.pos;
+        let seen = candidates(camera, cam_tf, cursor, Some(here), &clickables);
+        let target = pick_forgiving(cursor, tuning().aim_slack, seen)?;
+        let (_, c, tf, _) = clickables.get(target).ok()?;
         Some(Aim {
             at: cursor,
             label: c.label,
@@ -277,25 +346,18 @@ fn click(
     let Ok((camera, cam_tf)) = camera.single() else {
         return;
     };
-    let candidates = clickables.iter().filter_map(|(e, c, tf, vis)| {
-        if !vis.get() {
-            return None;
-        }
-        let at = tf.translation() + Vec3::Y * c.height;
-        let p = camera.world_to_viewport(cam_tf, at).ok()?;
-        Some((e, p, c.radius_px))
-    });
-    let Some(target) = pick(cursor, candidates) else {
-        return;
-    };
-    let Ok((_, _, target_tf, _)) = clickables.get(target) else {
-        return;
-    };
     let Some(here) = walkers
         .iter()
         .find(|(p, _)| p.id == me.0)
         .map(|(_, w)| w.pos)
     else {
+        return;
+    };
+    let seen = candidates(camera, cam_tf, cursor, Some(here), &clickables);
+    let Some(target) = pick_forgiving(cursor, tuning().aim_slack, seen) else {
+        return;
+    };
+    let Ok((_, _, target_tf, _)) = clickables.get(target) else {
         return;
     };
     if !within(here, target_tf.translation(), REACH) {
@@ -326,6 +388,50 @@ mod tests {
         );
         assert_eq!(got, Some(b));
         assert_eq!(pick(Vec2::ZERO, [(a, Vec2::new(100.0, 0.0), 40.0)]), None);
+    }
+
+    #[test]
+    fn forgiving_pick_takes_near_misses_and_prefers_reach() {
+        let mut world = World::new();
+        let (near, far) = (world.spawn_empty().id(), world.spawn_empty().id());
+        let c = |entity, screen, gap, in_reach| Candidate {
+            entity,
+            screen,
+            radius_px: 40.0,
+            gap,
+            in_reach,
+        };
+        // Off by 100 px on screen but the aim line grazes its body: still a hit.
+        let got = pick_forgiving(Vec2::ZERO, 0.5, [c(near, Vec2::new(100.0, 0.0), 0.3, true)]);
+        assert_eq!(got, Some(near));
+        // A better-aimed thing out of reach loses to one you can reach.
+        let got = pick_forgiving(
+            Vec2::ZERO,
+            0.5,
+            [
+                c(far, Vec2::new(1.0, 0.0), 0.0, false),
+                c(near, Vec2::new(30.0, 0.0), 0.4, true),
+            ],
+        );
+        assert_eq!(got, Some(near));
+        // Clear misses on both counts pick nothing.
+        let got = pick_forgiving(Vec2::ZERO, 0.5, [c(near, Vec2::new(100.0, 0.0), 2.0, true)]);
+        assert_eq!(got, None);
+    }
+
+    #[test]
+    fn ray_gap_measures_to_the_whole_body() {
+        // Looking along +x at head height passes 1 m beside a 2 m post at x=5, z=1.
+        let g = ray_gap(
+            Vec3::new(0.0, 1.6, 0.0),
+            Vec3::X,
+            Vec3::new(5.0, 0.0, 1.0),
+            2.0,
+        );
+        assert!((g - 1.0).abs() < 0.05);
+        // Things behind you are measured from your eye, not hit.
+        let g = ray_gap(Vec3::ZERO, Vec3::X, Vec3::new(-5.0, 0.0, 0.0), 1.0);
+        assert!(g > 4.0);
     }
 
     #[test]

@@ -2,8 +2,10 @@
 // Edit and save: the running game picks it up within a second.
 (
     // How long one whole day (dawn, day, dusk, night) lasts, in minutes.
-    // Every player sees the same time of day: it follows the real clock.
+    // Every player sees the same time of day: it counts from when the host started.
     day_minutes: 24.0,
+    // The hour a new game starts at (0..24): 9.5 is half past nine in the morning.
+    start_hour: 9.5,
     // How bright the night still is, 0 (pitch black) to 1 (as bright as day).
     night_brightness: 0.12,
 )

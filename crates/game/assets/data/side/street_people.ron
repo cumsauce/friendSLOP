@@ -1,0 +1,77 @@
+// Street people (#358, crates/side/src/features/street_people.rs): tweakers,
+// preachers and street performers in New York, most of them at the stations.
+// Edit and save: the running game picks it up within a second (the people
+// themselves move on the next game).
+(
+    // Everyone, and where they stand. `kind`: Tweaker, Preacher or Performer.
+    // `at`: City(x, z) on the city floor; Fulton(x, z) this far from where
+    // you come back up out of Fulton St; Penn(x, z) in Penn Station's concourse
+    // (its stop's frame: track along +x, +z away from it); Platform("stop name", m along it).
+    people: [
+        // Penn Station's concourse.
+        (kind: Preacher, at: Penn(-12.0, 12.0)),
+        (kind: Performer, at: Penn(-6.0, 18.0)),
+        (kind: Tweaker, at: Penn(-22.0, 20.0)),
+        (kind: Tweaker, at: Penn(-3.0, 9.0)),
+        // The PATH platform under the Oculus.
+        (kind: Preacher, at: Platform("World Trade Center", -6.0)),
+        (kind: Performer, at: Platform("World Trade Center", -1.0)),
+        (kind: Tweaker, at: Platform("World Trade Center", 4.0)),
+        (kind: Tweaker, at: Platform("World Trade Center", -9.0)),
+        // Round the Fulton St entrance.
+        (kind: Preacher, at: Fulton(1.5, 4.0)),
+        (kind: Performer, at: Fulton(1.5, -5.0)),
+        (kind: Tweaker, at: Fulton(2.5, 9.0)),
+        // Out on the sidewalks.
+        (kind: Tweaker, at: City(11.0, 215.0)),
+        (kind: Preacher, at: City(-11.0, 245.0)),
+        (kind: Performer, at: City(11.0, 275.0)),
+        (kind: Tweaker, at: City(-11.0, 300.0)),
+    ],
+    // Only speak or play while you're this close (m).
+    hear_range: 40.0,
+    // Seconds between a tweaker's yells (nonstop) and a preacher's sermons (min, max).
+    tweaker_every: (2.5, 4.5),
+    preacher_every: (4.0, 7.0),
+    // Speech voices (pitch Hz, speed): tweakers high and fast.
+    tweaker_voice: (150.0, 1.35),
+    preacher_voice: (85.0, 0.85),
+    // How far a tweaker paces each way (m) and how fast (m/s).
+    pace: 2.0,
+    pace_speed: 1.6,
+    // How close a preacher picks you out (m).
+    point_range: 15.0,
+    // A performer's tempo (beats per minute) and how many bars in one loop.
+    bpm: 112.0,
+    bars: 4,
+    // The chance a loop is just one scale up and down on the drum pad.
+    scale_chance: 0.3,
+    voice_volume: 0.9,
+    music_volume: 0.7,
+    // What tweakers scream at nobody: one side of an argument.
+    tweaker_lines: [
+        "No. NO. You don't get to say that to me. Not after what you did.",
+        "I gave you the money! I GAVE you the money, Dennis!",
+        "Oh, so now it's MY fault? Now it's my fault?",
+        "Don't look at me like that. Don't you DARE look at me like that.",
+        "I was there first! Everybody knows I was there first!",
+        "You think I'm stupid? You think I don't SEE it?",
+        "That's not what I said. That is NOT what I said!",
+        "Then go! Go! Nobody's stopping you! GO!",
+        "Who told you that? Who told you? Was it Linda?",
+        "I'm calm. I'm CALM. I'm the calmest person on this whole block.",
+        "Say it again. Say it again, I dare you.",
+        "You owe me a sandwich and an apology, and I want the sandwich first.",
+    ],
+    // What preachers tell whoever they're pointing at.
+    preacher_lines: [
+        "YOU! Yes, you! You are going to hell!",
+        "I see you, sinner. The fire is waiting for you!",
+        "You, with the face! Hell! Straight to hell!",
+        "Repent! Repent now, or burn with the rest of them!",
+        "The Lord sees what you did. And you're going to hell for it.",
+        "Don't walk away from me! Hell is forever, friend!",
+        "You! And you! And especially you! All going to hell!",
+        "It is not too late! Actually, for you, it is too late.",
+    ],
+)

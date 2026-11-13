@@ -1,0 +1,375 @@
+{
+  "format_version": 1,
+  "name": "street-drum",
+  "parts": [],
+  "version": 18,
+  "ops": [
+    {
+      "primitive": {
+        "name": "bucket",
+        "kind": "cylinder",
+        "size": [
+          0.15,
+          0.38,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.19,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bucket_rim",
+        "kind": "torus",
+        "size": [
+          0.15,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.37,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stand_leg",
+        "kind": "cylinder",
+        "size": [
+          0.015,
+          0.62,
+          0.0
+        ],
+        "translation": [
+          0.38,
+          0.31,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stand_foot",
+        "kind": "cylinder",
+        "size": [
+          0.14,
+          0.02,
+          0.0
+        ],
+        "translation": [
+          0.38,
+          0.01,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pad",
+        "kind": "box",
+        "size": [
+          0.3,
+          0.04,
+          0.22
+        ],
+        "translation": [
+          0.38,
+          0.64,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pad_face",
+        "kind": "cylinder",
+        "size": [
+          0.08,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          0.38,
+          0.665,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stick_a",
+        "kind": "cylinder",
+        "size": [
+          0.008,
+          0.4,
+          0.0
+        ],
+        "translation": [
+          0.05,
+          0.39,
+          -0.06
+        ],
+        "rotation": [
+          -0.11731501,
+          0.12802686,
+          0.6653265,
+          0.7260764
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "stick_b",
+        "kind": "cylinder",
+        "size": [
+          0.008,
+          0.4,
+          0.0
+        ],
+        "translation": [
+          0.05,
+          0.39,
+          0.06
+        ],
+        "rotation": [
+          0.11731501,
+          -0.12802686,
+          0.6653265,
+          0.7260764
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "bucket",
+        "input": "bucket",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#d8d2c4",
+                "name": "out",
+                "roughness": 0.55,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bucket_rim",
+        "input": "bucket_rim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#d8d2c4",
+                "name": "out",
+                "roughness": 0.55,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stand_leg",
+        "input": "stand_leg",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#8a8d92",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stand_foot",
+        "input": "stand_foot",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#8a8d92",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pad",
+        "input": "pad",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-rubber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1e1e22",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pad_face",
+        "input": "pad_face",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-rubber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1e1e22",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stick_a",
+        "input": "stick_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#d8d2c4",
+                "name": "out",
+                "roughness": 0.55,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stick_b",
+        "input": "stick_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sd-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#d8d2c4",
+                "name": "out",
+                "roughness": 0.55,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

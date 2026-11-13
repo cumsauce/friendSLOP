@@ -46,6 +46,8 @@ Andrew calls, gets angry, and sends something after you (hide in lockers). Every
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
 brownstone with the neon SURF sign: a surf map, two steep ramps to glide down to a timed finish.
+The streets and stations have tweakers screaming at nobody, preachers telling you you're
+going to hell, and bucket drummers (thickest on the PATH platform and round Fulton St).
 Step in front of a cab and you're punted and ragdoll for a couple of seconds before getting up.
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
@@ -501,6 +503,15 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
   HUD text (the music keeps playing), and the mirror is a smeared dull plate, not a real
   reflection. Writing and timings in `data/side/penn.ron`; `FRIENDSLOP_START=penn`
   (`features/penn.rs`).
+- **Street people** (#358, catherine: "add random preachers, street performers and tweakers to
+  the city and especially to Penn Station and the subway station"). Fifteen locals in New York
+  (`data/side/street_people.ron`: kind and spot): tweakers pace and scream one side of an
+  argument nonstop, preachers turn to the nearest player and tell them they're going to hell,
+  performers bob at a bucket drum and pad (`models/props/street-drum.gltf`) playing a synth
+  groove, or 30% of the time one scale up and down on the pad. Voices are the `samiam` synth,
+  heard where they stand; all local dressing (nothing replicated, nobody blocks you). "Especially" went to the
+  stations: four in Penn Station's concourse, four on the PATH platform under the Oculus and
+  three round the Fulton St entrance (11 of the 15).
 - **Miami Music Week** (#345, doomy: "in new york you can go to JFK and from there u can fly
   like the train into miami and go to factory town for miami music week. should be EDM music
   and stuff and people and you can also do ketamine"). Trains lines can now be planes

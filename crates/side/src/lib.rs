@@ -36,6 +36,7 @@ pub mod features {
     pub mod rats;
     pub mod sesbian_lex;
     pub mod shipwreck;
+    pub mod street_people;
     pub mod surf;
     pub mod trains;
     pub mod wallet;
@@ -77,5 +78,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::miami::TUNING,
         &features::boba::TUNING,
         &features::penn::TUNING,
+        &features::street_people::TUNING,
     ]
 }

@@ -1,0 +1,41 @@
+// Andrew's phone calls in Fulton St station (crates/side/src/features/fulton_hunt.rs).
+// Edit and save: the running game picks it up within a second.
+// Each call is a list of lines: (who, text). Andrew's lines are spoken out
+// loud by a retro speech synth, so spell them the way they should sound.
+(
+    // The phone ringing (top of the screen).
+    ringing: "ANDREW is calling... press E to answer",
+    calls: [
+        // A bit upset, but OK.
+        [
+            ("Andrew", "Hey. Where are you?"),
+            ("You", "I'm coming. I'm on the J."),
+            ("Andrew", "Okay. It's fine. Everyone's already here though."),
+            ("You", "Five minutes."),
+            ("Andrew", "Okay. See you soon."),
+        ],
+        // Angrier.
+        [
+            ("Andrew", "Where are you?"),
+            ("You", "I'm coming! I'm still looking for the J."),
+            ("Andrew", "You said five minutes. That was forever ago."),
+            ("You", "The signs keep pointing down."),
+            ("Andrew", "Just get here."),
+        ],
+        // Furious. He sends someone.
+        [
+            ("Andrew", "WHERE ARE YOU."),
+            ("You", "I'm coming, I swear, I'm so close."),
+            ("Andrew", "No. You're not. I'm done waiting."),
+            ("Andrew", "I'm sending someone to come get you."),
+            ("You", "Andrew? ... Andrew?"),
+        ],
+    ],
+    // Toasts.
+    sent: "Something is coming down the stairs. Hide in a locker.",
+    seen: "It sees you. RUN.",
+    caught: "It drags you all the way back up to the street. Andrew is still waiting.",
+    hidden: "You squeeze into the locker. Don't breathe.",
+    unhidden: "You climb out of the locker.",
+    hide_label: "hide in the locker",
+)

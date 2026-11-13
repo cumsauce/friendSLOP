@@ -78,6 +78,45 @@ pub struct Tuning {
     pub exit_label: String,
     /// The J's post label.
     pub ride_label: String,
+    /// Andrew's calls and the one he sends (`fulton_hunt.rs`).
+    pub hunt: Hunt,
+}
+
+/// Andrew's calls and the thing he sends after you (`fulton_hunt.rs`).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Hunt {
+    /// Andrew calls when you first reach each of these levels (0 = the top).
+    pub call_levels: Vec<usize>,
+    /// The phone rings this long before it answers itself.
+    pub ring_secs: f32,
+    /// Seconds between lines of a call.
+    pub line_gap: f32,
+    /// Andrew's voice per call: pitch (Hz) and speed, angrier each time.
+    pub voice: Vec<(f32, f32)>,
+    /// Seconds after the last call before the thing he sent arrives.
+    pub spawn_delay: f32,
+    /// Its speed wandering and searching, and chasing (m/s; you walk 5, run 10.5).
+    pub walk_speed: f32,
+    pub chase_speed: f32,
+    /// What it sees: how far (m) and how wide a cone (degrees).
+    pub view_range: f32,
+    pub view_degrees: f32,
+    /// It gets you this close (m).
+    pub catch_range: f32,
+    /// The director: every so often it hears roughly where you are and
+    /// wanders to a cell within this many cells of you.
+    pub director_secs: f32,
+    pub director_radius: u32,
+    /// Lose sight of you and it keeps coming to where it saw you for this long.
+    pub lose_secs: f32,
+    /// Then it searches hiding spots within this many cells for this long...
+    pub search_radius: u32,
+    pub search_secs: f32,
+    /// ...and opens a locker you're in with this chance.
+    pub find_chance: f32,
+    /// Then it backs off at least this many cells away for this long.
+    pub retreat_cells: u32,
+    pub retreat_secs: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -114,7 +153,13 @@ pub struct Piece {
     pub model: String,
     pub open: Vec<Side>,
     pub weight: f32,
+    /// A hiding spot in it (the lockers), at [`HIDE_AT`] in the piece's own frame.
+    #[serde(default)]
+    pub hide: bool,
 }
+
+/// Where a hiding piece's hiding spot is, in its own frame (inside the middle locker).
+pub const HIDE_AT: Vec3 = Vec3::new(0.0, 0.0, 2.48);
 
 /// The tile kit (`assets/data/side/fulton_tiles.ron`).
 #[derive(Deserialize, Default, Debug, Clone)]

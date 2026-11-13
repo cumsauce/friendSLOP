@@ -1,0 +1,15 @@
+// The message the Watcher leaves in scraps (crates/side/src/features/clues.rs, #278).
+// Each Watcher sighting leaves the next unread piece where it vanished.
+// Add, remove or reword pieces freely; the game counts them.
+(
+    // The pieces, in order. One scrap carries one piece.
+    pieces: [
+        "WE WERE HERE BEFORE THE COMMUNE.",
+        "IT DOES NOT WATCH YOU. IT WATCHES WHAT YOU ARE ABOUT TO DO.",
+        "THE BROADCAST NEVER STOPPED. YOU STOPPED LISTENING.",
+        "THE OLD TOWER IN THE RUINS STILL HEARS IT.",
+        "GO TOGETHER. IT ONLY ANSWERS A CROWD.",
+    ],
+    // Shown once every piece is found, under the whole message.
+    complete: "Every scrap is found. Something in the ruins' tower is waiting for you.",
+)

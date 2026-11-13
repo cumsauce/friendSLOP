@@ -19,6 +19,7 @@ pub mod features {
     pub use friendslop_village::features::*;
     pub mod affair;
     pub mod ambience;
+    pub mod clues;
     pub mod discord_friends;
     pub mod fusion;
     pub mod gaslighting;
@@ -47,5 +48,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::shipwreck::CREW,
         &features::discord_friends::LINES,
         &features::watcher::TUNING,
+        &features::clues::TUNING,
+        &features::clues::WRITING,
     ]
 }

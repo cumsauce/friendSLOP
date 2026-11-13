@@ -28,6 +28,7 @@ pub mod features {
     pub mod gaslighting;
     pub mod goat;
     pub mod infinite;
+    pub mod miami;
     pub mod nyc;
     pub mod nyc_traffic;
     pub mod rats;
@@ -71,5 +72,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::broadcast::WRITING,
         &features::wallet::TUNING,
         &features::trains::TUNING,
+        &features::miami::TUNING,
     ]
 }

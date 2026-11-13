@@ -56,5 +56,35 @@
                 ),
             ),
         ),
+        (
+            // The flight to Miami Music Week (#345): the same as a train, but a
+            // plane off a gate that rolls out, takes off and climbs away.
+            name: "Flight 305",
+            vehicle: Plane,
+            // How far it rolls and flies before it's gone (m), where it leaves
+            // the ground (m along) and how steeply it climbs (m up per m).
+            run_out: Some(140.0),
+            lift_off: 40.0,
+            climb: 0.3,
+            stops: (
+                (
+                    name: "JFK",
+                    // At the city's north end, in the trees over the rim.
+                    at: (40.0, 134.0),
+                    yaw: 0.0,
+                    city: true,
+                    announce: "Welcome aboard flight three oh five to Miami. Please fasten your seatbelts. It is music week. Godspeed.",
+                ),
+                (
+                    name: "Miami",
+                    at: (-40.0, 184.0),
+                    yaw: 0.0,
+                    city: false,
+                    // Miami floats far above New York (data/side/miami.ron: its ground).
+                    floor: Some(1500.0),
+                    announce: "Ladies and gentlemen, we have begun our descent into Miami. Local time is party o'clock. Factory Town is to your right.",
+                ),
+            ),
+        ),
     ],
 )

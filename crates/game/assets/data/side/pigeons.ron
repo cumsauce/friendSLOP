@@ -1,0 +1,51 @@
+// Pigeons (#355, crates/side/src/features/pigeons.rs): boid flocks over New
+// York's streets and inside its buildings. Each pigeon steers by separation,
+// alignment and cohesion, plus a pull back into its flock's box and a wander.
+// Edit and save: the running game picks it up within a second (new flocks and
+// counts on the next game).
+(
+    // Each flock: a name, its box (middle and half sizes, m), the ground y its
+    // droppings land on, and how many birds.
+    flocks: [
+        (name: "Bodega block", center: (-50.0, 16.0, 195.0), half: (34.0, 7.0, 28.0), ground: 0.0, count: 22),
+        (name: "Avenue", center: (0.0, 13.0, 260.0), half: (9.0, 5.0, 60.0), ground: 0.0, count: 14),
+        (name: "East side", center: (50.0, 20.0, 250.0), half: (34.0, 9.0, 40.0), ground: 0.0, count: 18),
+        // Inside buildings.
+        (name: "Oculus", center: (-55.0, 9.0, 230.0), half: (22.0, 5.0, 12.0), ground: 0.0, count: 10),
+        (name: "Penn Station NJ Transit", center: (-73.5, 1002.0, 311.0), half: (12.0, 1.1, 14.0), ground: 1000.0, count: 8),
+    ],
+    // Slowest and fastest a pigeon flies (m/s).
+    min_speed: 3.0,
+    max_speed: 8.0,
+    // How far a pigeon sees its flockmates (m), and how close is too close.
+    view: 5.0,
+    too_close: 1.2,
+    // The rules' weights (steering, m/s²).
+    separation: 7.0,
+    alignment: 2.5,
+    cohesion: 1.8,
+    bounds: 9.0,
+    wander: 1.5,
+    // How often each bird re-thinks the rules (per second).
+    think_hz: 8.0,
+    // Flocks farther than this (m) from the camera are hidden and frozen.
+    draw_range: 140.0,
+    // Chance a pigeon poops, per second.
+    poop_chance: 0.02,
+    // How long a splat stays (s) and how many there can be at once.
+    splat_secs: 90.0,
+    max_splats: 300,
+    // A dropping landing this close (m) to you hits you.
+    hit_radius: 0.6,
+    // A storm window every 240 s, 10% of them a storm: everyone poops at once.
+    storm_every: 240.0,
+    storm_chance: 0.1,
+    // How long a storm lasts (s) and each pigeon's poops per second in one.
+    storm_secs: 6.0,
+    storm_rate: 2.5,
+    // Property damage per pigeon in a storm (dollars, for the bill).
+    damage_per_pigeon: 1450,
+    // Shown when a dropping hits you, and when a storm starts ({damage} is the bill).
+    hit_line: "a pigeon pooped on you. some say it's good luck. it isn't.",
+    storm_line: "EVERY PIGEON IN NEW YORK JUST POOPED AT ONCE. ${damage} in property damage. windshields. awnings. a man's whole hat.",
+)

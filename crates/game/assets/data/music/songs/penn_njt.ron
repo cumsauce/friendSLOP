@@ -1,0 +1,15 @@
+#![enable(implicit_some)]
+// PennNjt: song 1 (its own song, #352). See moods.ron for what the fields mean.
+// "Track Unknown": the NJ Transit side of Penn Station. A slow march of
+// tense pulses, string swells and a brass line that never resolves.
+(
+    mood: "PennNjt",
+    bpm: 72.0, swing: 0.0, key: 1,
+    a: "PENN_NJT_A", b: "PENN_NJT_B", hook: "PENN_NJT_HOOK",
+    groove: March, bass: ["TENSE", "MARCH"],
+    comp: Tense, lead: Brass, arp: None, pad: true,
+    intensity: 0.7, odd: 0.25, modulate: 0.0, kime: 0.2,
+    theme: false, bass_inst: Bass, pad_inst: Strings,
+    horns: Swells, kit: (shaker: false, conga: false, clap: false, ride: false),
+    answer: Some(Strings), nylon: None,
+)

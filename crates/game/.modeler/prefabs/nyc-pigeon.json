@@ -1,0 +1,625 @@
+{
+  "format_version": 1,
+  "name": "nyc-pigeon",
+  "parts": [],
+  "version": 51707,
+  "ops": [
+    {
+      "sdf": {
+        "name": "body",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.1,
+              0.0
+            ],
+            "size": [
+              0.075,
+              0.07,
+              0.14
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.16,
+              -0.13
+            ],
+            "radius": [
+              0.045
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.1,
+              0.17
+            ],
+            "size": [
+              0.05,
+              0.015,
+              0.08
+            ]
+          }
+        ],
+        "blend": 0.03
+      }
+    },
+    {
+      "primitive": {
+        "name": "beak",
+        "kind": "cone",
+        "size": [
+          0.012,
+          0.035,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.155,
+          -0.185
+        ],
+        "rotation": [
+          -0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "sdf": {
+        "name": "wing_l",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.2,
+              0.12,
+              0.0
+            ],
+            "size": [
+              0.17,
+              0.012,
+              0.07
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "mirror": {
+        "name": "wing_r",
+        "input": "wing_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "neck",
+        "kind": "torus",
+        "size": [
+          0.042,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.14,
+          -0.1
+        ],
+        "rotation": [
+          0.17364818,
+          0.0,
+          0.0,
+          0.9848077
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": [
+          0.48,
+          0.5,
+          0.56,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "feather_white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e6e2d8"
+                  ],
+                  [
+                    1,
+                    "#fbf8f2"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "h",
+                "to": [
+                  0,
+                  0.0006
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wing_l",
+        "input": "wing_l",
+        "base_color": [
+          0.38,
+          0.4,
+          0.46,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "feather_white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e6e2d8"
+                  ],
+                  [
+                    1,
+                    "#fbf8f2"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "h",
+                "to": [
+                  0,
+                  0.0006
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "beak",
+        "input": "beak",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tar",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 15,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e1e1e"
+                  ],
+                  [
+                    1,
+                    "#323232"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.85,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fn",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "neck",
+        "input": "neck",
+        "base_color": [
+          0.25,
+          0.45,
+          0.35,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": 0.4,
+        "pbr": {
+          "material": "ns-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e2e0da"
+                  ],
+                  [
+                    1,
+                    "#f2f0ea"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "skeleton": {
+        "name": "rig",
+        "bones": [
+          {
+            "name": "root",
+            "head": [
+              0.0,
+              0.1,
+              0.1
+            ],
+            "tail": [
+              0.0,
+              0.1,
+              -0.1
+            ],
+            "radius": 0.08
+          },
+          {
+            "name": "wing_l",
+            "parent": "root",
+            "head": [
+              0.05,
+              0.12,
+              0.0
+            ],
+            "tail": [
+              0.37,
+              0.12,
+              0.0
+            ]
+          },
+          {
+            "name": "wing_r",
+            "parent": "root",
+            "head": [
+              -0.05,
+              0.12,
+              0.0
+            ],
+            "tail": [
+              -0.37,
+              0.12,
+              0.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_body",
+        "skeleton": "rig",
+        "parts": [
+          "body_lo",
+          "beak",
+          "neck"
+        ],
+        "bone": "root",
+        "mode": "rigid"
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_wl",
+        "skeleton": "rig",
+        "parts": [
+          "wing_l_lo"
+        ],
+        "bone": "wing_l",
+        "mode": "rigid"
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_wr",
+        "skeleton": "rig",
+        "parts": [
+          "wing_r_lo"
+        ],
+        "bone": "wing_r",
+        "mode": "rigid"
+      }
+    },
+    {
+      "clip": {
+        "name": "flap",
+        "skeleton": "rig",
+        "duration": 0.3,
+        "loop": true,
+        "tracks": {
+          "root": {
+            "translate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 0.02,
+                "period": 0.3,
+                "phase": 0.0
+              }
+            }
+          },
+          "wing_l": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "amount": 45.0,
+                "period": 0.3,
+                "phase": 0.0
+              }
+            }
+          },
+          "wing_r": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "amount": -45.0,
+                "period": 0.3,
+                "phase": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "clip": {
+        "name": "glide",
+        "skeleton": "rig",
+        "duration": 2.0,
+        "loop": true,
+        "tracks": {
+          "wing_l": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "amount": 6.0,
+                "period": 2.0,
+                "phase": 0.0
+              }
+            }
+          },
+          "wing_r": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "amount": -6.0,
+                "period": 2.0,
+                "phase": 0.0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "body_lo",
+        "input": "body",
+        "tris": 500
+      }
+    },
+    {
+      "decimate": {
+        "name": "wing_l_lo",
+        "input": "wing_l",
+        "tris": 80
+      }
+    },
+    {
+      "decimate": {
+        "name": "wing_r_lo",
+        "input": "wing_r",
+        "tris": 80
+      }
+    },
+    {
+      "visibility": {
+        "name": "body",
+        "input": "body",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wing_l",
+        "input": "wing_l",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wing_r",
+        "input": "wing_r",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

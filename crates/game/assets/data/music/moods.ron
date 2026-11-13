@@ -110,6 +110,14 @@
         "LANDLORD_HOOK": [(8, Maj7s11, 4), (7, Dom7alt, 4), (0, MinMaj9, 4), (2, HalfDim, 2), (7, Dom7b9, 2)],
         // The sewers (#127): a dorian i - iv vamp, then borrowed lydian chords
         // dripping down to the minor V.
+        // Penn Station's NJ Transit side (#352): a minor-major drone sliding to diminished.
+        "PENN_NJT_A": [(0, MinMaj9, 4), (1, Dom7b9, 4), (0, MinMaj9, 4), (11, Dim7, 4)],
+        "PENN_NJT_B": [(6, HalfDim, 4), (5, Dim7, 4), (1, Dom7alt, 4), (0, MinHarm, 4)],
+        "PENN_NJT_HOOK": [(8, Maj7s11, 4), (7, Dom7b9, 4), (1, Dim7, 4), (0, MinMaj9, 4)],
+        // Penn Station's LIRR side (#352): slow, warm major sevenths.
+        "PENN_LIRR_A": [(0, Maj9, 8), (5, Maj7s11, 8)],
+        "PENN_LIRR_B": [(9, Min9, 4), (2, Min9, 4), (7, Sus9, 4), (0, Maj69, 4)],
+        "PENN_LIRR_HOOK": [(5, Maj9, 4), (4, Min9, 4), (2, Min11, 4), (7, Sus9, 4)],
         "SEWER_A": [(0, Min9, 8), (5, Min11, 8)],
         "SEWER_B": [(8, Maj7s11, 4), (3, Maj9, 4), (1, Maj7s11, 4), (7, Dom7b9, 4)],
         // Wendy's (#117): a sunny diner jingle, I - vi - ii - V, with a slip
@@ -306,6 +314,20 @@
             wandering: true,
         ),
         (
+            // Penn Station's NJ Transit side (#352): cold, wet and ominous.
+            name: "PennNjt",
+            tone: (warmth: -0.4, width: 1.2, wow: 0.35, lay_back_ms: 4.0, loose_ms: 3.0),
+            level_db: 1.0,
+            instant: true,
+        ),
+        (
+            // Penn Station's LIRR side (#352): warm and calm.
+            name: "PennLirr",
+            tone: (warmth: 0.45, width: 1.05, wow: 0.1, lay_back_ms: 8.0, loose_ms: 3.0),
+            level_db: 0.5,
+            instant: true,
+        ),
+        (
             // Miami Music Week (#345): EDM, loud and crisp.
             name: "Miami",
             tone: (warmth: -0.3, width: 1.3, wow: 0.0, lay_back_ms: 0.0, loose_ms: 0.0),
@@ -337,6 +359,8 @@
         (when: Signal("miami", Gt, 0.0), mood: "Miami", intensity: "0.7"),
         (when: Signal("nyc_shop_bodega", Gt, 0.0), mood: "Bodega"),
         (when: Signal("boba", Gt, 0.0), mood: "Boba"),
+        (when: Signal("penn_njt", Gt, 0.0), mood: "PennNjt", intensity: "0.75"),
+        (when: Signal("penn_lirr", Gt, 0.0), mood: "PennLirr", intensity: "0.3"),
         (when: Signal("nyc", Gt, 0.0), mood: "Nyc"),
         (when: Signal("heaven", Gt, 0.0), mood: "Abuela"),
         (when: Signal("sky", Gt, 0.0), mood: "Sky"),

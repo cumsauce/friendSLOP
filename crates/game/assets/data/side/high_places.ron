@@ -1,0 +1,36 @@
+// High Places (#349, crates/side/src/features/high_places.rs): the rooftop
+// dispensary on top of One World Trade Center. Take the elevator from WTC's
+// avenue side, buy a joint at the kiosk, light up at the lounge and smoke it:
+// left click draws. Edit and save: the running game picks it up within a second.
+(
+    // A joint's price (dollars).
+    price: 20,
+    // Stand this close (m) to an elevator door and you ride it.
+    door_reach: 1.6,
+    // How long everyone sees you smoke (s).
+    smoke_secs: 40.0,
+    // The ember: how much a draw heats it (0..1), and how fast it cools (per s).
+    draw_heat: 0.3,
+    cool: 0.12,
+    // A draw's share of the joint, and how full one fills your lungs (over 1 = a cough).
+    draw_amount: 0.04,
+    draw_lung: 0.35,
+    // How fast you breathe out (lungs per s).
+    exhale: 0.3,
+    // Waste: the ember burns the joint away while hotter than `hot` (share per s),
+    // a cough blows some away, and going out loses the burnt end.
+    hot: 0.85,
+    idle_burn: 0.02,
+    cough_waste: 0.05,
+    out_waste: 0.04,
+    // Lines. {price} and {cash} in dollars; {smoked} and {wasted} in percent, {coughs}.
+    arrive_line: "HIGH PLACES. 428 m up. the wind smells like a dispensary.",
+    bought_line: "one joint, ${price}. you have ${cash} left. light up at the lounge.",
+    broke_line: "a joint is ${price}. you have ${cash}. the budtender looks at you with pity.",
+    no_joint_line: "nothing to light. the kiosk sells joints.",
+    lit_line: "you spark it. left click to draw: keep it lit, don't overdo it.",
+    cough_line: "*COUGH* too much at once. some of it's gone with the wind.",
+    out_line: "it went out. click to relight (the burnt end's gone).",
+    result_line: "done. smoked {smoked}%, wasted {wasted}%, coughed {coughs} times.",
+    perfect_line: "PERFECT. 100% smoked, not a crumb wasted. the city hums.",
+)

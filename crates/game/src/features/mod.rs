@@ -85,6 +85,10 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(trains::protocol_runs);
         app.add_plugins(miami::protocol);
         app.add_plugins(boba::protocol);
+        app.add_plugins(vessel_jump::protocol);
+        app.add_plugins(high_places::protocol);
+        app.add_plugins(ice_cream::protocol);
+        app.add_plugins(hats::protocol);
     }
 }
 
@@ -167,5 +171,10 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(boba::plugin);
         app.add_plugins(penn::plugin);
         app.add_plugins(street_people::plugin);
+        app.add_plugins(vessel_jump::plugin);
+        app.add_plugins(pigeons::plugin);
+        app.add_plugins(high_places::plugin);
+        app.add_plugins(ice_cream::plugin);
+        app.add_plugins(hats::plugin);
     }
 }

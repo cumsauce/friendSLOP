@@ -1,0 +1,19 @@
+// Tuning for vessel_jump (crates/side/src/features/vessel_jump.rs): jumping
+// off the top of the Vessel. Edit and save: the running game picks it up
+// within a second.
+(
+    // The outward push when you jump (m/s): enough to clear the flared base
+    // (7.5 m radius) during the ~3 s fall.
+    push: 3.5,
+    // The little hop up over the parapet (m/s).
+    hop: 2.0,
+    // How high above the plaza your feet must be to jump (m). The top ring
+    // is 42.5 m up.
+    min_height: 38.0,
+    // The blood splat's radius (m) and how long it lingers (s).
+    splat_size: 1.4,
+    splat_secs: 45.0,
+    // How long the fall ragdolls you (s): the ~3 s drop, a bounce and a lie
+    // on the floor before you get back up.
+    fall_secs: 4.5,
+)

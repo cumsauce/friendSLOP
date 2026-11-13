@@ -1,0 +1,713 @@
+{
+  "format_version": 1,
+  "name": "nyc-ice-cream",
+  "parts": [],
+  "version": 51935,
+  "ops": [
+    {
+      "primitive": {
+        "name": "body",
+        "kind": "box",
+        "size": [
+          0.9,
+          1.5,
+          0.8
+        ],
+        "translation": [
+          0.0,
+          0.75,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "top",
+        "kind": "box",
+        "size": [
+          0.95,
+          0.35,
+          0.85
+        ],
+        "translation": [
+          0.0,
+          1.68,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "nozzle",
+        "kind": "cylinder",
+        "size": [
+          0.05,
+          0.18,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.1,
+          0.42
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tray",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.04,
+          0.3
+        ],
+        "translation": [
+          0.0,
+          0.72,
+          0.52
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "cone_sign",
+        "kind": "cone",
+        "size": [
+          0.18,
+          0.5,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          2.1,
+          0.0
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "scoop",
+        "kind": "sphere",
+        "size": [
+          0.2,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          2.4,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "label",
+        "text": "SOFT SERVE",
+        "font": "",
+        "size": 0.1,
+        "depth": 0.01,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          0.0,
+          1.68,
+          0.43
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "oc-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 873,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#d6d4ce"
+                  ],
+                  [
+                    1,
+                    "#e2e0da"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.55,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "top",
+        "input": "top",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-copper",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 129,
+                "size": 0.5,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#4a8a78"
+                  ],
+                  [
+                    1,
+                    "#6aa894"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "nozzle",
+        "input": "nozzle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-granite",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 171,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a8a88"
+                  ],
+                  [
+                    1,
+                    "#a2a09c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tray",
+        "input": "tray",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "rusted_grate",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "cells",
+                "size": [
+                  0.0625,
+                  0.0625
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "coords": "cells.local",
+                "name": "hole",
+                "round": 0.004,
+                "size": [
+                  0.05,
+                  0.05
+                ],
+                "type": "rect"
+              },
+              {
+                "mode": "fill",
+                "name": "holem",
+                "sdf": "hole",
+                "type": "mask"
+              },
+              {
+                "a": 1,
+                "b": "holem",
+                "name": "solid",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "mode": "fbm",
+                "name": "rust_n",
+                "octaves": 4,
+                "seed": 7,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "rust_n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#3a1a0e"
+                  ],
+                  [
+                    0.5,
+                    "#7a3a18"
+                  ],
+                  [
+                    0.8,
+                    "#a0582a"
+                  ],
+                  [
+                    1,
+                    "#55504a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "in": [
+                  0.78,
+                  0.9
+                ],
+                "input": "rust_n",
+                "name": "bare",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bare",
+                "name": "metal",
+                "to": [
+                  0.1,
+                  0.8
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bare",
+                "name": "rough",
+                "to": [
+                  0.9,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": "metal",
+                "name": "out",
+                "opacity": "solid",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cone_sign",
+        "input": "cone_sign",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-copper",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 129,
+                "size": 0.5,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#4a8a78"
+                  ],
+                  [
+                    1,
+                    "#6aa894"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "scoop",
+        "input": "scoop",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "oc-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 873,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#d6d4ce"
+                  ],
+                  [
+                    1,
+                    "#e2e0da"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.55,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "label",
+        "input": "label",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "rusted_wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "panels",
+                "size": [
+                  1,
+                  1
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "from": [
+                  0,
+                  0.012
+                ],
+                "input": "panels.edge",
+                "name": "seam",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "mode": "fbm",
+                "name": "fine",
+                "octaves": 5,
+                "seed": 3,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "rust_n",
+                "octaves": 6,
+                "seed": 11,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "angle": 90,
+                "input": "rust_n",
+                "length": 0.9,
+                "name": "streak",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.47,
+                  0.53
+                ],
+                "input": "streak",
+                "name": "rustm",
+                "type": "levels"
+              },
+              {
+                "mode": "fbm",
+                "name": "stain_n",
+                "octaves": 6,
+                "seed": 31,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "angle": 90,
+                "input": "stain_n",
+                "length": 1.2,
+                "name": "drip",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.51,
+                  0.55
+                ],
+                "input": "drip",
+                "name": "stainm",
+                "type": "levels"
+              },
+              {
+                "id": "panels.id",
+                "max": 1,
+                "min": 0.7,
+                "name": "tint",
+                "out": "float",
+                "type": "random"
+              },
+              {
+                "a": "#6a6e72",
+                "b": "tint",
+                "name": "steel0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "steel0",
+                "b": "seam",
+                "name": "steel",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "fine",
+                "name": "rustcol",
+                "stops": [
+                  [
+                    0,
+                    "#4a200e"
+                  ],
+                  [
+                    1,
+                    "#9a4a1e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "seam",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rustcol",
+                "height": "h",
+                "metallic": 0.1,
+                "name": "rust_out",
+                "roughness": 0.9,
+                "type": "output"
+              },
+              {
+                "base_color": "#3a0d0b",
+                "height": "h",
+                "metallic": 0.1,
+                "name": "stain_out",
+                "roughness": 0.6,
+                "type": "output"
+              },
+              {
+                "base_color": "steel",
+                "height": "h",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rustm",
+                    "output": "rust_out"
+                  },
+                  {
+                    "mask": "stainm",
+                    "output": "stain_out"
+                  }
+                ],
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

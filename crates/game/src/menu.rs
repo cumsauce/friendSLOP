@@ -41,10 +41,7 @@ impl Plugin for MenuPlugin {
                 )
                     .run_if(in_state(AppState::Menu)),
             )
-            .add_systems(
-                Update,
-                (leave_on_esc, copy_code_again).run_if(in_state(AppState::InGame)),
-            );
+            .add_systems(Update, copy_code_again.run_if(in_state(AppState::InGame)));
     }
 }
 
@@ -786,33 +783,15 @@ fn connect_timeout(
     }
 }
 
-/// Esc in game: disconnect (or stop hosting) and go back to the menu.
-fn leave_on_esc(
+/// The settings notebook's "Leave game" button (#317; Esc used to leave):
+/// disconnect (or stop hosting) and go back to the menu.
+pub(crate) fn leave_game(
+    _: On<PointerClick>,
     mut commands: Commands,
-    keys: Res<ButtonInput<KeyCode>>,
     replicated: Query<Entity, With<Replicated>>,
     mut status: ResMut<NetStatus>,
     mut next: ResMut<NextState<AppState>>,
-    mut view: ResMut<crate::features::fps::FpsView>,
-    me: Option<Res<LocalPlayer>>,
-    duelists: Query<&crate::features::duel::Duelist>,
-    overlay: Option<Res<crate::ui::Overlay>>,
 ) {
-    if !keys.just_pressed(KeyCode::Escape) {
-        return;
-    }
-    // The journal or chapter intro takes this Esc (it closes them).
-    if overlay.is_some_and(|o| o.any()) {
-        return;
-    }
-    // Duelists have their cursor locked regardless of `released`, so there is
-    // nothing for a first Esc to free: leave straight away.
-    let duelling = me.is_some_and(|m| duelists.iter().any(|d| d.player == m.0));
-    // First Esc in first person just frees the mouse; the next one leaves.
-    if view.first_person && !view.released && !duelling {
-        view.released = true;
-        return;
-    }
     commands.queue(crate::net::teardown_transport);
     commands.remove_resource::<LocalPlayer>();
     for e in &replicated {

@@ -327,8 +327,8 @@ fn click(
     if !mouse.just_pressed(MouseButton::Left) {
         return;
     }
-    // Clicks on the open journal are for its tabs, not the world.
-    if overlay.is_some_and(|o| o.journal) {
+    // Clicks on the open journal or settings are for them, not the world.
+    if overlay.is_some_and(|o| o.journal || o.settings) {
         return;
     }
     let Some(me) = me else { return };

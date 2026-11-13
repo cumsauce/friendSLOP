@@ -50,7 +50,7 @@ enum Action {
     Jump,
     /// Tap to toggle running.
     RunToggle,
-    /// Leave the game (Esc, skipping the "free the cursor" step).
+    /// Esc: open the settings notebook (its "Leave game" button leaves).
     Leave,
 }
 

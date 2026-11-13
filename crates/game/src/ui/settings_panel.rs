@@ -2,7 +2,8 @@
 //! polish, not a friend idea). Volumes as sliders, mic and HALT as square
 //! checkboxes, video presets as tabs and every video option as a checkbox
 //! card (changing one makes the preset "Custom"). Opened from the title
-//! screen's Settings link or Tab; Esc or Done closes it.
+//! screen's Settings link or Tab; Esc or Done closes it. In game Esc opens
+//! it too (#317), with a "Leave game" button (Esc no longer leaves).
 
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -137,11 +138,65 @@ fn get(s: &Settings, v: Volume) -> f32 {
 
 pub fn plugin(app: &mut App) {
     app.insert_resource(OnPage(Page::Video))
-        .add_systems(OnEnter(AppState::Menu), spawn)
+        .init_resource::<Freed>()
+        .add_systems(OnEnter(AppState::Menu), spawn_in(AppState::Menu))
+        .add_systems(OnEnter(AppState::InGame), spawn_in(AppState::InGame))
+        .add_systems(Update, close_on_esc.run_if(in_state(AppState::Menu)))
         .add_systems(
             Update,
-            (close_on_esc, refresh).run_if(in_state(AppState::Menu)),
-        );
+            (esc_in_game, free_mouse)
+                .chain()
+                .run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(Update, refresh);
+}
+
+/// Whether opening the notebook freed a locked first-person mouse (so
+/// closing it locks it again).
+#[derive(Resource, Default)]
+struct Freed(bool);
+
+fn is_open(panel: &Query<&mut Node, With<SettingsPanel>>) -> bool {
+    panel.iter().any(|n| n.display != Display::None)
+}
+
+/// Esc in game opens or closes the notebook (unless the journal or chapter
+/// intro is up: that Esc is theirs).
+fn esc_in_game(
+    keys: Res<ButtonInput<KeyCode>>,
+    overlay: Res<crate::ui::Overlay>,
+    mut panel: Query<&mut Node, With<SettingsPanel>>,
+) {
+    if !keys.just_pressed(KeyCode::Escape) {
+        return;
+    }
+    if !is_open(&panel) && (overlay.journal || overlay.intro) {
+        return;
+    }
+    toggle(&mut panel);
+}
+
+/// Free the mouse while the notebook is open, and tell clicks and Esc it's up.
+fn free_mouse(
+    panel: Query<&mut Node, With<SettingsPanel>>,
+    mut overlay: ResMut<crate::ui::Overlay>,
+    mut view: ResMut<crate::features::fps::FpsView>,
+    mut freed: ResMut<Freed>,
+) {
+    let open = is_open(&panel);
+    overlay.settings = open;
+    if open && view.first_person && !view.released {
+        view.released = true;
+        freed.0 = true;
+    } else if !open && freed.0 {
+        freed.0 = false;
+        view.released = false;
+    }
+}
+
+/// Spawn the (hidden) notebook for `state`, gone when it ends.
+fn spawn_in(state: AppState) -> impl Fn(Commands, Option<Res<AssetServer>>) {
+    move |commands, assets| spawn(commands, assets, state)
 }
 
 fn close_on_esc(keys: Res<ButtonInput<KeyCode>>, mut panel: Query<&mut Node, With<SettingsPanel>>) {
@@ -167,7 +222,7 @@ fn button(w: f32, h: f32, radius: f32, fill: Color, x: f32, y: f32) -> impl Bund
     )
 }
 
-fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>) {
+fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>, state: AppState) {
     let check: Handle<Image> = assets.map(|a| a.load("ui/check.png")).unwrap_or_default();
     let mut root = commands.spawn((
         SettingsPanel,
@@ -182,7 +237,7 @@ fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>) {
         },
         BackgroundColor(INK.with_alpha(0.63)),
         GlobalZIndex(30),
-        DespawnOnExit(AppState::Menu),
+        DespawnOnExit(state),
     ));
     root.with_children(|scrim| {
         scrim
@@ -197,7 +252,16 @@ fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 BackgroundColor(LAVENDER),
                 BorderColor::all(BORDER),
             ))
-            .with_children(|p| notebook(p, &check));
+            .with_children(|p| {
+                notebook(p, &check);
+                if state == AppState::InGame {
+                    p.spawn((
+                        button(192.0, 42.0, 12.0, PAPER, 26.0, 594.0),
+                        children![label("Leave game", 17.0, INK, 11.0, 8.0, B)],
+                    ))
+                    .observe(crate::menu::leave_game);
+                }
+            });
     });
 }
 

@@ -22,10 +22,32 @@ pub fn plugin(app: &mut App) {
         PostUpdate,
         // Right after this frame's asset events, before the image's first
         // upload.
-        (queue, mipmap)
+        (queue, mipmap, no_anisotropy)
             .chain()
             .after(bevy::asset::AssetEventSystems),
     );
+}
+
+/// Brushed-metal (anisotropic) materials go wrong under the reflection
+/// probes: faces blow out to pure white or black, worst on real Apple GPUs.
+/// Plain metal looks the same from a step away, so every material loads
+/// without it.
+fn no_anisotropy(
+    mut events: MessageReader<AssetEvent<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for e in events.read() {
+        let AssetEvent::Added { id } = e else {
+            continue;
+        };
+        if materials
+            .get(*id)
+            .is_some_and(|m| m.anisotropy_strength > 0.0)
+            && let Some(mut m) = materials.get_mut(*id)
+        {
+            m.anisotropy_strength = 0.0;
+        }
+    }
 }
 
 /// Newly loaded images still to look at.

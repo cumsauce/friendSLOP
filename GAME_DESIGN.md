@@ -510,6 +510,15 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   cell is inside, wall or door), so the warehouse or anything else on a grid can use them too;
   the warehouse doesn't yet. The grid grew from 5 x 5 to 6 x 6 so rooms fit and the way
   stays long. Pieces `fs-room-floor/wall/column`; sizes, chance and doors in `fulton.ron`.
+  **Lighting** (the user: "why is there like no lighting and why are there those huge light
+  strip things", then "it looks maybe like the ambient light is really strong ... the
+  flourescent lights need work ... the cross shape isnt realistic ... nice if they showed
+  shadows"): inside the station the sky goes out (no sun, ambient 25 instead of 1100, a dim
+  haze), like the sewers and warehouse. Ceilings have real twin-tube fluorescent fittings in
+  rows along each corridor (and two rows in rooms), each cell a light of its own, the nearest
+  4 casting shadows (none when video shadows are off), and the light that follows you is
+  dim. The "strips" were the corridor pillars' bare steel mirroring nothing; they're matte
+  green paint now, and wall ends have painted caps. All in `fulton.ron` (`light`).
   Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
   in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
   **Andrew and the thing he sends** (the user: "once sufficiently deep in the subway station,

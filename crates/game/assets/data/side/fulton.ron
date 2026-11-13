@@ -33,6 +33,23 @@
     platform_every: 3,
     platform_cells: 3,
     platform_max: 6,
+    // Lights: one under every cell's fluorescent fittings (lumens, reach in
+    // m, height above the floor), and a dim one that goes with you so dark
+    // corners aren't pitch black.
+    light: (
+        cell_lumens: 45000.0,
+        cell_range: 9.0,
+        cell_height: 3.4,
+        follow_lumens: 15000.0,
+        follow_range: 8.0,
+        // The nearest this many cell lights cast shadows (0 for none).
+        shadow_lights: 4,
+        // Down here the sky is out: the ambient light (outside it's 1100), and
+        // a dim haze from fog_start to fog_end metres.
+        ambient: 25.0,
+        fog_start: 12.0,
+        fog_end: 45.0,
+    ),
     // Big rooms (concourses, fare halls) a few cells across among the
     // corridors, so a level isn't all hallways: the chance a level has any,
     // at most how many, their sizes in cells (also tried turned round), and

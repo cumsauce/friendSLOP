@@ -1,0 +1,92 @@
+{
+ "name": "fs-column-paint",
+ "format_version": 1,
+ "domain": "tile",
+ "tile": 1.0,
+ "resolution": 256,
+ "nodes": [
+  {
+   "name": "fn",
+   "octaves": 4,
+   "seed": 121,
+   "size": 0.2,
+   "type": "noise"
+  },
+  {
+   "name": "cn",
+   "octaves": 3,
+   "seed": 122,
+   "size": 0.04,
+   "type": "noise"
+  },
+  {
+   "in": [
+    0.74,
+    0.78
+   ],
+   "input": "cn",
+   "name": "chip",
+   "type": "levels"
+  },
+  {
+   "from": [
+    0,
+    1
+   ],
+   "input": "fn",
+   "name": "v",
+   "to": [
+    0.86,
+    0.96
+   ],
+   "type": "remap"
+  },
+  {
+   "a": "#4a5e46",
+   "b": "#3f5240",
+   "c": "fn",
+   "name": "base",
+   "op": "mix",
+   "type": "math"
+  },
+  {
+   "a": "base",
+   "b": "v",
+   "name": "col0",
+   "op": "mul",
+   "type": "math"
+  },
+  {
+   "a": "col0",
+   "b": "#6d6a64",
+   "c": "chip",
+   "name": "col",
+   "op": "mix",
+   "type": "math"
+  },
+  {
+   "a": "chip",
+   "b": -0.0006,
+   "name": "h",
+   "op": "mul",
+   "type": "math"
+  },
+  {
+   "a": 0.55,
+   "b": 0.85,
+   "c": "chip",
+   "name": "rough",
+   "op": "mix",
+   "type": "math"
+  },
+  {
+   "base_color": "col",
+   "height": "h",
+   "name": "out",
+   "roughness": "rough",
+   "type": "output"
+  }
+ ],
+ "params": {},
+ "version": 1
+}

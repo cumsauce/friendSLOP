@@ -2,14 +2,14 @@
   "format_version": 1,
   "name": "fs-room-wall",
   "parts": [],
-  "version": 43848,
+  "version": 43878,
   "ops": [
     {
       "primitive": {
         "name": "wall",
         "kind": "box",
         "size": [
-          6.0,
+          5.94,
           3.99,
           0.197
         ],
@@ -524,6 +524,126 @@
               {
                 "base_color": "col",
                 "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "wall_capa",
+        "kind": "box",
+        "size": [
+          0.03,
+          3.99,
+          0.197
+        ],
+        "translation": [
+          2.985,
+          1.995,
+          -2.8985
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wall_capb",
+        "kind": "box",
+        "size": [
+          0.03,
+          3.99,
+          0.197
+        ],
+        "translation": [
+          -2.985,
+          1.995,
+          -2.8985
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "caps",
+        "inputs": [
+          "wall_capa",
+          "wall_capb"
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "wall_capa",
+        "input": "wall_capa",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wall_capb",
+        "input": "wall_capb",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "caps",
+        "input": "caps",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e2e0da"
+                  ],
+                  [
+                    1,
+                    "#f2f0ea"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0,
                 "name": "out",
                 "roughness": "r",
                 "type": "output"

@@ -80,6 +80,10 @@ pub struct Tuning {
     pub ride_label: String,
     /// Andrew's calls and the one he sends (`fulton_hunt.rs`).
     pub hunt: Hunt,
+    /// Down here every sound echoes: this many times the open air's reverb send...
+    pub echo_wet: f32,
+    /// ...ringing this many seconds (RT60), and no music.
+    pub echo_secs: f32,
 }
 
 /// Andrew's calls and the thing he sends after you (`fulton_hunt.rs`).
@@ -857,7 +861,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), build_station)
         .add_systems(
             Update,
-            (stream_levels, follow_light, toasts)
+            (stream_levels, follow_light, toasts, echo)
                 .run_if(in_state(AppState::InGame))
                 .run_if(resource_exists::<Station>),
         );
@@ -1069,6 +1073,24 @@ fn follow_light(
         } else {
             Visibility::Hidden
         });
+    }
+}
+
+/// Local: the station's tiled halls ring (every world sound gets a long
+/// tail) and the music stops.
+fn echo(ears: Res<crate::spatial::Ears>, mut room: ResMut<crate::spatial::Room>) {
+    let t = tuning();
+    let want = if in_station(ears.pos - Vec3::Y * 1.6) {
+        crate::spatial::Room {
+            wet: t.echo_wet,
+            rt60: t.echo_secs,
+            hush_music: true,
+        }
+    } else {
+        crate::spatial::Room::OPEN
+    };
+    if *room != want {
+        *room = want;
     }
 }
 

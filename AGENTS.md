@@ -123,7 +123,7 @@ crates/structures/   friendslop-structures: building kit, house grammar, room gr
 crates/data/         friendslop-data: data files (maps, tuning, writing, music) loaded at run time, re-read when edited;
                      `Many<T>` for a folder of them listed by an index (the songs)
                      (the Bevy plugin is its default `plugin` feature; fusion uses it without)
-crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers)
+crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers, multi-cell rooms)
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/it/ headless multiplayer tests (replicon test_app, no sockets)
 ```

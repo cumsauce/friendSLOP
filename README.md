@@ -29,3 +29,13 @@ nix develop          # or: Rust stable + (Linux) libasound2-dev libudev-dev libw
 cargo run -- host
 cargo run -- join <code>
 ```
+
+On non-NixOS Linux the dev shell sets up PipeWire audio for you (`ALSA_PLUGIN_DIR` /
+`ALSA_CONFIG_PATH`; set them yourself to override). Nix binaries can't see the host's
+Vulkan driver, though, so if the game says "Unable to find a GPU", opt in to
+[nixGL](https://github.com/nix-community/nixGL) for that run (not a dependency of the flake):
+
+```sh
+nix develop -c nix run --impure github:nix-community/nixGL#nixVulkanIntel -- cargo run -- host
+# nixVulkanNvidia / nixGLDefault for other drivers
+```

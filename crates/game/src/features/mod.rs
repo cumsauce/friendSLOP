@@ -89,6 +89,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(high_places::protocol);
         app.add_plugins(ice_cream::protocol);
         app.add_plugins(hats::protocol);
+        app.add_plugins(hi::protocol);
     }
 }
 
@@ -177,5 +178,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(high_places::plugin);
         app.add_plugins(ice_cream::plugin);
         app.add_plugins(hats::plugin);
+        app.add_plugins(hi::plugin);
     }
 }

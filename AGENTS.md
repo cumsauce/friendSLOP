@@ -106,7 +106,7 @@ crates/base/src/     friendslop-base: player, assets, settings, voice, hud, musi
                      textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
                      villagers, morality, Duelist, EYE); `shared` (slices of world/camera/controls/ui/zones/
                      scenery that features read); low features (bear, stillness, synth_audio, babble, ...)
-crates/play/         friendslop-play: fps, interact, duel, climb, stats, fate
+crates/play/         friendslop-play: fps, interact, doorway (ways in/out markers), duel, climb, stats, fate
 crates/places/       friendslop-places: warehouse, underground, smoking, skills, fart, fart_sound, helicopter
 crates/village/      friendslop-village: villagers, caught, punishment, hide_and_seek, romance, wendys, ...
 crates/story/        friendslop-story: campaign, objective, landlord, totems, gods_tears, abuela, gamble, ...

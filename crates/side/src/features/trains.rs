@@ -299,9 +299,20 @@ fn build(
     let waiting = car_boxes(false);
     let shut = car_boxes(true);
     for (li, l) in t.lines.iter().enumerate() {
-        for s in &l.stops {
+        for (si, s) in l.stops.iter().enumerate() {
             let at = Transform::from_translation(stop_origin(s))
                 .with_rotation(Quat::from_rotation_y(s.yaw.to_radians()));
+            // Both doors glow as a way in, named for where the train goes.
+            let to = &l.stops[1 - si].name;
+            for x in DOORS {
+                crate::features::doorway::spawn(
+                    &mut commands,
+                    at.transform_point(Vec3::new(x, FLOOR, HALF_WIDE + 0.1)),
+                    s.yaw.to_radians(),
+                    crate::features::doorway::Doorway::way_in(format!("{} to {to}", l.name))
+                        .size(DOOR_W, 2.1),
+                );
+            }
             for file in ["path-car.gltf", "path-platform.gltf"] {
                 commands.spawn((model(&assets, file), at, DespawnOnExit(AppState::InGame)));
             }

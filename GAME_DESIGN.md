@@ -39,6 +39,7 @@ and systemd (PID 1) kills you.
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
 golden, nights are dim and blue. Some nights you hear whispers behind you.
+Every way in or out (doors, stairs, manholes, train doors) glows and names where it goes.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down (past empty
 subway platforms every few levels), for Pelf, while
 Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
@@ -63,6 +64,17 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).
+- **Ways in and out are marked** ("make it more obvious where entrance/exits to things in
+  general are"; `crates/play/src/features/doorway.rs`, tuning in `data/play/doorway.ron`). Every
+  entrance and exit gets the same marker: a soft glowing threshold strip with a chevron pointing
+  through and a thin arch frame (or a glowing square round a hatch), pulsing gently, and within
+  10 m a floating label on an ink chip ("way in / Fulton St"). Mint is in, butter is out, lilac is
+  up or down. Marked: the PATH train doors at both stops, the four NYC shop doors, the Fulton St
+  entrance, every level's stairs down and the two way-out posts, the manholes and cellar door
+  and every ladder back up (not the woodcutter's secret trapdoor), the warehouse shutter and its
+  way out, Wendy's front door and attic stairs, the vault's magic doors, the foot of each sky
+  island spire, and the white light out of the hell pit. Markers only show the way; nothing
+  about how you get in changed.
 - **Structure pipeline** (structures rework). Buildings come from a shared kit
   (`crates/structures`) and a **world seed** the host rolls each session (`features/world_seed.rs`;
   `FRIENDSLOP_SEED=n` fixes it), so every peer builds the same world:

@@ -1,7 +1,7 @@
 // Trains (#321, crates/side/src/features/trains.rs).
 // Each line runs between two stations; a train waits at both. Walk into the
-// car, stand in it for `board_secs`, and it pulls out with you into its
-// tunnel; then a short trip in a car rattling through the dark while the
+// car, stand in it for `board_secs`, and it pulls out with you (into its
+// tunnel, or off along its viaduct in the valley); then a short trip in a car rattling through the dark while the
 // announcer (a retro speech synth) says the stop, and the other station's
 // train comes out of its tunnel with you in it. Add a line to add a train.
 // Edit and save: the running game picks it up within a second.
@@ -21,6 +21,11 @@
     // Where the ride cars hang (x, y, z), deep under the city: one per line,
     // 30 m apart along x. Nobody sees them from outside.
     ride_at: (40.0, -300.0, 300.0),
+    // The ambient light in a ride car (dark as a tunnel: only its lamp and
+    // the lights going by) and in an underground station's hall. The sky's
+    // reflection dims with it.
+    ride_ambient: 0.0,
+    hall_ambient: 30.0,
     // The announcer's voice: pitch and speed.
     voice: (80.0, 0.9),
     // Shown while a train waits to leave with you.
@@ -28,6 +33,9 @@
     lines: [
         (
             name: "PATH",
+            // How far the train goes before it's gone (m): far enough to be
+            // out of sight along the valley's viaduct.
+            run_out: Some(95.0),
             // Exactly two stops, in round brackets: the train runs between them.
             stops: (
                 (
@@ -39,6 +47,9 @@
                     yaw: 0.0,
                     // On the city floor (true) or on the valley's ground (false).
                     city: false,
+                    // Raised this far over the ground (m), its track off on a viaduct
+                    // (the station model is made for 2).
+                    raise: 2.0,
                     // How far under the floor the track is (m): 0 on the surface,
                     // else an underground hall (its model is 7 m tall).
                     depth: 0.0,

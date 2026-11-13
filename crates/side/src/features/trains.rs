@@ -9,8 +9,8 @@
 //!
 //! A line runs between two stops. Each stop is a station: a platform beside
 //! the track (the `path-platform` model) and a tunnel mouth at the track's
-//! end (`path-tunnel`). In the valley the station stands on a plinth
-//! (`path-station`) with the tunnel under an earth mound (`path-mound`); a
+//! end (`path-tunnel`). In the valley the station stands raised on a plinth
+//! (`path-station`) and the track runs off on a viaduct (`path-viaduct`); a
 //! stop with a `depth` is underground, in a hall (`path-hall`) under the
 //! floor with stairs up through a hole in it (World Trade Center's comes up
 //! inside the Oculus).
@@ -57,6 +57,11 @@ pub struct Stop {
     /// floats high over the city.
     #[serde(default)]
     pub floor: Option<f32>,
+    /// How far above the ground a station on the valley's ground stands (m):
+    /// its track runs off on a viaduct, clear of the hills (the `path-station`
+    /// model's plinth and ramp are made for [`STATION_RAISE`]).
+    #[serde(default)]
+    pub raise: f32,
     /// Said on the way to this stop.
     pub announce: String,
 }
@@ -119,6 +124,10 @@ pub struct Tuning {
     pub ride_at: (f32, f32, f32),
     /// The announcer's voice: pitch and speed.
     pub voice: (f32, f32),
+    /// The ambient light in a ride car (dark as a tunnel: only its own lamp)
+    /// and in an underground station's hall. The sky's reflection dims with it.
+    pub ride_ambient: f32,
+    pub hall_ambient: f32,
     /// Shown while a train waits to leave with you.
     pub boarding_line: String,
     pub lines: Vec<Line>,
@@ -156,16 +165,20 @@ const PLATFORM_Z: (f32, f32) = (1.45, 5.05);
 /// The far end of the station from the tunnel (x): the platform's start.
 const STATION_X: f32 = -10.0;
 /// A surface station's ramp from the platform's far end: its run and drop (m).
-const RAMP_RUN: f32 = 5.0;
+const RAMP_SLOPE: f32 = 0.32;
 const RAMP_DROP: f32 = 1.6;
+/// The raise the `path-station` model's plinth and ramp are built for.
+pub const STATION_RAISE: f32 = 2.0;
 /// An underground hall's depth (m, track bed to the floor above) and how
 /// far it runs back from the tunnel, and its back wall (z).
 pub const HALL_DEPTH: f32 = 7.0;
-const HALL_X: f32 = -28.0;
-const HALL_Z: f32 = 8.4;
+const HALL_X: f32 = -34.0;
+const HALL_Z: f32 = 12.4;
+/// Where the hall's columns stand along the track (x; at z 6.4..7).
+const HALL_COLUMNS: [f32; 4] = [-28.0, -20.0, -2.0, 6.0];
 /// The hall's stairs up: across (z middle and width) and where they reach
 /// the floor above (x); they climb along +x at the stairs' slope.
-const STAIRS_Z: f32 = 7.0;
+const STAIRS_Z: f32 = 11.0;
 const STAIRS_W: f32 = 2.4;
 const STAIRS_TOP_X: f32 = -10.0;
 /// The stairs' rise over run (about 34 degrees, like the subway entrance's).
@@ -194,7 +207,7 @@ pub fn stop_frame(s: &Stop) -> Transform {
                 top = top.max(crate::terrain::height_at(p.x, p.z));
             }
         }
-        top
+        top + s.raise
     };
     Transform::from_translation(Vec3::new(x, y - s.depth, z)).with_rotation(turn)
 }
@@ -293,6 +306,11 @@ pub fn line_frame(l: &Line, s: &Stop, along: f32) -> Transform {
     let mut f = car_frame(s, along);
     f.translation.y += l.climb * (along - l.lift_off).max(0.0);
     f
+}
+
+/// Is this stop out in the open on the valley's ground (a viaduct, not a tunnel)?
+pub fn open_air(s: &Stop) -> bool {
+    s.depth <= 0.0 && !s.city && s.floor.is_none()
 }
 
 /// One server tick of a train: its next phase and seconds, given whether
@@ -599,7 +617,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), build)
         .add_systems(
             Update,
-            (announce, tunnel_lights, move_cars).run_if(in_state(AppState::InGame)),
+            (announce, tunnel_lights, move_cars, dark).run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -648,15 +666,16 @@ pub fn station_boxes(s: &Stop) -> Vec<(Vec3, Vec3, Quat)> {
     let flat = |(c, size): (Vec3, Vec3)| (c, size, Quat::IDENTITY);
     let (pz0, pz1) = PLATFORM_Z;
     let mut out = Vec::new();
-    // Nobody walks into the tunnel (the train goes through: it isn't a body).
+    // Nobody walks into the tunnel or off along the viaduct (the train goes
+    // through: it isn't a body).
     out.push(flat(span(
         Vec3::new(PORTAL_X, 0.0, -TRACK_W),
-        Vec3::new(PORTAL_X + 0.3, 4.5, pz0),
+        Vec3::new(PORTAL_X + 0.3, if open_air(s) { 1.2 } else { 4.5 }, pz0),
     )));
     if s.depth <= 0.0 {
         // On a plinth: track bed and platform, the plinth going down into the ground.
         out.push(flat(span(
-            Vec3::new(STATION_X, -3.0, -TRACK_W),
+            Vec3::new(STATION_X, -3.0 - s.raise, -TRACK_W),
             Vec3::new(PORTAL_X, 0.0, pz1),
         )));
         out.push(flat(span(
@@ -666,16 +685,31 @@ pub fn station_boxes(s: &Stop) -> Vec<(Vec3, Vec3, Quat)> {
         // A ramp down from the platform's far end to wherever the ground is.
         let (top, bottom) = (
             Vec3::new(STATION_X, FLOOR, 0.0),
-            Vec3::new(STATION_X - RAMP_RUN, FLOOR - RAMP_DROP, 0.0),
+            Vec3::new(
+                STATION_X - (RAMP_DROP + s.raise) / RAMP_SLOPE,
+                FLOOR - RAMP_DROP - s.raise,
+                0.0,
+            ),
         );
         let along = top - bottom;
         let tilt = Quat::from_rotation_arc(Vec3::NEG_X, -along.normalize());
         let mid = (top + bottom) / 2.0 + tilt * Vec3::new(0.0, -0.15, (pz0 + pz1) / 2.0);
         out.push((mid, Vec3::new(along.length(), 0.3, pz1 - pz0), tilt));
-        // The platform ends at the tunnel mouth.
+        // Raised: a railing along the platform's back edge.
+        if s.raise > 0.0 {
+            out.push(flat(span(
+                Vec3::new(STATION_X, FLOOR, pz1 - 0.1),
+                Vec3::new(PORTAL_X, FLOOR + 1.1, pz1),
+            )));
+        }
+        // The platform ends at the tunnel mouth, or a railing.
         out.push(flat(span(
             Vec3::new(PORTAL_X, 0.0, pz0),
-            Vec3::new(PORTAL_X + 0.3, 4.5, pz1 + 0.5),
+            Vec3::new(
+                PORTAL_X + 0.3,
+                if open_air(s) { 1.3 } else { 4.5 },
+                pz1 + 0.5,
+            ),
         )));
         return out;
     }
@@ -703,6 +737,13 @@ pub fn station_boxes(s: &Stop) -> Vec<(Vec3, Vec3, Quat)> {
         Vec3::new(PORTAL_X, 0.0, pz0),
         Vec3::new(PORTAL_X + 0.3, d, HALL_Z),
     )));
+    // The hall's columns (the `path-hall` model's).
+    for x in HALL_COLUMNS {
+        out.push(flat(span(
+            Vec3::new(x - 0.3, FLOOR, 6.4),
+            Vec3::new(x + 0.3, d, 7.0),
+        )));
+    }
     // The stairs: a ramp up to the floor above, walled both sides up past
     // the floor (a railing round the hole), and a railing across its low end.
     let (bottom, top) = stairs_ends(d);
@@ -818,18 +859,17 @@ fn build(
             }
             let portal = at.with_translation(at.transform_point(Vec3::X * PORTAL_X));
             if l.vehicle == Vehicle::Train {
+                // Out in the open the track runs off on a viaduct; else into a tunnel.
+                let file = if open_air(s) {
+                    "path-viaduct.gltf"
+                } else {
+                    "path-tunnel.gltf"
+                };
                 commands.spawn((
-                    model(&assets, "path-tunnel.gltf"),
+                    model(&assets, file),
                     portal,
                     DespawnOnExit(AppState::InGame),
                 ));
-                if s.depth <= 0.0 && !s.city && s.floor.is_none() {
-                    commands.spawn((
-                        model(&assets, "path-mound.gltf"),
-                        portal,
-                        DespawnOnExit(AppState::InGame),
-                    ));
-                }
             }
             spawn_boxes(&mut commands, at, &station_boxes(s));
             if s.depth > 0.0 {
@@ -944,6 +984,67 @@ fn move_cars(runs: Query<&Run>, mut cars: Query<(&CarOf, &mut Transform)>) {
         if *tf != want {
             *tf = want;
         }
+    }
+}
+
+/// The ambient light at `p` if it's somewhere dark: a ride car (deep under
+/// everything) or an underground station's hall and tunnel.
+pub fn dark_at(t: &Tuning, p: Vec3) -> Option<f32> {
+    if p.y < t.ride_at.1 + 30.0 {
+        return Some(t.ride_ambient);
+    }
+    let under = t.lines.iter().flat_map(|l| l.stops.iter()).any(|s| {
+        if s.depth <= 0.0 {
+            return false;
+        }
+        let l = stop_frame(s).compute_affine().inverse().transform_point3(p);
+        (HALL_X - 1.0..PORTAL_X + 120.0).contains(&l.x)
+            && (-TRACK_W - 1.0..HALL_Z + 1.0).contains(&l.z)
+            && (-1.0..s.depth - 0.9).contains(&l.y)
+    });
+    under.then_some(t.hall_ambient)
+}
+
+/// Local: no sun and little ambient light (so little sky in reflections)
+/// while this screen's camera is in a ride car or an underground hall; put
+/// back as it leaves.
+fn dark(
+    camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
+    mut suns: Query<(Entity, &mut DirectionalLight)>,
+    ambient: Option<ResMut<GlobalAmbientLight>>,
+    mut saved: Local<Option<(f32, Vec<(Entity, f32)>)>>,
+) {
+    let Ok(at) = camera.single() else {
+        return;
+    };
+    let Some(mut ambient) = ambient else { return };
+    match (dark_at(&tuning(), at.translation()), saved.is_some()) {
+        (Some(level), false) => {
+            *saved = Some((
+                ambient.brightness,
+                suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
+            ));
+            ambient.brightness = level;
+            for (_, mut sun) in &mut suns {
+                sun.illuminance = 0.0;
+            }
+        }
+        (Some(level), true) => {
+            if ambient.brightness != level {
+                ambient.brightness = level;
+            }
+        }
+        (None, true) => {
+            if let Some((amb, lux)) = saved.take() {
+                ambient.brightness = amb;
+                for (e, l) in lux {
+                    if let Ok((_, mut sun)) = suns.get_mut(e) {
+                        sun.illuminance = l;
+                    }
+                }
+            }
+        }
+        (None, false) => {}
     }
 }
 
@@ -1203,6 +1304,30 @@ mod tests {
         assert!(!in_car(o, 0.0, Vec3::new(0.0, FLOOR, 3.0)));
         // Turned 90 degrees, the car runs along z.
         assert!(in_car(o, 90.0, Vec3::new(0.0, FLOOR, 6.0)));
+    }
+
+    #[test]
+    fn the_ride_and_the_hall_are_dark_and_the_valley_isnt() {
+        let t = t();
+        let ride = ride_origin(&t, 0, 1) + ABOARD;
+        assert_eq!(dark_at(&t, ride), Some(t.ride_ambient));
+        let path = &t.lines[0];
+        let wtc = path
+            .stops
+            .iter()
+            .find(|s| s.depth > 0.0)
+            .expect("underground");
+        let platform = stop_frame(wtc).transform_point(Vec3::new(0.0, 1.8, 3.0));
+        assert_eq!(dark_at(&t, platform), Some(t.hall_ambient));
+        // Up in the Oculus it's daylight.
+        assert_eq!(dark_at(&t, platform.with_y(1.8)), None);
+        let valley = path
+            .stops
+            .iter()
+            .find(|s| open_air(s))
+            .expect("a valley stop");
+        assert_eq!(dark_at(&t, stop_origin(valley) + Vec3::Y * 1.8), None);
+        assert!(valley.raise > 0.0);
     }
 
     #[test]

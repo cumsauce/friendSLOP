@@ -52,7 +52,7 @@ in static, leaving a scrap of a message. Find all 5, then gather in the ruins' t
 TV broadcasts a riddle that leads outside the game.
 
 **Far south:** a PATH train waits at a little station near the valley's south edge. Step in
-and it pulls out into a tunnel under a grassy mound, rattles along (a robot voice calling the
+and it pulls out along a stone viaduct, rattles along in the dark (a robot voice calling the
 stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
 up into the Oculus. The city has One World Trade Center and 4 shops to walk into. The train
 under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
@@ -451,18 +451,19 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   announcing the stop. can generalize this, we might have more trains"). Later (lume): "i want
   it to actually leave the station before doing the transition scene ... comes back out the
   tunnel below the oculus, then you need to go up in the oculus to exit". Each stop is a
-  station: the valley's stands on a concrete plinth (-10, 66) with a ramp, a canopy and a
-  tunnel into an earth mound; World Trade Center's is a hall 7 m under the Oculus with stairs
+  station: the valley's stands raised 2 m on a concrete plinth (-10, 66) with a ramp, a canopy,
+  railings and an open-air viaduct with catenary masts; World Trade Center's is a wide pillared
+  hall 7 m under the Oculus with benches and stairs
   up through a hole in its floor. Stand in a waiting car for 2 s ("stand clear of the closing
   doors") and it pulls out with you into its tunnel (6 s); inside, you're moved into a closed
-  ride car deep under the city, tunnel lights streaming past, while a retro speech synth
+  ride car deep under the city, pitch dark outside (`ride_ambient`; the hall is dim too) but for tunnel lights streaming past, while a retro speech synth
   (`samiam`) announces the next stop; after 9 s the other station's train comes out of its
   tunnel with you aboard and stops at the platform (7 s). A train that leaves empty comes back
   after 4 s. Everyone sees the cars move (a replicated `Run` per stop). Arriving doesn't send
   you straight back: step off and on again. Lines are data (`data/side/trains.ron`: two stops
   each, with spot, facing, city or valley ground, depth under it, the announcement, and the
   timings); add a line and another train appears. Models `path-car`, `path-platform`,
-  `path-tunnel`, `path-mound`, `path-station`, `path-hall` (modeler); colliders are boxes in
+  `path-tunnel`, `path-viaduct`, `path-station`, `path-hall` (modeler); colliders are boxes in
   code (`features/trains.rs`). The valley stop moved off the hill it was sunk into.
 - **Miami Music Week** (#345, doomy: "in new york you can go to JFK and from there u can fly
   like the train into miami and go to factory town for miami music week. should be EDM music

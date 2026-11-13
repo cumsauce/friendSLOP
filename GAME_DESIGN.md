@@ -1144,7 +1144,7 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   at the crosshair), Run (toggle), Fart, Help, Score, View and Leave. Climbing is still "hold
   forward". Gamepad: left stick move, right stick look, A jump, B/RT use, LB or left-stick
   click run, X fart, Y help, Back scoreboard, D-pad up view / down mute / left journal / right
-  answer phone, right-stick click Enter, Start = Esc; in the menu A/Start hosts. Both press the
+  answer phone, right-stick click Enter, Start = Esc (settings notebook). Both press the
   same keys/mouse buttons features already listen to (`controls.rs`).
 - **Better gamepad / Steam Deck** (#361, bben: "surprise me"). Read as "every action should be
   reachable from a pad". Holding **RB** or **LT** switches the face buttons and D-pad to a second
@@ -1152,7 +1152,15 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   insure, mute spell, duel picks 1-4), with a cheat sheet at the bottom of the screen while held.
   Right-stick look has a response curve (fine aim near centre), its own deadzone and slower
   vertical look, tuned in `data/game/controls.ron`. RB no longer means "use" (B and RT still do).
-  Open: no button remapping, no pad navigation of the menus beyond "A hosts".
+  Open: no button remapping.
+- **Steam Deck / gamepad-only play** (#361). Menus by pad (`ui/pad_nav.rs`): D-pad or left
+  stick moves a yellow focus ring over the title card's and settings notebook's buttons, A
+  clicks, B backs out, left/right move a focused slider. A on the join-code field opens a hex
+  keypad (0-f, Del, Paste, Join) so no on-screen keyboard is needed. The notebook's Controls page
+  has stick deadzone (radial, rescaled, 12% default) and look-speed sliders, saved in `pad.txt`.
+  After a pad was used, prompts and hints name its buttons ("B / RT · in reach"). 1280x800
+  (16:10) runs at UI scale 1 with room to spare. Not tried on a real Deck yet; the character
+  creator and "Whose fault is it" panels aren't pad-navigable.
 - **Video settings** (#106, #132, doomy: "cyberpunk 2077 ... does this ux well ... include
   what's important and maybe have presets"). Settings → Video opens a card with a **Preset**
   (Low / Medium / High; reads Custom once you change anything) and each option on its own:

@@ -338,6 +338,8 @@ pub struct Layout {
     pub places: Vec<Vec2>,
     /// Ground the map's placed models stand on: centre and radius.
     pub props: Vec<(Vec2, f32)>,
+    /// Holes in the terrain (`Hole` markers, see [`crate::holes`]).
+    pub holes: Vec<crate::holes::Hole>,
     /// Ways into the underground, in name order.
     pub entrances: Vec<MapEntrance>,
     /// Climbing islands, in name order: centre, top height and radius.
@@ -469,6 +471,7 @@ pub fn layout_of(map: &[MapEntity]) -> Layout {
             .filter(|e| e.gltf.is_some())
             .map(|e| (e.at(), 1.2))
             .collect(),
+        holes: crate::holes::from_map(map, false),
         entrances: {
             let mut v: Vec<&MapEntity> = map.iter().filter(|e| e.has("Entrance")).collect();
             v.sort_by(|a, b| a.name.cmp(&b.name));

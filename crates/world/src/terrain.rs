@@ -363,6 +363,7 @@ fn tuft_blocked(x: f32, z: f32) -> bool {
     let a = arena_center().xz();
     let in_arena = (x - a.x).abs() < arena_half() + 0.6 && (z - a.y).abs() < arena_half() + 0.6;
     in_arena
+        || crate::holes::inside(&crate::holes::in_terrain(), Vec2::new(x, z))
         || is_pond(x, z)
         || path_amount(Vec2::new(x, z)) > 0.5
         || (Vec2::new(x, z).distance(lake_at()) < layout().lake.radius + 4.0
@@ -477,26 +478,12 @@ pub fn build_tufts() -> Mesh {
 
 /// A vertex-coloured ground mesh over a square region, `cells` per side.
 fn ground_in(min: Vec2, size: f32, cells: u32) -> Mesh {
-    let n = cells + 1;
-    let step = size / cells as f32;
-    let mut pos = Vec::with_capacity((n * n) as usize);
-    let mut nrm = Vec::with_capacity((n * n) as usize);
-    for j in 0..n {
-        for i in 0..n {
-            let x = min.x + i as f32 * step;
-            let z = min.y + j as f32 * step;
-            pos.push([x, height_at(x, z), z]);
-            nrm.push(normal_at(x, z).to_array());
-        }
-    }
-    let mut idx = Vec::with_capacity((cells * cells * 6) as usize);
-    for j in 0..cells {
-        for i in 0..cells {
-            let a = j * n + i;
-            let (b, c, d) = (a + 1, a + n, a + n + 1);
-            idx.extend_from_slice(&[a, c, b, b, c, d]);
-        }
-    }
+    let (pos, idx) = ground_grid(min, size, cells, &crate::holes::in_terrain());
+    let pos: Vec<[f32; 3]> = pos.iter().map(|p| p.to_array()).collect();
+    let nrm: Vec<[f32; 3]> = pos
+        .iter()
+        .map(|p| normal_at(p[0], p[2]).to_array())
+        .collect();
     let colors: Vec<[f32; 4]> = pos.iter().map(|p| ground_color(p[0], p[2], p[1])).collect();
     // Tile the greyscale grass texture every 5 m.
     let uvs: Vec<[f32; 2]> = pos.iter().map(|p| [p[0] / 5.0, p[2] / 5.0]).collect();
@@ -509,6 +496,35 @@ fn ground_in(min: Vec2, size: f32, cells: u32) -> Mesh {
     .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uvs)
     .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, colors)
     .with_inserted_indices(Indices::U32(idx))
+}
+
+/// The ground's triangles over a square region, `cells` per side, with the
+/// terrain's `holes` cut out (see [`crate::holes`]).
+pub fn ground_grid(
+    min: Vec2,
+    size: f32,
+    cells: u32,
+    holes: &[crate::holes::Hole],
+) -> (Vec<Vec3>, Vec<u32>) {
+    let n = cells + 1;
+    let step = size / cells as f32;
+    let mut pos = Vec::with_capacity((n * n) as usize);
+    for j in 0..n {
+        for i in 0..n {
+            let x = min.x + i as f32 * step;
+            let z = min.y + j as f32 * step;
+            pos.push(Vec3::new(x, height_at(x, z), z));
+        }
+    }
+    let mut idx = Vec::with_capacity((cells * cells * 6) as usize);
+    for j in 0..cells {
+        for i in 0..cells {
+            let a = j * n + i;
+            let (b, c, d) = (a + 1, a + n, a + n + 1);
+            idx.extend_from_slice(&[a, c, b, b, c, d]);
+        }
+    }
+    crate::holes::cut_triangles(&pos, &idx, holes).unwrap_or((pos, idx))
 }
 
 /// Ground around the commune (the menu backdrop uses this).
@@ -528,8 +544,21 @@ fn chunks() -> impl Iterator<Item = (Vec2, f32)> {
     })
 }
 
-/// The ground's physics shape: one heightfield sampled from [`height_at`].
+/// The ground's physics shape: one heightfield sampled from [`height_at`],
+/// or, when holes are cut in the terrain, a triangle mesh of the same
+/// samples with the holes left open.
 pub fn ground_collider() -> Collider {
+    let holes = crate::holes::in_terrain();
+    if !holes.is_empty() {
+        let (pos, idx) = ground_grid(
+            Vec2::splat(-WORLD_HALF),
+            WORLD_HALF * 2.0,
+            COLLIDER_CELLS as u32,
+            &holes,
+        );
+        let tris = idx.as_chunks::<3>().0.to_vec();
+        return Collider::trimesh(pos, tris);
+    }
     let n = COLLIDER_CELLS + 1;
     let step = WORLD_HALF * 2.0 / COLLIDER_CELLS as f32;
     let at = |k: usize| -WORLD_HALF + k as f32 * step;
@@ -706,6 +735,20 @@ mod tests {
                 let n = normal_at(x, z);
                 assert!(n.y > 0.6, "too steep at {x},{z}: {n}");
             }
+        }
+    }
+
+    #[test]
+    fn holes_open_the_ground() {
+        let hole = crate::holes::Hole::circle(Vec2::new(3.0, -4.0), 1.5);
+        let (pos, idx) = ground_grid(Vec2::splat(-10.0), 20.0, 20, std::slice::from_ref(&hole));
+        let (whole_pos, whole_idx) = ground_grid(Vec2::splat(-10.0), 20.0, 20, &[]);
+        assert!(idx.len() > whole_idx.len() && pos.len() > whole_pos.len());
+        for t in idx.as_chunks::<3>().0.iter() {
+            let mid = (pos[t[0] as usize] + pos[t[1] as usize] + pos[t[2] as usize]) / 3.0;
+            assert!(!hole.contains(mid.xz()), "ground left in the hole at {mid}");
+            // New corners stay on the ground.
+            assert!((mid.y - height_at(mid.x, mid.z)).abs() < 0.2);
         }
     }
 

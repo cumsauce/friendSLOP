@@ -33,6 +33,7 @@ impl Plugin for MapPlugin {
             .register_type::<Clear>()
             .register_type::<Block>()
             .register_type::<Entrance>()
+            .register_type::<Hole>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
     }
 }
@@ -122,6 +123,17 @@ pub struct Clear {
 #[reflect(Component, Default)]
 pub struct Entrance {
     pub kind: String,
+}
+
+/// A hole in the ground (see `crate::holes`): the marker's box (x by z,
+/// turned by its yaw), or a circle its box's width across (`round`), lined
+/// `depth` metres down from `lip` above the floor.
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Hole {
+    pub round: bool,
+    pub depth: f32,
+    pub lip: f32,
 }
 
 /// A static collider filling the marker's box (`round`: an upright

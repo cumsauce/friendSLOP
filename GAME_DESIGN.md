@@ -48,8 +48,9 @@ brownstone with the neon SURF sign: a surf map, two steep ramps to glide down to
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
 
-**Far south:** a trail post at the valley's south edge walks you over the rim hills to New
-York City: One World Trade Center, the Oculus (no trains yet) and 4 shops to walk into.
+**Far south:** a PATH train waits at a platform on the valley's south edge. Step in and it
+rides you (a short tunnel trip, a robot voice calling the stop) to the Oculus in New York
+City: One World Trade Center and 4 shops to walk into. The train in the Oculus rides you back.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
@@ -424,10 +425,20 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   tall enough to make out over the rim from the valley) and the Oculus, white ribs fanning out
   over a hall with rails you can walk into ("no trains running yet"). Four shops face the avenue
   and you can walk in: a bodega (with a cat), a 99¢ pizza place, a laundromat and a diner; step
-  in and its line shows. Getting there: click the trail post at the valley's south edge
-  (10, 86) and you're walked over the rim; the post by where you arrive walks you back. All
+  in and its line shows. Getting there: the PATH train (below); the old trail posts are gone. All
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
+- **Trains** (#321, doomy: "instead of a sign to click, players board the train headed to the
+  oculus station ... a little transition in the subway when loading between zones with the SAM
+  announcing the stop. can generalize this, we might have more trains"). A PATH car waits at a
+  platform on the valley's south edge (10, 86) and another inside the Oculus. Stand in one for
+  2 s ("stand clear of the closing doors") and the server moves you into a closed ride car deep
+  under the city, tunnel lights streaming past its windows, while a retro speech synth (`samiam`,
+  like Andrew's calls) announces the next stop; after 9 s you're standing in the train at the
+  other end. Arriving doesn't send you straight back: step off and on again to return. Lines are
+  data (`data/side/trains.ron`: two stops each, with spot, facing, valley or city ground and the
+  announcement); add a line and another train appears. Models `path-car` and `path-platform`
+  (modeler); colliders are boxes in code (`features/trains.rs`).
 - **Surf map** (#306, doomy: "surf map in one of the buildings in nyc", no details: surprise
   me). The brownstone on the avenue's east side (27, 239.6) has a neon SURF sign over its
   door; walk up the stoop into the door and you're on the start pad of a surf hall, bigger on
@@ -1182,6 +1193,10 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
 - doomy (#283): New York City far south, with WTC One, the PATH Oculus (not working yet) and
   4+ enterable buildings. Read "far south" as past the rim hills, reached by a trail post (the
   valley's soft wall stays), and "the forest a bit" as a strip of trees over the rim.
+- doomy (#321): board the PATH train to the Oculus instead of clicking a sign, with a subway
+  transition and the SAM announcing the stop, generalised for more trains. Read "transition"
+  as a short ride in a car in a lit tunnel (not a loading screen), and "generalize" as lines in
+  a data file.
 - doomy (#306): a surf map in one of NYC's buildings, details left to us: a brownstone door
   into a two-ramp surf hall with surf air control and a run timer.
 

@@ -80,6 +80,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(fulton_hunt::protocol);
         app.add_plugins(surf::protocol);
         app.add_plugins(wallet::protocol);
+        app.add_plugins(trains::protocol);
     }
 }
 
@@ -153,5 +154,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(broadcast::plugin);
         app.add_plugins(surf::plugin);
         app.add_plugins(wallet::plugin);
+        app.add_plugins(trains::plugin);
     }
 }

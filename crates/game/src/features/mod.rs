@@ -75,6 +75,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(broadcast::protocol);
         app.add_plugins(nyc::protocol);
         app.add_plugins(crate::atmosphere::protocol);
+        app.add_plugins(nyc_traffic::protocol);
     }
 }
 
@@ -141,6 +142,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(systemd::plugin);
         app.add_plugins(watcher::plugin);
         app.add_plugins(nyc::plugin);
+        app.add_plugins(nyc_traffic::plugin);
         app.add_plugins(clues::plugin);
         app.add_plugins(broadcast::plugin);
     }

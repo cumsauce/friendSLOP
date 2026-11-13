@@ -1,0 +1,41 @@
+// New York traffic (crates/side/src/features/nyc_traffic.rs).
+// Edit and save: the running game picks it up within a second
+// (roads and cab counts take effect on the next host).
+(
+    // Each road is driven both ways: a to b in the right-hand lane, a U-turn
+    // past b, and back. The far ends are out in the haze past the city.
+    roads: [
+        // The avenue (north end by the park, south end past the WTC).
+        (a: (0.0, 157.0), b: (0.0, 525.0), lane: 5.0, group: 0, stop_gap: 9.0, cabs: 10),
+        // The two cross streets.
+        (a: (-285.0, 200.0), b: (285.0, 200.0), lane: 2.5, group: 1, stop_gap: 14.0, cabs: 8),
+        (a: (-285.0, 260.0), b: (285.0, 260.0), lane: 2.5, group: 1, stop_gap: 14.0, cabs: 8),
+    ],
+    // Crossings with lights (x, z).
+    crossings: [(0.0, 200.0), (0.0, 260.0)],
+    // Seconds green per group of roads, then all red.
+    green: 12.0,
+    all_red: 3.0,
+    // Cruising and U-turn speeds (m/s).
+    speed: 11.0,
+    turn_speed: 4.0,
+    // Speeding up and braking (m/s²).
+    accel: 3.0,
+    brake: 6.0,
+    // Gap kept to the cab ahead (m, centre to centre).
+    follow_gap: 8.0,
+    // Honk at anyone in the lane this close ahead (m), at most this often (s).
+    honk_range: 22.0,
+    honk_every: 2.5,
+    // A cab this fast (m/s) knocks you over: thrown this far sideways (m) and up (m/s).
+    hit_speed: 3.0,
+    throw: 4.0,
+    throw_up: 7.0,
+    // What you're told when a cab hits you.
+    hit_lines: [
+        "a cab hit you. the driver is still honking.",
+        "HEY, I'M WALKIN' HERE! (you were not walking. you were flying.)",
+        "you got doored by an entire taxi.",
+        "the cab didn't even slow down. welcome to new york.",
+    ],
+)

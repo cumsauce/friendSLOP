@@ -54,7 +54,7 @@ TV broadcasts a riddle that leads outside the game.
 **Far south:** a PATH train waits at a little station near the valley's south edge. Step in
 and it pulls out along a stone viaduct, rattles along in the dark (a robot voice calling the
 stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
-up into the Oculus. The city has One World Trade Center and 4 shops to walk into. The train
+up into the Oculus. The city has One World Trade Center, 4 shops to walk into, and the Vessel on a plaza west of the bodega: a copper honeycomb of stairs you can climb 18 levels to a ring walkway 42 m up. The train
 under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
 for **Miami**, an island floating high over the city: walk into Factory Town for Miami Music
 Week (EDM, lasers, a dancing crowd) and buy a bump of ketamine from the guy by the bar.
@@ -446,6 +446,9 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   and you can walk in: a bodega (with a cat), a 99¢ pizza place, a laundromat and a diner; step
   in and its line shows. Glass in places you can walk into (the Oculus, the shops, the PATH car,
   the plane, Wendy's, the helicopter: `data/base/glass.ron`) is see-through. Getting there: the PATH train (below); the old trail posts are gone. All
+  The Vessel (`features/vessel.rs`, `nyc-vessel` model, the map's `vessel` spot at (-62, 172.5), where four filler towers stood): 18 levels of 8 landings,
+  each with flights up to the two landings above (none steeper than 42 degrees), 15 m across at the foot flaring to 46 m;
+  colliders are ramps, parapets and landing slabs built from the same numbers. `FRIENDSLOP_START=vessel` / `vessel_top`.
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
 - **Trains** (#321, doomy: "instead of a sign to click, players board the train headed to the

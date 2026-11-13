@@ -7,47 +7,56 @@ use bevy_replicon::prelude::RepliconPlugins;
 use friendslop::net::NetCommand;
 
 fn main() -> AppExit {
-    App::new()
-        .add_plugins((
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        title: "friendSLOP".into(),
-                        // Uncapped while benchmarking so frame times are real.
-                        present_mode: if bench_enabled() {
-                            bevy::window::PresentMode::AutoNoVsync
-                        } else {
-                            bevy::window::PresentMode::AutoVsync
-                        },
-                        // Web (#106): draw into index.html's canvas, fill the
-                        // page, and keep the browser from scrolling/zooming.
-                        canvas: Some("#bevy".into()),
-                        fit_canvas_to_parent: true,
-                        prevent_default_event_handling: true,
-                        ..default()
-                    }),
-                    ..default()
-                })
-                .set(AssetPlugin {
-                    file_path: {
-                        // Data files (maps, tuning, writing) read from the same folder.
-                        friendslop_data::set_root(asset_root());
-                        asset_root().display().to_string()
+    let mut app = App::new();
+    // Browser (#242): models ship gzipped; inflate them as they arrive.
+    #[cfg(target_arch = "wasm32")]
+    app.register_asset_source(
+        bevy::asset::io::AssetSourceId::Default,
+        bevy::asset::io::AssetSourceBuilder::new(|| {
+            let mut http = bevy::asset::io::AssetSource::get_default_reader("assets".into());
+            Box::new(friendslop::gz_assets::GzReader(http()))
+        }),
+    );
+    app.add_plugins((
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "friendSLOP".into(),
+                    // Uncapped while benchmarking so frame times are real.
+                    present_mode: if bench_enabled() {
+                        bevy::window::PresentMode::AutoNoVsync
+                    } else {
+                        bevy::window::PresentMode::AutoVsync
                     },
-                    // No .meta files ship; on the web each check is a 404 round trip.
-                    meta_check: bevy::asset::AssetMetaCheck::Never,
+                    // Web (#106): draw into index.html's canvas, fill the
+                    // page, and keep the browser from scrolling/zooming.
+                    canvas: Some("#bevy".into()),
+                    fit_canvas_to_parent: true,
+                    prevent_default_event_handling: true,
                     ..default()
                 }),
-            RepliconPlugins,
-            PhysicsPlugins::default(),
-        ))
-        .add_plugins(friendslop::GamePlugin)
-        .add_plugins(friendslop::screenshot::ScreenshotPlugin)
-        .add_systems(Startup, cli_args)
-        .init_resource::<Churn>()
-        .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))
-        .add_plugins(PipelineLog)
-        .run()
+                ..default()
+            })
+            .set(AssetPlugin {
+                file_path: {
+                    // Data files (maps, tuning, writing) read from the same folder.
+                    friendslop_data::set_root(asset_root());
+                    asset_root().display().to_string()
+                },
+                // No .meta files ship; on the web each check is a 404 round trip.
+                meta_check: bevy::asset::AssetMetaCheck::Never,
+                ..default()
+            }),
+        RepliconPlugins,
+        PhysicsPlugins::default(),
+    ))
+    .add_plugins(friendslop::GamePlugin)
+    .add_plugins(friendslop::screenshot::ScreenshotPlugin)
+    .add_systems(Startup, cli_args)
+    .init_resource::<Churn>()
+    .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))
+    .add_plugins(PipelineLog)
+    .run()
 }
 
 struct PipelineLog;

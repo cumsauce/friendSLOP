@@ -6,8 +6,13 @@
     // open end faces (degrees about +y; 90 opens towards +x, the avenue).
     entrance: (-14.0, 228.0),
     entrance_yaw: 90.0,
-    // Walk this close (metres) to the entrance's middle and you go down.
-    entrance_reach: 1.6,
+    // The hole in the street its stairs go down through, in the entrance's
+    // own frame: its middle along the entrance (+ towards the open end),
+    // size across and along (m), and its lining: depth below the street and
+    // how far above the street it starts (the sidewalk's kerb).
+    entrance_hole: (offset: -0.08, size: (2.6, 6.25), depth: 3.7, lip: 0.15),
+    // Walk this far (metres) down the stairs and you're in the station.
+    entrance_reach: 1.8,
     // The middle of the station's grid under the city (x, z). Its levels
     // stack downwards from 12 m under the street, 4 m apart.
     station_at: (40.0, 280.0),

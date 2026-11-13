@@ -9,7 +9,9 @@
 //
 // progressions: (semitones above the key, chord quality, beats). Qualities are named in
 //   library.ron's `qualities` (Maj9, Maj7s11, Maj69, Min9, Min11, Min6, MinMaj9, Dom13, Dom9,
-//   Dom7s9, Dom7alt, Dom13s11, Dom7b9, Sus9, HalfDim, Dim7; add more there).
+//   Dom7s9, Dom7alt, Dom13s11, Dom7b9, Sus9, HalfDim, Dim7, and the plain Maj, Min,
+//   MinHarm, Dom7, Dom7Phryg, Maj7, Min7, Power, Sus4, Add9, and by their place in the
+//   key MajLyd, Maj7Lyd, MajMix, MinAeo, Min7Aeo; add more there).
 // bass: one char per step (16 to a bar unless a song says): R root, P octave pop, G ghost
 //   (dead note), 5/3/7 chord tones, A chromatic approach to the next chord, - hold, . rest.
 // moods (in order): name, tone (warmth: + warm / - crisp, stereo width, tape wow 0..1,
@@ -42,7 +44,8 @@
 // or the parts written out, each `(play: <generator>, ...)`:
 //   play: Drums(groove: "City", ride: true, clap: true) | Bass(lines: ["SLAP1"]) |
 //     Chords(comp: "City", under: "lead") | Arp | Ostinato(figure: "kalimba") |
-//     Melody(style: "fusion", theme: "signature") | Answer() | Horns(style: "fusion",
+//     Melody(style: "fusion", theme: "signature") | Answer() | Harmony(steps: -2) (the
+//     melody doubled a diatonic third below; -5 a sixth below) | Horns(style: "fusion",
 //     stabs: true, swells: true) | Pad(under: "lead", after_swell: true) |
 //     Lane(lane: "shaker") | Kime(rhythms: "fusion", bass: Bass, keys: EPiano, horn: PolyBrass)
 //     | Bells;
@@ -119,16 +122,23 @@
         "ATTIC_B": [(0, Min6, 4), (1, Maj7s11, 4), (6, Dim7, 4), (7, Dom7alt, 4)],
         "ATTIC_HOOK": [(5, Min6, 2), (6, Dim7, 2), (0, MinMaj9, 2), (9, Dim7, 2), (2, HalfDim, 2), (7, Dom7b9, 2), (0, MinMaj9, 4)],
         "WENDYS_HOOK": [(5, Maj9, 2), (6, Dim7, 2), (0, Maj69, 2), (9, Dom7s9, 2), (2, Min9, 2), (7, Dom13, 2), (0, Maj69, 4)],
-        // New York (#nyc music): a dorian minor vamp with tritone-sub pushes,
-        // horns-and-traffic energy.
-        "NYC_A": [(0, Min9, 4), (5, Dom9, 4), (0, Min9, 4), (8, Dom13s11, 2), (7, Dom7s9, 2)],
-        "NYC_B": [(3, Maj9, 4), (1, Dom13s11, 4), (0, Min11, 4), (7, Dom7alt, 4)],
-        "NYC_HOOK": [(8, Maj9, 4), (7, Dom7s9, 4), (5, Min9, 4), (1, Dom13s11, 2), (7, Dom7alt, 2)],
-        // The bodega: a sunny I - IV - V7 ranchera/cumbia, with a turn
-        // through the relative minor.
-        "BODEGA_A": [(0, Maj69, 4), (5, Maj9, 4), (7, Dom13, 4), (0, Maj69, 4)],
-        "BODEGA_B": [(9, Min9, 4), (2, Min9, 4), (7, Dom7b9, 4), (0, Maj69, 4)],
-        "BODEGA_HOOK": [(5, Maj69, 2), (7, Dom13, 2), (0, Maj69, 4), (5, Maj69, 2), (7, Dom7b9, 2), (0, Maj69, 4)],
+        // New York, boom-bap: a minor-7th loop, i - iv, then bVI - bVII in the hook.
+        "BOOM_A": [(0, Min7Aeo, 8), (5, Min7, 8)],
+        "BOOM_B": [(3, Maj7, 8), (10, Dom7, 4), (0, Min7Aeo, 4)],
+        "BOOM_HOOK": [(8, Maj7Lyd, 8), (10, Dom7, 8)],
+        // New York, house: i - bVII - bVI - bVII, a bar each.
+        "BUSTLE_A": [(0, Min7Aeo, 4), (10, MajMix, 4), (8, Maj7Lyd, 4), (10, MajMix, 4)],
+        "BUSTLE_B": [(5, Min7, 8), (8, Maj7Lyd, 4), (10, MajMix, 4)],
+        "BUSTLE_HOOK": [(8, Maj7Lyd, 4), (10, MajMix, 4), (0, Min7Aeo, 8)],
+        // The bodega, cumbia: I - V7, then IV - I - V7 - I, triads.
+        "CUMBIA_A": [(0, Maj, 8), (7, Dom7, 8)],
+        "CUMBIA_B": [(5, MajLyd, 8), (0, Maj, 4), (7, Dom7, 4)],
+        "CUMBIA_HOOK": [(0, Maj, 4), (5, MajLyd, 4), (7, Dom7, 4), (0, Maj, 4)],
+        // The bodega, ranchera in 3/4 (beats of three): I - V7 - V7 - I, the
+        // IV and the II7 (the secondary dominant) for the chorus.
+        "VALS_A": [(0, Maj, 6), (7, Dom7, 6), (7, Dom7, 6), (0, Maj, 6)],
+        "VALS_B": [(5, MajLyd, 6), (0, Maj, 6), (7, Dom7, 6), (0, Maj, 6)],
+        "VALS_HOOK": [(0, Maj, 6), (2, Dom7, 6), (7, Dom7, 6), (0, Maj, 6)],
     },
     bass: {
         // Cumbia: root on one, fifth on three, a walk-up into the next chord.
@@ -150,6 +160,18 @@
         // A walking line for the upright: root, third, fifth, approach.
         "WALK": "R...3...5...A...",
         "WALK2": "R...5...P...A...",
+        // Boom-bap: a held root, a late pickup.
+        "BOOM": "R-----....R-..5.",
+        "BOOM2": "R-------..R-.A..",
+        // House: the off-beat bass, and octaves.
+        "HOUSE": "..R...R...R...R.",
+        "OCTAVE": "R.P.R.P.R.P.R.PA",
+        // Cumbia on one and three: root, then the fifth, a walk into the next chord.
+        "CUMBIA13": "R-......5-......",
+        "CUMBIA13B": "R-......5-..3.5.",
+        // 3/4: the "oom" on one, root one bar, fifth the next (12 steps).
+        "VALS": "R-..........",
+        "VALS5": "5-..........",
     },
     moods: [
         (
@@ -251,7 +273,7 @@
         ),
         (
             name: "Nyc",
-            tone: (warmth: -0.15, width: 1.15, wow: 0.1, lay_back_ms: 3.0, loose_ms: 2.0),
+            tone: (warmth: 0.2, width: 1.15, wow: 0.25, lay_back_ms: 6.0, loose_ms: 3.0),
             level_db: 1.0,
             wandering: true,
         ),

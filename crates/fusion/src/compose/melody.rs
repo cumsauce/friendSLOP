@@ -104,6 +104,38 @@ impl Composer {
         }
     }
 
+    /// The melody doubled in parallel (thirds, sixths): each note it played
+    /// this bar moved `steps` scale steps in the chord sounding under it.
+    pub(super) fn write_harmony(&mut self, bar: &mut Bar, part: &'static Part) {
+        let G::Harmony { steps } = &part.play else {
+            return;
+        };
+        if !self.sung {
+            return;
+        }
+        let (lo, hi) = part.register;
+        let line = self.frag;
+        for &(st, ln, n) in &line.notes[..line.n] {
+            let ch = self.chord(st as u32);
+            // Only notes well outside its register move an octave, so the
+            // interval to the melody holds.
+            let note = soft_fold(ch.scale_step(n, *steps as i32), lo, hi);
+            let at = self.at(st as u32) + (self.rand() * 120.0) as u32;
+            let len = self.len(ln as f32 * 0.95);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: part.inst,
+                    note,
+                    vel: 0.6 + 0.2 * self.intensity,
+                    len,
+                    glide: false,
+                },
+            );
+        }
+    }
+
     // --- Horns ------------------------------------------------------------
 }
 
@@ -729,6 +761,7 @@ impl Composer {
             .copied()
             .unwrap_or(1.0);
         self.frag = Line::new();
+        self.sung = true;
         for k in 0..n {
             let (st, ln, note) = line.notes[k];
             let ch = self.chord(st as u32);

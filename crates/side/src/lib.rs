@@ -34,8 +34,8 @@ pub mod features {
     pub mod sesbian_lex;
     pub mod shipwreck;
     pub mod surf;
-    pub mod wallet;
     pub mod trains;
+    pub mod wallet;
     pub mod watcher;
 }
 

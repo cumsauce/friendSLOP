@@ -273,13 +273,16 @@ fn music_volume(
     attacks: Query<&crate::features::punishment::AttackMode>,
     spooked: Option<Res<crate::features::warehouse::Spooked>>,
     adrift: Option<Res<crate::features::infinite::Adrift>>,
+    room: Option<Res<crate::spatial::Room>>,
     mut sinks: Query<&mut AudioSink, With<MusicPlayer>>,
 ) {
     let master = settings.map_or(0.8, |s| s.master_volume);
     // Attack mode's strings (#123) play over a silent band.
     // So does the dark of the warehouse (#130): only its drone in there.
     let quiet = crate::features::punishment::attack_on(&attacks)
-        || crate::features::warehouse::spooked(&spooked);
+        || crate::features::warehouse::spooked(&spooked)
+        // And Fulton St station: only the echo down there.
+        || room.is_some_and(|r| r.hush_music);
     let k = 1.0 - (-3.0 * time.delta_secs()).exp();
     *hush += (f32::from(u8::from(quiet)) - *hush) * k;
     // The endless hallway (#206) cuts it dead.

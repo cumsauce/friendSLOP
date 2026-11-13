@@ -1,0 +1,183 @@
+{
+  "format_version": 1,
+  "name": "bt-poop-log",
+  "parts": [],
+  "version": 36,
+  "ops": [
+    {
+      "sdf": {
+        "name": "log",
+        "shapes": [
+          {
+            "shape": "chain",
+            "points": [
+              [
+                -0.115,
+                0.0,
+                0.0,
+                0.03
+              ],
+              [
+                -0.07,
+                0.004,
+                0.01,
+                0.042
+              ],
+              [
+                -0.02,
+                -0.002,
+                -0.005,
+                0.046
+              ],
+              [
+                0.03,
+                0.003,
+                0.008,
+                0.044
+              ],
+              [
+                0.08,
+                0.0,
+                -0.004,
+                0.038
+              ],
+              [
+                0.115,
+                0.002,
+                0.0,
+                0.022
+              ]
+            ]
+          },
+          {
+            "shape": "torus",
+            "at": [
+              -0.04,
+              0.0,
+              0.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.70710677,
+              0.70710677
+            ],
+            "size": [
+              0.044,
+              0.006
+            ]
+          },
+          {
+            "shape": "torus",
+            "at": [
+              0.02,
+              0.0,
+              0.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.70710677,
+              0.70710677
+            ],
+            "size": [
+              0.045,
+              0.006
+            ]
+          },
+          {
+            "shape": "torus",
+            "at": [
+              0.07,
+              0.0,
+              0.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.70710677,
+              0.70710677
+            ],
+            "size": [
+              0.04,
+              0.006
+            ]
+          }
+        ],
+        "blend": 0.015,
+        "warps": [
+          {
+            "mode": "displace",
+            "amount": 0.004,
+            "scale": 0.03,
+            "seed": 3
+          }
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "log",
+        "input": "log",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-poop",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 162,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2a160a"
+                  ],
+                  [
+                    0.6,
+                    "#4a2c12"
+                  ],
+                  [
+                    1,
+                    "#5c3a18"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

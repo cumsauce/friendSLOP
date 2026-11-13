@@ -56,6 +56,7 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 - `models/surfaces/` — one swatch per building surface (stone, wood, leaves,
   cloth, metal, painted): their tile textures replace the generated ones on
   every plain material (`friendslop_world::surfaces`).
+  `bath_tiles` is the warehouse bathroom's floor tiles.
 - `models/scenery/` — the scenery and district set dressing: logs, stumps,
   ruin blocks, rubble, the lean-to shed, hay bales, crates, the woodcutter's
   hut and log pile, the maze statue, the castle arch, the quarry crane, the
@@ -72,7 +73,9 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   and wheel, Marmalade's wizard hat, the hearts, the hell pit's rock walls and roof,
   the magic mushroom, music box, teacup, RPG and rocket, god's tear, crow
   egg, Abuela's rocking chair and knitting, the toilets, stall doors and
-  panels, and the underground's manhole, cellar door, trapdoor, grate, jar
+  panels, the nightmare bathroom's tube lights, stall stubs, bars and rails,
+  high partition, poop logs, blobs and smears, puddles and fart monster
+  (rigged), and the underground's manhole, cellar door, trapdoor, grate, jar
   shelf and ladders; the Tome of Uncancelling, the hell pit's basalt stepping
   stones, the climb's floating island and rock spire, Abuela's hair and
   glasses, heaven's clouds and flowers, the commune flag, and the warehouse's

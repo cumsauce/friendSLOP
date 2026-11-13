@@ -262,7 +262,7 @@ pub fn kcc_move_walkers(
         } else {
             crate::kcc::WALK_SPEED
         } * skills.map_or(1.0, |s| s.walk_speed()); // Walking skill (#176)
-        let mut pos = crate::kcc::step(
+        let mut pos = crate::kcc::step_with(
             &mut kcc,
             walker.pos,
             walker.yaw,
@@ -271,6 +271,8 @@ pub fn kcc_move_walkers(
             speed,
             dt,
             &move_and_slide,
+            // The surf map's air control (#306), else the usual.
+            crate::rules::surf::air_at(walker.pos),
         );
         // The soft wall at the edge of the world (the old `step` clamped too),
         // or New York City's own edges (#283).

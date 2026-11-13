@@ -78,6 +78,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(nyc_traffic::protocol);
         app.add_plugins(fulton::protocol);
         app.add_plugins(fulton_hunt::protocol);
+        app.add_plugins(surf::protocol);
     }
 }
 
@@ -149,5 +150,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(fulton_hunt::plugin);
         app.add_plugins(clues::plugin);
         app.add_plugins(broadcast::plugin);
+        app.add_plugins(surf::plugin);
     }
 }

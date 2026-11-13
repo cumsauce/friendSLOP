@@ -72,6 +72,23 @@ pub struct Kcc {
     pub grounded: Option<MoveHitData>,
 }
 
+/// Air control and the speed cap: [`Air::NORMAL`] everywhere, except places
+/// that want more (the surf map cranks air acceleration the way surf servers do).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Air {
+    pub accel_hz: f32,
+    pub max_wish_speed: f32,
+    pub max_speed: f32,
+}
+
+impl Air {
+    pub const NORMAL: Air = Air {
+        accel_hz: AIR_ACCELERATION_HZ,
+        max_wish_speed: MAX_AIR_WISH_SPEED,
+        max_speed: MAX_SPEED,
+    };
+}
+
 /// One server tick of the controller for one walker whose feet stand at
 /// `feet`. Returns the new feet position; mutates `kcc`'s velocity and
 /// grounded state. `speed` is the wish speed (walk or run).
@@ -85,6 +102,32 @@ pub fn step(
     speed: f32,
     dt: f32,
     move_and_slide: &MoveAndSlide,
+) -> Vec3 {
+    step_with(
+        kcc,
+        feet,
+        yaw,
+        stick,
+        jump,
+        speed,
+        dt,
+        move_and_slide,
+        Air::NORMAL,
+    )
+}
+
+/// [`step`] with its own air control (see [`Air`]).
+#[allow(clippy::too_many_arguments)]
+pub fn step_with(
+    kcc: &mut Kcc,
+    feet: Vec3,
+    yaw: f32,
+    stick: Vec2,
+    jump: bool,
+    speed: f32,
+    dt: f32,
+    move_and_slide: &MoveAndSlide,
+    air: Air,
 ) -> Vec3 {
     let shape = body();
     let rotation = Quat::from_rotation_y(yaw);
@@ -136,7 +179,7 @@ pub fn step(
             kcc.velocity *= scale;
         }
     }
-    kcc.velocity = kcc.velocity.clamp_length_max(MAX_SPEED);
+    kcc.velocity = kcc.velocity.clamp_length_max(air.max_speed);
 
     // Walk or fly (upstream `ground_move` / `air_move`, minus platforms).
     let ground_move = kcc.grounded.is_some();
@@ -167,8 +210,8 @@ pub fn step(
         accelerate(
             &mut kcc.velocity,
             wish_velocity,
-            AIR_ACCELERATION_HZ,
-            Some(MAX_AIR_WISH_SPEED),
+            air.accel_hz,
+            Some(air.max_wish_speed),
             dt,
         );
         // Like upstream's `air_move`, step up ledges while airborne too.
@@ -195,7 +238,7 @@ pub fn step(
     if kcc.grounded.is_some() {
         kcc.velocity.y = 0.0;
     }
-    kcc.velocity = kcc.velocity.clamp_length_max(MAX_SPEED);
+    kcc.velocity = kcc.velocity.clamp_length_max(air.max_speed);
 
     translation - Vec3::Y * FEET_TO_CENTRE
 }

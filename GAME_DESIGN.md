@@ -40,7 +40,8 @@ or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
 golden, nights are dim and blue. Some nights you hear whispers behind you.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down, for Pelf, while
-Andrew calls, gets angry, and sends something after you (hide in lockers).
+Andrew calls, gets angry, and sends something after you (hide in lockers). Or step into the
+brownstone with the neon SURF sign: a surf map, two steep ramps to glide down to a timed finish.
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
@@ -421,6 +422,18 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   (10, 86) and you're walked over the rim; the post by where you arrive walks you back. All
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
+- **Surf map** (#306, doomy: "surf map in one of the buildings in nyc", no details: surprise
+  me). The brownstone on the avenue's east side (27, 239.6) has a neon SURF sign over its
+  door; walk up the stoop into the door and you're on the start pad of a surf hall, bigger on
+  the inside (it hangs 700 m over the city). Two long ridge ramps with 59 degree faces drop to
+  a neon finish pad, walled in over a dark void. The faces are too steep to stand on, and in
+  the hall the walker's air control is cranked up like on surf servers (acceleration 120 a
+  second instead of 10, top speed 45 m/s instead of 30): strafe into a face and steer with the
+  mouse to glide along it. Fall into the void and you're back on the start pad. Your screen
+  times each run from leaving the pad to the finish and shows your best this game. A post on
+  each pad takes you back to the street. Chose a timer as the "point" because surf maps have
+  one; no reward. Models `surf-hall` and `surf-door-sign` (modeler); tuning and lines in
+  `data/side/surf.ron`, the air control in `rules/surf.rs` (`features/surf.rs`).
 - **Fulton St station** (the user: "a fulton street station wfc station u can enter in nyc. it
   is an impossible number of levels with stairs between platforms. you try to find the J train
   towards brooklyn. the signage directs you in a specific path, but you dont reach it for a very
@@ -1142,6 +1155,8 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
 - doomy (#283): New York City far south, with WTC One, the PATH Oculus (not working yet) and
   4+ enterable buildings. Read "far south" as past the rim hills, reached by a trail post (the
   valley's soft wall stays), and "the forest a bit" as a strip of trees over the rim.
+- doomy (#306): a surf map in one of NYC's buildings, details left to us: a brownstone door
+  into a two-ramp surf hall with surf air control and a run timer.
 
 ## Open questions
 

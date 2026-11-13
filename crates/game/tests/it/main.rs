@@ -17,6 +17,7 @@ mod replication;
 mod round_reset;
 mod shipwreck;
 mod skills;
+mod surf;
 mod underground;
 mod warehouse;
 mod wendys;

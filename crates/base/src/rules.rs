@@ -24,4 +24,5 @@ pub mod house_odds;
 pub mod morality;
 pub mod nyc;
 pub mod skills;
+pub mod surf;
 pub mod villagers;

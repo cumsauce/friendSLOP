@@ -1,0 +1,33 @@
+// Fulton St station (crates/side/src/features/fulton.rs).
+// Edit and save: the running game picks it up within a second (the station's
+// layout is built when you enter the game, so a new layout needs a new game).
+(
+    // The subway entrance on the city's sidewalk (x, z), and which way its
+    // open end faces (degrees about +y; 90 opens towards +x, the avenue).
+    entrance: (-14.0, 228.0),
+    entrance_yaw: 90.0,
+    // Walk this close (metres) to the entrance's middle and you go down.
+    entrance_reach: 1.6,
+    // The middle of the station's grid under the city (x, z). Its levels
+    // stack downwards from 12 m under the street, 4 m apart.
+    station_at: (40.0, 280.0),
+    // How many levels deep it goes. The J is on the last one.
+    levels: 40,
+    // Cells across (x) and deep (z) on every level; a cell is 6 m.
+    width: 5,
+    depth: 5,
+    // The signed way across one level is at least this many cells long.
+    min_path: 7,
+    // Same seed, same station (on every peer).
+    seed: 1170,
+    // The reward for reaching the J: this much Pelf (the stats' wealth, max 10).
+    reward_pelf: 3,
+    // Toasts.
+    enter_line: "Fulton St. Follow the J signs to Brooklyn.",
+    level_line: "Fulton St, level {n} of {of}. The J is still further down.",
+    reward_line: "The J to Brooklyn. You actually found it. Pelf +{pelf}.",
+    again_line: "The J to Brooklyn. Still here. Still waiting.",
+    // The way-out posts' labels.
+    exit_label: "climb back up to the street",
+    ride_label: "ride the J (back up to the street)",
+)

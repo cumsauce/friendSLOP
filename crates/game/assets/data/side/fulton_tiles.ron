@@ -1,0 +1,29 @@
+// Fulton St station's tile kit: the pieces wave function collapse fills every
+// level with. Each is a modeler model one 6 m cell across, 4 m tall (sources:
+// `.modeler/prefabs/fs-tile-*`, `fs-sign-*`), centred on its origin on the floor.
+//   model:  under assets/models/features/
+//   open:   the sides a corridor carries on through, as modelled (N is -z,
+//           E +x, S +z, W -x). Every quarter turn of a piece is tried.
+//   weight: how much each turn is wanted.
+// Add a look by adding another piece with the same open sides. The walls'
+// colliders come from the plan, not the models.
+(
+    pieces: [
+        (model: "fs_tile_closed.gltf", open: [], weight: 0.5),
+        (model: "fs_tile_end.gltf", open: [N], weight: 0.8),
+        (model: "fs_tile_straight.gltf", open: [N, S], weight: 3.2),
+        (model: "fs_tile_corner.gltf", open: [N, E], weight: 3.0),
+        (model: "fs_tile_tee.gltf", open: [N, E, S], weight: 1.4),
+        (model: "fs_tile_cross.gltf", open: [N, E, S, W], weight: 0.6),
+    ],
+    // The stairs down: entered from N on its own level, it lands facing S on
+    // the level below (that cell is the landing, drawn by this same model).
+    stairs: "fs_tile_stairs.gltf",
+    // The J platform, entered from N, on the last level.
+    platform: "fs_tile_platform.gltf",
+    // Hanging signs: an arrow to the right (left from the back), straight on,
+    // and down the stairs.
+    sign_turn: "fs_sign_turn.gltf",
+    sign_ahead: "fs_sign_ahead.gltf",
+    sign_down: "fs_sign_down.gltf",
+)

@@ -1,0 +1,760 @@
+{
+  "format_version": 1,
+  "name": "fs-tile-closed",
+  "parts": [],
+  "version": 38694,
+  "ops": [
+    {
+      "primitive": {
+        "name": "block",
+        "kind": "box",
+        "size": [
+          6.0,
+          4.2,
+          6.0
+        ],
+        "translation": [
+          0.0,
+          1.9,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "band_N",
+        "kind": "box",
+        "size": [
+          6.0,
+          0.4,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          2.6,
+          -3.02
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "band_S",
+        "kind": "box",
+        "size": [
+          6.0,
+          0.4,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          2.6,
+          3.02
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "band_E",
+        "kind": "box",
+        "size": [
+          0.04,
+          0.4,
+          6.0
+        ],
+        "translation": [
+          3.02,
+          2.6,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "band_W",
+        "kind": "box",
+        "size": [
+          0.04,
+          0.4,
+          6.0
+        ],
+        "translation": [
+          -3.02,
+          2.6,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "block",
+        "input": "block",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.01,
+                  0.025
+                ],
+                "input": "g.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 0.96,
+                "min": 0.86,
+                "name": "tone",
+                "seed": 162,
+                "type": "random"
+              },
+              {
+                "name": "grime",
+                "octaves": 4,
+                "seed": 161,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.9
+                ],
+                "input": "grime",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.35,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "tone",
+                "b": "gm2",
+                "name": "face",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": "face",
+                "c": "grout",
+                "name": "v",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "v",
+                "b": 2.2,
+                "name": "albedo",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "grout",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.9,
+                "b": 0.25,
+                "c": "grout",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "albedo",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "band_E",
+        "input": "band_E",
+        "base_color": [
+          0.47843137,
+          0.16470589,
+          0.13333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.6,
+                  0.6
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "input": "g",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 0,
+                "name": "sx",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 0,
+                "name": "sy",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "sx",
+                "b": "sy",
+                "name": "d",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "d",
+                "name": "chk",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "g2",
+                "size": [
+                  0.3,
+                  0.3
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.006
+                ],
+                "input": "g2.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "a": "#141414",
+                "b": "#e8e6e0",
+                "c": "chk",
+                "name": "c0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#808078",
+                "b": "c0",
+                "c": "grout",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.2,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "grout",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "band_N",
+        "input": "band_N",
+        "base_color": [
+          0.47843137,
+          0.16470589,
+          0.13333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.6,
+                  0.6
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "input": "g",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 0,
+                "name": "sx",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 0,
+                "name": "sy",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "sx",
+                "b": "sy",
+                "name": "d",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "d",
+                "name": "chk",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "g2",
+                "size": [
+                  0.3,
+                  0.3
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.006
+                ],
+                "input": "g2.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "a": "#141414",
+                "b": "#e8e6e0",
+                "c": "chk",
+                "name": "c0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#808078",
+                "b": "c0",
+                "c": "grout",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.2,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "grout",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "band_S",
+        "input": "band_S",
+        "base_color": [
+          0.47843137,
+          0.16470589,
+          0.13333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.6,
+                  0.6
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "input": "g",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 0,
+                "name": "sx",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 0,
+                "name": "sy",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "sx",
+                "b": "sy",
+                "name": "d",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "d",
+                "name": "chk",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "g2",
+                "size": [
+                  0.3,
+                  0.3
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.006
+                ],
+                "input": "g2.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "a": "#141414",
+                "b": "#e8e6e0",
+                "c": "chk",
+                "name": "c0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#808078",
+                "b": "c0",
+                "c": "grout",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.2,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "grout",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "band_W",
+        "input": "band_W",
+        "base_color": [
+          0.47843137,
+          0.16470589,
+          0.13333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.6,
+                  0.6
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "input": "g",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 0,
+                "name": "sx",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 0,
+                "name": "sy",
+                "op": "step",
+                "type": "math"
+              },
+              {
+                "a": "sx",
+                "b": "sy",
+                "name": "d",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": "d",
+                "name": "chk",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "name": "g2",
+                "size": [
+                  0.3,
+                  0.3
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.006
+                ],
+                "input": "g2.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 22,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "a": "#141414",
+                "b": "#e8e6e0",
+                "c": "chk",
+                "name": "c0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#808078",
+                "b": "c0",
+                "c": "grout",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.2,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "grout",
+                "b": 0.002,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

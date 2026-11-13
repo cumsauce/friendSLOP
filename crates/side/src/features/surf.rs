@@ -267,7 +267,7 @@ fn build(
     // The neon sign over the brownstone's door (faces the avenue, -x).
     commands.spawn((
         model(&assets, "surf-door-sign.gltf"),
-        Transform::from_xyz(t.door.0 + 0.4, 4.2, t.door.1)
+        Transform::from_xyz(t.sign_at.0, t.sign_at.1, t.sign_at.2)
             .with_rotation(Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2)),
         DespawnOnExit(AppState::InGame),
     ));
@@ -400,7 +400,7 @@ mod tests {
     #[test]
     fn the_data_file_parses_and_has_everything() {
         let t = t();
-        assert!(t.door_reach > 0.0 && t.fall_below > 0.0);
+        assert!(t.door_reach > 0.0 && t.fall_below > 0.0 && t.sign_at.1 > 3.0);
         assert!(
             t.air_accel_hz > 10.0,
             "surf needs more air control than walking"

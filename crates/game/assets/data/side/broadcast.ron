@@ -1,0 +1,12 @@
+// Tuning for the TV in the ruins (crates/side/src/features/broadcast.rs, #279).
+// Edit and save: the running game picks it up within a second.
+(
+    // How close to the TV counts as gathered round it, in metres.
+    radius: 4.0,
+    // How many must gather (or everyone, if fewer are playing).
+    crowd: 2,
+    // Seconds before it will broadcast again.
+    cooldown_secs: 180.0,
+    // Seconds each line stays on screen.
+    line_secs: 4.5,
+)

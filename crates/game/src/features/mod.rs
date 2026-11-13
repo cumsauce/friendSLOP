@@ -72,6 +72,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(systemd::protocol);
         app.add_plugins(watcher::protocol);
         app.add_plugins(clues::protocol);
+        app.add_plugins(broadcast::protocol);
     }
 }
 
@@ -138,5 +139,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(systemd::plugin);
         app.add_plugins(watcher::plugin);
         app.add_plugins(clues::plugin);
+        app.add_plugins(broadcast::plugin);
     }
 }

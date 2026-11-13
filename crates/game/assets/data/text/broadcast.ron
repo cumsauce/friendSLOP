@@ -1,0 +1,16 @@
+// What the TV in the ruins says (crates/side/src/features/broadcast.rs, #279).
+// It broadcasts once the Watcher's message (clues.ron) is whole and a crowd stands round it.
+(
+    // What it says, a line at a time.
+    lines: [
+        "...is this thing on...",
+        "WE SEE YOU FOUND OUR LETTER.",
+        "THE COMMUNE WAS BUILT ON THE OLD TRANSMITTER. THAT IS WHY IT WATCHES.",
+        "IT WAS NEVER WATCHING ONE OF YOU. IT WAS COUNTING YOU.",
+        "DO NOT LET THE LANDLORD HEAR THIS.",
+    ],
+    // The last line, written in ROT13 (letters turned 13 places): the riddle
+    // that points outside the game. Decoded it reads:
+    // "THE REST IS NOT IN THE GAME. FIND SIGNAL.txt WHERE THE GAME IS MADE."
+    cipher: "GUR ERFG VF ABG VA GUR TNZR. SVAQ FVTANY.gkg JURER GUR TNZR VF ZNQR.",
+)

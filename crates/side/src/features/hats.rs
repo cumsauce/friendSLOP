@@ -254,7 +254,13 @@ fn wear(
     heads: Query<(Entity, &HeadAnchor, Option<&Children>)>,
     hats: Query<&Hat>,
     worn: Query<&Worn>,
+    changed: Query<(), Changed<Hat>>,
+    new_heads: Query<(), Added<HeadAnchor>>,
 ) {
+    // Nothing to do unless someone's hat changed or a head was (re)built.
+    if changed.is_empty() && new_heads.is_empty() {
+        return;
+    }
     let t = tuning();
     for (anchor, head, children) in &heads {
         let Ok(hat) = hats.get(head.root) else {

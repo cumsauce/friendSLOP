@@ -1,0 +1,44 @@
+// Kitten gangs (#374, crates/side/src/features/kittens.rs): baby kittens that
+// roam New York's streets and try to beat you up while meowing.
+// Edit and save: the running game picks it up within a second (new gangs and
+// counts on the next game).
+(
+    // Each gang: a name, its turf (middle x, z and half sizes, m, on the
+    // street) and how many kittens.
+    gangs: [
+        (name: "the Avenue Mittens", center: (0.0, 215.0), half: (6.0, 22.0), count: 6),
+        (name: "the Uptown Whiskers", center: (0.0, 290.0), half: (6.0, 22.0), count: 5),
+        (name: "the Bodega Paws", center: (-30.0, 190.0), half: (8.0, 6.0), count: 4),
+    ],
+    // Strutting and charging speeds (m/s). Charge stays under a run so you can get away.
+    strut: 0.8,
+    charge: 4.2,
+    // A gang notices you this far outside its turf (m).
+    notice: 5.0,
+    // A kitten swats from this close (m), once every this many seconds.
+    reach: 0.9,
+    swat_every: 1.2,
+    // Swats a gang lands before you go flying, and how hard (m/s, sideways and up).
+    swats_to_knock: 8,
+    knock: 5.0,
+    knock_up: 3.5,
+    // After knocking you over, a gang leaves you alone this long (s).
+    cooldown: 12.0,
+    // Kitten size next to the pet cat.
+    size: 0.5,
+    // Chance per second an angry kitten meows (calm ones a tenth as often).
+    meow_chance: 0.8,
+    swat_lines: [
+        "a kitten swats your ankle. mew!",
+        "tiny claws! MEOW",
+        "a kitten headbutts your shin",
+        "you've been scratched by a baby",
+        "mrrp. (a threat)",
+        "a kitten bites your shoelace",
+    ],
+    knock_lines: [
+        "they took you down. mew mew mew",
+        "you got jumped by babies",
+        "a pile of kittens knocks you flat",
+    ],
+)

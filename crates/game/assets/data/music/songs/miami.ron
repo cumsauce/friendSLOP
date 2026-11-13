@@ -1,0 +1,20 @@
+#![enable(implicit_some)]
+// Miami: song 1 (its own song). See moods.ron for what the fields mean.
+// "Factory Town" (#345, Miami Music Week): EDM. Four on the floor at 126,
+// a sub bass pumping off the beat, saw-ish stabs, a synth lead on the hook
+// and a pad swelling in the breakdown.
+(
+    mood: "Miami", band: "street",
+    bpm: 126.0, swing: 0.0, key: 5,
+    a: "MARKET_A", b: "MARKET_A", hook: "MARKET_A",
+    intensity: 0.9, odd: 0.0, modulate: 0.0, kime: 0.0,
+    parts: [
+        (play: Drums(groove: "House")),
+        (play: Lane(lane: "shaker")),
+        (play: Bass(lines: ["HOUSE", "OCTAVE"]), inst: SubBass, bus: "bass"),
+        (play: Chords(comp: "HouseStab"), inst: PolyBrass, not: [Breakdown]),
+        (play: Arp, inst: Bell, not: [Intro]),
+        (play: Melody(style: "riff"), inst: Lead, sections: [Hook, B]),
+        (play: Pad(), inst: Pad, sections: [Intro, Breakdown]),
+    ],
+)

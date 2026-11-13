@@ -838,6 +838,8 @@ mod tests {
             "spooked",
             "adrift",
             "fulton",
+            "miami",
+            "factory_town",
         ];
         fn names(c: &fusion::direct::Cond, out: &mut Vec<String>) {
             use fusion::direct::Cond;

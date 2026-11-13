@@ -279,18 +279,14 @@ struct LexGlow;
 #[derive(Component)]
 struct LexLine;
 
-fn spawn_visuals(
-    mut commands: Commands,
-    meshes: Option<ResMut<Assets<Mesh>>>,
-    materials: Option<ResMut<Assets<StandardMaterial>>>,
-) {
+fn spawn_visuals(mut commands: Commands, materials: Option<ResMut<Assets<StandardMaterial>>>) {
     commands.spawn((
         Text::new(""),
         LexLine,
         crate::hud::slot(crate::hud::HudSlot::BottomLeft),
         DespawnOnExit(AppState::InGame),
     ));
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
+    let Some(mut materials) = materials else {
         return;
     };
     let pink = materials.add(StandardMaterial {
@@ -298,13 +294,6 @@ fn spawn_visuals(
         emissive: LinearRgba::rgb(0.6, 0.12, 0.25),
         ..default()
     });
-    let deeper = materials.add(StandardMaterial {
-        base_color: Color::srgb(0.82, 0.18, 0.38),
-        emissive: LinearRgba::rgb(0.4, 0.05, 0.15),
-        ..default()
-    });
-    let lobe = meshes.add(Sphere::new(0.16));
-    let tip = meshes.add(Cuboid::new(0.24, 0.24, 0.14));
     for i in 0..tuning().heart_count {
         commands
             .spawn((
@@ -313,20 +302,12 @@ fn spawn_visuals(
                 Transform::default(),
                 DespawnOnExit(AppState::InGame),
             ))
-            .with_children(|heart| {
-                for x in [-0.14, 0.14] {
-                    heart.spawn((
-                        Mesh3d(lobe.clone()),
-                        MeshMaterial3d(pink.clone()),
-                        Transform::from_xyz(x, 0.08, 0.0),
-                    ));
-                }
-                heart.spawn((
-                    Mesh3d(tip.clone()),
-                    MeshMaterial3d(deeper.clone()),
-                    Transform::from_rotation(Quat::from_rotation_z(std::f32::consts::FRAC_PI_4)),
-                ));
-            });
+            // The modeler heart (romance's), at the old size: 0.6 m across.
+            .with_child((
+                crate::features::romance::HeartShape,
+                MeshMaterial3d(pink.clone()),
+                Transform::from_scale(Vec3::splat(1.7)),
+            ));
     }
     commands.spawn((
         LexGlow,

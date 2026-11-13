@@ -73,6 +73,10 @@ pub enum Mood {
     WendysAttic,
     /// You farted in front of someone (shame): a blaring, panicky alarm of a tune.
     FartAlert,
+    /// New York City: a bustling, metropolitan beat (horns, slap bass, traffic-paced drums).
+    Nyc,
+    /// Inside the NYC bodega: a Mexican-American cumbia/ranchera theme.
+    Bodega,
 }
 
 /// How a mood sounds on top of what it plays: the band's overall colour
@@ -108,7 +112,7 @@ impl Mood {
         table().moods.get(&self).map_or(Tone::NEUTRAL, |ms| ms.tone)
     }
 
-    pub const ALL: [Mood; 16] = [
+    pub const ALL: [Mood; 18] = [
         Mood::Menu,
         Mood::Explore,
         Mood::Village,
@@ -125,6 +129,8 @@ impl Mood {
         Mood::Wendys,
         Mood::WendysAttic,
         Mood::FartAlert,
+        Mood::Nyc,
+        Mood::Bodega,
     ];
 
     pub fn from_index(i: u8) -> Mood {
@@ -696,7 +702,7 @@ pub struct Composer {
     /// The style used while still (the mood before the stillness).
     style_mood: Mood,
     /// Which song each mood is playing (see [`songs`]).
-    song: [u8; 16],
+    song: [u8; Mood::ALL.len()],
     pub section: Section,
     intensity: f32,
     bpm: f32,
@@ -754,7 +760,7 @@ impl Composer {
             rng: seed | 1,
             mood,
             style_mood: mood,
-            song: [0; 16],
+            song: [0; Mood::ALL.len()],
             section: Section::Intro,
             intensity: s.intensity,
             bpm: s.bpm,
@@ -824,9 +830,12 @@ impl Composer {
 
     fn style(&self) -> &'static Style {
         if self.mood == Mood::Still {
-            style_song(self.style_mood, self.song[self.style_mood as usize % 16])
+            style_song(
+                self.style_mood,
+                self.song[self.style_mood as usize % Mood::ALL.len()],
+            )
         } else {
-            style_song(self.mood, self.song[self.mood as usize % 16])
+            style_song(self.mood, self.song[self.mood as usize % Mood::ALL.len()])
         }
     }
 
@@ -865,12 +874,12 @@ impl Composer {
         // to another one.
         let n = songs(m);
         if n > 1 && fresh {
-            self.song[m as usize % 16] = self.pick(n) as u8;
+            self.song[m as usize % Mood::ALL.len()] = self.pick(n) as u8;
         } else if n > 1 && prev == Section::Breakdown && self.chance(0.6) {
-            let now = self.song[m as usize % 16] as usize;
-            self.song[m as usize % 16] = ((now + 1 + self.pick(n - 1)) % n) as u8;
+            let now = self.song[m as usize % Mood::ALL.len()] as usize;
+            self.song[m as usize % Mood::ALL.len()] = ((now + 1 + self.pick(n - 1)) % n) as u8;
         }
-        let s = style_song(m, self.song[m as usize % 16]);
+        let s = style_song(m, self.song[m as usize % Mood::ALL.len()]);
         let i = self.intensity;
         let kind = if m == Mood::Still {
             Section::Still

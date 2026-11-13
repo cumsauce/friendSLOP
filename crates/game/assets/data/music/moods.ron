@@ -79,8 +79,21 @@
         "ATTIC_B": [(0, Min6, 4), (1, Maj7s11, 4), (6, Dim7, 4), (7, Dom7alt, 4)],
         "ATTIC_HOOK": [(5, Min6, 2), (6, Dim7, 2), (0, MinMaj9, 2), (9, Dim7, 2), (2, HalfDim, 2), (7, Dom7b9, 2), (0, MinMaj9, 4)],
         "WENDYS_HOOK": [(5, Maj9, 2), (6, Dim7, 2), (0, Maj69, 2), (9, Dom7s9, 2), (2, Min9, 2), (7, Dom13, 2), (0, Maj69, 4)],
+        // New York (#nyc music): a dorian minor vamp with tritone-sub pushes,
+        // horns-and-traffic energy.
+        "NYC_A": [(0, Min9, 4), (5, Dom9, 4), (0, Min9, 4), (8, Dom13s11, 2), (7, Dom7s9, 2)],
+        "NYC_B": [(3, Maj9, 4), (1, Dom13s11, 4), (0, Min11, 4), (7, Dom7alt, 4)],
+        "NYC_HOOK": [(8, Maj9, 4), (7, Dom7s9, 4), (5, Min9, 4), (1, Dom13s11, 2), (7, Dom7alt, 2)],
+        // The bodega: a sunny I - IV - V7 ranchera/cumbia, with a turn
+        // through the relative minor.
+        "BODEGA_A": [(0, Maj69, 4), (5, Maj9, 4), (7, Dom13, 4), (0, Maj69, 4)],
+        "BODEGA_B": [(9, Min9, 4), (2, Min9, 4), (7, Dom7b9, 4), (0, Maj69, 4)],
+        "BODEGA_HOOK": [(5, Maj69, 2), (7, Dom13, 2), (0, Maj69, 4), (5, Maj69, 2), (7, Dom7b9, 2), (0, Maj69, 4)],
     },
     bass: {
+        // Cumbia: root on one, fifth on three, a walk-up into the next chord.
+        "CUMBIA": "R...5...R...5.A.",
+        "CUMBIA2": "R..5R...R..5R.A.",
         "SLAP1": "R.GR.PGR..R.PGRA",
         "SLAP2": "R..GP..RR.GP.5-A",
         "PUMP": "R.R.P.R.R.R.P.RA",
@@ -407,6 +420,72 @@
                 theme: false, bass_inst: Bass, pad_inst: Pad,
                 horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: true),
                 answer: Some(PolyBrass), nylon: None,
+            ),
+            ],
+        ),
+            Nyc: (
+            tone: (warmth: -0.15, width: 1.15, wow: 0.1, lay_back_ms: 3.0, loose_ms: 2.0),
+            level_db: 1.0,
+            songs: [
+            // "Rush Hour": a bustling, metropolitan beat. Driving drums, slap
+            // bass, the horn section blaring stabs and swells like traffic,
+            // clav pecking and a cowbell on the corner.
+            (
+                bpm: 122.0, swing: 0.08, key: 2,
+                a: "NYC_A", b: "NYC_B", hook: "NYC_HOOK",
+                groove: Drive, bass: ["SLAP1", "SLAP2", "DRIVE"],
+                comp: Stabs, lead: Brass, arp: Some(Clav), pad: false,
+                intensity: 0.65, odd: 0.15, modulate: 0.25, kime: 0.5,
+                theme: false, bass_inst: SlapBass, pad_inst: Pad,
+                horns: Both, kit: (shaker: true, conga: false, clap: true, ride: true),
+                answer: Some(PolyBrass), nylon: None,
+                keys: Some(EPiano), hand: Some(Timbales), perc: [Cowbell],
+            ),
+            // "Night Shift": the same streets after dark, laid-back and
+            // swung, Rhodes and an upright under a muted horn line.
+            (
+                bpm: 94.0, swing: 0.2, key: 9,
+                a: "NYC_A", b: "NYC_B", hook: "NYC_HOOK",
+                groove: City, bass: ["WALK", "WALK2"],
+                comp: City, lead: Mini, arp: None, pad: true,
+                intensity: 0.5, odd: 0.0, modulate: 0.2, kime: 0.3,
+                theme: false, bass_inst: Upright, pad_inst: Strings,
+                horns: Swells, kit: (shaker: false, conga: false, clap: false, ride: true),
+                answer: Some(Brass), nylon: None,
+                keys: Some(EPiano), hand: None, perc: [],
+            ),
+            ],
+        ),
+        Bodega: (
+            tone: (warmth: 0.35, width: 1.0, wow: 0.45, lay_back_ms: 6.0, loose_ms: 4.0),
+            level_db: 1.0,
+            songs: [
+            // "Deli & Grocery": a Mexican-American cumbia on the bodega radio.
+            // Trumpets in thirds, nylon guitar strumming, guiro scraping,
+            // congas and claves, an accordion-ish organ answering.
+            (
+                bpm: 96.0, swing: 0.0, key: 7,
+                a: "BODEGA_A", b: "BODEGA_B", hook: "BODEGA_HOOK",
+                groove: City, bass: ["CUMBIA", "CUMBIA2"],
+                comp: Stabs, lead: Brass, arp: None, pad: false,
+                intensity: 0.55, odd: 0.0, modulate: 0.15, kime: 0.3,
+                theme: false, bass_inst: Bass, pad_inst: Pad,
+                horns: Stabs, kit: (shaker: false, conga: true, clap: false, ride: false),
+                answer: Some(Organ), nylon: Bossa,
+                keys: Some(Guitar), hand: Some(Conga), perc: [Guiro, Claves],
+            ),
+            // "Ranchera de la Esquina": a slow ranchera bolero, mariachi
+            // trumpets swelling over picked nylon and the upright.
+            (
+                bpm: 82.0, swing: 0.05, key: 2,
+                a: "BODEGA_A", b: "BODEGA_B", hook: "BODEGA_HOOK",
+                groove: Bolero, bass: ["BOLERO"],
+                comp: Bolero, lead: Brass, arp: None, pad: true,
+                intensity: 0.45, odd: 0.0, modulate: 0.1, kime: 0.0,
+                theme: false, bass_inst: Upright, pad_inst: Strings,
+                horns: Swells, kit: (shaker: true, conga: false, clap: false, ride: false),
+                answer: Some(Guitar), nylon: Pick([A, B]),
+                keys: Some(Guitar), hand: None, perc: [Guiro],
             ),
             ],
         ),

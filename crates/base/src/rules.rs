@@ -18,6 +18,7 @@ pub struct Duelist {
 
 /// Eye height: the camera sits in your eyes.
 pub const EYE: f32 = 1.6;
+pub mod boba;
 pub mod campaign;
 pub mod depths;
 pub mod house_odds;

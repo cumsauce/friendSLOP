@@ -247,6 +247,7 @@ pub fn kcc_move_walkers(
             &mut WalkInput,
             &mut crate::kcc::Kcc,
             Option<&crate::rules::skills::Skills>,
+            Option<&crate::rules::boba::Buzz>,
         ),
         Without<super::ragdoll::Ragdoll>,
     >,
@@ -256,7 +257,7 @@ pub fn kcc_move_walkers(
     }
     // The old movement ticked per frame with a clamped dt; keep that.
     let dt = time.delta_secs().min(0.1);
-    for (player, mut walker, input, mut kcc, skills) in &mut walkers {
+    for (player, mut walker, input, mut kcc, skills, buzz) in &mut walkers {
         if input.climbing || duelists.iter().any(|d| d.player == player.id) {
             continue; // climbing (see `climb.rs`), or your duel body is moving
         }
@@ -264,7 +265,8 @@ pub fn kcc_move_walkers(
             crate::kcc::RUN_SPEED
         } else {
             crate::kcc::WALK_SPEED
-        } * skills.map_or(1.0, |s| s.walk_speed()); // Walking skill (#176)
+        } * skills.map_or(1.0, |s| s.walk_speed()) // Walking skill (#176)
+            * buzz.map_or(1.0, |b| b.speed()); // boba stacks (#356)
         let mut pos = crate::kcc::step_with(
             &mut kcc,
             walker.pos,

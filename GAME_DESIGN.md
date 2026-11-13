@@ -54,7 +54,8 @@ TV broadcasts a riddle that leads outside the game.
 **Far south:** a PATH train waits at a little station near the valley's south edge. Step in
 and it pulls out along a stone viaduct, rattles along in the dark (a robot voice calling the
 stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
-up into the Oculus. The city has One World Trade Center and 4 shops to walk into. The train
+up into the Oculus. The city has One World Trade Center, 4 shops to walk into and 3 boba shops (Gong Chaw,
+Kung Fu Tee, Tiger Sugah) where your dollars buy drinks that stack a speed buzz. The train
 under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
 for **Miami**, an island floating high over the city: walk into Factory Town for Miami Music
 Week (EDM, lasers, a dancing crowd) and buy a bump of ketamine from the guy by the bar.
@@ -63,7 +64,7 @@ Week (EDM, lasers, a dancing crowd) and buy a bump of ketamine from the guy by t
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free, and dollars buy nothing yet. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
+free, and dollars only buy boba so far. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
 
 ## What exists
 
@@ -448,6 +449,18 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   the plane, Wendy's, the helicopter: `data/base/glass.ron`) is see-through. Getting there: the PATH train (below); the old trail posts are gone. All
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
+- **Boba shops** (#356, catherine: "have them be fully staffed and modeled and even have music
+  and allow prime to buy boba which gives temporary status effects that can stack. have the
+  names and visuals parody real life boba places in nyc"). Three shops on the avenue's east side
+  south of the diner (x 26, z 262/276/290, doors facing the avenue): **Gong Chaw** (mint), **Kung
+  Fu Tee** (taro) and **Tiger Sugah** (peach), parodies of Gong Cha, Kung Fu Tea and Tiger Sugar.
+  One modeler model (`nyc-boba`: glass shopfront, neon sign, counter with cups, tea urns, menu
+  board, tables) exported per shop with its sign and paint. Two staff behind every counter. Inside,
+  the music turns to the bubbly "Boba" mood ("Pearls"). Click one of the three cups on the counter
+  to buy that drink with your dollars ($6-9): each adds a timed stack (20-90 s) that makes you walk
+  and run faster (+8% to +30% each) and tints your screen in its colour; up to 5 stack, the
+  status shows bottom-right. Read "prime" as "players". Drinks, prices, effects, names and lines in
+  `data/side/boba.ron`; the stacks in `rules/boba.rs` (`features/boba.rs`).
 - **Trains** (#321, doomy: "instead of a sign to click, players board the train headed to the
   oculus station ... a little transition in the subway when loading between zones with the SAM
   announcing the stop. can generalize this, we might have more trains"). Later (lume): "i want
@@ -1308,6 +1321,9 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   a data file.
 - doomy (#306): a surf map in one of NYC's buildings, details left to us: a brownstone door
   into a two-ramp surf hall with surf air control and a run timer.
+- catherine (#356): fully staffed, modeled boba shops in the city with music, buying boba for
+  stacking timed status effects, names parodying real NYC boba places. Read "prime" as "players";
+  chose three shops and a speed buzz plus a screen tint as the effect.
 
 ## Open questions
 

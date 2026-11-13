@@ -1,0 +1,116 @@
+{
+  "name": "bb-paint-mint",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 11,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#a8e0c8"
+        ],
+        [
+          1,
+          "#bdeed8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fn",
+      "name": "r",
+      "to": [
+        0.45,
+        0.6
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bb-paint-mint",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 11,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#a8e0c8"
+                ],
+                [
+                  1,
+                  "#bdeed8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.45,
+                0.6
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

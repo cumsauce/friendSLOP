@@ -202,10 +202,8 @@ fn tumble(
             if let Some(b) = t.body {
                 commands.entity(b).try_despawn();
             }
-            if !moved {
-                if let Some(rest) = t.rest {
-                    walker.pos = rest;
-                }
+            if !moved && let Some(rest) = t.rest {
+                walker.pos = rest;
             }
             if let Some(mut kcc) = kcc {
                 kcc.velocity = Vec3::ZERO;

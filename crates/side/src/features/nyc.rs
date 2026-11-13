@@ -470,7 +470,9 @@ mod tests {
             .collect();
         assert!(models.iter().any(|g| g.contains("nyc-wtc")));
         assert!(
-            models.iter().all(|g| g.starts_with("models/prefabs/nyc-")),
+            models
+                .iter()
+                .all(|g| g.starts_with("models/prefabs/nyc-") || g.starts_with("maps/nyc")),
             "{models:?}"
         );
     }
@@ -479,7 +481,8 @@ mod tests {
     fn the_arrival_and_the_avenue_are_clear() {
         let c = city(&map());
         let t = t();
-        for w in &c.walls {
+        // The sidewalks and the park are walls too, but flat ones you walk on.
+        for w in c.walls.iter().filter(|w| w.size.y > 0.5) {
             let half = w.size.xz().length() / 2.0;
             let d = w.centre.xz().distance(v2(t.arrival));
             assert!(d > half + 1.0, "a wall on the arrival: {w:?}");

@@ -161,6 +161,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(surf::plugin);
         app.add_plugins(wallet::plugin);
         app.add_plugins(trains::plugin);
+        app.add_plugins(vessel::plugin);
         app.add_plugins(ragdoll::plugin);
         app.add_plugins(miami::plugin);
         app.add_plugins(boba::plugin);

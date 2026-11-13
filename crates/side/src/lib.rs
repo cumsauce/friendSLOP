@@ -39,6 +39,7 @@ pub mod features {
     pub mod street_people;
     pub mod surf;
     pub mod trains;
+    pub mod vessel;
     pub mod wallet;
     pub mod watcher;
 }

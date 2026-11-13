@@ -96,6 +96,9 @@ pub struct Tuning {
     /// ...and at most (the level below has to wind round them).
     #[serde(default)]
     pub platform_max: usize,
+    /// The station's lights.
+    #[serde(default)]
+    pub light: Lights,
     /// Big rooms several cells across, among the corridors.
     #[serde(default)]
     pub rooms: Rooms,
@@ -132,6 +135,27 @@ pub struct EntranceHole {
     /// How far down its lining goes, and how far above the street it starts.
     pub depth: f32,
     pub lip: f32,
+}
+
+/// The station's lights: one under every cell's ceiling tubes on the levels
+/// being drawn, and a dim one that goes with you.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Lights {
+    /// Each cell's ceiling light (lumens), how far it reaches (m) and its height.
+    pub cell_lumens: f32,
+    pub cell_range: f32,
+    pub cell_height: f32,
+    /// The light that goes with you (lumens) and its reach (m).
+    pub follow_lumens: f32,
+    pub follow_range: f32,
+    /// The nearest this many cell lights cast shadows (0: none; off when the
+    /// video settings turn shadows off).
+    pub shadow_lights: usize,
+    /// Down here the sky is out: the ambient light's brightness...
+    pub ambient: f32,
+    /// ...and a dim haze from this far (m) to this far.
+    pub fog_start: f32,
+    pub fog_end: f32,
 }
 
 /// Big rooms: rectangles of cells with no walls between them, stamped on a
@@ -1289,7 +1313,14 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), build_station)
         .add_systems(
             Update,
-            (stream_levels, follow_light, toasts, echo)
+            (
+                stream_levels,
+                follow_light,
+                light_shadows,
+                station_dark,
+                toasts,
+                echo,
+            )
                 .run_if(in_state(AppState::InGame))
                 .run_if(resource_exists::<Station>),
         );
@@ -1428,8 +1459,8 @@ fn build_station(
         StationLight,
         PointLight {
             color: Color::srgb(0.92, 0.96, 1.0),
-            intensity: 600_000.0,
-            range: 26.0,
+            intensity: t.light.follow_lumens,
+            range: t.light.follow_range,
             ..default()
         },
         Transform::default(),
@@ -1492,6 +1523,21 @@ fn stream_levels(
                 };
                 let Some(file) = file else { continue };
                 let at = cell_world(&t, li, (x, z));
+                // Its ceiling tubes light it (no shadows: there are a lot of them).
+                if t.light.cell_lumens > 0.0 {
+                    commands.spawn((
+                        CellLight,
+                        PointLight {
+                            color: Color::srgb(0.9, 0.95, 1.0),
+                            intensity: t.light.cell_lumens,
+                            range: t.light.cell_range,
+                            shadow_maps_enabled: false,
+                            ..default()
+                        },
+                        Transform::from_translation(at + Vec3::Y * t.light.cell_height),
+                        ChildOf(root),
+                    ));
+                }
                 commands.spawn((
                     model(&assets, file),
                     Transform::from_translation(at).with_rotation(f.rotation()),
@@ -1540,7 +1586,92 @@ fn stream_levels(
     }
 }
 
-/// Local: a light that goes with you down there (the tubes are only paint).
+/// A cell's ceiling light (the nearest few cast shadows).
+#[derive(Component)]
+struct CellLight;
+
+/// Local: the nearest [`Lights::shadow_lights`] cell lights cast shadows.
+fn light_shadows(
+    camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
+    quality: Option<Res<crate::graphics::GraphicsQuality>>,
+    mut lights: Query<(&GlobalTransform, &mut PointLight), With<CellLight>>,
+) {
+    let Some(at) = camera_at(&camera) else { return };
+    let t = tuning();
+    let n = if quality.is_none_or(|q| q.shadows) {
+        t.light.shadow_lights
+    } else {
+        0
+    };
+    let mut all: Vec<_> = lights
+        .iter_mut()
+        .map(|(g, l)| (g.translation().distance_squared(at), l))
+        .collect();
+    all.sort_by(|a, b| a.0.total_cmp(&b.0));
+    for (i, (_, mut l)) in all.into_iter().enumerate() {
+        let want = i < n;
+        if l.shadow_maps_enabled != want {
+            l.shadow_maps_enabled = want;
+        }
+    }
+}
+
+/// Local: inside the station the sky is out: no sun, little ambient light
+/// and a dim haze, all put back on the way out.
+#[allow(clippy::type_complexity)]
+fn station_dark(
+    mut commands: Commands,
+    camera: Query<(Entity, &GlobalTransform, Option<&DistanceFog>), With<crate::world::MainCamera>>,
+    mut suns: Query<(Entity, &mut DirectionalLight)>,
+    ambient: Option<ResMut<GlobalAmbientLight>>,
+    mut saved: Local<Option<(Option<DistanceFog>, f32, Vec<(Entity, f32)>)>>,
+) {
+    let Ok((cam, at, fog)) = camera.single() else {
+        return;
+    };
+    let Some(mut ambient) = ambient else { return };
+    let inside = in_station(at.translation() - Vec3::Y * 1.6);
+    if inside == saved.is_some() {
+        return;
+    }
+    if inside {
+        let t = tuning();
+        *saved = Some((
+            fog.cloned(),
+            ambient.brightness,
+            suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
+        ));
+        ambient.brightness = t.light.ambient;
+        for (_, mut sun) in &mut suns {
+            sun.illuminance = 0.0;
+        }
+        commands.entity(cam).insert(DistanceFog {
+            color: Color::srgb(0.03, 0.035, 0.04),
+            falloff: FogFalloff::Linear {
+                start: t.light.fog_start,
+                end: t.light.fog_end,
+            },
+            ..default()
+        });
+    } else if let Some((fog, amb, lux)) = saved.take() {
+        ambient.brightness = amb;
+        for (e, l) in lux {
+            if let Ok((_, mut sun)) = suns.get_mut(e) {
+                sun.illuminance = l;
+            }
+        }
+        match fog {
+            Some(f) => {
+                commands.entity(cam).insert(f);
+            }
+            None => {
+                commands.entity(cam).remove::<DistanceFog>();
+            }
+        }
+    }
+}
+
+/// Local: a light that goes with you down there.
 fn follow_light(
     camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
     mut light: Query<(&mut Transform, &mut Visibility), With<StationLight>>,
@@ -1647,6 +1778,9 @@ mod tests {
         let (t, set) = data();
         assert!(t.levels >= 10, "an impossible number of levels");
         assert!(t.min_path >= 3 && t.reward_pelf > 0);
+        assert!(
+            t.light.cell_lumens > 0.0 && t.light.cell_range > 0.0 && t.light.follow_range > 0.0
+        );
         assert!(!t.enter_line.is_empty() && t.reward_line.contains("{pelf}"));
         assert!(t.level_line.contains("{n}") && !t.exit_label.is_empty());
         assert!(!set.pieces.is_empty() && !set.stairs.is_empty() && !set.platform.is_empty());

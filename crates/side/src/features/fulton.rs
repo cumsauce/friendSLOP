@@ -16,6 +16,16 @@
 //! level has the J platform instead of stairs. The colliders come from the
 //! plan, not the models, so they never wait on a file.
 //!
+//! Subway platforms ("fulton street needs subway platforms and empty tracks
+//! too"): every [`Tuning::platform_every`] levels the kit's track pieces join
+//! in: a platform deck with its yellow edge, columns, benches and line signs,
+//! and 1.2 m below it an empty track bed (ballast, ties, rails, the third rail
+//! under its board) running between tunnel mouths, with steps down at each
+//! end. Track sides only meet track sides, with the deck on the same side, so
+//! a run hangs together. The bed sinks into the level below, so the cells
+//! under it there are solid ([`Kind::Under`]) and the generator keeps that
+//! level winding round them.
+//!
 //! The reward (server): reaching the J platform raises your Pelf (the stats'
 //! wealth, `stats.rs`) by [`Tuning::reward_pelf`], once per player per game.
 //! A post on the platform rides the J back up to the street, and one on the
@@ -67,6 +77,17 @@ pub struct Tuning {
     pub min_path: u32,
     /// The layout's seed.
     pub seed: u32,
+    /// Every this many levels (the 1st, the n+1th, ...; never the J's) the
+    /// subway platforms come in: track pieces may fill cells and at least
+    /// [`Tuning::platform_cells`] of them must. 0 turns them off.
+    #[serde(default)]
+    pub platform_every: usize,
+    /// How many track cells a platform level has at least.
+    #[serde(default)]
+    pub platform_cells: usize,
+    /// ...and at most (the level below has to wind round them).
+    #[serde(default)]
+    pub platform_max: usize,
     /// Pelf for reaching the J.
     pub reward_pelf: u8,
     /// Toast on entering.
@@ -176,7 +197,25 @@ pub struct Piece {
     /// A hiding spot in it (the lockers), at [`HIDE_AT`] in the piece's own frame.
     #[serde(default)]
     pub hide: bool,
+    /// The open sides that carry the subway's track on (a platform with its
+    /// track bed): they only meet other track sides. The platform runs along
+    /// these, its deck on the piece's N half, the track bed on its S half.
+    #[serde(default)]
+    pub track: Vec<Side>,
 }
+
+/// How far the track bed lies below the platform (m).
+pub const TRACK_DROP: f32 = 1.2;
+/// The platform's edge (its own frame, +z): the deck is N of it, the bed S.
+pub const PLATFORM_EDGE_Z: f32 = 0.45;
+/// The steps down to the track at a platform's tunnel end (its own frame):
+/// across x, and from the deck (-z, high) down to the bed at the edge.
+pub const TRACK_STEPS_X: (f32, f32) = (0.6, 2.4);
+pub const TRACK_STEPS_Z: f32 = -1.2;
+/// Where a tunnel end's platform stops (own frame, x): the tunnel is W of it.
+pub const TUNNEL_PORTAL_X: f32 = -1.2;
+/// The columns on a platform (own frame, x, z).
+pub const COLUMNS: [(f32, f32); 2] = [(-1.5, -0.4), (1.5, -0.4)];
 
 /// Where a hiding piece's hiding spot is, in its own frame (inside the middle locker).
 pub const HIDE_AT: Vec3 = Vec3::new(0.0, 0.0, 2.48);
@@ -222,12 +261,16 @@ pub enum Kind {
     Stairs,
     /// The J.
     Platform,
+    /// Solid ground under a track bed from the level above (no model).
+    Under,
 }
 
 /// One filled cell: its open sides, what it is and how far it's turned.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Fill {
     pub mask: u8,
+    /// The open sides that are track (a subway platform piece), already turned.
+    pub track: u8,
     pub kind: Kind,
     /// Quarter turns clockwise (seen from above). Stairs and the platform are
     /// entered from their turned N; a landing opens to its turned S.
@@ -282,18 +325,23 @@ fn variants(set: &TileSet) -> Vec<Var> {
     let mut out = Vec::new();
     for (i, p) in set.pieces.iter().enumerate() {
         let mask = p.open.iter().fold(0, |m, s| m | bit(s.wfc()));
+        let track = p.track.iter().fold(0, |m, s| m | bit(s.wfc())) & mask;
         let mut seen = Vec::new();
         for turns in 0..4u8 {
             let m = turned(mask, turns);
-            if seen.contains(&m) {
+            let tr = turned(track, turns);
+            // A track piece's turns all differ: which side its deck is on.
+            let key = (m, tr, if tr == 0 { 0 } else { turns });
+            if seen.contains(&key) {
                 continue;
             }
-            seen.push(m);
+            seen.push(key);
             let kind = Kind::Corridor(Some(i as u8));
             out.push((
                 m,
                 Fill {
                     mask: m,
+                    track: tr,
                     kind,
                     turns,
                 },
@@ -311,10 +359,12 @@ fn special(kind: Kind, side: wfc::Side) -> Var {
         Kind::Landing => (side.index() as u8 + 2) % 4,
         _ => side.index() as u8,
     };
+    let mask = if kind == Kind::Under { 0 } else { bit(side) };
     (
-        bit(side),
+        mask,
         Fill {
-            mask: bit(side),
+            mask,
+            track: 0,
             kind,
             turns,
         },
@@ -357,27 +407,83 @@ fn path_to(level: &Level, d: &[Option<u32>]) -> Vec<wfc::Cell> {
     path
 }
 
-/// One level: WFC with the arrival and the goal pinned, rolled again until the
-/// way between them is long enough.
-fn plan_level(
-    rng: &mut wfc::Rng,
-    (w, h): (usize, usize),
+/// A tile side's socket: closed, corridor or track (only like meets like).
+/// A track socket also says which way its deck lies (the piece's turned N),
+/// so a run's platform stays on one side of its track bed.
+fn socket(f: &Fill, s: wfc::Side) -> u8 {
+    if f.mask & bit(s) == 0 {
+        0
+    } else if f.track & bit(s) != 0 {
+        2 + f.turns % 4
+    } else {
+        1
+    }
+}
+
+/// Does a level's track leave the level below room to wind through? The
+/// cells off the track (which stay open below) must hang together, and no
+/// row or column may be track from end to end.
+fn leaves_room_below(l: &Level) -> bool {
+    let (w, h) = (l.width, l.depth);
+    let track = |c: wfc::Cell| l.fill(c).track != 0;
+    // The landing below (under the stairs) opens one way only: count it as
+    // blocked too.
+    let blocked = |c: wfc::Cell| track(c) || c == l.goal;
+    let full_row = (0..h).any(|z| (0..w).all(|x| track((x, z))));
+    let full_col = (0..w).any(|x| (0..h).all(|z| track((x, z))));
+    if full_row || full_col {
+        return false;
+    }
+    let free = (0..w * h).filter(|&i| !blocked((i % w, i / w))).count();
+    let Some(start) = (0..w * h).map(|i| (i % w, i / w)).find(|&c| !blocked(c)) else {
+        return false;
+    };
+    let reach = wfc::distances(w, h, start, |c, s| {
+        wfc::neighbour(w, h, c, s).is_some_and(|n| !blocked(c) && !blocked(n))
+    });
+    reach.iter().filter(|d| d.is_some()).count() == free
+}
+
+/// What one level asks of the generator besides its way through.
+struct LevelAsk<'a> {
     arrive: wfc::Cell,
     landing: Option<wfc::Side>,
     last: bool,
     min_path: u32,
-    vars: &[Var],
-) -> Level {
+    /// Cells under the level above's track beds: solid, no way through.
+    under: &'a [bool],
+    /// This many track cells at least (0: no platforms on this level)...
+    platform_cells: usize,
+    /// ...and at most.
+    platform_max: usize,
+}
+
+/// One level: WFC with the arrival and the goal pinned, rolled again until the
+/// way between them is long enough (and, on a platform level, there's track).
+fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: &[Var]) -> Level {
+    let LevelAsk {
+        arrive,
+        landing,
+        last,
+        min_path,
+        under,
+        platform_cells,
+        platform_max,
+    } = *ask;
     let goal_kind = if last { Kind::Platform } else { Kind::Stairs };
-    let corridors: Vec<usize> = (0..vars.len()).collect();
+    let platforms = platform_cells > 0;
+    let corridors: Vec<usize> = (0..vars.len())
+        .filter(|&i| platforms || vars[i].1.track == 0)
+        .collect();
     let open_corridors: Vec<usize> = corridors
         .iter()
         .copied()
-        .filter(|&i| vars[i].0 != 0)
+        .filter(|&i| vars[i].0 != 0 && vars[i].1.track == 0)
         .collect();
-    for attempt in 0..80 {
+    let is_under = |c: wfc::Cell| under.get(c.1 * w + c.0).copied().unwrap_or(false);
+    for attempt in 0..160 {
         let goal = (rng.below(w), rng.below(h));
-        if goal == arrive {
+        if goal == arrive || is_under(goal) {
             continue;
         }
         let sides = entries(w, h, goal, last);
@@ -386,9 +492,9 @@ fn plan_level(
         }
         let entry = sides[rng.below(sides.len())];
         // Ask for the full length first, then settle for less.
-        let need = if attempt < 60 { min_path } else { 1 };
+        let need = if attempt < 140 { min_path } else { 1 };
         let manhattan = arrive.0.abs_diff(goal.0) + arrive.1.abs_diff(goal.1);
-        if attempt < 60 && (manhattan as u32) * 2 < need {
+        if attempt < 140 && (manhattan as u32) * 2 < need {
             continue;
         }
         let mut tiles: Vec<Var> = vars.to_vec();
@@ -398,14 +504,16 @@ fn plan_level(
         });
         tiles.push(special(goal_kind, entry));
         let goal_tile = tiles.len() - 1;
+        tiles.push(special(Kind::Under, entry));
+        let under_tile = tiles.len() - 1;
         let mut problem = wfc::Wfc::new(
             w,
             h,
             tiles
                 .iter()
-                .map(|&(m, _, weight)| wfc::Tile {
-                    sockets: wfc::Side::ALL.map(|s| m & bit(s) != 0),
-                    weight,
+                .map(|(_, f, weight)| wfc::Tile {
+                    sockets: wfc::Side::ALL.map(|s| socket(f, s)),
+                    weight: *weight,
                 })
                 .collect(),
         );
@@ -414,6 +522,8 @@ fn plan_level(
                 let c = (x, z);
                 let allowed = if c == goal {
                     vec![goal_tile]
+                } else if is_under(c) {
+                    vec![under_tile]
                 } else if c == arrive {
                     arrive_tile.map_or_else(|| open_corridors.clone(), |t| vec![t])
                 } else {
@@ -433,12 +543,29 @@ fn plan_level(
         };
         let solved = problem.solve_until(
             rng,
-            6,
+            if platforms { 24 } else { 6 },
             |a, b| a == b,
-            |_, _, open| !*open,
+            |_, _, socket| *socket == 0,
             |s| {
                 let l = build(s);
-                l.distances()[goal.1 * w + goal.0].is_some_and(|d| d >= need)
+                let tracks = l.cells.iter().filter(|f| f.track != 0).count();
+                // Every platform can be walked onto from the way in.
+                let d = l.distances();
+                let reached = l
+                    .cells
+                    .iter()
+                    .zip(&d)
+                    .all(|(f, d)| f.track == 0 || d.is_some());
+                // The landing below opens away from the stairs' entry: that
+                // cell can't be under a track bed.
+                let below_exit = wfc::neighbour(w, h, goal, entry.opposite())
+                    .is_some_and(|c| l.fill(c).track != 0);
+                tracks >= platform_cells
+                    && tracks <= platform_max
+                    && reached
+                    && !below_exit
+                    && (tracks == 0 || leaves_room_below(&l))
+                    && d[goal.1 * w + goal.0].is_some_and(|d| d >= need)
             },
         );
         if let Some(s) = solved {
@@ -448,23 +575,25 @@ fn plan_level(
             return level;
         }
     }
-    fallback(w, h, arrive, landing, last)
+    fallback(w, h, ask)
 }
 
 /// One open hall (never needed in practice; keeps generation total).
-fn fallback(
-    w: usize,
-    h: usize,
-    arrive: wfc::Cell,
-    landing: Option<wfc::Side>,
-    last: bool,
-) -> Level {
+fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
+    let LevelAsk {
+        arrive,
+        landing,
+        last,
+        under,
+        ..
+    } = *ask;
+    let is_under = |c: wfc::Cell| under.get(c.1 * w + c.0).copied().unwrap_or(false);
     // The goal: the farthest cell with a way in that isn't the arrival, and
     // that the arrival's landing doesn't open straight onto.
     let exit_to = landing.and_then(|l| wfc::neighbour(w, h, arrive, l));
     let (goal, entry) = (0..w * h)
         .map(|i| (i % w, i / w))
-        .filter(|&c| c != arrive && Some(c) != exit_to)
+        .filter(|&c| c != arrive && Some(c) != exit_to && !is_under(c))
         .filter_map(|c| {
             let s = entries(w, h, c, last)
                 .into_iter()
@@ -475,6 +604,7 @@ fn fallback(
         .unwrap_or(((0, 0), wfc::Side::South));
     let allow = |c: wfc::Cell, s: wfc::Side| {
         wfc::neighbour(w, h, c, s).is_some()
+            && !is_under(c)
             && if c == goal {
                 s == entry
             } else if c == arrive {
@@ -502,9 +632,12 @@ fn fallback(
                 && let Some(l) = landing
             {
                 special(Kind::Landing, l).1
+            } else if is_under(c) {
+                special(Kind::Under, wfc::Side::North).1
             } else {
                 Fill {
                     mask,
+                    track: 0,
                     kind: Kind::Corridor(None),
                     turns: 0,
                 }
@@ -534,18 +667,39 @@ pub fn generate(t: &Tuning, set: &TileSet) -> Vec<Level> {
     let mut levels = Vec::with_capacity(t.levels);
     let mut arrive = (w / 2, 0);
     let mut landing = None;
+    let mut under = vec![false; w * h];
     for l in 0..t.levels.max(1) {
         let last = l + 1 == t.levels.max(1);
+        let ask = LevelAsk {
+            arrive,
+            landing,
+            last,
+            min_path: t.min_path,
+            under: &under,
+            platform_cells: if platform_level(t, l) {
+                t.platform_cells.max(2)
+            } else {
+                0
+            },
+            platform_max: t.platform_max.max(t.platform_cells.max(2)),
+        };
         let level = if vars.is_empty() {
-            fallback(w, h, arrive, landing, last)
+            fallback(w, h, &ask)
         } else {
-            plan_level(&mut rng, (w, h), arrive, landing, last, t.min_path, &vars)
+            plan_level(&mut rng, (w, h), &ask, &vars)
         };
         arrive = level.goal;
         landing = Some(level.goal_entry.opposite());
+        under = level.cells.iter().map(|f| f.track != 0).collect();
         levels.push(level);
     }
     levels
+}
+
+/// Does level `l` get subway platforms? Every [`Tuning::platform_every`]
+/// levels from the first, never the J's.
+pub fn platform_level(t: &Tuning, l: usize) -> bool {
+    t.platform_every > 0 && l.is_multiple_of(t.platform_every) && l + 1 < t.levels.max(1)
 }
 
 /// The middle of a cell's floor in the world.
@@ -598,26 +752,46 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                 rotation: Quat::IDENTITY,
             };
             if f.mask == 0 {
+                // Solid; under a track bed only up to the bed's underside.
+                let top = if f.kind == Kind::Under {
+                    ROOM_H - TRACK_DROP - 0.2
+                } else {
+                    ROOM_H
+                };
                 out.push(flat(
-                    at + Vec3::Y * (ROOM_H / 2.0 - 0.1),
-                    Vec3::new(CELL, ROOM_H + 0.2, CELL),
+                    at + Vec3::Y * ((top - 0.2) / 2.0),
+                    Vec3::new(CELL, top + 0.2, CELL),
                 ));
                 continue;
             }
-            if f.kind != Kind::Stairs {
+            if f.track != 0 {
+                for b in track_blocks(f) {
+                    out.push(Block {
+                        centre: at + r * b.centre,
+                        size: b.size,
+                        rotation: r * b.rotation,
+                    });
+                }
+            } else if f.kind != Kind::Stairs {
                 out.push(flat(at - Vec3::Y * 0.1, Vec3::new(CELL, 0.2, CELL)));
             }
+            // A track cell's walls go on down past the bed.
+            let low = if f.track != 0 { TRACK_DROP + 0.2 } else { 0.0 };
             for s in wfc::Side::ALL {
                 if f.mask & bit(s) != 0 {
                     continue;
                 }
                 let d = dir(s);
+                let tall = ROOM_H + low;
                 let size = if d.x != 0.0 {
-                    Vec3::new(0.2, ROOM_H, CELL)
+                    Vec3::new(0.2, tall, CELL)
                 } else {
-                    Vec3::new(CELL, ROOM_H, 0.2)
+                    Vec3::new(CELL, tall, 0.2)
                 };
-                out.push(flat(at + d * (half - 0.1) + Vec3::Y * (ROOM_H / 2.0), size));
+                out.push(flat(
+                    at + d * (half - 0.1) + Vec3::Y * (tall / 2.0 - low),
+                    size,
+                ));
             }
             match f.kind {
                 Kind::Stairs => {
@@ -645,6 +819,57 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                 }
                 _ => {}
             }
+        }
+    }
+    out
+}
+
+/// A subway platform piece's own colliders, in its own frame (track along x,
+/// deck on -z, bed on +z): the deck, solid down to the bed; the bed; the
+/// columns; and at a tunnel end (track on one side only) the steps down and
+/// the portal beside the tunnel mouth.
+pub fn track_blocks(f: Fill) -> Vec<Block> {
+    let h = CELL / 2.0;
+    let bed = -TRACK_DROP;
+    let edge = PLATFORM_EDGE_Z;
+    // A tunnel end is modelled with its track going E (tunnel W); the one
+    // with its track going W is its mirror image.
+    let own = turned(f.track, (4 - f.turns % 4) % 4);
+    let flip = if own == bit(wfc::Side::West) {
+        -1.0
+    } else {
+        1.0
+    };
+    let solid = |x0: f32, x1: f32, z0: f32, z1: f32, y0: f32, y1: f32| Block {
+        centre: Vec3::new(flip * (x0 + x1) / 2.0, (y0 + y1) / 2.0, (z0 + z1) / 2.0),
+        size: Vec3::new(x1 - x0, y1 - y0, z1 - z0),
+        rotation: Quat::IDENTITY,
+    };
+    let mut out = vec![solid(-h, h, edge, h, bed - 0.2, bed)];
+    // Track on one side only: a tunnel end, with the steps.
+    if f.track.count_ones() == 1 {
+        let (sx0, sx1) = TRACK_STEPS_X;
+        let sz = TRACK_STEPS_Z;
+        out.push(solid(-h, h, -h, sz, bed - 0.2, 0.0));
+        out.push(solid(-h, sx0, sz, edge, bed - 0.2, 0.0));
+        out.push(solid(sx1, h, sz, edge, bed - 0.2, 0.0));
+        // The steps as a ramp: deck edge at sz (high) to the bed at the edge.
+        let (run, rise) = (edge - sz, TRACK_DROP);
+        let tilt = (rise / run).atan();
+        let ramp = Quat::from_rotation_x(tilt);
+        let normal = ramp * Vec3::Y;
+        out.push(Block {
+            centre: Vec3::new(flip * (sx0 + sx1) / 2.0, -rise / 2.0, (sz + edge) / 2.0)
+                - normal * 0.15,
+            size: Vec3::new(sx1 - sx0, 0.3, (run * run + rise * rise).sqrt()),
+            rotation: ramp,
+        });
+        // The tunnel portal's mass beside the mouth, where the platform ends.
+        out.push(solid(-h, TUNNEL_PORTAL_X, -h, edge, 0.0, ROOM_H));
+    } else {
+        out.push(solid(-h, h, -h, edge, bed - 0.2, 0.0));
+        for (x, z) in COLUMNS {
+            out.push(solid(x - 0.15, x + 0.15, z - 0.15, z + 0.15, 0.0, ROOM_H));
         }
     }
     out
@@ -1101,7 +1326,7 @@ fn stream_levels(
                     Kind::Corridor(Some(i)) => set.pieces.get(i as usize).map(|p| p.model.as_str()),
                     Kind::Stairs => Some(set.stairs.as_str()),
                     Kind::Platform => Some(set.platform.as_str()),
-                    Kind::Corridor(None) | Kind::Landing => None,
+                    Kind::Corridor(None) | Kind::Landing | Kind::Under => None,
                 };
                 let Some(file) = file else { continue };
                 commands.spawn((
@@ -1297,6 +1522,104 @@ mod tests {
     }
 
     #[test]
+    fn platform_levels_have_track_that_joins_up_over_solid_ground() {
+        let (t, set) = data();
+        assert!(t.platform_every > 0 && set.pieces.iter().any(|p| !p.track.is_empty()));
+        let levels = generate(&t, &set);
+        let mut platform_levels = 0;
+        for (li, l) in levels.iter().enumerate() {
+            let tracks: Vec<wfc::Cell> = (0..l.width * l.depth)
+                .map(|i| (i % l.width, i / l.width))
+                .filter(|&c| l.fill(c).track != 0)
+                .collect();
+            if platform_level(&t, li) {
+                assert!(tracks.len() >= t.platform_cells, "level {li}: {tracks:?}");
+                platform_levels += 1;
+            } else {
+                assert!(tracks.is_empty(), "level {li}");
+            }
+            let d = l.distances();
+            for &c in &tracks {
+                assert!(
+                    d[c.1 * l.width + c.0].is_some(),
+                    "level {li}: {c:?} unreachable"
+                );
+                let f = l.fill(c);
+                // Track sides meet track sides, never the grid's edge or a corridor.
+                for s in wfc::Side::ALL {
+                    if f.track & bit(s) == 0 {
+                        continue;
+                    }
+                    let Some(n) = wfc::neighbour(l.width, l.depth, c, s) else {
+                        panic!("level {li}: track off the grid at {c:?}");
+                    };
+                    assert!(l.fill(n).track & bit(s.opposite()) != 0, "level {li}");
+                }
+                // Under it, on the level below, solid ground (no model, no way).
+                if let Some(below) = levels.get(li + 1) {
+                    assert_eq!(below.fill(c).kind, Kind::Under, "level {li} {c:?}");
+                    assert_eq!(below.fill(c).mask, 0);
+                }
+            }
+            // Corridor sides never open onto track sides.
+            for z in 0..l.depth {
+                for x in 0..l.width {
+                    for s in wfc::Side::ALL {
+                        if let Some(n) = wfc::neighbour(l.width, l.depth, (x, z), s) {
+                            assert_eq!(
+                                socket(&l.fill((x, z)), s),
+                                socket(&l.fill(n), s.opposite()),
+                                "level {li} {x},{z}"
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        assert!(platform_levels >= t.levels / t.platform_every - 1);
+    }
+
+    #[test]
+    fn the_track_bed_has_steps_back_up_at_a_tunnel_end() {
+        let end = Fill {
+            mask: bit(wfc::Side::East),
+            track: bit(wfc::Side::East),
+            kind: Kind::Corridor(Some(0)),
+            turns: 0,
+        };
+        let blocks = track_blocks(end);
+        // A tilted block: the steps' ramp, from the deck (y 0) to the bed.
+        let ramp = blocks
+            .iter()
+            .find(|b| b.rotation != Quat::IDENTITY)
+            .copied();
+        let Some(ramp) = ramp else {
+            panic!("no steps");
+        };
+        let top = ramp.centre + ramp.rotation * Vec3::new(0.0, 0.15, -ramp.size.z / 2.0);
+        let low = ramp.centre + ramp.rotation * Vec3::new(0.0, 0.15, ramp.size.z / 2.0);
+        assert!(
+            top.y.abs() < 0.05 && (low.y + TRACK_DROP).abs() < 0.05,
+            "{top} {low}"
+        );
+        assert!((low.z - PLATFORM_EDGE_Z).abs() < 0.05);
+        // Not too steep to walk.
+        let (rise, run) = (top.y - low.y, low.z - top.z);
+        assert!(rise / run < 1.0, "{rise} over {run}");
+        // A run piece has no steps.
+        let run = Fill {
+            mask: 0b1010,
+            track: 0b1010,
+            ..end
+        };
+        assert!(
+            track_blocks(run)
+                .iter()
+                .all(|b| b.rotation == Quat::IDENTITY)
+        );
+    }
+
+    #[test]
     fn the_same_seed_builds_the_same_station() {
         let (t, set) = data();
         let a = generate(&t, &set);
@@ -1377,6 +1700,7 @@ mod tests {
             cells: vec![
                 Fill {
                     mask: 15,
+                    track: 0,
                     kind: Kind::Corridor(None),
                     turns: 0
                 };

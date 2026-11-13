@@ -1,0 +1,12 @@
+// Gamepad stick feel (#361, crates/game/src/controls.rs). Steam Deck and
+// any other pad.
+(
+    // Radians per second of look at full right-stick deflection.
+    look_speed: 3.4,
+    // Up/down look speed as a share of left/right.
+    look_vertical: 0.7,
+    // Response curve: 1 = linear, 2 = gentle near centre for fine aim, fast at the edge.
+    look_curve: 1.8,
+    // Right-stick deflection ignored around centre (stops drift).
+    deadzone: 0.12,
+)

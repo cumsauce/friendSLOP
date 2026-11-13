@@ -1,0 +1,561 @@
+#![enable(implicit_some)]
+// The soundtrack's library: everything the composer knows how to play, named, so the
+// songs in moods.ron (and new ones) can pick from it. The code in crates/fusion keeps
+// only the general algorithms (how a lane of a groove is played, how a voicing is
+// voice-led, how a melody lands on chord tones); every pattern, chord, scale, form and
+// band line-up is here. Edit and save: the running game picks it up within a second.
+//
+// Patterns are one character per step. A bar has 16 steps (16ths of a 4/4 bar) unless
+// its entry says `steps: 12` (or another number); a song in moods.ron sets its own meter
+// with `steps` and `beats` and should use patterns of the same length.
+//
+// Words used below:
+//   When     a condition, written `(field: value, ...)`; every field given must hold, and
+//            `()` always holds. Fields: sections: [..] (only in these sections), not: [..]
+//            (never in these), above / at_least / below (the intensity, 0..1), every: (n, k)
+//            (the bar in the section, counted from 0, has `bar % n >= k`), from_bar: n,
+//            lead: true/false (the song has a melody), urgent: true/false (the mood cuts in
+//            at once). A list of Whens holds when any one of them does.
+//   Sections Intro, A, Hook, B, Solo, Breakdown, Victory, Still.
+//
+// HOW TO WRITE...
+//   a scale:    a name and its notes in semitones above the root, ascending from 0.
+//   a quality:  a chord kind. voicing: the four notes the keys play (semitones above the
+//               root; the bass plays the root). scale: the scale a soloist plays over it.
+//               pent: the five-note scale fast runs use. strong: the notes a melody may
+//               land on on a beat (pitch classes). guide: its third and seventh. third /
+//               fifth / seventh: what the bass plays for 3, 5 and 7. minor / dominant:
+//               what it is (minor chords get a V7b9 approach). altered: its fifth is bent
+//               (the guitar's thumb stays on the root). Progressions in moods.ron name
+//               qualities, e.g. (0, Min6, 4).
+//   a kit:      which instrument and note plays each drum, how pattern letters sound
+//               (vel: x full, o medium, O open-hat accent, g ghost), and when the ride and
+//               clap come in (a groove may override them).
+//   a groove:   kick (two bars, alternating once the band is busy), snare (g = ghost
+//               note), hat (O = open hat), extra lanes as (instrument, note, [bar 1, bar 2]),
+//               soft (all drums' volume), lay (how many samples the backbeat drags), fill
+//               (Rolls: snare and toms; Ghost: soft ghost notes), layer (the drum bus level
+//               rules, if not the band's), solo_runs (the lead rips runs in every solo).
+//   a lane:     a hand-percussion part beside the kit: pattern bars (alternating), hits
+//               (letter -> (note, velocity)), when it plays, how it leans and wanders.
+//               `hand` lanes play on the song's hand drum (see hands).
+//   a hand:     a hand drum the conga part can move to: notes (low, high, slap) its heads
+//               play for the tumbao's low, open and slap strokes, and quiet (the note a
+//               soft groove hit plays).
+//   a comp:     how chords are played. writer Block (keys: rhythms of (step, length,
+//               push), a push anticipates the next chord), Strum (bolero guitar: a strum
+//               then an arpeggio in `order`), Bossa (thumb and finger `fingers` figures),
+//               Pick (fingerpicked `rolls`, 0 = thumb, 1..3 = strings up). spread: the
+//               samples between a chord's notes.
+//   a lead:     a melody style: rhythm cells (step, length), the eight-bar height arc and
+//               dynamics shape, leaps and contour odds, its range, who trades solos with
+//               whom, and the chances of runs, bebop lines, rests and approach notes.
+//   horns:      a horn section: shout figures (step, length) with top-line contours,
+//               pushes, when stabs and swells play, and which instruments it plays around.
+//   a theme:    a written melody: its key (semitones above C) and per bar (step, length,
+//               MIDI note).
+//   a feel:     humanizing (breathing, accents, timing spread per bus), registers (where
+//               each part plays) and the section colours (brightness, reverb, echo).
+//   a form:     how a song moves: each section's bars and progression (A, B or Hook; two
+//               means pick one), where a song starts (start) and where each section can
+//               go next (a list of edges tried in order: the first whose `when` holds and
+//               whose `chance` comes up wins), or a fixed `cycle` of sections; the victory
+//               cadence, approach chords, the key ladder climbed storey by storey (lift),
+//               and how the stillness holds.
+//   a band:     the line-up a song's shorthand fields (groove, comp, lead, arp, pad, horns,
+//               kit, answer, nylon, keys, hand, perc) are turned into: which form, feel,
+//               kit, lead and horn styles, and the instruments of its fixed parts.
+(
+    scales: {
+        "ionian": [0, 2, 4, 5, 7, 9, 11],
+        "lydian": [0, 2, 4, 6, 7, 9, 11],
+        "dorian": [0, 2, 3, 5, 7, 9, 10],
+        "melodic_minor": [0, 2, 3, 5, 7, 9, 11],
+        "mixolydian": [0, 2, 4, 5, 7, 9, 10],
+        "altered": [0, 1, 3, 4, 6, 8, 10],
+        "half_whole": [0, 1, 3, 4, 6, 7, 9, 10],
+        "lydian_dominant": [0, 2, 4, 6, 7, 9, 10],
+        "locrian_2": [0, 2, 3, 5, 6, 8, 10],
+        "whole_half": [0, 2, 3, 5, 6, 8, 9, 11],
+        "major_pent": [0, 2, 4, 7, 9],
+        "minor_pent": [0, 3, 5, 7, 10],
+        // The minor pentatonic a half step up: all altered tones.
+        "altered_pent": [1, 4, 6, 8, 11],
+    },
+    qualities: {
+        // Major 9 (ionian).
+        "Maj9": (voicing: [4, 7, 11, 14], scale: "ionian", pent: "major_pent", strong: [0, 4, 7, 11, 2], guide: [4, 11], third: 4, fifth: 7, seventh: 11),
+        // Major 7 #11 (lydian), the dreamy one.
+        "Maj7s11": (voicing: [4, 11, 14, 18], scale: "lydian", pent: "major_pent", strong: [0, 4, 11, 2, 6], guide: [4, 11], third: 4, fifth: 7, seventh: 11),
+        // Major 6/9.
+        "Maj69": (voicing: [4, 9, 14, 19], scale: "ionian", pent: "major_pent", strong: [0, 4, 9, 2, 7], guide: [4, 9], third: 4, fifth: 7, seventh: 9),
+        // Minor 9 (dorian).
+        "Min9": (voicing: [3, 7, 10, 14], scale: "dorian", pent: "minor_pent", strong: [0, 3, 7, 10, 2], guide: [3, 10], third: 3, fifth: 7, seventh: 10, minor: true),
+        // Minor 11 (dorian), the open fourths sound.
+        "Min11": (voicing: [3, 10, 14, 17], scale: "dorian", pent: "minor_pent", strong: [0, 3, 10, 2, 5], guide: [3, 10], third: 3, fifth: 7, seventh: 10, minor: true),
+        // Minor 6/9 (melodic minor): the "minor iv" tear-jerker.
+        "Min6": (voicing: [3, 7, 9, 14], scale: "melodic_minor", pent: "minor_pent", strong: [0, 3, 7, 9, 2], guide: [3, 9], third: 3, fifth: 7, seventh: 9, minor: true),
+        // Minor-major 9: tense, film-noir.
+        "MinMaj9": (voicing: [3, 7, 11, 14], scale: "melodic_minor", pent: "minor_pent", strong: [0, 3, 7, 11, 2], guide: [3, 11], third: 3, fifth: 7, seventh: 11, minor: true),
+        // Dominant 13 (mixolydian).
+        "Dom13": (voicing: [4, 10, 14, 21], scale: "mixolydian", pent: "major_pent", strong: [0, 4, 10, 2, 9], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true),
+        // Dominant 9.
+        "Dom9": (voicing: [4, 7, 10, 14], scale: "mixolydian", pent: "major_pent", strong: [0, 4, 7, 10, 2], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true),
+        // Dominant 7#9 (the funky one).
+        "Dom7s9": (voicing: [4, 10, 15, 19], scale: "altered", pent: "altered_pent", strong: [0, 4, 10, 3, 7], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true),
+        // Altered dominant (b9 #9 #11 b13).
+        "Dom7alt": (voicing: [4, 10, 15, 20], scale: "altered", pent: "altered_pent", strong: [0, 4, 10, 3, 8], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true, altered: true),
+        // Dominant 7b9 (half-whole diminished), minor-key V.
+        "Dom7b9": (voicing: [4, 7, 10, 13], scale: "half_whole", pent: "major_pent", strong: [0, 4, 7, 10, 1], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true),
+        // 9sus4 (Herbie's favourite).
+        "Sus9": (voicing: [5, 10, 14, 19], scale: "mixolydian", pent: "major_pent", strong: [0, 5, 10, 2, 7], guide: [5, 10], third: 5, fifth: 7, seventh: 10, dominant: true),
+        // Lydian dominant 13#11: tritone substitutions.
+        "Dom13s11": (voicing: [4, 10, 18, 21], scale: "lydian_dominant", pent: "major_pent", strong: [0, 4, 10, 6, 9], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true),
+        // Half-diminished (locrian #2).
+        "HalfDim": (voicing: [3, 6, 10, 14], scale: "locrian_2", pent: "minor_pent", strong: [0, 3, 6, 10, 2], guide: [3, 10], third: 3, fifth: 6, seventh: 10, minor: true),
+        // Diminished 7th (whole-half).
+        "Dim7": (voicing: [3, 6, 9, 12], scale: "whole_half", pent: "minor_pent", strong: [0, 3, 6, 9, 0], guide: [3, 9], third: 3, fifth: 6, seventh: 9, minor: true),
+    },
+    kits: {
+        "fusion": (
+            kick: (Kick, 36),
+            snare: (Snare, 38),
+            ghost: (Ghost, 38),
+            hat: (Hat, 42),
+            open_hat: (OpenHat, 46),
+            ride: (Ride, 51),
+            clap: (Clap, 39),
+            crash: (Crash, 49),
+            // The reversed cymbal rising into a bigger section.
+            swell: (Swell, 57),
+            tom: Tom,
+            // A tom fill rolling down, by how far through the fill it is.
+            rolls: [55, 55, 50, 50, 45, 45, 45, 45],
+            tom_mid: 50,
+            vel: {'x': 1.0, 'o': 0.72, 'O': 0.8, 'g': 0.38},
+            // The ride takes over from the hats in solos; the clap doubles the
+            // backbeat in hooks and when it's loud.
+            ride_when: [(sections: [Solo])],
+            clap_when: [(sections: [Hook]), (above: 0.75)],
+        ),
+    },
+    grooves: {
+        "City": (
+            kick: ["x.....x...x.....", "x.....x.o.x..o.."],
+            snare: "....x..g.g..x..g",
+            hat: "xoxoxoxoxoxoxOxo",
+            soft: 1.0, lay: 50, fill: Rolls,
+        ),
+        "Laid": (
+            kick: ["x.......x.x.....", "x.......x...o..."],
+            snare: "....x.......x..g",
+            hat: "x.o.x.o.x.o.x.oo",
+            soft: 1.0, lay: 110, fill: Rolls,
+        ),
+        "Brush": (
+            kick: ["x.........x.....", "x.......o......."],
+            snare: "....g.......g...",
+            hat: "o.g.o.g.o.g.o.gg",
+            soft: 0.6, lay: 110, fill: Ghost,
+        ),
+        "Sparse": (
+            kick: ["x.........x.....", "x..............."],
+            snare: "................",
+            hat: "..o...o...o...o.",
+            extra: [(Rim, 37, ["......o.......o.", "......o....o...."])],
+            soft: 0.75, lay: 50, fill: Ghost,
+        ),
+        "Dream": (
+            kick: ["x...............", "................"],
+            snare: "................",
+            hat: "....g.......g...",
+            soft: 0.6, lay: 50, fill: Ghost,
+            // The kit sits back a little in dreamy songs.
+            layer: [((sections: [Intro], above: 0.5), 0.6), ((sections: [Intro]), 0.0), ((above: 0.12), 0.7)],
+        ),
+        "Bolero": (
+            kick: ["x.......x.......", "x.......x.....o."],
+            snare: "................",
+            hat: "ogggogggogggoggg",
+            extra: [
+                // 3-2 son clave across two bars, and bongos.
+                (Rim, 37, ["x..x..x.........", "....x...x......."]),
+                (Conga, 64, ["......og......og", "......og....o.og"]),
+            ],
+            soft: 1.0, lay: 110, fill: Rolls,
+        ),
+        "Tense": (
+            kick: ["x..o............", "x..o............"],
+            snare: "................",
+            hat: "o.g.o.g.o.g.o.g.",
+            extra: [(Rim, 37, ["..........o.....", "..........o..o.."])],
+            soft: 0.75, lay: 50, fill: Ghost,
+        ),
+        "Drive": (
+            kick: ["x...x...x...x.o.", "x...x...x..ox..."],
+            snare: "....x..g....x..g",
+            hat: "xoOoxoOoxoOoxoOo",
+            soft: 1.0, lay: 0, fill: Rolls,
+        ),
+        "Shred": (
+            kick: ["x..x..x...x..x..", "x.xx..x.x.x..xx."],
+            snare: "....x.g.g...x.gx",
+            hat: "xoxoxoxoxoxoxoxo",
+            soft: 1.0, lay: 0, fill: Rolls,
+            // Flat out, the ride takes over in duels too, and every solo is runs.
+            ride_when: [(sections: [Solo]), (above: 0.85)],
+            solo_runs: true,
+        ),
+        "March": (
+            kick: ["x...x...x...x...", "x...x...x...x.x."],
+            snare: "............x...",
+            hat: "x.o.x.o.x.o.x.o.",
+            extra: [(Snare, 38, ["..g.......g.g.g.", "..g...g...g.ggg."])],
+            soft: 1.0, lay: 50, fill: Rolls,
+        ),
+        // A 12/8 shuffle: three steps to the beat (songs with steps: 12).
+        "Shuffle": (
+            steps: 12,
+            kick: ["x.....x.....", "x.....x..x.."],
+            snare: "...x.....x.g",
+            hat: "x.ox.ox.ox.o",
+            soft: 0.9, lay: 50, fill: Rolls,
+        ),
+    },
+    lanes: {
+        // Accent the "and"s; the beads lean a touch ahead. Off-16ths only once it's busy.
+        "shaker": (
+            inst: Shaker,
+            bars: ["mgXgmgXgmgXgmgXg"],
+            hits: {'X': (70, 0.85), 'm': (70, 0.55), 'g': (70, 0.38)},
+            odd_above: 0.5,
+            when: [(above: 0.2, not: [Intro])],
+            early: 60, jitter: 1, rand_vel: true, soft: false,
+        ),
+        // Tumbao: heel-toe, a slap on two, open tones on four and its "and". On the
+        // song's hand drum (heads: the notes at and above which a stroke is high / a slap).
+        "tumbao": (
+            bars: ["h.t.S.t.h.t.o.o.", "h.t.S.t.h.tSl.l."],
+            hits: {'h': (58, 0.22), 't': (58, 0.3), 'S': (64, 0.85), 'o': (58, 0.75), 'l': (53, 0.8)},
+            when: [(above: 0.3, not: [Intro])],
+            jitter: 2, hand: true, heads: (58, 64),
+        ),
+        // On the backbeat with 8th shakes.
+        "Tambourine": (
+            inst: Tambourine,
+            bars: ["..o.X.o...o.X.o."],
+            hits: {'X': (54, 0.85), 'o': (54, 0.45)},
+            when: [(at_least: 0.3, not: [Intro])],
+            jitter: 1, rand_vel: true,
+        ),
+        // A 3-2 son clave over two bars.
+        "Claves": (
+            inst: Claves,
+            bars: ["X..X...X........", "....X...X......."],
+            hits: {'X': (75, 0.85), 'o': (75, 0.45)},
+            when: [(at_least: 0.3, not: [Intro])],
+            jitter: 1, rand_vel: true,
+        ),
+        // Long-short scrapes.
+        "Guiro": (
+            inst: Guiro,
+            bars: ["X.o.....X.o....."],
+            hits: {'X': (73, 0.85), 'o': (73, 0.45)},
+            when: [(at_least: 0.3, not: [Intro])],
+            jitter: 1, rand_vel: true,
+        ),
+        // On the 8ths: high on the beat, low off it.
+        "Woodblock": (
+            inst: Woodblock,
+            bars: ["o.o.o.o.o.o.o.oX"],
+            hits: {'X': (76, 0.85), 'o': (76, 0.45)},
+            off_note: 77,
+            when: [(at_least: 0.3, not: [Intro])],
+            jitter: 1, rand_vel: true,
+        ),
+        // Not written yet: a song may ask for it, and it rests.
+        "Cowbell": (
+            inst: Cowbell,
+            bars: ["................"],
+            when: [(at_least: 0.3, not: [Intro])],
+            jitter: 1, rand_vel: true,
+        ),
+    },
+    hands: {
+        Conga: (quiet: 71),
+        Bongo: (notes: (67, 67, 72)),
+        Timbales: (notes: (60, 65, 65)),
+        Cajon: (notes: (36, 36, 38)),
+        Tabla: (notes: (41, 64, 64)),
+    },
+    comps: {
+        "City": (writer: Block, spread: 12, rhythms: [
+            [(0, 3, false), (6, 2, false), (10, 1, false), (14, 2, true)],
+            [(2, 2, false), (6, 1, false), (8, 3, false), (14, 2, true)],
+            [(0, 1, false), (3, 2, false), (7, 1, false), (10, 2, false), (14, 2, true)],
+            [(0, 2, false), (4, 1, false), (7, 3, false), (11, 1, false), (12, 2, false)],
+        ]),
+        "Laid": (writer: Block, spread: 90, rhythms: [
+            [(0, 6, false), (7, 1, false), (10, 6, false)],
+            [(0, 10, false), (11, 4, false)],
+            [(2, 4, false), (8, 6, false), (14, 2, true)],
+        ]),
+        "Long": (writer: Block, spread: 90, rhythms: [
+            [(0, 16, false)],
+            [(0, 10, false), (10, 6, false)],
+        ]),
+        "Stabs": (writer: Block, spread: 12, rhythms: [
+            [(0, 1, false), (3, 1, false), (6, 2, false), (10, 1, false), (12, 1, false), (14, 2, true)],
+            [(0, 1, false), (2, 1, false), (6, 1, false), (8, 1, false), (11, 2, false), (14, 2, true)],
+            [(0, 2, false), (3, 1, false), (7, 1, false), (10, 2, false), (13, 1, false)],
+        ]),
+        "Tense": (writer: Block, spread: 12, rhythms: [
+            [(0, 12, false), (14, 2, true)],
+        ]),
+        // Bolero guitar: a strum on one, then arpeggiated 8ths through the voicing.
+        "Bolero": (writer: Strum, spread: 300, order: [0, 2, 1, 3, 2, 1, 3, 2]),
+        // Bossa nova: thumb on one and three, the fingers pinching a shell on these
+        // steps, a two-bar figure.
+        "Bossa": (writer: Bossa, fingers: [[0, 3, 6, 10, 13], [2, 5, 8, 12, 14]]),
+        // Fingerpicking (p-i-m-a): which finger plays each eighth.
+        "Pick": (writer: Pick, rolls: [
+            [0, 1, 2, 3, 0, 2, 1, 2],
+            [0, 2, 1, 3, 0, 3, 2, 1],
+            [0, 1, 3, 2, 0, 1, 2, 3],
+        ]),
+        // Shuffle comping for 12-step songs.
+        "Shuffle": (writer: Block, spread: 12, steps: 12, rhythms: [
+            [(0, 2, false), (3, 1, false), (6, 2, false), (9, 1, false)],
+            [(2, 1, false), (5, 2, false), (8, 1, false), (11, 1, true)],
+        ]),
+    },
+    leads: {
+        "fusion": (
+            // Syncopated one-bar rhythm cells for motifs: (step, length).
+            cells: [
+                [(0, 2), (2, 2), (4, 4), (10, 2), (12, 4)],
+                [(2, 1), (3, 1), (4, 2), (6, 4), (12, 3)],
+                [(0, 3), (3, 3), (6, 2), (8, 6)],
+                [(0, 1), (1, 1), (2, 1), (3, 3), (6, 1), (7, 5)],
+                [(4, 2), (6, 2), (8, 2), (10, 6)],
+                [(0, 6), (6, 2), (8, 2), (10, 2), (12, 4)],
+                [(1, 2), (3, 3), (6, 3), (9, 3), (12, 4)],
+                [(0, 2), (3, 2), (6, 2), (8, 8)],
+            ],
+            // The story of eight bars: state an idea, answer it, develop it, come home;
+            // then state it again a step higher, climb to a peak in bar seven and resolve.
+            arc: [71, 72, 74, 72, 73, 76, 79, 72],
+            // Dynamics over the eight bars: swell into the peak, ease into the cadence.
+            shape: [0.9, 0.92, 0.97, 0.9, 0.95, 1.0, 1.1, 0.9],
+            // A motif's steps (scale steps) and how often it rises in its first half
+            // and in its second; it stays within `contour` steps of where it started,
+            // and is rewritten if it spans fewer than `min_span`.
+            leaps: [1, 1, 2, 2, 3],
+            rise: 0.75, fall: 0.25, contour: (-5, 6), min_span: 3,
+            range: (62, 84),
+            // In solos the band's two synth players trade every two bars.
+            trade: {Lead: Mini, Mini: Lead, Brass: Lead},
+            // Synths slide between close notes this often.
+            glides: [Lead, Mini], glide: 0.3,
+            // Solos: a run below `solo_run.0 + solo_run.1 * intensity`, else a bebop line
+            // below `solo_bebop`; motifs shifted by two steps / turned upside down this often.
+            solo_run: (0.25, 0.3), solo_bebop: 0.6, solo_shift: 0.5, solo_invert: 0.3,
+            // Calm A sections leave whole phrases out below this intensity.
+            calm: 0.4,
+            // The second half restates the motif a step up this often.
+            restate: 0.6,
+            // The response bar rests with chance `rest.0 - rest.1 * intensity`.
+            rest: (0.45, 0.2),
+            // Runs in the development bar, and when climbing or falling.
+            dev_run: 0.4, climb_run: 0.5,
+            // A run instead of the cadence above `cadence_run.0`, this often.
+            cadence_run: (0.65, 0.4),
+            // A chromatic approach note into a strong beat; bebop passing tones.
+            approach: 0.35, bebop_pass: 0.6,
+        ),
+    },
+    horns: {
+        "fusion": (
+            inst: PolyBrass,
+            // Shouts answer the lead in the bars where it holds or rests: (step, length).
+            shouts: [
+                [(4, 1), (6, 1), (8, 2), (11, 1), (14, 2)],
+                [(2, 1), (3, 1), (6, 2), (10, 1), (12, 3)],
+                [(0, 2), (3, 1), (6, 1), (8, 1), (10, 4)],
+                [(6, 1), (7, 1), (10, 2), (14, 2)],
+            ],
+            // The shout's top line, in chord-tone steps from where it starts.
+            contours: [[0, 1, 2, 1, 3], [2, 1, 0, 1, -1], [0, 2, 1, 3, 2]],
+            // Pushes just kick the off-beats elsewhere.
+            pushes: [[(14, 2)], [(6, 1), (14, 2)], [(10, 1), (11, 3)]],
+            stabs: [(sections: [Hook, Victory]), (sections: [Solo], above: 0.55, every: (2, 1)), (sections: [A], above: 0.7, every: (8, 4))],
+            swells: [(sections: [B, Breakdown, Hook]), (sections: [Intro], from_bar: 2), (sections: [A], below: 0.5, every: (8, 4))],
+            // The shouts play around these instruments' notes.
+            avoid: [Lead, Brass, Mini, Flute, Bell],
+            // The shout's top note: where it starts, and its range.
+            top: (70, 65, 80),
+        ),
+    },
+    ostinatos: {
+        // An interlocking kalimba/marimba figure, two bars each: (step, tone), tone 0 is
+        // the root and 1..4 the voicing's notes.
+        "kalimba": [
+            [
+                [(0, 0), (3, 2), (6, 1), (8, 3), (10, 2), (13, 4), (14, 1)],
+                [(0, 0), (3, 2), (6, 3), (8, 4), (11, 2), (14, 3)],
+            ],
+            [
+                [(0, 1), (2, 3), (4, 0), (7, 2), (10, 4), (12, 3)],
+                [(0, 1), (2, 3), (4, 2), (7, 4), (9, 3), (12, 1), (14, 0)],
+            ],
+            [
+                [(0, 2), (2, 0), (5, 3), (8, 2), (10, 4), (13, 1)],
+                [(0, 2), (2, 0), (5, 3), (8, 4), (11, 3), (14, 1)],
+            ],
+        ],
+    },
+    kimes: {
+        // Unison hit rhythms (steps) at section ends, and the one for a 7/8 bar.
+        "fusion": (
+            rhythms: [[0, 3, 6, 10, 12], [0, 2, 5, 8, 11, 14], [0, 3, 6, 8, 12]],
+            odd: [0, 2, 4, 7, 10, 12],
+        ),
+    },
+    themes: {
+        // The signature hook, written out (over "Just the Two of Us" in Db).
+        "signature": (key: 1, bars: [
+            [(0, 2, 70), (2, 2, 73), (4, 5, 77), (10, 2, 75), (12, 4, 73)],
+            [(2, 2, 69), (4, 2, 72), (6, 4, 75), (10, 2, 73), (12, 4, 72)],
+            [(0, 3, 73), (3, 3, 77), (6, 2, 80), (8, 4, 77)],
+            [(0, 2, 75), (2, 2, 78), (4, 2, 80), (6, 2, 78), (8, 2, 77), (10, 2, 75), (12, 4, 70)],
+        ]),
+    },
+    feels: {
+        "fusion": (
+            humanize: (
+                // Every four-bar phrase breathes: builds to its third bar, eases off.
+                breath: [0.97, 1.0, 1.05, 0.96],
+                // Played like drums (only the small touch variation).
+                kit: [Shaker, Rim, Clap],
+                // A drummer leans on the kick and snare and rides the cymbals under them.
+                touch: {Hat: 0.8, OpenHat: 0.8, Shaker: 0.8, Ride: 0.8, Kick: 0.92, Snare: 0.92},
+                touch_var: 0.1,
+                // The backbeat drags behind the grid (the mood's lay_back_ms times
+                // lay.0 + lay.1 * random); the hats wander and lean on the beat.
+                backbeat: [Snare, Clap, Rim, Ghost],
+                loose: [Hat, OpenHat, Shaker, Ride],
+                lay: (0.7, 0.6), loose_vel: (0.86, 1.06),
+                // Releases: each note lets go at (base + range * random) of its length.
+                hold: {"pad": (0.9, 0.2)}, hold_default: (0.72, 0.36),
+                // Velocity curve: base + scale * vel ^ power (headroom at the top).
+                curve: (0.18, 0.72, 1.15),
+                // The bottle sits back, a breath behind the band.
+                quiet: {Flute: 0.85},
+                // The downbeat, other beats, off-16ths.
+                accent: (1.07, 1.03, 0.96),
+                wobble: 0.16,
+                // How far a chord's notes spread (samples), per bus.
+                spread: {"keys": 180.0, "guitar": 180.0, "pad": 180.0, "bass": 50.0}, spread_default: 90.0,
+            ),
+            registers: (
+                keys: (50, 62), guitar: (52, 60), horn: (60, 69), pad: (55, 67),
+                // The bass roots from here up an octave; the guitar's thumb from `thumb`,
+                // its alternate fifth folded under `thumb_top`.
+                bass: 31, thumb: 40, thumb_top: 55,
+                // Arpeggios from the root above .0, capped at .1; same for the ostinato.
+                arp: (60, 96), ostinato: (65, 86), bells: (72, 96),
+                // The lead's range when a song has no melody style of its own.
+                lead: (62, 84),
+                answer: {PolyBrass: (60, 76), EPiano: (60, 76), Clav: (60, 76), Organ: (60, 76), PanFlute: (64, 84), Strings: (57, 74), Flute: (60, 79)},
+                answer_default: (62, 86),
+            ),
+            // Per section: (brightness, reverb, echo). Bright climbs from the intro to the
+            // hooks and solos; intros, bridges and breakdowns are wetter.
+            colours: {
+                Intro: (0.25, 1.35, 1.2),
+                A: (0.4, 1.0, 1.0),
+                Hook: (0.62, 0.95, 1.0),
+                B: (0.5, 1.2, 1.15),
+                Solo: (0.75, 1.05, 1.45),
+                Breakdown: (0.2, 1.5, 1.4),
+                Victory: (0.9, 1.2, 1.0),
+                Still: (0.15, 1.6, 1.3),
+            },
+        ),
+    },
+    forms: {
+        "fusion": (
+            sections: {
+                Intro: (bars: 4, prog: [A]),
+                A: (bars: 8, prog: [A]),
+                Hook: (bars: 8, prog: [Hook], odd: true),
+                B: (bars: 8, prog: [B], motif: true, odd: true),
+                Solo: (bars: 8, prog: [A, B], motif: true, odd: true),
+                Breakdown: (bars: 4, prog: [A]),
+                Still: (bars: 2, prog: [A]),
+            },
+            start: [(to: Intro, when: (below: 0.6, urgent: false)), (to: A)],
+            next: {
+                Intro: [(to: A)],
+                Breakdown: [(to: A)],
+                Victory: [(to: A)],
+                Still: [(to: A)],
+                A: [(to: Hook)],
+                Hook: [(to: B, chance: 0.6), (to: Solo, when: (above: 0.45, lead: true)), (to: A)],
+                B: [(to: Solo, when: (above: 0.45, lead: true)), (to: Breakdown, when: (below: 0.35)), (to: Hook)],
+                Solo: [(to: Breakdown, chance: 0.3), (to: Hook)],
+            },
+            // The victory cadence: bVI - bVII - I.
+            victory: [(8, Maj7s11, 2), (10, Dom13, 2), (0, Maj9, 4)],
+            victory_bars: 2,
+            // Into a new chord: (semitones above it, quality); two means a coin toss.
+            approach: (minor: [(7, Dom7b9)], other: [(1, Dom13s11), (7, Dom7alt)]),
+            // The key ladder: semitones above the key for each storey climbed.
+            lift: [0, 2, 4, 5, 7],
+            // A new section modulates up a half step (this often) or a whole one; past
+            // `modulate_top` it goes back home.
+            modulate_half: 0.5, modulate_top: 4,
+            // How many comping variants a section picks from; after a breakdown the band
+            // moves on to another song this often.
+            variants: 4, new_song: 0.6,
+            // The stillness: a pad holds, a soft bell now and then, slower.
+            hold: (
+                tempo: 0.9,
+                layers: [("pad", 1.0), ("perc", 0.6)],
+                every: 2, len: 2.2, vel: 0.6,
+                bell: Chime, bell_every: 4, bell_bar: 1, bell_from: 84, bell_up: 2, bell_max: 100, bell_vel: 0.35,
+            ),
+        ),
+    },
+    bands: {
+        "fusion": (
+            form: "fusion", feel: "fusion", kit: "fusion", lead: "fusion", horns: "fusion",
+            kimes: "fusion", ostinato: "kalimba", theme: "signature",
+            bossa: "Bossa", pick: "Pick", shaker: "shaker", tumbao: "tumbao",
+            // A song's `lead` names its voice; `horns` what the section does.
+            leads: {"Synth": Lead, "Brass": Brass, "Flute": Flute, "Bell": Bell, "Mini": Mini},
+            horn_modes: {"Stabs": (true, false), "Swells": (false, true), "Both": (true, true)},
+            // Arp instruments that play the interlocking ostinato instead.
+            ostinato_insts: [Kalimba],
+            // Defaults, and the instruments of the band's fixed parts.
+            keys: EPiano, hand: Conga, bass: Bass, pad: Pad, guitar: Guitar,
+            kime_bass: Bass, bells: Chime,
+            // Bass instruments that slide into nearby notes, this often.
+            glides: [Fretless], glide: 0.35,
+            // Bus levels: which buses play when. keys and perc always; the rest when the
+            // song has that part.
+            layers: {
+                "drums": [((sections: [Intro], above: 0.5), 0.6), ((sections: [Intro]), 0.0), ((above: 0.12), 1.0)],
+                "bass": [((not: [Intro]), 1.0), ((above: 0.4), 1.0)],
+                "keys": [((), 1.0)],
+                "perc": [((), 1.0)],
+                "lead": [((), 1.0)],
+                "brass": [((), 1.0)],
+                "guitar": [((), 1.0)],
+                "pad": [((), 1.0)],
+                // A song without a pad still has one in breakdowns and when calm.
+                "pad_sparse": [((sections: [Breakdown]), 0.8), ((below: 0.3), 0.8)],
+            },
+        ),
+    },
+)

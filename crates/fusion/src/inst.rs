@@ -73,6 +73,13 @@ impl Inst {
     }
 }
 
+impl Default for Inst {
+    /// No instrument.
+    fn default() -> Self {
+        Inst::NONE
+    }
+}
+
 impl std::fmt::Debug for Inst {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(self.name())

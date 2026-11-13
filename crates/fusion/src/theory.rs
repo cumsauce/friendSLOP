@@ -1,155 +1,141 @@
-//! Jazz harmony for the fusion score: chord qualities, their scales and
-//! colour tones, and voice-led keyboard voicings.
+//! Jazz harmony maths for the fusion score: chords, scale steps, nearest
+//! chord tones and voice-led keyboard voicings. What each chord quality is
+//! (its voicing, scales and colour tones) is data (`library.ron`).
 //!
 //! Notes are MIDI numbers (60 = middle C); pitch classes are `0..12`.
 
-/// A chord quality, each with the extensions fusion actually uses.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
-pub enum Quality {
-    /// Major 9 (ionian).
-    Maj9,
-    /// Major 7 #11 (lydian), the dreamy one.
-    Maj7s11,
-    /// Major 6/9.
-    Maj69,
-    /// Minor 9 (dorian).
-    Min9,
-    /// Minor 11 (dorian), the open fourths sound.
-    Min11,
-    /// Minor 6/9 (melodic minor): the "minor iv" tear-jerker.
-    Min6,
-    /// Minor-major 9: tense, film-noir.
-    MinMaj9,
-    /// Dominant 13 (mixolydian).
-    Dom13,
-    /// Dominant 9.
-    Dom9,
-    /// Dominant 7#9 (the funky one).
-    Dom7s9,
-    /// Altered dominant (b9 #9 #11 b13).
-    Dom7alt,
-    /// Dominant 7b9 (half-whole diminished), minor-key V.
-    Dom7b9,
-    /// 9sus4 (Herbie's favourite).
-    Sus9,
-    /// Lydian dominant 13#11: tritone substitutions.
-    Dom13s11,
-    /// Half-diminished (locrian #2).
-    HalfDim,
-    /// Diminished 7th (whole-half).
-    Dim7,
-}
+use std::sync::RwLock;
 
-use Quality::*;
+use crate::compose::library::{QualityDef, lib};
+
+/// A chord quality, by name (`Maj9`, `Dom7alt`...): what each one is (its
+/// voicing, scales and colour tones) is data, in `library.ron`'s
+/// `qualities`. Interned like [`crate::inst::Inst`]: cheap to copy and
+/// compare, and `{:?}` prints its name. A name the library doesn't list
+/// plays as a plain major chord.
+#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct Quality(u16);
+
+/// Every quality name ever asked for, in order: a [`Quality`] is an index.
+static NAMES: RwLock<Vec<&'static str>> = RwLock::new(Vec::new());
 
 impl Quality {
-    /// The four tones of a rootless left-hand voicing (intervals above the
-    /// root; the bass plays the root). Classic Bill Evans A/B shapes: 3-5-7-9
-    /// or 7-9-3-5, with the 13 or #11 swapped in where it colours the chord.
-    pub fn voicing(self) -> [u8; 4] {
-        match self {
-            Maj9 => [4, 7, 11, 14],
-            Maj7s11 => [4, 11, 14, 18],
-            Maj69 => [4, 9, 14, 19],
-            Min9 => [3, 7, 10, 14],
-            Min11 => [3, 10, 14, 17],
-            Min6 => [3, 7, 9, 14],
-            MinMaj9 => [3, 7, 11, 14],
-            Dom13 => [4, 10, 14, 21],
-            Dom9 => [4, 7, 10, 14],
-            Dom7s9 => [4, 10, 15, 19],
-            Dom7alt => [4, 10, 15, 20],
-            Dom7b9 => [4, 7, 10, 13],
-            Sus9 => [5, 10, 14, 19],
-            Dom13s11 => [4, 10, 18, 21],
-            HalfDim => [3, 6, 10, 14],
-            Dim7 => [3, 6, 9, 12],
+    /// No quality (plays as the fallback).
+    pub const NONE: Quality = Quality(u16::MAX);
+
+    /// The quality called `name` (the same name is always the same one).
+    pub fn named(name: &str) -> Quality {
+        if let Ok(names) = NAMES.read()
+            && let Some(i) = names.iter().position(|n| *n == name)
+        {
+            return Quality(i as u16);
         }
+        let Ok(mut names) = NAMES.write() else {
+            return Quality::NONE;
+        };
+        if let Some(i) = names.iter().position(|n| *n == name) {
+            return Quality(i as u16);
+        }
+        if names.len() >= u16::MAX as usize {
+            return Quality::NONE;
+        }
+        names.push(Box::leak(name.to_owned().into_boxed_str()));
+        Quality(names.len() as u16 - 1)
+    }
+
+    /// Its name ("?" for none).
+    pub fn name(self) -> &'static str {
+        NAMES
+            .read()
+            .ok()
+            .and_then(|n| n.get(self.0 as usize).copied())
+            .unwrap_or("?")
+    }
+
+    pub(crate) fn index(self) -> usize {
+        self.0 as usize
+    }
+
+    fn def(self) -> &'static QualityDef {
+        lib().qualities.get(self)
+    }
+
+    /// The four tones of a rootless left-hand voicing (intervals above the
+    /// root; the bass plays the root).
+    pub fn voicing(self) -> [u8; 4] {
+        self.def().voicing
     }
 
     /// The chord-scale a soloist plays over this chord (intervals in one
     /// octave, ascending, starting at 0).
     pub fn scale(self) -> &'static [u8] {
-        const IONIAN: &[u8] = &[0, 2, 4, 5, 7, 9, 11];
-        const LYDIAN: &[u8] = &[0, 2, 4, 6, 7, 9, 11];
-        const DORIAN: &[u8] = &[0, 2, 3, 5, 7, 9, 10];
-        const MEL_MINOR: &[u8] = &[0, 2, 3, 5, 7, 9, 11];
-        const MIXO: &[u8] = &[0, 2, 4, 5, 7, 9, 10];
-        const ALTERED: &[u8] = &[0, 1, 3, 4, 6, 8, 10];
-        const HW_DIM: &[u8] = &[0, 1, 3, 4, 6, 7, 9, 10];
-        const LYD_DOM: &[u8] = &[0, 2, 4, 6, 7, 9, 10];
-        const LOCRIAN2: &[u8] = &[0, 2, 3, 5, 6, 8, 10];
-        const WH_DIM: &[u8] = &[0, 2, 3, 5, 6, 8, 9, 11];
-        match self {
-            Maj9 | Maj69 => IONIAN,
-            Maj7s11 => LYDIAN,
-            Min9 | Min11 => DORIAN,
-            Min6 | MinMaj9 => MEL_MINOR,
-            Dom13 | Dom9 | Sus9 => MIXO,
-            Dom7s9 | Dom7alt => ALTERED,
-            Dom7b9 => HW_DIM,
-            Dom13s11 => LYD_DOM,
-            HalfDim => LOCRIAN2,
-            Dim7 => WH_DIM,
-        }
+        &self.def().scale
     }
 
-    /// Tones a melody may land on for a strong beat: the root plus every
-    /// voicing tone (so 9ths, 11ths and 13ths count, as they do in fusion).
-    pub fn strong(self) -> [u8; 5] {
-        let v = self.voicing();
-        [0, v[0] % 12, v[1] % 12, v[2] % 12, v[3] % 12]
+    /// The five-note scale fast runs use over it.
+    pub fn pent(self) -> &'static [u8] {
+        &self.def().pent
+    }
+
+    /// Tones a melody may land on for a strong beat (pitch classes above the
+    /// root: 9ths, 11ths and 13ths count, as they do in fusion).
+    pub fn strong(self) -> &'static [u8] {
+        &self.def().strong
     }
 
     /// The "guide" tones that define the chord: third and seventh.
     pub fn guide(self) -> [u8; 2] {
-        let v = self.voicing();
-        match self {
-            Sus9 => [5, 10],
-            Maj69 => [4, 9],
-            Min6 => [3, 9],
-            Dim7 => [3, 9],
-            _ => [
-                v[0] % 12,
-                if v[1] % 12 >= 9 { v[1] % 12 } else { v[2] % 12 },
-            ],
-        }
+        self.def().guide
     }
 
     pub fn is_dominant(self) -> bool {
-        matches!(
-            self,
-            Dom13 | Dom9 | Dom7s9 | Dom7alt | Dom7b9 | Sus9 | Dom13s11
-        )
+        self.def().dominant
     }
 
     pub fn is_minor(self) -> bool {
-        matches!(self, Min9 | Min11 | Min6 | MinMaj9 | HalfDim | Dim7)
+        self.def().minor
     }
 
-    /// The fifth above the root (diminished on half-dim/dim).
+    /// Its fifth is bent (an altered dominant).
+    pub fn is_altered(self) -> bool {
+        self.def().altered
+    }
+
+    /// The fifth above the root.
     pub fn fifth(self) -> u8 {
-        match self {
-            HalfDim | Dim7 => 6,
-            _ => 7,
-        }
+        self.def().fifth
     }
 
     /// The seventh above the root (6th on the sixth chords).
     pub fn seventh(self) -> u8 {
-        match self {
-            Maj9 | Maj7s11 | MinMaj9 => 11,
-            Maj69 | Min6 | Dim7 => 9,
-            _ => 10,
-        }
+        self.def().seventh
     }
 
     pub fn third(self) -> u8 {
-        match self {
-            Sus9 => 5,
-            q if q.is_minor() => 3,
-            _ => 4,
+        self.def().third
+    }
+}
+
+impl std::fmt::Debug for Quality {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.name())
+    }
+}
+
+/// Reads a bare name (`Min6`, as progressions write them).
+impl<'de> serde::Deserialize<'de> for Quality {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct Name;
+        impl serde::de::Visitor<'_> for Name {
+            type Value = Quality;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("a chord quality name")
+            }
+            fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Quality, E> {
+                Ok(Quality::named(v))
+            }
         }
+        d.deserialize_identifier(Name)
     }
 }
 
@@ -288,12 +274,17 @@ pub fn voice_lead(chord: Chord, prev: &Voicing, lo: u8, hi: u8) -> Voicing {
 mod tests {
     use super::*;
 
+    fn q(name: &str) -> Quality {
+        Quality::named(name)
+    }
+
     #[test]
     fn voicings_are_chord_tones_in_range() {
         let qs = [
-            Maj9, Maj7s11, Maj69, Min9, Min11, Min6, MinMaj9, Dom13, Dom9, Dom7s9, Dom7alt, Dom7b9,
-            Sus9, Dom13s11, HalfDim, Dim7,
-        ];
+            "Maj9", "Maj7s11", "Maj69", "Min9", "Min11", "Min6", "MinMaj9", "Dom13", "Dom9",
+            "Dom7s9", "Dom7alt", "Dom7b9", "Sus9", "Dom13s11", "HalfDim", "Dim7",
+        ]
+        .map(Quality::named);
         let mut prev = [55, 59, 62, 65];
         for (i, q) in qs.iter().enumerate() {
             let c = Chord::new(i as u8 * 5, *q);
@@ -312,18 +303,18 @@ mod tests {
     #[test]
     fn voice_leading_cost_is_bounded() {
         let prog = [
-            Chord::new(2, Min9),
-            Chord::new(7, Dom13),
-            Chord::new(0, Maj9),
-            Chord::new(9, Dom7alt),
-            Chord::new(2, Min11),
-            Chord::new(1, Dom13s11),
-            Chord::new(0, Maj7s11),
-            Chord::new(5, Min6),
-            Chord::new(4, Min9),
-            Chord::new(3, Dom7s9),
-            Chord::new(8, Maj7s11),
-            Chord::new(10, Sus9),
+            Chord::new(2, q("Min9")),
+            Chord::new(7, q("Dom13")),
+            Chord::new(0, q("Maj9")),
+            Chord::new(9, q("Dom7alt")),
+            Chord::new(2, q("Min11")),
+            Chord::new(1, q("Dom13s11")),
+            Chord::new(0, q("Maj7s11")),
+            Chord::new(5, q("Min6")),
+            Chord::new(4, q("Min9")),
+            Chord::new(3, q("Dom7s9")),
+            Chord::new(8, q("Maj7s11")),
+            Chord::new(10, q("Sus9")),
         ];
         let mut prev = voice_lead(prog[0], &[52, 57, 60, 64], 50, 64);
         let mut total = 0;
@@ -343,7 +334,7 @@ mod tests {
 
     #[test]
     fn scale_steps_stay_in_scale() {
-        let c = Chord::new(7, Dom7alt);
+        let c = Chord::new(7, q("Dom7alt"));
         let mut n = 67;
         for s in [1, 2, -3, 4, -1] {
             n = c.scale_step(n, s);

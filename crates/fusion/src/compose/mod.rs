@@ -21,24 +21,25 @@ use std::collections::BTreeMap;
 use std::sync::{Arc, RwLock};
 
 use crate::synth::{BUSES, Bus, Ev, Inst, RATE};
-use crate::theory::{Chord, Quality, Quality::*, Voicing, voice_lead};
+use crate::theory::{Chord, Quality, Voicing, voice_lead};
 
 mod bass;
 mod drums;
 mod form;
 mod harmony;
 mod humanize;
+pub mod library;
 mod melody;
-mod picks;
 mod score;
 
 use form::*;
+use library::Ctx;
 use melody::*;
-use picks::pk;
 use score::*;
 
 pub use form::LIFT_MAX;
-pub use score::{SCORE, Score};
+pub use library::{LIBRARY, Library};
+pub use score::{PartFile, SCORE, Score};
 
 /// What the game wants the music to say.
 #[derive(
@@ -179,8 +180,11 @@ impl Mood {
     }
 }
 
-/// The parts of a tune.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
+/// The parts of a tune: what each section is for (how long it is, what it
+/// plays and where it goes next is the song's form, in the library).
+#[derive(
+    Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord, serde::Serialize, serde::Deserialize,
+)]
 pub enum Section {
     Intro,
     A,
@@ -283,7 +287,6 @@ pub struct Composer {
     /// notes in this bar end.
     frag: Line,
     lead_end: u32,
-    lead_this_bar: bool,
     victories: u32,
     /// The storey the key is on, and the one this bar's second half is
     /// modulating to (over `bridge`, the new key's dominant).
@@ -297,12 +300,21 @@ pub struct Composer {
     gtr: Voicing,
     pub bars_played: u64,
     // Per-bar scratch.
+    /// Steps in this bar (fewer on an odd bar), in a full bar, and per beat.
     steps: u32,
+    full: u32,
+    beat: u32,
+    /// The lead's range.
+    lead_lo: u8,
+    lead_hi: u8,
     step_len: f32,
     swing: f32,
     /// Every lead note written on a strong beat with its chord (tests).
     #[cfg(test)]
     pub strong_log: Vec<(u8, Chord)>,
+    /// Plays this song whatever the mood (tests).
+    #[cfg(test)]
+    song_override: Option<&'static Style>,
 }
 
 impl Composer {
@@ -325,6 +337,8 @@ impl Composer {
                 prog: s.a,
                 fixed: None,
                 tail: None,
+                steps: s.steps,
+                beat: (s.steps / s.beats).max(1),
             },
             next: None,
             switching: None,
@@ -341,20 +355,25 @@ impl Composer {
             anchor: 72,
             frag: Line::new(),
             lead_end: 0,
-            lead_this_bar: false,
             victories: 0,
             lift: 0,
             lift_to: None,
-            bridge: Chord::new(7, Dom7alt),
+            bridge: Chord::new(7, Quality::NONE),
             landed: false,
             climb: 0.0,
             gtr: [52, 57, 60, 64],
             bars_played: 0,
-            steps: 16,
+            steps: s.steps,
+            full: s.steps,
+            beat: (s.steps / s.beats).max(1),
+            lead_lo: s.lead_range.0,
+            lead_hi: s.lead_range.1,
             step_len: 1.0,
             swing: 0.0,
             #[cfg(test)]
             strong_log: Vec::new(),
+            #[cfg(test)]
+            song_override: None,
         };
         c.motif = c.new_motif();
         c.hook = c.new_motif();
@@ -383,13 +402,31 @@ impl Composer {
 
     fn style(&self) -> &'static Style {
         if self.mood == Mood::Still {
-            style_song(
+            self.song_style(
                 self.style_mood,
                 self.song[self.style_mood as usize % Mood::ALL.len()],
             )
         } else {
-            style_song(self.mood, self.song[self.mood as usize % Mood::ALL.len()])
+            self.song_style(self.mood, self.song[self.mood as usize % Mood::ALL.len()])
         }
+    }
+
+    /// Mood `m`'s song number `song`.
+    fn song_style(&self, m: Mood, song: u8) -> &'static Style {
+        #[cfg(test)]
+        if let Some(s) = self.song_override {
+            return s;
+        }
+        style_song(m, song)
+    }
+
+    /// How many songs mood `m` has.
+    fn song_count(&self, m: Mood) -> usize {
+        #[cfg(test)]
+        if self.song_override.is_some() {
+            return 1;
+        }
+        songs(m)
     }
 
     /// The chord `step` 16ths after this bar's start (may run into later
@@ -398,12 +435,13 @@ impl Composer {
     /// after it is heard in the new key.
     fn chord(&self, step: u32) -> Chord {
         if let Some(to) = self.lift_to {
-            if step >= 16 {
+            if step >= self.full {
                 let c = self.raw_chord(step);
-                let d = LIFT[to as usize] as i32 - LIFT[self.lift as usize] as i32;
+                let form = self.style().form;
+                let d = form.lift(to) as i32 - form.lift(self.lift) as i32;
                 return Chord::new((c.root as i32 + d).rem_euclid(12) as u8, c.q);
             }
-            if step >= 8 {
+            if step >= self.full / 2 {
                 return self.bridge;
             }
         }
@@ -411,14 +449,33 @@ impl Composer {
     }
 
     fn raw_chord(&self, step: u32) -> Chord {
-        let bar = self.plan.bar as u32 + step / 16;
+        let full = self.full.max(1);
+        let bar = self.plan.bar as u32 + step / full;
         if bar >= self.plan.bars as u32 {
             if let Some(n) = &self.next {
-                return n.chord_at((bar - self.plan.bars as u32) as u16, step % 16);
+                return n.chord_at((bar - self.plan.bars as u32) as u16, step % full);
             }
-            return self.plan.chord_at(self.plan.bars - 1, 15);
+            return self
+                .plan
+                .chord_at(self.plan.bars.saturating_sub(1), full - 1);
         }
-        self.plan.chord_at(bar as u16, step % 16)
+        self.plan.chord_at(bar as u16, step % full)
+    }
+
+    /// What the library's conditions look at, this bar.
+    fn ctx(&self) -> Ctx {
+        Ctx {
+            section: self.plan.kind,
+            intensity: self.intensity,
+            bar: self.plan.bar,
+            lead: self.style().has_lead(),
+            urgent: self.mood.urgent(),
+        }
+    }
+
+    /// Is `st` on a beat?
+    fn on_beat(&self, st: u32) -> bool {
+        st.is_multiple_of(self.beat.max(1))
     }
 
     /// Decide and write the next bar. Called exactly at every bar line.
@@ -441,12 +498,14 @@ impl Composer {
                 self.next = None;
                 self.plan = Plan {
                     kind: Section::Victory,
-                    bars: 2,
+                    bars: s.form.victory_bars.max(1),
                     bar: 0,
                     key: (s.key + self.key_shift) % 12,
-                    prog: VICTORY,
+                    prog: victory(s.form),
                     fixed: None,
                     tail: None,
+                    steps: s.steps,
+                    beat: (s.steps / s.beats).max(1),
                 };
             }
         }
@@ -517,8 +576,16 @@ impl Composer {
         self.lift_step(cue.lift.min(LIFT_MAX), new_mood);
 
         let s = self.style();
+        self.full = s.steps;
+        self.beat = (s.steps / s.beats).max(1);
+        (self.lead_lo, self.lead_hi) = s.lead_range;
         // Tempo eases towards the style's (an accelerando into a duel).
-        let target_bpm = s.bpm * if self.mood == Mood::Still { 0.9 } else { 1.0 };
+        let target_bpm = s.bpm
+            * if self.mood == Mood::Still {
+                s.form.hold.tempo
+            } else {
+                1.0
+            };
         let d = target_bpm - self.bpm;
         self.bpm = if d.abs() < 1.5 {
             target_bpm
@@ -526,18 +593,18 @@ impl Composer {
             self.bpm + d * 0.5
         };
         self.swing = s.swing;
-        self.step_len = 60.0 / self.bpm / 4.0 * RATE as f32;
+        self.step_len = 60.0 / self.bpm / self.beat as f32 * RATE as f32;
         let last = self.plan.bar + 1 == self.plan.bars;
-        let fancy = matches!(self.plan.kind, Section::Hook | Section::Solo | Section::B);
+        let fancy = s.form.sections.get(&self.plan.kind).is_some_and(|p| p.odd);
         self.steps = if last
             && fancy
             && self.switching.is_none()
             && self.lift_to.is_none()
             && self.chance(s.odd)
         {
-            14
+            self.full - 2
         } else {
-            16
+            self.full
         };
         bar.len = (self.steps as f32 * self.step_len) as u32;
         self.bars_played += 1;
@@ -556,16 +623,13 @@ impl Composer {
     /// room gets wetter in intros, bridges and breakdowns.
     fn colour(&self, bar: &mut Bar) {
         bar.tone = self.mood.tone();
-        let (base, wet, echo) = match self.plan.kind {
-            Section::Intro => (0.25, 1.35, 1.2),
-            Section::A => (0.4, 1.0, 1.0),
-            Section::Hook => (0.62, 0.95, 1.0),
-            Section::B => (0.5, 1.2, 1.15),
-            Section::Solo => (0.75, 1.05, 1.45),
-            Section::Breakdown => (0.2, 1.5, 1.4),
-            Section::Victory => (0.9, 1.2, 1.0),
-            Section::Still => (0.15, 1.6, 1.3),
-        };
+        let (base, wet, echo) = self
+            .style()
+            .feel
+            .colours
+            .get(&self.plan.kind)
+            .copied()
+            .unwrap_or((0.4, 1.0, 1.0));
         let through = self.plan.bar as f32 / self.plan.bars.max(1) as f32;
         let calm = 1.0 - self.intensity;
         bar.bright = (base + 0.18 * through + 0.25 * (self.intensity - 0.5)).clamp(0.05, 1.0);
@@ -575,49 +639,30 @@ impl Composer {
         let up = self.lift as f32;
         bar.bright = (bar.bright + 0.05 * up).min(1.0);
         bar.wet *= 1.0 + 0.07 * up;
-        // Down in the tunnels everything rings off wet brick (#127).
-        if self.mood == Mood::Underground {
-            bar.wet *= 1.6;
-            bar.echo *= 1.6;
+        // The mood's own room (the tunnels ring off wet brick, #127).
+        if let Some(m) = table().moods.get(&self.mood) {
+            bar.wet *= m.wet;
+            bar.echo *= m.echo;
         }
     }
 
-    /// Bus levels: which instruments are in for this bar.
+    /// Bus levels: which instruments are in for this bar (each part's
+    /// rules; the loudest wins on a shared bus).
     fn layers(&self, bus: &mut [f32; BUSES]) {
         let s = self.style();
-        let i = self.intensity;
-        let kind = self.plan.kind;
-        let on = |b: bool| if b { 1.0 } else { 0.0 };
         *bus = [0.0; BUSES];
-        if kind == Section::Still {
-            bus[Bus::Pad as usize] = 1.0;
-            bus[Bus::Perc as usize] = 0.6;
+        if self.plan.kind == Section::Still {
+            for (b, g) in &s.form.hold.layers {
+                if let Some(b) = library::bus(b) {
+                    bus[b] = *g;
+                }
+            }
             return;
         }
-        let drums = match kind {
-            Section::Intro => on(i > 0.5) * 0.6,
-            _ => on(i > 0.12) * if s.groove == Groove::Dream { 0.7 } else { 1.0 },
-        };
-        bus[Bus::Drums as usize] = drums;
-        bus[Bus::Bass as usize] = on(kind != Section::Intro || i > 0.4);
-        bus[Bus::Keys as usize] = 1.0;
-        bus[Bus::Lead as usize] = on(s.lead != LeadKind::Silent);
-        bus[Bus::Pad as usize] = if s.pad {
-            1.0
-        } else {
-            on(kind == Section::Breakdown || i < 0.3) * 0.8
-        };
-        bus[Bus::Perc as usize] = 1.0;
-        bus[Bus::Brass as usize] = on(s.horns != Horns::None);
-        bus[Bus::Guitar as usize] =
-            on(s.nylon != Nylon::None || s.comp == Comp::Bolero || s.answer == Some(pk().guitar));
-    }
-
-    /// Is the nylon guitar picking (instead of the keys) in this section?
-    fn picking(&self) -> bool {
-        match self.style().nylon {
-            Nylon::Pick(sections) => sections.contains(&self.plan.kind),
-            _ => false,
+        let ctx = self.ctx();
+        for l in &s.layers {
+            let b = l.bus.unwrap_or(l.inst.bus() as usize).min(BUSES - 1);
+            bus[b] = bus[b].max(library::level(&l.rules, &ctx));
         }
     }
 
@@ -651,9 +696,10 @@ impl Composer {
             return;
         }
         let phrase_end = (self.plan.bar % 4) == 3 || last;
-        let kime = self.steps == 14
+        let kime = self.steps < self.full
             || (kind == Section::Victory && self.plan.bar == 0)
             || (last && self.switching.is_none() && i > 0.5 && self.chance(s.kime * 0.6));
+        let kime = kime && s.has_kime();
         let crash = (self.plan.bar == 0 && i > 0.4 && kind != Section::Intro)
             || (self.landed && i > 0.3)
             || new_mood && i > 0.5
@@ -669,60 +715,89 @@ impl Composer {
         if into_big && (i > 0.35 || self.lift_to.is_some()) {
             let swell = (super::drums::SWELL_SECS * RATE as f32) as u32;
             if bar.len > swell {
-                Self::push(bar, hit(bar.len - swell, pk().swell, 57, 0.8 + 0.3 * i));
+                let (inst, note) = s.kit.swell;
+                Self::push(bar, hit(bar.len - swell, inst, note, 0.8 + 0.3 * i));
             }
         }
+        let fill = !kime
+            && ((phrase_end && i > 0.3 && self.plan.bar % 8 >= 3) || self.switching.is_some());
         if kime {
             self.pushed = false;
-            self.write_kime(bar, crash);
         } else {
-            let fill =
-                (phrase_end && i > 0.3 && self.plan.bar % 8 >= 3) || self.switching.is_some();
-            self.write_drums(bar, fill, crash);
-            self.write_bass(bar);
-            self.write_comp(bar);
             // A note held over the bar line still counts as the lead playing.
-            self.lead_this_bar = false;
-            self.lead_end = self.lead_end.saturating_sub(16);
-            self.write_lead(bar);
-            self.write_answer(bar);
-            self.write_horns(bar);
+            self.lead_end = self.lead_end.saturating_sub(self.full);
         }
-        self.write_pad(bar);
-        self.write_arp(bar);
+        let ctx = self.ctx();
+        let drummed = s.parts.iter().any(|p| matches!(p.play, G::Drums { .. }));
+        for part in &s.parts {
+            // On a kime bar the kime stands in for the band; otherwise it rests.
+            if (kime && !part.in_kime()) || (!kime && matches!(part.play, G::Kime { .. })) {
+                continue;
+            }
+            if !part.on(&ctx) {
+                continue;
+            }
+            match &part.play {
+                G::Kime { .. } => self.write_kime(bar, part, crash),
+                G::Drums { .. } => self.write_drums(bar, part, fill, crash),
+                G::Bass { .. } => self.write_bass(bar, part),
+                G::Chords { comp, .. } => match comp.writer {
+                    library::Writer::Block => self.write_comp(bar, part),
+                    library::Writer::Strum => self.write_guitar(bar, part),
+                    library::Writer::Bossa => self.write_bossa(bar, part),
+                    library::Writer::Pick => self.write_picking(bar, part),
+                },
+                G::Melody { .. } => self.write_lead(bar, part),
+                G::Answer { .. } => self.write_answer(bar, part),
+                G::Horns { .. } => self.write_horns(bar, part),
+                G::Pad { .. } => self.write_pad(bar, part),
+                G::Arp => self.write_arp(bar, part),
+                G::Ostinato { .. } => self.write_ostinato(bar, part),
+                G::Bells => {
+                    if self.plan.bar == 1 {
+                        self.write_victory_bells(bar, part);
+                    }
+                }
+                // Lanes play inside the kit's bar; without a kit, on their own.
+                G::Lane { .. } if !drummed && !kime => self.write_lanes(bar, Some(part)),
+                G::Lane { .. } => {}
+            }
+        }
     }
 
     fn write_still(&mut self, bar: &mut Bar) {
         let c = self.chord(0);
-        let pad_inst = self.style().pad_inst;
-        if self.plan.bar.is_multiple_of(2) {
-            self.pad = voice_lead(c, &self.pad, 55, 67);
-            let len = self.len(self.steps as f32 * 2.2);
+        let s = self.style();
+        let h = &s.form.hold;
+        let (lo, hi) = s.feel.registers.pad;
+        if self.plan.bar.is_multiple_of(h.every.max(1)) {
+            self.pad = voice_lead(c, &self.pad, lo, hi);
+            let len = self.len(self.steps as f32 * h.len);
             for n in self.pad {
                 Self::push(
                     bar,
                     Ev {
                         at: 0,
-                        inst: pad_inst,
+                        inst: s.hold_inst,
                         note: n,
-                        vel: 0.6,
+                        vel: h.vel,
                         len,
                         glide: false,
                     },
                 );
             }
         }
-        if self.plan.bar % 4 == 1 {
+        if self.plan.bar % h.bell_every.max(1) == h.bell_bar {
             // A single high bell on the 9th, very soft.
-            let n = c.root_from(84) + 2;
-            let at = self.at(4);
+            let n = c.root_from(h.bell_from) + h.bell_up;
+            let at = self.at(self.beat);
             Self::push(
                 bar,
                 Ev {
                     at,
-                    inst: pk().chime,
-                    note: n.min(100),
-                    vel: 0.35,
+                    inst: h.bell,
+                    note: n.min(h.bell_max),
+                    vel: h.bell_vel,
                     len: 0,
                     glide: false,
                 },
@@ -733,12 +808,13 @@ impl Composer {
     // --- Drums ----------------------------------------------------------
 }
 
-/// Fold a note into the lead's range by octaves.
-fn fold(mut n: u8) -> u8 {
-    while n > LEAD_HI {
+/// Fold a note into the range `lo..=hi` by octaves.
+fn fold(mut n: u8, lo: u8, hi: u8) -> u8 {
+    let hi = hi.max(lo.saturating_add(11));
+    while n > hi {
         n -= 12;
     }
-    while n < LEAD_LO {
+    while n < lo {
         n += 12;
     }
     n
@@ -746,11 +822,12 @@ fn fold(mut n: u8) -> u8 {
 
 /// Fold only notes well outside the lead's range, so a line that pokes a
 /// little over the edge keeps its shape instead of jumping an octave.
-fn soft_fold(mut n: u8) -> u8 {
-    while n > LEAD_HI + 3 {
+fn soft_fold(mut n: u8, lo: u8, hi: u8) -> u8 {
+    let hi = hi.max(lo.saturating_add(11));
+    while n > hi + 3 {
         n -= 12;
     }
-    while n + 2 < LEAD_LO {
+    while n + 2 < lo {
         n += 12;
     }
     n
@@ -828,16 +905,6 @@ fn no_top_rub(mut v: Voicing) -> Voicing {
         v.sort_unstable();
     }
     v
-}
-
-fn vel(pat: &str, k: usize) -> Option<f32> {
-    match pat.as_bytes().get(k) {
-        Some(b'x') => Some(1.0),
-        Some(b'o') => Some(0.72),
-        Some(b'O') => Some(0.8),
-        Some(b'g') => Some(0.38),
-        _ => None,
-    }
 }
 
 fn ev(at: u32, inst: Inst, note: u8, vel: f32, len: u32) -> Ev {
@@ -1031,7 +1098,7 @@ mod tests {
             );
             let sl = c.step_len;
             // As heard: in the storey's key.
-            let up = LIFT[c.lift as usize];
+            let up = c.style().form.lift(c.lift);
             let chords: Vec<String> = (0..4)
                 .map(|k| {
                     let ch = c.chord(k * 4);
@@ -1049,17 +1116,19 @@ mod tests {
                 c.steps
             );
             for inst in [
-                pk().guitar,
-                pk().lead,
-                pk().mini,
-                pk().brass,
-                pk().flute,
-                pk().poly_brass,
-                pk().bass,
-                pk().fretless,
-                pk().epiano,
-                pk().kalimba,
-            ] {
+                "Guitar",
+                "Lead",
+                "Mini",
+                "Brass",
+                "Flute",
+                "PolyBrass",
+                "Bass",
+                "Fretless",
+                "EPiano",
+                "Kalimba",
+            ]
+            .map(Inst::named)
+            {
                 let notes: Vec<String> = bar
                     .events
                     .iter()
@@ -1070,6 +1139,113 @@ mod tests {
                     println!("   {inst:?}: {}", notes.join(" "));
                 }
             }
+        }
+    }
+
+    /// A composer playing `song` (a moods.ron song, written out) whatever
+    /// the mood, against the real library and the score's progressions plus
+    /// `extra` (a score file with its own progressions and bass lines).
+    fn playing(seed: u64, song: &str, extra: &str) -> Composer {
+        let score: Score = match ron::from_str(extra) {
+            Ok(s) => s,
+            Err(e) => panic!("test score: {e}"),
+        };
+        let song: SongScore = match ron::from_str(song) {
+            Ok(s) => s,
+            Err(e) => panic!("test song: {e}"),
+        };
+        let s = song_for_test(&song, &score);
+        let mut c = Composer::new(seed);
+        c.song_override = Some(s);
+        c.plan = c.plan_section(Mood::Village, Section::Intro, true);
+        c
+    }
+
+    /// A song that writes its parts out, in a 12-step (12/8 shuffle) bar:
+    /// everything lands inside the bar, beats fall every three steps, and the
+    /// melody's notes on them are chord tones.
+    #[test]
+    fn written_parts_play_in_twelve() {
+        const EXTRA: &str = r#"#![enable(implicit_some)] (
+            progressions: {
+                "SHUFFLE": [(0, Dom9, 4), (5, Dom9, 4), (0, Dom9, 4), (7, Dom7alt, 2), (5, Dom13, 2)],
+                "SHUFFLE_B": [(2, Min9, 4), (7, Dom13, 4), (0, Maj69, 8)],
+            },
+            bass: { "SHUF": "R..5..P..A..", "SHUF2": "R-----5--3.A" },
+            moods: {},
+        )"#;
+        const SONG: &str = r#"#![enable(implicit_some)] (
+            bpm: 104.0, swing: 0.0, key: 2,
+            a: "SHUFFLE", b: "SHUFFLE_B", hook: "SHUFFLE",
+            intensity: 0.7, odd: 0.3, modulate: 0.3, kime: 0.6,
+            steps: 12, beats: 4,
+            parts: [
+                (play: Kime(rhythms: "fusion", bass: Bass, keys: Organ, horn: PolyBrass)),
+                (play: Drums(groove: "Shuffle", ride: true, clap: true), layer: [((above: 0.12), 1.0)]),
+                (play: Bass(lines: ["SHUF", "SHUF2"], glide: 0.3), inst: Fretless),
+                (play: Chords(comp: "Shuffle", under: "lead"), inst: Organ),
+                (play: Melody(style: "fusion", solo_runs: false), inst: Brass),
+                (play: Answer(chance: (0.6, 0.3)), inst: Flute, sections: [A, Hook, B]),
+                (play: Horns(style: "fusion", stabs: true, swells: true)),
+                (play: Pad(after_swell: true), inst: Strings, when: [(below: 0.5)]),
+                (play: Lane(lane: "tumbao"), inst: Bongo),
+                (play: Lane(lane: "Tambourine")),
+                (play: Arp, inst: Vibes, sections: [Breakdown, B]),
+                (play: Bells, sections: [Victory]),
+            ],
+        )"#;
+        let mut c = playing(11, SONG, EXTRA);
+        let style = c.style();
+        assert_eq!(style.parts.len(), 12, "a written part didn't resolve");
+        let mut bar = Bar::new();
+        let mut notes = 0;
+        for k in 0..96 {
+            let q = Cue {
+                mood: Mood::Village,
+                intensity: [0.2, 0.55, 0.9][(k / 16) % 3],
+                victories: (k / 40) as u32,
+                ..Cue::default()
+            };
+            c.next_bar(q, &mut bar);
+            assert_eq!(c.full, 12);
+            assert_eq!(c.beat, 3);
+            assert!(c.steps == 12 || c.steps == 10, "{}", c.steps);
+            let step_len = 60.0 / c.bpm() / 3.0 * RATE as f32;
+            assert!(
+                bar.len <= (12.0 * step_len) as u32 + 1,
+                "{} {}",
+                bar.len,
+                step_len
+            );
+            assert!(bar.events.windows(2).all(|w| w[0].at <= w[1].at));
+            assert!(bar.events.iter().all(|e| e.at < bar.len));
+            notes += bar.events.len();
+        }
+        assert!(notes > 96 * 10, "{notes}");
+        assert!(c.strong_log.len() > 40, "{}", c.strong_log.len());
+        for (n, ch) in &c.strong_log {
+            assert!(ch.is_strong(*n), "{n} over {ch:?}");
+        }
+    }
+
+    /// With nothing loaded (the browser before its files arrive) the
+    /// fallback song keeps time in silence.
+    #[test]
+    fn the_empty_song_keeps_time() {
+        let mut c = Composer::new(5);
+        c.song_override = Some(fallback());
+        c.plan = c.plan_section(Mood::Village, Section::Intro, true);
+        let mut bar = Bar::new();
+        for k in 0..40 {
+            let q = Cue {
+                mood: Mood::ALL[k % Mood::ALL.len()],
+                intensity: 0.6,
+                victories: (k / 10) as u32,
+                lift: (k % 5) as u8,
+                ..Cue::default()
+            };
+            c.next_bar(q, &mut bar);
+            assert!(bar.len > 0);
         }
     }
 

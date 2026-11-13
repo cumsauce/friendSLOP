@@ -554,6 +554,7 @@ pub fn adrift(adrift: &Option<Res<Adrift>>) -> bool {
 struct Shown(usize);
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.init_resource::<Adrift>()
         .add_systems(OnEnter(AppState::InGame), (build, reset))
         .add_systems(OnExit(AppState::InGame), reset)
@@ -838,6 +839,15 @@ fn darkness(
             }
         }
     }
+}
+
+/// For the music: I'm in the endless hallway (it cuts the band dead).
+fn music_signals(
+    adrift_now: Option<Res<Adrift>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    signals.flag("adrift", adrift(&adrift_now));
 }
 
 #[cfg(test)]

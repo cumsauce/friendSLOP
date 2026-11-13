@@ -161,12 +161,19 @@ fn apply_freeze(still: Query<&Stillness>, mut time: ResMut<Time<Virtual>>) {
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     // The frozen countdown shows in the HUD's danger lane (`ui::danger`).
     app.add_systems(OnExit(AppState::InGame), unfreeze);
 }
 
 fn unfreeze(mut time: ResMut<Time<Virtual>>) {
     time.unpause();
+}
+
+/// For the music: everything's frozen.
+fn music_signals(still: Query<&Stillness>, signals: Option<ResMut<crate::music::MusicSignals>>) {
+    let Some(mut signals) = signals else { return };
+    signals.flag("frozen", still.iter().any(|s| s.frozen));
 }
 
 #[cfg(test)]

@@ -1077,14 +1077,21 @@ fn follow_light(
 }
 
 /// Local: the station's tiled halls ring (every world sound gets a long
-/// tail) and the music stops.
-fn echo(ears: Res<crate::spatial::Ears>, mut room: ResMut<crate::spatial::Room>) {
+/// tail) and the music stops (the `fulton` signal hushes it).
+fn echo(
+    ears: Res<crate::spatial::Ears>,
+    mut room: ResMut<crate::spatial::Room>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
     let t = tuning();
-    let want = if in_station(ears.pos - Vec3::Y * 1.6) {
+    let inside = in_station(ears.pos - Vec3::Y * 1.6);
+    if let Some(mut signals) = signals {
+        signals.flag("fulton", inside);
+    }
+    let want = if inside {
         crate::spatial::Room {
             wet: t.echo_wet,
             rt60: t.echo_secs,
-            hush_music: true,
         }
     } else {
         crate::spatial::Room::OPEN

@@ -245,6 +245,7 @@ fn burst(
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.init_resource::<Shame>()
         .add_observer(hear_fart)
         .add_systems(OnEnter(AppState::InGame), spawn_fart_ui)
@@ -362,7 +363,7 @@ fn hear_fart(farted: On<Farted>, local: Option<Res<LocalPlayer>>, mut shame: Res
     if !(me && farted.shamed) {
         return;
     }
-    // The band plays the fart alert (`Mood::FartAlert` in the score) while this lasts.
+    // The band plays the fart alert (the `FartAlert` mood, via the `shamed` music signal) while this lasts.
     shame.remaining = tuning().shame_secs;
 }
 
@@ -441,6 +442,12 @@ fn fade_news(
 
 fn forget_shame(mut shame: ResMut<Shame>) {
     *shame = Shame::default();
+}
+
+/// For the music: I'm being shamed.
+fn music_signals(shame: Option<Res<Shame>>, signals: Option<ResMut<crate::music::MusicSignals>>) {
+    let Some(mut signals) = signals else { return };
+    signals.flag("shamed", shame.is_some_and(|s| s.active()));
 }
 
 #[cfg(test)]

@@ -110,6 +110,7 @@ pub fn spire_base(i: usize) -> f32 {
 pub fn protocol(_app: &mut App) {}
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_systems(OnEnter(AppState::InGame), raise_islands)
         .add_systems(
             Update,
@@ -301,6 +302,25 @@ fn raise_islands(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             spire.with_child(look);
         }
     }
+}
+
+/// Is `at` up on (or just over) a sky island? (The `sky` music signal.)
+pub fn on_an_island(at: Vec3) -> bool {
+    islands()
+        .iter()
+        .any(|i| at.y > i.top - 3.0 && at.xz().distance(i.at) < i.radius + 8.0)
+}
+
+/// For the music: the camera's up on a sky island.
+fn music_signals(
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    signals.flag(
+        "sky",
+        crate::music::camera_at(&camera).is_some_and(on_an_island),
+    );
 }
 
 #[cfg(test)]

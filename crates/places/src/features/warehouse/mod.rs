@@ -272,6 +272,7 @@ pub fn protocol(app: &mut App) {
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     visuals::plugin(app);
 }
 
@@ -904,6 +905,15 @@ fn wander(brain: &mut MonsterBrain, here: Vec2, dt: f32) -> Vec2 {
     }
     let towards = next_waypoint(&brain.plan, here, goal);
     move_to(here, towards, tuning().prowl_speed * dt)
+}
+
+/// For the music: I'm in the dark of the warehouse (the band goes quiet).
+fn music_signals(
+    spooked: Option<Res<visuals::Spooked>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    signals.flag("spooked", visuals::spooked(&spooked));
 }
 
 #[cfg(test)]

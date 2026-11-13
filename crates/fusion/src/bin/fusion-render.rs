@@ -97,7 +97,7 @@ fn main() {
         }
         "stems" => stems(seed),
         "list" => {
-            let moods: Vec<String> = Mood::ALL.iter().map(|m| format!("{m:?}")).collect();
+            let moods: Vec<String> = Mood::all().iter().map(|m| format!("{m:?}")).collect();
             let insts: Vec<String> = Inst::all().iter().map(|m| format!("{m:?}")).collect();
             println!("moods: {}", moods.join(" "));
             println!("instruments: {}", insts.join(" "));

@@ -8,6 +8,13 @@ fn every_data_file_parses() {
             panic!("missing data file {}", f.path());
         };
         assert!(f.set_bytes(&bytes), "{} doesn't parse", f.path());
+        // A folder's files (the songs) too.
+        for path in f.wanted() {
+            let Ok(bytes) = std::fs::read(root.join(&path)) else {
+                panic!("missing data file {path}");
+            };
+            assert!(f.set_file(&path, &bytes), "{path} doesn't parse");
+        }
     }
 }
 

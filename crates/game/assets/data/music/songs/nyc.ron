@@ -1,0 +1,17 @@
+#![enable(implicit_some)]
+// Nyc: song 1 (its own song). See moods.ron for what the fields mean.
+// "Rush Hour": a bustling, metropolitan beat. Driving drums, slap
+// bass, the horn section blaring stabs and swells like traffic,
+// clav pecking and a cowbell on the corner.
+(
+    mood: "Nyc",
+    bpm: 122.0, swing: 0.08, key: 2,
+    a: "NYC_A", b: "NYC_B", hook: "NYC_HOOK",
+    groove: Drive, bass: ["SLAP1", "SLAP2", "DRIVE"],
+    comp: Stabs, lead: Brass, arp: Some(Clav), pad: false,
+    intensity: 0.65, odd: 0.15, modulate: 0.25, kime: 0.5,
+    theme: false, bass_inst: SlapBass, pad_inst: Pad,
+    horns: Both, kit: (shaker: true, conga: false, clap: true, ride: true),
+    answer: Some(PolyBrass), nylon: None,
+    keys: Some(EPiano), hand: Some(Timbales), perc: [Cowbell],
+)

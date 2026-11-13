@@ -1,0 +1,13 @@
+#![enable(implicit_some)]
+// Menu: song 1 (its own song). See moods.ron for what the fields mean.
+(
+    mood: "Menu",
+    bpm: 102.0, swing: 0.12, key: 1,
+    a: "JTTOU", b: "CHROMATIC_TWO_FIVES", hook: "JTTOU",
+    groove: City, bass: ["SLAP1", "PUMP"],
+    comp: City, lead: Synth, arp: None, pad: true,
+    intensity: 0.55, odd: 0.15, modulate: 0.5, kime: 0.4,
+    theme: true, bass_inst: Bass, pad_inst: Pad,
+    horns: Both, kit: (shaker: false, conga: false, clap: true, ride: true),
+    answer: Some(PolyBrass), nylon: None,
+)

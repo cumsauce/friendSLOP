@@ -1037,9 +1037,17 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
 - **Touch and gamepad controls** (#106). Touch (overlay appears on first touch): thumb anywhere
   on the left third is a joystick, drag on the right to look, round buttons for Jump, Use (click
   at the crosshair), Run (toggle), Fart, Help, Score, View and Leave. Climbing is still "hold
-  forward". Gamepad: left stick move, right stick look, A jump, B/RB/RT use, LB or left-stick
-  click run, X fart, Y help, Back scoreboard, D-pad up view, Start = Esc; in the menu A/Start
-  hosts. Both press the same keys/mouse buttons features already listen to (`controls.rs`).
+  forward". Gamepad: left stick move, right stick look, A jump, B/RT use, LB or left-stick
+  click run, X fart, Y help, Back scoreboard, D-pad up view / down mute / left journal / right
+  answer phone, right-stick click Enter, Start = Esc; in the menu A/Start hosts. Both press the
+  same keys/mouse buttons features already listen to (`controls.rs`).
+- **Better gamepad / Steam Deck** (#361, bben: "surprise me"). Read as "every action should be
+  reachable from a pad". Holding **RB** or **LT** switches the face buttons and D-pad to a second
+  and third set of keys (RB: yes/no, sleep, piss, cast, pry, hide & seek, lex; LT: smoke, brag,
+  insure, mute spell, duel picks 1-4), with a cheat sheet at the bottom of the screen while held.
+  Right-stick look has a response curve (fine aim near centre), its own deadzone and slower
+  vertical look, tuned in `data/game/controls.ron`. RB no longer means "use" (B and RT still do).
+  Open: no button remapping, no pad navigation of the menus beyond "A hosts".
 - **Video settings** (#106, #132, doomy: "cyberpunk 2077 ... does this ux well ... include
   what's important and maybe have presets"). Settings → Video opens a card with a **Preset**
   (Low / Medium / High; reads Custom once you change anything) and each option on its own:

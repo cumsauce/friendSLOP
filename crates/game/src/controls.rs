@@ -13,8 +13,13 @@
 //! and tap the round buttons. The overlay only shows once the screen has been
 //! touched. Gamepad: left stick move, right stick look, A jump, B or RT use,
 //! LB (or clicking the left stick) run, X fart, Y help, Back scoreboard,
-//! D-pad up switches camera, Start frees the cursor / leaves. In the menu, A
-//! or Start hosts.
+//! D-pad up camera, down mute, left journal, right answer the phone, right
+//! stick click "Enter", Start frees the cursor / leaves. Holding RB or LT
+//! (#361) switches the face buttons and D-pad to a second / third set of keys
+//! so every keyboard-only action reaches a pad (Steam Deck): a cheat sheet
+//! shows while one is held ([`PAD_LAYERS`]). In the menu, A or Start hosts.
+//! Stick feel (look speed, response curve, deadzone) is
+//! `assets/data/game/controls.ron`.
 
 use std::collections::HashMap;
 
@@ -31,11 +36,145 @@ pub use friendslop_base::controls::*;
 
 /// Radians of look per pixel dragged on a touch screen.
 const TOUCH_LOOK: f32 = 0.006;
-/// Radians per second of look at full right-stick deflection.
-const PAD_LOOK: f32 = 3.2;
 /// Joystick throw in logical pixels.
 const STICK_RADIUS: f32 = 60.0;
 const DEADZONE: f32 = 0.15;
+
+/// Gamepad stick feel (#361): `assets/data/game/controls.ron`.
+#[derive(serde::Deserialize, Default)]
+pub struct PadTuning {
+    /// Radians per second of look at full right-stick deflection.
+    pub look_speed: f32,
+    /// Vertical look speed as a share of horizontal.
+    pub look_vertical: f32,
+    /// Look response curve exponent (1 = linear; higher = finer aim near centre).
+    pub look_curve: f32,
+    /// Stick deflection ignored around centre (drifting sticks).
+    pub deadzone: f32,
+}
+
+pub static PAD: friendslop_data::Data<PadTuning> =
+    friendslop_data::Data::ron("data/game/controls.ron");
+
+/// Which set of keys the face buttons and D-pad press.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum PadLayer {
+    Base,
+    /// RB held.
+    Shift,
+    /// LT held.
+    Alt,
+}
+
+/// Face buttons then D-pad, in this order, per layer.
+const PAD_SLOTS: [GamepadButton; 8] = [
+    GamepadButton::South,
+    GamepadButton::East,
+    GamepadButton::West,
+    GamepadButton::North,
+    GamepadButton::DPadUp,
+    GamepadButton::DPadDown,
+    GamepadButton::DPadLeft,
+    GamepadButton::DPadRight,
+];
+
+/// (key, cheat-sheet label) per slot; `None` = jump / use (base layer).
+type Slot = (Option<KeyCode>, &'static str);
+
+/// The three layers. Base A/B are jump and use, handled separately.
+pub const PAD_LAYERS: [(PadLayer, [Slot; 8]); 3] = [
+    (
+        PadLayer::Base,
+        [
+            (None, "jump"),
+            (None, "use"),
+            (Some(KeyCode::KeyF), "fart"),
+            (Some(KeyCode::KeyH), "help"),
+            (Some(KeyCode::KeyV), "camera"),
+            (Some(KeyCode::KeyM), "mute"),
+            (Some(KeyCode::KeyJ), "journal"),
+            (Some(KeyCode::KeyE), "answer"),
+        ],
+    ),
+    (
+        PadLayer::Shift,
+        [
+            (Some(KeyCode::KeyY), "yes"),
+            (Some(KeyCode::KeyN), "no"),
+            (Some(KeyCode::KeyZ), "sleep"),
+            (Some(KeyCode::KeyX), "piss"),
+            (Some(KeyCode::KeyR), "cast"),
+            (Some(KeyCode::KeyG), "pry"),
+            (Some(KeyCode::KeyK), "hide & seek"),
+            (Some(KeyCode::KeyL), "lex"),
+        ],
+    ),
+    (
+        PadLayer::Alt,
+        [
+            (Some(KeyCode::KeyP), "smoke"),
+            (Some(KeyCode::KeyB), "brag"),
+            (Some(KeyCode::KeyI), "insure"),
+            (Some(KeyCode::KeyQ), "mute spell"),
+            (Some(KeyCode::Digit1), "duel 1"),
+            (Some(KeyCode::Digit3), "duel 3"),
+            (Some(KeyCode::Digit4), "duel 4"),
+            (Some(KeyCode::Digit2), "duel 2"),
+        ],
+    ),
+];
+
+/// The layer for what's held: RB wins over LT.
+pub fn pad_layer(rb: bool, lt: bool) -> PadLayer {
+    if rb {
+        PadLayer::Shift
+    } else if lt {
+        PadLayer::Alt
+    } else {
+        PadLayer::Base
+    }
+}
+
+/// Keys the held slots press on this layer.
+pub fn pad_keys(layer: PadLayer, held: [bool; 8]) -> Vec<KeyCode> {
+    let Some((_, slots)) = PAD_LAYERS.iter().find(|(l, _)| *l == layer) else {
+        return Vec::new();
+    };
+    slots
+        .iter()
+        .zip(held)
+        .filter_map(|((k, _), h)| if h { *k } else { None })
+        .collect()
+}
+
+/// Shapes a look stick: deadzone, then `|v|^curve` keeping direction.
+pub fn look_response(v: Vec2, deadzone: f32, curve: f32) -> Vec2 {
+    let len = v.length();
+    if len <= deadzone || deadzone >= 1.0 {
+        return Vec2::ZERO;
+    }
+    let t = ((len.min(1.0) - deadzone) / (1.0 - deadzone)).powf(curve.max(0.1));
+    v / len * t
+}
+
+/// The cheat sheet's text for a layer.
+pub fn cheat_sheet(layer: PadLayer) -> String {
+    let names = ["A", "B", "X", "Y", "Up", "Down", "Left", "Right"];
+    let Some((_, slots)) = PAD_LAYERS.iter().find(|(l, _)| *l == layer) else {
+        return String::new();
+    };
+    let title = match layer {
+        PadLayer::Base => "Pad",
+        PadLayer::Shift => "RB +",
+        PadLayer::Alt => "LT +",
+    };
+    let body: Vec<String> = names
+        .iter()
+        .zip(slots)
+        .map(|(n, (_, label))| format!("{n} {label}"))
+        .collect();
+    format!("{title}  {}", body.join("   "))
+}
 
 /// Set once the screen is touched: shows the touch overlay.
 #[derive(Resource, Default, Debug)]
@@ -155,7 +294,12 @@ struct TouchState {
     /// Keys / mouse buttons we pressed last frame, released when no longer held.
     keys: Vec<KeyCode>,
     mouse: bool,
+    /// The pad layer held this frame (shows the cheat sheet).
+    layer: Option<PadLayer>,
 }
+
+#[derive(Component)]
+struct PadSheet;
 
 #[derive(Component)]
 struct TouchOverlay;
@@ -173,14 +317,17 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<VirtualInput>()
         .init_resource::<TouchMode>()
         .init_resource::<TouchState>()
-        .add_systems(OnEnter(AppState::InGame), spawn_overlay)
+        .add_systems(OnEnter(AppState::InGame), (spawn_overlay, spawn_sheet))
         .add_systems(
             PreUpdate,
             (gather, menu_pad.run_if(in_state(AppState::Menu)))
                 .chain()
                 .after(InputSystems),
         )
-        .add_systems(Update, draw_overlay.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            (draw_overlay, draw_sheet).run_if(in_state(AppState::InGame)),
+        );
 }
 
 fn axis(v: Vec2) -> Vec2 {
@@ -277,24 +424,34 @@ fn gather(
 
     // Gamepads: the first connected one(s) all count.
     let dt = time.delta_secs();
+    let tune = PAD.get();
+    st.layer = None;
     for pad in &gamepads {
         let move_stick = axis(pad.left_stick());
         if move_stick != Vec2::ZERO {
             out.stick = move_stick;
         }
-        let look = axis(pad.right_stick());
-        out.look += Vec2::new(look.x, -look.y) * PAD_LOOK * dt;
-        out.jump |= pad.pressed(GamepadButton::South);
+        let look = look_response(pad.right_stick(), tune.deadzone, tune.look_curve);
+        out.look += Vec2::new(look.x, -look.y * tune.look_vertical) * tune.look_speed * dt;
         out.run |= pad.pressed(GamepadButton::LeftTrigger) || pad.pressed(GamepadButton::LeftThumb);
-        want_mouse |= pad.pressed(GamepadButton::East)
-            || pad.pressed(GamepadButton::RightTrigger)
-            || pad.pressed(GamepadButton::RightTrigger2);
+        want_mouse |= pad.pressed(GamepadButton::RightTrigger2);
+        let layer = pad_layer(
+            pad.pressed(GamepadButton::RightTrigger),
+            pad.pressed(GamepadButton::LeftTrigger2),
+        );
+        if layer != PadLayer::Base {
+            st.layer = Some(layer);
+        }
+        let held = PAD_SLOTS.map(|b| pad.pressed(b));
+        if layer == PadLayer::Base {
+            out.jump |= held[0];
+            want_mouse |= held[1];
+        }
+        want_keys.extend(pad_keys(layer, held));
         for (button, key) in [
-            (GamepadButton::West, KeyCode::KeyF),
-            (GamepadButton::North, KeyCode::KeyH),
             (GamepadButton::Select, KeyCode::Tab),
-            (GamepadButton::DPadUp, KeyCode::KeyV),
             (GamepadButton::Start, KeyCode::Escape),
+            (GamepadButton::RightThumb, KeyCode::Enter),
         ] {
             if pad.pressed(button) {
                 want_keys.push(key);
@@ -344,6 +501,61 @@ fn menu_pad(gamepads: Query<&Gamepad>, mut net: MessageWriter<NetCommand>) {
         .any(|p| p.just_pressed(GamepadButton::South) || p.just_pressed(GamepadButton::Start))
     {
         net.write(NetCommand::Host);
+    }
+}
+
+fn spawn_sheet(mut commands: Commands) {
+    commands.spawn((
+        Name::new("Pad cheat sheet"),
+        PadSheet,
+        Node {
+            position_type: PositionType::Absolute,
+            bottom: px(90),
+            width: percent(100),
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        Pickable::IGNORE,
+        Visibility::Hidden,
+        GlobalZIndex(60),
+        DespawnOnExit(AppState::InGame),
+        children![(
+            Text::new(""),
+            TextFont::from_font_size(16.0),
+            TextColor(LABEL),
+            BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.55)),
+            Node {
+                padding: UiRect::axes(px(12), px(6)),
+                ..default()
+            },
+            Pickable::IGNORE,
+        )],
+    ));
+}
+
+/// Shows which keys the held layer's buttons press.
+fn draw_sheet(
+    st: Res<TouchState>,
+    mut sheet: Query<(&mut Visibility, &Children), With<PadSheet>>,
+    mut text: Query<&mut Text>,
+) {
+    let Ok((mut vis, children)) = sheet.single_mut() else {
+        return;
+    };
+    let want = if st.layer.is_some() {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
+    vis.set_if_neq(want);
+    let Some(layer) = st.layer else { return };
+    for c in children {
+        if let Ok(mut t) = text.get_mut(*c) {
+            let s = cheat_sheet(layer);
+            if t.0 != s {
+                t.0 = s;
+            }
+        }
     }
 }
 
@@ -510,5 +722,41 @@ mod tests {
     fn deadzone_and_clamp() {
         assert_eq!(axis(Vec2::new(0.1, 0.0)), Vec2::ZERO);
         assert!((axis(Vec2::new(3.0, 4.0)).length() - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn pad_layers() {
+        assert_eq!(pad_layer(true, true), PadLayer::Shift);
+        assert_eq!(pad_layer(false, true), PadLayer::Alt);
+        let mut held = [false; 8];
+        held[0] = true; // A: jump on base (no key), "yes" on RB
+        held[2] = true;
+        assert_eq!(pad_keys(PadLayer::Base, held), vec![KeyCode::KeyF]);
+        assert_eq!(
+            pad_keys(PadLayer::Shift, held),
+            vec![KeyCode::KeyY, KeyCode::KeyZ]
+        );
+        assert!(cheat_sheet(PadLayer::Alt).contains("smoke"));
+    }
+
+    #[test]
+    fn no_key_on_two_slots() {
+        let mut all: Vec<KeyCode> = PAD_LAYERS
+            .iter()
+            .flat_map(|(_, s)| s.iter().filter_map(|(k, _)| *k))
+            .collect();
+        let n = all.len();
+        all.sort_by_key(|k| format!("{k:?}"));
+        all.dedup();
+        assert_eq!(all.len(), n);
+    }
+
+    #[test]
+    fn look_curve() {
+        assert_eq!(look_response(Vec2::new(0.1, 0.0), 0.15, 2.0), Vec2::ZERO);
+        let full = look_response(Vec2::new(1.0, 0.0), 0.15, 2.0);
+        assert!((full.x - 1.0).abs() < 1e-5);
+        let half = look_response(Vec2::new(0.575, 0.0), 0.15, 2.0);
+        assert!((half.x - 0.25).abs() < 1e-3);
     }
 }

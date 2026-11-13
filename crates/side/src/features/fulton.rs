@@ -148,6 +148,8 @@ pub struct Lights {
     /// The light that goes with you (lumens) and its reach (m).
     pub follow_lumens: f32,
     pub follow_range: f32,
+    /// The station's reflections (its baked probe, "fulton"): brightness.
+    pub probe: f32,
     /// The nearest this many cell lights cast shadows (0: none; off when the
     /// video settings turn shadows off).
     pub shadow_lights: usize,
@@ -1467,6 +1469,24 @@ fn build_station(
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));
+    // Its reflections: one probe baked in a hall (or the arrival), used on
+    // every level (they all look alike).
+    let bake_at = levels
+        .iter()
+        .enumerate()
+        .find_map(|(li, l)| {
+            let r = l.rooms.first()?;
+            let a = cell_world(&t, li, r.at);
+            let b = cell_world(&t, li, (r.at.0 + r.size.0 - 1, r.at.1 + r.size.1 - 1));
+            Some((a + b) / 2.0)
+        })
+        .unwrap_or_else(|| start_at(&t, &levels))
+        + Vec3::Y * 1.7;
+    commands.queue(move |world: &mut World| {
+        if let Some(mut b) = world.get_resource_mut::<friendslop_base::probes::ProbeBakes>() {
+            b.add("fulton", bake_at);
+        }
+    });
     // `FRIENDSLOP_START=fulton` starts you on the top level.
     commands.queue({
         let at = start_at(&t, &levels);
@@ -1520,6 +1540,22 @@ fn stream_levels(
                 DespawnOnExit(AppState::InGame),
             ))
             .id();
+        // The level's reflections.
+        if !friendslop_base::probes::baking() {
+            let (w, d) = (level.width as f32 * CELL, level.depth as f32 * CELL);
+            let mid = cell_world(&t, li, (0, 0))
+                .lerp(cell_world(&t, li, (level.width - 1, level.depth - 1)), 0.5);
+            commands.spawn((
+                friendslop_base::probes::probe(
+                    &assets,
+                    "fulton",
+                    mid + Vec3::Y * (ROOM_H / 2.0),
+                    Vec3::new(w, ROOM_H + 0.4, d),
+                    t.light.probe,
+                ),
+                ChildOf(root),
+            ));
+        }
         for z in 0..level.depth {
             for x in 0..level.width {
                 let f = level.fill((x, z));
@@ -1788,7 +1824,10 @@ mod tests {
         assert!(t.levels >= 10, "an impossible number of levels");
         assert!(t.min_path >= 3 && t.reward_pelf > 0);
         assert!(
-            t.light.cell_lumens > 0.0 && t.light.cell_range > 0.0 && t.light.follow_range > 0.0
+            t.light.probe > 0.0
+                && t.light.cell_lumens > 0.0
+                && t.light.cell_range > 0.0
+                && t.light.follow_range > 0.0
         );
         assert!(!t.enter_line.is_empty() && t.reward_line.contains("{pelf}"));
         assert!(t.level_line.contains("{n}") && !t.exit_label.is_empty());

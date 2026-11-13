@@ -519,6 +519,14 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   4 casting shadows (none when video shadows are off), and the light that follows you is
   dim. The "strips" were the corridor pillars' bare steel mirroring nothing; they're matte
   green paint now, and wall ends have painted caps. All in `fulton.ron` (`light`).
+  **Reflections** (the user: "is there something you can do about reflections? i think we need
+  environment maps ... lets do the baked approach"): shiny things reflect baked environment
+  maps. Outdoors the camera has a "world" map baked at the commune centre (at 0.4 strength,
+  so the sky doesn't wash everything blue), dimming with the ambient light at night and in
+  dark places; Fulton St has its own map baked in one of its halls and used on every level.
+  The game bakes them itself (`FRIENDSLOP_BAKE=1`): six HDR pictures per probe, prefiltered
+  into KTX2 cubemaps in `assets/probes/`. Re-bake after changing a place. Not yet: own probes
+  for the warehouse, sewers, Wendy's and the NYC shops (they use the dimmed world map).
   Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
   in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
   **Andrew and the thing he sends** (the user: "once sufficiently deep in the subway station,

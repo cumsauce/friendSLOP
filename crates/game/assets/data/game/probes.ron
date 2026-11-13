@@ -1,0 +1,22 @@
+// Reflections: baked environment maps (crates/game/src/probes.rs). Bake them
+// with `FRIENDSLOP_BAKE=1 cargo run -- host` (writes assets/probes/).
+(
+    // The world map's brightness on the camera (1 = as baked).
+    intensity: 0.4,
+    // The outdoor daytime ambient light it was baked under: when night or a
+    // dark place (warehouse, sewers, Fulton St) turns the ambient down, the
+    // world's reflections dim by the same amount.
+    outdoor_ambient: 1100.0,
+    // Where the world map is baked: this spot on the commune map, this many
+    // metres above the ground.
+    world_spot: "centre",
+    world_height: 1.7,
+    // The six pictures' size (px); the specular map's size and mips (mirror
+    // to fully rough); the diffuse map's size.
+    capture: 256,
+    face: 128,
+    levels: 8,
+    diffuse: 32,
+    // Seconds to let a place load and settle before its pictures.
+    settle_secs: 5.0,
+)

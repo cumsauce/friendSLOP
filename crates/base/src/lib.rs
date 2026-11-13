@@ -19,6 +19,7 @@ pub mod hud;
 pub mod music;
 pub mod people;
 pub mod player;
+pub mod probes;
 pub mod rigged;
 pub mod rules;
 pub mod settings;

@@ -21,6 +21,7 @@ pub mod features {
     pub mod smoking;
     pub mod underground;
     pub mod warehouse;
+    pub mod weed;
 }
 
 /// This crate's data files (see `friendslop_data`).
@@ -31,6 +32,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::skills::TUNING,
         &features::smoking::TUNING,
         &features::warehouse::TUNING,
+        &features::weed::TUNING,
         &features::warehouse::bathroom::TUNING,
         &features::warehouse::wfc::TILES,
         &features::warehouse::visuals::bathroom::TUNING,

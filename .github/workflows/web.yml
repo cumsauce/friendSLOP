@@ -4,12 +4,10 @@ name: Web
 # (scripts/build-web.sh) and puts it on GitHub Pages, so the newest game is
 # always playable at https://cumsauce.github.io/friendSLOP/ (https, so the
 # browser lets voice chat use the mic).
+# Manual only: run it (Actions -> "Web" -> Run workflow, or
+# `gh workflow run web.yml`) when the site should be updated. Pushes only run
+# the Linux checks in ci.yml.
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "**.md"
-      - ".github/ISSUE_TEMPLATE/**"
   workflow_dispatch:
 
 permissions:

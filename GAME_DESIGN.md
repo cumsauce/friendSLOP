@@ -71,6 +71,8 @@ light up for a draw-timing minigame (keep it lit, don't cough, waste nothing). I
 machine is OUT OF ORDER until someone finds its three parts in the city's shops (shared quest).
 The bodega sells **statement hats** everyone can see. Pigeon flocks wheel overhead and poop on you;
 now and then they all poop at once.
+Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
+ankles until they knock you flying. Run: they're slower than you.
 
 **Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T).
 
@@ -539,6 +541,12 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   glides. Droppings fall and splat (a hit toasts you). Storms come from the shared session clock
   (every 240 s, 10% chance): every pigeon poops for 6 s and a toast bills the property damage.
   Purely local visuals, same on every peer.
+- **Kitten gangs** (#374, catherine: "roaming gangs of baby kittens that try to beat u up while
+  meowing. they haunt the city streets"). Three gangs (`data/side/kittens.ron`, 15 kittens) roam
+  turf boxes on New York's street. Come within 5 m of a turf and the gang charges (4.2 m/s, under
+  a run), each kitten swats every 1.2 s (a toast line); 8 swats and you ragdoll (#320), then the
+  gang leaves you alone 12 s. The pet cat model at half size; synthesised meows. Server-run,
+  replicated `Kitten`s.
 - **High Places** (#349, doomy): a rooftop dispensary on One World Trade Center. A door at the
   tower's foot (`FRIENDSLOP_START=wtc_door`) rides you to the 30x30 m roof deck 428 m up
   (`high_places`): a kiosk with a green cross sign and jars, a lounge with a LIGHT UP HERE sign,
@@ -1241,6 +1249,9 @@ Press **T** to say hi. Friends within 12 m see it, and villagers that close say 
 (toast lines from `data/side/hi.ron`; 2 s cooldown). It changes nothing else.
 
 ## Ideas so far
+
+- catherine (#374): roaming gangs of baby kittens that beat you up while meowing, haunting the
+  city streets. Built as kitten gangs on New York's avenue that charge, swat and knock you over.
 
 - andrew (#371): "Hi", no details (surprise me). Built as a T key greeting that nearby friends
   see and nearby villagers answer.

@@ -33,6 +33,7 @@ pub mod features {
     pub mod high_places;
     pub mod ice_cream;
     pub mod infinite;
+    pub mod kittens;
     pub mod miami;
     pub mod nyc;
     pub mod nyc_traffic;
@@ -92,5 +93,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::high_places::TUNING,
         &features::ice_cream::TUNING,
         &features::hats::TUNING,
+        &features::kittens::TUNING,
     ]
 }

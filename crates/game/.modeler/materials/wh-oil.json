@@ -1,0 +1,118 @@
+{
+  "name": "wh-oil",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 77,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#0d0b09"
+        ],
+        [
+          1,
+          "#2b241c"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "fn",
+      "name": "rough",
+      "stops": [
+        [
+          0,
+          0.15
+        ],
+        [
+          1,
+          0.6
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wh-oil",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 77,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#0d0b09"
+                ],
+                [
+                  1,
+                  "#2b241c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "fn",
+              "name": "rough",
+              "stops": [
+                [
+                  0,
+                  0.15
+                ],
+                [
+                  1,
+                  0.6
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +rough +out"
+      }
+    ],
+    "current": 0
+  }
+}

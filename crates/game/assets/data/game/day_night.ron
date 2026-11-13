@@ -1,0 +1,9 @@
+// Tuning for the day/night cycle (crates/game/src/atmosphere.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // How long one whole day (dawn, day, dusk, night) lasts, in minutes.
+    // Every player sees the same time of day: it follows the real clock.
+    day_minutes: 24.0,
+    // How bright the night still is, 0 (pitch black) to 1 (as bright as day).
+    night_brightness: 0.12,
+)

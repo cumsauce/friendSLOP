@@ -124,6 +124,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(romance::plugin);
         app.add_plugins(climb::plugin);
         app.add_plugins(doorway::plugin);
+        app.add_plugins(start::plugin);
         app.add_plugins(abuela::plugin);
         app.add_plugins(sesbian_lex::plugin);
         app.add_plugins(punishment::plugin);

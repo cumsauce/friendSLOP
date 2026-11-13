@@ -20,6 +20,7 @@ pub mod features {
     pub mod fps;
     pub mod interact;
     pub mod ragdoll;
+    pub mod start;
     pub mod stats;
 }
 

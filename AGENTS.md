@@ -270,6 +270,13 @@ cargo clippy -p friendslop --target wasm32-unknown-unknown   # the web build mus
 scripts/build-web.sh && python3 -m http.server -d dist/web   # browser build (needs wasm-bindgen-cli)
 ```
 
+### Starting somewhere else
+
+`FRIENDSLOP_START=<name> cargo run -- host` puts the host at a named place as soon as the game
+starts: any spot on the commune map (`warehouse`, `lake`, `village`, ...) or a start a feature
+adds with `features::start::StartPoints::add` (`fulton` is Fulton St's top level). Add one when
+you make a place the map doesn't have.
+
 ### Checking UI
 
 To check UI against its design, screenshot mode can force a HUD state:

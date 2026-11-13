@@ -1467,6 +1467,15 @@ fn build_station(
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));
+    // `FRIENDSLOP_START=fulton` starts you on the top level.
+    commands.queue({
+        let at = start_at(&t, &levels);
+        move |world: &mut World| {
+            if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>() {
+                p.add("fulton", at);
+            }
+        }
+    });
     commands.insert_resource(Station { levels });
 }
 

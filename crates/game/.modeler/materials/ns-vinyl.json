@@ -1,0 +1,118 @@
+{
+  "name": "ns-vinyl",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 13,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#e8e8e8"
+        ],
+        [
+          1,
+          "#ffffff"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fn",
+      "name": "r",
+      "to": [
+        0.25,
+        0.4
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "clearcoat": 0.4,
+      "metallic": 0,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "ns-vinyl",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 13,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#e8e8e8"
+                ],
+                [
+                  1,
+                  "#ffffff"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.25,
+                0.4
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "clearcoat": 0.4,
+              "metallic": 0,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

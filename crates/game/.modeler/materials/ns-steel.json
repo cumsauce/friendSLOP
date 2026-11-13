@@ -1,0 +1,132 @@
+{
+  "name": "ns-steel",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 9,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "angle": 0,
+      "input": "fn",
+      "length": 0.08,
+      "name": "br",
+      "type": "dir_blur"
+    },
+    {
+      "input": "br",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#9a9ea4"
+        ],
+        [
+          1,
+          "#d0d4d8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "br",
+      "name": "r",
+      "to": [
+        0.22,
+        0.38
+      ],
+      "type": "remap"
+    },
+    {
+      "anisotropy": 0.6,
+      "base_color": "col",
+      "metallic": 0.9,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "ns-steel",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 9,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "angle": 0,
+              "input": "fn",
+              "length": 0.08,
+              "name": "br",
+              "type": "dir_blur"
+            },
+            {
+              "input": "br",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#9a9ea4"
+                ],
+                [
+                  1,
+                  "#d0d4d8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "br",
+              "name": "r",
+              "to": [
+                0.22,
+                0.38
+              ],
+              "type": "remap"
+            },
+            {
+              "anisotropy": 0.6,
+              "base_color": "col",
+              "metallic": 0.9,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +br +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-sidewalk-tile",
+  "parts": [],
+  "version": 30061,
+  "ops": [
+    {
+      "primitive": {
+        "name": "slab",
+        "kind": "box",
+        "size": [
+          10.0,
+          0.35,
+          9.75
+        ],
+        "translation": [
+          0.0,
+          -0.025,
+          -0.125
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "curb",
+        "kind": "box",
+        "size": [
+          10.0,
+          0.35,
+          0.25
+        ],
+        "translation": [
+          0.0,
+          -0.025,
+          4.875
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "slab",
+        "input": "slab",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sidewalk",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 5.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  1.25,
+                  1.25
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.004,
+                  0.01
+                ],
+                "input": "g.edge",
+                "name": "jm",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "r",
+                "seed": 151,
+                "type": "random"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 152,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "name": "gum",
+                "seed": 153,
+                "size": 0.35,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.02,
+                  0.03
+                ],
+                "input": "gum.f1",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "r",
+                "b": "n",
+                "c": 0.5,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#8a8780"
+                  ],
+                  [
+                    1,
+                    "#aaa69e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#3a3a38",
+                "b": "c0",
+                "c": "gm",
+                "name": "c1",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#55534e",
+                "b": "c1",
+                "c": "jm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "jm",
+                "b": 0.004,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "curb",
+        "input": "curb",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-granite",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 171,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a8a88"
+                  ],
+                  [
+                    1,
+                    "#a2a09c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

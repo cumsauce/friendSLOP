@@ -1,0 +1,130 @@
+{
+  "name": "ns-fur",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 21,
+      "size": 0.02,
+      "type": "noise"
+    },
+    {
+      "angle": 90,
+      "input": "fn",
+      "length": 0.08,
+      "name": "br",
+      "type": "dir_blur"
+    },
+    {
+      "input": "br",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#c86a20"
+        ],
+        [
+          1,
+          "#f0a050"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "br",
+      "name": "r",
+      "to": [
+        0.9,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "ns-fur",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 21,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "angle": 90,
+              "input": "fn",
+              "length": 0.08,
+              "name": "br",
+              "type": "dir_blur"
+            },
+            {
+              "input": "br",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#c86a20"
+                ],
+                [
+                  1,
+                  "#f0a050"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "br",
+              "name": "r",
+              "to": [
+                0.9,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +br +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

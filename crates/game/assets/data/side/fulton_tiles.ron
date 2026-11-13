@@ -5,12 +5,14 @@
 //   open:   the sides a corridor carries on through, as modelled (N is -z,
 //           E +x, S +z, W -x). Every quarter turn of a piece is tried.
 //   weight: how much each turn is wanted.
+//   hide:   (optional) it has a hiding spot: the middle locker of the lockers piece.
 // Add a look by adding another piece with the same open sides. The walls'
 // colliders come from the plan, not the models.
 (
     pieces: [
         (model: "fs_tile_closed.gltf", open: [], weight: 0.5),
-        (model: "fs_tile_end.gltf", open: [N], weight: 0.8),
+        (model: "fs_tile_end.gltf", open: [N], weight: 0.5),
+        (model: "fs_tile_lockers.gltf", open: [N], weight: 0.7, hide: true),
         (model: "fs_tile_straight.gltf", open: [N, S], weight: 3.2),
         (model: "fs_tile_corner.gltf", open: [N, E], weight: 3.0),
         (model: "fs_tile_tee.gltf", open: [N, E, S], weight: 1.4),

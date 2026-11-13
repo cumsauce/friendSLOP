@@ -256,6 +256,7 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("Mouse", "look around (first person)"),
     ("Space / Shift", "jump / run"),
     ("V", "first person <-> overview camera"),
+    ("E", "answer the phone (Fulton St)"),
     (
         "Left click",
         "use what's under the crosshair (or cursor), within reach",

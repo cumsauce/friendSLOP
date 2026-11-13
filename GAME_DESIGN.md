@@ -31,16 +31,16 @@ Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
 
 **Always going on:** the Stillness freezes everything for 20 s every 4 minutes. Fart near an
 NPC and get caught 4 times: villagers chase you and float you. Villagers fart and blame you.
-Low morality brings a helicopter that shoots at you. 5% of actions fail sillily. Marmalade's
-wheel makes a rule fairer or crueller. Your fat cat grows unwatched and drinks pee; at 10x
+Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
 Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 3 min
 and systemd (PID 1) kills you.
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
-Some nights (real clock, 10pm-5am) you hear whispers behind you. Every few minutes a
-tall faceless Watcher stands far off behind one of you; look at it or walk up and it
-vanishes in static, leaving a scrap of paper: each holds one piece of a message (5 in all).
+Some nights you hear whispers behind you.
+**Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
+in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
+TV broadcasts a riddle that leads outside the game.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
@@ -385,9 +385,16 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   leaves a scrap of paper on the ground with the next piece of a coded message the commune
   hasn't found yet (click it: "read the scrap"). The pieces are shared: everyone sees
   "A scrap of paper (2/5): ..." for 9 s, and once all five are found the whole message shows for
-  20 s. It points at the tower in the ruins, where milestone 3 (#279, not built yet) will make
-  something answer. The writing is `data/text/clues.ron` (add or reword pieces freely), the
+  20 s. It points at the tower in the ruins (see the broadcast, next). The writing is `data/text/clues.ron` (add or reword pieces freely), the
   timings `data/side/clues.ron` (`features/clues.rs`).
+- **The broadcast** (#279, Horror ARG 3/3). An old TV lies half buried, dark, in the middle of
+  the ruins' collapsed tower. Once the commune has all of the Watcher's scraps, it answers a
+  crowd: when 2 players (or everyone, if fewer are playing) stand within 4 m of it, its screen
+  flickers on for everyone, static crackles, voices whisper out of it, and five lines show in
+  the middle of the screen, 4.5 s each. The last line is in ROT13 (each letter turned 13 places)
+  and decodes to a pointer at `SIGNAL.txt` in the game's repository: a "recovered transmission"
+  you can only read outside the game. It rests for 3 minutes between broadcasts. Lines in
+  `data/text/broadcast.ron`, tuning in `data/side/broadcast.ron` (`features/broadcast.rs`).
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
@@ -1067,6 +1074,10 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   romancable characters; evil variants of everyone with inverted names, living underground,
   turned into rats in the lore to save the world, adoptable as pets. Built as friend villagers
   you court with five chats, and backwards-named rats in the tunnels.
+- catherine (#182): scary moments that lead to a horror ARG that will make it big on YouTube.
+  Split into three steps at the owner's request: the Watcher (#277), the scraps it leaves
+  (#278) and a broadcast in the ruins (#279). We read "scary moment" as one sighting everyone
+  sees together, and "ARG" as a riddle that leads out of the game to `SIGNAL.txt` in the repo.
 - catherine (#235): once a night, a low chance of creepy whispering and murmuring that sounds
   like it's behind you. With no in-game night we used the player's real clock (22:00-05:00),
   one 15% roll per night per player, and kept the voices behind you as you turn.
@@ -1074,8 +1085,8 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
-- The Watcher (#277) leaves scraps of a message that points at the ruins' tower (#278). What
-  does it want, and is it tied to the night whispers?
+- The horror ARG (#182) runs Watcher, scraps, then a broadcast and `SIGNAL.txt` outside the game.
+  What does the Watcher want, is it tied to the whispers or the landlord, and where does the ARG go next?
 - Night whispers (#235) follow your real clock, since the game has no night. Should the game
   get its own night, and should anything be behind the whispers?
 - The shipwreck's pirates hand out doubloons (#185). What should they buy?

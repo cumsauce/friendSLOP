@@ -257,6 +257,8 @@ pub const KEY_BINDINGS: &[(&str, &str)] = &[
     ("Space / Shift", "jump / run"),
     ("V", "first person <-> overview camera"),
     ("E", "answer the phone (Fulton St)"),
+    ("B", "brag about your money (coins start falling out)"),
+    ("I", "call the insurance when your wallet is lost (70% cut)"),
     (
         "Left click",
         "use what's under the crosshair (or cursor), within reach",

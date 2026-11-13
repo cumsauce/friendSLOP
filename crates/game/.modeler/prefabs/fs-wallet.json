@@ -1,0 +1,156 @@
+{
+  "format_version": 1,
+  "name": "fs-wallet",
+  "parts": [],
+  "version": 7,
+  "ops": [
+    {
+      "primitive": {
+        "name": "wallet_body",
+        "kind": "box",
+        "size": [
+          0.11,
+          0.02,
+          0.09
+        ],
+        "translation": [
+          0.0,
+          0.01,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "round": {
+        "name": "wallet",
+        "input": "wallet_body",
+        "mode": "fillet",
+        "radius": 0.006,
+        "segments": 0
+      }
+    },
+    {
+      "primitive": {
+        "name": "cash_raw",
+        "kind": "box",
+        "size": [
+          0.1,
+          0.004,
+          0.06
+        ],
+        "translation": [
+          0.02,
+          0.021,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "wallet",
+        "input": "wallet",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wallet-leather",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#3b2214"
+                  ],
+                  [
+                    1,
+                    "#5a3420"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cash_raw",
+        "input": "cash_raw",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "coin-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.005,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b8860b"
+                  ],
+                  [
+                    1,
+                    "#e8c050"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "wallet_body",
+        "input": "wallet_body",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

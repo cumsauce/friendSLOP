@@ -18,6 +18,7 @@ pub mod features {
     pub mod fate;
     pub mod fps;
     pub mod interact;
+    pub mod ragdoll;
     pub mod stats;
 }
 
@@ -29,6 +30,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::fate::TUNING,
         &features::fps::TUNING,
         &features::interact::TUNING,
+        &features::ragdoll::TUNING,
         &features::stats::TUNING,
     ]
 }

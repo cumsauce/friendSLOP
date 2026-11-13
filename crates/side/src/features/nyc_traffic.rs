@@ -60,7 +60,8 @@ pub struct Tuning {
     pub honk_every: f32,
     /// How fast a cab must go to knock you over (m/s).
     pub hit_speed: f32,
-    /// How far a hit throws you (m, sideways out of the lane) and how high (m/s up).
+    /// How hard a hit throws you (m/s sideways out of the lane, and m/s up);
+    /// half the cab's speed is added along the lane, then you ragdoll (#320).
     pub throw: f32,
     pub throw_up: f32,
     /// What you're told when a cab hits you.
@@ -236,7 +237,12 @@ fn drive(
     time: Res<Time>,
     mut commands: Commands,
     mut cars: Query<(&mut Car, &mut Driving)>,
-    mut bodies: Query<(&PlayerOwner, &mut Walker, Option<&mut crate::kcc::Kcc>)>,
+    bodies: Query<(
+        Entity,
+        &PlayerOwner,
+        &Walker,
+        Option<&crate::features::ragdoll::Ragdoll>,
+    )>,
     mut hit_line: Local<usize>,
 ) {
     let tu = tuning();
@@ -249,7 +255,7 @@ fn drive(
             l.push(car.s);
         }
     }
-    let bodies_at: Vec<Vec3> = bodies.iter().map(|b| b.1.pos).collect();
+    let bodies_at: Vec<Vec3> = bodies.iter().map(|b| b.2.pos).collect();
     for (mut car, mut driving) in &mut cars {
         let Some(road) = tu.roads.get(car.route as usize) else {
             continue;
@@ -284,18 +290,19 @@ fn drive(
         if driving.speed < tu.hit_speed {
             continue;
         }
-        for (owner, mut walker, kcc) in &mut bodies {
-            if !near(&walker.pos) || !hits(walker.pos.xz(), at, dir) {
-                continue;
+        for (entity, owner, walker, ragdoll) in &bodies {
+            if ragdoll.is_some() || !near(&walker.pos) || !hits(walker.pos.xz(), at, dir) {
+                continue; // already flying (#320)
             }
             let (_, side) = relative(walker.pos.xz(), at, dir);
             let away = Vec2::new(-dir.y, dir.x) * if side < 0.0 { 1.0 } else { -1.0 };
-            let to = walker.pos.xz() + away * tu.throw;
-            walker.pos = Vec3::new(to.x, walker.pos.y + 0.5, to.y);
-            if let Some(mut kcc) = kcc {
-                kcc.velocity =
-                    (dir * driving.speed * 0.5).extend(0.0).xzy() + Vec3::Y * tu.throw_up;
-            }
+            // Punted out of the lane and along it, then you ragdoll (#320).
+            let fling = away * tu.throw + dir * driving.speed * 0.5;
+            crate::features::ragdoll::knock(
+                &mut commands,
+                entity,
+                Vec3::new(fling.x, tu.throw_up, fling.y),
+            );
             honk(&mut commands, at);
             if !tu.hit_lines.is_empty() {
                 *hit_line = (*hit_line + 1) % tu.hit_lines.len();

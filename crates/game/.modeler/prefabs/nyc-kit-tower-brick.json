@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "nyc-kit-tower-brick",
   "parts": [],
-  "version": 29988,
+  "version": 41978,
   "ops": [
     {
       "primitive": {
@@ -26,12 +26,12 @@
         "name": "shop_glass",
         "kind": "box",
         "size": [
-          19.2,
+          6.4,
           4.65,
           0.1
         ],
         "translation": [
-          0.0,
+          -6.5,
           2.325,
           9.73
         ],
@@ -43,13 +43,13 @@
         "name": "shop_pier_l",
         "kind": "box",
         "size": [
-          0.4,
-          5.0,
-          0.35
+          0.412,
+          5.006,
+          0.362
         ],
         "translation": [
-          -9.8,
-          2.5,
+          -9.806,
+          2.503,
           9.825
         ],
         "rotation": null
@@ -60,13 +60,13 @@
         "name": "shop_pier_r",
         "kind": "box",
         "size": [
-          0.4,
-          5.0,
-          0.35
+          0.412,
+          5.006,
+          0.362
         ],
         "translation": [
-          9.8,
-          2.5,
+          9.806,
+          2.503,
           9.825
         ],
         "rotation": null
@@ -78,12 +78,12 @@
         "kind": "box",
         "size": [
           0.5,
-          5.0,
-          0.35
+          5.006,
+          0.362
         ],
         "translation": [
           -3.3,
-          2.5,
+          2.503,
           9.825
         ],
         "rotation": null
@@ -95,12 +95,12 @@
         "kind": "box",
         "size": [
           0.5,
-          5.0,
-          0.35
+          5.006,
+          0.362
         ],
         "translation": [
           3.3,
-          2.5,
+          2.503,
           9.825
         ],
         "rotation": null
@@ -112,12 +112,12 @@
         "kind": "box",
         "size": [
           19.2,
-          0.75,
+          0.756,
           0.14
         ],
         "translation": [
           0.0,
-          4.275,
+          4.278,
           9.83
         ],
         "rotation": null
@@ -145,7 +145,7 @@
         "name": "shop_lintel",
         "kind": "box",
         "size": [
-          20.0,
+          20.012,
           0.45,
           0.5
         ],
@@ -333,12 +333,12 @@
         "kind": "box",
         "size": [
           19.4,
-          0.1,
+          0.106,
           19.4
         ],
         "translation": [
           0.0,
-          47.75,
+          47.747,
           0.0
         ],
         "rotation": null
@@ -452,7 +452,7 @@
         "kind": "box",
         "size": [
           2.8,
-          0.1,
+          0.112,
           0.1
         ],
         "translation": [
@@ -3840,6 +3840,416 @@
                 "metallic": 0.9,
                 "name": "out",
                 "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "shop_glass_c",
+        "kind": "box",
+        "size": [
+          6.6,
+          4.65,
+          0.1
+        ],
+        "translation": [
+          0.0,
+          2.325,
+          9.73
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "shop_glass_r",
+        "kind": "box",
+        "size": [
+          6.4,
+          4.65,
+          0.1
+        ],
+        "translation": [
+          6.5,
+          2.325,
+          9.73
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "shop_glass_c",
+        "input": "shop_glass_c",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-storefront",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  2.0,
+                  4.0
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "center": [
+                  0,
+                  0
+                ],
+                "coords": "g.local",
+                "name": "gl",
+                "size": [
+                  1.88,
+                  8.0
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "glm",
+                "sdf": "gl",
+                "type": "mask"
+              },
+              {
+                "center": [
+                  0,
+                  9
+                ],
+                "coords": "g.local",
+                "name": "sg",
+                "size": [
+                  0.01,
+                  0.01
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "sgm",
+                "sdf": "sg",
+                "type": "mask"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "sc",
+                "seed": 101,
+                "type": "random"
+              },
+              {
+                "input": "sc",
+                "name": "signc",
+                "stops": [
+                  [
+                    0,
+                    "#b0261e"
+                  ],
+                  [
+                    0.25,
+                    "#1f4f8a"
+                  ],
+                  [
+                    0.5,
+                    "#e0b020"
+                  ],
+                  [
+                    0.75,
+                    "#1e6a3a"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "name": "n",
+                "octaves": 2,
+                "seed": 102,
+                "size": 1.0,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "glc",
+                "stops": [
+                  [
+                    0,
+                    "#1a2026"
+                  ],
+                  [
+                    1,
+                    "#3a464e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "glm",
+                "b": 0.6,
+                "name": "lit",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "glc",
+                "b": "#e8d5a0",
+                "c": 0.0,
+                "name": "glc2",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#1c1c1e",
+                "b": "signc",
+                "c": "sgm",
+                "name": "c1",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "c1",
+                "b": "glc2",
+                "c": "glm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.5,
+                "b": 0.08,
+                "c": "glm",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "glm",
+                "b": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "name": "em0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "glm",
+                "b": -0.04,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em0",
+                "height": "h",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shop_glass_r",
+        "input": "shop_glass_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-storefront",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 4.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  2.0,
+                  4.0
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "center": [
+                  0,
+                  0
+                ],
+                "coords": "g.local",
+                "name": "gl",
+                "size": [
+                  1.88,
+                  8.0
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "glm",
+                "sdf": "gl",
+                "type": "mask"
+              },
+              {
+                "center": [
+                  0,
+                  9
+                ],
+                "coords": "g.local",
+                "name": "sg",
+                "size": [
+                  0.01,
+                  0.01
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "sgm",
+                "sdf": "sg",
+                "type": "mask"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "sc",
+                "seed": 101,
+                "type": "random"
+              },
+              {
+                "input": "sc",
+                "name": "signc",
+                "stops": [
+                  [
+                    0,
+                    "#b0261e"
+                  ],
+                  [
+                    0.25,
+                    "#1f4f8a"
+                  ],
+                  [
+                    0.5,
+                    "#e0b020"
+                  ],
+                  [
+                    0.75,
+                    "#1e6a3a"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "name": "n",
+                "octaves": 2,
+                "seed": 102,
+                "size": 1.0,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "glc",
+                "stops": [
+                  [
+                    0,
+                    "#1a2026"
+                  ],
+                  [
+                    1,
+                    "#3a464e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "glm",
+                "b": 0.6,
+                "name": "lit",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "glc",
+                "b": "#e8d5a0",
+                "c": 0.0,
+                "name": "glc2",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#1c1c1e",
+                "b": "signc",
+                "c": "sgm",
+                "name": "c1",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "c1",
+                "b": "glc2",
+                "c": "glm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.5,
+                "b": 0.08,
+                "c": "glm",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "glm",
+                "b": [
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "name": "em0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "glm",
+                "b": -0.04,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em0",
+                "height": "h",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "rough",
                 "type": "output"
               }
             ],

@@ -70,6 +70,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(world_seed::protocol);
         app.add_plugins(afterlife::protocol);
         app.add_plugins(systemd::protocol);
+        app.add_plugins(watcher::protocol);
     }
 }
 
@@ -134,5 +135,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(whispers::plugin);
         app.add_plugins(afterlife::plugin);
         app.add_plugins(systemd::plugin);
+        app.add_plugins(watcher::plugin);
     }
 }

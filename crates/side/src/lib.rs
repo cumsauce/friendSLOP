@@ -27,6 +27,7 @@ pub mod features {
     pub mod rats;
     pub mod sesbian_lex;
     pub mod shipwreck;
+    pub mod watcher;
 }
 
 /// This crate's data files (see `friendslop_data`).
@@ -45,5 +46,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::shipwreck::TUNING,
         &features::shipwreck::CREW,
         &features::discord_friends::LINES,
+        &features::watcher::TUNING,
     ]
 }

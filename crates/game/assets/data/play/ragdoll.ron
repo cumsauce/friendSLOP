@@ -1,0 +1,14 @@
+// Tuning for ragdoll (crates/play/src/features/ragdoll.rs, #320): getting punted.
+// Edit and save: the running game picks it up within a second.
+(
+    // How long you're a ragdoll after a hit (s), the last part of it spent getting back up.
+    seconds: 2.4,
+    recover: 0.7,
+    // How fast you tumble (radians per second for each m/s you were hit with), at most `max_spin`.
+    spin: 0.9,
+    max_spin: 14.0,
+    // The body: its mass (kg), bounciness (0..1) and friction (0..1).
+    mass: 70.0,
+    bounce: 0.25,
+    friction: 0.6,
+)

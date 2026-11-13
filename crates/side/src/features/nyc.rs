@@ -758,10 +758,50 @@ pub fn wtc_mesh() -> Mesh {
 
 // ------------------------------------------------------------------ client
 
+/// Local: the city's streets, towers, cabs and trees. Drawn only on screens near the city;
+/// they stay in the world (colliders and all) for everyone. One World Trade Center isn't
+/// one: it stays on the skyline from the valley.
+#[derive(Component)]
+struct CityPart;
+
+/// How far outside the city floor (metres) you still see its streets.
+const CITY_DRAW_MARGIN: f32 = 25.0;
+
+/// Should the city's streets be drawn for a camera at (x, z)?
+pub fn city_drawn(x: f32, z: f32) -> bool {
+    let (min, max) = (
+        crate::rules::nyc::CITY_MIN - Vec2::splat(CITY_DRAW_MARGIN),
+        crate::rules::nyc::CITY_MAX + Vec2::splat(CITY_DRAW_MARGIN),
+    );
+    (min.x..=max.x).contains(&x) && (min.y..=max.y).contains(&z)
+}
+
+/// Local: show the city's streets only while this screen's camera is near the city.
+fn cull_city(
+    camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
+    mut parts: Query<&mut Visibility, With<CityPart>>,
+) {
+    let Some(at) = camera.iter().next().map(|g| g.translation()) else {
+        return;
+    };
+    let want = city_drawn(at.x, at.z);
+    let vis = if want {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
+    for mut v in &mut parts {
+        v.set_if_neq(vis);
+    }
+}
+
 pub fn plugin(app: &mut App) {
     app.add_observer(click)
         .add_systems(OnEnter(AppState::InGame), build_city)
-        .add_systems(Update, where_am_i.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            (where_am_i, cull_city).run_if(in_state(AppState::InGame)),
+        );
 }
 
 #[derive(Component)]
@@ -845,6 +885,8 @@ fn build_city(
             Transform::from_translation(p.at)
                 .with_rotation(p.rot)
                 .with_scale(p.size),
+            Visibility::Hidden,
+            CityPart,
             DespawnOnExit(AppState::InGame),
         ));
         if p.solid {
@@ -955,6 +997,16 @@ pub fn room_at(c: &City, p: Vec2) -> Option<usize> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_city_is_drawn_only_near_it() {
+        let mid = (crate::rules::nyc::CITY_MIN + crate::rules::nyc::CITY_MAX) / 2.0;
+        assert!(city_drawn(mid.x, mid.y));
+        // Just over the rim, looking in: still drawn.
+        assert!(city_drawn(0.0, crate::rules::nyc::CITY_MIN.y - 10.0));
+        // The commune, far up the valley: not drawn.
+        assert!(!city_drawn(0.0, 0.0));
+    }
 
     fn t() -> Tuning {
         Tuning {

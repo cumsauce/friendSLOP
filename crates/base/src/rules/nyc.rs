@@ -10,6 +10,24 @@ pub const CITY_MAX: Vec2 = Vec2::new(90.0, 330.0);
 /// The city's street level.
 pub const CITY_Y: f32 = 0.0;
 
+/// Fulton St station (#fulton), stacked under the city: the top level's floor.
+pub const STATION_TOP_Y: f32 = -12.0;
+/// Fulton St station: floor to floor, one level to the next (matches its tile kit).
+pub const STATION_LEVEL_H: f32 = 4.0;
+
+/// Is a body with feet at `feet` down in Fulton St station, under the city?
+pub fn in_station(feet: Vec3) -> bool {
+    in_city(feet.x, feet.z) && feet.y < STATION_TOP_Y + 2.0
+}
+
+/// The floor of the station level a body with feet at `y` stands on (headless walk).
+pub fn station_floor(y: f32) -> f32 {
+    let below = ((STATION_TOP_Y - y) / STATION_LEVEL_H - 0.01)
+        .ceil()
+        .max(0.0);
+    STATION_TOP_Y - below * STATION_LEVEL_H
+}
+
 /// Is (x, z) on the city floor?
 pub fn in_city(x: f32, z: f32) -> bool {
     (CITY_MIN.x..=CITY_MAX.x).contains(&x) && (CITY_MIN.y..=CITY_MAX.y).contains(&z)

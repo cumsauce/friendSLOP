@@ -21,7 +21,8 @@
 // HOW TO WRITE...
 //   a scale:    a name and its notes in semitones above the root, ascending from 0.
 //   a quality:  a chord kind. voicing: the four notes the keys play (semitones above the
-//               root; the bass plays the root). scale: the scale a soloist plays over it.
+//               root, 1 and up: a triad writes its root as 12, doubled if need be; the
+//               bass plays the root). scale: the scale a soloist plays over it.
 //               pent: the five-note scale fast runs use. strong: the notes a melody may
 //               land on on a beat (pitch classes). guide: its third and seventh. third /
 //               fifth / seventh: what the bass plays for 3, 5 and 7. minor / dominant:
@@ -81,6 +82,13 @@
         "minor_pent": [0, 3, 5, 7, 10],
         // The minor pentatonic a half step up: all altered tones.
         "altered_pent": [1, 4, 6, 8, 11],
+        // Plain songs: the natural minor, the minor with a raised seventh (its V is a
+        // real dominant), that minor's fifth mode (the flamenco / Mexican-minor V7) and
+        // the blues hexatonic (minor pentatonic plus the flat five).
+        "aeolian": [0, 2, 3, 5, 7, 8, 10],
+        "harmonic_minor": [0, 2, 3, 5, 7, 8, 11],
+        "phrygian_dominant": [0, 1, 4, 5, 7, 8, 10],
+        "blues": [0, 3, 5, 6, 7, 10],
     },
     qualities: {
         // Major 9 (ionian).
@@ -115,6 +123,37 @@
         "HalfDim": (voicing: [3, 6, 10, 14], scale: "locrian_2", pent: "minor_pent", strong: [0, 3, 6, 10, 2], guide: [3, 10], third: 3, fifth: 6, seventh: 10, minor: true),
         // Diminished 7th (whole-half).
         "Dim7": (voicing: [3, 6, 9, 12], scale: "whole_half", pent: "minor_pent", strong: [0, 3, 6, 9, 0], guide: [3, 9], third: 3, fifth: 6, seventh: 9, minor: true),
+        // Plain chords for folk, pop, cumbia and hip-hop: triads and sevenths with no
+        // colour tones, so a melody lands on the chord itself. (A triad's "guide" is
+        // its third and root: where a sung line settles on a new chord.)
+        // Major triad.
+        "Maj": (voicing: [4, 7, 12, 12], scale: "ionian", pent: "major_pent", strong: [0, 4, 7], guide: [4, 0], third: 4, fifth: 7, seventh: 11),
+        // Minor triad (dorian, so it sits as a ii or a hip-hop i).
+        "Min": (voicing: [3, 7, 12, 12], scale: "dorian", pent: "minor_pent", strong: [0, 3, 7], guide: [3, 0], third: 3, fifth: 7, seventh: 10, minor: true),
+        // Minor triad in a minor key with a real V (harmonic minor).
+        "MinHarm": (voicing: [3, 7, 12, 12], scale: "harmonic_minor", pent: "minor_pent", strong: [0, 3, 7], guide: [3, 0], third: 3, fifth: 7, seventh: 11, minor: true),
+        // Dominant 7th: the V7 of a major key.
+        "Dom7": (voicing: [4, 7, 10, 12], scale: "mixolydian", pent: "major_pent", strong: [0, 4, 7, 10], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true),
+        // Dominant 7th as the V7 of a minor key (phrygian dominant: the b9 and b13).
+        "Dom7Phryg": (voicing: [4, 7, 10, 12], scale: "phrygian_dominant", pent: "major_pent", strong: [0, 4, 7, 10], guide: [4, 10], third: 4, fifth: 7, seventh: 10, dominant: true),
+        // Major 7th, plain.
+        "Maj7": (voicing: [4, 7, 11, 12], scale: "ionian", pent: "major_pent", strong: [0, 4, 7, 11], guide: [4, 11], third: 4, fifth: 7, seventh: 11),
+        // Minor 7th, plain (dorian).
+        "Min7": (voicing: [3, 7, 10, 12], scale: "dorian", pent: "minor_pent", strong: [0, 3, 7, 10], guide: [3, 10], third: 3, fifth: 7, seventh: 10, minor: true),
+        // Power chord: root and fifth, no third.
+        "Power": (voicing: [7, 12, 19, 12], scale: "aeolian", pent: "minor_pent", strong: [0, 7], guide: [0, 7], third: 7, fifth: 7, seventh: 12),
+        // Suspended fourth.
+        "Sus4": (voicing: [5, 7, 12, 12], scale: "mixolydian", pent: "major_pent", strong: [0, 5, 7], guide: [5, 7], third: 5, fifth: 7, seventh: 10),
+        // Major add 9.
+        "Add9": (voicing: [4, 7, 14, 12], scale: "ionian", pent: "major_pent", strong: [0, 4, 7, 2], guide: [4, 0], third: 4, fifth: 7, seventh: 11),
+        // The same chords by where they sit in the key, so the melody's passing notes
+        // stay in the key: a IV or bVI (lydian), a bVII or V triad (mixolydian), a
+        // minor key's i or a major key's vi (aeolian).
+        "MajLyd": (voicing: [4, 7, 12, 12], scale: "lydian", pent: "major_pent", strong: [0, 4, 7], guide: [4, 0], third: 4, fifth: 7, seventh: 11),
+        "Maj7Lyd": (voicing: [4, 7, 11, 12], scale: "lydian", pent: "major_pent", strong: [0, 4, 7, 11], guide: [4, 11], third: 4, fifth: 7, seventh: 11),
+        "MajMix": (voicing: [4, 7, 12, 12], scale: "mixolydian", pent: "major_pent", strong: [0, 4, 7], guide: [4, 0], third: 4, fifth: 7, seventh: 10),
+        "MinAeo": (voicing: [3, 7, 12, 12], scale: "aeolian", pent: "minor_pent", strong: [0, 3, 7], guide: [3, 0], third: 3, fifth: 7, seventh: 10, minor: true),
+        "Min7Aeo": (voicing: [3, 7, 10, 12], scale: "aeolian", pent: "minor_pent", strong: [0, 3, 7, 10], guide: [3, 10], third: 3, fifth: 7, seventh: 10, minor: true),
     },
     kits: {
         "fusion": (
@@ -221,6 +260,53 @@
             hat: "x.ox.ox.ox.o",
             soft: 0.9, lay: 50, fill: Rolls,
         ),
+        // Boom-bap hip-hop: a heavy kick, the snare dragged late on two and four, swung
+        // 8th hats (the song swings them). No ride, no clap.
+        "BoomBap": (
+            kick: ["x.........x.....", "x......x..x..x.."],
+            snare: "....x.......x...",
+            hat: "x.o.x.o.x.o.x.oo",
+            soft: 0.95, lay: 380, fill: Ghost,
+            ride_when: [], clap_when: [],
+        ),
+        // House: four on the floor, a clap on two and four, open hats on the "and"s.
+        "House": (
+            kick: ["x...x...x...x...", "x...x...x...x..."],
+            snare: "................",
+            hat: "o.O.o.O.o.O.o.Oo",
+            extra: [(Clap, 39, ["....x.......x...", "....x.......x..."])],
+            soft: 0.85, lay: 0, fill: Ghost,
+            ride_when: [], clap_when: [],
+        ),
+        // Cumbia: the kick on one and three, a cross-stick on two and four; the
+        // guacharaca lane (chucu-chucu) does the hats' job.
+        "Cumbia": (
+            kick: ["x.......x.......", "x.......x.....o."],
+            snare: "................",
+            hat: "................",
+            extra: [(Rim, 37, ["....x.......x...", "....x.......x..o"])],
+            soft: 0.85, lay: 0, fill: Ghost,
+            ride_when: [], clap_when: [],
+        ),
+        // Bossa nova: a soft kick pulse, the cross-stick clave, 8th hats.
+        "Bossa": (
+            kick: ["x..x....x..x....", "x..x....x..x...."],
+            snare: "................",
+            hat: "o.g.o.g.o.g.o.g.",
+            extra: [(Rim, 37, ["x..x..x...x..x..", "..x..x..x..x...."])],
+            soft: 0.7, lay: 50, fill: Ghost,
+            ride_when: [], clap_when: [],
+        ),
+        // Ranchera / vals in 3/4 (songs with steps: 12, beats: 3): the bass and the
+        // guitar play the oom-pah-pah; the kit only marks one and brushes two and three.
+        "Vals": (
+            steps: 12,
+            kick: ["x...........", "x..........."],
+            snare: "....g...g...",
+            hat: "....o...o...",
+            soft: 0.7, lay: 30, fill: Ghost,
+            ride_when: [], clap_when: [],
+        ),
     },
     lanes: {
         // Accent the "and"s; the beads lean a touch ahead. Off-16ths only once it's busy.
@@ -273,12 +359,29 @@
             when: [(at_least: 0.3, not: [Intro])],
             jitter: 1, rand_vel: true,
         ),
-        // Not written yet: a song may ask for it, and it rests.
+        // The bell on the beat, the "and"s pushing into the next one.
         "Cowbell": (
             inst: Cowbell,
-            bars: ["................"],
+            bars: ["X...o...X...o.o.", "X...o...X.o.o..."],
+            hits: {'X': (56, 0.8), 'o': (56, 0.5)},
             when: [(at_least: 0.3, not: [Intro])],
             jitter: 1, rand_vel: true,
+        ),
+        // The guacharaca's "chucu-chucu": a long scrape on each beat, two short
+        // scrapes after it.
+        "guacharaca": (
+            inst: Guacharaca,
+            bars: ["X.ccX.ccX.ccX.cc"],
+            hits: {'X': (73, 0.75), 'c': (74, 0.5)},
+            when: [(not: [Intro])],
+            jitter: 1, rand_vel: true,
+        ),
+        // A cumbia conga: a slap on two, open tones on four, on the song's hand drum.
+        "conga_cumbia": (
+            bars: ["h...S...h...o.o.", "h...S...h.t.o.o."],
+            hits: {'h': (58, 0.25), 't': (58, 0.3), 'S': (64, 0.8), 'o': (58, 0.7)},
+            when: [(above: 0.3, not: [Intro])],
+            jitter: 2, hand: true, heads: (58, 64),
         ),
     },
     hands: {
@@ -328,6 +431,30 @@
             [(0, 2, false), (3, 1, false), (6, 2, false), (9, 1, false)],
             [(2, 1, false), (5, 2, false), (8, 1, false), (11, 1, true)],
         ]),
+        // Reggae / cumbia skank: short chords on the off-beats.
+        "Skank": (writer: Block, spread: 10, rhythms: [
+            [(2, 1, false), (6, 1, false), (10, 1, false), (14, 1, false)],
+        ]),
+        // Oom-pah-pah (3/4): the bass takes one, the chord answers on two and three.
+        "OomPah": (writer: Block, spread: 40, steps: 12, rhythms: [
+            [(4, 2, false), (8, 2, false)],
+            [(4, 2, false), (8, 1, false), (10, 1, false)],
+        ]),
+        // An 8th-note guitar strum: down, down-up, up-down-up.
+        "Strum8": (writer: Block, spread: 260, rhythms: [
+            [(0, 2, false), (4, 1, false), (6, 2, false), (10, 1, false), (12, 1, false), (14, 2, false)],
+        ]),
+        // House piano / organ stabs on the off-beats.
+        "HouseStab": (writer: Block, spread: 6, rhythms: [
+            [(2, 2, false), (6, 1, false), (10, 2, false), (14, 1, true)],
+            [(2, 2, false), (10, 2, false), (13, 2, false)],
+        ]),
+        // Dusty hip-hop keys: long chords, a late second hit.
+        "Dusty": (writer: Block, spread: 70, rhythms: [
+            [(0, 7, false), (10, 6, false)],
+            [(0, 12, false), (14, 2, true)],
+            [(0, 4, false), (7, 9, false)],
+        ]),
     },
     leads: {
         "fusion": (
@@ -372,6 +499,69 @@
             cadence_run: (0.65, 0.4),
             // A chromatic approach note into a strong beat; bebop passing tones.
             approach: 0.35, bebop_pass: 0.6,
+        ),
+        // A singer: stepwise, diatonic, long notes, the idea restated so you can hum it.
+        "singer": (
+            cells: [
+                [(0, 4), (4, 2), (6, 2), (8, 6)],
+                [(0, 2), (2, 2), (4, 4), (8, 4), (12, 4)],
+                [(2, 2), (4, 4), (8, 2), (10, 6)],
+                [(0, 6), (6, 2), (8, 8)],
+                [(0, 3), (3, 1), (4, 4), (8, 6)],
+            ],
+            arc: [67, 69, 71, 69, 69, 71, 72, 67],
+            shape: [0.92, 0.94, 0.98, 0.9, 0.95, 1.0, 1.05, 0.9],
+            leaps: [1, 1, 1, 2],
+            rise: 0.7, fall: 0.25, contour: (-3, 4), min_span: 2,
+            range: (60, 77),
+            trade: {}, glides: [], glide: 0.0,
+            // No runs, no bebop, no chromatic approaches (its forms have no solos).
+            solo_run: (0.0, 0.0), solo_bebop: 0.0, solo_shift: 0.0, solo_invert: 0.0,
+            dev_run: 0.0, climb_run: 0.0, cadence_run: (2.0, 0.0),
+            approach: 0.0, bebop_pass: 0.0,
+            calm: 0.3, restate: 0.85, rest: (0.4, 0.15),
+        ),
+        // A riff: a short motif, a few notes, said again and again.
+        "riff": (
+            cells: [
+                [(0, 2), (3, 1), (6, 2)],
+                [(0, 1), (2, 1), (3, 2), (8, 1), (10, 2)],
+                [(2, 2), (6, 1), (7, 3)],
+                [(0, 3), (6, 1), (8, 2), (11, 3)],
+            ],
+            arc: [67, 67, 67, 67, 67, 67, 69, 67],
+            shape: [0.9, 0.85, 0.9, 0.85, 0.9, 0.85, 0.95, 0.85],
+            leaps: [1, 1, 2],
+            rise: 0.6, fall: 0.4, contour: (-2, 3), min_span: 2,
+            range: (60, 76),
+            trade: {}, glides: [], glide: 0.0,
+            // No runs, no bebop, no chromatic approaches (its forms have no solos).
+            solo_run: (0.0, 0.0), solo_bebop: 0.0, solo_shift: 0.0, solo_invert: 0.0,
+            dev_run: 0.0, climb_run: 0.0, cadence_run: (2.0, 0.0),
+            approach: 0.0, bebop_pass: 0.0,
+            calm: 0.0, restate: 1.0, rest: (0.35, 0.1),
+        ),
+        // Mariachi (3/4): a diatonic sung line in 12-step bars, long on the downbeat.
+        // Pair it with a Harmony part for the second trumpet in thirds.
+        "mariachi": (
+            cells: [
+                [(0, 4), (4, 2), (6, 2), (8, 4)],
+                [(0, 2), (2, 2), (4, 8)],
+                [(0, 6), (6, 2), (8, 4)],
+                [(4, 4), (8, 4)],
+                [(0, 4), (4, 4), (8, 2), (10, 2)],
+            ],
+            arc: [69, 71, 72, 71, 71, 72, 74, 69],
+            shape: [0.92, 0.95, 1.0, 0.9, 0.95, 1.0, 1.08, 0.9],
+            leaps: [1, 1, 1, 2],
+            rise: 0.7, fall: 0.25, contour: (-3, 4), min_span: 2,
+            range: (64, 81),
+            trade: {}, glides: [], glide: 0.0,
+            // No runs, no bebop, no chromatic approaches (its forms have no solos).
+            solo_run: (0.0, 0.0), solo_bebop: 0.0, solo_shift: 0.0, solo_invert: 0.0,
+            dev_run: 0.0, climb_run: 0.0, cadence_run: (2.0, 0.0),
+            approach: 0.0, bebop_pass: 0.0,
+            calm: 0.0, restate: 0.85, rest: (0.3, 0.1),
         ),
     },
     horns: {
@@ -526,6 +716,76 @@
                 bell: Chime, bell_every: 4, bell_bar: 1, bell_from: 84, bell_up: 2, bell_max: 100, bell_vel: 0.35,
             ),
         ),
+        // A plain song (verse, chorus, bridge): no solos, no odd bars.
+        "song": (
+            sections: {
+                Intro: (bars: 4, prog: [A]),
+                A: (bars: 8, prog: [A]),
+                Hook: (bars: 8, prog: [Hook]),
+                B: (bars: 8, prog: [B]),
+                Breakdown: (bars: 4, prog: [A]),
+                Still: (bars: 2, prog: [A]),
+            },
+            start: [(to: Intro, when: (below: 0.6, urgent: false)), (to: A)],
+            next: {
+                Intro: [(to: A)],
+                Breakdown: [(to: A)],
+                Victory: [(to: A)],
+                Still: [(to: A)],
+                A: [(to: Hook)],
+                Hook: [(to: B, chance: 0.5), (to: A)],
+                B: [(to: Breakdown, when: (below: 0.35)), (to: Hook)],
+            },
+            // The victory cadence: IV - V7 - I.
+            victory: [(5, Maj, 2), (7, Dom7, 2), (0, Maj, 4)],
+            victory_bars: 2,
+            // Into a new chord: its plain V7 (a minor chord's with the minor key's b9).
+            approach: (minor: [(7, Dom7Phryg)], other: [(7, Dom7)]),
+            lift: [0, 2, 4, 5, 7],
+            modulate_half: 0.5, modulate_top: 4,
+            variants: 3, new_song: 0.6,
+            hold: (
+                tempo: 0.9,
+                layers: [("pad", 1.0), ("perc", 0.6)],
+                every: 2, len: 2.2, vel: 0.6,
+                bell: Chime, bell_every: 4, bell_bar: 1, bell_from: 84, bell_up: 2, bell_max: 100, bell_vel: 0.35,
+            ),
+        ),
+        // The same in 3/4 (chords in beats of three).
+        "song3": (
+            sections: {
+                Intro: (bars: 4, prog: [A]),
+                A: (bars: 8, prog: [A]),
+                Hook: (bars: 8, prog: [Hook]),
+                B: (bars: 8, prog: [B]),
+                Breakdown: (bars: 4, prog: [A]),
+                Still: (bars: 2, prog: [A]),
+            },
+            start: [(to: Intro, when: (below: 0.6, urgent: false)), (to: A)],
+            next: {
+                Intro: [(to: A)],
+                Breakdown: [(to: A)],
+                Victory: [(to: A)],
+                Still: [(to: A)],
+                A: [(to: Hook)],
+                Hook: [(to: B, chance: 0.5), (to: A)],
+                B: [(to: Breakdown, when: (below: 0.35)), (to: Hook)],
+            },
+            // The victory cadence: IV - V7 - I.
+            victory: [(5, Maj, 3), (7, Dom7, 3), (0, Maj, 6)],
+            victory_bars: 2,
+            // Into a new chord: its plain V7 (a minor chord's with the minor key's b9).
+            approach: (minor: [(7, Dom7Phryg)], other: [(7, Dom7)]),
+            lift: [0, 2, 4, 5, 7],
+            modulate_half: 0.5, modulate_top: 4,
+            variants: 3, new_song: 0.6,
+            hold: (
+                tempo: 0.9,
+                layers: [("pad", 1.0), ("perc", 0.6)],
+                every: 2, len: 2.2, vel: 0.6,
+                bell: Chime, bell_every: 4, bell_bar: 1, bell_from: 84, bell_up: 2, bell_max: 100, bell_vel: 0.35,
+            ),
+        ),
     },
     bands: {
         "fusion": (
@@ -554,6 +814,52 @@
                 "guitar": [((), 1.0)],
                 "pad": [((), 1.0)],
                 // A song without a pad still has one in breakdowns and when calm.
+                "pad_sparse": [((sections: [Breakdown]), 0.8), ((below: 0.3), 0.8)],
+            },
+        ),
+        // Small line-ups for plain songs (hip-hop, house, cumbia): songs write their parts out.
+        "street": (
+            form: "song", feel: "fusion", kit: "fusion", lead: "singer", horns: "fusion",
+            kimes: "fusion", ostinato: "kalimba", theme: "signature",
+            bossa: "Bossa", pick: "Pick", shaker: "shaker", tumbao: "tumbao",
+            leads: {"Singer": Accordion, "Trumpet": MariachiTrumpet, "Keys": DustyKeys},
+            horn_modes: {"Stabs": (true, false), "Swells": (false, true), "Both": (true, true)},
+            ostinato_insts: [],
+            keys: DustyKeys, hand: Conga, bass: Upright, pad: Strings, guitar: Guitar,
+            kime_bass: Upright, bells: Chime,
+            glides: [], glide: 0.0,
+            layers: {
+                "drums": [((sections: [Intro], above: 0.5), 0.6), ((sections: [Intro]), 0.0), ((above: 0.12), 1.0)],
+                "bass": [((not: [Intro]), 1.0), ((above: 0.4), 1.0)],
+                "keys": [((), 1.0)],
+                "perc": [((), 1.0)],
+                "lead": [((), 1.0)],
+                "brass": [((), 1.0)],
+                "guitar": [((), 1.0)],
+                "pad": [((), 1.0)],
+                "pad_sparse": [((sections: [Breakdown]), 0.8), ((below: 0.3), 0.8)],
+            },
+        ),
+        // The same in 3/4 (rancheras, valses).
+        "vals": (
+            form: "song3", feel: "fusion", kit: "fusion", lead: "singer", horns: "fusion",
+            kimes: "fusion", ostinato: "kalimba", theme: "signature",
+            bossa: "Bossa", pick: "Pick", shaker: "shaker", tumbao: "tumbao",
+            leads: {"Singer": Accordion, "Trumpet": MariachiTrumpet, "Keys": DustyKeys},
+            horn_modes: {"Stabs": (true, false), "Swells": (false, true), "Both": (true, true)},
+            ostinato_insts: [],
+            keys: Guitar, hand: Conga, bass: Upright, pad: Strings, guitar: Guitar,
+            kime_bass: Upright, bells: Chime,
+            glides: [], glide: 0.0,
+            layers: {
+                "drums": [((sections: [Intro], above: 0.5), 0.6), ((sections: [Intro]), 0.0), ((above: 0.12), 1.0)],
+                "bass": [((not: [Intro]), 1.0), ((above: 0.4), 1.0)],
+                "keys": [((), 1.0)],
+                "perc": [((), 1.0)],
+                "lead": [((), 1.0)],
+                "brass": [((), 1.0)],
+                "guitar": [((), 1.0)],
+                "pad": [((), 1.0)],
                 "pad_sparse": [((sections: [Breakdown]), 0.8), ((below: 0.3), 0.8)],
             },
         ),

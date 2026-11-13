@@ -178,6 +178,8 @@ pub struct Composer {
     /// notes in this bar end.
     frag: Line,
     lead_end: u32,
+    /// The melody played this bar (what a harmony doubles).
+    sung: bool,
     victories: u32,
     /// The storey the key is on, and the one this bar's second half is
     /// modulating to (over `bridge`, the new key's dominant).
@@ -246,6 +248,7 @@ impl Composer {
             anchor: 72,
             frag: Line::new(),
             lead_end: 0,
+            sung: false,
             victories: 0,
             lift: 0,
             lift_to: None,
@@ -633,6 +636,7 @@ impl Composer {
             // A note held over the bar line still counts as the lead playing.
             self.lead_end = self.lead_end.saturating_sub(self.full);
         }
+        self.sung = false;
         let ctx = self.ctx();
         let drummed = s.parts.iter().any(|p| matches!(p.play, G::Drums { .. }));
         for part in &s.parts {
@@ -655,6 +659,7 @@ impl Composer {
                 },
                 G::Melody { .. } => self.write_lead(bar, part),
                 G::Answer { .. } => self.write_answer(bar, part),
+                G::Harmony { .. } => self.write_harmony(bar, part),
                 G::Horns { .. } => self.write_horns(bar, part),
                 G::Pad { .. } => self.write_pad(bar, part),
                 G::Arp => self.write_arp(bar, part),
@@ -1032,6 +1037,10 @@ mod tests {
                 "Fretless",
                 "EPiano",
                 "Kalimba",
+                "Accordion",
+                "MariachiTrumpet",
+                "SoftBrass",
+                "Vibes",
             ]
             .map(Inst::named)
             {

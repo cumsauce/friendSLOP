@@ -1,17 +1,21 @@
 #![enable(implicit_some)]
 // Bodega: song 1 (its own song). See moods.ron for what the fields mean.
-// "Deli & Grocery": a Mexican-American cumbia on the bodega radio.
-// Trumpets in thirds, nylon guitar strumming, guiro scraping,
-// congas and claves, an accordion-ish organ answering.
+// "Cumbia de la Esquina": a cumbia on the bodega radio. Kick on one and
+// three, the guacharaca's chucu-chucu, congas, the bass on root and fifth,
+// a nylon guitar skanking the off-beats and an accordion singing a simple
+// tune, a trumpet doubling it a third below in the chorus.
 (
-    mood: "Bodega",
-    bpm: 96.0, swing: 0.0, key: 7,
-    a: "BODEGA_A", b: "BODEGA_B", hook: "BODEGA_HOOK",
-    groove: City, bass: ["CUMBIA", "CUMBIA2"],
-    comp: Stabs, lead: Brass, arp: None, pad: false,
-    intensity: 0.55, odd: 0.0, modulate: 0.15, kime: 0.3,
-    theme: false, bass_inst: Bass, pad_inst: Pad,
-    horns: Stabs, kit: (shaker: false, conga: true, clap: false, ride: false),
-    answer: Some(Organ), nylon: Bossa,
-    keys: Some(Guitar), hand: Some(Conga), perc: [Guiro, Claves],
+    mood: "Bodega", band: "street",
+    bpm: 95.0, swing: 0.0, key: 7,
+    a: "CUMBIA_A", b: "CUMBIA_B", hook: "CUMBIA_HOOK",
+    intensity: 0.55, odd: 0.0, modulate: 0.0, kime: 0.0,
+    parts: [
+        (play: Drums(groove: "Cumbia")),
+        (play: Lane(lane: "guacharaca")),
+        (play: Lane(lane: "conga_cumbia")),
+        (play: Bass(lines: ["CUMBIA13", "CUMBIA13B"]), inst: Bass, bus: "bass", layer: [((not: [Intro]), 0.75), ((above: 0.4), 0.75)]),
+        (play: Chords(comp: "Skank"), inst: Guitar, bus: "guitar", layer: [((), 0.65)]),
+        (play: Melody(style: "singer"), inst: Accordion, not: [Intro]),
+        (play: Harmony(steps: -2), inst: MariachiTrumpet, sections: [Hook]),
+    ],
 )

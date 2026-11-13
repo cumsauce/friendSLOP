@@ -53,6 +53,10 @@ pub struct Stop {
     /// [`HALL_DEPTH`] tall).
     #[serde(default)]
     pub depth: f32,
+    /// A ground of its own (its height, m), beating `city`: Miami's (#345)
+    /// floats high over the city.
+    #[serde(default)]
+    pub floor: Option<f32>,
     /// Said on the way to this stop.
     pub announce: String,
 }
@@ -62,6 +66,38 @@ pub struct Stop {
 pub struct Line {
     pub name: String,
     pub stops: [Stop; 2],
+    /// What runs on it: a train (the default) or a plane (#345).
+    #[serde(default)]
+    pub vehicle: Vehicle,
+    /// How far this line's car goes before it's gone (m), if not `run_out`.
+    #[serde(default)]
+    pub run_out: Option<f32>,
+    /// How far it climbs per metre once it's past `lift_off` (a plane takes off).
+    #[serde(default)]
+    pub climb: f32,
+    /// How far along (m) it leaves the ground.
+    #[serde(default)]
+    pub lift_off: f32,
+}
+
+/// What runs on a line.
+#[derive(Deserialize, Default, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Vehicle {
+    /// A PATH train out of a tunnel.
+    #[default]
+    Train,
+    /// A plane off a gate (#345): it rolls out and climbs into the sky.
+    Plane,
+}
+
+impl Vehicle {
+    /// The car's model.
+    pub fn car(self) -> &'static str {
+        match self {
+            Vehicle::Train => "path-car.gltf",
+            Vehicle::Plane => "plane-car.gltf",
+        }
+    }
 }
 
 /// Tuning and writing: `assets/data/side/trains.ron` (read at run time).
@@ -139,7 +175,9 @@ const STAIRS_SLOPE: f32 = 0.675;
 pub fn stop_frame(s: &Stop) -> Transform {
     let turn = Quat::from_rotation_y(s.yaw.to_radians());
     let (x, z) = s.at;
-    let y = if s.city {
+    let y = if let Some(y) = s.floor {
+        y
+    } else if s.city {
         crate::rules::nyc::CITY_Y
     } else {
         // On the valley's ground: as high as the ground anywhere under the
@@ -244,6 +282,19 @@ pub fn car_frame(s: &Stop, along: f32) -> Transform {
     f.with_translation(f.translation + f.rotation * Vec3::X * along)
 }
 
+/// How far along the track a line's car is (its own `run_out`, if it has one).
+pub fn line_offset(t: &Tuning, l: &Line, phase: Phase, secs: f32) -> f32 {
+    let out = l.run_out.unwrap_or(t.run_out);
+    offset(t, phase, secs) * out / t.run_out.max(0.01)
+}
+
+/// Where a line's car is now: along its track, and up in the air for a plane.
+pub fn line_frame(l: &Line, s: &Stop, along: f32) -> Transform {
+    let mut f = car_frame(s, along);
+    f.translation.y += l.climb * (along - l.lift_off).max(0.0);
+    f
+}
+
 /// One server tick of a train: its next phase and seconds, given whether
 /// someone in it has stood there long enough (`go`) and whether riders are
 /// due in (`due`). `Some(phase)` when the phase just changed from the old one.
@@ -289,7 +340,7 @@ pub fn protocol(app: &mut App) {
     // Keep the valley's trees off the stations.
     for l in &tuning().lines {
         for s in &l.stops {
-            if !s.city {
+            if !s.city && s.floor.is_none() {
                 let f = stop_frame(s);
                 let mid = f.transform_point(Vec3::X * 10.0);
                 friendslop_world::footprints::claim(mid.xz(), 26.0);
@@ -424,6 +475,7 @@ pub fn step_all<K: Copy + Eq + std::hash::Hash>(
 ) -> HashMap<K, Vec3> {
     let mut out = HashMap::new();
     let stop = |line: usize, i: usize| t.lines.get(line).and_then(|l| l.stops.get(i));
+    let line_of = |line: usize| t.lines.get(line);
     // Who's due to arrive at each stop, and who's stood long enough in a waiting train.
     let mut go = HashMap::new();
     let mut due = HashMap::new();
@@ -530,11 +582,12 @@ pub fn step_all<K: Copy + Eq + std::hash::Hash>(
             continue;
         }
         if let Some((line, i, local)) = r.pinned
-            && let (Some(s), Some(run)) = (stop(line, i), runs.get(&(line, i)))
+            && let (Some(l), Some(s), Some(run)) =
+                (line_of(line), stop(line, i), runs.get(&(line, i)))
         {
             out.insert(
                 k,
-                car_frame(s, offset(t, run.phase, run.secs)).transform_point(local),
+                line_frame(l, s, line_offset(t, l, run.phase, run.secs)).transform_point(local),
             );
         }
     }
@@ -742,7 +795,7 @@ fn build(
                     DespawnOnExit(AppState::InGame),
                 ))
                 .with_children(|car| {
-                    car.spawn((model(&assets, "path-car.gltf"), Transform::default()));
+                    car.spawn((model(&assets, l.vehicle.car()), Transform::default()));
                     for (c, size) in &open {
                         car.spawn((
                             Transform::from_translation(*c),
@@ -752,7 +805,10 @@ fn build(
                 });
             // The station.
             let mut files = vec!["path-platform.gltf"];
-            if s.depth > 0.0 {
+            if l.vehicle == Vehicle::Plane {
+                // A gate: its platform and canopy, no tunnel (the plane flies off).
+                files = vec!["plane-gate.gltf"];
+            } else if s.depth > 0.0 {
                 files.push("path-hall.gltf");
             } else {
                 files.push("path-station.gltf");
@@ -761,17 +817,19 @@ fn build(
                 commands.spawn((model(&assets, file), at, DespawnOnExit(AppState::InGame)));
             }
             let portal = at.with_translation(at.transform_point(Vec3::X * PORTAL_X));
-            commands.spawn((
-                model(&assets, "path-tunnel.gltf"),
-                portal,
-                DespawnOnExit(AppState::InGame),
-            ));
-            if s.depth <= 0.0 && !s.city {
+            if l.vehicle == Vehicle::Train {
                 commands.spawn((
-                    model(&assets, "path-mound.gltf"),
+                    model(&assets, "path-tunnel.gltf"),
                     portal,
                     DespawnOnExit(AppState::InGame),
                 ));
+                if s.depth <= 0.0 && !s.city && s.floor.is_none() {
+                    commands.spawn((
+                        model(&assets, "path-mound.gltf"),
+                        portal,
+                        DespawnOnExit(AppState::InGame),
+                    ));
+                }
             }
             spawn_boxes(&mut commands, at, &station_boxes(s));
             if s.depth > 0.0 {
@@ -817,7 +875,7 @@ fn build(
             let o = ride_origin(&t, li, to);
             let at = Transform::from_translation(o);
             commands.spawn((
-                model(&assets, "path-car.gltf"),
+                model(&assets, l.vehicle.car()),
                 at,
                 DespawnOnExit(AppState::InGame),
             ));
@@ -832,13 +890,26 @@ fn build(
                 Transform::from_translation(o + Vec3::Y * 2.6),
                 DespawnOnExit(AppState::InGame),
             ));
-            // The tunnel: lights streaming past both sides.
-            let mesh = meshes.add(Cuboid::new(1.2, 0.15, 0.15));
-            let glow = materials.add(StandardMaterial {
-                base_color: Color::BLACK,
-                emissive: LinearRgba::rgb(6.0, 5.0, 3.0),
-                ..default()
-            });
+            // The tunnel: lights streaming past both sides (a plane: clouds).
+            let (mesh, glow) = if l.vehicle == Vehicle::Plane {
+                (
+                    meshes.add(Sphere::new(1.4)),
+                    materials.add(StandardMaterial {
+                        base_color: Color::WHITE,
+                        emissive: LinearRgba::rgb(1.5, 1.5, 1.6),
+                        ..default()
+                    }),
+                )
+            } else {
+                (
+                    meshes.add(Cuboid::new(1.2, 0.15, 0.15)),
+                    materials.add(StandardMaterial {
+                        base_color: Color::BLACK,
+                        emissive: LinearRgba::rgb(6.0, 5.0, 3.0),
+                        ..default()
+                    }),
+                )
+            };
             for i in 0..8 {
                 for side in [-3.0, 3.0] {
                     commands.spawn((
@@ -863,14 +934,13 @@ fn move_cars(runs: Query<&Run>, mut cars: Query<(&CarOf, &mut Transform)>) {
         let Some(run) = runs.iter().find(|r| r.line == c.line && r.stop == c.stop) else {
             continue;
         };
-        let Some(s) = t
-            .lines
-            .get(c.line as usize)
-            .and_then(|l| l.stops.get(c.stop as usize))
-        else {
+        let Some(l) = t.lines.get(c.line as usize) else {
             continue;
         };
-        let want = car_frame(s, offset(&t, run.phase, run.secs));
+        let Some(s) = l.stops.get(c.stop as usize) else {
+            continue;
+        };
+        let want = line_frame(l, s, line_offset(&t, l, run.phase, run.secs));
         if *tf != want {
             *tf = want;
         }

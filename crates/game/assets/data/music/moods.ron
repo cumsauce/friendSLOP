@@ -298,6 +298,12 @@
             level_db: 1.0,
             wandering: true,
         ),
+        (
+            // Miami Music Week (#345): EDM, loud and crisp.
+            name: "Miami",
+            tone: (warmth: -0.3, width: 1.3, wow: 0.0, lay_back_ms: 0.0, loose_ms: 0.0),
+            level_db: 2.0,
+        ),
     ],
     // What plays when: the first rule that matches.
     rules: [
@@ -319,6 +325,9 @@
         (when: Signal("underground", Gt, 0.0), mood: "Underground"),
         (when: Signal("wendys_attic", Gt, 0.0), mood: "WendysAttic"),
         (when: Signal("wendys", Gt, 0.0), mood: "Wendys"),
+        // Miami floats over New York: it goes first. Flat out inside Factory Town.
+        (when: Signal("factory_town", Gt, 0.0), mood: "Miami", intensity: "1.0"),
+        (when: Signal("miami", Gt, 0.0), mood: "Miami", intensity: "0.7"),
         (when: Signal("nyc_shop_bodega", Gt, 0.0), mood: "Bodega"),
         (when: Signal("nyc", Gt, 0.0), mood: "Nyc"),
         (when: Signal("heaven", Gt, 0.0), mood: "Abuela"),

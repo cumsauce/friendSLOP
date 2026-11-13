@@ -1,0 +1,33 @@
+// Miami Music Week (#345, crates/side/src/features/miami.rs).
+// Fly there from JFK (the plane is a line in trains.ron). Miami is an island
+// of ground floating high over New York, with Factory Town on it.
+// Edit and save: the running game picks it up within a second.
+(
+    // The middle of Miami's ground, on top (x, y, z). Keep it over the city
+    // (x -90..90, z 116..330) so the city's soft wall doesn't send you home.
+    ground: (0.0, 1500.0, 220.0),
+    // Where you're put back when you fall off the island (x, z): the gate.
+    back_to: (-40.0, 187.5),
+    // Fall this far (m) below the ground and you're back at the gate.
+    fall_below: 30.0,
+    // How many people dance in Factory Town.
+    dancers: 36,
+    // The dancers' beat (beats per minute; the Miami song is 126).
+    bpm: 126.0,
+    // Seconds a bump of ketamine lasts.
+    k_secs: 40.0,
+    // Shown when you walk into Factory Town.
+    venue_line: "FACTORY TOWN. miami music week. the bass is a physical object.",
+    // Shown when you take a bump.
+    bump_line: "you did a bump. uh oh.",
+    // Shown one after another while you're in the k-hole.
+    k_lines: [
+        "the room is getting very far away.",
+        "you are a horse. you are a tiny horse.",
+        "the DJ is inside your teeth.",
+        "you have been standing here for nine years.",
+        "is that a door or a feeling?",
+    ],
+    // Shown when it wears off.
+    sober_line: "you're back. you were gone for a while.",
+)

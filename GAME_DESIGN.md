@@ -55,7 +55,9 @@ TV broadcasts a riddle that leads outside the game.
 and it pulls out into a tunnel under a grassy mound, rattles along (a robot voice calling the
 stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
 up into the Oculus. The city has One World Trade Center and 4 shops to walk into. The train
-under the Oculus rides you back.
+under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
+for **Miami**, an island floating high over the city: walk into Factory Town for Miami Music
+Week (EDM, lasers, a dancing crowd) and buy a bump of ketamine from the guy by the bar.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
@@ -462,6 +464,24 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   timings); add a line and another train appears. Models `path-car`, `path-platform`,
   `path-tunnel`, `path-mound`, `path-station`, `path-hall` (modeler); colliders are boxes in
   code (`features/trains.rs`). The valley stop moved off the hill it was sunk into.
+- **Miami Music Week** (#345, doomy: "in new york you can go to JFK and from there u can fly
+  like the train into miami and go to factory town for miami music week. should be EDM music
+  and stuff and people and you can also do ketamine"). Trains lines can now be planes
+  (`vehicle: Plane` in `trains.ron`, with `run_out`, `lift_off` and `climb`): Flight 305 waits
+  at a gate ("JFK") at the city's north end (40, 134), rolls out along a tarmac strip, takes
+  off and climbs away; inside you ride a plane cabin with clouds streaming past while the
+  announcer welcomes you aboard, and you land at Miami's gate. A stop can have its own ground
+  height (`floor`): Miami is a 120 x 90 m island 1500 m over New York (inside the city's soft
+  wall), with a beach, palms and a turquoise sea around it; fall off and you're back at the
+  gate. **Factory Town** is a dark brick club with a FACTORY TOWN neon sign, a stage, DJ booth,
+  speaker stacks, LED wall, sweeping lasers, coloured lights and 36 people hopping on the beat.
+  The music turns EDM there (a new `Miami` mood: four on the floor at 126, sub bass, stabs,
+  synth lead; flat out inside the club). **Ketamine:** click the dealer by the bar for a bump:
+  for 40 s your view swells wide and sways, the screen goes purple and odd thoughts show up,
+  then "you're back". Only you feel it; it does nothing else (chose: no morality hit, nothing
+  for your friends to see). Models `plane-car`, `plane-gate`, `miami-factory-town` (modeler).
+  Tuning and writing in `data/side/miami.ron` (`features/miami.rs`); `FRIENDSLOP_START=miami`
+  or `factory_town`.
 - **Surf map** (#306, doomy: "surf map in one of the buildings in nyc", no details: surprise
   me). The brownstone on the avenue's east side (27, 239.6) has a neon SURF sign over its
   door; walk up the stoop into the door and you're on the start pad of a surf hall, bigger on
@@ -1280,6 +1300,9 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   into a two-ramp surf hall with surf air control and a run timer.
 
 ## Open questions
+
+- Miami (#345): is there anything to *do* at Miami Music Week besides dance and get high? Should
+  ketamine (or Miami at all) matter to the Commune's goal?
 
 - Dollars (#322) can be lost, found, insured and bragged about, but what are they for? What can you buy?
 

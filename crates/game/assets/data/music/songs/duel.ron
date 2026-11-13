@@ -1,0 +1,13 @@
+#![enable(implicit_some)]
+// Duel: song 1 (its own song). See moods.ron for what the fields mean.
+(
+    mood: "Duel",
+    bpm: 150.0, swing: 0.0, key: 11,
+    a: "SEWER_HOOK", b: "DUEL_B", hook: "DUEL_HOOK",
+    groove: Shred, bass: ["SHRED", "DRIVE"],
+    comp: Stabs, lead: Mini, arp: None, pad: false,
+    intensity: 0.95, odd: 0.35, modulate: 0.35, kime: 0.7,
+    theme: false, bass_inst: Bass, pad_inst: Pad,
+    horns: Stabs, kit: (shaker: false, conga: false, clap: true, ride: true),
+    answer: None, nylon: None,
+)

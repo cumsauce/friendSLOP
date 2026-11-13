@@ -102,7 +102,7 @@ crates/game/src/
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
                 FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading/clean)
   features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
-crates/base/src/     friendslop-base: player, assets, settings, voice, hud, people, spatial, rigged, graphics,
+crates/base/src/     friendslop-base: player, assets, settings, voice, hud, music (MusicSignals the score's rules read), people, spatial, rigged, graphics,
                      textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
                      villagers, morality, Duelist, EYE); `shared` (slices of world/camera/controls/ui/zones/
                      scenery that features read); low features (bear, stillness, synth_audio, babble, ...)
@@ -120,7 +120,8 @@ crates/wire/         friendslop-wire: the iroh wire format shared by the desktop
 crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares
 crates/world/        friendslop-world: the map: terrain, buildings, landmarks, surfaces, places
 crates/structures/   friendslop-structures: building kit, house grammar, room graph + hallway kit, prop library + placer, merged meshes, world-space UVs, colliders
-crates/data/         friendslop-data: data files (maps, tuning, writing, music) loaded at run time, re-read when edited
+crates/data/         friendslop-data: data files (maps, tuning, writing, music) loaded at run time, re-read when edited;
+                     `Many<T>` for a folder of them listed by an index (the songs)
                      (the Bevy plugin is its default `plugin` feature; fusion uses it without)
 crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers)
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)

@@ -1,0 +1,17 @@
+#![enable(implicit_some)]
+// Bodega: song 1 (its own song). See moods.ron for what the fields mean.
+// "Deli & Grocery": a Mexican-American cumbia on the bodega radio.
+// Trumpets in thirds, nylon guitar strumming, guiro scraping,
+// congas and claves, an accordion-ish organ answering.
+(
+    mood: "Bodega",
+    bpm: 96.0, swing: 0.0, key: 7,
+    a: "BODEGA_A", b: "BODEGA_B", hook: "BODEGA_HOOK",
+    groove: City, bass: ["CUMBIA", "CUMBIA2"],
+    comp: Stabs, lead: Brass, arp: None, pad: false,
+    intensity: 0.55, odd: 0.0, modulate: 0.15, kime: 0.3,
+    theme: false, bass_inst: Bass, pad_inst: Pad,
+    horns: Stabs, kit: (shaker: false, conga: true, clap: false, ride: false),
+    answer: Some(Organ), nylon: Bossa,
+    keys: Some(Guitar), hand: Some(Conga), perc: [Guiro, Claves],
+)

@@ -62,7 +62,7 @@ fn run(seed: u64, bars: usize, cue: impl Fn(usize) -> Cue) -> String {
 
 fn events() -> BTreeMap<String, String> {
     let mut out = BTreeMap::new();
-    for mood in Mood::ALL {
+    for mood in Mood::all() {
         for seed in SEEDS {
             for i in INTENSITIES {
                 let key = format!("{mood:?}/{seed}/{i}");
@@ -98,10 +98,11 @@ fn events() -> BTreeMap<String, String> {
         );
     }
     // Moving between moods (the one-bar transitions).
+    let all = Mood::all();
     out.insert(
         "tour".into(),
         run(3, 96, |b| Cue {
-            mood: Mood::ALL[(b / 6) % Mood::ALL.len()],
+            mood: all[(b / 6) % all.len()],
             intensity: 0.3 + 0.1 * ((b / 6) % 6) as f32,
             victories: (b / 40) as u32,
             ..Cue::default()
@@ -112,7 +113,7 @@ fn events() -> BTreeMap<String, String> {
 
 fn audio() -> BTreeMap<String, String> {
     let mut out = BTreeMap::new();
-    for mood in Mood::ALL {
+    for mood in Mood::all() {
         let (samples, _) = fusion::render::render_score(7, 6.0, 0, |_| Cue {
             mood,
             intensity: mood.base_intensity(),

@@ -1,0 +1,16 @@
+#![enable(implicit_some)]
+// Wendys: song 2 (picked at random with the others). See moods.ron for what the fields mean.
+// The kitchen's side of it: funk clav and slap bass, steel drum
+// drips, cajón and guiro.
+(
+    mood: "Wendys",
+    bpm: 108.0, swing: 0.12, key: 2,
+    a: "WENDYS_A", b: "WENDYS_B", hook: "WENDYS_HOOK",
+    groove: City, bass: ["SLAP1", "SLAP2"],
+    comp: Stabs, lead: Silent, arp: Some(SteelDrum), pad: true,
+    intensity: 0.5, odd: 0.1, modulate: 0.2, kime: 0.4,
+    theme: false, bass_inst: SlapBass, pad_inst: Choir,
+    horns: Stabs, kit: (shaker: false, conga: true, clap: false, ride: false),
+    answer: Some(Clav), nylon: None,
+    keys: Some(Clav), hand: Some(Cajon), perc: [Guiro, Woodblock],
+)

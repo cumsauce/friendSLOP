@@ -5,9 +5,9 @@
 
 #[allow(unused_imports)]
 pub(crate) use friendslop_base::{
-    AppState, art, assets, buildings, camera, controls, graphics, hud, kcc, landmarks, people,
-    player, rigged, rules, scenery, settings, spatial, surfaces, terrain, textures, theme, ui,
-    voice, voice_chat, world, zones,
+    AppState, art, assets, buildings, camera, controls, graphics, hud, kcc, landmarks, music,
+    people, player, rigged, rules, scenery, settings, spatial, surfaces, terrain, textures, theme,
+    ui, voice, voice_chat, world, zones,
 };
 
 pub mod features {
@@ -41,6 +41,7 @@ pub mod features {
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
         &fusion::compose::SCORE,
+        &fusion::compose::SONGS,
         &fusion::compose::LIBRARY,
         &fusion::synth::MIX,
         &fusion::inst::INSTRUMENTS,

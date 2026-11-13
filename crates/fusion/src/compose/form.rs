@@ -69,19 +69,17 @@ impl Composer {
         // to another one.
         let n = self.song_count(m);
         if n > 1 && fresh {
-            self.song[m as usize % Mood::ALL.len()] = self.pick(n) as u8;
+            let pick = self.pick(n) as u8;
+            self.set_song(m, pick);
         } else if n > 1
             && prev == Section::Breakdown
-            && self.chance(
-                self.song_style(m, self.song[m as usize % Mood::ALL.len()])
-                    .form
-                    .new_song,
-            )
+            && self.chance(self.song_style(m, self.song_of(m)).form.new_song)
         {
-            let now = self.song[m as usize % Mood::ALL.len()] as usize;
-            self.song[m as usize % Mood::ALL.len()] = ((now + 1 + self.pick(n - 1)) % n) as u8;
+            let now = self.song_of(m) as usize;
+            let next = ((now + 1 + self.pick(n - 1)) % n) as u8;
+            self.set_song(m, next);
         }
-        let s = self.song_style(m, self.song[m as usize % Mood::ALL.len()]);
+        let s = self.song_style(m, self.song_of(m));
         let form = s.form;
         let ctx = Ctx {
             section: prev,
@@ -90,7 +88,7 @@ impl Composer {
             lead: s.has_lead(),
             urgent: m.urgent(),
         };
-        let kind = if m == Mood::Still {
+        let kind = if m.hold() {
             Section::Still
         } else if !form.cycle.is_empty() {
             // A fixed song shape: round and round.
@@ -197,7 +195,7 @@ impl Composer {
         }
         let last = self.plan.bar + 1 >= self.plan.bars;
         let free = !matches!(self.plan.kind, Section::Victory | Section::Still)
-            && !matches!(self.mood, Mood::Menu | Mood::Still)
+            && self.mood.flags().lift
             && self.switching.is_none()
             && !new_mood
             && !(last && self.plan.tail.is_some());

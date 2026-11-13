@@ -126,7 +126,7 @@ mod tests {
         let mut buf = vec![0.0f32; 1024];
         let mut peak = 0.0f32;
         let mut max_voices = 0;
-        for m in Mood::ALL {
+        for m in Mood::all() {
             let mut sq = 0.0f64;
             let mut n = 0usize;
             for _ in 0..(RATE as usize * 6 / 512) {
@@ -152,13 +152,13 @@ mod tests {
     fn transitions_only_at_bar_lines() {
         let mut e = Engine::new(bank(), 4);
         let order = [
-            Mood::Village,
-            Mood::Duel,
-            Mood::Still,
-            Mood::Forest,
-            Mood::Hiding,
-            Mood::Seeking,
-            Mood::Abuela,
+            Mood::named("Village"),
+            Mood::named("Duel"),
+            Mood::named("Still"),
+            Mood::named("Forest"),
+            Mood::named("Hiding"),
+            Mood::named("Seeking"),
+            Mood::named("Abuela"),
         ];
         let mut buf = vec![0.0f32; 2 * 97]; // odd block size on purpose
         let mut mood = e.mood();

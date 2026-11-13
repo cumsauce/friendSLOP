@@ -386,7 +386,7 @@ fn farting_releases_gas_and_tells_everyone() {
     // Fill everyone up, then fart far from every NPC.
     let world = server.world_mut();
     for mut gas in world.query::<&mut Gas>().iter_mut(world) {
-        gas.0 = 100;
+        gas.0 = 99; // below 100, or it goes off by itself
     }
     step(&mut server, &mut client);
     client.world_mut().client_trigger(Fart {
@@ -406,7 +406,7 @@ fn farting_releases_gas_and_tells_everyone() {
         .collect();
     assert!(gases.contains(&(1, 0)), "farter is empty: {gases:?}");
     assert!(
-        gases.iter().any(|(id, g)| *id == 0 && *g >= 100),
+        gases.iter().any(|(id, g)| *id == 0 && *g >= 99),
         "host still full"
     );
 }
@@ -1132,8 +1132,9 @@ fn some_shameful_farts_are_romantic() {
     let dave = npc_spots(0.0, [], [], [])[0];
     for _ in 0..12 {
         let world = server.world_mut();
-        for mut gas in world.query::<&mut Gas>().iter_mut(world) {
-            gas.0 = 100;
+        // Only the client: a full host would go off by itself (at 100) and muddle the count.
+        for (p, mut gas) in world.query::<(&Player, &mut Gas)>().iter_mut(world) {
+            gas.0 = if p.id == 1 { 99 } else { 0 };
         }
         step(&mut server, &mut client);
         client.world_mut().client_trigger(Fart { at: dave });
@@ -1369,8 +1370,9 @@ fn four_catches_set_the_villagers_on_you() {
     let dave = npc_spots(0.0, [], [], [])[0];
     for n in 1..=STRIKES_TO_ATTACK + 2 {
         let world = server.world_mut();
-        for mut gas in world.query::<&mut Gas>().iter_mut(world) {
-            gas.0 = 100;
+        // Only the client: a full host would go off by itself (at 100) and muddle the count.
+        for (p, mut gas) in world.query::<(&Player, &mut Gas)>().iter_mut(world) {
+            gas.0 = if p.id == 1 { 99 } else { 0 };
         }
         step_all(&mut server, &mut [&mut client]);
         client.world_mut().client_trigger(Fart { at: dave });

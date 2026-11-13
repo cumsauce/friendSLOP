@@ -391,5 +391,24 @@
             ),
             ],
         ),
+        FartAlert: (
+            tone: (warmth: -0.3, width: 1.0, wow: 0.6, lay_back_ms: 0.0, loose_ms: 1.0),
+            level_db: 1.5,
+            songs: [
+            // "Who Did That": the shame alarm. Double-time stabs and a
+            // shrieking mini lead over the duel's driving bass, the whole
+            // band on edge and a little detuned, like a siren in a sitcom.
+            (
+                bpm: 160.0, swing: 0.0, key: 6,
+                a: "SEEK_A", b: "DUEL_B", hook: "DUEL_HOOK",
+                groove: Drive, bass: ["DRIVE", "SHRED"],
+                comp: Stabs, lead: Mini, arp: None, pad: false,
+                intensity: 0.9, odd: 0.4, modulate: 0.0, kime: 0.8,
+                theme: false, bass_inst: Bass, pad_inst: Pad,
+                horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: true),
+                answer: Some(PolyBrass), nylon: None,
+            ),
+            ],
+        ),
     },
 )

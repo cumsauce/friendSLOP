@@ -9,7 +9,7 @@
 //! straight-lining only where there's no mesh (indoors, underground).
 //! At [`CRITICAL`] size its fuse lights (critical mass): it blinks and
 //! beeps like a bomb for [`FUSE_SECS`]. Click (pet) a cat to shrink it by
-//! [`PET_SHRINK`]; get it back under critical and the fuse goes out. If the
+//! [`PET_SHRINK`], and hold the mouse on it to keep stroking it down slowly; get it back under critical and the fuse goes out. If the
 //! fuse runs out it explodes, flinging everyone within [`BLAST_RADIUS`] and
 //! leaving a merely fat cat again.
 //! While the fuse is lit the cat is also hungry (#238, corvy: "if the cat
@@ -68,8 +68,10 @@ pub struct Tuning {
     pub critical: f32,
     /// Seconds from lit fuse to boom.
     pub fuse_secs: f32,
-    /// How much one pet shrinks a cat.
+    /// How much one stroke shrinks a cat (holding the mouse on it strokes it over and over).
     pub pet_shrink: f32,
+    /// Seconds between strokes while you hold the mouse on a cat.
+    pub pet_every: f32,
     /// Everyone this close to an exploding cat is flung.
     pub blast_radius: f32,
     /// ...this far.
@@ -452,6 +454,8 @@ fn pet_cat(
     mut commands: Commands,
     mut cats: Query<&mut FatCat>,
     walkers: Query<(&PlayerOwner, &Walker)>,
+    time: Res<Time>,
+    mut last_stroke: Local<std::collections::HashMap<ClientId, f32>>,
 ) {
     let Some(mut cat) = cats.iter_mut().find(|c| c.owner == ev.owner) else {
         return;
@@ -470,11 +474,20 @@ fn pet_cat(
         super::interact::deny(&mut commands, ev.client_id, "too far away: walk closer");
         return;
     }
+    // Strokes come in while the mouse is held: take at most one per `pet_every` from each
+    // petter, so a fast client can't shrink a cat faster than anyone else.
+    let now = time.elapsed_secs();
+    let last = last_stroke.entry(ev.client_id).or_insert(f32::NEG_INFINITY);
+    if now - *last < tuning().pet_every * 0.8 {
+        return;
+    }
+    *last = now;
     cat.size = petted(cat.size);
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(click_cat)
+    app.init_resource::<Stroking>()
+        .add_observer(click_cat)
         .add_observer(boom)
         .add_observer(gulp)
         .add_systems(
@@ -487,15 +500,48 @@ pub fn plugin(app: &mut App) {
                 meow,
                 blink,
                 fade_blasts,
+                keep_stroking,
             )
                 .run_if(in_state(AppState::InGame)),
         );
 }
 
-/// Local: clicking a cat pets it.
-fn click_cat(ev: On<super::interact::Clicked>, mut commands: Commands, cats: Query<&FatCat>) {
+/// Local: the cat you're stroking while the mouse is held, and when the next stroke is due.
+#[derive(Resource, Default)]
+struct Stroking(Option<(u64, f32)>);
+
+/// Local: clicking a cat pets it, and keeps petting it while you hold the mouse.
+fn click_cat(
+    ev: On<super::interact::Clicked>,
+    mut commands: Commands,
+    cats: Query<&FatCat>,
+    time: Res<Time>,
+    mut stroking: ResMut<Stroking>,
+) {
     if let Ok(cat) = cats.get(ev.entity) {
         commands.client_trigger(PetCat { owner: cat.owner });
+        stroking.0 = Some((cat.owner, time.elapsed_secs() + tuning().pet_every));
+    }
+}
+
+/// Local: holding the mouse on a cat strokes it again every `pet_every` seconds.
+fn keep_stroking(
+    mut commands: Commands,
+    mouse: Res<ButtonInput<MouseButton>>,
+    time: Res<Time>,
+    mut stroking: ResMut<Stroking>,
+) {
+    if !mouse.pressed(MouseButton::Left) {
+        stroking.0 = None;
+        return;
+    }
+    let Some((owner, next)) = stroking.0 else {
+        return;
+    };
+    let now = time.elapsed_secs();
+    if now >= next {
+        commands.client_trigger(PetCat { owner });
+        stroking.0 = Some((owner, now + tuning().pet_every.max(0.05)));
     }
 }
 
@@ -1046,7 +1092,7 @@ mod tests {
         assert!(
             (petted(tuning().critical) - (tuning().critical - tuning().pet_shrink)).abs() < 1e-5
         );
-        assert_eq!(petted(1.2), 1.0);
+        assert_eq!(petted(1.0 + tuning().pet_shrink * 0.5), 1.0);
         let near = flung(Vec2::new(2.0, 0.0), Vec2::ZERO);
         assert!((near.x - (2.0 + tuning().blast_push)).abs() < 1e-4);
         let far = Vec2::new(tuning().blast_radius + 1.0, 0.0);

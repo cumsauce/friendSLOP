@@ -71,6 +71,8 @@ pub enum Mood {
     /// Up in Wendy's attic: the jingle gone wrong. Slow, warped minor, a
     /// music-box vibes figure, singers far off, the clock ticking.
     WendysAttic,
+    /// You farted in front of someone (shame): a blaring, panicky alarm of a tune.
+    FartAlert,
 }
 
 /// How a mood sounds on top of what it plays: the band's overall colour
@@ -106,7 +108,7 @@ impl Mood {
         table().moods.get(&self).map_or(Tone::NEUTRAL, |ms| ms.tone)
     }
 
-    pub const ALL: [Mood; 15] = [
+    pub const ALL: [Mood; 16] = [
         Mood::Menu,
         Mood::Explore,
         Mood::Village,
@@ -122,6 +124,7 @@ impl Mood {
         Mood::Underground,
         Mood::Wendys,
         Mood::WendysAttic,
+        Mood::FartAlert,
     ];
 
     pub fn from_index(i: u8) -> Mood {
@@ -146,7 +149,10 @@ impl Mood {
     /// Moods that cut in at the very next bar line instead of after a
     /// transition bar.
     fn urgent(self) -> bool {
-        matches!(self, Mood::Duel | Mood::Seeking | Mood::Still | Mood::Menu)
+        matches!(
+            self,
+            Mood::Duel | Mood::Seeking | Mood::Still | Mood::Menu | Mood::FartAlert
+        )
     }
 }
 

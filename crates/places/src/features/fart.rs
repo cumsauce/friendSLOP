@@ -11,7 +11,6 @@
 //! distorted, procedurally generated chiptune plays. Everyone is told who
 //! farted and whether they got caught.
 
-use bevy::audio::AudioSource;
 use bevy::core_pipeline::prepass::DepthPrepass;
 use bevy::post_process::dof::DepthOfField;
 use bevy::prelude::*;
@@ -20,10 +19,9 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::bear::{Bear, bear_position, wav_bytes};
+use crate::features::bear::{Bear, bear_position};
 use crate::features::crows::{Crow, crow_position};
 use crate::features::duel::Duelist;
-use crate::features::synth_audio::play_synth;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::rules::villagers::Villager;
 use crate::world::MainCamera;
@@ -77,7 +75,9 @@ pub fn protocol(app: &mut App) {
         .add_observer(let_rip)
         .add_systems(
             Update,
-            build_pressure.run_if(in_state(ServerState::Running)),
+            (build_pressure, burst)
+                .chain()
+                .run_if(in_state(ServerState::Running)),
         );
 }
 
@@ -180,21 +180,68 @@ fn let_rip(
         .unwrap_or(fart.at);
     // The server's game time is the session time every peer animates by.
     let npcs = npc_spots(time.elapsed_secs(), bears, crows, villagers);
+    let radius = crate::rules::house_odds::odds(&odds).shame_radius();
+    release(&mut commands, player.id, &mut gas, at, &npcs, radius);
+}
+
+/// Server: let `player`'s gas go at `at`, judged by the NPCs at `npcs`, and tell everyone.
+fn release(
+    commands: &mut Commands,
+    player: u64,
+    gas: &mut Gas,
+    at: Vec2,
+    npcs: &[Vec2],
+    radius: f32,
+) {
     let pressure = gas.0;
     gas.0 = 0;
     commands.server_trigger(ToClients {
         targets: SendTargets::All,
         message: Farted {
-            player: player.id,
+            player,
             at,
-            shamed: is_shameful_within(
-                at,
-                &npcs,
-                crate::rules::house_odds::odds(&odds).shame_radius(),
-            ),
+            shamed: is_shameful_within(at, npcs, radius),
             pressure,
         },
     });
+}
+
+/// Server: a full meter goes off by itself, wherever you are, whether you like it or not.
+#[allow(clippy::too_many_arguments)]
+fn burst(
+    still: Query<&crate::features::stillness::Stillness>,
+    mut commands: Commands,
+    time: Res<Time>,
+    mut players: Query<(&Player, &mut Gas, &super::fps::Walker)>,
+    duelists: Query<&Duelist>,
+    bears: Query<&Bear>,
+    crows: Query<&Crow>,
+    villagers: Query<&Villager>,
+    odds: Query<&crate::rules::house_odds::HouseOdds>,
+) {
+    if crate::features::stillness::is_frozen(&still) {
+        return;
+    }
+    let mut npcs = None;
+    for (player, mut gas, walker) in &mut players {
+        if gas.0 < 100 {
+            continue;
+        }
+        let at = duelists
+            .iter()
+            .find(|d| d.player == player.id)
+            .map_or(walker.pos.xz(), |d| d.pos.xz());
+        let npcs = npcs.get_or_insert_with(|| {
+            npc_spots(
+                time.elapsed_secs(),
+                bears.iter(),
+                crows.iter(),
+                villagers.iter(),
+            )
+        });
+        let radius = crate::rules::house_odds::odds(&odds).shame_radius();
+        release(&mut commands, player.id, &mut gas, at, npcs, radius);
+    }
 }
 
 pub fn plugin(app: &mut App) {
@@ -210,11 +257,10 @@ pub fn plugin(app: &mut App) {
 
 /// This peer's own shame, and the latest fart news.
 #[derive(Resource, Default)]
-struct Shame {
+pub struct Shame {
     remaining: f32,
     news: String,
     news_left: f32,
-    song: Option<Entity>,
 }
 
 #[derive(Component)]
@@ -300,13 +346,7 @@ fn press_to_fart(
     commands.client_trigger(Fart { at });
 }
 
-fn hear_fart(
-    farted: On<Farted>,
-    mut commands: Commands,
-    local: Option<Res<LocalPlayer>>,
-    mut shame: ResMut<Shame>,
-    audio: Option<Res<Assets<AudioSource>>>,
-) {
+fn hear_fart(farted: On<Farted>, local: Option<Res<LocalPlayer>>, mut shame: ResMut<Shame>) {
     let me = local.is_some_and(|l| l.0 == farted.player);
     let who = if me {
         "You".to_string()
@@ -322,17 +362,15 @@ fn hear_fart(
     if !(me && farted.shamed) {
         return;
     }
+    // The band plays the fart alert (`Mood::FartAlert` in the score) while this lasts.
     shame.remaining = tuning().shame_secs;
-    if let Some(old) = shame.song.take() {
-        commands.entity(old).try_despawn();
+}
+
+impl Shame {
+    /// Is the local player being shamed right now (the band plays the fart alert)?
+    pub fn active(&self) -> bool {
+        self.remaining > 0.0
     }
-    if audio.is_none() {
-        return;
-    }
-    let song = play_synth(&mut commands, || {
-        wav_bytes(&shame_song(SONG_RATE), SONG_RATE)
-    });
-    shame.song = Some(song);
 }
 
 /// While shamed: blur the camera (depth of field focused right in front of
@@ -405,50 +443,6 @@ fn forget_shame(mut shame: ResMut<Shame>) {
     *shame = Shame::default();
 }
 
-const SONG_RATE: u32 = 22_050;
-
-/// The shame song: a scary, distorted chiptune, `SHAME_SECS` long. A square
-/// lead creeps around a diminished arpeggio over a pulsing tritone bass,
-/// slowly detuning, then everything is bit-crushed, sample-rate-crushed and
-/// overdriven.
-pub fn shame_song(rate: u32) -> Vec<f32> {
-    // Semitones above A2 (110 Hz): a diminished, wrong-feeling crawl.
-    const LEAD: [f32; 16] = [
-        12.0, 15.0, 18.0, 21.0, 18.0, 15.0, 13.0, 12.0, 24.0, 21.0, 18.0, 19.0, 18.0, 15.0, 12.0,
-        11.0,
-    ];
-    const BASS: [f32; 4] = [0.0, 6.0, 1.0, 6.0];
-    let n = (tuning().shame_secs * rate as f32) as usize;
-    let mut out = Vec::with_capacity(n);
-    let (mut lead_phase, mut bass_phase) = (0.0f32, 0.0f32);
-    let mut held = 0.0f32;
-    for i in 0..n {
-        let t = i as f32 / rate as f32;
-        let step = (t * 6.0) as usize;
-        let creep = t / tuning().shame_secs; // gets more out of tune as it goes
-        let wobble = (t * 5.3).sin() * (0.15 + 0.6 * creep);
-        let lead_f = 110.0 * 2f32.powf((LEAD[step % LEAD.len()] + wobble) / 12.0);
-        let bass_f = 55.0 * 2f32.powf(BASS[(step / 8) % BASS.len()] / 12.0);
-        lead_phase = (lead_phase + lead_f / rate as f32).fract();
-        bass_phase = (bass_phase + bass_f / rate as f32).fract();
-        let lead = if lead_phase < 0.25 { 1.0 } else { -1.0 };
-        let bass = if bass_phase < 0.5 { 1.0 } else { -1.0 };
-        // Each note plucks then decays; the bass throbs.
-        let note_t = (t * 6.0).fract();
-        let lead_env = (1.0 - note_t).powf(1.5);
-        let throb = 0.6 + 0.4 * (t * std::f32::consts::TAU * 1.5).sin();
-        let mix = lead * lead_env * 0.45 + bass * throb * 0.35;
-        // Sample-rate crush (hold every 4th), 4-bit crush, overdrive.
-        if i % 4 == 0 {
-            held = (mix * 8.0).round() / 8.0;
-        }
-        let driven = (held * 2.5).tanh();
-        let fade = (t * 4.0).min(1.0) * ((tuning().shame_secs - t) * 2.0).min(1.0);
-        out.push((driven * fade * 0.4).clamp(-1.0, 1.0));
-    }
-    out
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -471,14 +465,5 @@ mod tests {
             &spots
         ));
         assert!(!is_shameful(Vec2::new(15.0, 15.0), &spots));
-    }
-
-    #[test]
-    fn shame_song_is_twenty_seconds_and_sane() {
-        let s = shame_song(SONG_RATE);
-        assert_eq!(s.len(), (tuning().shame_secs * SONG_RATE as f32) as usize);
-        let peak = s.iter().fold(0.0f32, |m, x| m.max(x.abs()));
-        assert!(peak > 0.1 && peak <= 1.0, "peak {peak}");
-        assert!(s.iter().all(|x| x.is_finite()));
     }
 }

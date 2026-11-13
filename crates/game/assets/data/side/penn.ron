@@ -1,7 +1,8 @@
-// Penn Station (#357, crates/side/src/features/penn.rs).
-// Ride the 1 train from its stop in the trees at the city's north end. Penn
-// Station's concourse (with Rose Pizza and its bathroom) floats high over New
-// York like Miami does: nobody can see it from outside.
+// Penn Station (#357, #352, crates/side/src/features/penn.rs).
+// Walk in the glass doors under the Garden on 7th Ave (the city map's `penn`
+// spot), or ride the 1 train from its stop in the trees at the city's north
+// end. The concourse (Rose Pizza and its bathroom, the NJ Transit side and
+// the LIRR side) floats high over New York like Miami does.
 // Edit and save: the running game picks it up within a second.
 (
     // The stop in trains.ron the concourse is built round (its frame is the model's origin).
@@ -60,4 +61,12 @@
             "them: wish me luck.",
         ],
     ],
+    // Stand this close (m) to the street doors or the way-out stairs (EXIT 7 AV) and you go through.
+    door_reach: 1.6,
+    // Shown when you walk into the NJ Transit side, and into the LIRR side.
+    njt_line: "NJ TRANSIT. it's cold. every gate is chained. something is on fire and nobody is surprised.",
+    lirr_line: "LIRR. warm light, a wood ceiling, free charging, a bottle refill, a lounge. the trains are on time. this can't last.",
+    // How bright the trash fires burn (lumens) and how much they flicker (0..1).
+    fire_lumens: 9000.0,
+    fire_flicker: 0.6,
 )

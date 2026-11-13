@@ -1,0 +1,702 @@
+{
+  "format_version": 1,
+  "name": "hat-yeehaw",
+  "parts": [],
+  "version": 51917,
+  "ops": [
+    {
+      "revolve": {
+        "name": "crown",
+        "profile": [
+          [
+            [
+              0.0,
+              0.4
+            ],
+            [
+              0.16,
+              0.42
+            ],
+            [
+              0.24,
+              0.38
+            ],
+            [
+              0.26,
+              0.2
+            ],
+            [
+              0.0,
+              0.2
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "brim_raw",
+        "profile": [
+          [
+            [
+              0.25,
+              0.21
+            ],
+            [
+              0.45,
+              0.22
+            ],
+            [
+              0.5,
+              0.27
+            ],
+            [
+              0.5,
+              0.25
+            ],
+            [
+              0.45,
+              0.2
+            ],
+            [
+              0.25,
+              0.19
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 40,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "deform": {
+        "name": "brim",
+        "input": "brim_raw",
+        "mode": "bend",
+        "axis": "x",
+        "degrees": 50.0,
+        "toward": "y"
+      }
+    },
+    {
+      "primitive": {
+        "name": "band",
+        "kind": "cylinder",
+        "size": [
+          0.255,
+          0.05,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.235,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "slogan",
+        "text": "YEEHAW (IRONIC)",
+        "font": "",
+        "size": 0.032,
+        "depth": 0.01,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          0.0,
+          0.3,
+          -0.25
+        ],
+        "rotation": [
+          2.2876774e-9,
+          0.9986295,
+          0.05233596,
+          -4.3651482e-8
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "brim_raw",
+        "input": "brim_raw",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "crown",
+        "input": "crown",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "rusted_wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "panels",
+                "size": [
+                  1,
+                  1
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "from": [
+                  0,
+                  0.012
+                ],
+                "input": "panels.edge",
+                "name": "seam",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "mode": "fbm",
+                "name": "fine",
+                "octaves": 5,
+                "seed": 3,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "rust_n",
+                "octaves": 6,
+                "seed": 11,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "angle": 90,
+                "input": "rust_n",
+                "length": 0.9,
+                "name": "streak",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.47,
+                  0.53
+                ],
+                "input": "streak",
+                "name": "rustm",
+                "type": "levels"
+              },
+              {
+                "mode": "fbm",
+                "name": "stain_n",
+                "octaves": 6,
+                "seed": 31,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "angle": 90,
+                "input": "stain_n",
+                "length": 1.2,
+                "name": "drip",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.51,
+                  0.55
+                ],
+                "input": "drip",
+                "name": "stainm",
+                "type": "levels"
+              },
+              {
+                "id": "panels.id",
+                "max": 1,
+                "min": 0.7,
+                "name": "tint",
+                "out": "float",
+                "type": "random"
+              },
+              {
+                "a": "#6a6e72",
+                "b": "tint",
+                "name": "steel0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "steel0",
+                "b": "seam",
+                "name": "steel",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "fine",
+                "name": "rustcol",
+                "stops": [
+                  [
+                    0,
+                    "#4a200e"
+                  ],
+                  [
+                    1,
+                    "#9a4a1e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "seam",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rustcol",
+                "height": "h",
+                "metallic": 0.1,
+                "name": "rust_out",
+                "roughness": 0.9,
+                "type": "output"
+              },
+              {
+                "base_color": "#3a0d0b",
+                "height": "h",
+                "metallic": 0.1,
+                "name": "stain_out",
+                "roughness": 0.6,
+                "type": "output"
+              },
+              {
+                "base_color": "steel",
+                "height": "h",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rustm",
+                    "output": "rust_out"
+                  },
+                  {
+                    "mask": "stainm",
+                    "output": "stain_out"
+                  }
+                ],
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "brim",
+        "input": "brim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "rusted_wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "panels",
+                "size": [
+                  1,
+                  1
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "from": [
+                  0,
+                  0.012
+                ],
+                "input": "panels.edge",
+                "name": "seam",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "mode": "fbm",
+                "name": "fine",
+                "octaves": 5,
+                "seed": 3,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "mode": "fbm",
+                "name": "rust_n",
+                "octaves": 6,
+                "seed": 11,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "angle": 90,
+                "input": "rust_n",
+                "length": 0.9,
+                "name": "streak",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.47,
+                  0.53
+                ],
+                "input": "streak",
+                "name": "rustm",
+                "type": "levels"
+              },
+              {
+                "mode": "fbm",
+                "name": "stain_n",
+                "octaves": 6,
+                "seed": 31,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "angle": 90,
+                "input": "stain_n",
+                "length": 1.2,
+                "name": "drip",
+                "type": "dir_blur"
+              },
+              {
+                "in": [
+                  0.51,
+                  0.55
+                ],
+                "input": "drip",
+                "name": "stainm",
+                "type": "levels"
+              },
+              {
+                "id": "panels.id",
+                "max": 1,
+                "min": 0.7,
+                "name": "tint",
+                "out": "float",
+                "type": "random"
+              },
+              {
+                "a": "#6a6e72",
+                "b": "tint",
+                "name": "steel0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "steel0",
+                "b": "seam",
+                "name": "steel",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "fine",
+                "name": "rustcol",
+                "stops": [
+                  [
+                    0,
+                    "#4a200e"
+                  ],
+                  [
+                    1,
+                    "#9a4a1e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "seam",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "rustcol",
+                "height": "h",
+                "metallic": 0.1,
+                "name": "rust_out",
+                "roughness": 0.9,
+                "type": "output"
+              },
+              {
+                "base_color": "#3a0d0b",
+                "height": "h",
+                "metallic": 0.1,
+                "name": "stain_out",
+                "roughness": 0.6,
+                "type": "output"
+              },
+              {
+                "base_color": "steel",
+                "height": "h",
+                "metallic": 0.85,
+                "name": "out",
+                "over": [
+                  {
+                    "mask": "rustm",
+                    "output": "rust_out"
+                  },
+                  {
+                    "mask": "stainm",
+                    "output": "stain_out"
+                  }
+                ],
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "band",
+        "input": "band",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-copper",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 129,
+                "size": 0.5,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#4a8a78"
+                  ],
+                  [
+                    1,
+                    "#6aa894"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "slogan",
+        "input": "slogan",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "oc-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 873,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#d6d4ce"
+                  ],
+                  [
+                    1,
+                    "#e2e0da"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.55,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "transform": {
+        "name": "crown",
+        "input": "crown",
+        "translation": [
+          0.0,
+          0.07,
+          0.0
+        ],
+        "rotation": null,
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "brim",
+        "input": "brim",
+        "translation": [
+          0.0,
+          0.07,
+          0.0
+        ],
+        "rotation": null,
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "band",
+        "input": "band",
+        "translation": [
+          0.0,
+          0.07,
+          0.0
+        ],
+        "rotation": null,
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "slogan",
+        "input": "slogan",
+        "translation": [
+          0.0,
+          0.07,
+          0.0
+        ],
+        "rotation": null,
+        "scale": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

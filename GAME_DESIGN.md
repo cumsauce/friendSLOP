@@ -58,19 +58,25 @@ and it pulls out along a stone viaduct, rattles along in the dark (a robot voice
 stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
 up into the Oculus. The city has One World Trade Center, 4 shops to walk into, 3 boba shops (Gong Chaw,
 Kung Fu Tee, Tiger Sugah) where your dollars buy drinks that stack a speed buzz, and the Vessel on a
-plaza west of the bodega: a copper honeycomb of stairs you can climb 18 levels to a ring walkway 42 m up. The train
-under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
+plaza west of the bodega: a copper honeycomb of stairs you can climb 18 levels to a ring walkway 42 m up — where a
+glowing knob dares you to jump off: click it and you ragdoll the whole way down to a blood
+splat on the plaza before getting up. The train under the Oculus rides you back. At JFK, a gate at the city's north end, Flight 305 takes off
 for **Miami**, an island floating high over the city: walk into Factory Town for Miami Music
 Week (EDM, lasers, a dancing crowd) and buy a bump of ketamine from the guy by the bar.
-Beside JFK the 1 train runs to **Penn Station**: a dingy concourse with Rose Pizza and a
-bathroom where someone is always in line ahead of you, talks nonsense at you, goes in, and
-leaves you 15 seconds of silence before it's your turn.
+**Penn Station** is the Garden's drum on 7th Ave (or the 1 train from beside JFK): Rose Pizza,
+a bathroom line where a stranger talks nonsense then leaves you 15 s of silence, a cold NJ
+Transit side (chained gates, trash fires, stains, ominous music) and a warm LIRR side (calm tune).
+WTC One's elevator rides to **High Places**, a rooftop dispensary 428 m up: buy a joint ($20) and
+light up for a draw-timing minigame (keep it lit, don't cough, waste nothing). Its soft serve
+machine is OUT OF ORDER until someone finds its three parts in the city's shops (shared quest).
+The bodega sells **statement hats** everyone can see. Pigeon flocks wheel overhead and poop on you;
+now and then they all poop at once.
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free, and dollars only buy boba so far. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
+free, and dollars only buy boba, joints and hats so far. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
 
 ## What exists
 
@@ -455,7 +461,7 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
   the plane, Wendy's, the helicopter: `data/base/glass.ron`) is see-through. Getting there: the PATH train (below); the old trail posts are gone. All
   The Vessel (`features/vessel.rs`, `nyc-vessel` model, the map's `vessel` spot at (-62, 172.5), where four filler towers stood): 18 levels of 8 landings,
   each with flights up to the two landings above (none steeper than 42 degrees), 15 m across at the foot flaring to 46 m;
-  colliders are ramps, parapets and landing slabs built from the same numbers. `FRIENDSLOP_START=vessel` / `vessel_top`.
+  colliders are ramps, parapets and landing slabs built from the same numbers. `FRIENDSLOP_START=vessel` / `vessel_top`. A glowing knob on the top landing (`features/vessel_jump.rs`) offers the way down: click it and you ragdoll to the plaza and leave a blood splat (`data/side/vessel_jump.ron`).
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
 - **Boba shops** (#356, catherine: "have them be fully staffed and modeled and even have music
@@ -507,6 +513,49 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
   HUD text (the music keeps playing), and the mirror is a smeared dull plate, not a real
   reflection. Writing and timings in `data/side/penn.ron`; `FRIENDSLOP_START=penn`
   (`features/penn.rs`).
+  #352 (doomy: "It should be accurate to how it looks externally. it can be a new map load when
+  u go inside ... an NJ Transit side, and a LIRR side ... the NJ transit side is rundown, cold,
+  has trash fires, bloodstains, pee, poop stains ... gates and chains locking every storefront.
+  the music should be stressful and ominous. The LIRR side is pristine, clean, modern, and warm
+  with new amenities and a pleasant relaxing tune"). Outside: the `nyc-penn` model on the city
+  map's `penn` spot (block west of the avenue, south end, in place of four filler buildings):
+  Madison Square Garden's finned drum with a blue LED band and "THE GARDEN", and the glass 7th
+  Ave entrance pavilion under a PENN STATION sign. Walk into its doors and you're moved into the
+  floating concourse (chose: the same concourse the 1 train reaches, not a second copy); the
+  EXIT 7 AV stairs by the tracks put you back on the sidewalk. Off the hall's west side is the
+  NJ Transit wing: low concrete ceiling, cold blue light, seven storefronts behind rusted gates
+  with chains and padlocks, three burning trash barrels (flickering orange lights), blood, pee
+  and poop on the floor, bin bags, and a board of cancellations. Through the north wall is the
+  LIRR wing: twice as tall, warm light under a wood-slat ceiling, marble floor, a lounge, a cafe,
+  free charging, a bottle refill, planters, a clock and an all-on-time board. Each side has its
+  own mood (`PennNjt`: a slow tense march, brass and strings, nothing resolves; `PennLirr`: laid
+  major sevenths, fretless, flute and bossa nylon), from the `penn_njt` / `penn_lirr` signals;
+  a line greets you on each side. `FRIENDSLOP_START=penn_street` starts at the doors.
+- **Pigeons** (#355, catherine: "boid flocks of pigeons around the city and inside buildings,
+  efficient. they poop sometimes, and rarely they all poop at once and cause property damage").
+  Five flocks (`data/side/pigeons.ron`): three over the streets, one in the Oculus, one in Penn's
+  NJ Transit wing. Boids (separation, alignment, cohesion, a box pull, wander) on a spatial hash,
+  re-thinking at 8 Hz and frozen past 140 m from the camera; a rigged modeler pigeon flaps or
+  glides. Droppings fall and splat (a hit toasts you). Storms come from the shared session clock
+  (every 240 s, 10% chance): every pigeon poops for 6 s and a toast bills the property damage.
+  Purely local visuals, same on every peer.
+- **High Places** (#349, doomy): a rooftop dispensary on One World Trade Center. A door at the
+  tower's foot (`FRIENDSLOP_START=wtc_door`) rides you to the 30x30 m roof deck 428 m up
+  (`high_places`): a kiosk with a green cross sign and jars, a lounge with a LIGHT UP HERE sign,
+  glass railings. Buy a joint ($20, into your smoking stash) and click the lounge to light up: a
+  minigame where left click draws. Each draw heats it; it cools between draws and goes out if
+  cold; too many draws fill your lungs and you cough (waste). The goal is 100% smoked, 0% wasted
+  (`data/side/high_places.ron`). It reuses the smoking feature's stash and smoking state.
+- **High Places' soft serve** (#350, bben: "the ice cream dispenser is down. surprise me with a
+  quest to fix it too"). Chosen quest: pigeons nested in the machine. It needs a fuse (laundromat),
+  a plunger (the pizza place) and soft serve mix (diner); anyone can find a part (a pink box in
+  that shop), progress is shared and replicated, and once all three are in, clicking fixes it for
+  everyone. Then it hands out free cones in rotating flavours (`data/side/ice_cream.ron`).
+- **Hats** (#323, doomy: "hats you can buy with dollars in the bodega. everyone can see them.
+  theyre all making a statement"). A rack on the bodega's back wall with five modeler hats:
+  TOUCH GRASS cap, EAT THE RICH beanie, I <3 RENT CONTROL bucket hat, TAX ME top hat, YEEHAW
+  (IRONIC) cowboy hat (`data/side/hats.ron`). Click to buy with dollars; the replicated `Hat`
+  puts it on your head for everyone. Buying another swaps it; click yours to take it off.
 - **Street people** (#358, catherine: "add random preachers, street performers and tweakers to
   the city and especially to Penn Station and the subway station"). Fifteen locals in New York
   (`data/side/street_people.ron`: kind and spot): tweakers pace and scream one side of an
@@ -1376,8 +1425,10 @@ free, and dollars only buy boba so far. Six players beat the landlord fast. Only
 
 ## Open questions
 
-- Penn Station (#357): should the bathroom line be shared (friends queueing together), and
-  does Rose Pizza's slice do anything?
+- Hats and High Places (#323, #349, #350): do hats do anything, is a perfect smoke rewarded,
+  and does fixed soft serve do more than taste good?
+- Penn Station (#357, #352): should the bathroom line be shared (friends queueing together),
+  does Rose Pizza's slice do anything, and do NJ Transit or LIRR trains go anywhere?
 - Miami (#345): is there anything to *do* at Miami Music Week besides dance and get high? Should
   ketamine (or Miami at all) matter to the Commune's goal?
 

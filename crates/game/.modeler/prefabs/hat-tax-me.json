@@ -1,0 +1,388 @@
+{
+  "format_version": 1,
+  "name": "hat-tax-me",
+  "parts": [],
+  "version": 51892,
+  "ops": [
+    {
+      "primitive": {
+        "name": "crown",
+        "kind": "cylinder",
+        "size": [
+          0.22,
+          0.42,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.41,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "brim",
+        "kind": "cylinder",
+        "size": [
+          0.36,
+          0.02,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.21,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "band",
+        "kind": "cylinder",
+        "size": [
+          0.224,
+          0.07,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.26,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "slogan",
+        "text": "TAX ME",
+        "font": "",
+        "size": 0.06,
+        "depth": 0.01,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          0.0,
+          0.42,
+          -0.222
+        ],
+        "rotation": [
+          0.0,
+          1.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "crown",
+        "input": "crown",
+        "base_color": [
+          0.06,
+          0.06,
+          0.07,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-cloth",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#dcdcd6"
+                  ],
+                  [
+                    1,
+                    "#f4f4ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.85,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "brim",
+        "input": "brim",
+        "base_color": [
+          0.06,
+          0.06,
+          0.07,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-cloth",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#dcdcd6"
+                  ],
+                  [
+                    1,
+                    "#f4f4ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.85,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "band",
+        "input": "band",
+        "base_color": [
+          0.55,
+          0.45,
+          0.1,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-cloth",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#dcdcd6"
+                  ],
+                  [
+                    1,
+                    "#f4f4ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.85,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "slogan",
+        "input": "slogan",
+        "base_color": [
+          1.0,
+          0.85,
+          0.3,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

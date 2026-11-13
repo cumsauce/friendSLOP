@@ -1,0 +1,19 @@
+// Hats (#323, crates/side/src/features/hats.rs): a rack along the bodega's
+// back wall. Click one to buy it with your dollars; everyone sees it on your
+// head. Click the one you're wearing to take it off. Edit and save: the
+// running game picks it up within a second (the rack on the next game).
+(
+    // Left to right along the rack. Each model is a modeler export under
+    // assets/ (prefabs hat-*), built for a 0.28 m head.
+    hats: [
+        (name: "TOUCH GRASS cap", model: "models/hats/touch-grass.gltf", price: 15),
+        (name: "EAT THE RICH beanie", model: "models/hats/eat-the-rich.gltf", price: 12),
+        (name: "I <3 RENT CONTROL bucket hat", model: "models/hats/rent-control.gltf", price: 20),
+        (name: "TAX ME top hat", model: "models/hats/tax-me.gltf", price: 40),
+        (name: "YEEHAW (IRONIC) cowboy hat", model: "models/hats/yeehaw.gltf", price: 25),
+    ],
+    // {hat}, {price}, {cash} are filled in.
+    bought_line: "you bought the {hat} for ${price}. ${cash} left. everyone can see it. that's the point.",
+    broke_line: "the {hat} is ${price}. you have ${cash}. the bodega cat judges you.",
+    off_line: "you took off the {hat}. the statement has been retracted.",
+)

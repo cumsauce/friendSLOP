@@ -1,0 +1,1293 @@
+{
+  "format_version": 1,
+  "name": "nyc-penn",
+  "parts": [],
+  "version": 51631,
+  "ops": [
+    {
+      "primitive": {
+        "name": "podium",
+        "kind": "cylinder",
+        "size": [
+          16.6,
+          4.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          2.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drum",
+        "kind": "cylinder",
+        "size": [
+          16.0,
+          22.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          15.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "roof",
+        "kind": "cylinder",
+        "size": [
+          16.4,
+          0.8,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          26.4,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "band",
+        "kind": "cylinder",
+        "size": [
+          16.15,
+          1.6,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          23.5,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "fin",
+        "kind": "box",
+        "size": [
+          0.9,
+          22.0,
+          0.5
+        ],
+        "translation": [
+          16.3,
+          15.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "radial_array": {
+        "name": "fins",
+        "input": "fin",
+        "count": 48,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "primitive": {
+        "name": "pav_glass",
+        "kind": "box",
+        "size": [
+          6.0,
+          6.0,
+          12.0
+        ],
+        "translation": [
+          19.0,
+          3.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pav_roof",
+        "kind": "box",
+        "size": [
+          8.0,
+          0.5,
+          14.0
+        ],
+        "translation": [
+          19.5,
+          6.25,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pav_post_a",
+        "kind": "box",
+        "size": [
+          0.3,
+          6.0,
+          0.3
+        ],
+        "translation": [
+          22.1,
+          3.0,
+          -6.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pav_post_b",
+        "kind": "box",
+        "size": [
+          0.3,
+          6.0,
+          0.3
+        ],
+        "translation": [
+          22.1,
+          3.0,
+          6.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pav_sign",
+        "kind": "box",
+        "size": [
+          0.3,
+          1.2,
+          12.0
+        ],
+        "translation": [
+          23.4,
+          7.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "pav_sign_text",
+        "text": "PENN STATION",
+        "font": "",
+        "size": 0.8,
+        "depth": 0.1,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          23.56,
+          6.75,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.70710677,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "door",
+        "kind": "box",
+        "size": [
+          0.1,
+          2.8,
+          3.6
+        ],
+        "translation": [
+          22.05,
+          1.4,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "lines_sign",
+        "kind": "box",
+        "size": [
+          0.12,
+          0.6,
+          5.0
+        ],
+        "translation": [
+          22.1,
+          3.6,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "lines_text",
+        "text": "AMTRAK  LIRR  NJ TRANSIT",
+        "font": "",
+        "size": 0.22,
+        "depth": 0.0275,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          22.18,
+          3.5,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.70710677,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "text": {
+        "name": "drum_text",
+        "text": "THE GARDEN",
+        "font": "",
+        "size": 1.6,
+        "depth": 0.2,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          16.85,
+          23.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.70710677,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "podium",
+        "input": "podium",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-granite",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 171,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a8a88"
+                  ],
+                  [
+                    1,
+                    "#a2a09c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.0,
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drum",
+        "input": "drum",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-limestone",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.4,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "bk",
+                "size": [
+                  1.2,
+                  0.6
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "id": "bk.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 51,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 52,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.003,
+                  0.008
+                ],
+                "input": "bk.edge",
+                "name": "bm",
+                "type": "levels"
+              },
+              {
+                "a": "tone",
+                "b": "fn",
+                "c": 0.6,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#c9bfa8"
+                  ],
+                  [
+                    1,
+                    "#ddd4bf"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#8d877c",
+                "b": "bc",
+                "c": "bm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "bm",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "roof",
+        "input": "roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-concrete",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 141,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "name": "sp",
+                "seed": 142,
+                "size": 0.02,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.005
+                ],
+                "input": "sp.f1",
+                "name": "pit",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#8e8b86"
+                  ],
+                  [
+                    1,
+                    "#b8b4ae"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5e5b57",
+                "b": "c0",
+                "c": "pit",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "pit",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "band",
+        "input": "band",
+        "base_color": [
+          0.2,
+          0.45,
+          1.0,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "fin",
+        "input": "fin",
+        "base_color": [
+          0.82,
+          0.8,
+          0.74,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-concrete",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 141,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "name": "sp",
+                "seed": 142,
+                "size": 0.02,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.005
+                ],
+                "input": "sp.f1",
+                "name": "pit",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#8e8b86"
+                  ],
+                  [
+                    1,
+                    "#b8b4ae"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5e5b57",
+                "b": "c0",
+                "c": "pit",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "pit",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pav_glass",
+        "input": "pav_glass",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-tinted",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 115,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#101418"
+                  ],
+                  [
+                    1,
+                    "#1a2128"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.08,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pav_roof",
+        "input": "pav_roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 112,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#6c7074"
+                  ],
+                  [
+                    1,
+                    "#868a8e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pav_post_a",
+        "input": "pav_post_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 112,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#6c7074"
+                  ],
+                  [
+                    1,
+                    "#868a8e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pav_post_b",
+        "input": "pav_post_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 112,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#6c7074"
+                  ],
+                  [
+                    1,
+                    "#868a8e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pav_sign",
+        "input": "pav_sign",
+        "base_color": [
+          0.05,
+          0.08,
+          0.2,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e2e0da"
+                  ],
+                  [
+                    1,
+                    "#f2f0ea"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pav_sign_text",
+        "input": "pav_sign_text",
+        "base_color": [
+          0.75,
+          0.88,
+          1.0,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "door",
+        "input": "door",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 128,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b0b4b8"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lines_sign",
+        "input": "lines_sign",
+        "base_color": [
+          0.05,
+          0.05,
+          0.05,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e2e0da"
+                  ],
+                  [
+                    1,
+                    "#f2f0ea"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lines_text",
+        "input": "lines_text",
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 11,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e2e0da"
+                  ],
+                  [
+                    1,
+                    "#f2f0ea"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drum_text",
+        "input": "drum_text",
+        "base_color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-glow",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 16,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#fff4e0"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "col",
+                "b": 4.0,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

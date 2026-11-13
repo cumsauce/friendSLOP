@@ -56,7 +56,11 @@ pub struct Ragdoll {
 
 /// Server: a hit waiting to be turned into a tumble.
 #[derive(Component)]
-struct Knock(Vec3);
+struct Knock {
+    vel: Vec3,
+    /// A custom ragdoll duration (s), for falls longer than the tuning one.
+    seconds: Option<f32>,
+}
 
 /// Server: the tumble in progress.
 #[derive(Component)]
@@ -81,7 +85,16 @@ struct RagdollBody;
 
 /// Punt the player `entity` with `velocity` (m/s). Server only.
 pub fn knock(commands: &mut Commands, entity: Entity, velocity: Vec3) {
-    commands.entity(entity).insert(Knock(velocity));
+    knock_for(commands, entity, velocity, tuning().seconds);
+}
+
+/// Punt the player `entity` with a custom ragdoll duration (s), for falls
+/// longer than the tuning one. Server only.
+pub fn knock_for(commands: &mut Commands, entity: Entity, velocity: Vec3, seconds: f32) {
+    commands.entity(entity).insert(Knock {
+        vel: velocity,
+        seconds: Some(seconds),
+    });
 }
 
 /// The tumble a hit with `velocity` starts: head over heels the way you're thrown.
@@ -143,7 +156,7 @@ fn start_tumbles(
             commands.entity(b).try_despawn();
         }
         let centre = walker.pos + Vec3::Y * HALF;
-        let spin = spin_for(knock.0, &tu);
+        let spin = spin_for(knock.vel, &tu);
         let body = physics(&trees).then(|| {
             commands
                 .spawn((
@@ -153,7 +166,7 @@ fn start_tumbles(
                     Mass(tu.mass),
                     Restitution::new(tu.bounce),
                     Friction::new(tu.friction),
-                    LinearVelocity(knock.0),
+                    LinearVelocity(knock.vel),
                     AngularVelocity(spin),
                     Transform::from_translation(centre)
                         .with_rotation(Quat::from_rotation_y(walker.yaw)),
@@ -162,10 +175,10 @@ fn start_tumbles(
         });
         commands.entity(entity).remove::<Knock>().insert((
             Tumble {
-                left: tu.seconds,
+                left: knock.seconds.unwrap_or(tu.seconds),
                 body,
                 centre,
-                vel: knock.0,
+                vel: knock.vel,
                 spin,
                 rot: Quat::from_rotation_y(walker.yaw),
                 feet: walker.pos,

@@ -1,0 +1,27 @@
+// High Places' soft serve machine (#350, crates/side/src/features/ice_cream.rs).
+// It's out of order: pigeons nested in it. Find its parts in the city's shops,
+// click the machine, and it works for everyone. Edit and save: the running
+// game picks it up within a second.
+(
+    // On the deck: (x, z) from the deck's middle, and its turn (degrees; 0 faces +z).
+    machine: (-3.0, -12.0),
+    machine_yaw: 0.0,
+    // Each part and the shop it's in (bodega, pizza, laundromat or diner).
+    // {who} is whoever found it.
+    parts: [
+        (name: "new fuse", shop: "laundromat", found_line: "{who} found the soft serve machine's fuse behind a dryer. it was warm."),
+        (name: "plunger", shop: "pizza", found_line: "{who} borrowed the pizza place's plunger. for the pigeons. don't ask."),
+        (name: "bag of soft serve mix", shop: "diner", found_line: "{who} took a bag of soft serve mix from the diner. it expires today."),
+    ],
+    broken_line: "OUT OF ORDER. a family of pigeons is living in the nozzle. it still needs: {missing}.",
+    fixed_line: "{who} plunged out the pigeons, swapped the fuse and poured in the mix. HIGH PLACES' SOFT SERVE IS BACK.",
+    cone_line: "free soft serve: {flavour}.",
+    flavours: [
+        "vanilla",
+        "chocolate",
+        "twist",
+        "pistachio, for some reason",
+        "CBD vanilla (don't tell anyone)",
+        "pigeon-free swirl",
+    ],
+)

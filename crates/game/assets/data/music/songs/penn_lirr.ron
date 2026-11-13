@@ -1,0 +1,15 @@
+#![enable(implicit_some)]
+// PennLirr: song 1 (its own song, #352). See moods.ron for what the fields mean.
+// "On Time": the LIRR side of Penn Station. Laid-back major sevenths, a
+// fretless bass, flute and nylon guitar under warm wood.
+(
+    mood: "PennLirr",
+    bpm: 82.0, swing: 0.14, key: 7,
+    a: "PENN_LIRR_A", b: "PENN_LIRR_B", hook: "PENN_LIRR_HOOK",
+    groove: Laid, bass: ["LAID", "PEDAL"],
+    comp: Laid, lead: Flute, arp: Some(Kalimba), pad: true,
+    intensity: 0.3, odd: 0.0, modulate: 0.2, kime: 0.0,
+    theme: false, bass_inst: Fretless, pad_inst: Strings,
+    horns: None, kit: (shaker: true, conga: false, clap: false, ride: false),
+    answer: Some(EPiano), nylon: Bossa,
+)

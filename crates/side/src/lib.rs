@@ -28,11 +28,15 @@ pub mod features {
     pub mod fusion;
     pub mod gaslighting;
     pub mod goat;
+    pub mod hats;
+    pub mod high_places;
+    pub mod ice_cream;
     pub mod infinite;
     pub mod miami;
     pub mod nyc;
     pub mod nyc_traffic;
     pub mod penn;
+    pub mod pigeons;
     pub mod rats;
     pub mod sesbian_lex;
     pub mod shipwreck;
@@ -40,6 +44,7 @@ pub mod features {
     pub mod surf;
     pub mod trains;
     pub mod vessel;
+    pub mod vessel_jump;
     pub mod wallet;
     pub mod watcher;
 }
@@ -80,5 +85,10 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::boba::TUNING,
         &features::penn::TUNING,
         &features::street_people::TUNING,
+        &features::vessel_jump::TUNING,
+        &features::pigeons::TUNING,
+        &features::high_places::TUNING,
+        &features::ice_cream::TUNING,
+        &features::hats::TUNING,
     ]
 }

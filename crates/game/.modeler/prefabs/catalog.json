@@ -3533,7 +3533,7 @@
       "tags": [],
       "prompt": "",
       "file": "nyc-map.json",
-      "created_at": "2026-11-13T19:09:35Z"
+      "created_at": "2026-11-13T21:16:04Z"
     },
     {
       "name": "fs-tile-straight",
@@ -3726,7 +3726,7 @@
     },
     {
       "name": "path-car",
-      "description": "PATH car: rounded stainless body, red/blue stripes, glazed windows, open doors on +z (x \u00b13.5), bench seats, poles, roof AC, destination signs. 16 x 2.84 m, floor top 0.26.",
+      "description": "PATH car: rounded stainless body, red/blue stripes, glazed windows, open doors on +z (x ±3.5), bench seats, poles, roof AC, destination signs. 16 x 2.84 m, floor top 0.26.",
       "tags": [
         "path",
         "train",
@@ -3929,16 +3929,15 @@
     },
     {
       "name": "penn-station",
-      "description": "Penn Station concourse (#357): low dingy LIRR-style hall beside a PATH platform, Rose Pizza counter with neon sign, departures board, and a tiled restroom with a sink, a tiny dirty mirror, a urinal and a stall. Origin = the train stop's frame (track bed y 0, track along +x, platform on +z).",
+      "description": "Penn Station concourse (#357 + #352): Rose Pizza, the restroom, a rundown NJ Transit wing (west, chained gates, trash fires, stains) and a pristine LIRR wing (north, wood ceiling, lounge, amenities).",
       "tags": [
         "nyc",
-        "station",
-        "pizza",
-        "bathroom"
+        "penn",
+        "interior"
       ],
-      "prompt": "add rose pizza in Penn Station and it's bathroom ... the mirror is so dirty and small and shitty u can barely see yourself. make it look like the real place",
+      "prompt": "",
       "file": "penn-station.json",
-      "created_at": "2026-11-13T19:42:55Z"
+      "created_at": "2026-11-13T21:14:20Z"
     },
     {
       "name": "street-drum",
@@ -3963,6 +3962,126 @@
       "prompt": "add the vessel sculpture, complete with the navigable staircase",
       "file": "nyc-vessel.json",
       "created_at": "2026-11-13T20:17:32Z"
+    },
+    {
+      "name": "nyc-kit-cruiser",
+      "description": "NYPD-style police cruiser street car: white body with navy side stripe, navy POLICE door text, red/blue glow light bar, raked windshield, real A/B/C pillars, wheels in open cut wheel arches, and poop-smear decals splattered over the sides, hood, roof, trunk and nose. ~2.1 x 5.6 m, front +z, origin on the ground at the car's centre. Same ns-paint/ns-steel/ns-tar materials as nyc-kit-cab so they share bakes; decals use the pc-poop-smear decal material.",
+      "tags": [
+        "nyc",
+        "city",
+        "car",
+        "vehicle",
+        "police"
+      ],
+      "prompt": "a couple more car models for the NYC map, in the nyc-kit-cab style, then add poop smear decals all over the cruiser (decals, not models)",
+      "file": "nyc-kit-cruiser.json",
+      "created_at": "2026-11-13T21:04:36Z"
+    },
+    {
+      "name": "nyc-penn",
+      "description": "Penn Station from the street (#352): the Garden's finned drum with its blue LED band, and the glass 7th Ave entrance pavilion with the PENN STATION sign. Origin at the drum's centre, entrance facing +x.",
+      "tags": [
+        "nyc",
+        "penn",
+        "building"
+      ],
+      "prompt": "",
+      "file": "nyc-penn.json",
+      "created_at": "2026-11-13T21:15:08Z"
+    },
+    {
+      "name": "nyc-pigeon",
+      "description": "A New York pigeon (#355), 0.74 m wingspan, head toward -z, ~1k triangles. Rigged: clips `flap` (0.3 s) and `glide`.",
+      "tags": [
+        "nyc",
+        "bird",
+        "creature",
+        "rigged"
+      ],
+      "prompt": "",
+      "file": "nyc-pigeon.json",
+      "created_at": "2026-11-13T21:30:49Z"
+    },
+    {
+      "name": "nyc-high-places",
+      "description": "High Places (#349): rooftop dispensary deck on top of One World Trade Center (origin = deck top centre, on WTC's top collider at 428 m). Elevator hut (door +x at x -10.5), the HIGH PLACES kiosk (open front, counter at z -9.3), a smoke lounge with LIGHT UP HERE sign around (5, 0, 8), glass railing.",
+      "tags": [
+        "nyc",
+        "wtc",
+        "rooftop",
+        "shop"
+      ],
+      "prompt": "",
+      "file": "nyc-high-places.json",
+      "created_at": "2026-11-13T21:39:27Z"
+    },
+    {
+      "name": "hat-touch-grass",
+      "description": "Statement hat (#323): green cap, TOUCH GRASS. Modeled on a 0.28 m head centred at the origin, front -z.",
+      "tags": [
+        "hat",
+        "cosmetic"
+      ],
+      "prompt": "",
+      "file": "hat-touch-grass.json",
+      "created_at": "2026-11-13T21:42:32Z"
+    },
+    {
+      "name": "hat-eat-the-rich",
+      "description": "Statement hat (#323): red beanie, EAT THE RICH. Modeled on a 0.28 m head centred at the origin, front -z.",
+      "tags": [
+        "hat",
+        "cosmetic"
+      ],
+      "prompt": "",
+      "file": "hat-eat-the-rich.json",
+      "created_at": "2026-11-13T21:42:46Z"
+    },
+    {
+      "name": "hat-rent-control",
+      "description": "Statement hat (#323): tan bucket hat, I <3 RENT CONTROL. Modeled on a 0.28 m head centred at the origin, front -z.",
+      "tags": [
+        "hat",
+        "cosmetic"
+      ],
+      "prompt": "",
+      "file": "hat-rent-control.json",
+      "created_at": "2026-11-13T21:51:22Z"
+    },
+    {
+      "name": "hat-tax-me",
+      "description": "Statement hat (#323): black top hat with a gold band, TAX ME. Modeled on a 0.28 m head centred at the origin, front -z.",
+      "tags": [
+        "hat",
+        "cosmetic"
+      ],
+      "prompt": "",
+      "file": "hat-tax-me.json",
+      "created_at": "2026-11-13T21:51:44Z"
+    },
+    {
+      "name": "hat-yeehaw",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "hat-yeehaw.json",
+      "created_at": "2026-11-13T21:53:41Z"
+    },
+    {
+      "name": "nyc-ice-cream",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "nyc-ice-cream.json",
+      "created_at": "2026-11-13T21:56:31Z"
+    },
+    {
+      "name": "nyc-out-of-order",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "nyc-out-of-order.json",
+      "created_at": "2026-11-13T21:56:33Z"
     }
   ]
 }

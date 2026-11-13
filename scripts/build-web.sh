@@ -56,4 +56,9 @@ if [[ "${WEB_TEXTURE_MAX:-512}" != 0 ]]; then
   cargo run --release --locked --quiet --manifest-path tools/web-textures/Cargo.toml -- \
     "$OUT/assets" "${WEB_TEXTURE_MAX:-512}"
 fi
+# #242: gzip the models (47 MB -> ~21 MB to download). The game asks for
+# `x.bin.gz` first and inflates it (crates/game/src/gz_assets.rs). Reflection
+# probes don't ship: the browser doesn't draw them.
+find "$OUT/assets/models" -type f \( -name '*.bin' -o -name '*.gltf' \) -exec gzip -9n {} +
+rm -rf "$OUT/assets/probes"
 echo "web build ready in $OUT ($(du -sh "$OUT" | cut -f1))"

@@ -6,7 +6,7 @@
 //! which Bevy uses instead of the world map inside that box. Missing files
 //! just mean no reflections there.
 
-use bevy::light::{EnvironmentMapLight, LightProbe};
+use bevy::light::EnvironmentMapLight;
 use bevy::prelude::*;
 
 /// Named places to bake a probe at (where the six pictures are taken from).
@@ -53,9 +53,17 @@ pub fn probe(
     size: Vec3,
     intensity: f32,
 ) -> impl Bundle {
+    let at = Transform::from_translation(centre).with_scale(size);
+    // WebGL2 can't draw light probes anyway: browsers (#242) skip the download.
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = (assets, name, intensity);
+        at
+    }
+    #[cfg(not(target_arch = "wasm32"))]
     (
-        LightProbe::default(),
+        bevy::light::LightProbe::default(),
         env_map(assets, name, intensity),
-        Transform::from_translation(centre).with_scale(size),
+        at,
     )
 }

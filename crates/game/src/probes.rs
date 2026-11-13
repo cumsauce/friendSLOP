@@ -56,7 +56,9 @@ pub fn plugin(app: &mut App) {
     if probes::baking() {
         app.init_resource::<Bake>()
             .add_systems(Update, bake.run_if(in_state(crate::AppState::InGame)));
-    } else {
+    } else if !cfg!(target_arch = "wasm32") {
+        // Browsers (#242) skip reflections: two more cubemaps to download,
+        // keep in a phone's memory and sample in every material.
         app.add_observer(world_map)
             .add_systems(Update, dim_with_ambient);
     }

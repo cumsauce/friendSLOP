@@ -15,6 +15,7 @@ pub mod creator;
 pub mod fault;
 pub mod features;
 pub mod footsteps;
+pub mod gz_assets;
 pub use friendslop_base::graphics;
 pub use friendslop_base::hud;
 pub use friendslop_kcc as kcc;

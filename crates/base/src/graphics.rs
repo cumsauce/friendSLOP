@@ -39,6 +39,10 @@ pub const SSAO_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
 
 /// Can the render resolution be lowered? Only in the browser, where
 /// index.html sets the canvas's pixel ratio before the game starts (#191).
+/// Bloom needs an HDR (float) target, which phone browsers' WebGL2 can't
+/// always render into (#242: hosting showed only a blue screen on iPhone).
+/// The browser renders straight to the screen's 8-bit target instead.
+pub const HDR_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
 pub const RESOLUTION_ADJUSTABLE: bool = cfg!(target_arch = "wasm32");
 
 /// The Resolution setting the page started with (what index.html applied).
@@ -89,7 +93,7 @@ impl Preset {
         GraphicsQuality {
             shadows: !low,
             ssao: high && SSAO_SUPPORTED,
-            bloom: !low,
+            bloom: !low && HDR_SUPPORTED,
             antialias: !low,
             far: !low,
             sharp: high || !RESOLUTION_ADJUSTABLE,
@@ -170,6 +174,7 @@ impl GraphicsQuality {
             VideoOption::Preset => self.preset().map_or("Custom", Preset::label),
             VideoOption::Shadows => on_off(self.shadows),
             VideoOption::AmbientOcclusion if !SSAO_SUPPORTED => "N/A",
+            VideoOption::Bloom if !HDR_SUPPORTED => "N/A",
             VideoOption::AmbientOcclusion => on_off(self.ssao),
             VideoOption::Bloom => on_off(self.bloom),
             VideoOption::AntiAlias if !self.antialias => "Off",
@@ -217,7 +222,7 @@ impl GraphicsQuality {
             }
             VideoOption::Shadows => self.shadows = !self.shadows,
             VideoOption::AmbientOcclusion => self.ssao = !self.ssao && SSAO_SUPPORTED,
-            VideoOption::Bloom => self.bloom = !self.bloom,
+            VideoOption::Bloom => self.bloom = !self.bloom && HDR_SUPPORTED,
             VideoOption::AntiAlias => self.antialias = !self.antialias,
             VideoOption::DrawDistance => self.far = !self.far,
             VideoOption::Resolution => self.sharp = !self.sharp || !RESOLUTION_ADJUSTABLE,
@@ -276,6 +281,7 @@ impl GraphicsQuality {
             any = true;
         }
         q.ssao &= SSAO_SUPPORTED;
+        q.bloom &= HDR_SUPPORTED;
         q.sharp |= !RESOLUTION_ADJUSTABLE;
         any.then_some(q)
     }
@@ -429,7 +435,7 @@ fn apply_camera(
             continue;
         }
         let mut c = commands.entity(e);
-        if q.bloom {
+        if q.bloom && HDR_SUPPORTED {
             c.insert(Bloom {
                 intensity: 0.08,
                 ..Bloom::NATURAL

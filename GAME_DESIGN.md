@@ -990,6 +990,13 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   saying no, or having no mic, still lets you hear everyone. Voices keep 120 ms queued in the
   browser (40 ms on the desktop) so slow phone frames don't crackle. Character and graphics
   settings are saved in localStorage.
+- **iPhone hosting fix + smaller download** (#242, WeiYa: "hosting shows a black / blue-ish
+  screen ... 49MB, max 10MB"). The browser no longer renders into an HDR (float) target or
+  uses bloom (phone WebGL2 can't always draw into float targets; the Bloom option says N/A
+  there) and skips the baked reflection probes (WebGL2 can't draw light probes; two cubemaps
+  fewer to download and sample). Models ship gzipped (47 MB -> ~21 MB) and are inflated as
+  they arrive (`gz_assets.rs`). Still open: the whole game is well over 10 MB (textures
+  ~4 MB after shrinking, models ~21 MB, the wasm), and nobody has checked it on an iPhone yet.
 - **Phone web performance pass** (#191, WeiYa: "blank screen on iphone ... 1-2 mins to load ...
   has to be phone web performant ... UI too small ... fullscreen button"). The page now shows
   a real download progress bar and only offers "Tap to play" once the game is running (it used

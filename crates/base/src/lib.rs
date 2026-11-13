@@ -16,6 +16,7 @@ pub mod voice_chat {
 pub mod assets;
 pub mod graphics;
 pub mod hud;
+pub mod music;
 pub mod people;
 pub mod player;
 pub mod rigged;

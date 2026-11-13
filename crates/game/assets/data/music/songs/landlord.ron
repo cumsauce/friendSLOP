@@ -1,0 +1,13 @@
+#![enable(implicit_some)]
+// Landlord: song 1 (its own song). See moods.ron for what the fields mean.
+(
+    mood: "Landlord",
+    bpm: 108.0, swing: 0.08, key: 1,
+    a: "LANDLORD_A", b: "LANDLORD_B", hook: "LANDLORD_HOOK",
+    groove: March, bass: ["MARCH"],
+    comp: Tense, lead: Brass, arp: None, pad: true,
+    intensity: 0.5, odd: 0.15, modulate: 0.6, kime: 0.3,
+    theme: false, bass_inst: Bass, pad_inst: Strings,
+    horns: Both, kit: (shaker: false, conga: false, clap: false, ride: false),
+    answer: Some(Strings), nylon: None,
+)

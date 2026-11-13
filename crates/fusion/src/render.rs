@@ -12,19 +12,19 @@ use crate::inst::Engine as Sound;
 use crate::synth::{BLOCK, BUSES, Band, Bank, Bus, Ev, Inst, RATE};
 use crate::theory::{Chord, Quality, voice_lead};
 
-/// The demo tour: (start second, mood, intensity).
-pub const TOUR: &[(f32, Mood, f32)] = &[
-    (0.0, Mood::Menu, 0.55),
-    (14.0, Mood::Village, 0.6),
-    (30.0, Mood::Forest, 0.35),
-    (42.0, Mood::Maze, 0.3),
-    (51.0, Mood::Sky, 0.25),
-    (59.0, Mood::Abuela, 0.4),
-    (69.0, Mood::Hiding, 0.4),
-    (75.0, Mood::Seeking, 0.8),
-    (83.0, Mood::Duel, 0.95),
-    (91.0, Mood::Still, 0.2),
-    (96.0, Mood::Village, 0.7),
+/// The demo tour: (start second, mood name, intensity).
+pub const TOUR: &[(f32, &str, f32)] = &[
+    (0.0, "Menu", 0.55),
+    (14.0, "Village", 0.6),
+    (30.0, "Forest", 0.35),
+    (42.0, "Maze", 0.3),
+    (51.0, "Sky", 0.25),
+    (59.0, "Abuela", 0.4),
+    (69.0, "Hiding", 0.4),
+    (75.0, "Seeking", 0.8),
+    (83.0, "Duel", 0.95),
+    (91.0, "Still", 0.2),
+    (96.0, "Village", 0.7),
 ];
 pub const TOUR_SECS: f32 = 106.0;
 const TOUR_VICTORY: f32 = 25.0;
@@ -83,7 +83,7 @@ pub fn tour_plan(s: f32) -> Cue {
         .iter()
         .rev()
         .find(|(at, _, _)| s >= *at)
-        .map_or((Mood::Menu, 0.5), |(_, m, i)| (*m, *i));
+        .map_or((Mood::default(), 0.5), |(_, m, i)| (Mood::named(m), *i));
     Cue {
         mood,
         intensity,
@@ -318,10 +318,7 @@ pub fn inst_by_name(name: &str) -> Option<Inst> {
 }
 
 pub fn mood_by_name(name: &str) -> Option<Mood> {
-    Mood::ALL
-        .iter()
-        .copied()
-        .find(|m| format!("{m:?}").eq_ignore_ascii_case(name))
+    Mood::find(name)
 }
 
 pub fn bus_by_name(name: &str) -> Option<usize> {

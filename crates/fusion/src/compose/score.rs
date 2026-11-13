@@ -302,24 +302,41 @@ impl Style {
 }
 
 // --- The score file -------------------------------------------------------
-// Every mood's songs live in `assets/data/music/moods.ron` (the synths stay in
-// code). The composer reads `&'static Style`s, so each version of the file is
-// parsed once and leaked: that only happens when someone edits it.
+// The moods live in `assets/data/music/moods.ron` and each song in its own
+// file in `songs/` (the synths stay in code). The composer reads
+// `&'static Style`s, so each version of the files is parsed once and leaked:
+// that only happens when someone edits one.
 
 /// `data/music/moods.ron`, as written.
 #[derive(serde::Deserialize, Default)]
 pub struct Score {
     pub(super) progressions: BTreeMap<String, Vec<(u8, Quality, u8)>>,
     pub(super) bass: BTreeMap<String, String>,
-    pub(super) moods: BTreeMap<Mood, MoodScore>,
+    pub(super) moods: Vec<MoodScore>,
+    /// What plays when (see [`crate::direct`]).
+    #[serde(default)]
+    pub rules: Vec<crate::direct::Rule>,
+    /// When the band fades out, and when it cuts dead.
+    #[serde(default)]
+    pub hush: Option<crate::direct::Cond>,
+    #[serde(default)]
+    pub silence: Option<crate::direct::Cond>,
+    /// The cues (`MusicSignals::cue`) that play a victory cadence.
+    #[serde(default)]
+    pub victory_cues: Vec<String>,
 }
 
 fn one() -> f32 {
     1.0
 }
 
+fn yes() -> bool {
+    true
+}
+
 #[derive(serde::Deserialize)]
 pub(super) struct MoodScore {
+    pub(super) name: Mood,
     pub(super) tone: Tone,
     pub(super) level_db: f32,
     /// The room: reverb and echo send scales on top of the sections'.
@@ -327,7 +344,34 @@ pub(super) struct MoodScore {
     pub(super) wet: f32,
     #[serde(default = "one")]
     pub(super) echo: f32,
-    pub(super) songs: Vec<SongScore>,
+    #[serde(default)]
+    urgent: bool,
+    #[serde(default)]
+    instant: bool,
+    #[serde(default)]
+    wandering: bool,
+    #[serde(default)]
+    hold: bool,
+    #[serde(default)]
+    fallback: bool,
+    #[serde(default = "yes")]
+    victory: bool,
+    #[serde(default = "yes")]
+    lift: bool,
+}
+
+impl MoodScore {
+    fn flags(&self) -> MoodFlags {
+        MoodFlags {
+            urgent: self.urgent,
+            instant: self.instant,
+            wandering: self.wandering,
+            hold: self.hold,
+            fallback: self.fallback,
+            victory: self.victory,
+            lift: self.lift,
+        }
+    }
 }
 
 fn fusion() -> String {
@@ -342,8 +386,12 @@ fn sixteen() -> u32 {
     16
 }
 
+/// One song file (`data/music/songs/<name>.ron`).
 #[derive(serde::Deserialize, Default, Clone)]
-pub(super) struct SongScore {
+pub struct SongScore {
+    /// Whose song it is (a mood's name in moods.ron).
+    #[serde(default)]
+    pub(super) mood: String,
     pub(super) bpm: f32,
     pub(super) swing: f32,
     pub(super) key: u8,
@@ -412,8 +460,14 @@ pub(super) struct SongScore {
 /// The score, read at run time (see [`friendslop_data`]).
 pub static SCORE: friendslop_data::Data<Score> = friendslop_data::Data::ron("data/music/moods.ron");
 
+/// The songs, one file each, in the index's order (a mood's first is its own).
+pub static SONGS: friendslop_data::Many<SongScore> =
+    friendslop_data::Many::ron("data/music/songs.ron");
+
 /// One mood's songs, ready to play.
 pub(super) struct MoodTable {
+    pub(super) mood: Mood,
+    pub(super) flags: MoodFlags,
     pub(super) tone: Tone,
     pub(super) level_db: f32,
     pub(super) wet: f32,
@@ -422,7 +476,18 @@ pub(super) struct MoodTable {
 }
 
 pub(super) struct Table {
-    pub(super) moods: BTreeMap<Mood, MoodTable>,
+    /// In the score's order.
+    pub(super) moods: Vec<MoodTable>,
+}
+
+impl Table {
+    pub(super) fn pos(&self, m: Mood) -> Option<usize> {
+        self.moods.iter().position(|t| t.mood == m)
+    }
+
+    pub(super) fn get(&self, m: Mood) -> Option<&MoodTable> {
+        self.moods.iter().find(|t| t.mood == m)
+    }
 }
 
 /// What plays when the score is missing a mood (or the file is): one
@@ -898,7 +963,7 @@ fn song(
     }
 }
 
-pub(super) fn build(score: &Score, lib: &'static Lib) -> Table {
+pub(super) fn build(score: &Score, songs: &[Arc<SongScore>], lib: &'static Lib) -> Table {
     let prog = |name: &str| -> Prog {
         score
             .progressions
@@ -916,22 +981,21 @@ pub(super) fn build(score: &Score, lib: &'static Lib) -> Table {
     let moods = score
         .moods
         .iter()
-        .map(|(&m, ms)| {
-            let songs = ms
-                .songs
+        .map(|ms| {
+            let songs = songs
                 .iter()
+                .filter(|s| s.mood == ms.name.name())
                 .map(|s| &*Box::leak(Box::new(song(s, lib, &prog, &lines))))
                 .collect();
-            (
-                m,
-                MoodTable {
-                    tone: ms.tone,
-                    level_db: ms.level_db,
-                    wet: ms.wet,
-                    echo: ms.echo,
-                    songs,
-                },
-            )
+            MoodTable {
+                mood: ms.name,
+                flags: ms.flags(),
+                tone: ms.tone,
+                level_db: ms.level_db,
+                wet: ms.wet,
+                echo: ms.echo,
+                songs,
+            }
         })
         .collect();
     Table { moods }
@@ -940,14 +1004,20 @@ pub(super) fn build(score: &Score, lib: &'static Lib) -> Table {
 /// The score as the composer plays it, rebuilt when it or the library
 /// changes.
 pub(super) fn table() -> &'static Table {
-    static TABLE: RwLock<Option<((usize, usize), &'static Table)>> = RwLock::new(None);
+    static TABLE: RwLock<Option<((usize, usize, usize), &'static Table)>> = RwLock::new(None);
     let score = SCORE.get();
+    let songs = SONGS.get();
     let lib = library::lib();
     let key = (
         if SCORE.loaded() {
             Arc::as_ptr(&score) as usize
         } else {
             0
+        },
+        if songs.is_empty() {
+            0
+        } else {
+            Arc::as_ptr(&songs) as usize
         },
         library::version(),
     );
@@ -957,7 +1027,7 @@ pub(super) fn table() -> &'static Table {
     {
         return t;
     }
-    let t: &'static Table = Box::leak(Box::new(build(&score, lib)));
+    let t: &'static Table = Box::leak(Box::new(build(&score, &songs, lib)));
     if let Ok(mut slot) = TABLE.write() {
         *slot = Some((key, t));
     }
@@ -966,7 +1036,7 @@ pub(super) fn table() -> &'static Table {
 
 /// How many songs a mood has to choose from.
 pub(super) fn songs(m: Mood) -> usize {
-    table().moods.get(&m).map_or(1, |ms| ms.songs.len().max(1))
+    table().get(m).map_or(1, |ms| ms.songs.len().max(1))
 }
 
 pub(super) fn style(m: Mood) -> &'static Style {
@@ -976,8 +1046,7 @@ pub(super) fn style(m: Mood) -> &'static Style {
 /// Mood `m`'s song number `song` (0 = its original; wraps round).
 pub(super) fn style_song(m: Mood, song: u8) -> &'static Style {
     let t = table();
-    t.moods
-        .get(&m)
+    t.get(m)
         .and_then(|ms| ms.songs.get(song as usize % ms.songs.len().max(1)))
         .copied()
         .unwrap_or_else(fallback)
@@ -1006,6 +1075,33 @@ pub(super) fn song_for_test(s: &SongScore, score: &Score) -> &'static Style {
 #[cfg(test)]
 mod score_file {
     use super::*;
+
+    /// songs.ron lists exactly the files in songs/, each once.
+    #[test]
+    fn the_song_index_matches_the_folder() {
+        let dir = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../game/assets/data/music/songs"
+        );
+        let mut on_disk: Vec<String> = std::fs::read_dir(dir)
+            .map(|d| {
+                d.filter_map(|e| e.ok())
+                    .map(|e| e.file_name().to_string_lossy().into_owned())
+                    .filter(|n| n.ends_with(".ron"))
+                    .collect()
+            })
+            .unwrap_or_default();
+        on_disk.sort();
+        SONGS.get();
+        let mut listed = SONGS.names();
+        let n = listed.len();
+        listed.sort();
+        listed.dedup();
+        assert_eq!(listed.len(), n, "songs.ron lists a file twice");
+        assert!(!listed.is_empty());
+        assert_eq!(listed, on_disk, "songs.ron vs the files in songs/");
+        assert_eq!(SONGS.get().len(), n, "a song file didn't parse");
+    }
 
     /// The generators as moods.ron's header writes them.
     #[test]
@@ -1054,12 +1150,18 @@ mod score_file {
                 );
             }
         }
-        for m in Mood::ALL {
-            let Some(ms) = score.moods.get(&m) else {
-                panic!("{m:?} has no songs in moods.ron");
-            };
-            assert!(!ms.songs.is_empty(), "{m:?}");
-            for s in &ms.songs {
+        let songs = SONGS.get();
+        for s in songs.iter() {
+            assert!(
+                score.moods.iter().any(|m| m.name.name() == s.mood),
+                "a song for {:?}, which moods.ron doesn't list",
+                s.mood
+            );
+        }
+        for m in score.moods.iter().map(|m| m.name) {
+            let mine: Vec<_> = songs.iter().filter(|s| s.mood == m.name()).collect();
+            assert!(!mine.is_empty(), "{m:?} has no songs");
+            for s in mine {
                 let Some(band) = lib.bands.get(&s.band) else {
                     panic!("{m:?}: no band {}", s.band);
                 };
@@ -1127,6 +1229,18 @@ mod score_file {
                     }
                 }
             }
+        }
+        assert_eq!(
+            score.moods.iter().filter(|m| m.fallback).count(),
+            1,
+            "one fallback mood"
+        );
+        for r in &score.rules {
+            assert!(
+                score.moods.iter().any(|m| m.name == r.mood),
+                "a rule plays {:?}, which moods.ron doesn't list",
+                r.mood
+            );
         }
         let mix = crate::synth::MIX.get();
         for b in crate::synth::Bus::NAMES {

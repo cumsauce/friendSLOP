@@ -488,6 +488,7 @@ pub fn ending() -> String {
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(
             Update,
@@ -559,6 +560,22 @@ fn tier_toast(
             ));
         }
     }
+}
+
+/// For the music: a victory when a chapter ends.
+fn music_signals(
+    campaign: Query<&Campaign>,
+    mut before: Local<Option<(usize, bool)>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let now = campaign.iter().next().map(|c| (c.chapter, c.finale()));
+    if let (Some(now), Some(before)) = (now, *before)
+        && now != before
+    {
+        signals.cue("victory");
+    }
+    *before = now;
 }
 
 #[cfg(test)]

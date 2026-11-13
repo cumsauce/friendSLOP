@@ -1,0 +1,17 @@
+#![enable(implicit_some)]
+// Wendys: song 1 (its own song). See moods.ron for what the fields mean.
+// "Have It Your Way": a too-cheerful jingle. Drawbar organ comps,
+// doo-wah singers on the chords, vibes, an upright walking,
+// bongos, tambourine and claves, and a pan flute answering.
+(
+    mood: "Wendys",
+    bpm: 124.0, swing: 0.22, key: 7,
+    a: "WENDYS_A", b: "WENDYS_B", hook: "WENDYS_HOOK",
+    groove: City, bass: ["WALK", "WALK2"],
+    comp: City, lead: Bell, arp: Some(Vibes), pad: true,
+    intensity: 0.55, odd: 0.0, modulate: 0.35, kime: 0.3,
+    theme: false, bass_inst: Upright, pad_inst: Choir,
+    horns: None, kit: (shaker: false, conga: true, clap: true, ride: false),
+    answer: Some(PanFlute), nylon: None,
+    keys: Some(Organ), hand: Some(Bongo), perc: [Tambourine, Claves],
+)

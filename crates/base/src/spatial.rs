@@ -91,15 +91,13 @@ impl Default for Ears {
 
 /// The space the listener is in, set by whichever feature owns it (Fulton
 /// St station's tiled halls): how much more of every world sound goes to the
-/// diffuse tail, how long that tail rings, and whether the music hushes.
+/// diffuse tail and how long that tail rings.
 #[derive(Resource, Clone, Copy, Debug, PartialEq)]
 pub struct Room {
     /// Multiplies every sound's send to the tail (1 = the open air).
     pub wet: f32,
     /// Seconds the tail takes to die away by 60 dB (for sounds starting now).
     pub rt60: f32,
-    /// No music in here: only the room.
-    pub hush_music: bool,
 }
 
 impl Room {
@@ -107,7 +105,6 @@ impl Room {
     pub const OPEN: Room = Room {
         wet: 1.0,
         rt60: 1.1,
-        hush_music: false,
     };
 
     /// A shape heard in this room.
@@ -979,7 +976,6 @@ mod tests {
         let hall = Room {
             wet: 6.0,
             rt60: 2.8,
-            hush_music: true,
         };
         let (hall_len, hall_e) = tail(hall);
         assert!(hall_len > open_len, "{hall_len} vs {open_len}");

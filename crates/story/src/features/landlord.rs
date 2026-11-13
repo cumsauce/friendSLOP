@@ -260,6 +260,7 @@ pub fn share_stash<'a>(stash: &mut Vec<Organ>, purses: impl Iterator<Item = &'a 
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(click_landlord)
         .add_systems(OnEnter(AppState::InGame), spawn_landlord)
         .add_systems(Update, show_tenancy.run_if(in_state(AppState::InGame)));
@@ -395,6 +396,35 @@ fn reset_tenancy(_reset: On<crate::rules::campaign::RoundReset>, mut tenancy: Qu
     for mut t in &mut tenancy {
         *t = Tenancy::default();
     }
+}
+
+/// The camera this close to the landlord counts as near him (for the music).
+const NEAR_LANDLORD: f32 = 12.0;
+
+/// For the music: the boss fight and its health, near the landlord while
+/// renting (and how often he's raised it), the tenancy won, and a victory
+/// as it's won.
+fn music_signals(
+    tenancy: Query<&Tenancy>,
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    mut act_before: Local<Option<Act3>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let t = tenancy.iter().next();
+    let act = t.map(|t| t.act);
+    if act == Some(Act3::Won) && act_before.is_some_and(|a| a != Act3::Won) {
+        signals.cue("victory");
+    }
+    *act_before = act;
+    let near = t.is_some()
+        && crate::music::camera_at(&camera)
+            .is_some_and(|at| at.xz().distance(landlord_at().xz()) < NEAR_LANDLORD);
+    signals.flag("landlord_boss", act == Some(Act3::Boss));
+    signals.set("boss_hp", t.map_or(0.0, |t| t.hp as f32));
+    signals.flag("near_landlord", near);
+    signals.set("raises", t.map_or(0.0, |t| t.raises as f32));
+    signals.flag("won", act == Some(Act3::Won));
 }
 
 #[cfg(test)]

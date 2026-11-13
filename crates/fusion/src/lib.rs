@@ -8,6 +8,7 @@
 //!   string machine, Minimoog lead), a sample bank (the synthesized kit
 //!   from [`drums`] plus `foley-synth` note-block instruments) and the mixer.
 //! - [`dsp`]: EQ, filters, oscillators, chorus, echo and reverb.
+//! - [`direct`]: the score's rules (which mood plays when), over signals.
 //! - [`engine`]: runs the composer at bar lines and mixes the band.
 //! - [`render`]: offline rendering and analysis, used by the
 //!   `fusion-render` tool to audition instruments without the game.
@@ -16,6 +17,7 @@
 //! in a Bevy audio source and feeds it a mood.
 
 pub mod compose;
+pub mod direct;
 pub mod drums;
 pub mod dsp;
 pub mod engine;

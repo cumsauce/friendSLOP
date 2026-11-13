@@ -178,6 +178,7 @@ pub fn chase_step(pos: Vec2, prey: &[Vec2], dt: f32) -> Option<(Vec2, Vec2)> {
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.init_resource::<Punishment>()
         .add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(OnExit(AppState::InGame), stop_all)
@@ -544,6 +545,12 @@ pub fn jingle(rate: u32, seed: u32) -> Vec<f32> {
         *x = *x / peak * 0.7;
     }
     out
+}
+
+/// For the music: an attack's strings are playing (the band goes quiet).
+fn music_signals(attacks: Query<&AttackMode>, signals: Option<ResMut<crate::music::MusicSignals>>) {
+    let Some(mut signals) = signals else { return };
+    signals.flag("attack", attack_on(&attacks));
 }
 
 #[cfg(test)]

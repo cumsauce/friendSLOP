@@ -1,0 +1,13 @@
+#![enable(implicit_some)]
+// Seeking: song 1 (its own song). See moods.ron for what the fields mean.
+(
+    mood: "Seeking",
+    bpm: 128.0, swing: 0.06, key: 4,
+    a: "SEEK_A", b: "SEEK_B", hook: "SEEK_HOOK",
+    groove: Drive, bass: ["DRIVE", "SLAP2"],
+    comp: Stabs, lead: Mini, arp: None, pad: false,
+    intensity: 0.75, odd: 0.25, modulate: 0.3, kime: 0.5,
+    theme: false, bass_inst: Bass, pad_inst: Pad,
+    horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: false),
+    answer: Some(EPiano), nylon: None,
+)

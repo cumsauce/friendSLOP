@@ -211,6 +211,7 @@ fn take_burger(
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(click_burger)
         .add_systems(OnEnter(AppState::InGame), (build_restaurant, spawn_ui))
         .add_systems(
@@ -495,6 +496,24 @@ fn build_restaurant(
             DespawnOnExit(AppState::InGame),
         ));
     }
+}
+
+/// For the music: the camera's inside Wendy's, and up in its attic (whose
+/// floor is 3.6 m up: the eye is past 4.2 m there).
+fn music_signals(
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let inside = crate::music::camera_at(&camera).and_then(music_place);
+    signals.flag("wendys", inside.is_some());
+    signals.flag("wendys_attic", inside == Some(true));
+}
+
+/// Is `at` inside Wendy's (`Some`), and up in the attic (`Some(true)`)?
+/// (The `wendys` and `wendys_attic` music signals.)
+pub fn music_place(at: Vec3) -> Option<bool> {
+    (covers(at.xz(), 0.0) && at.y < floor_y() + 9.0).then_some(at.y > floor_y() + 4.2)
 }
 
 #[cfg(test)]

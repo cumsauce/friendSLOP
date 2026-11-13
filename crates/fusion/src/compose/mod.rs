@@ -30,6 +30,7 @@ mod harmony;
 mod humanize;
 pub mod library;
 mod melody;
+mod mood;
 mod score;
 
 use form::*;
@@ -39,63 +40,8 @@ use score::*;
 
 pub use form::LIFT_MAX;
 pub use library::{LIBRARY, Library};
-pub use score::{PartFile, SCORE, Score};
-
-/// What the game wants the music to say.
-#[derive(
-    Clone,
-    Copy,
-    PartialEq,
-    Eq,
-    Debug,
-    Default,
-    serde::Serialize,
-    serde::Deserialize,
-    PartialOrd,
-    Ord,
-)]
-pub enum Mood {
-    /// The title screen: the signature theme.
-    #[default]
-    Menu,
-    /// Wandering the meadows: laid back.
-    Explore,
-    /// Commune and village: warm city-pop.
-    Village,
-    /// Forest and valley: airy, flute and harp.
-    Forest,
-    /// The maze and the ruins: mysterious minor.
-    Maze,
-    /// Up on the sky islands: dreamy bells.
-    Sky,
-    /// With Abuela in heaven: a gentle bolero.
-    Abuela,
-    /// Hide and seek, hiding: tense, muted, ticking.
-    Hiding,
-    /// Hide and seek, seeking: driving.
-    Seeking,
-    /// A duel: double-time fusion shred.
-    Duel,
-    /// The landlord and his rent: dissonant, building.
-    Landlord,
-    /// The stillness: everything holds on a pad.
-    Still,
-    /// Under the commune, in the sewers and passages (#127): dub-wet minor,
-    /// a bottle-flute lead and kalimba drips echoing down the tunnels.
-    Underground,
-    /// Inside Wendy's (#117): a too-cheerful fast-food jingle with something
-    /// off about it: organ, doo-wah singers, vibes and bongos.
-    Wendys,
-    /// Up in Wendy's attic: the jingle gone wrong. Slow, warped minor, a
-    /// music-box vibes figure, singers far off, the clock ticking.
-    WendysAttic,
-    /// You farted in front of someone (shame): a blaring, panicky alarm of a tune.
-    FartAlert,
-    /// New York City: a bustling, metropolitan beat (horns, slap bass, traffic-paced drums).
-    Nyc,
-    /// Inside the NYC bodega: a Mexican-American cumbia/ranchera theme.
-    Bodega,
-}
+pub use mood::{Mood, MoodFlags};
+pub use score::{PartFile, SCORE, SONGS, Score, SongScore};
 
 /// How a mood sounds on top of what it plays: the band's overall colour
 /// and feel, so the same instruments fit each place.
@@ -122,62 +68,6 @@ impl Tone {
         lay_back_ms: 0.0,
         loose_ms: 0.0,
     };
-}
-
-impl Mood {
-    /// The mood's colour and feel (see [`Tone`]).
-    pub fn tone(self) -> Tone {
-        table().moods.get(&self).map_or(Tone::NEUTRAL, |ms| ms.tone)
-    }
-
-    pub const ALL: [Mood; 18] = [
-        Mood::Menu,
-        Mood::Explore,
-        Mood::Village,
-        Mood::Forest,
-        Mood::Maze,
-        Mood::Sky,
-        Mood::Abuela,
-        Mood::Hiding,
-        Mood::Seeking,
-        Mood::Duel,
-        Mood::Landlord,
-        Mood::Still,
-        Mood::Underground,
-        Mood::Wendys,
-        Mood::WendysAttic,
-        Mood::FartAlert,
-        Mood::Nyc,
-        Mood::Bodega,
-    ];
-
-    pub fn from_index(i: u8) -> Mood {
-        Self::ALL.get(i as usize).copied().unwrap_or_default()
-    }
-
-    pub fn index(self) -> u8 {
-        Self::ALL.iter().position(|m| *m == self).unwrap_or(0) as u8
-    }
-
-    /// The intensity this mood sits at with nothing else going on.
-    pub fn base_intensity(self) -> f32 {
-        style(self).intensity
-    }
-
-    /// Make-up gain (dB) so calm, sparse moods aren't a cliff quieter
-    /// than busy ones when you walk between areas.
-    pub fn level_db(self) -> f32 {
-        table().moods.get(&self).map_or(0.0, |ms| ms.level_db)
-    }
-
-    /// Moods that cut in at the very next bar line instead of after a
-    /// transition bar.
-    fn urgent(self) -> bool {
-        matches!(
-            self,
-            Mood::Duel | Mood::Seeking | Mood::Still | Mood::Menu | Mood::FartAlert
-        )
-    }
 }
 
 /// The parts of a tune: what each section is for (how long it is, what it
@@ -258,8 +148,9 @@ pub struct Composer {
     pub mood: Mood,
     /// The style used while still (the mood before the stillness).
     style_mood: Mood,
-    /// Which song each mood is playing (see [`songs`]).
-    song: [u8; Mood::ALL.len()],
+    /// Which song each mood is playing (see [`songs`]), in the score's
+    /// mood order.
+    song: Vec<u8>,
     pub section: Section,
     intensity: f32,
     bpm: f32,
@@ -319,13 +210,13 @@ pub struct Composer {
 
 impl Composer {
     pub fn new(seed: u64) -> Self {
-        let mood = Mood::Menu;
+        let mood = Mood::default();
         let s = style(mood);
         let mut c = Self {
             rng: seed | 1,
             mood,
             style_mood: mood,
-            song: [0; Mood::ALL.len()],
+            song: vec![0; table().moods.len()],
             section: Section::Intro,
             intensity: s.intensity,
             bpm: s.bpm,
@@ -401,14 +292,29 @@ impl Composer {
     }
 
     fn style(&self) -> &'static Style {
-        if self.mood == Mood::Still {
-            self.song_style(
-                self.style_mood,
-                self.song[self.style_mood as usize % Mood::ALL.len()],
-            )
+        let m = if self.mood.hold() {
+            self.style_mood
         } else {
-            self.song_style(self.mood, self.song[self.mood as usize % Mood::ALL.len()])
+            self.mood
+        };
+        self.song_style(m, self.song_of(m))
+    }
+
+    /// Which of its songs mood `m` is playing.
+    fn song_of(&self, m: Mood) -> u8 {
+        table()
+            .pos(m)
+            .and_then(|p| self.song.get(p))
+            .copied()
+            .unwrap_or(0)
+    }
+
+    fn set_song(&mut self, m: Mood, song: u8) {
+        let Some(p) = table().pos(m) else { return };
+        if self.song.len() <= p {
+            self.song.resize(p + 1, 0);
         }
+        self.song[p] = song;
     }
 
     /// Mood `m`'s song number `song`.
@@ -490,7 +396,7 @@ impl Composer {
 
         if cue.victories != self.victories {
             let fresh_victory = cue.victories > self.victories
-                && !matches!(self.mood, Mood::Still | Mood::Menu)
+                && self.mood.flags().victory
                 && self.plan.kind != Section::Victory;
             self.victories = cue.victories;
             if fresh_victory {
@@ -512,14 +418,14 @@ impl Composer {
 
         if cue.mood != self.mood && self.plan.kind != Section::Victory {
             let target = cue.mood;
-            if self.switching.is_some() || target.urgent() || self.mood == Mood::Still {
+            if self.switching.is_some() || target.urgent() || self.mood.hold() {
                 // Cut in at this bar line.
                 self.switching = None;
-                if target == Mood::Still {
+                if target.hold() {
                     self.style_mood = self.mood;
                 }
-                let fresh = target != Mood::Still && self.mood != Mood::Still;
-                let from_still = self.mood == Mood::Still;
+                let fresh = !target.hold() && !self.mood.hold();
+                let from_still = self.mood.hold();
                 self.mood = target;
                 let prev = if from_still {
                     Section::Still
@@ -581,7 +487,7 @@ impl Composer {
         (self.lead_lo, self.lead_hi) = s.lead_range;
         // Tempo eases towards the style's (an accelerando into a duel).
         let target_bpm = s.bpm
-            * if self.mood == Mood::Still {
+            * if self.mood.hold() {
                 s.form.hold.tempo
             } else {
                 1.0
@@ -640,7 +546,7 @@ impl Composer {
         bar.bright = (bar.bright + 0.05 * up).min(1.0);
         bar.wet *= 1.0 + 0.07 * up;
         // The mood's own room (the tunnels ring off wet brick, #127).
-        if let Some(m) = table().moods.get(&self.mood) {
+        if let Some(m) = table().get(self.mood) {
             bar.wet *= m.wet;
             bar.echo *= m.echo;
         }
@@ -945,10 +851,10 @@ mod tests {
     fn strong_beats_land_on_chord_tones() {
         let mut c = Composer::new(7);
         let mut bar = Bar::new();
-        for (k, m) in Mood::ALL
+        for (k, m) in Mood::all()
             .iter()
             .cycle()
-            .take(Mood::ALL.len() * 30)
+            .take(Mood::all().len() * 30)
             .enumerate()
         {
             let mut q = cue(*m);
@@ -958,7 +864,7 @@ mod tests {
             assert!(bar.events.iter().all(|e| e.at < bar.len));
         }
         let mut c = Composer::new(99);
-        for m in Mood::ALL {
+        for m in Mood::all() {
             for _ in 0..24 {
                 c.next_bar(cue(m), &mut bar);
             }
@@ -976,12 +882,12 @@ mod tests {
     /// up, and each plays notes at its own tempo.
     #[test]
     fn every_song_gets_played() {
-        for (m, n) in [(Mood::Village, 3), (Mood::Explore, 2)] {
+        for (m, n) in [(Mood::named("Village"), 3), (Mood::named("Explore"), 2)] {
             let mut tempos = std::collections::BTreeSet::new();
             for seed in 0..40 {
                 let mut c = Composer::new(seed);
                 let mut bar = Bar::new();
-                c.next_bar(cue(Mood::Menu), &mut bar);
+                c.next_bar(cue(Mood::named("Menu")), &mut bar);
                 for _ in 0..6 {
                     c.next_bar(cue(m), &mut bar);
                 }
@@ -1003,7 +909,7 @@ mod tests {
                     Cue {
                         lift,
                         climb: 1.0,
-                        ..cue(Mood::Explore)
+                        ..cue(Mood::named("Explore"))
                     },
                     &mut bar,
                 );
@@ -1029,7 +935,7 @@ mod tests {
     #[test]
     fn every_mood_writes_music() {
         let mut bar = Bar::new();
-        for m in Mood::ALL {
+        for m in Mood::all() {
             let mut c = Composer::new(3);
             let mut notes = 0;
             for _ in 0..16 {
@@ -1046,9 +952,9 @@ mod tests {
         let mut c = Composer::new(5);
         let mut bar = Bar::new();
         for _ in 0..6 {
-            c.next_bar(cue(Mood::Village), &mut bar);
+            c.next_bar(cue(Mood::named("Village")), &mut bar);
         }
-        let mut q = cue(Mood::Village);
+        let mut q = cue(Mood::named("Village"));
         q.victories = 1;
         c.next_bar(q, &mut bar);
         assert_eq!(c.section, Section::Victory);
@@ -1072,10 +978,10 @@ mod tests {
     #[ignore = "prints a score"]
     fn peek_score() {
         let want = std::env::var("PEEK").unwrap_or_default();
-        let mood = Mood::ALL
+        let mood = Mood::all()
             .into_iter()
             .find(|m| format!("{m:?}").eq_ignore_ascii_case(&want))
-            .unwrap_or(Mood::Village);
+            .unwrap_or(Mood::named("Village"));
         // PEEK_CLIMB=1: up a storey every two bars from bar 4, then down.
         let climbing = std::env::var_os("PEEK_CLIMB").is_some();
         let mut c = Composer::new(42);
@@ -1157,7 +1063,7 @@ mod tests {
         let s = song_for_test(&song, &score);
         let mut c = Composer::new(seed);
         c.song_override = Some(s);
-        c.plan = c.plan_section(Mood::Village, Section::Intro, true);
+        c.plan = c.plan_section(Mood::named("Village"), Section::Intro, true);
         c
     }
 
@@ -1172,7 +1078,7 @@ mod tests {
                 "SHUFFLE_B": [(2, Min9, 4), (7, Dom13, 4), (0, Maj69, 8)],
             },
             bass: { "SHUF": "R..5..P..A..", "SHUF2": "R-----5--3.A" },
-            moods: {},
+            moods: [],
         )"#;
         const SONG: &str = r#"#![enable(implicit_some)] (
             bpm: 104.0, swing: 0.0, key: 2,
@@ -1201,7 +1107,7 @@ mod tests {
         let mut notes = 0;
         for k in 0..96 {
             let q = Cue {
-                mood: Mood::Village,
+                mood: Mood::named("Village"),
                 intensity: [0.2, 0.55, 0.9][(k / 16) % 3],
                 victories: (k / 40) as u32,
                 ..Cue::default()
@@ -1234,11 +1140,11 @@ mod tests {
     fn the_empty_song_keeps_time() {
         let mut c = Composer::new(5);
         c.song_override = Some(fallback());
-        c.plan = c.plan_section(Mood::Village, Section::Intro, true);
+        c.plan = c.plan_section(Mood::named("Village"), Section::Intro, true);
         let mut bar = Bar::new();
         for k in 0..40 {
             let q = Cue {
-                mood: Mood::ALL[k % Mood::ALL.len()],
+                mood: Mood::all()[k % Mood::all().len()],
                 intensity: 0.6,
                 victories: (k / 10) as u32,
                 lift: (k % 5) as u8,

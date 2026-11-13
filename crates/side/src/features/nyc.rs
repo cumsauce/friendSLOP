@@ -260,6 +260,7 @@ fn cull_city(
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(click)
         .add_systems(OnEnter(AppState::InGame), build_city)
         .add_systems(
@@ -399,6 +400,26 @@ pub fn room_at(c: &City, p: Vec2) -> Option<usize> {
             .is_some_and(|o| o.contains(p))
             .then_some(SHOPS.len())
     })
+}
+
+/// Is `at` in New York's streets (below its sky)? (The `nyc` music signal.)
+pub fn in_the_city(at: Vec3) -> bool {
+    crate::rules::nyc::in_city(at.x, at.z) && at.y < crate::rules::nyc::CITY_Y + 40.0
+}
+
+/// For the music: the camera's in New York (`nyc`), and in which shop
+/// (`nyc_shop_<name>`, one of [`SHOPS`]).
+fn music_signals(
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let city = crate::music::camera_at(&camera).filter(|at| in_the_city(*at));
+    signals.flag("nyc", city.is_some());
+    for shop in SHOPS {
+        let inside = city.is_some_and(|at| in_shop(at.xz(), shop));
+        signals.flag(&format!("nyc_shop_{shop}"), inside);
+    }
 }
 
 #[cfg(test)]

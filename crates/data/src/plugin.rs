@@ -14,8 +14,9 @@ pub struct DataPlugin {
 #[derive(Resource)]
 struct Files {
     files: Vec<&'static dyn DataFile>,
-    /// Browser: the fetches in flight.
-    handles: Vec<(usize, Handle<RawData>)>,
+    /// Browser: the fetches in flight (file, path) and every path asked for.
+    handles: Vec<(usize, String, Handle<RawData>)>,
+    asked: Vec<String>,
     since_check: f32,
 }
 
@@ -31,6 +32,7 @@ impl Plugin for DataPlugin {
             .insert_resource(Files {
                 files: self.files.clone(),
                 handles: Vec::new(),
+                asked: Vec::new(),
                 since_check: 0.0,
             })
             .add_systems(Startup, fetch)
@@ -55,13 +57,7 @@ pub struct FilesReady(pub bool);
 fn fetch(mut files: ResMut<Files>, assets: Res<AssetServer>, mut commands: Commands) {
     commands.init_resource::<FilesReady>();
     if cfg!(target_arch = "wasm32") {
-        let handles = files
-            .files
-            .iter()
-            .enumerate()
-            .map(|(i, f)| (i, assets.load(f.path())))
-            .collect();
-        files.handles = handles;
+        ask(&mut files, &assets);
     } else {
         // Desktop reads from disk now, so systems never see a default.
         for f in &files.files {
@@ -70,29 +66,57 @@ fn fetch(mut files: ResMut<Files>, assets: Res<AssetServer>, mut commands: Comma
     }
 }
 
-fn take_fetched(
-    mut files: ResMut<Files>,
-    raw: Res<Assets<RawData>>,
-    mut ready: Option<ResMut<FilesReady>>,
-) {
+/// Browser: starts fetching every path a file still wants (a folder's
+/// files once its index is in), each once.
+fn ask(files: &mut Files, assets: &AssetServer) {
     let Files {
         files: list,
         handles,
+        asked,
         ..
-    } = &mut *files;
-    handles.retain(|(i, h)| {
-        let Some(data) = raw.get(h) else {
-            return true;
-        };
-        if let Some(f) = list.get(*i) {
-            f.set_bytes(&data.0);
+    } = files;
+    for (i, f) in list.iter().enumerate() {
+        for path in f.wanted() {
+            if asked.contains(&path) {
+                continue;
+            }
+            handles.push((i, path.clone(), assets.load(path.clone())));
+            asked.push(path);
         }
-        false
-    });
+    }
+}
+
+fn take_fetched(
+    mut files: ResMut<Files>,
+    raw: Res<Assets<RawData>>,
+    assets: Res<AssetServer>,
+    mut ready: Option<ResMut<FilesReady>>,
+) {
+    let mut got = false;
+    {
+        let Files {
+            files: list,
+            handles,
+            ..
+        } = &mut *files;
+        handles.retain(|(i, path, h)| {
+            let Some(data) = raw.get(h) else {
+                return true;
+            };
+            if let Some(f) = list.get(*i) {
+                f.set_file(path, &data.0);
+            }
+            got = true;
+            false
+        });
+    }
+    if got && cfg!(target_arch = "wasm32") {
+        ask(&mut files, &assets);
+    }
     if let Some(ready) = ready.as_mut()
         && !ready.0
     {
-        ready.0 = all_loaded(list);
+        ready.0 = all_loaded(&files.files);
     }
 }
 

@@ -1,0 +1,16 @@
+#![enable(implicit_some)]
+// Bodega: song 2 (picked at random with the others). See moods.ron for what the fields mean.
+// "Ranchera de la Esquina": a slow ranchera bolero, mariachi
+// trumpets swelling over picked nylon and the upright.
+(
+    mood: "Bodega",
+    bpm: 82.0, swing: 0.05, key: 2,
+    a: "BODEGA_A", b: "BODEGA_B", hook: "BODEGA_HOOK",
+    groove: Bolero, bass: ["BOLERO"],
+    comp: Bolero, lead: Brass, arp: None, pad: true,
+    intensity: 0.45, odd: 0.0, modulate: 0.1, kime: 0.0,
+    theme: false, bass_inst: Upright, pad_inst: Strings,
+    horns: Swells, kit: (shaker: true, conga: false, clap: false, ride: false),
+    answer: Some(Guitar), nylon: Pick([A, B]),
+    keys: Some(Guitar), hand: None, perc: [Guiro],
+)

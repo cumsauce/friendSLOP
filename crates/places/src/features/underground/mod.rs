@@ -18,7 +18,7 @@
 //! - Click a way in to climb down its ladder; click the ladder (under any
 //!   of them) to climb up there. So you can go down in one place and come up
 //!   somewhere else entirely.
-//! - The band plays its own tune down there (`Mood::Underground` in the
+//! - The band plays its own tune down there (the `Underground` mood in the
 //!   fusion crate: dub-wet minor, a bottle-flute lead, kalimba drips and a
 //!   lot of echo), and the sky goes out (local only).
 //!
@@ -349,6 +349,7 @@ pub fn protocol(app: &mut App) {
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     visuals::plugin(app);
 }
 
@@ -397,6 +398,19 @@ fn use_hatch(
     if let Some(mut kcc) = kcc {
         kcc.velocity = Vec3::ZERO;
     }
+}
+
+/// For the music: the camera's down in the tunnels.
+fn music_signals(
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let at = crate::music::camera_at(&camera);
+    signals.flag(
+        "underground",
+        at.is_some_and(|at| below(at - Vec3::Y * 1.6)),
+    );
 }
 
 #[cfg(test)]

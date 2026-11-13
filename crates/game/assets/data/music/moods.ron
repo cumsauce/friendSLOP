@@ -1,7 +1,9 @@
 #![enable(implicit_some)]
-// The soundtrack's score: every mood's songs (crates/fusion: the composer reads this,
-// the synths stay in code). Everything a song names (grooves, comps, chord qualities,
-// lead styles, bands...) is in library.ron beside this file. Edit and save: the running
+// The soundtrack's score: its moods, where each one plays, and the progressions and bass
+// lines the songs share (crates/fusion: the composer reads this, the synths stay in code).
+// The songs themselves are one file each in songs/ (listed, in order, in songs.ron).
+// Everything a song names (grooves, comps, chord qualities, lead styles, bands...) is in
+// library.ron beside this file. Edit and save: the running
 // game picks it up within a second, and `cargo run -p fusion --bin fusion-render -- help`
 // renders a mood to listen to.
 //
@@ -10,12 +12,25 @@
 //   Dom7s9, Dom7alt, Dom13s11, Dom7b9, Sus9, HalfDim, Dim7; add more there).
 // bass: one char per step (16 to a bar unless a song says): R root, P octave pop, G ghost
 //   (dead note), 5/3/7 chord tones, A chromatic approach to the next chord, - hold, . rest.
-// Each mood: tone (warmth: + warm / - crisp, stereo width, tape wow 0..1, backbeat lay-back
-//   and hat looseness in ms), level_db (make-up gain), optionally wet / echo (the room's
-//   reverb and echo, 1 as mixed), and its songs (the first is its own; more are picked at
-//   random).
-// A song: bpm, swing, key (semitones above C), the A/B/hook progressions, intensity, and
-//   the chances of an odd 7/8 bar / a modulation / a kime. Optional: steps (per bar, 16) and
+// moods (in order): name, tone (warmth: + warm / - crisp, stereo width, tape wow 0..1,
+//   backbeat lay-back and hat looseness in ms), level_db (make-up gain), optionally wet /
+//   echo (the room's reverb and echo, 1 as mixed), and flags (all false unless written):
+//   urgent (cuts in at the next bar line, no transition bar), instant (the director switches
+//   to it at once instead of waiting 2 s to be sure), wandering (your running, idling and
+//   friends nudge its intensity), hold (plays the mood before it, held: the form's hold
+//   section at its hold tempo), fallback (what plays at start and when nothing matches),
+//   victory / lift (true unless written: victory cadences and climbing key changes play).
+// rules: what plays when, top to bottom, the first match wins: (when: <cond>, mood, and
+//   optionally intensity: "<expr>", else the mood's own song's intensity).
+//   cond: InGame | InZone("Forest") | InBox([x, z], [x, z]) or InBox([x, y, z], [x, y, z])
+//     around the camera | Near("<map spot>", radius) | Signal("<name>", Gt|Ge|Lt|Le|Eq|Ne,
+//     value) | All([..]) | Any([..]) | Not(..). Signals are numbers the game's features
+//     publish (unset ones read 0; `cargo test -p friendslop-side` lists them).
+//   expr: numbers and signals with + - * / ( ) min(a, b) max(a, b) clamp(x, lo, hi).
+// hush / silence: when the band fades out / cuts dead. victory_cues: the cues that play
+//   a victory cadence.
+// Each song file: mood (whose song it is), then bpm, swing, key (semitones above C), the
+//   A/B/hook progressions, intensity, and the chances of an odd 7/8 bar / a modulation / a kime. Optional: steps (per bar, 16) and
 //   beats (per bar, 4) for another meter (steps: 12 is a 12/8 shuffle), band (whose line-up
 //   the shorthand below fills: "fusion"), form and feel (library names, the band's if not).
 // Then either the shorthand, which the band turns into parts:
@@ -136,385 +151,150 @@
         "WALK": "R...3...5...A...",
         "WALK2": "R...5...P...A...",
     },
-    moods: {
-        Menu: (
+    moods: [
+        (
+            name: "Menu",
             tone: (warmth: 0.1, width: 1.15, wow: 0.25, lay_back_ms: 5.0, loose_ms: 3.0),
             level_db: 0.0,
-            songs: [
-            (
-                bpm: 102.0, swing: 0.12, key: 1,
-                a: "JTTOU", b: "CHROMATIC_TWO_FIVES", hook: "JTTOU",
-                groove: City, bass: ["SLAP1", "PUMP"],
-                comp: City, lead: Synth, arp: None, pad: true,
-                intensity: 0.55, odd: 0.15, modulate: 0.5, kime: 0.4,
-                theme: true, bass_inst: Bass, pad_inst: Pad,
-                horns: Both, kit: (shaker: false, conga: false, clap: true, ride: true),
-                answer: Some(PolyBrass), nylon: None,
-            ),
-            ],
+            fallback: true, urgent: true, instant: true, victory: false, lift: false,
         ),
-        Explore: (
+        (
+            name: "Explore",
             tone: (warmth: -0.05, width: 1.2, wow: 0.2, lay_back_ms: 7.0, loose_ms: 4.0),
             level_db: 0.0,
-            songs: [
-            (
-                bpm: 92.0, swing: 0.18, key: 5,
-                a: "EXPLORE_A", b: "EXPLORE_B", hook: "EXPLORE_HOOK",
-                groove: Laid, bass: ["LAID"],
-                comp: Laid, lead: Mini, arp: Some(Kalimba), pad: true,
-                intensity: 0.35, odd: 0.0, modulate: 0.25, kime: 0.15,
-                theme: false, bass_inst: Fretless, pad_inst: Strings,
-                horns: Swells, kit: (shaker: true, conga: true, clap: false, ride: false),
-                answer: Some(Flute), nylon: Pick([Intro, A, Breakdown]),
-            ),
-            (
-                bpm: 112.0, swing: 0.1, key: 0,
-                a: "KITE_A", b: "KITE_B", hook: "KITE_HOOK",
-                groove: City, bass: ["SLAP1", "PUMP"],
-                comp: Laid, lead: Mini, arp: Some(Kalimba), pad: true,
-                intensity: 0.55, odd: 0.0, modulate: 0.3, kime: 0.25,
-                theme: false, bass_inst: Bass, pad_inst: Strings,
-                horns: Swells, kit: (shaker: true, conga: true, clap: false, ride: false),
-                answer: Some(Flute), nylon: Pick([Intro, Breakdown]),
-            ),
-            ],
+            wandering: true,
         ),
-        Village: (
+        (
+            name: "Village",
             tone: (warmth: -0.15, width: 1.15, wow: 0.1, lay_back_ms: 3.0, loose_ms: 2.5),
             level_db: 0.0,
-            songs: [
-            (
-                bpm: 104.0, swing: 0.14, key: 3,
-                a: "ROYAL_ROAD", b: "VILLAGE_B", hook: "JTTOU",
-                groove: City, bass: ["SLAP1", "SLAP2", "PUMP"],
-                comp: City, lead: Brass, arp: None, pad: false,
-                intensity: 0.55, odd: 0.2, modulate: 0.4, kime: 0.45,
-                theme: true, bass_inst: Bass, pad_inst: Pad,
-                horns: Both, kit: (shaker: true, conga: true, clap: true, ride: false),
-                answer: None, nylon: None,
-            ),
-            (
-                bpm: 118.0, swing: 0.08, key: 7,
-                a: "SUNNY_A", b: "SUNNY_B", hook: "ROYAL_ROAD",
-                groove: City, bass: ["PUMP", "SLAP2"],
-                comp: City, lead: Synth, arp: None, pad: false,
-                intensity: 0.62, odd: 0.1, modulate: 0.45, kime: 0.35,
-                theme: false, bass_inst: Bass, pad_inst: Pad,
-                horns: Both, kit: (shaker: true, conga: false, clap: true, ride: false),
-                answer: Some(PolyBrass), nylon: None,
-            ),
-            (
-                bpm: 126.0, swing: 0.04, key: 10,
-                a: "MARKET_A", b: "MARKET_B", hook: "MARKET_HOOK",
-                groove: Drive, bass: ["DRIVE", "SLAP1"],
-                comp: Stabs, lead: Brass, arp: None, pad: true,
-                intensity: 0.68, odd: 0.2, modulate: 0.35, kime: 0.5,
-                theme: false, bass_inst: Bass, pad_inst: Pad,
-                horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: true),
-                answer: Some(Kalimba), nylon: None,
-            ),
-            ],
+            wandering: true,
         ),
-        Forest: (
+        (
+            name: "Forest",
             tone: (warmth: 0.3, width: 1.3, wow: 0.35, lay_back_ms: 8.0, loose_ms: 5.0),
             level_db: 0.5,
-            songs: [
-            (
-                bpm: 84.0, swing: 0.08, key: 2,
-                a: "FOREST_A", b: "FOREST_B", hook: "MINOR_FOUR",
-                groove: Brush, bass: ["PEDAL", "LAID"],
-                comp: Long, lead: Flute, arp: Some(Harp), pad: true,
-                intensity: 0.3, odd: 0.0, modulate: 0.2, kime: 0.0,
-                theme: false, bass_inst: Fretless, pad_inst: Strings,
-                horns: None, kit: (shaker: true, conga: false, clap: false, ride: false),
-                answer: Some(Harp), nylon: Bossa,
-            ),
-            ],
+            wandering: true,
         ),
-        Maze: (
+        (
+            name: "Maze",
             tone: (warmth: 0.15, width: 0.95, wow: 0.2, lay_back_ms: 2.0, loose_ms: 2.0),
             level_db: 2.5,
-            songs: [
-            (
-                bpm: 76.0, swing: 0.1, key: 0,
-                a: "MAZE_A", b: "MAZE_B", hook: "MAZE_HOOK",
-                groove: Sparse, bass: ["SPARSE"],
-                comp: Long, lead: Bell, arp: None, pad: true,
-                intensity: 0.3, odd: 0.0, modulate: 0.15, kime: 0.0,
-                theme: false, bass_inst: Fretless, pad_inst: Pad,
-                horns: Swells, kit: (shaker: false, conga: false, clap: false, ride: false),
-                answer: Some(Strings), nylon: None,
-            ),
-            ],
+            wandering: true,
         ),
-        Sky: (
+        (
+            name: "Sky",
             tone: (warmth: -0.2, width: 1.4, wow: 0.3, lay_back_ms: 5.0, loose_ms: 3.5),
             level_db: 2.0,
-            songs: [
-            (
-                bpm: 70.0, swing: 0.15, key: 8,
-                a: "MINOR_FOUR", b: "SKY_B", hook: "SKY_HOOK",
-                groove: Dream, bass: ["PEDAL"],
-                comp: Long, lead: Mini, arp: Some(Bell), pad: true,
-                intensity: 0.25, odd: 0.0, modulate: 0.3, kime: 0.0,
-                theme: false, bass_inst: Fretless, pad_inst: Strings,
-                horns: Swells, kit: (shaker: true, conga: false, clap: false, ride: false),
-                answer: Some(Kalimba), nylon: Pick([Intro, B, Breakdown]),
-            ),
-            ],
+            wandering: true,
         ),
-        Abuela: (
+        (
+            name: "Abuela",
             tone: (warmth: 0.5, width: 0.85, wow: 0.7, lay_back_ms: 10.0, loose_ms: 6.0),
             level_db: 0.5,
-            songs: [
-            (
-                bpm: 84.0, swing: 0.05, key: 9,
-                a: "BOLERO_A", b: "BOLERO_B", hook: "BOLERO_A",
-                groove: Bolero, bass: ["BOLERO"],
-                comp: Bolero, lead: Flute, arp: None, pad: true,
-                intensity: 0.4, odd: 0.0, modulate: 0.1, kime: 0.0,
-                theme: false, bass_inst: Fretless, pad_inst: Strings,
-                horns: Swells, kit: (shaker: true, conga: false, clap: false, ride: false),
-                answer: Some(Guitar), nylon: None,
-            ),
-            ],
+            wandering: true,
         ),
-        Hiding: (
+        (
+            name: "Hiding",
             tone: (warmth: 0.4, width: 0.8, wow: 0.15, lay_back_ms: 1.0, loose_ms: 1.5),
             level_db: 3.5,
-            songs: [
-            (
-                bpm: 96.0, swing: 0.0, key: 6,
-                a: "HIDE_A", b: "HIDE_B", hook: "HIDE_A",
-                groove: Tense, bass: ["TENSE"],
-                comp: Tense, lead: Silent, arp: None, pad: true,
-                intensity: 0.35, odd: 0.0, modulate: 0.3, kime: 0.0,
-                theme: false, bass_inst: Bass, pad_inst: Pad,
-                horns: None, kit: (shaker: false, conga: false, clap: false, ride: false),
-                answer: None, nylon: None,
-            ),
-            ],
+            instant: true,
         ),
-        Seeking: (
+        (
+            name: "Seeking",
             tone: (warmth: -0.25, width: 1.05, wow: 0.0, lay_back_ms: 0.0, loose_ms: 1.0),
             level_db: 0.0,
-            songs: [
-            (
-                bpm: 128.0, swing: 0.06, key: 4,
-                a: "SEEK_A", b: "SEEK_B", hook: "SEEK_HOOK",
-                groove: Drive, bass: ["DRIVE", "SLAP2"],
-                comp: Stabs, lead: Mini, arp: None, pad: false,
-                intensity: 0.75, odd: 0.25, modulate: 0.3, kime: 0.5,
-                theme: false, bass_inst: Bass, pad_inst: Pad,
-                horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: false),
-                answer: Some(EPiano), nylon: None,
-            ),
-            ],
+            urgent: true, instant: true,
         ),
-        Duel: (
+        (
+            name: "Duel",
             tone: (warmth: 0.1, width: 1.1, wow: 0.3, lay_back_ms: 2.0, loose_ms: 2.5),
             level_db: 0.0,
-            songs: [
-            (
-                bpm: 150.0, swing: 0.0, key: 11,
-                a: "SEWER_HOOK", b: "DUEL_B", hook: "DUEL_HOOK",
-                groove: Shred, bass: ["SHRED", "DRIVE"],
-                comp: Stabs, lead: Mini, arp: None, pad: false,
-                intensity: 0.95, odd: 0.35, modulate: 0.35, kime: 0.7,
-                theme: false, bass_inst: Bass, pad_inst: Pad,
-                horns: Stabs, kit: (shaker: false, conga: false, clap: true, ride: true),
-                answer: None, nylon: None,
-            ),
-            ],
+            urgent: true, instant: true,
         ),
-        Landlord: (
+        (
+            name: "Landlord",
             tone: (warmth: -0.2, width: 0.9, wow: 0.1, lay_back_ms: 0.0, loose_ms: 1.0),
             level_db: 0.0,
-            songs: [
-            (
-                bpm: 108.0, swing: 0.08, key: 1,
-                a: "LANDLORD_A", b: "LANDLORD_B", hook: "LANDLORD_HOOK",
-                groove: March, bass: ["MARCH"],
-                comp: Tense, lead: Brass, arp: None, pad: true,
-                intensity: 0.5, odd: 0.15, modulate: 0.6, kime: 0.3,
-                theme: false, bass_inst: Bass, pad_inst: Strings,
-                horns: Both, kit: (shaker: false, conga: false, clap: false, ride: false),
-                answer: Some(Strings), nylon: None,
-            ),
-            ],
         ),
-        Still: (
+        (
+            name: "Still",
             tone: (warmth: 0.35, width: 1.15, wow: 0.6, lay_back_ms: 0.0, loose_ms: 0.0),
             level_db: 3.5,
-            songs: [
-            (
-                bpm: 102.0, swing: 0.12, key: 1,
-                a: "JTTOU", b: "CHROMATIC_TWO_FIVES", hook: "JTTOU",
-                groove: City, bass: ["SLAP1", "PUMP"],
-                comp: City, lead: Synth, arp: None, pad: true,
-                intensity: 0.55, odd: 0.15, modulate: 0.5, kime: 0.4,
-                theme: true, bass_inst: Bass, pad_inst: Pad,
-                horns: Both, kit: (shaker: false, conga: false, clap: true, ride: true),
-                answer: Some(PolyBrass), nylon: None,
-            ),
-            ],
+            hold: true, urgent: true, instant: true, victory: false, lift: false,
         ),
-        Underground: (
+        (
+            name: "Underground",
             tone: (warmth: 0.45, width: 1.3, wow: 0.45, lay_back_ms: 12.0, loose_ms: 5.0),
             level_db: 2.0,
             // Down in the tunnels everything rings off wet brick (#127).
             wet: 1.6, echo: 1.6,
-            songs: [
-            (
-                bpm: 84.0, swing: 0.16, key: 2,
-                a: "SEWER_A", b: "SEWER_B", hook: "SEWER_HOOK",
-                groove: Laid, bass: ["DUB"],
-                comp: Stabs, lead: Flute, arp: Some(Kalimba), pad: true,
-                intensity: 0.35, odd: 0.0, modulate: 0.15, kime: 0.0,
-                theme: false, bass_inst: Fretless, pad_inst: Strings,
-                horns: None, kit: (shaker: false, conga: true, clap: false, ride: false),
-                answer: Some(EPiano), nylon: None,
-            ),
-            ],
+            wandering: true,
         ),
-        Wendys: (
+        (
+            name: "Wendys",
             tone: (warmth: 0.25, width: 1.1, wow: 0.35, lay_back_ms: 4.0, loose_ms: 3.0),
             level_db: 1.0,
-            songs: [
-            // "Have It Your Way": a too-cheerful jingle. Drawbar organ comps,
-            // doo-wah singers on the chords, vibes, an upright walking,
-            // bongos, tambourine and claves, and a pan flute answering.
-            (
-                bpm: 124.0, swing: 0.22, key: 7,
-                a: "WENDYS_A", b: "WENDYS_B", hook: "WENDYS_HOOK",
-                groove: City, bass: ["WALK", "WALK2"],
-                comp: City, lead: Bell, arp: Some(Vibes), pad: true,
-                intensity: 0.55, odd: 0.0, modulate: 0.35, kime: 0.3,
-                theme: false, bass_inst: Upright, pad_inst: Choir,
-                horns: None, kit: (shaker: false, conga: true, clap: true, ride: false),
-                answer: Some(PanFlute), nylon: None,
-                keys: Some(Organ), hand: Some(Bongo), perc: [Tambourine, Claves],
-            ),
-            // The kitchen's side of it: funk clav and slap bass, steel drum
-            // drips, cajón and guiro.
-            (
-                bpm: 108.0, swing: 0.12, key: 2,
-                a: "WENDYS_A", b: "WENDYS_B", hook: "WENDYS_HOOK",
-                groove: City, bass: ["SLAP1", "SLAP2"],
-                comp: Stabs, lead: Silent, arp: Some(SteelDrum), pad: true,
-                intensity: 0.5, odd: 0.1, modulate: 0.2, kime: 0.4,
-                theme: false, bass_inst: SlapBass, pad_inst: Choir,
-                horns: Stabs, kit: (shaker: false, conga: true, clap: false, ride: false),
-                answer: Some(Clav), nylon: None,
-                keys: Some(Clav), hand: Some(Cajon), perc: [Guiro, Woodblock],
-            ),
-            ],
+            wandering: true,
         ),
-        WendysAttic: (
+        (
+            name: "WendysAttic",
             tone: (warmth: 0.6, width: 1.4, wow: 0.95, lay_back_ms: 18.0, loose_ms: 8.0),
             level_db: 0.0,
-            songs: [
-            // "Who's Up There": the jingle's chords slowed and turned
-            // minor on warped tape. Vibes pick at it like a music box,
-            // the doo-wah singers hang far off, an organ holds, a pan flute
-            // drifts in, tabla swoops in the dark and a woodblock ticks.
-            (
-                bpm: 68.0, swing: 0.1, key: 7,
-                a: "ATTIC_A", b: "ATTIC_B", hook: "ATTIC_HOOK",
-                groove: Sparse, bass: ["PEDAL", "SPARSE"],
-                comp: Long, lead: Flute, arp: Some(Vibes), pad: true,
-                intensity: 0.25, odd: 0.0, modulate: 0.0, kime: 0.0,
-                theme: false, bass_inst: Upright, pad_inst: Choir,
-                horns: None, kit: (shaker: false, conga: true, clap: false, ride: false),
-                answer: Some(PanFlute), nylon: None,
-                keys: Some(Organ), hand: Some(Tabla), perc: [Woodblock],
-            ),
-            ],
+            wandering: true,
         ),
-        FartAlert: (
+        (
+            name: "FartAlert",
             tone: (warmth: -0.3, width: 1.0, wow: 0.6, lay_back_ms: 0.0, loose_ms: 1.0),
             level_db: 1.5,
-            songs: [
-            // "Who Did That": the shame alarm. Double-time stabs and a
-            // shrieking mini lead over the duel's driving bass, the whole
-            // band on edge and a little detuned, like a siren in a sitcom.
-            (
-                bpm: 160.0, swing: 0.0, key: 6,
-                a: "SEEK_A", b: "DUEL_B", hook: "DUEL_HOOK",
-                groove: Drive, bass: ["DRIVE", "SHRED"],
-                comp: Stabs, lead: Mini, arp: None, pad: false,
-                intensity: 0.9, odd: 0.4, modulate: 0.0, kime: 0.8,
-                theme: false, bass_inst: Bass, pad_inst: Pad,
-                horns: Stabs, kit: (shaker: false, conga: true, clap: true, ride: true),
-                answer: Some(PolyBrass), nylon: None,
-            ),
-            ],
+            urgent: true, instant: true,
         ),
-            Nyc: (
+        (
+            name: "Nyc",
             tone: (warmth: -0.15, width: 1.15, wow: 0.1, lay_back_ms: 3.0, loose_ms: 2.0),
             level_db: 1.0,
-            songs: [
-            // "Rush Hour": a bustling, metropolitan beat. Driving drums, slap
-            // bass, the horn section blaring stabs and swells like traffic,
-            // clav pecking and a cowbell on the corner.
-            (
-                bpm: 122.0, swing: 0.08, key: 2,
-                a: "NYC_A", b: "NYC_B", hook: "NYC_HOOK",
-                groove: Drive, bass: ["SLAP1", "SLAP2", "DRIVE"],
-                comp: Stabs, lead: Brass, arp: Some(Clav), pad: false,
-                intensity: 0.65, odd: 0.15, modulate: 0.25, kime: 0.5,
-                theme: false, bass_inst: SlapBass, pad_inst: Pad,
-                horns: Both, kit: (shaker: true, conga: false, clap: true, ride: true),
-                answer: Some(PolyBrass), nylon: None,
-                keys: Some(EPiano), hand: Some(Timbales), perc: [Cowbell],
-            ),
-            // "Night Shift": the same streets after dark, laid-back and
-            // swung, Rhodes and an upright under a muted horn line.
-            (
-                bpm: 94.0, swing: 0.2, key: 9,
-                a: "NYC_A", b: "NYC_B", hook: "NYC_HOOK",
-                groove: City, bass: ["WALK", "WALK2"],
-                comp: City, lead: Mini, arp: None, pad: true,
-                intensity: 0.5, odd: 0.0, modulate: 0.2, kime: 0.3,
-                theme: false, bass_inst: Upright, pad_inst: Strings,
-                horns: Swells, kit: (shaker: false, conga: false, clap: false, ride: true),
-                answer: Some(Brass), nylon: None,
-                keys: Some(EPiano), hand: None, perc: [],
-            ),
-            ],
+            wandering: true,
         ),
-        Bodega: (
+        (
+            name: "Bodega",
             tone: (warmth: 0.35, width: 1.0, wow: 0.45, lay_back_ms: 6.0, loose_ms: 4.0),
             level_db: 1.0,
-            songs: [
-            // "Deli & Grocery": a Mexican-American cumbia on the bodega radio.
-            // Trumpets in thirds, nylon guitar strumming, guiro scraping,
-            // congas and claves, an accordion-ish organ answering.
-            (
-                bpm: 96.0, swing: 0.0, key: 7,
-                a: "BODEGA_A", b: "BODEGA_B", hook: "BODEGA_HOOK",
-                groove: City, bass: ["CUMBIA", "CUMBIA2"],
-                comp: Stabs, lead: Brass, arp: None, pad: false,
-                intensity: 0.55, odd: 0.0, modulate: 0.15, kime: 0.3,
-                theme: false, bass_inst: Bass, pad_inst: Pad,
-                horns: Stabs, kit: (shaker: false, conga: true, clap: false, ride: false),
-                answer: Some(Organ), nylon: Bossa,
-                keys: Some(Guitar), hand: Some(Conga), perc: [Guiro, Claves],
-            ),
-            // "Ranchera de la Esquina": a slow ranchera bolero, mariachi
-            // trumpets swelling over picked nylon and the upright.
-            (
-                bpm: 82.0, swing: 0.05, key: 2,
-                a: "BODEGA_A", b: "BODEGA_B", hook: "BODEGA_HOOK",
-                groove: Bolero, bass: ["BOLERO"],
-                comp: Bolero, lead: Brass, arp: None, pad: true,
-                intensity: 0.45, odd: 0.0, modulate: 0.1, kime: 0.0,
-                theme: false, bass_inst: Upright, pad_inst: Strings,
-                horns: Swells, kit: (shaker: true, conga: false, clap: false, ride: false),
-                answer: Some(Guitar), nylon: Pick([A, B]),
-                keys: Some(Guitar), hand: None, perc: [Guiro],
-            ),
-            ],
+            wandering: true,
         ),
-    },
+    ],
+    // What plays when: the first rule that matches.
+    rules: [
+        (when: Not(InGame), mood: "Menu"),
+        // The stillness (everything freezes).
+        (when: Signal("frozen", Gt, 0.0), mood: "Still", intensity: "0.2"),
+        // You farted in front of someone.
+        (when: Signal("shamed", Gt, 0.0), mood: "FartAlert"),
+        // Duelling: flat out on your last life.
+        (when: All([Signal("duel", Gt, 0.0), Signal("duel_lives", Le, 1.0)]), mood: "Duel", intensity: "1.0"),
+        (when: Signal("duel", Gt, 0.0), mood: "Duel", intensity: "0.9"),
+        // Hide and seek: tenser as the clock runs down.
+        (when: Signal("hiding", Gt, 0.0), mood: "Hiding", intensity: "0.3 + 0.2 * clamp(1 - secs_left / 30, 0, 1)"),
+        (when: Signal("seeking", Gt, 0.0), mood: "Seeking", intensity: "0.65 + 0.35 * (1 - clamp(secs_left / seek_secs, 0, 1))"),
+        // The landlord: the boss fight, then his rent rising as you near him.
+        (when: Signal("landlord_boss", Gt, 0.0), mood: "Landlord", intensity: "0.75 + 0.2 * clamp(1 - boss_hp / 12, 0, 1)"),
+        (when: All([Signal("near_landlord", Gt, 0.0), Not(Signal("won", Gt, 0.0))]), mood: "Landlord", intensity: "min(0.4 + 0.08 * raises, 0.8)"),
+        // Places.
+        (when: Signal("underground", Gt, 0.0), mood: "Underground"),
+        (when: Signal("wendys_attic", Gt, 0.0), mood: "WendysAttic"),
+        (when: Signal("wendys", Gt, 0.0), mood: "Wendys"),
+        (when: Signal("nyc_shop_bodega", Gt, 0.0), mood: "Bodega"),
+        (when: Signal("nyc", Gt, 0.0), mood: "Nyc"),
+        (when: Signal("heaven", Gt, 0.0), mood: "Abuela"),
+        (when: Signal("sky", Gt, 0.0), mood: "Sky"),
+        (when: Any([InZone("Commune"), InZone("Village")]), mood: "Village"),
+        (when: Any([InZone("Forest"), InZone("Valley")]), mood: "Forest"),
+        (when: InZone("Ruins"), mood: "Maze"),
+        (when: All([]), mood: "Explore"),
+    ],
+    // The band fades out under an attack's strings, in the dark of the warehouse and down
+    // in Fulton St station; the endless hallway cuts it dead.
+    hush: Any([Signal("attack", Gt, 0.0), Signal("spooked", Gt, 0.0), Signal("fulton", Gt, 0.0)]),
+    silence: Signal("adrift", Gt, 0.0),
+    // A round won, a duel survived, a chapter done, the landlord beaten.
+    victory_cues: ["victory"],
 )

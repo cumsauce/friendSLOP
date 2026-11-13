@@ -193,6 +193,7 @@ fn greet_arrivals(
 }
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(hear_abuela)
         .add_observer(click_abuela)
         .add_systems(OnEnter(AppState::InGame), build_heaven)
@@ -695,6 +696,23 @@ pub fn voice(phrase: &str, seed: u32, rate: u32) -> Vec<f32> {
     // Warm and quiet: soften the top end, keep the level low.
     master(&mut out, rate, 3800.0, 0.35);
     out
+}
+
+/// Is `at` up in heaven by Abuela's chair? (The `heaven` music signal.)
+pub fn by_the_chair(at: Vec3) -> bool {
+    at.y > heaven().top - 4.0 && at.xz().distance(chair_at().xz()) < 14.0
+}
+
+/// For the music: the camera's up in heaven by Abuela's chair.
+fn music_signals(
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    signals.flag(
+        "heaven",
+        crate::music::camera_at(&camera).is_some_and(by_the_chair),
+    );
 }
 
 #[cfg(test)]

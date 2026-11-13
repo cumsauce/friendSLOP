@@ -395,6 +395,7 @@ pub fn status_line(s: &HideSeek, mine: Option<Role>) -> String {
 // ---------------------------------------------------------------- local side
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(show_news)
         .add_observer(click_hider)
         .add_systems(OnEnter(AppState::InGame), spawn_ui)
@@ -654,6 +655,26 @@ fn click_hider(ev: On<Clicked>, mut commands: Commands, targets: Query<&Player, 
     if let Ok(p) = targets.get(ev.entity) {
         commands.client_trigger(TagHider { id: p.id });
     }
+}
+
+/// For the music: hiding or seeking and the clock, and a victory as a round
+/// ends.
+fn music_signals(
+    hide: Query<&HideSeek>,
+    mut before: Local<Option<Phase>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let h = hide.iter().next();
+    let phase = h.map(|h| h.phase);
+    if phase == Some(Phase::Results) && *before != Some(Phase::Results) {
+        signals.cue("victory");
+    }
+    *before = phase;
+    signals.flag("hiding", phase == Some(Phase::Hiding));
+    signals.flag("seeking", phase == Some(Phase::Seeking));
+    signals.set("secs_left", h.map_or(0.0, |h| f32::from(h.secs_left)));
+    signals.set("seek_secs", tuning().seek_secs);
 }
 
 #[cfg(test)]

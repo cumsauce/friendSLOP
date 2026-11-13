@@ -9,6 +9,9 @@
 //! The game side (this file) only picks a [`Mood`], an intensity and counts
 //! victories each frame and stores them in atomics; the audio thread reads
 //! them at the next bar line, so changes are always quantized to the bar.
+//! Which mood is the score's rules (`moods.ron`, see [`fusion::direct`])
+//! over the [`MusicSignals`] features publish, the camera and its zone: this
+//! file names no feature.
 //!
 //! It also follows the local player: each storey climbed above the ground
 //! moves the key up a step of the scale (prepared by a dominant, so it
@@ -23,21 +26,16 @@ pub use fusion::{compose, drums, dsp, engine, inst, synth, theory};
 
 use std::num::NonZero;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU8, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicU8, AtomicU16, AtomicU32, Ordering};
 
 use bevy::audio::{AddAudioSource, AudioPlugin, Decodable, Sample, Source, Volume};
 use bevy::prelude::*;
 
 use crate::AppState;
-use crate::features::campaign::Campaign;
-use crate::features::duel::Duelist;
 use crate::features::fps::Walker;
-use crate::features::hide_and_seek::{HideSeek, Phase};
-use crate::features::landlord::{Act3, Tenancy, landlord_at};
-use crate::features::stillness::Stillness;
+use crate::music::{MusicSignalSet, MusicSignals};
 use crate::player::{LocalPlayer, Player};
 use crate::settings::Settings;
-use crate::zones::Zone;
 
 pub use compose::{Cue, LIFT_MAX, Mood};
 use engine::Engine;
@@ -50,7 +48,7 @@ pub const MUSIC_LEVEL: f32 = 0.5;
 /// What the game wants, shared with the audio thread.
 #[derive(Debug, Default)]
 pub struct MusicControl {
-    mood: AtomicU8,
+    mood: AtomicU16,
     intensity: AtomicU32,
     victories: AtomicU32,
     lift: AtomicU8,
@@ -185,13 +183,17 @@ struct MusicPlayer;
 
 pub fn plugin(app: &mut App) {
     let control = Arc::new(MusicControl::default());
-    control.set(Mood::Menu, Mood::Menu.base_intensity());
+    let start = Mood::default();
+    control.set(start, start.base_intensity());
     app.insert_resource(MusicLink(control))
         .init_resource::<Director>()
         .init_resource::<Motion>()
+        .init_resource::<MusicSignals>()
         .add_systems(
             Update,
-            (follow_player, direct, duck_for_voice, music_volume).chain(),
+            (follow_player, direct, duck_for_voice, music_volume)
+                .chain()
+                .after(MusicSignalSet),
         );
     // Headless apps (tests) have no audio: just keep the director.
     if !app.is_plugin_added::<AudioPlugin>() {
@@ -269,28 +271,25 @@ fn finish_bank(
 }
 
 /// Master volume applies live (the global volume only counts at spawn).
+/// The score's `hush` fades the band out (an attack's strings, the dark of
+/// the warehouse, Fulton St station) and its `silence` cuts it dead (the
+/// endless hallway, #206).
 fn music_volume(
     settings: Option<Res<Settings>>,
     time: Res<Time>,
     mut fade_in: Local<f32>,
     mut hush: Local<f32>,
-    attacks: Query<&crate::features::punishment::AttackMode>,
-    spooked: Option<Res<crate::features::warehouse::Spooked>>,
-    adrift: Option<Res<crate::features::infinite::Adrift>>,
-    room: Option<Res<crate::spatial::Room>>,
+    here: Facts,
     mut sinks: Query<&mut AudioSink, With<MusicPlayer>>,
 ) {
     let master = settings.map_or(0.8, |s| s.master_volume);
-    // Attack mode's strings (#123) play over a silent band.
-    // So does the dark of the warehouse (#130): only its drone in there.
-    let quiet = crate::features::punishment::attack_on(&attacks)
-        || crate::features::warehouse::spooked(&spooked)
-        // And Fulton St station: only the echo down there.
-        || room.is_some_and(|r| r.hush_music);
+    let score = compose::SCORE.get();
+    let here = here.get();
+    let holds = |c: &Option<fusion::direct::Cond>| c.as_ref().is_some_and(|c| c.holds(&here));
+    let quiet = holds(&score.hush);
     let k = 1.0 - (-3.0 * time.delta_secs()).exp();
     *hush += (f32::from(u8::from(quiet)) - *hush) * k;
-    // The endless hallway (#206) cuts it dead.
-    if crate::features::infinite::adrift(&adrift) {
+    if holds(&score.silence) {
         *hush = 1.0;
     }
     for mut sink in &mut sinks {
@@ -414,150 +413,93 @@ struct Director {
     mood: Mood,
     candidate: Mood,
     held: f32,
-    phase: Option<Phase>,
-    chapter: Option<(usize, bool)>,
-    act: Option<Act3>,
-    duel_lives: Option<u8>,
+    /// Victory cues counted so far.
+    victories: u32,
 }
 
-/// What the music should be doing where the camera is.
-pub fn place_mood(at: Vec3) -> (Mood, f32) {
-    use crate::features::abuela::{chair_at, heaven};
-    use crate::features::climb::islands;
-    let chair = chair_at();
-    // Down in the sewers and passages (#127): their own tune.
-    if crate::features::underground::below(at - Vec3::Y * 1.6) {
-        return (Mood::Underground, Mood::Underground.base_intensity());
+/// What the score's rules see: the signals, whether we're playing, and
+/// where the camera is (and so its zone).
+pub struct Here<'a> {
+    pub signals: &'a MusicSignals,
+    pub in_game: bool,
+    pub at: Option<Vec3>,
+}
+
+impl fusion::direct::Facts for Here<'_> {
+    fn signal(&self, name: &str) -> f32 {
+        self.signals.get(name)
     }
-    // Inside Wendy's (#117): the jingle downstairs, and its creepy twin up
-    // in the attic (whose floor is 3.6 m up: the eye is past 4.2 m there).
-    if crate::features::wendys::covers(at.xz(), 0.0)
-        && at.y < crate::features::wendys::floor_y() + 9.0
-    {
-        let mood = if at.y > crate::features::wendys::floor_y() + 4.2 {
-            Mood::WendysAttic
-        } else {
-            Mood::Wendys
-        };
-        return (mood, mood.base_intensity());
+    fn in_game(&self) -> bool {
+        self.in_game
     }
-    // New York: the bodega's radio inside it, the city's beat on its streets.
-    if crate::rules::nyc::in_city(at.x, at.z) && at.y < crate::rules::nyc::CITY_Y + 40.0 {
-        let mood = if crate::features::nyc::in_shop(at.xz(), "bodega") {
-            Mood::Bodega
-        } else {
-            Mood::Nyc
-        };
-        return (mood, mood.base_intensity());
+    fn at(&self) -> Option<[f32; 3]> {
+        self.at.map(|a| a.to_array())
     }
-    if at.y > heaven().top - 4.0 && at.xz().distance(chair.xz()) < 14.0 {
-        return (Mood::Abuela, Mood::Abuela.base_intensity());
+    fn in_zone(&self, zone: &str) -> bool {
+        self.at
+            .is_some_and(|at| format!("{:?}", crate::zones::zone_of(at.xz())) == zone)
     }
-    if islands()
-        .iter()
-        .any(|i| at.y > i.top - 3.0 && at.xz().distance(i.at) < i.radius + 8.0)
-    {
-        return (Mood::Sky, Mood::Sky.base_intensity());
+    fn spot(&self, name: &str) -> Option<[f32; 2]> {
+        friendslop_world::places::spot(name).map(|p| p.to_array())
     }
-    let mood = match crate::zones::zone_of(at.xz()) {
-        Zone::Commune | Zone::Village => Mood::Village,
-        Zone::Forest | Zone::Valley => Mood::Forest,
-        Zone::Ruins => Mood::Maze,
-        Zone::Meadow | Zone::Outside => Mood::Explore,
-    };
-    (mood, mood.base_intensity())
+}
+
+/// The game state the rules read, as a system parameter.
+#[derive(bevy::ecs::system::SystemParam)]
+struct Facts<'w, 's> {
+    state: Option<Res<'w, State<AppState>>>,
+    signals: Res<'w, MusicSignals>,
+    camera: Query<'w, 's, &'static GlobalTransform, With<Camera3d>>,
+}
+
+impl Facts<'_, '_> {
+    fn get(&self) -> Here<'_> {
+        Here {
+            signals: &self.signals,
+            in_game: self
+                .state
+                .as_ref()
+                .is_some_and(|s| *s.get() == AppState::InGame),
+            at: crate::music::camera_at(&self.camera),
+        }
+    }
+}
+
+/// What the music should be playing (the score's rules, first match).
+pub fn pick_mood(here: &Here) -> (Mood, f32) {
+    fusion::direct::pick(&compose::SCORE.get().rules, here)
 }
 
 fn direct(
     time: Res<Time>,
-    state: Option<Res<State<AppState>>>,
     link: Res<MusicLink>,
     mut dir: ResMut<Director>,
-    me: Option<Res<LocalPlayer>>,
-    camera: Query<&GlobalTransform, With<Camera3d>>,
-    still: Query<&Stillness>,
-    duelists: Query<&Duelist>,
-    hide: Query<&HideSeek>,
-    tenancy: Query<&Tenancy>,
-    campaign: Query<&Campaign>,
+    here: Facts,
     motion: Res<Motion>,
-    shame: Option<Res<crate::features::fart::Shame>>,
 ) {
-    let in_game = state.is_some_and(|s| *s.get() == AppState::InGame);
-    let cam = camera.iter().next().map(|g| g.translation());
+    let here = here.get();
+    // Victories: whatever the features cued (a round, a duel, a chapter...).
+    let score = compose::SCORE.get();
+    let victories: u32 = score
+        .victory_cues
+        .iter()
+        .map(|c| here.signals.cues(c))
+        .sum();
+    for _ in dir.victories..victories {
+        link.0.victory();
+    }
+    dir.victories = victories;
 
-    // Victories: a round, a duel, a chapter, the landlord beaten.
-    let phase = hide.iter().next().map(|h| h.phase);
-    if phase == Some(Phase::Results) && dir.phase != Some(Phase::Results) {
-        link.0.victory();
-    }
-    dir.phase = phase;
-    let chapter = campaign.iter().next().map(|c| (c.chapter, c.finale()));
-    if let (Some(now), Some(before)) = (chapter, dir.chapter)
-        && now != before
-    {
-        link.0.victory();
-    }
-    dir.chapter = chapter;
-    let act = tenancy.iter().next().map(|t| t.act);
-    if act == Some(Act3::Won) && dir.act.is_some_and(|a| a != Act3::Won) {
-        link.0.victory();
-    }
-    dir.act = act;
-    let mine = me.and_then(|me| duelists.iter().find(|d| d.player == me.0).copied());
-    match (mine, dir.duel_lives) {
-        (None, Some(lives)) if lives > 0 => link.0.victory(),
-        _ => {}
-    }
-    dir.duel_lives = mine.map(|d| d.lives);
-
-    // The mood, most urgent first.
-    let (want, intensity) = if !in_game {
-        (Mood::Menu, Mood::Menu.base_intensity())
-    } else if still.iter().any(|s| s.frozen) {
-        (Mood::Still, 0.2)
-    } else if shame.is_some_and(|s| s.active()) {
-        (Mood::FartAlert, Mood::FartAlert.base_intensity())
-    } else if let Some(d) = mine {
-        (Mood::Duel, if d.lives <= 1 { 1.0 } else { 0.9 })
-    } else if let Some(h) = hide.iter().next().filter(|h| h.phase == Phase::Hiding) {
-        (
-            Mood::Hiding,
-            0.3 + 0.2 * (1.0 - h.secs_left as f32 / 30.0).clamp(0.0, 1.0),
-        )
-    } else if let Some(h) = hide.iter().next().filter(|h| h.phase == Phase::Seeking) {
-        let left = (h.secs_left as f32 / crate::features::hide_and_seek::tuning().seek_secs)
-            .clamp(0.0, 1.0);
-        (Mood::Seeking, 0.65 + 0.35 * (1.0 - left))
-    } else if let Some(t) = tenancy.iter().next().filter(|t| t.act == Act3::Boss) {
-        (
-            Mood::Landlord,
-            0.75 + 0.2 * (1.0 - t.hp as f32 / 12.0).clamp(0.0, 1.0),
-        )
-    } else if let Some(at) = cam {
-        let near_landlord = at.xz().distance(landlord_at().xz()) < 12.0;
-        match tenancy.iter().next() {
-            Some(t) if near_landlord && t.act != Act3::Won => {
-                (Mood::Landlord, (0.4 + 0.08 * t.raises as f32).min(0.8))
-            }
-            _ => place_mood(at),
-        }
-    } else {
-        (Mood::Explore, Mood::Explore.base_intensity())
-    };
+    let (want, intensity) = pick_mood(&here);
 
     // Places need to be meant (walking along a zone edge shouldn't flip the
     // band every bar); game events take over at once.
-    let instant = matches!(
-        want,
-        Mood::Menu | Mood::Still | Mood::Duel | Mood::Hiding | Mood::Seeking | Mood::FartAlert
-    );
     if want != dir.candidate {
         dir.candidate = want;
         dir.held = 0.0;
     }
     dir.held += time.delta_secs();
-    if want != dir.mood && (instant || dir.held > 2.0) {
+    if want != dir.mood && (want.instant() || dir.held > 2.0) {
         dir.mood = want;
     }
     let mood = dir.mood;
@@ -566,21 +508,7 @@ fn direct(
     } else {
         mood.base_intensity()
     };
-    let wandering = matches!(
-        mood,
-        Mood::Explore
-            | Mood::Village
-            | Mood::Forest
-            | Mood::Maze
-            | Mood::Sky
-            | Mood::Abuela
-            | Mood::Underground
-            | Mood::Wendys
-            | Mood::WendysAttic
-            | Mood::Nyc
-            | Mood::Bodega
-    );
-    let intensity = if in_game && wandering {
+    let intensity = if here.in_game && mood.wandering() {
         (intensity + movement_nudge(&motion)).clamp(0.05, 0.9)
     } else {
         intensity
@@ -595,10 +523,10 @@ mod tests {
     #[test]
     fn control_round_trips() {
         let c = MusicControl::default();
-        c.set(Mood::Duel, 0.7);
+        c.set(Mood::named("Duel"), 0.7);
         c.victory();
         let cue = c.cue();
-        assert_eq!(cue.mood, Mood::Duel);
+        assert_eq!(cue.mood, Mood::named("Duel"));
         assert!((cue.intensity - 0.7).abs() < 1e-6);
         assert_eq!(cue.victories, 1);
     }
@@ -638,18 +566,307 @@ mod tests {
         assert!(movement_nudge(&running) > 0.15);
     }
 
+    /// The place signals the features would publish with the camera at `at`.
+    fn place_signals(at: Vec3) -> MusicSignals {
+        let mut s = MusicSignals::default();
+        let wendys = crate::features::wendys::music_place(at);
+        s.flag(
+            "underground",
+            crate::features::underground::below(at - Vec3::Y * 1.6),
+        );
+        s.flag("wendys", wendys.is_some());
+        s.flag("wendys_attic", wendys == Some(true));
+        s.flag("nyc", crate::features::nyc::in_the_city(at));
+        s.flag("heaven", crate::features::abuela::by_the_chair(at));
+        s.flag("sky", crate::features::climb::on_an_island(at));
+        s
+    }
+
+    fn pick(signals: &[(&str, f32)], in_game: bool, at: Option<Vec3>) -> (Mood, f32) {
+        let mut s = at.map_or_else(MusicSignals::default, place_signals);
+        for (k, v) in signals {
+            s.set(k, *v);
+        }
+        pick_mood(&Here {
+            signals: &s,
+            in_game,
+            at,
+        })
+    }
+
+    /// The rules in moods.ron play what the director in code used to, in
+    /// the same order, at the same intensities.
+    #[test]
+    fn rules_match_the_old_director() {
+        let m = Mood::named;
+        let base = |n: &str| m(n).base_intensity();
+        let cam = Some(Vec3::ZERO);
+        let seek_secs = crate::features::hide_and_seek::tuning().seek_secs;
+        let cases: Vec<(&str, Vec<(&str, f32)>, bool, Option<Vec3>, Mood, f32)> = vec![
+            (
+                "title",
+                vec![("duel", 1.0)],
+                false,
+                cam,
+                m("Menu"),
+                base("Menu"),
+            ),
+            (
+                "frozen",
+                vec![("frozen", 1.0), ("duel", 1.0)],
+                true,
+                cam,
+                m("Still"),
+                0.2,
+            ),
+            (
+                "shamed",
+                vec![("shamed", 1.0), ("duel", 1.0)],
+                true,
+                cam,
+                m("FartAlert"),
+                base("FartAlert"),
+            ),
+            (
+                "last life",
+                vec![("duel", 1.0), ("duel_lives", 1.0), ("hiding", 1.0)],
+                true,
+                cam,
+                m("Duel"),
+                1.0,
+            ),
+            (
+                "duel",
+                vec![("duel", 1.0), ("duel_lives", 3.0)],
+                true,
+                cam,
+                m("Duel"),
+                0.9,
+            ),
+            (
+                "hiding",
+                vec![("hiding", 1.0), ("secs_left", 10.0), ("landlord_boss", 1.0)],
+                true,
+                cam,
+                m("Hiding"),
+                0.3 + 0.2 * (1.0 - 10.0f32 / 30.0).clamp(0.0, 1.0),
+            ),
+            (
+                "seeking",
+                vec![
+                    ("seeking", 1.0),
+                    ("secs_left", 20.0),
+                    ("seek_secs", seek_secs),
+                ],
+                true,
+                cam,
+                m("Seeking"),
+                0.65 + 0.35 * (1.0 - (20.0 / seek_secs).clamp(0.0, 1.0)),
+            ),
+            (
+                "boss",
+                vec![
+                    ("landlord_boss", 1.0),
+                    ("boss_hp", 6.0),
+                    ("near_landlord", 1.0),
+                ],
+                true,
+                cam,
+                m("Landlord"),
+                0.75 + 0.2 * (1.0 - 6.0f32 / 12.0).clamp(0.0, 1.0),
+            ),
+            (
+                "rent",
+                vec![
+                    ("near_landlord", 1.0),
+                    ("raises", 3.0),
+                    ("underground", 1.0),
+                ],
+                true,
+                cam,
+                m("Landlord"),
+                (0.4 + 0.08 * 3.0f32).min(0.8),
+            ),
+            (
+                "rent rises",
+                vec![("near_landlord", 1.0), ("raises", 9.0)],
+                true,
+                cam,
+                m("Landlord"),
+                0.8,
+            ),
+            (
+                "won",
+                vec![("near_landlord", 1.0), ("won", 1.0)],
+                true,
+                cam,
+                m("Village"),
+                base("Village"),
+            ),
+            (
+                "tunnels",
+                vec![("underground", 1.0), ("wendys", 1.0)],
+                true,
+                cam,
+                m("Underground"),
+                base("Underground"),
+            ),
+            (
+                "attic",
+                vec![("wendys", 1.0), ("wendys_attic", 1.0), ("nyc", 1.0)],
+                true,
+                cam,
+                m("WendysAttic"),
+                base("WendysAttic"),
+            ),
+            (
+                "wendys",
+                vec![("wendys", 1.0), ("nyc", 1.0)],
+                true,
+                cam,
+                m("Wendys"),
+                base("Wendys"),
+            ),
+            (
+                "bodega",
+                vec![("nyc", 1.0), ("nyc_shop_bodega", 1.0), ("heaven", 1.0)],
+                true,
+                cam,
+                m("Bodega"),
+                base("Bodega"),
+            ),
+            (
+                "pizza",
+                vec![("nyc", 1.0), ("nyc_shop_pizza", 1.0)],
+                true,
+                cam,
+                m("Nyc"),
+                base("Nyc"),
+            ),
+            (
+                "heaven",
+                vec![("heaven", 1.0), ("sky", 1.0)],
+                true,
+                cam,
+                m("Abuela"),
+                base("Abuela"),
+            ),
+            ("sky", vec![("sky", 1.0)], true, cam, m("Sky"), base("Sky")),
+            ("commune", vec![], true, cam, m("Village"), base("Village")),
+            (
+                "no camera",
+                vec![],
+                true,
+                None,
+                m("Explore"),
+                base("Explore"),
+            ),
+            (
+                "outside",
+                vec![],
+                true,
+                Some(Vec3::new(1e5, 0.0, 1e5)),
+                m("Explore"),
+                base("Explore"),
+            ),
+        ];
+        for (name, signals, in_game, at, mood, intensity) in cases {
+            let (got, i) = pick(&signals, in_game, at);
+            assert_eq!(got, mood, "{name}");
+            assert_eq!(i, intensity, "{name}: intensity");
+        }
+        // The zones, wherever the map puts them.
+        let layout = friendslop_world::places::layout();
+        for (kind, lo, hi) in &layout.districts {
+            let c = (*lo + *hi) / 2.0;
+            let at = Vec3::new(c.x, crate::terrain::height_at(c.x, c.y) + 1.6, c.y);
+            let want = match crate::zones::zone_of(c) {
+                crate::zones::Zone::Commune | crate::zones::Zone::Village => "Village",
+                crate::zones::Zone::Forest | crate::zones::Zone::Valley => "Forest",
+                crate::zones::Zone::Ruins => "Maze",
+                _ => "Explore",
+            };
+            // Only the zone: no place signals.
+            let plain = MusicSignals::default();
+            let (got, _) = pick_mood(&Here {
+                signals: &plain,
+                in_game: true,
+                at: Some(at),
+            });
+            assert_eq!(got, m(want), "{kind}");
+        }
+    }
+
     #[test]
     fn places_have_moods() {
-        assert_eq!(place_mood(Vec3::ZERO).0, Mood::Village);
+        assert_eq!(pick(&[], true, Some(Vec3::ZERO)).0, Mood::named("Village"));
         let chair = crate::features::abuela::chair_at();
-        assert_eq!(place_mood(chair + Vec3::Y).0, Mood::Abuela);
+        assert_eq!(
+            pick(&[], true, Some(chair + Vec3::Y)).0,
+            Mood::named("Abuela")
+        );
+    }
+
+    /// Every signal the rules read is one some feature publishes.
+    #[test]
+    fn rules_read_published_signals() {
+        const PUBLISHED: &[&str] = &[
+            "duel",
+            "duel_lives",
+            "hiding",
+            "seeking",
+            "secs_left",
+            "seek_secs",
+            "frozen",
+            "shamed",
+            "landlord_boss",
+            "boss_hp",
+            "near_landlord",
+            "raises",
+            "won",
+            "underground",
+            "wendys",
+            "wendys_attic",
+            "nyc",
+            "nyc_shop_bodega",
+            "nyc_shop_pizza",
+            "nyc_shop_laundromat",
+            "nyc_shop_diner",
+            "heaven",
+            "sky",
+            "attack",
+            "spooked",
+            "adrift",
+            "fulton",
+        ];
+        fn names(c: &fusion::direct::Cond, out: &mut Vec<String>) {
+            use fusion::direct::Cond;
+            match c {
+                Cond::Signal(n, ..) => out.push(n.clone()),
+                Cond::All(cs) | Cond::Any(cs) => cs.iter().for_each(|c| names(c, out)),
+                Cond::Not(c) => names(c, out),
+                _ => {}
+            }
+        }
+        let score = compose::SCORE.get();
+        assert!(!score.rules.is_empty());
+        let mut used = Vec::new();
+        for r in &score.rules {
+            names(&r.when, &mut used);
+        }
+        for c in [&score.hush, &score.silence].into_iter().flatten() {
+            names(c, &mut used);
+        }
+        for n in used {
+            assert!(PUBLISHED.contains(&n.as_str()), "nothing publishes {n:?}");
+        }
     }
 
     #[test]
     fn source_streams_stereo() {
         let bank = Arc::new(Bank::build());
         let ctl = Arc::new(MusicControl::default());
-        ctl.set(Mood::Village, 0.6);
+        ctl.set(Mood::named("Village"), 0.6);
         let mut src = FusionSource::new(bank, ctl);
         assert_eq!(src.channels().get(), 2);
         assert_eq!(src.sample_rate().get(), RATE);

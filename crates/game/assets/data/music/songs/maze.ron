@@ -1,0 +1,13 @@
+#![enable(implicit_some)]
+// Maze: song 1 (its own song). See moods.ron for what the fields mean.
+(
+    mood: "Maze",
+    bpm: 76.0, swing: 0.1, key: 0,
+    a: "MAZE_A", b: "MAZE_B", hook: "MAZE_HOOK",
+    groove: Sparse, bass: ["SPARSE"],
+    comp: Long, lead: Bell, arp: None, pad: true,
+    intensity: 0.3, odd: 0.0, modulate: 0.15, kime: 0.0,
+    theme: false, bass_inst: Fretless, pad_inst: Pad,
+    horns: Swells, kit: (shaker: false, conga: false, clap: false, ride: false),
+    answer: Some(Strings), nylon: None,
+)

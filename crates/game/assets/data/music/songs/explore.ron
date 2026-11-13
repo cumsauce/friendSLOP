@@ -1,0 +1,13 @@
+#![enable(implicit_some)]
+// Explore: song 1 (its own song). See moods.ron for what the fields mean.
+(
+    mood: "Explore",
+    bpm: 92.0, swing: 0.18, key: 5,
+    a: "EXPLORE_A", b: "EXPLORE_B", hook: "EXPLORE_HOOK",
+    groove: Laid, bass: ["LAID"],
+    comp: Laid, lead: Mini, arp: Some(Kalimba), pad: true,
+    intensity: 0.35, odd: 0.0, modulate: 0.25, kime: 0.15,
+    theme: false, bass_inst: Fretless, pad_inst: Strings,
+    horns: Swells, kit: (shaker: true, conga: true, clap: false, ride: false),
+    answer: Some(Flute), nylon: Pick([Intro, A, Breakdown]),
+)

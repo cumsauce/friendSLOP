@@ -473,6 +473,7 @@ fn end_abandoned_duel(
 // ---------------------------------------------------------------- client side
 
 pub fn plugin(app: &mut App) {
+    app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.init_resource::<DuelView>()
         .init_resource::<DuelRigs>()
         .add_observer(on_challenged)
@@ -1278,6 +1279,24 @@ fn update_duel_hud(
             t.0 = cross.into();
         }
     }
+}
+
+/// For the music: duelling (and on how many lives), and a victory when my
+/// duel ends with me still standing.
+fn music_signals(
+    me: Option<Res<crate::player::LocalPlayer>>,
+    duelists: Query<&Duelist>,
+    mut lives_before: Local<Option<u8>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let mine = me.and_then(|me| duelists.iter().find(|d| d.player == me.0).copied());
+    if mine.is_none() && lives_before.is_some_and(|l| l > 0) {
+        signals.cue("victory");
+    }
+    *lives_before = mine.map(|d| d.lives);
+    signals.flag("duel", mine.is_some());
+    signals.set("duel_lives", mine.map_or(0.0, |d| f32::from(d.lives)));
 }
 
 #[cfg(test)]

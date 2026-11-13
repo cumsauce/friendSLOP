@@ -71,6 +71,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(afterlife::protocol);
         app.add_plugins(systemd::protocol);
         app.add_plugins(watcher::protocol);
+        app.add_plugins(clues::protocol);
     }
 }
 
@@ -136,5 +137,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(afterlife::plugin);
         app.add_plugins(systemd::plugin);
         app.add_plugins(watcher::plugin);
+        app.add_plugins(clues::plugin);
     }
 }

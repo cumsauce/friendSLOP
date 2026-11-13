@@ -40,7 +40,7 @@ and systemd (PID 1) kills you.
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 Some nights (real clock, 10pm-5am) you hear whispers behind you. Every few minutes a
 tall faceless Watcher stands far off behind one of you; look at it or walk up and it
-vanishes in static.
+vanishes in static, leaving a scrap of paper: each holds one piece of a message (5 in all).
 
 **Just for fun:** Mei, smoking, lex pile, bear, goat, Discord dates, rat twins.
 
@@ -380,7 +380,14 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   long thin arms and a blank pale head (placeholder primitives). Everyone sees the same one.
   It vanishes when anyone looks within 9 degrees of it or comes within 12 m (or after 60 s),
   and every peer sees a flicker of white static specks there and hears a crackle. Tuning in
-  `data/side/watcher.ron` (`features/watcher.rs`). Milestones 2 and 3 of the ARG are not built.
+  `data/side/watcher.ron` (`features/watcher.rs`).
+- **The Watcher's scraps** (#278, Horror ARG 2/3). Where the Watcher vanishes the server
+  leaves a scrap of paper on the ground with the next piece of a coded message the commune
+  hasn't found yet (click it: "read the scrap"). The pieces are shared: everyone sees
+  "A scrap of paper (2/5): ..." for 9 s, and once all five are found the whole message shows for
+  20 s. It points at the tower in the ruins, where milestone 3 (#279, not built yet) will make
+  something answer. The writing is `data/text/clues.ron` (add or reword pieces freely), the
+  timings `data/side/clues.ron` (`features/clues.rs`).
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
@@ -1067,8 +1074,8 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
 ## Open questions
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
-- The Watcher (#277) only stares and vanishes for now. What does it want, and is it tied to the
-  night whispers?
+- The Watcher (#277) leaves scraps of a message that points at the ruins' tower (#278). What
+  does it want, and is it tied to the night whispers?
 - Night whispers (#235) follow your real clock, since the game has no night. Should the game
   get its own night, and should anything be behind the whispers?
 - The shipwreck's pirates hand out doubloons (#185). What should they buy?

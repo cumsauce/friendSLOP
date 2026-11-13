@@ -69,6 +69,15 @@
         "kind": "string"
       },
       "doc": "A way into the underground: kind manhole, cellar_door or trapdoor; you come up facing the marker's yaw."
+    },
+    "Hole": {
+      "type": "friendslop_world::map::Hole",
+      "fields": {
+        "round": "bool",
+        "depth": "f32",
+        "lip": "f32"
+      },
+      "doc": "A hole in the ground: the marker's box (x by z, turned by its yaw), or a circle its width across (round); its lining goes depth metres down from lip above the floor. On a map with its own flat floor (New York), the marker's height is the floor."
     }
   }
 }

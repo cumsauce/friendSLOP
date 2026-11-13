@@ -50,7 +50,10 @@ pub struct Tuning {
     pub entrance: (f32, f32),
     /// Which way the entrance's open end faces, degrees about +y.
     pub entrance_yaw: f32,
-    /// How close (m) to the entrance's middle takes you down.
+    /// The hole in the street the entrance's stairs go down through
+    /// (see `friendslop_world::holes`), in the entrance's own frame.
+    pub entrance_hole: EntranceHole,
+    /// Walk this far (m) down the stairs and you're in the station.
     pub entrance_reach: f32,
     /// The middle of the station's grid under the city (x, z).
     pub station_at: (f32, f32),
@@ -84,6 +87,19 @@ pub struct Tuning {
     pub echo_wet: f32,
     /// ...ringing this many seconds (RT60), and no music.
     pub echo_secs: f32,
+}
+
+/// The entrance's hole in the street, in the entrance model's own frame
+/// (+z is its open end, where the stairs start).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct EntranceHole {
+    /// Its middle along the entrance (m, +z towards the open end).
+    pub offset: f32,
+    /// Its size across (x) and along (z).
+    pub size: (f32, f32),
+    /// How far down its lining goes, and how far above the street it starts.
+    pub depth: f32,
+    pub lip: f32,
 }
 
 /// Andrew's calls and the thing he sends after you (`fulton_hunt.rs`).
@@ -740,9 +756,63 @@ pub fn street_at(t: &Tuning) -> Vec3 {
     entrance_at(t) + entrance_dir(t) * 4.5
 }
 
-/// Does a body with feet at `feet` walk into the entrance?
+/// The hole in the street the entrance's stairs go down through.
+pub fn entrance_hole(t: &Tuning) -> friendslop_world::holes::Hole {
+    let h = &t.entrance_hole;
+    let yaw = t.entrance_yaw.to_radians();
+    let at = entrance_at(t) + Quat::from_rotation_y(yaw) * Vec3::new(0.0, 0.0, h.offset);
+    friendslop_world::holes::Hole::rect(at.xz(), Vec2::new(h.size.0, h.size.1), yaw)
+        .on_floor(CITY_Y)
+        .lined(h.depth, h.lip)
+}
+
+/// Every hole the station cuts in the street (`friendslop_world::holes::provide`).
+fn holes() -> Vec<friendslop_world::holes::Hole> {
+    vec![entrance_hole(&tuning())]
+}
+
+/// Does a body with feet at `feet` walk down into the entrance? Inside its
+/// hole and [`Tuning::entrance_reach`] down the stairs.
 pub fn entering(t: &Tuning, feet: Vec3) -> bool {
-    (feet.y - CITY_Y).abs() < 1.5 && feet.xz().distance(entrance_at(t).xz()) < t.entrance_reach
+    feet.y < CITY_Y - t.entrance_reach
+        && feet.y > CITY_Y - 6.0
+        && entrance_hole(t).contains(feet.xz())
+}
+
+/// The entrance's stairs and walls (offsets inside its model, in its own
+/// frame): a ramp from the street at the open end down to a landing at the
+/// back, side and back walls from the landing up past the railings.
+pub fn entrance_colliders(t: &Tuning) -> Vec<Block> {
+    let at = entrance_at(t);
+    let turn = Quat::from_rotation_y(t.entrance_yaw.to_radians());
+    // The steps' noses: the top one at the open end, the bottom one at the landing.
+    let (top, bottom) = (Vec3::new(0.0, 0.0, 3.05), Vec3::new(0.0, -3.06, -1.4));
+    let along = top - bottom;
+    let tilt = Quat::from_rotation_arc(Vec3::Z, along.normalize());
+    let ramp_mid = (top + bottom) / 2.0 + tilt * Vec3::new(0.0, -0.15, 0.0);
+    let mut out = vec![
+        (ramp_mid, Vec3::new(2.2, 0.3, along.length()), tilt),
+        // The landing at the foot of the stairs.
+        (
+            Vec3::new(0.0, -3.21, -2.3),
+            Vec3::new(2.2, 0.3, 1.8),
+            Quat::IDENTITY,
+        ),
+    ];
+    for (offset, size) in [
+        (Vec3::new(1.2, -1.15, 0.0), Vec3::new(0.25, 4.9, 6.2)),
+        (Vec3::new(-1.2, -1.15, 0.0), Vec3::new(0.25, 4.9, 6.2)),
+        (Vec3::new(0.0, -1.15, -3.1), Vec3::new(2.6, 4.9, 0.25)),
+    ] {
+        out.push((offset, size, Quat::IDENTITY));
+    }
+    out.into_iter()
+        .map(|(offset, size, rotation)| Block {
+            centre: at + turn * offset,
+            size,
+            rotation: turn * rotation,
+        })
+        .collect()
 }
 
 /// Your Pelf after the reward (stats stay within 1..=10).
@@ -769,6 +839,8 @@ pub struct LeaveStation {
 }
 
 pub fn protocol(app: &mut App) {
+    // The entrance's stairs go down through a real hole in the street.
+    friendslop_world::holes::provide(holes);
     app.add_client_event::<LeaveStation>(Channel::Ordered)
         .add_observer(leave)
         .init_resource::<Rewarded>()
@@ -910,8 +982,8 @@ fn build_station(
             ));
         }
     }
-    // The entrance on the sidewalk: the city's subway entrance model, with
-    // its low walls (offsets inside the model) as colliders.
+    // The entrance on the sidewalk: the city's subway entrance model over
+    // its hole in the street, with its stairs and walls as colliders.
     let at = entrance_at(&t);
     let turn = Quat::from_rotation_y(t.entrance_yaw.to_radians());
     commands.spawn((
@@ -921,15 +993,11 @@ fn build_station(
         Transform::from_translation(at).with_rotation(turn),
         DespawnOnExit(AppState::InGame),
     ));
-    for (offset, size) in [
-        (Vec3::new(1.2, 0.65, 0.0), Vec3::new(0.25, 1.3, 6.2)),
-        (Vec3::new(-1.2, 0.65, 0.0), Vec3::new(0.25, 1.3, 6.2)),
-        (Vec3::new(0.0, 0.65, -3.1), Vec3::new(2.6, 1.3, 0.25)),
-    ] {
+    for b in entrance_colliders(&t) {
         commands.spawn((
-            Transform::from_translation(at + turn * offset).with_rotation(turn),
+            Transform::from_translation(b.centre).with_rotation(b.rotation),
             avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(size.x, size.y, size.z),
+            avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
             DespawnOnExit(AppState::InGame),
         ));
     }
@@ -1264,8 +1332,15 @@ mod tests {
             }
         }
         // The entrance is on the street, and coming back up doesn't take you down again.
-        assert!(entering(&t, entrance_at(&t)));
+        // You go down the stairs, not on the street above them.
+        assert!(!entering(&t, entrance_at(&t)));
+        assert!(entering(&t, entrance_at(&t) - Vec3::Y * 2.5));
         assert!(!entering(&t, street_at(&t)));
+        assert!(!entering(&t, street_at(&t) - Vec3::Y * 2.5));
+        // The hole is under the stairs, not where you come back up.
+        let hole = entrance_hole(&t);
+        assert!(hole.contains(entrance_at(&t).xz()));
+        assert!(!hole.contains(street_at(&t).xz()));
         assert!(crate::rules::nyc::in_city(street_at(&t).x, street_at(&t).z));
     }
 

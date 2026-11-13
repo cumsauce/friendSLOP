@@ -66,6 +66,10 @@ pub struct Travel {
 pub fn protocol(app: &mut App) {
     app.add_client_event::<Travel>(Channel::Ordered)
         .add_observer(travel);
+    // `Hole` markers on the city map cut its street (see `friendslop_world::holes`).
+    friendslop_world::holes::provide(|| {
+        friendslop_world::holes::from_map(&MAP.get().entities, true)
+    });
     // Keep the valley's trees off the trail post.
     friendslop_world::footprints::claim(v2(tuning().trail_post), 4.0);
 }
@@ -223,6 +227,18 @@ pub fn city_drawn(x: f32, z: f32) -> bool {
     (min.x..=max.x).contains(&x) && (min.y..=max.y).contains(&z)
 }
 
+/// The city floor's colliders: a metre-thick slab with its top at street
+/// level, split around every hole cut in the street.
+pub fn city_floor() -> Vec<(Transform, avian3d::prelude::Collider)> {
+    friendslop_world::holes::slab_colliders(
+        CITY_MIN,
+        CITY_MAX,
+        CITY_Y,
+        1.0,
+        &friendslop_world::holes::in_floor(CITY_Y),
+    )
+}
+
 /// Local: show the city's streets only while this screen's camera is near the city.
 fn cull_city(
     mut commands: Commands,
@@ -297,19 +313,23 @@ fn build_city(
         // The city has its own flat floor: models stand at street level, not on the
         // terrain's rim hills underneath.
         friendslop_world::map::FlatGround,
+        // Holes in the street (stairs down) are cut out of its meshes as they load.
+        friendslop_world::holes::Cut { floor: CITY_Y },
         NycMap,
         Transform::default(),
         Visibility::default(),
         DespawnOnExit(AppState::InGame),
     ));
-    // Colliders never wait on a model: mesh-less boxes from the map, and the city floor.
-    let mid_z = (CITY_MIN.y + CITY_MAX.y) / 2.0;
-    commands.spawn((
-        Transform::from_xyz(0.0, CITY_Y - 0.5, mid_z),
-        avian3d::prelude::RigidBody::Static,
-        avian3d::prelude::Collider::cuboid(CITY_MAX.x - CITY_MIN.x, 1.0, CITY_MAX.y - CITY_MIN.y),
-        DespawnOnExit(AppState::InGame),
-    ));
+    // Colliders never wait on a model: mesh-less boxes from the map, and the city floor
+    // (in pieces around the holes in the street).
+    for (at, collider) in city_floor() {
+        commands.spawn((
+            at,
+            avian3d::prelude::RigidBody::Static,
+            collider,
+            DespawnOnExit(AppState::InGame),
+        ));
+    }
     for w in &c.walls {
         commands.spawn((
             Transform::from_translation(w.centre).with_rotation(Quat::from_rotation_y(w.yaw)),

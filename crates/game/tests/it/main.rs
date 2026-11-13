@@ -8,6 +8,7 @@ mod data_files;
 mod fat_cat;
 mod gamble;
 mod helicopter;
+mod holes;
 mod kcc;
 mod kitty_lemonade;
 mod mute_spell;

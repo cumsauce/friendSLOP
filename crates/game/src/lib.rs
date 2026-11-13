@@ -99,6 +99,7 @@ impl Plugin for GamePlugin {
                 spatial::plugin,
                 theme::plugin,
                 friendslop_world::map::MapPlugin,
+                friendslop_world::holes::HolesPlugin,
             ));
         // Every data file the game reads (maps, tuning, writing): loaded at
         // run time, re-read when edited (see `friendslop_data`).

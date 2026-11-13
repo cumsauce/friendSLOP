@@ -444,7 +444,8 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   is an impossible number of levels with stairs between platforms. you try to find the J train
   towards brooklyn. the signage directs you in a specific path, but you dont reach it for a very
   long time. when you do reach it you get a reward"). A subway entrance on the avenue's west
-  sidewalk (-14, 228): walk into it and you're on the top level of a station 40 levels deep
+  sidewalk (-14, 228): walk down its stairs, through a real hole in the street (ground holes,
+  `friendslop_world::holes`), and partway down you're on the top level of a station 40 levels deep
   under the city. Each level is a 5 x 5 grid of 6 m white-tiled corridor cells filled by seeded
   wave function collapse from a modeler tile kit (`fs-tile-*`), with one stairway down whose
   bottom is where the next level starts. Hanging "J Brooklyn" signs (ahead, left/right, down
@@ -453,7 +454,11 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   **Pelf** by 3 (the stats' wealth, max 10), once per player per game, given by the server.
   A post on the platform rides the J back up to the street; one on the top level climbs out.
   Chose Pelf as the reward because it's the game's per-player "money" stat and NYC has no
-  cash; chose a teleport down (like the city's trail post) because the street has one floor.
+  cash; the stairs still end in a teleport, because the station sits further along under the
+  city. The user later asked for holes in the ground ("right now the stairs just go into the
+  solid ground"): holes are now a general facility (code or a `Hole` map marker) that cuts the
+  terrain, the city's floor mesh and collider, and lines the opening. The two decorative subway
+  entrances on the NYC map still lead nowhere, so they stay filled.
   Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
   in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
   **Andrew and the thing he sends** (the user: "once sufficiently deep in the subway station,

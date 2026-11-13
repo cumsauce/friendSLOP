@@ -219,6 +219,13 @@ Rules for growing it:
 - **Claim ground, don't get imported.** A feature that needs clear ground calls
   `friendslop_world::footprints::claim(at, radius)` in its protocol function, and scenery and
   zones keep their trees, bushes and rocks off it (the shipwreck does this).
+- **Holes in the ground.** Stairs, shafts and pits go down through a real opening: call
+  `friendslop_world::holes::cut(Hole::rect(at, size, yaw).on_floor(y).lined(depth, lip))` (or
+  `Hole::circle`, or `holes::provide(fn)` when the place is in a data file) from your protocol
+  function, or put a `Hole` marker on the map (its box and yaw; `round`, `depth`, `lip`). The
+  terrain's mesh and collider leave it open, meshes under a `holes::Cut` (New York's map) are cut
+  as they load, `holes::slab_colliders` splits a flat floor around it, and a lining runs `depth`
+  down its sides. Fulton St's entrance (`fulton::entrance_hole`) is the example.
 - **Next split (not done yet): scenery and zones.** `scenery.rs` and `zones.rs` still import
   older features' spots (`warehouse::covers`, `underground::covers`,
   ...) and lean on the camera and ambience. Move those features over to

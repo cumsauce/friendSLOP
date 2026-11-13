@@ -40,7 +40,9 @@ or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
 golden, nights are dim and blue. Some nights you hear whispers behind you.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down, for Pelf, while
-Andrew calls, gets angry, and sends something after you (hide in lockers). Or step into the
+Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
+$100; going down may drop your wallet somewhere in the station: find it (and strangers'
+wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
 brownstone with the neon SURF sign: a surf map, two steep ramps to glide down to a timed finish.
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
@@ -53,7 +55,7 @@ York City: One World Trade Center, the Oculus (no trains yet) and 4 shops to wal
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
+free, and dollars buy nothing yet. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
 
 ## What exists
 
@@ -470,6 +472,21 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   locker to climb in, walk out to leave. Caught: it drags you back up to the street and
   Andrew starts calling again from the top. Lines in `data/text/fulton_calls.ron`, tuning in
   `data/side/fulton.ron` (`features/fulton_hunt.rs`).
+- **Money and the lost wallet** (#322, doomy: "random chance of losing your wallet on the
+  subway. you need to find it in fulton station ... if you don't recover it ... chinese insurance
+  via a dji drone that flies to you however ... they take a 70% cut. fulton can let you double your
+  payout or more by finding other scattered wallets. money is personal to each user unless they
+  brag with brag button. bragging exponentially leads to more chance of coins falling out that can
+  be picked up by others"). Everyone has **dollars** (start $100, shown bottom-right, only to you),
+  separate from organs, doubloons and Pelf. Each time you go down into Fulton St there's a 35%
+  chance your wallet (all your dollars) falls out on one of the top 6 levels; walk over it to get
+  it back. Ten strangers' wallets ($20-120) lie on the top 12 levels for anyone; someone else can
+  find your wallet and keep it. While it's lost, I calls the insurer: a white drone flies straight
+  to you through the walls and hands over 30%; the wallet is written off. B brags: your dollars are
+  shown to everyone and a $5 coin falls out with 2% a second, doubling with every brag (up to 6);
+  anyone but you can pick coins up. Chose: "the subway" = going into Fulton St; scattered wallets
+  are the "double your payout"; bragging lasts the game. Models `fs-wallet`, `fs-coin`,
+  `fs-insurance-drone`; tuning and lines in `data/side/wallet.ron` (`features/wallet.rs`).
 - **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
   someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
   villager with its own sound) and points at the nearest player with an excuse ("ew, that was
@@ -1164,6 +1181,8 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   into a two-ramp surf hall with surf air control and a run timer.
 
 ## Open questions
+
+- Dollars (#322) can be lost, found, insured and bragged about, but what are they for? What can you buy?
 
 <!-- Short, open-ended. Derived only from what friends have proposed. -->
 - New York City (#283) has a train station whose trains don't run yet. Where would they go, and

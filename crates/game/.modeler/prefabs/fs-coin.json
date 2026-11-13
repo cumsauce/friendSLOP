@@ -1,0 +1,76 @@
+{
+  "format_version": 1,
+  "name": "fs-coin",
+  "parts": [],
+  "version": 10,
+  "ops": [
+    {
+      "primitive": {
+        "name": "coin",
+        "kind": "cylinder",
+        "size": [
+          0.012,
+          0.002,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.001,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "coin",
+        "input": "coin",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "coin-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "size": 0.005,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b8860b"
+                  ],
+                  [
+                    1,
+                    "#e8c050"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

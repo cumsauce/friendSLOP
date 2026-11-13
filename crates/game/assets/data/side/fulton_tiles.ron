@@ -6,6 +6,8 @@
 //           E +x, S +z, W -x). Every quarter turn of a piece is tried.
 //   weight: how much each turn is wanted.
 //   hide:   (optional) it has a hiding spot: the middle locker of the lockers piece.
+//   track:  (optional) open sides that carry a subway track on (they only meet
+//           other track sides): the platform pieces.
 // Add a look by adding another piece with the same open sides. The walls'
 // colliders come from the plan, not the models.
 (
@@ -17,6 +19,15 @@
         (model: "fs_tile_corner.gltf", open: [N, E], weight: 3.0),
         (model: "fs_tile_tee.gltf", open: [N, E, S], weight: 1.4),
         (model: "fs_tile_cross.gltf", open: [N, E, S, W], weight: 0.6),
+        // Subway platforms (only on platform levels, see fulton.ron): the
+        // deck on the N half, the empty track bed 1.2 m down on the S half,
+        // running along the `track` sides, which only meet other track sides.
+        // A run of track always ends in tunnel ends, which have steps down; the
+        // two ends are mirror images (the deck stays on the run's N side).
+        (model: "fs_tile_track.gltf", open: [E, W], track: [E, W], weight: 3.0),
+        (model: "fs_tile_track_entry.gltf", open: [N, E, W], track: [E, W], weight: 2.0),
+        (model: "fs_tile_track_end.gltf", open: [E], track: [E], weight: 1.0),
+        (model: "fs_tile_track_end_w.gltf", open: [W], track: [W], weight: 1.0),
     ],
     // The stairs down: entered from N on its own level, it lands facing S on
     // the level below (that cell is the landing, drawn by this same model).

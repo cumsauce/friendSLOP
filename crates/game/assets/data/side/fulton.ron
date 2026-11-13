@@ -25,6 +25,14 @@
     min_path: 7,
     // Same seed, same station (on every peer).
     seed: 1170,
+    // Subway platforms with empty tracks: every this many levels (from the
+    // top, never the J's) a level gets at least this many cells of platform
+    // and track bed (the track pieces in fulton_tiles.ron), and at most
+    // platform_max (the level below winds round solid ground under them).
+    // 0 turns them off.
+    platform_every: 3,
+    platform_cells: 3,
+    platform_max: 6,
     // The reward for reaching the J: this much Pelf (the stats' wealth, max 10).
     reward_pelf: 3,
     // Toasts.

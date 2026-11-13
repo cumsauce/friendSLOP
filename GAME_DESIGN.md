@@ -39,7 +39,8 @@ and systemd (PID 1) kills you.
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
 golden, nights are dim and blue. Some nights you hear whispers behind you.
-**In New York:** find the J to Brooklyn in Fulton St station, 40 levels down, for Pelf, while
+**In New York:** find the J to Brooklyn in Fulton St station, 40 levels down (past empty
+subway platforms every few levels), for Pelf, while
 Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
@@ -479,6 +480,15 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   solid ground"): holes are now a general facility (code or a `Hole` map marker) that cuts the
   terrain, the city's floor mesh and collider, and lines the opening. The two decorative subway
   entrances on the NYC map still lead nowhere, so they stay filled.
+  **Subway platforms** (the user: "fulton street needs subway platforms and empty tracks
+  too"): every 3rd level (from the top, not the J's) has 3 to 6 cells of platform: a deck with
+  a yellow edge strip, painted I-beam columns, benches and 2 3 4 5 A C J Z line signs, and
+  1.2 m below it an empty track bed (ballast, ties, two rails, the third rail under its wooden
+  board) running between tunnel mouths that fade to black, with "FULTON ST" mosaic tablets on
+  the far wall. You can drop onto the tracks; steps beside each tunnel mouth lead back up.
+  They're WFC tile pieces (`fs-tile-track*`) whose track sides only meet track sides; the bed
+  sinks into the level below, whose cells under it are solid. No trains. Andrew's thing walks
+  the platforms, not the tracks.
   Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
   in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
   **Andrew and the thing he sends** (the user: "once sufficiently deep in the subway station,

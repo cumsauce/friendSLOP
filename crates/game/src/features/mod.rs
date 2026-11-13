@@ -81,6 +81,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(surf::protocol);
         app.add_plugins(wallet::protocol);
         app.add_plugins(trains::protocol);
+        app.add_plugins(ragdoll::protocol);
     }
 }
 
@@ -155,5 +156,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(surf::plugin);
         app.add_plugins(wallet::plugin);
         app.add_plugins(trains::plugin);
+        app.add_plugins(ragdoll::plugin);
     }
 }

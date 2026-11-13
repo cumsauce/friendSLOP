@@ -198,7 +198,7 @@ fn move_walkers(
     time: Res<Time>,
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
-    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput)>,
+    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput), Without<super::ragdoll::Ragdoll>>,
 ) {
     if super::stillness::is_frozen(&still) {
         return; // the world stands still, and so do you
@@ -240,13 +240,16 @@ pub fn kcc_move_walkers(
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
     move_and_slide: avian3d::character_controller::move_and_slide::MoveAndSlide,
-    mut walkers: Query<(
-        &Player,
-        &mut Walker,
-        &mut WalkInput,
-        &mut crate::kcc::Kcc,
-        Option<&crate::rules::skills::Skills>,
-    )>,
+    mut walkers: Query<
+        (
+            &Player,
+            &mut Walker,
+            &mut WalkInput,
+            &mut crate::kcc::Kcc,
+            Option<&crate::rules::skills::Skills>,
+        ),
+        Without<super::ragdoll::Ragdoll>,
+    >,
 ) {
     if super::stillness::is_frozen(&still) {
         return; // the world stands still, and so do you
@@ -685,6 +688,7 @@ fn fps_camera(
     time: Res<Time>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
+    ragdolls: Query<(&Player, &super::ragdoll::Ragdoll)>,
     duelists: Query<&Duelist>,
     view: Res<FpsView>,
     mut camera: Query<&mut Transform, (With<MainCamera>, Without<Player>)>,
@@ -695,7 +699,15 @@ fn fps_camera(
     let Ok(mut cam) = camera.single_mut() else {
         return;
     };
-    let eye = w.pos + Vec3::Y * EYE;
+    // Ragdolling (#320): your eyes tumble with your body.
+    let tilt = me
+        .as_deref()
+        .and_then(|m| ragdolls.iter().find(|(p, _)| p.id == m.0))
+        .map(|(_, r)| r.tilt);
+    let (eye, roll) = match tilt {
+        Some(t) => super::ragdoll::eye(w.pos, w.yaw, t),
+        None => (w.pos + Vec3::Y * EYE, Quat::IDENTITY),
+    };
     // Replicated positions arrive in steps; ease towards them, but never lag far.
     let t = 1.0 - (-25.0 * time.delta_secs()).exp();
     cam.translation = if cam.translation.distance(eye) > 3.0 {
@@ -703,7 +715,7 @@ fn fps_camera(
     } else {
         cam.translation.lerp(eye, t)
     };
-    cam.rotation = Quat::from_euler(EulerRot::YXZ, view.yaw, view.pitch, 0.0);
+    cam.rotation = roll * Quat::from_euler(EulerRot::YXZ, view.yaw, view.pitch, 0.0);
 }
 
 /// The first-person aim point (a crosshair glyph; the HUD swaps it for a

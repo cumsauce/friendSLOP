@@ -27,9 +27,10 @@
     // Honk at anyone in the lane this close ahead (m), at most this often (s).
     honk_range: 22.0,
     honk_every: 2.5,
-    // A cab this fast (m/s) knocks you over: thrown this far sideways (m) and up (m/s).
+    // A cab this fast (m/s) knocks you over: punted this fast sideways and up (m/s), plus half
+    // its speed along the road, and you ragdoll for a bit (data/play/ragdoll.ron).
     hit_speed: 3.0,
-    throw: 4.0,
+    throw: 5.0,
     throw_up: 7.0,
     // What you're told when a cab hits you.
     hit_lines: [

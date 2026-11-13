@@ -44,6 +44,7 @@ Andrew calls, gets angry, and sends something after you (hide in lockers). Every
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
 brownstone with the neon SURF sign: a surf map, two steep ramps to glide down to a timed finish.
+Step in front of a cab and you're punted and ragdoll for a couple of seconds before getting up.
 **Horror ARG:** a faceless Watcher stands far behind one of you; look at it and it vanishes
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
@@ -451,6 +452,14 @@ free, and dollars buy nothing yet. Six players beat the landlord fast. Only the 
   each pad takes you back to the street. Chose a timer as the "point" because surf maps have
   one; no reward. Models `surf-hall` and `surf-door-sign` (modeler); tuning and lines in
   `data/side/surf.ron`, the air control in `rules/surf.rs` (`features/surf.rs`).
+- **Ragdolling** (#320, doomy: "when i get hit by a car ... get punted a bit and ragdoll a little
+  before recovering like peak does it"). A cab that hits you punts you out of its lane and your
+  body turns into a real physics body (an avian capsule) for 2.4 s: it flies, bounces, tumbles
+  and rolls, everyone sees your body tumble, and in first person your view tumbles with it.
+  Then you get back up where you landed (0.7 s) and walk on. Read "ragdoll" as the whole body
+  tumbling as one piece, not floppy limbs (the people rig has no joints to flop yet). Only the
+  cabs punt for now; anything else can call `ragdoll::knock`. Tuning in
+  `data/play/ragdoll.ron` (`crates/play/src/features/ragdoll.rs`).
 - **Fulton St station** (the user: "a fulton street station wfc station u can enter in nyc. it
   is an impossible number of levels with stairs between platforms. you try to find the J train
   towards brooklyn. the signage directs you in a specific path, but you dont reach it for a very

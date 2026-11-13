@@ -86,7 +86,7 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the
-  overview). Esc first frees the mouse (click to grab it again); a second Esc leaves.
+  overview). Esc opens the settings notebook in game (#317, doomy: "dont quit to menu with double escape anymore"); leaving is its "Leave game" button.
 - **Abuela in heaven** (#105, just meat and cheese: "a character similar to my grandma ... she
   only spoke spanish so please have her make old sounding spanish sounds"). Heaven had no place,
   so the highest floating island is now a small heaven: clouds on the rim, flowers, a golden halo
@@ -667,7 +667,8 @@ free. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd ca
   Settings is one big "Make yourself comfortable" notebook: volume sliders, mic and HALT as
   square checkboxes, video presets (Low / Medium / High, Custom when you change anything) as
   tabs and every video option as a checkbox card; a Controls tab lists the keys; Esc or Done
-  closes it. The loading curtain shows the logo, how many models have loaded, a progress bar
+  closes it. In game Esc opens the same notebook (#317: settings in the game too), freeing the
+  mouse, plus a "Leave game" button bottom-left; Esc no longer quits to the menu. The loading curtain shows the logo, how many models have loaded, a progress bar
   and a tip.
 - **The Stillness** (#17). Every 4 minutes (it was every minute; made rarer at the owner's request) the whole world freezes for 20 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop

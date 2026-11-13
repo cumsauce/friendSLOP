@@ -115,9 +115,7 @@ pub fn spot_at(s: &Spot) -> Option<Vec3> {
         Spot::Fulton(x, z) => {
             Some(super::fulton::street_at(&super::fulton::tuning()) + Vec3::new(*x, 0.0, *z))
         }
-        Spot::Penn(x, z) => {
-            super::penn::frame().map(|f| f.transform_point(Vec3::new(*x, 0.0, *z)))
-        }
+        Spot::Penn(x, z) => super::penn::frame().map(|f| f.transform_point(Vec3::new(*x, 0.0, *z))),
         Spot::Platform(name, along) => {
             let t = super::trains::tuning();
             let stop = t

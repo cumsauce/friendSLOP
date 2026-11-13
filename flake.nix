@@ -37,6 +37,14 @@
           ]
         );
 
+        # ALSA config that routes the default device through PipeWire. Nix's alsa-lib
+        # cannot see a host-installed pipewire-alsa plugin, so the dev shell points it
+        # at the plugin from nixpkgs instead (non-NixOS Linux only, see shellHook).
+        asoundrc = pkgs.writeText "friendslop-asoundrc" ''
+          pcm.!default { type pipewire }
+          ctl.!default { type pipewire }
+        '';
+
         src = lib.cleanSourceWith {
           src = ./.;
           filter = path: type: (craneLib.filterCargoSources path type) || (lib.hasSuffix ".md" path);
@@ -101,12 +109,25 @@
 
         devShells.default = craneLib.devShell {
           checks = self.checks.${system};
-          packages = with pkgs; [
-            rust-analyzer
-            cargo-watch
-            gh
-          ];
+          packages =
+            with pkgs;
+            [
+              rust-analyzer
+              cargo-watch
+              gh
+            ]
+            ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.pipewire ];
           LD_LIBRARY_PATH = lib.makeLibraryPath runtimeLibs;
+          # On non-NixOS Linux (e.g. Arch + PipeWire) cpal goes through Nix's alsa-lib,
+          # which cannot find the host's pipewire-alsa plugin. Point it at nixpkgs'
+          # plugin. Skipped on NixOS (/etc/NIXOS) and when the caller already set these.
+          shellHook = lib.optionalString pkgs.stdenv.isLinux ''
+            if [ ! -e /etc/NIXOS ]; then
+              : "''${ALSA_PLUGIN_DIR:=${pkgs.pipewire}/lib/alsa-lib}"
+              : "''${ALSA_CONFIG_PATH:=${pkgs.alsa-lib}/share/alsa/alsa.conf:${asoundrc}}"
+              export ALSA_PLUGIN_DIR ALSA_CONFIG_PATH
+            fi
+          '';
         };
 
         formatter = pkgs.nixfmt-rfc-style;

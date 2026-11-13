@@ -213,7 +213,7 @@ pub fn diffuse(src: &Cube, size: usize) -> Cube {
     let n = low.size;
     let mut sh = [Vec3::ZERO; 9];
     let mut total = 0.0;
-    for face in 0..6 {
+    for (face, texels) in low.faces.iter().enumerate() {
         for y in 0..n {
             for x in 0..n {
                 let s = (x as f32 + 0.5) / n as f32;
@@ -222,7 +222,7 @@ pub fn diffuse(src: &Cube, size: usize) -> Cube {
                 // A texel's solid angle on the unit cube.
                 let w = 1.0 / (1.0 + a * a + b * b).powf(1.5);
                 let d = world_dir(cube_dir(face, s, t));
-                let c = low.faces[face][y * n + x];
+                let c = texels[y * n + x];
                 for (k, basis) in sh_basis(d).iter().enumerate() {
                     sh[k] += c * (*basis * w);
                 }

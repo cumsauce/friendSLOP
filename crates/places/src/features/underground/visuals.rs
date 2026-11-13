@@ -388,7 +388,7 @@ fn build_tops(commands: &mut Commands, assets: &AssetServer) {
             Transform::from_translation(at),
             DespawnOnExit(AppState::InGame),
         ));
-        commands.spawn((
+        let mut hatch = commands.spawn((
             Hatch(i as u8),
             Transform::from_translation(at),
             Visibility::default(),
@@ -397,6 +397,14 @@ fn build_tops(commands: &mut Commands, assets: &AssetServer) {
                 .labelled("climb down"),
             DespawnOnExit(AppState::InGame),
         ));
+        // A glowing square round the way down (not the woodcutter's
+        // trapdoor: that one's a secret).
+        if e.kind != Kind::Trapdoor {
+            hatch.insert(
+                crate::features::doorway::Doorway::new(crate::features::doorway::Way::Down, e.name)
+                    .hatch(1.0),
+            );
+        }
     }
 }
 
@@ -673,15 +681,32 @@ fn build_tunnels(
             false,
             true,
         );
-        commands.spawn((
-            Hatch(i as u8),
-            Deep,
-            Tunnel,
-            Transform::from_translation(base),
-            show,
-            Clickable::at_height(1.4).radius(90.0).labelled("climb up"),
-            DespawnOnExit(AppState::InGame),
-        ));
+        commands
+            .spawn((
+                Hatch(i as u8),
+                Deep,
+                Tunnel,
+                Transform::from_translation(base),
+                show,
+                Clickable::at_height(1.4).radius(90.0).labelled("climb up"),
+                DespawnOnExit(AppState::InGame),
+            ))
+            // The way up glows at the ladder's foot, facing you as you arrive.
+            .with_child((
+                crate::features::doorway::Doorway::new(
+                    crate::features::doorway::Way::Up,
+                    match e.kind {
+                        Kind::Manhole => "the manhole",
+                        Kind::CellarDoor => "the cellar door",
+                        Kind::Trapdoor => "the trapdoor",
+                    },
+                )
+                .size(1.0, 2.4),
+                Transform::from_translation(Vec3::new(e.out.x, 0.0, e.out.y) * 0.5).with_rotation(
+                    Quat::from_rotation_y(crate::features::doorway::yaw_towards(-e.out)),
+                ),
+                Visibility::default(),
+            ));
     }
 }
 

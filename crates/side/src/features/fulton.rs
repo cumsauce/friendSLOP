@@ -1218,6 +1218,34 @@ fn build_station(
         Transform::from_translation(at).with_rotation(turn),
         DespawnOnExit(AppState::InGame),
     ));
+    // The way in: a glowing threshold where the stairs start, at the open end.
+    {
+        use crate::features::doorway::{Doorway, spawn};
+        let h = &t.entrance_hole;
+        spawn(
+            &mut commands,
+            at + turn * Vec3::new(0.0, 0.0, h.offset + h.size.1 / 2.0),
+            t.entrance_yaw.to_radians(),
+            Doorway::way_in("Fulton St").size(h.size.0, 2.6),
+        );
+        // Every level's stairs down glow too, where you step onto them.
+        for (li, level) in levels.iter().enumerate() {
+            if level.fill(level.goal).kind != Kind::Stairs {
+                continue;
+            }
+            let side = dir(level.goal_entry);
+            spawn(
+                &mut commands,
+                cell_world(&t, li, level.goal) + side * (CELL / 2.0 - 0.4),
+                crate::features::doorway::yaw_towards(-side.xz()),
+                Doorway::new(
+                    crate::features::doorway::Way::Down,
+                    format!("level {}", li + 2),
+                )
+                .size(2.6, 2.6),
+            );
+        }
+    }
     for b in entrance_colliders(&t) {
         commands.spawn((
             Transform::from_translation(b.centre).with_rotation(b.rotation),
@@ -1239,9 +1267,11 @@ fn build_station(
         ),
     ];
     for (at, ride, label) in posts {
+        let way_out = crate::features::doorway::Doorway::way_out(label.clone()).size(1.6, 2.4);
         commands
             .spawn((
                 Post { ride },
+                way_out,
                 Transform::from_translation(at + Vec3::new(1.8, 0.0, 0.0)),
                 Visibility::default(),
                 // Labels are read once a game from the data file.

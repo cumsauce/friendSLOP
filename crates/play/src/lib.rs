@@ -14,6 +14,7 @@ pub mod features {
     #![allow(unused_imports)]
     pub use friendslop_base::features::*;
     pub mod climb;
+    pub mod doorway;
     pub mod duel;
     pub mod fate;
     pub mod fps;
@@ -26,6 +27,7 @@ pub mod features {
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
         &features::climb::TUNING,
+        &features::doorway::TUNING,
         &features::duel::TUNING,
         &features::fate::TUNING,
         &features::fps::TUNING,

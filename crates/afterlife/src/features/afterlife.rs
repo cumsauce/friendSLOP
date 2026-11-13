@@ -1077,6 +1077,14 @@ fn dig_hell(
     // The white light's platform and its beam.
     let exit = hell_exit();
     spawn_basalt(&mut commands, exit, tuning().exit_radius, 0.0);
+    // The way out, marked like every other way out.
+    crate::features::doorway::spawn(
+        &mut commands,
+        exit,
+        0.0,
+        crate::features::doorway::Doorway::way_out("back to your spawn")
+            .hatch(tuning().exit_reach * 1.4),
+    );
     let beam = pit_height() - (exit.y - lava_y());
     commands.spawn((
         Mesh3d(meshes.add(Cylinder::new(tuning().exit_reach * 0.7, beam))),

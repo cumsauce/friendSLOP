@@ -97,5 +97,30 @@
                 ),
             ),
         ),
+        (
+            // To Penn Station (#357): Rose Pizza and its bathroom
+            // (data/side/penn.ron). A plain subway car from the trees at the
+            // city's north end (across from JFK) to the concourse, which
+            // floats high over New York like Miami.
+            name: "1 train",
+            stops: (
+                (
+                    name: "Chambers St",
+                    at: (-40.0, 134.0),
+                    yaw: 0.0,
+                    city: true,
+                    announce: "This is a Penn Station bound 1 train. The next stop is thirty fourth street, Penn Station. Transfer to the Long Island Rail Road. Good luck in the bathroom.",
+                ),
+                (
+                    name: "Penn Station",
+                    at: (-40.0, 260.0),
+                    yaw: 0.0,
+                    city: false,
+                    // Its concourse floats this high over New York (penn.ron).
+                    floor: Some(1000.0),
+                    announce: "This is a downtown 1 train. Next stop, Chambers Street. Stand clear of the closing doors, please.",
+                ),
+            ),
+        ),
     ],
 )

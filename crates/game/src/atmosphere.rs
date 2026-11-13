@@ -199,14 +199,20 @@ fn hdr(c: Color) -> LinearRgba {
 
 /// Give the main camera tonemapping, bloom and horizon-matched fog.
 fn dress_camera(add: On<Add<MainCamera>>, mut commands: Commands) {
-    commands.entity(add.entity).insert((
-        // Without `Hdr`, bloom and tonemapping are silent no-ops.
-        bevy::camera::Hdr,
+    let mut camera = commands.entity(add.entity);
+    // Without `Hdr`, bloom is a silent no-op (tonemapping then runs in the
+    // material shaders). Browsers skip both (#242, `graphics::HDR_SUPPORTED`).
+    if crate::graphics::HDR_SUPPORTED {
+        camera.insert((
+            bevy::camera::Hdr,
+            Bloom {
+                intensity: 0.08,
+                ..Bloom::NATURAL
+            },
+        ));
+    }
+    camera.insert((
         Tonemapping::TonyMcMapface,
-        Bloom {
-            intensity: 0.08,
-            ..Bloom::NATURAL
-        },
         DistanceFog {
             color: Color::LinearRgba(hdr(horizon_colour())),
             directional_light_color: Color::srgba(1.0, 0.9, 0.7, 0.35),

@@ -1,0 +1,1436 @@
+{
+  "format_version": 1,
+  "name": "wh-floor-tile",
+  "parts": [],
+  "version": 21453,
+  "ops": [
+    {
+      "primitive": {
+        "name": "slab",
+        "kind": "box",
+        "size": [
+          5.0,
+          0.5,
+          5.0
+        ],
+        "translation": [
+          0.0,
+          -0.25,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "joint_x",
+        "kind": "box",
+        "size": [
+          5.0,
+          0.01,
+          0.03
+        ],
+        "translation": [
+          0.0,
+          0.003,
+          -2.49
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "joint_z",
+        "kind": "box",
+        "size": [
+          0.03,
+          0.01,
+          5.0
+        ],
+        "translation": [
+          -2.49,
+          0.003,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "joint_mid",
+        "kind": "box",
+        "size": [
+          5.0,
+          0.01,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          0.003,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "patch",
+        "profile": [
+          [
+            [
+              -0.6,
+              -0.3
+            ],
+            [
+              -0.1,
+              -0.55
+            ],
+            [
+              0.5,
+              -0.35
+            ],
+            [
+              0.7,
+              0.1
+            ],
+            [
+              0.3,
+              0.45
+            ],
+            [
+              -0.3,
+              0.4
+            ],
+            [
+              -0.75,
+              0.05
+            ]
+          ]
+        ],
+        "height": 0.006,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          1.2,
+          0.0,
+          -1.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "drain_rim",
+        "profile": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.16,
+              0.0
+            ],
+            [
+              0.16,
+              0.012
+            ],
+            [
+              0.0,
+              0.012
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 0,
+        "translation": [
+          -1.3,
+          0.0,
+          1.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drain_bar(-0.09)",
+        "kind": "box",
+        "size": [
+          0.018,
+          0.016,
+          0.22
+        ],
+        "translation": [
+          -1.39,
+          0.004,
+          1.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drain_bar(-0.045)",
+        "kind": "box",
+        "size": [
+          0.018,
+          0.016,
+          0.22
+        ],
+        "translation": [
+          -1.345,
+          0.004,
+          1.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drain_bar0",
+        "kind": "box",
+        "size": [
+          0.018,
+          0.016,
+          0.22
+        ],
+        "translation": [
+          -1.3,
+          0.004,
+          1.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drain_bar0.045",
+        "kind": "box",
+        "size": [
+          0.018,
+          0.016,
+          0.22
+        ],
+        "translation": [
+          -1.255,
+          0.004,
+          1.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drain_bar0.09",
+        "kind": "box",
+        "size": [
+          0.018,
+          0.016,
+          0.22
+        ],
+        "translation": [
+          -1.21,
+          0.004,
+          1.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "slab",
+        "input": "slab",
+        "base_color": [
+          0.33333334,
+          0.33333334,
+          0.3529412,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-concrete",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 141,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "name": "sp",
+                "seed": 142,
+                "size": 0.02,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.005
+                ],
+                "input": "sp.f1",
+                "name": "pit",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#8e8b86"
+                  ],
+                  [
+                    1,
+                    "#b8b4ae"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5e5b57",
+                "b": "c0",
+                "c": "pit",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "pit",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "joint_mid",
+        "input": "joint_mid",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-oil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 77,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#0d0b09"
+                  ],
+                  [
+                    1,
+                    "#2b241c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rough",
+                "stops": [
+                  [
+                    0,
+                    0.15
+                  ],
+                  [
+                    1,
+                    0.6
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "joint_x",
+        "input": "joint_x",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-oil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 77,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#0d0b09"
+                  ],
+                  [
+                    1,
+                    "#2b241c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rough",
+                "stops": [
+                  [
+                    0,
+                    0.15
+                  ],
+                  [
+                    1,
+                    0.6
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "joint_z",
+        "input": "joint_z",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-oil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 77,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#0d0b09"
+                  ],
+                  [
+                    1,
+                    "#2b241c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rough",
+                "stops": [
+                  [
+                    0,
+                    0.15
+                  ],
+                  [
+                    1,
+                    0.6
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "patch",
+        "input": "patch",
+        "base_color": [
+          0.24705882,
+          0.24313726,
+          0.23921569,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-concrete",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 141,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "name": "sp",
+                "seed": 142,
+                "size": 0.02,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.005
+                ],
+                "input": "sp.f1",
+                "name": "pit",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#8e8b86"
+                  ],
+                  [
+                    1,
+                    "#b8b4ae"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#5e5b57",
+                "b": "c0",
+                "c": "pit",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "pit",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drain_bar(-0.045)",
+        "input": "drain_bar(-0.045)",
+        "base_color": [
+          0.33333334,
+          0.33333334,
+          0.33333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drain_bar(-0.09)",
+        "input": "drain_bar(-0.09)",
+        "base_color": [
+          0.33333334,
+          0.33333334,
+          0.33333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drain_bar0",
+        "input": "drain_bar0",
+        "base_color": [
+          0.33333334,
+          0.33333334,
+          0.33333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drain_bar0.045",
+        "input": "drain_bar0.045",
+        "base_color": [
+          0.33333334,
+          0.33333334,
+          0.33333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drain_bar0.09",
+        "input": "drain_bar0.09",
+        "base_color": [
+          0.33333334,
+          0.33333334,
+          0.33333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drain_rim",
+        "input": "drain_rim",
+        "base_color": [
+          0.33333334,
+          0.33333334,
+          0.33333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 111,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 112,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.58,
+                  0.72
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.05,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "mc",
+                "stops": [
+                  [
+                    0,
+                    "#8a8c90"
+                  ],
+                  [
+                    1,
+                    "#b4b6ba"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "fn",
+                "name": "rc",
+                "stops": [
+                  [
+                    0,
+                    "#6a3a20"
+                  ],
+                  [
+                    1,
+                    "#9a5a30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "mc",
+                "b": "rc",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.75,
+                "b": 0.0,
+                "c": "rust",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r0",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "r0",
+                "b": 0.9,
+                "c": "rust",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "rust",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": "met",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

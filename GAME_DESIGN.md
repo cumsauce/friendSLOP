@@ -29,7 +29,8 @@ posts this section every few landed ideas (#153). Keep it under ~1800 characters
 Paul in the tunnels. 4 *General Strike*: all of it at once, plus 2 soul pieces from the
 warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, one last time.
 Each chapter ends with the landlord: pay rent in organs, pickpocket him, then a boss fight.
-Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
+Each ticked job is a Heaven Pass tier; chapter 5 opens heaven. The host's game saves the
+chapter and its ticks, so hosting again (even after an update) carries on where you left off.
 
 **Always going on:** the Stillness freezes everything for 75 s every 16 minutes. Fart near an
 NPC and get caught 4 times: villagers chase you and float you. Villagers fart and blame you.
@@ -1420,6 +1421,17 @@ walked 100 m. Nobody is impressed."). Eleven of them, each earned once per sessi
 nothing is sent, saved or rewarded. List and numbers in `data/side/achievements.ron`
 (`features/achievements.rs`). The AI's own pick for "come up with your own signature addition".
 
+## What exists: saves (#424)
+
+bben: "lock down the progress states and create saves so we can update and continue where we
+left off." The progress state is the campaign: chapter, which jobs are ticked, and the round
+number. The host writes it to `campaign_save.json` (config folder; `localStorage` in the
+browser) every time it changes, and hosting again loads it. Joiners play in the host's save.
+Finishing chapter 5 wraps to chapter 1 and that is saved too. Everything else (the landlord's
+act, HALT, pets, tears, stats, morality, dollars) still starts fresh each session: a chapter
+restarts its world anyway. Saves are versioned and fitted to the chapter list if it's edited
+(`features/save.rs`, story crate).
+
 ## Ideas so far
 
 - (#378): "Come up with your own signature addition to the game. Be creative." The AI picked
@@ -1641,6 +1653,9 @@ nothing is sent, saved or rewarded. List and numbers in `data/side/achievements.
   see and inspect them; hold one like a CS knife for a little speed.
 
 ## Open questions
+
+- Saves (#424) keep the campaign's chapter and ticks. Should anything else carry over between
+  sessions (dollars, stats, tears, your fat cat), and should there be a way to start over or keep several saves?
 
 - Hats and High Places (#323, #349, #350): do hats do anything, is a perfect smoke rewarded,
   and does fixed soft serve do more than taste good?

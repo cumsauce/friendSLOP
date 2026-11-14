@@ -51,6 +51,7 @@ fn main() -> AppExit {
         PhysicsPlugins::default(),
     ))
     .add_plugins(friendslop::GamePlugin)
+    .init_resource::<friendslop::features::save::SaveGames>()
     .add_plugins(friendslop::screenshot::ScreenshotPlugin)
     .add_plugins(friendslop::perf::PerfPlugin)
     .add_systems(Startup, cli_args)

@@ -244,51 +244,17 @@ pub struct Toast {
 
 impl Toast {
     pub const SECS: f32 = 3.0;
+    /// Shows `text`, with any `{action}` turned into its button ([`crate::input::fill`]).
     pub fn show(&mut self, text: impl Into<String>) {
-        self.text = text.into();
+        self.text = crate::input::fill(&text.into());
         self.secs_left = Self::SECS;
     }
 }
 
-/// Every key binding in the game, for the H help overlay. Add yours here.
-pub const KEY_BINDINGS: &[(&str, &str)] = &[
-    ("WASD", "walk (first person) / pan (overview)"),
-    ("Mouse", "look around (first person)"),
-    ("Space / Shift", "jump / run"),
-    ("V", "first person <-> overview camera"),
-    ("E", "answer the phone (Fulton St)"),
-    ("B", "brag about your money (coins start falling out)"),
-    ("I", "call the insurance when your wallet is lost (70% cut)"),
-    (
-        "Left click",
-        "use what's under the crosshair (or cursor), within reach",
-    ),
-    ("M", "mute / unmute mic"),
-    ("F", "fart (where you stand)"),
-    ("[ ] - = ; '", "fart tone"),
-    ("G", "pry at HALT"),
-    ("K", "start hide and seek (2+ players)"),
-    ("L", "start / join / leave the sesbian lex pile"),
-    ("R", "cast a totem spell"),
-    (
-        "Q",
-        "say \"mute\" at a player to mute them (muted: fire your RPG)",
-    ),
-    ("1-9", "challenge that player to a duel"),
-    ("Y / N", "accept / refuse"),
-    ("C", "copy the join code again"),
-    ("Tab (hold) / J", "the journal (Esc closes)"),
-    ("H", "help, in the journal"),
-    ("F3", "FPS counter"),
-    ("Esc", "free the mouse; again to leave (disconnects)"),
-];
-
+/// Every binding, for the H help overlay and the journal: generated from
+/// `assets/data/base/bindings.ron` for the device used last.
 pub fn help_text() -> String {
-    let mut s = String::new();
-    for (k, v) in KEY_BINDINGS {
-        s.push_str(&format!("{k:>12}   {v}\n"));
-    }
-    s.trim_end().to_string()
+    crate::input::help_text()
 }
 
 /// Shorten a long join code for display: `a6c9e6...aef0`.
@@ -418,8 +384,17 @@ fn spawn_slots(mut commands: Commands) {
             HudSlot::Help => {
                 e.insert((panel, GlobalZIndex(20), Visibility::Hidden));
                 e.with_children(|c| {
-                    header(c, "controls  (H to close)", theme::PINK);
-                    c.spawn((Text::new(help_text()), small()));
+                    header(c, "controls", theme::PINK);
+                    c.spawn((
+                        Text::new(""),
+                        crate::input::Hint("{help} closes this".into()),
+                        small(),
+                    ));
+                    c.spawn((
+                        Text::new(help_text()),
+                        crate::input::Hint("{@help}".into()),
+                        small(),
+                    ));
                     header(c, "what's going on", theme::LILAC);
                 });
             }
@@ -444,7 +419,8 @@ fn spawn_slots(mut commands: Commands) {
                     BackgroundColor(idg::INK),
                     BorderColor::all(idg::BORDER),
                     children![(
-                        Text::new("Tab / J   journal"),
+                        Text::new(""),
+                        crate::input::Hint("{journal} / {journal_keep}   journal".into()),
                         crate::ui::body(17.0, idg::CREAM)
                     )],
                 ));
@@ -993,9 +969,22 @@ mod tests {
 
     #[test]
     fn help_lists_every_binding() {
-        let h = help_text();
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            crate::input::BINDINGS.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}")
+        };
+        assert!(crate::input::BINDINGS.set_bytes(&bytes));
+        let h = crate::input::help_rows(crate::input::InputDevice::KeyboardMouse)
+            .iter()
+            .map(|(k, v)| format!("{k} {v}"))
+            .collect::<Vec<_>>()
+            .join("\n");
         for k in [
-            "M", "F", "G", "R", "1-9", "Y / N", "WASD", "V", "Tab", "H", "F3", "Esc",
+            "M", "F", "G", "R", "1", "Y", "N", "WASD", "V", "Tab", "H", "F3", "Esc",
         ] {
             assert!(h.contains(k), "{k}");
         }

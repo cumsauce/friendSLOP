@@ -426,7 +426,9 @@ fn update_pet_hud(pets: Query<&Pet>, mut hud: Query<&mut Text, With<PetHud>>) {
         .filter(|p| p.owner.is_some())
         .map(|p| p.at)
         .collect();
-    let mut lines = vec!["pets (click a stray to adopt; it follows your pointer)".to_string()];
+    let mut lines = vec![crate::input::fill(
+        "pets ({use} a stray to adopt; it follows your pointer)",
+    )];
     for p in &all {
         lines.push(match p.owner {
             Some(o) => format!("{}: player {o}'s pet", p.animal.name()),

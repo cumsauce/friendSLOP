@@ -50,7 +50,7 @@ pub fn gas_lines(gas: u8) -> (String, f32, &'static str) {
         format!("{gas}% · filling")
     };
     let hint = if ready {
-        "F  to fart"
+        "{fart}  to fart"
     } else {
         "fills up over time"
     };
@@ -243,7 +243,8 @@ fn bomb(icons: &Icons) -> impl Bundle {
                 at(114.0, 46.0, b)
             ),
             (
-                Text::new("Hold click to pet it smaller"),
+                Text::new(""),
+                crate::input::Hint("Hold {use} to pet it smaller".into()),
                 body(13.0, INK),
                 at(12.0, 82.0, b)
             ),
@@ -342,7 +343,7 @@ fn update(
         };
         match part {
             Part::GasLabel => set(gas_label.clone()),
-            Part::GasHint => set(gas_hint.to_string()),
+            Part::GasHint => set(crate::input::fill(gas_hint)),
             Part::GasFill => {
                 let w = px(TRACK * gas_frac);
                 if node.width != w {
@@ -352,7 +353,11 @@ fn update(
                     bg.set_if_neq(BackgroundColor(if ready { BUTTER } else { PERIWINKLE }));
                 }
             }
-            Part::MicLabel => set(if muted { "M  muted" } else { "M  mic on" }.to_string()),
+            Part::MicLabel => set(crate::input::fill(if muted {
+                "{mic}  muted"
+            } else {
+                "{mic}  mic on"
+            })),
             Part::MicSlash | Part::MicWave | Part::MicIcon => {
                 let show = match part {
                     Part::MicSlash => muted,
@@ -390,10 +395,10 @@ mod tests {
         let (label, frac, hint) = gas_lines(100);
         assert_eq!(label, "100% · READY");
         assert_eq!(frac, 1.0);
-        assert_eq!(hint, "F  to fart");
+        assert_eq!(hint, "{fart}  to fart");
         let (label, _, hint) = gas_lines(crate::features::fart::tuning().min_gas - 1);
         assert!(label.ends_with("filling"));
-        assert_ne!(hint, "F  to fart");
+        assert_ne!(hint, "{fart}  to fart");
         assert_eq!(cat_size(4.2), "4.2× / 25×");
         assert_eq!(cat_size(24.8), "24.8× / 25×");
         assert_eq!(cat_size(99.0), "25.0× / 25×");

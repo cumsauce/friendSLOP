@@ -198,7 +198,12 @@ fn spawn(mut commands: Commands) {
                     },
                     BackgroundColor(PAPER),
                     BorderColor::all(BORDER),
-                    children![(Text::new("Esc   close"), body(17.0, INK), at(11.0, 8.0, B))],
+                    children![(
+                        Text::new(""),
+                        crate::input::Hint("{journal}   close".into()),
+                        body(17.0, INK),
+                        at(11.0, 8.0, B)
+                    )],
                 ),
                 (
                     Content,
@@ -342,11 +347,11 @@ fn fill(
         .iter()
         .find(|(p, ..)| talking(p.id))
         .map(|(p, ..)| super::team::name_for(p.id, Some(p.id) == me));
-    let mic = if muted.is_some_and(|m| m.0) {
-        "M  muted"
+    let mic = crate::input::fill(if muted.is_some_and(|m| m.0) {
+        "{mic}  muted"
     } else {
-        "M  mic on"
-    };
+        "{mic}  mic on"
+    });
     let mut status = format!("{} friends     ·     {mic}", ps.len());
     if let Some(s) = speaker {
         status.push_str(&format!(
@@ -603,10 +608,19 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
         },
         BackgroundColor(PAPER),
         children![
-            (Text::new("H   How do I…"), head(24.0, INK), at(18.0, 14.0, 0.0)),
             (
+                Text::new(""),
+                crate::input::Hint("{help}   How do I…".into()),
+                head(24.0, INK),
+                at(18.0, 14.0, 0.0)
+            ),
+            (
+                crate::input::Hint(
+                    "Every key and what's going on\nlives in the Help tab.\n\n{help} opens it, {help} again closes it."
+                        .into()
+                ),
                 Text::new(
-                    "Every key and what's going on\nlives in the Help tab.\n\nH opens it, H again closes it."
+                    ""
                 ),
                 body(15.0, INK),
                 at(18.0, 60.0, 0.0)
@@ -628,7 +642,11 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
                 at(16.0, 11.0, 0.0)
             ),
             (
-                Text::new("C  copy invite     ·     Tab  release to close     ·     J  keep open"),
+                Text::new(""),
+                crate::input::Hint(
+                    "{copy}  copy invite     ·     {journal}  release to close     ·     {journal_keep}  keep open"
+                        .into()
+                ),
                 body(16.0, CREAM),
                 at(568.0, 12.0, 0.0)
             ),

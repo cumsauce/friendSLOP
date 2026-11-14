@@ -1,0 +1,75 @@
+// Every action the player can do, and how (crates/base/src/input.rs).
+// Edit and save: the running game picks it up within a second.
+//
+// - keys: Bevy KeyCode names ("KeyF", "Space", "Digit1", "Tab"...) or
+//   "Mouse:Left" / "Mouse:Move". A gamepad presses the first one.
+// - pad: Bevy GamepadButton names (Xbox positions: "South" = A, "East" = B,
+//   "West" = X, "North" = Y, "LeftTrigger" = LB, "RightTrigger" = RB,
+//   "LeftTrigger2" = LT, "RightTrigger2" = RT, "Select", "Start",
+//   "LeftThumb", "RightThumb", "DPadUp"...), "LeftStick" / "RightStick", or
+//   empty (the action is on the wheel, or only inside a context).
+// - group: where it's listed on the help screen ("" = not listed).
+// Shown text writes {id} for "the button for this action" (e.g. "{fart} to fart").
+(
+    actions: [
+        (id: "move", label: "walk / pan", keys: ["KeyW", "KeyA", "KeyS", "KeyD"], pad: ["LeftStick"], group: "move"),
+        (id: "look", label: "look around", keys: ["Mouse:Move"], pad: ["RightStick"], group: "move"),
+        (id: "jump", label: "jump", keys: ["Space"], pad: ["South"], group: "move"),
+        (id: "run", label: "run", keys: ["ShiftLeft"], pad: ["LeftTrigger", "LeftThumb"], group: "move"),
+        (id: "use", label: "use what's under the crosshair", keys: ["Mouse:Left"], pad: ["East", "RightTrigger2"], group: "move"),
+        (id: "camera", label: "first person / overview camera", keys: ["KeyV"], pad: ["North"], group: "move"),
+        (id: "wheel", label: "action wheel (hold, point, let go)", pad: ["RightTrigger"], group: "move"),
+
+        (id: "fart", label: "fart", keys: ["KeyF"], pad: ["West"], group: "body"),
+        (id: "fart_tone", label: "fart tone", keys: ["BracketLeft", "BracketRight", "Minus", "Equal", "Semicolon", "Quote"], group: "body"),
+        (id: "sleep", label: "sleep / get up", keys: ["KeyZ"], group: "body"),
+        (id: "piss", label: "piss", keys: ["KeyX"], group: "body"),
+        (id: "smoke", label: "smoke", keys: ["KeyP"], group: "body"),
+
+        (id: "mic", label: "mute / unmute your mic", keys: ["KeyM"], pad: ["DPadUp"], group: "people"),
+        (id: "hi", label: "say hi", keys: ["KeyT"], pad: ["DPadDown"], group: "people"),
+        (id: "emote", label: "emote", keys: ["KeyU"], pad: ["DPadLeft"], group: "people"),
+        (id: "offer", label: "offer / accept", keys: ["KeyO"], pad: ["DPadRight"], group: "people"),
+        (id: "brag", label: "brag about your cash", keys: ["KeyB"], group: "people"),
+        (id: "insurance", label: "wallet insurance", keys: ["KeyI"], group: "people"),
+        (id: "hide_seek", label: "start hide and seek", keys: ["KeyK"], group: "people"),
+        (id: "lex", label: "join / leave the lex pile", keys: ["KeyL"], group: "people"),
+        (id: "duel_1", label: "challenge player 1", keys: ["Digit1"], group: "people"),
+        (id: "duel_2", label: "challenge player 2", keys: ["Digit2"], group: "people"),
+        (id: "duel_3", label: "challenge player 3", keys: ["Digit3"], group: "people"),
+        (id: "duel_4", label: "challenge player 4", keys: ["Digit4"], group: "people"),
+        (id: "duel_any", label: "challenge a player", keys: ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9"], group: ""),
+        (id: "duel_accept", label: "accept", keys: ["KeyY"], group: "people"),
+        (id: "duel_decline", label: "decline", keys: ["KeyN"], group: "people"),
+
+        (id: "pry", label: "pry at HALT", keys: ["KeyG"], group: "story"),
+        (id: "totem", label: "cast the totem spell", keys: ["KeyR"], group: "story"),
+        (id: "mute_spell", label: "mute spell", keys: ["KeyQ"], group: "story"),
+        (id: "answer", label: "answer the phone", keys: ["KeyE"], group: "story"),
+        (id: "draw", label: "draw", keys: ["Mouse:Left"], group: ""),
+
+        (id: "journal", label: "journal (hold) / scoreboard", keys: ["Tab"], pad: ["Select"], group: "screens"),
+        (id: "journal_keep", label: "keep the journal open", keys: ["KeyJ"], group: "screens"),
+        (id: "help", label: "controls (this)", keys: ["KeyH"], group: "screens"),
+        (id: "copy", label: "copy the invite code", keys: ["KeyC"], group: ""),
+        (id: "confirm", label: "continue", keys: ["Enter"], pad: ["RightThumb"], group: "screens"),
+        (id: "back", label: "close / back", keys: ["Escape"], group: ""),
+        (id: "settings", label: "settings / free the mouse", keys: ["Escape"], pad: ["Start"], group: "screens"),
+        (id: "fps", label: "frame rate", keys: ["F3"], group: "screens"),
+    ],
+    // While something's going on, its buttons win and its prompt bar shows.
+    contexts: [
+        (id: "menu", binds: [("South", "confirm"), ("East", "back")], prompt: []),
+        (id: "duel_invite", binds: [("South", "duel_accept"), ("East", "duel_decline")], prompt: ["duel_accept", "duel_decline"]),
+        (id: "phone", binds: [("South", "answer")], prompt: ["answer"]),
+        (id: "chapter", binds: [("South", "confirm"), ("East", "back")], prompt: ["confirm", "back"]),
+        (id: "smoking", binds: [("South", "draw"), ("RightTrigger2", "draw")], prompt: ["draw"]),
+        (id: "asleep", binds: [("South", "sleep")], prompt: ["sleep"]),
+    ],
+    // The action wheel (hold RB): pages of up to 8, clockwise from the top.
+    // LB flips the page while it's open.
+    wheel: [
+        ["help", "brag", "insurance", "smoke", "sleep", "piss", "journal_keep", "hide_seek"],
+        ["duel_1", "duel_2", "duel_3", "duel_4", "lex", "pry", "totem", "mute_spell"],
+    ],
+)

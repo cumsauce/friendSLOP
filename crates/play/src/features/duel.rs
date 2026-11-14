@@ -1068,12 +1068,14 @@ fn others(me: Option<&LocalPlayer>, players: &Query<&Player>) -> Vec<u64> {
 
 fn challenge_keys(
     mut commands: Commands,
+    mut ctx: ResMut<crate::input::InputContexts>,
     keys: Res<ButtonInput<KeyCode>>,
     me: Option<Res<LocalPlayer>>,
     players: Query<&Player>,
     duelists: Query<(), With<Duelist>>,
     mut view: ResMut<DuelView>,
 ) {
+    crate::input::switch(&mut ctx, "duel_invite", view.challenged_by.is_some());
     if let Some(from) = view.challenged_by {
         let answer = if keys.just_pressed(KeyCode::KeyY) {
             Some(true)
@@ -1244,10 +1246,12 @@ fn update_duel_hud(
             format!("bullets: {}", d.bullets)
         };
         lines.push(format!("DUEL  lives: {}  {bullets}", d.lives));
-        lines.push("WASD move, mouse look, click to shoot".into());
+        lines.push(crate::input::fill(
+            "{move} move, {look} look, {use} to shoot",
+        ));
     } else if let Some(from) = view.challenged_by {
         lines.push(format!(
-            "player {from} challenges you to a duel! [Y] accept [N] decline"
+            "player {from} challenges you to a duel! {{duel_accept}} accept {{duel_decline}} decline"
         ));
     } else if duelists.is_empty() {
         let others = others(me.as_deref(), &players);
@@ -1267,7 +1271,7 @@ fn update_duel_hud(
             .collect();
         lines.push(format!("duel in progress: {}", score.join(" vs ")));
     }
-    let text = lines.join("\n");
+    let text = crate::input::fill(&lines.join("\n"));
     for mut t in &mut hud {
         if t.0 != text {
             t.0.clone_from(&text);

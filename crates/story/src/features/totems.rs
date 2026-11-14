@@ -597,8 +597,9 @@ fn update_totem_hud(
         entry.1 -= dt;
     }
     log.0.retain(|e| e.1 > 0.0);
-    let mut lines =
-        vec!["totems (click to take, click a door's side to insert/remove, R casts)".to_string()];
+    let mut lines = vec![crate::input::fill(
+        "totems ({use} to take, {use} a door's side to insert/remove, {totem} casts)",
+    )];
     let mut ts: Vec<_> = totems.iter().collect();
     ts.sort_by_key(|t| t.id);
     for t in ts {

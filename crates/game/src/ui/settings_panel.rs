@@ -15,14 +15,10 @@ use crate::controls::PadSettings;
 use crate::graphics::{GraphicsQuality, Preset, VideoOption};
 use crate::settings::Settings;
 
-/// Column `i` (0 or 1) of the Controls page's bindings: the keyboard's, or
-/// the gamepad's when `pad`.
-pub fn help_column(i: usize, pad: bool) -> String {
-    let list: &[(&str, &str)] = if pad {
-        crate::controls::PAD_BINDINGS
-    } else {
-        crate::hud::KEY_BINDINGS
-    };
+/// Column `i` (0 or 1) of the Controls page's bindings for `device` (from
+/// `bindings.ron`, so they name that device's buttons).
+pub fn help_column(i: usize, device: crate::input::InputDevice) -> String {
+    let list = crate::controls::bindings_list(device);
     let half = list.len().div_ceil(2);
     let part = if i == 0 { &list[..half] } else { &list[half..] };
     part.iter()
@@ -129,6 +125,32 @@ enum Part {
     Help(usize),
     /// "Esc close", or "B close" after a gamepad was used.
     CloseHint,
+    /// The button-names choice ("Button names: Auto").
+    Labels,
+}
+
+/// Pure: the next button-names choice (Auto, then each pad family).
+pub fn next_labels(now: Option<crate::input::PadFamily>) -> Option<crate::input::PadFamily> {
+    use crate::input::PadFamily::*;
+    match now {
+        None => Some(Xbox),
+        Some(Xbox) => Some(PlayStation),
+        Some(PlayStation) => Some(Nintendo),
+        Some(Nintendo) => Some(Steam),
+        Some(Steam) => None,
+    }
+}
+
+fn labels_text(l: Option<crate::input::PadFamily>) -> String {
+    use crate::input::PadFamily::*;
+    let name = match l {
+        None => "Auto",
+        Some(Xbox) => "Xbox",
+        Some(PlayStation) => "PlayStation",
+        Some(Nintendo) => "Nintendo",
+        Some(Steam) => "Steam",
+    };
+    format!("Button names: {name}")
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -517,6 +539,14 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
     ))
     .with_children(|c| {
         c.spawn((Text::new("Controls"), head(26.0, INK), at(18.0, 12.0, B)));
+        // Which pad's button names hints use (Auto: from the pad plugged in).
+        c.spawn((
+            button(260.0, 34.0, 10.0, PAPER, 430.0, 10.0),
+            children![(Part::Labels, label("", 15.0, INK, 11.0, 6.0, B))],
+        ))
+        .observe(|_: On<PointerClick>, mut pad: ResMut<PadSettings>| {
+            pad.labels = next_labels(pad.labels);
+        });
         // The gamepad's feel (#361), side by side.
         for (v, name, x) in [
             (Volume::Deadzone, "Stick deadzone", 18.0),
@@ -533,7 +563,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         for (i, x) in [18.0, 370.0].into_iter().enumerate() {
             c.spawn((
                 Part::Help(i),
-                Text::new(help_column(i, false)),
+                Text::new(help_column(i, crate::input::device())),
                 body(13.0, INK),
                 Node {
                     width: px(PAD_SLIDER_W + 30.0),
@@ -735,7 +765,7 @@ fn refresh(
     on: Res<OnPage>,
     s: Res<Settings>,
     pad: Res<PadSettings>,
-    last: Res<crate::controls::PadLast>,
+    device: Res<crate::input::InputDevice>,
     muted: Res<VoiceMuted>,
     q: Res<GraphicsQuality>,
     mut nodes: Query<&mut Node>,
@@ -783,11 +813,26 @@ fn refresh(
                     t.0 = want;
                 }
             }
+            Part::Labels => {
+                let want = labels_text(pad.labels);
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want;
+                }
+            }
             Part::Help(_) | Part::CloseHint => {
                 let want = match *part {
-                    Part::Help(i) => help_column(i, last.0),
-                    _ if last.0 => "B   close".to_string(),
-                    _ => "Esc   close".to_string(),
+                    Part::Help(i) => help_column(i, *device),
+                    _ => format!(
+                        "{}   close",
+                        crate::input::label_with(
+                            &crate::input::BINDINGS.get(),
+                            "back",
+                            *device,
+                            &["menu".to_string()],
+                        )
+                    ),
                 };
                 if let Some(mut t) = text
                     && t.0 != want
@@ -883,8 +928,13 @@ mod tests {
         assert_eq!(Volume::Deadzone.shown(&s, &PadSettings::DEFAULT), "15%");
         assert_eq!(Volume::Look.shown(&s, &PadSettings::DEFAULT), "1.00x");
         // Every binding lands in one of the two columns.
-        let lines = |pad| help_column(0, pad).lines().count() + help_column(1, pad).lines().count();
-        assert_eq!(lines(false), crate::hud::KEY_BINDINGS.len());
-        assert_eq!(lines(true), crate::controls::PAD_BINDINGS.len());
+        let lines = |d| help_column(0, d).lines().count() + help_column(1, d).lines().count();
+        use crate::input::{InputDevice, PadFamily};
+        for d in [
+            InputDevice::KeyboardMouse,
+            InputDevice::Pad(PadFamily::Xbox),
+        ] {
+            assert_eq!(lines(d), crate::controls::bindings_list(d).len());
+        }
     }
 }

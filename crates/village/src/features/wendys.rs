@@ -239,7 +239,7 @@ fn spawn_ui(mut commands: Commands) {
     ));
     commands.spawn((
         Text::new(
-            "Wendy's (by the road to the village): walk in and click a human meat burger on the counter to pick it up",
+            crate::input::fill("Wendy's (by the road to the village): walk in and {use} a human meat burger on the counter to pick it up"),
         ),
         crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),

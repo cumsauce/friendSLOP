@@ -1147,12 +1147,15 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   answer phone, right-stick click Enter, Start = Esc (settings notebook). Both press the
   same keys/mouse buttons features already listen to (`controls.rs`).
 - **Better gamepad / Steam Deck** (#361, bben: "surprise me"). Read as "every action should be
-  reachable from a pad". Holding **RB** or **LT** switches the face buttons and D-pad to a second
-  and third set of keys (RB: yes/no, sleep, piss, cast, pry, hide & seek, lex; LT: smoke, brag,
-  insure, mute spell, duel picks 1-4), with a cheat sheet at the bottom of the screen while held.
-  Right-stick look has a response curve (fine aim near centre), its own deadzone and slower
-  vertical look, tuned in `data/game/controls.ron`. RB no longer means "use" (B and RT still do).
-  Open: no button remapping.
+  reachable from a pad". Every action is a line in `data/base/bindings.ron` (id, keys, pad
+  button, help group); hints write `{fart}` and show the button for whatever you last touched
+  (keyboard, Xbox, PlayStation, Nintendo, Steam names, auto-detected from the pad, or picked in
+  Settings > Controls > Button names). Rare actions live on an **action wheel**: hold RB, point
+  the right stick, let go (LB flips to the second page). While something's going on (a duel
+  invite, the phone ringing, the chapter card, smoking, sleeping) its buttons take over A/B and
+  a prompt bar at the bottom says what they do. Right-stick look has a response curve, its own
+  deadzone and slower vertical look (`data/game/controls.ron`). Open: no in-game remapping
+  (edit bindings.ron).
 - **Steam Deck / gamepad-only play** (#361). Menus by pad (`ui/pad_nav.rs`): D-pad or left
   stick moves a yellow focus ring over the title card's and settings notebook's buttons, A
   clicks, B backs out, left/right move a focused slider. A on the join-code field opens a hex

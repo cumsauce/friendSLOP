@@ -47,12 +47,18 @@ pub fn plugin(app: &mut App) {
             *i = Intro::default();
         })
         .add_systems(Update, show.run_if(in_state(AppState::InGame)))
-        .add_systems(PostUpdate, |i: Res<Intro>, mut o: ResMut<Overlay>| {
-            let up = i.shown.is_some() && !i.dismissed;
-            if o.intro != up {
-                o.intro = up;
-            }
-        });
+        .add_systems(
+            PostUpdate,
+            |i: Res<Intro>,
+             mut o: ResMut<Overlay>,
+             mut ctx: ResMut<crate::input::InputContexts>| {
+                let up = i.shown.is_some() && !i.dismissed;
+                crate::input::switch(&mut ctx, "chapter", up);
+                if o.intro != up {
+                    o.intro = up;
+                }
+            },
+        );
 }
 
 fn show(
@@ -208,13 +214,15 @@ fn card_for(c: &Campaign) -> impl Bundle {
                 BackgroundColor(INDIGO),
                 BorderColor::all(BORDER),
                 children![(
-                    Text::new("Enter   continue"),
+                    Text::new(""),
+                    crate::input::Hint("{confirm}   continue".into()),
                     body(17.0, CREAM),
                     at(10.0, 8.0, B)
                 )],
             )),
             Spawn((
-                Text::new("Shrinks to goal card in 6 s  ·  Esc dismiss"),
+                Text::new(""),
+                crate::input::Hint("Shrinks to goal card in 6 s  ·  {back} dismiss".into()),
                 body(13.0, CREAM),
                 Node {
                     width: px(215),

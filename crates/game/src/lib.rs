@@ -19,6 +19,7 @@ pub mod gz_assets;
 pub mod kori_shelf;
 pub use friendslop_base::graphics;
 pub use friendslop_base::hud;
+pub use friendslop_base::input;
 pub use friendslop_kcc as kcc;
 pub use friendslop_world::landmarks;
 pub mod loading;
@@ -112,6 +113,7 @@ impl Plugin for GamePlugin {
             files: data_files(),
         });
         app.add_plugins((
+            input::plugin,
             controls::plugin,
             graphics::plugin,
             surfaces::plugin,

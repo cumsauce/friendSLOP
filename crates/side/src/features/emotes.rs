@@ -133,7 +133,7 @@ fn keys(
     if keys.just_pressed(KeyCode::KeyU) {
         picked.0 = (picked.0 + 1) % n;
         if let (Some(mut toast), Some(e)) = (toast, t.emotes.get(picked.0 as usize)) {
-            toast.show(format!("emote: {} (O to offer it)", e.name));
+            toast.show(format!("emote: {} ({{offer}} to offer it)", e.name));
         }
     }
     if keys.just_pressed(KeyCode::KeyO) {
@@ -229,7 +229,11 @@ pub fn line(t: &Tuning, news: &EmoteNews, me: Option<u64>) -> String {
             if me == Some(*from) {
                 format!("you offer {} a {}", who(*to, me), name(*kind))
             } else {
-                format!("{} wants a {} (O to accept)", who(*from, me), name(*kind))
+                format!(
+                    "{} wants a {} ({{offer}} to accept)",
+                    who(*from, me),
+                    name(*kind)
+                )
             }
         }
         EmoteNews::Done {

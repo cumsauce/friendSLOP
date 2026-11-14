@@ -57,9 +57,9 @@ struct WorldReadyPending;
 /// Tips under the progress bar, one per load (by the clock).
 pub const TIPS: [&str; 4] = [
     "Pet your cat before it becomes everyone’s problem.",
-    "Hold Tab (or press J) for the commune journal.",
-    "F farts once the gas meter says READY.",
-    "M mutes your mic. Your friends can still hear the cat.",
+    "Hold {journal} (or press {journal_keep}) for the commune journal.",
+    "{fart} farts once the gas meter says READY.",
+    "{mic} mutes your mic. Your friends can still hear the cat.",
 ];
 
 /// How far along loading is, `0..=1`: models loaded, then frames settling.
@@ -99,7 +99,8 @@ fn spawn_curtain(
     };
     commands.insert_resource(WorldReadyPending);
     let logo: Handle<Image> = assets.map(|a| a.load("ui/logo.png")).unwrap_or_default();
-    let tip = TIPS[(crate::settings::since_epoch().as_secs() as usize) % TIPS.len()];
+    let tip =
+        crate::input::fill(TIPS[(crate::settings::since_epoch().as_secs() as usize) % TIPS.len()]);
     commands.spawn((
         Curtain,
         Node {

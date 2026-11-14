@@ -23,6 +23,7 @@ pub mod features {
     pub mod broadcast;
     pub mod clues;
     pub mod discord_friends;
+    pub mod emotes;
     pub mod fulton;
     pub mod fulton_hunt;
     pub mod fusion;
@@ -96,5 +97,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::hats::TUNING,
         &features::kittens::TUNING,
         &features::toilets::TUNING,
+        &features::emotes::TUNING,
     ]
 }

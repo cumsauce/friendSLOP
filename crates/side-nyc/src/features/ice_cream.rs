@@ -3,7 +3,7 @@
 //!
 //! A soft-serve machine stands on the High Places deck ([`super::high_places`])
 //! with an OUT OF ORDER card on it. Click it and it tells you why: the city's
-//! pigeons ([`super::pigeons`]) nested in it, and it needs parts that have
+//! pigeons (`friendslop_side::features::pigeons`) nested in it, and it needs parts that have
 //! wandered off into the city's shops ([`Tuning::parts`], each in one of
 //! [`super::nyc::SHOPS`]). Find each one (click it), bring them back, click
 //! the machine and it's fixed for everyone: the quest is shared, so any

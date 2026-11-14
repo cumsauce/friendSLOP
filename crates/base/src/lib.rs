@@ -64,6 +64,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &rules::surf::TUNING,
         &rules::kori::EARNINGS,
         &textures::GLASS,
+        &graphics::TUNING,
         &input::BINDINGS,
     ]
 }

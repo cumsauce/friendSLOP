@@ -1168,15 +1168,19 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   what's important and maybe have presets"). Settings → Video opens a card with a **Preset**
   (Low / Medium / High; reads Custom once you change anything) and each option on its own:
   Shadows, Ambient occlusion (desktop only), Bloom, Anti-aliasing (MSAA, or FXAA while ambient
-  occlusion is on), Draw distance (Near 140 m / Far), Resolution (Sharp = native pixel density,
-  Fast = 1x; browser only, applies on reload, #191), Grass & particles (Half / Full, applies on the next world build), VSync and
+  occlusion is on), Draw distance (Near 140 m / Far), Resolution (browser: Sharp = native pixel
+  density, Fast = 1x, applies on reload, #191; desktop: Fast draws the world at 0.7 of the window,
+  about half the pixels, and stretches it, UI stays sharp, live), Grass & particles (Half / Full, applies on the next world build), VSync and
   Fullscreen. Low is everything off (default in the browser, or `FRIENDSLOP_LOW=1`), Medium is
   everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
   Fullscreen alone. Saved locally (old Low/High saves still load). 60 fps on low-end phones is
   the aim for Low, not measured. Steam Deck (#393, Tally): GPU-bound even on Low-ish settings;
   Bloom off now also drops the HDR float render target, so Low draws into an 8-bit target
-  (about half the per-pixel memory traffic). Open: desktop has no render-scale option yet, the
-  biggest remaining lever; no Deck before/after numbers yet.
+  (about half the per-pixel memory traffic). Low on desktop now also renders at 0.7 scale
+  (`data/base/graphics.ron`; Medium and High stay sharp). Measured on a desktop GPU, Low-ish
+  settings, 1280x720: GPU busy at the commune 80% -> 62%, Fulton St 43% -> 26%. Still costly:
+  the main opaque pass is ~95% of GPU time and only partly pixel-bound (likely the skinned,
+  alpha-cut trees and grass); `FRIENDSLOP_PERF=3` logs GPU time per pass. No Deck numbers yet.
 - **Better lighting** (#131, doomy: "surprise me"). The sun is now a lower, warmer golden-hour
   sun, so shadows stretch long and lit faces glow, with a slightly stronger cool bounce from the
   other side. With the video options on (High): ambient occlusion (soft darkening where things touch the ground or

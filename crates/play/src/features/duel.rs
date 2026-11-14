@@ -286,7 +286,8 @@ fn on_answer(
         commands.spawn((
             Duelist {
                 player,
-                lives: tuning().lives,
+                // Lives 0 would mean "already dead" to `on_shoot`'s guard.
+                lives: tuning().lives.max(1),
                 bullets: 1,
                 pos,
                 yaw: yaw_towards(pos, other),
@@ -397,6 +398,12 @@ fn on_shoot(
     let Some(j) = both.iter().position(|(_, d)| d.player != me) else {
         return;
     };
+    // A shot earlier in this batch already ended the duel (the winning
+    // despawn is still queued): `lives` is the synchronous claim, so stop
+    // before the refund-and-kill path can fire `DuelFought` twice.
+    if both[i].1.lives == 0 || both[j].1.lives == 0 {
+        return;
+    }
     let target = *both[j].1;
     let punched = both[i].1.bullets == 0;
     if !resolve_shot(&mut both[i].1, &target) {

@@ -3,6 +3,7 @@
 
 mod afterlife;
 mod bsn_salting;
+mod bugs_a;
 mod caught;
 mod data_files;
 mod fat_cat;

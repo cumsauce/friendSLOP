@@ -26,6 +26,8 @@ pub struct Crow {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the crows' ring (see world::footprints).
+    friendslop_world::footprints::claim(crate::sites::at("crows"), 6.5);
     app.replicate::<Crow>()
         .add_systems(OnEnter(ServerState::Running), spawn_crows);
 }

@@ -46,6 +46,10 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the music boxes (see world::footprints).
+    for id in ["music_box_1", "music_box_2"] {
+        friendslop_world::footprints::claim(crate::sites::at(id), 1.5);
+    }
     app.replicate::<MusicBox>()
         .add_systems(OnEnter(ServerState::Running), spawn_music_boxes);
 }

@@ -21,6 +21,8 @@ pub struct Bear {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the bear's figure-eight (see world::footprints).
+    friendslop_world::footprints::claim(crate::sites::at("bear"), 4.0);
     app.replicate::<Bear>()
         .add_systems(OnEnter(ServerState::Running), spawn_bear);
 }

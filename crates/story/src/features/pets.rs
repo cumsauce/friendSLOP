@@ -96,6 +96,10 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the strays (see world::footprints).
+    for (_, _, at) in stray_spots(crate::sites::at("pets"), &tuning()) {
+        friendslop_world::footprints::claim(at, 1.5);
+    }
     app.replicate::<Pet>()
         .add_client_event::<AdoptPet>(Channel::Ordered)
         .add_client_event::<PetLure>(Channel::Ordered)

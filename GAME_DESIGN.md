@@ -23,9 +23,9 @@ posts this section every few landed ideas (#153). Keep it under ~1800 characters
 **The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
 
 **Each chapter:** a checklist (top-left) of jobs in new places:
-1 *Moving In*: leash the pets, eat the mushroom, climb the sky islands to Abuela in heaven.
+1 *Moving In*: leash the strays (picnic corner), eat the mushroom, climb the sky islands to Abuela in heaven.
 2 *Rent Day*: open a vault door, break out of HALT, hide and seek, grab burgers at Wendy's.
-3 *The Heist*: carry out the Fire totem, use gods tears, a duel, trade a crow egg to Sewer
+3 *The Heist*: carry out the Fire totem, use gods tears, a duel, trade a crow egg (crows: by the windmill) to Sewer
 Paul in the tunnels. 4 *General Strike*: all of it at once, plus 2 soul pieces from the
 warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, one last time.
 Each chapter ends with the landlord: pay rent in organs, pickpocket him, then a boss fight.
@@ -76,7 +76,7 @@ now and then they all poop at once.
 Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
 ankles until they knock you flying. Run: they're slower than you.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, the bear (north forest), the goat (pond), Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -1396,7 +1396,12 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   brought out on your own screen while you're there (so a pigeon storm's line is only shown to
   people in the city), and Miami's crowd and lasers hold still. **Positions are data**: the crows, bear, goat, strays,
   the two loose totems and the music boxes read where they stand from their site in
-  `sites.ron` (the strays' spread in `pets.ron`), still at the same spots in the centre. Decided with the group's host: the centre becomes the story
+  `sites.ron` (the strays' spread in `pets.ron`), and (#412's first move) **they have left the centre**: the crows and their eggs and one
+  music box are by the windmill, the bear is in the forest's woodcutter clearing, the goat judges
+  from the pond, the strays wait at the picnic corner, the Wind totem stands on the western
+  hilltop, the Frost totem on the lake's north shore, and the other music box is by the quarry
+  crane. Each clears its own ground and stands on it (they used to sit at height 0). The chapter
+  jobs for the strays, the vault doors and the crow egg now say where to go. Decided with the group's host: the centre becomes the story
   hub only (landlord, Dave, vault, lectern, bonfire, arena, about 6 villagers); the five
   chapters stay, their jobs reworded to name sites; all 20 villagers stay, spread out; site
   keys only work at their site. World-wide effects: the Stillness, toilets, gaslighting and

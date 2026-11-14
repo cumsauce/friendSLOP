@@ -24,6 +24,8 @@ pub struct Goat {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the goat (see world::footprints).
+    friendslop_world::footprints::claim(crate::sites::at("goat"), 2.0);
     app.replicate::<Goat>()
         .add_systems(OnEnter(ServerState::Running), spawn_goat);
 }

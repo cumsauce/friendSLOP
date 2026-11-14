@@ -116,6 +116,10 @@ pub struct SpellCast {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the loose totems (see world::footprints).
+    for id in ["totem_wind", "totem_frost"] {
+        friendslop_world::footprints::claim(crate::sites::at(id), 1.5);
+    }
     app.replicate::<Totem>()
         .replicate::<Door>()
         .add_client_event::<GrabTotem>(Channel::Ordered)

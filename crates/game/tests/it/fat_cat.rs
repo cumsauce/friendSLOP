@@ -66,3 +66,21 @@ fn cats_grow_unwatched_and_stop_when_seen() {
     assert!(later[0].size > watched[0].size, "host's cat still grows");
     assert_eq!(cats(&mut client)[1].size, later[1].size, "size replicates");
 }
+
+#[test]
+fn a_cat_let_go_stays_gone_until_adopted_again() {
+    use friendslop::features::cat_grave::{AdoptCat, KillCat, StrayCat};
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    exchange(&mut server, &mut client, 5);
+    assert_eq!(cats(&mut server).len(), 2);
+
+    client.world_mut().client_trigger(KillCat);
+    exchange(&mut server, &mut client, 5);
+    let world = server.world_mut();
+    assert_eq!(world.query::<&StrayCat>().iter(world).count(), 1);
+    assert_eq!(cats(&mut server).len(), 1, "the cat is gone for good");
+    client.world_mut().client_trigger(AdoptCat);
+    exchange(&mut server, &mut client, 5);
+    assert_eq!(cats(&mut server).len(), 2, "adopting brings a cat back");
+}

@@ -199,6 +199,7 @@ fn give_cats(
     mut commands: Commands,
     players: Query<(&Player, &Walker)>,
     cats: Query<(Entity, &FatCat)>,
+    strays: Query<&super::cat_grave::StrayCat>,
 ) {
     for (entity, cat) in &cats {
         if !players.iter().any(|(p, _)| p.id == cat.owner) {
@@ -207,6 +208,10 @@ fn give_cats(
     }
     for (player, walker) in &players {
         if cats.iter().any(|(_, c)| c.owner == player.id) {
+            continue;
+        }
+        // A cat you let go stays gone until you adopt again.
+        if super::cat_grave::without_cat(player.id, &strays) {
             continue;
         }
         commands.spawn((

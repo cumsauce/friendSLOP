@@ -74,7 +74,7 @@ now and then they all poop at once.
 Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
 ankles until they knock you flying. Run: they're slower than you.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T).
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed).
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -1253,6 +1253,14 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
 Press **T** to say hi. Friends within 12 m see it, and villagers that close say hi back
 (toast lines from `data/side/hi.ron`; 2 s cooldown). It changes nothing else.
 
+## What exists: toilets of feces (#379)
+
+Every 25 s (up to 4 at once) a toilet full of feces turns up on the ground 12-35 m from a random
+player. Click it to eat the feces: +100% walking speed for 20 s, a brown screen tint and a line
+under your boba effects (it's a boba-style stack, so it adds to drinks). The eaten toilet stays
+empty for 20 s, then vanishes. Models `toilet` and `toilet-feces`; numbers and lines in
+`data/side/toilets.ron` (`features/toilets.rs`).
+
 ## Ideas so far
 
 - catherine (#374): roaming gangs of baby kittens that beat you up while meowing, haunting the
@@ -1453,6 +1461,9 @@ Press **T** to say hi. Friends within 12 m see it, and villagers that close say 
 - catherine (#356): fully staffed, modeled boba shops in the city with music, buying boba for
   stacking timed status effects, names parodying real NYC boba places. Read "prime" as "players";
   chose three shops and a speed buzz plus a screen tint as the effect.
+
+- Kori.exe (#379): randomly spawning toilets filled with feces; eat it for a massive speed
+  boost up to 20 s. Chose: near players, one eater per toilet, +100% speed for the full 20 s.
 
 ## Open questions
 

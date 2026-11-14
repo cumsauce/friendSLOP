@@ -91,6 +91,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(hats::protocol);
         app.add_plugins(hi::protocol);
         app.add_plugins(kittens::protocol);
+        app.add_plugins(toilets::protocol);
     }
 }
 
@@ -181,5 +182,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(hats::plugin);
         app.add_plugins(hi::plugin);
         app.add_plugins(kittens::plugin);
+        app.add_plugins(toilets::plugin);
     }
 }

@@ -1,0 +1,24 @@
+// Toilets full of feces that turn up at random (#379, crates/side/src/features/toilets.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Most toilets in the world at once.
+    max_toilets: 4,
+    // Seconds between new toilets turning up (while under the cap).
+    spawn_secs: 25.0,
+    // A new toilet turns up this many metres from a random player (min, max).
+    ring: (12.0, 35.0),
+    // Seconds an eaten (empty) toilet stays before it vanishes.
+    empty_secs: 20.0,
+    // Seconds the speed boost lasts.
+    boost_secs: 20.0,
+    // Walking speed it adds (1.0 = +100%, twice as fast).
+    boost_speed: 1.0,
+    // The name it shows under your speed effects.
+    boost_name: "Fresh Feces",
+    // The screen tint while it works (r, g, b).
+    tint: (0.45, 0.28, 0.08),
+    // Shown to you when you eat it.
+    ate_line: "you ate the feces. your legs feel unstoppable.",
+    // Shown when the toilet's already been eaten from.
+    empty_line: "someone already ate this one.",
+)

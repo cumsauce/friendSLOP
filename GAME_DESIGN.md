@@ -81,7 +81,7 @@ ankles until they knock you flying. Run: they're slower than you.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free, and dollars only buy boba, joints and hats so far. Six players beat the landlord fast. Only the RPG, a 10x cat, systemd and the lake can kill you.
+free, and dollars only buy boba, joints and hats so far (and Wendy's butcher turns spare organs into dollars). Six players beat the landlord fast. Only the RPG, a 10x cat, systemd and the lake can kill you.
 
 ## What exists
 
@@ -312,7 +312,12 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   stomach 3, appendix 1). Every player has an organ purse, shown top-right. Everyone starts with
   a rat appendix, a chicken kidney and a pig stomach (worth 21), refilled at the start of every
   chapter. Organs pay the landlord's rent; pickpocketing him takes one back, and beating him
-  shares his whole stash out between every tenant (#135). Nothing else earns or spends them yet.
+  shares his whole stash out between every tenant (#135). **What else they're for** (#217): Wendy's
+  butcher buys them. Click the chopping block in the backroom and he takes your cheapest organ
+  and pays dollars for it (4 organ value to the dollar, at least $1; the starting rat appendix
+  is $1, a human brain $25), so a small organ becomes a bodega hat while the big ones stay
+  for the rent. Lives at the `wendys` site; numbers in `data/side/organ_butcher.ron`
+  (`features/organ_butcher.rs`). Organs still only come from the chapter refill and the landlord.
 - **Crows** (#2). Three cute black crows hang around the floor, hopping and wandering about. Every
   so often one puffs up, caws (shown as "caw!" text) and you hear a crow sound. The server spawns
   them; every peer animates them locally.
@@ -1693,7 +1698,7 @@ restarts its world anyway. Saves are versioned and fitted to the chapter list if
 - What legal and less-than-legal ways are there to raise rent money? And how should the landlord fight back?
 - Does the commune do anything, or is it just where we are?
 - Who lives in the east village, and is it part of the Commune or somewhere else?
-- Organs are money, but how do you get them, and what are they for?
+- Organs are money and Wendy's butcher buys them for dollars (#217), but how do you get more of them?
 - You can be a person or a creature now. Does what you are change anything in play?
 - Browser voice chat is new (#166): does it work on your phone and browser, and is it loud and clear enough?
 - Phones (#191, #227): how long does the browser build take to load on your phone now, how many

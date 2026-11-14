@@ -105,12 +105,22 @@ pub fn protocol(app: &mut App) {
     app.replicate::<Car>()
         .add_server_event::<Honk>(Channel::Unordered)
         .add_systems(OnEnter(ServerState::Running), spawn_cars)
-        .add_systems(Update, drive.run_if(in_state(ServerState::Running)));
+        // The cabs only drive while someone is in the city (#412).
+        .add_systems(
+            Update,
+            drive
+                .run_if(crate::sites::awake("nyc"))
+                .run_if(in_state(ServerState::Running)),
+        );
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(play_honk)
-        .add_systems(Update, draw_cars.run_if(in_state(AppState::InGame)));
+    app.add_observer(play_honk).add_systems(
+        Update,
+        draw_cars
+            .run_if(crate::sites::here("nyc"))
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 // ------------------------------------------------------------------ geometry

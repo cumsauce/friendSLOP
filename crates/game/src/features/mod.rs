@@ -190,5 +190,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(kori::plugin);
         app.add_plugins(lily_garden::plugin);
         app.add_plugins(jokah::plugin);
+        app.add_plugins(achievements::plugin);
     }
 }

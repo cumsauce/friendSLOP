@@ -36,7 +36,7 @@ NPC and get caught 4 times: villagers chase you and float you. Villagers fart an
 Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
 Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 3 min
-and systemd (PID 1) kills you. Tiny notes under the Cat card (bottom right) say which world-wide effect is on right now. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O).
+and systemd (PID 1) kills you. Tiny notes under the Cat card (bottom right) say which world-wide effect is on right now. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O). Pointless achievements pop up for walking, spinning and standing around.
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
@@ -1409,7 +1409,19 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   and carried; HALT is pried at a terminal; action failing, the Watcher and the helicopter stay
   everywhere.
 
+## What exists: pointless achievements (#378)
+
+The game congratulates you on things nobody asked you to do. Each player's own game counts
+metres walked, seconds stood still in one go, full turns spun (looking around counts) and
+seconds played, and when one passes a line it shows a toast ("Achievement unlocked: Legs. You
+walked 100 m. Nobody is impressed."). Eleven of them, each earned once per session. Local only:
+nothing is sent, saved or rewarded. List and numbers in `data/side/achievements.ron`
+(`features/achievements.rs`). The AI's own pick for "come up with your own signature addition".
+
 ## Ideas so far
+
+- (#378): "Come up with your own signature addition to the game. Be creative." The AI picked
+  pointless achievements: toasts for walking, standing still, spinning and just being there.
 
 - catherine (#384): "lesbian sex... give me Yuri plot lines and characters and story lines
   and imagery and sign posts and locations". Built as the Lily Garden love-letter story.

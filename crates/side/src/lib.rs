@@ -20,6 +20,7 @@ pub mod features {
     // The NYC ideas moved to their own crate; the names stay here so
     // `super::fulton::` and `friendslop_side::features::trains` keep resolving.
     pub use friendslop_side_nyc::features::*;
+    pub mod achievements;
     pub mod affair;
     pub mod ambience;
     pub mod broadcast;
@@ -73,5 +74,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::emotes::TUNING,
         &features::kori::TUNING,
         &features::lily_garden::TUNING,
+        &features::achievements::TUNING,
     ]
 }

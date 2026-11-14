@@ -36,6 +36,7 @@ pub mod features {
     pub mod infinite;
     pub mod kittens;
     pub mod kori;
+    pub mod lily_garden;
     pub mod miami;
     pub mod nyc;
     pub mod nyc_traffic;
@@ -100,5 +101,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::toilets::TUNING,
         &features::emotes::TUNING,
         &features::kori::TUNING,
+        &features::lily_garden::TUNING,
     ]
 }

@@ -1,0 +1,1424 @@
+{
+  "format_version": 1,
+  "name": "lily-bed",
+  "parts": [],
+  "version": 70,
+  "ops": [
+    {
+      "revolve": {
+        "name": "rim",
+        "profile": [
+          [
+            [
+              1.08,
+              0.0
+            ],
+            [
+              1.25,
+              0.0
+            ],
+            [
+              1.25,
+              0.3
+            ],
+            [
+              1.08,
+              0.3
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 24,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "soil",
+        "kind": "cylinder",
+        "size": [
+          1.09,
+          0.26,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.13,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stem",
+        "kind": "cylinder",
+        "size": [
+          0.012,
+          0.45,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.225,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bloom_w",
+        "kind": "cone",
+        "size": [
+          0.07,
+          0.1,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.48,
+          0.0
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "bloom_p",
+        "kind": "cone",
+        "size": [
+          0.07,
+          0.1,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.48,
+          0.0
+        ],
+        "rotation": [
+          1.0,
+          0.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "stem_s",
+        "kind": "cylinder",
+        "size": [
+          0.01,
+          0.3,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.15,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "lav",
+        "kind": "capsule",
+        "size": [
+          0.025,
+          0.16,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.33,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "stem",
+        "input": "stem",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "grass",
+          "params": {
+            "top": 0.45
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "from": [
+                  0,
+                  0,
+                  0
+                ],
+                "name": "g",
+                "to": [
+                  0,
+                  "$top",
+                  0
+                ],
+                "type": "gradient"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  -0.15,
+                  0.15
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g",
+                "b": "nt",
+                "name": "gg",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "gg",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#2f5418"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#a9c25a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "type": "hsv"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "top": 0.6
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stem_s",
+        "input": "stem_s",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "grass",
+          "params": {
+            "top": 0.3
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "from": [
+                  0,
+                  0,
+                  0
+                ],
+                "name": "g",
+                "to": [
+                  0,
+                  "$top",
+                  0
+                ],
+                "type": "gradient"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  -0.15,
+                  0.15
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g",
+                "b": "nt",
+                "name": "gg",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "gg",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#2f5418"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#a9c25a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "type": "hsv"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "top": 0.6
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bloom_w",
+        "input": "bloom_w",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "params": {
+            "sat": 0.08,
+            "val": 1.4
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bloom_p",
+        "input": "bloom_p",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lav",
+        "input": "lav",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "params": {
+            "hue": -0.17,
+            "sat": 0.7
+          },
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rim",
+        "input": "rim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-masonry",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wv",
+                "octaves": 2,
+                "seed": 131,
+                "size": 0.5,
+                "type": "noise"
+              },
+              {
+                "amount": 0.01,
+                "by": "wv",
+                "name": "wp",
+                "type": "warp"
+              },
+              {
+                "coords": "wp",
+                "name": "bk",
+                "size": [
+                  0.5,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "id": "bk.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 132,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 133,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.008,
+                  0.02
+                ],
+                "input": "bk.edge",
+                "name": "stone_m",
+                "type": "levels"
+              },
+              {
+                "a": "tone",
+                "b": "fn",
+                "c": 0.4,
+                "name": "t",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "sc",
+                "stops": [
+                  [
+                    0,
+                    "#b4ada0"
+                  ],
+                  [
+                    1,
+                    "#dcd6ca"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "#6a655e",
+                "b": "sc",
+                "c": "stone_m",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "stone_m",
+                "b": 0.006,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.002,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "soil",
+        "input": "soil",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-soil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 181,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "pb",
+                "seed": 182,
+                "size": 0.05,
+                "type": "worley"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#3e2c1e"
+                  ],
+                  [
+                    1,
+                    "#6a4e34"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#7a7068",
+                "c": "peb",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.004,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "peb",
+                "b": 0.004,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.007,
+                  0.012
+                ],
+                "input": "pb.f1",
+                "name": "peb0",
+                "type": "levels"
+              },
+              {
+                "a": "peb0",
+                "name": "peb",
+                "op": "invert",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "scatter": {
+        "name": "fl",
+        "input": [
+          [
+            "stem",
+            "bloom_w"
+          ],
+          [
+            "stem",
+            "bloom_p"
+          ],
+          [
+            "stem_s",
+            "lav"
+          ]
+        ],
+        "on": "soil",
+        "count": 26,
+        "max": 2000,
+        "seed": 7,
+        "scale": [
+          0.8,
+          1.15
+        ],
+        "rotate": "random_y",
+        "align": 0.0,
+        "min_spacing": 0.2,
+        "sink": 0.0,
+        "region": [
+          [
+            -0.95,
+            -0.95
+          ],
+          [
+            0.95,
+            0.95
+          ]
+        ],
+        "faces": "up",
+        "weights": [
+          2.0,
+          2.0,
+          1.2
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "stem",
+        "input": "stem",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stem_s",
+        "input": "stem_s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bloom_w",
+        "input": "bloom_w",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bloom_p",
+        "input": "bloom_p",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "lav",
+        "input": "lav",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "stem",
+        "input": "stem",
+        "base_color": [
+          0.30980393,
+          0.49803922,
+          0.16470589,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stem_s",
+        "input": "stem_s",
+        "base_color": [
+          0.30980393,
+          0.49803922,
+          0.16470589,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bloom_w",
+        "input": "bloom_w",
+        "base_color": [
+          0.9843137,
+          0.9647059,
+          0.93333334,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bloom_p",
+        "input": "bloom_p",
+        "base_color": [
+          0.9411765,
+          0.47843137,
+          0.65882355,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lav",
+        "input": "lav",
+        "base_color": [
+          0.6039216,
+          0.4862745,
+          0.8156863,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 121,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 122,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.74,
+                  0.78
+                ],
+                "input": "cn",
+                "name": "chip",
+                "type": "levels"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "v",
+                "to": [
+                  0.86,
+                  0.96
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ffffff",
+                "b": "#f2f2f2",
+                "c": "fn",
+                "name": "base",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "v",
+                "name": "col0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "col0",
+                "b": "#8a8178",
+                "c": "chip",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "chip",
+                "b": -0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.55,
+                "b": 0.85,
+                "c": "chip",
+                "name": "rough",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

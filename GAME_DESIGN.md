@@ -37,7 +37,7 @@ NPC and get caught 4 times: villagers chase you and float you. Villagers fart an
 Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
 Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 3 min
-and systemd (PID 1) kills you. Tiny notes under the Cat card (bottom right) say which world-wide effect is on right now. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O). Pointless achievements pop up for walking, spinning and standing around.
+and systemd (PID 1) kills you; wade out of your depth in the lake for 12 s and you drown. Tiny notes under the Cat card (bottom right) say which world-wide effect is on right now. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O). Pointless achievements pop up for walking, spinning and standing around.
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
@@ -81,7 +81,7 @@ ankles until they knock you flying. Run: they're slower than you.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free, and dollars only buy boba, joints and hats so far. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
+free, and dollars only buy boba, joints and hats so far. Six players beat the landlord fast. Only the RPG, a 10x cat, systemd and the lake can kill you.
 
 ## What exists
 
@@ -1062,6 +1062,12 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   3 minutes and you get a private "watchdog ping overdue. MOVE" warning 20 s before it
   SIGKILLs you (you die, see Dying) and everyone sees the journal line. The clock stops
   while the world is frozen and while you're dead. No body, just the log (`features/systemd.rs`).
+- **The lake** (#238, "what else should be able to kill you?"). The deep middle of the west
+  valley's lake is out of your depth: stay with your feet more than 1.2 m under the surface
+  for 12 s and you drown (you die, see Dying). Wade back out, even for a moment, and you get
+  your breath back; the clock stops while the world is frozen and while you're dead. It lives
+  at the new `lake` site (`data/base/sites.ron`) and only runs while someone is there. Numbers
+  in `data/afterlife/drowning.ron` (`features/drowning.rs`).
 - **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
   game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
   Press G to pry at the seams; every pry fills the shared escape bar (top right) but angers HALT.
@@ -1398,7 +1404,7 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   Reduce the amount of active UI elements, sound, gameplay, entities, NPCs, etc by
   redistributing them throughout the world"). Read as: every mechanic gets a place of its own and
   sleeps while nobody is there. The first step is the list: `data/base/sites.ron` names each
-  site (the commune hub's six, Wendy's, the warehouse, the shipwreck, New York), where it is and
+  site (the commune hub's six, Wendy's, the warehouse, the lake, the shipwreck, New York), where it is and
   how far it reaches, and the game tracks which are awake (`sites.rs`; `FRIENDSLOP_PERF=1` logs
   them). **New York sleeps** while nobody is in the city: the kitten gangs stop prowling and the
   cabs stop driving until someone arrives; the pigeon flocks and the street people are only
@@ -1590,6 +1596,7 @@ restarts its world anyway. Saves are versioned and fitted to the chapter list if
   its mouth; eating resets it like the explosion does.
 - bben (#238, same question): "pid 1, usually systemd". We read it as systemd's watchdog:
   stand still (AFK) for 3 minutes and PID 1 kills you, with a warning first.
+- (#238, still on what else should kill you) We added the lake: it drowns you if you stay out of your depth.
 - catherine (#232): gather all the work that needs an admin or some outside person to act on
   the repo, the bot image and so on, as a list for doomy. It's `ADMIN_TODO.md`: stuck
   `needs-human` issues, secrets and tokens to renew, the manual release, redeploying the
@@ -1714,8 +1721,8 @@ restarts its world anyway. Saves are versioned and fitted to the chapter list if
 - Stats barely touch play (Frumbly needs bread and bakeries; none affect dialogue). What should they change?
 - What do totem spells actually do, and what lies beyond the locked doors?
 - The mute spell (#146) is the first voice spell. What other spells could you say?
-- Dying (#209) means heaven, begging and maybe the hell pit. The RPG, a 10x cat and systemd's idle watchdog (#238) kill;
-  what else should (#238 is still open for answers)? Is there anything else down in hell?
+- Dying (#209) means heaven, begging and maybe the hell pit. The RPG, a 10x cat, systemd's idle watchdog and the deep lake (#238) kill;
+  is there anything else down in hell?
 - What does connecting all the pets achieve, and what else do pets do?
 - Your fat cat (#145) drinks pee now (#213). Should what it eats or drinks change it?
 - Bad people get a helicopter shooting at them (#134). What does getting shot do? Does being

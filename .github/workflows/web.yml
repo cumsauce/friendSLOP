@@ -72,7 +72,12 @@ jobs:
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
           free -h
+      # 256 px textures on the site (tools/web-textures honors WEB_TEXTURE_MAX;
+      # local default 512) — half the texture memory on phones. The release
+      # zip (web-release.yml) keeps 512.
       - run: scripts/build-web.sh dist/web
+        env:
+          WEB_TEXTURE_MAX: "256"
       # A tiny stamp so anyone can see which commit the site is running.
       - run: echo "${{ github.sha }}" > dist/web/version.txt
       - uses: actions/upload-pages-artifact@v3

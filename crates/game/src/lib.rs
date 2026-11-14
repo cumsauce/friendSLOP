@@ -22,6 +22,7 @@ pub use friendslop_base::hud;
 pub use friendslop_base::input;
 pub use friendslop_kcc as kcc;
 pub use friendslop_world::landmarks;
+pub mod lan;
 pub mod loading;
 pub mod lod;
 pub mod menu;
@@ -97,7 +98,7 @@ impl Plugin for GamePlugin {
                 ambience::plugin,
                 loading::plugin,
             ))
-            .add_plugins(probes::plugin)
+            .add_plugins((probes::plugin, lan::plugin))
             .add_plugins((
                 landmarks::plugin,
                 zones::plugin,

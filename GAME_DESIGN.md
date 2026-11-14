@@ -18,6 +18,8 @@ asked for, and what nobody has decided yet.
 posts this section every few landed ideas (#153). Keep it under ~1800 characters. -->
 **Play in the browser:** https://cumsauce.github.io/friendSLOP/
 
+**Same Wi-Fi?** Host, and friends on your network see a "Join <you>'s commune" button.
+
 **The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
 
 **Each chapter:** a checklist (top-left) of jobs in new places:
@@ -1366,6 +1368,15 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   it). Local dressing like the street people: every peer runs its own, nothing replicated, no
   model or sound files (the shared commune-person body, `features/jokah.rs`). Open: does
   anything happen if you follow him, or stop him?
+
+## What exists: LAN discovery (#410)
+
+- **LAN discovery** (#410, bben: "LAN discovery for multiplayer", no details). While you host on
+  the desktop, the game broadcasts its join code on the local network once a second (UDP port
+  47410). The menu listens and shows a "Join <host>'s commune (LAN)" button under the code field
+  (or "Looking for games on your Wi-Fi..."); one click joins through iroh as usual. The name is
+  your computer's user name. Browsers can't do UDP, so the button just keeps looking there
+  (`crates/game/src/lan.rs`).
 
 ## Ideas so far
 

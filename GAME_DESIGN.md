@@ -45,7 +45,7 @@ subway platforms every few levels), for Pelf, while
 Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
-brownstone with the neon SURF sign: a surf map, two steep ramps to glide down to a timed finish.
+brownstone with the neon SURF sign: a surf map, a 2.4 km five-stage course of bending ramps between sky towers to a timed finish.
 The streets and stations have tweakers screaming at nobody, preachers telling you you're
 going to hell, and bucket drummers (thickest on the PATH platform and round Fulton St).
 Step in front of a cab and you're punted and ragdoll for a couple of seconds before getting up.
@@ -594,15 +594,20 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
 - **Surf map** (#306, doomy: "surf map in one of the buildings in nyc", no details: surprise
   me). The brownstone on the avenue's east side (27, 239.6) has a neon SURF sign over its
   door; walk up the stoop into the door and you're on the start pad of a surf hall, bigger on
-  the inside (it hangs 700 m over the city). Two long ridge ramps with 59 degree faces drop to
-  a neon finish pad, walled in over a dark void. The faces are too steep to stand on, and in
+  the inside (it's a sky course 900 m up, far east of the world; the world's edge doesn't hold
+  you there). Five stages of ridge ramps with 59 degree faces (S-bends; zig-zag transfers;
+  a big sweep left and back; wiggles into a steep speed ramp and a long jump; a long carve)
+  wind between neon-capped glass towers over a glowing city floor, 2.4 km of ramp, to a neon
+  finish pad. Each stage starts on a rooftop pad, a checkpoint, and no ramp hangs over another,
+  so dropping down skips nothing (made bigger and bendier on request; designed after surf
+  maps' stages, long speed ramps and transfers). The faces are too steep to stand on, and in
   the hall the walker's air control is cranked up like on surf servers (acceleration 120 a
   second instead of 10, top speed 45 m/s instead of 30): strafe into a face and steer with the
-  mouse to glide along it. Fall into the void and you're back on the start pad. Your screen
+  mouse to glide along it. Fall off a stage and you're back on its pad. Your screen
   times each run from leaving the pad to the finish and shows your best this game. A post on
   each pad takes you back to the street. Chose a timer as the "point" because surf maps have
-  one; no reward. Models `surf-hall` and `surf-door-sign` (modeler); tuning and lines in
-  `data/side/surf.ron`, the air control in `rules/surf.rs` (`features/surf.rs`).
+  one; no reward. Models `surf-hall` and `surf-door-sign` (modeler); the course (pads, ramp
+  points, solid boxes), tuning and lines in `data/side/surf.ron`, the air control in `rules/surf.rs` (`features/surf.rs`).
 - **Ragdolling** (#320, doomy: "when i get hit by a car ... get punted a bit and ragdoll a little
   before recovering like peak does it"). A cab that hits you punts you out of its lane and your
   body turns into a real physics body (an avian capsule) for 2.4 s: it flies, bounces, tumbles

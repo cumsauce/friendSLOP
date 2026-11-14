@@ -16,8 +16,13 @@ fn world() -> App {
         PhysicsPlugins::default(),
     ));
     app.init_asset::<Mesh>();
-    let ramp = friendslop_side::features::surf::RAMPS[0];
-    let Some(hull) = Collider::convex_hull(&ramp.corners()) else {
+    // A straight ramp from (0, -6, -16) to (0, -14, -76), 6 m to each side
+    // and 10 m down: the shape every piece of the course is cut from.
+    let points = [(0.0, -6.0, -16.0), (0.0, -14.0, -76.0)];
+    let [piece] = friendslop_side::features::surf::pieces(&points, 1, 6.0, 10.0)[..] else {
+        panic!("one piece");
+    };
+    let Some(hull) = Collider::convex_hull(&piece) else {
         panic!("ramp hull");
     };
     app.world_mut()

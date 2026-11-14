@@ -321,7 +321,7 @@ with many parts: re-export it with `optimize: {preset: "game", merge: "by_materi
 per material) unless the game looks its parts up by name. Video options cost most; shadows lead.
 Foliage: diffuse transmission on a material lights every pixel twice (every lamp and the sky),
 so leaves have it off (`data/game/trees.ron`); alpha-cut leaves rely on the camera's depth prepass
-(on whenever shadows or SSAO are) to shade only their front layer. The log shows median, p95 and
+(always on) to shade only their front layer. The log shows median, p95 and
 worst frame time: the median is the steady cost, the others are hitches.
 `FRIENDSLOP_PERF=3` also logs each render pass's GPU time (timestamp queries; Vulkan/DX12).
 

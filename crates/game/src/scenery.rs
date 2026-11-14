@@ -19,9 +19,8 @@ use bevy::world_serialization::WorldInstanceReady;
 
 use crate::AppState;
 use crate::art;
-use crate::features::dave_commune::parliament_at;
-use crate::features::duel::{arena_center, arena_half};
 pub use friendslop_base::scenery::bonfire_at;
+use friendslop_world::places::{arena_center, arena_half, parliament_at};
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<KitCache>()
@@ -81,10 +80,7 @@ fn is_clear(p: Vec2, margin: f32) -> bool {
         return false;
     }
     // Nothing right at the default camera's feet, or a bush fills the screen.
-    let eye = crate::camera::CameraRig::default()
-        .transform()
-        .translation
-        .xz();
+    let eye = friendslop_core::overview_eye();
     if p.distance(eye) < 6.0 + margin {
         return false;
     }

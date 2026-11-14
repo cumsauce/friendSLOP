@@ -27,7 +27,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, within};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub use crate::rules::nyc::*;
@@ -106,21 +106,22 @@ fn travel(
         ClientId::Server => None,
         ClientId::Client(c) => Some(c),
     };
-    let Some((_, mut walker, input, kcc)) = bodies.iter_mut().find(|b| b.0.0 == owner) else {
+    let Some((_, mut walker, mut input, mut kcc)) = bodies.iter_mut().find(|b| b.0.0 == owner)
+    else {
         return;
     };
     let Some(to) = destination(walker.pos, ev.to_city, &tuning()) else {
         deny(&mut commands, ev.client_id, "too far away: walk closer");
         return;
     };
-    walker.pos = to;
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(
+        &mut walker,
+        input.as_deref_mut(),
+        kcc.as_deref_mut(),
+        to,
+        yaw,
+    );
 }
 
 // ------------------------------------------------------------------ layout

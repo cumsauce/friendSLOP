@@ -57,7 +57,7 @@ pub mod camera {
 
     /// The original fixed view direction.
     pub fn view_offset() -> Vec3 {
-        Vec3::new(0.0, 5.5, 17.0)
+        friendslop_core::OVERVIEW_OFFSET
     }
 
     impl CameraRig {

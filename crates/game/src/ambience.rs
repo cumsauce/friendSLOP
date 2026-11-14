@@ -67,15 +67,9 @@ fn no_model_shadows(
     }
 }
 
-/// Marker for scenery props that bend in the wind. Captures the prop's rest
-/// rotation the first frame it is seen.
-#[derive(Component, Default)]
-pub struct Sway {
-    base: Option<Quat>,
-    phase: f32,
-    /// Which of the alternating frames this prop is updated on.
-    odd: bool,
-}
+/// Marker for scenery props that bend in the wind (data lives in
+/// `friendslop-core`; the sway system below drives it).
+pub use friendslop_core::Sway;
 
 #[derive(Clone, Copy)]
 enum Kind {

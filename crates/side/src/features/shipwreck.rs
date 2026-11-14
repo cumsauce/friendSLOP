@@ -18,7 +18,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::Walker;
+use crate::features::fps::{Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -289,13 +289,12 @@ fn attack(
         );
     } else if crew.roll() < tuning().knockback_chance {
         // He swings back and sends you flying.
-        if let Some((_, mut w, kcc)) = bodies.iter_mut().find(|(o, ..)| o.0 == owner) {
+        if let Some((_, mut w, mut kcc)) = bodies.iter_mut().find(|(o, ..)| o.0 == owner) {
             let away = (w.pos.xz() - pirate_spot(p.id).xz()).normalize_or(Vec2::X);
             let to = w.pos.xz() + away * tuning().knockback;
-            w.pos = Vec3::new(to.x, crate::terrain::height_at(to.x, to.y), to.y);
-            if let Some(mut kcc) = kcc {
-                kcc.velocity = Vec3::ZERO;
-            }
+            let pos = Vec3::new(to.x, crate::terrain::height_at(to.x, to.y), to.y);
+            let yaw = w.yaw;
+            teleport(&mut w, None, kcc.as_deref_mut(), pos, yaw);
         }
         deny(
             &mut commands,

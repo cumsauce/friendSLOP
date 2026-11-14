@@ -32,7 +32,7 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{SERVER_REACH, deny, within};
 use crate::player::PlayerOwner;
 pub use friendslop_core::WorldSeed;
@@ -117,6 +117,14 @@ pub fn covers(p: Vec2, margin: f32) -> bool {
     entrances()
         .iter()
         .any(|e| p.distance(e.at + e.out * 0.8) < 2.2 + margin)
+}
+
+// W1 claims prep: claim the same ground as [`covers`] (world::footprints),
+// so scenery/zones can switch to `claimed` and this goes away (follow-up).
+fn claim_ground() {
+    for e in entrances() {
+        friendslop_world::footprints::claim(e.at + e.out * 0.8, 2.2);
+    }
 }
 
 /// Where you arrive at the bottom of entrance `i`'s ladder.
@@ -335,6 +343,7 @@ pub struct UseHatch {
 }
 
 pub fn protocol(app: &mut App) {
+    claim_ground();
     app.add_client_event::<UseHatch>(Channel::Ordered)
         .add_observer(use_hatch)
         .add_systems(
@@ -376,7 +385,8 @@ fn use_hatch(
         ClientId::Server => None,
         ClientId::Client(c) => Some(c),
     };
-    let Some((_, mut walker, input, kcc)) = bodies.iter_mut().find(|b| b.0.0 == owner) else {
+    let Some((_, mut walker, mut input, mut kcc)) = bodies.iter_mut().find(|b| b.0.0 == owner)
+    else {
         return;
     };
     let here = walker.pos;
@@ -386,18 +396,19 @@ fn use_hatch(
         deny(&mut commands, ev.client_id, "too far away: walk closer");
         return;
     }
-    walker.pos = if underground {
+    let to = if underground {
         up_spot(id)
     } else {
         down_spot(id)
     };
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(
+        &mut walker,
+        input.as_deref_mut(),
+        kcc.as_deref_mut(),
+        to,
+        yaw,
+    );
 }
 
 /// For the music: the camera's down in the tunnels.
@@ -492,6 +503,25 @@ mod tests {
             for z in (-90..=90).step_by(6) {
                 let h = crate::terrain::height_at(x as f32, z as f32);
                 assert!(h > TUNNEL_Y + TUNNEL_H + 10.0, "{x},{z}");
+            }
+        }
+    }
+
+    #[test]
+    fn claims_cover_the_sample_points_covers_does() {
+        claim_ground();
+        for e in entrances() {
+            let c = e.at + e.out * 0.8;
+            for margin in [0.0, 1.0] {
+                for d in [Vec2::ZERO, Vec2::X, Vec2::Y, -Vec2::X, -Vec2::Y] {
+                    let p = c + d * 2.1;
+                    if covers(p, margin) {
+                        assert!(
+                            friendslop_world::footprints::claimed(p, margin),
+                            "covers but unclaimed at {p}"
+                        );
+                    }
+                }
             }
         }
     }

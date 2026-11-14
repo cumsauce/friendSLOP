@@ -71,12 +71,9 @@ pub fn cheap_leaf(m: &mut StandardMaterial, t: &Trees) {
     }
 }
 
-/// A tree model: give its meshes far versions. `shadows: false` also keeps
-/// it out of the shadow map (the smaller forest trees, as before).
-#[derive(Component, Clone, Copy, Debug)]
-pub struct TreeLod {
-    pub shadows: bool,
-}
+/// A tree model: give its meshes far versions (data lives in
+/// `friendslop-core`; the systems below drive it).
+pub use friendslop_core::TreeLod;
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<FarMeshes>()

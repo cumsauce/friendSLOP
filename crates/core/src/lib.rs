@@ -51,6 +51,36 @@ impl DrawRange {
     pub const FADE: f32 = 0.3;
 }
 
+/// Marker for scenery props that bend in the wind. The game's ambience
+/// system captures the prop's rest rotation the first frame it is seen and
+/// writes the sway; this is only the data it keeps.
+#[derive(Component, Default)]
+pub struct Sway {
+    pub base: Option<Quat>,
+    pub phase: f32,
+    /// Which of the alternating frames this prop is updated on.
+    pub odd: bool,
+}
+
+/// A tree model: the game's lod system gives its meshes far versions.
+/// `shadows: false` also keeps it out of the shadow map (the smaller forest
+/// trees).
+#[derive(Component, Clone, Copy, Debug)]
+pub struct TreeLod {
+    pub shadows: bool,
+}
+
+/// The overview camera's eye offset from its focus: its fixed starting pose,
+/// a constant that scenery and the camera both key off (the game's
+/// `CameraRig::default`).
+pub const OVERVIEW_OFFSET: Vec3 = Vec3::new(0.0, 5.5, 17.0);
+
+/// Where the overview camera's eye sits on the ground plane (x, z).
+/// Scenery keeps a clearing around it so the first view isn't a fern.
+pub fn overview_eye() -> Vec2 {
+    OVERVIEW_OFFSET.xz()
+}
+
 /// How much grass and ambient detail to spawn, `0..=1`, kept in step with
 /// the video settings. Absent (headless tests): full detail.
 #[derive(Resource, Clone, Copy, Debug, PartialEq)]

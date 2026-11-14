@@ -27,5 +27,6 @@ pub mod kori;
 pub mod morality;
 pub mod nyc;
 pub mod skills;
+pub mod stats;
 pub mod surf;
 pub mod villagers;

@@ -115,6 +115,7 @@ crates/places/       friendslop-places: warehouse, underground, smoking, skills,
 crates/village/      friendslop-village: villagers, caught, punishment, hide_and_seek, romance, wendys, ...
 crates/story/        friendslop-story: campaign, objective, landlord, totems, gods_tears, abuela, gamble, ...
 crates/afterlife/    friendslop-afterlife: afterlife, fat_cat, kitty_lemonade, mute_spell, systemd
+crates/side-nyc/     friendslop-side-nyc: NYC and its ideas (fulton, fulton_hunt, hats, high_places, ice_cream, miami, nyc, nyc_traffic, penn, street_people, toilets, trains, vessel, vessel_jump, wallet, boba)
 crates/side/         friendslop-side: standalone ideas (affair, fusion, goat, rats, shipwreck, ...)
 crates/fusion/       the generated soundtrack (no Bevy): synths in code; the score (every mood's songs) and the mix
                      are data in assets/data/music/; `cargo run -p fusion --bin fusion-render -- help`
@@ -144,7 +145,7 @@ The workspace has three layers, and dependencies only ever point down:
    - `friendslop-world`: `core`, `art`, `structures` and `data`.
 2. **The game layer** (split so a change rebuilds only its crate and those above it; a single
    47k-line crate took CI 18 minutes): `friendslop-base` → `play` → `places` → `village` →
-   `story` → {`afterlife`, `side`}. Each crate's `features` module re-exports every feature
+   `story` → {`afterlife`, `side-nyc`} → `side`. Each crate's `features` module re-exports every feature
    below it and its lib.rs re-exports base's modules, so code keeps writing `crate::hud`,
    `crate::features::fps`, `super::warehouse` unchanged.
 3. **The game** (`crates/game`, package `friendslop`): networking, menus, the UI, camera,

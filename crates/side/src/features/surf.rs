@@ -27,7 +27,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, within};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub use crate::rules::surf::*;
@@ -96,17 +96,11 @@ type Body<'a> = (
 fn put(
     to: Vec3,
     walker: &mut Walker,
-    input: Option<Mut<WalkInput>>,
-    kcc: Option<Mut<crate::kcc::Kcc>>,
+    mut input: Option<Mut<WalkInput>>,
+    mut kcc: Option<Mut<crate::kcc::Kcc>>,
 ) {
-    walker.pos = to;
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(walker, input.as_deref_mut(), kcc.as_deref_mut(), to, yaw);
 }
 
 /// Server: which stage a body has reached (its last checkpoint pad).

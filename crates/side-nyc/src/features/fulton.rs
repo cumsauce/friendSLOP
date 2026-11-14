@@ -50,7 +50,7 @@ use friendslop_wfc as wfc;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, within};
 use crate::features::stats::Stats;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -1207,11 +1207,6 @@ pub fn entrance_colliders(t: &Tuning) -> Vec<Block> {
         .collect()
 }
 
-/// Your Pelf after the reward (stats stay within 1..=10).
-pub fn rewarded_pelf(pelf: u8, reward: u8) -> u8 {
-    pelf.saturating_add(reward).min(10)
-}
-
 // ------------------------------------------------------------------ server
 
 /// The station everyone builds from the data files.
@@ -1254,17 +1249,17 @@ type Body<'a> = (
 fn put(
     to: Vec3,
     walker: &mut Walker,
-    input: Option<Mut<WalkInput>>,
-    kcc: Option<Mut<crate::kcc::Kcc>>,
+    mut input: Option<Mut<WalkInput>>,
+    mut kcc: Option<Mut<crate::kcc::Kcc>>,
 ) {
-    walker.pos = to + Vec3::Y * 0.05;
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(
+        walker,
+        input.as_deref_mut(),
+        kcc.as_deref_mut(),
+        to + Vec3::Y * 0.05,
+        yaw,
+    );
 }
 
 /// Server: walk into the entrance and you're on the station's top level.
@@ -1286,7 +1281,7 @@ fn reward(
     let t = tuning();
     for (p, w, mut stats) in &mut players {
         if on_platform(&t, &station.levels, w.pos) && done.0.insert(p.id) {
-            stats.pelf = rewarded_pelf(stats.pelf, t.reward_pelf);
+            stats.earn_pelf(t.reward_pelf);
         }
     }
 }
@@ -2178,8 +2173,12 @@ mod tests {
 
     #[test]
     fn the_reward_caps_at_ten() {
-        assert_eq!(rewarded_pelf(4, 3), 7);
-        assert_eq!(rewarded_pelf(9, 3), 10);
+        let mut s = Stats::roll([0.0; 6]);
+        s.pelf = 4;
+        s.earn_pelf(3);
+        assert_eq!(s.pelf, 7);
+        s.earn_pelf(3);
+        assert_eq!(s.pelf, 10);
     }
 
     #[test]

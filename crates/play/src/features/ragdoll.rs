@@ -81,7 +81,10 @@ struct Tumble {
 
 /// Server: the rigid body standing in for a ragdolling player.
 #[derive(Component)]
-struct RagdollBody;
+struct RagdollBody {
+    /// The player it tumbles for, so it dies with them.
+    owner: Entity,
+}
 
 /// Punt the player `entity` with `velocity` (m/s). Server only.
 pub fn knock(commands: &mut Commands, entity: Entity, velocity: Vec3) {
@@ -130,11 +133,25 @@ pub fn limp(left: f32, recover: f32) -> f32 {
 pub fn protocol(app: &mut App) {
     app.replicate::<Ragdoll>().add_systems(
         Update,
-        (start_tumbles, tumble)
+        (start_tumbles, tumble, sweep_orphan_bodies)
             .chain()
             .before(super::fps::WalkSet)
             .run_if(in_state(ServerState::Running)),
     );
+}
+
+/// A body whose player is gone (despawned mid-tumble) would tumble on
+/// forever: sweep it.
+fn sweep_orphan_bodies(
+    mut commands: Commands,
+    bodies: Query<(Entity, &RagdollBody)>,
+    players: Query<(), With<Player>>,
+) {
+    for (e, body) in &bodies {
+        if players.get(body.owner).is_err() {
+            commands.entity(e).try_despawn();
+        }
+    }
 }
 
 pub fn plugin(app: &mut App) {
@@ -160,7 +177,7 @@ fn start_tumbles(
         let body = physics(&trees).then(|| {
             commands
                 .spawn((
-                    RagdollBody,
+                    RagdollBody { owner: entity },
                     RigidBody::Dynamic,
                     Collider::capsule(LYING, HALF * 2.0 - LYING * 2.0),
                     Mass(tu.mass),
@@ -355,5 +372,26 @@ mod tests {
             Quat::from_rotation_x(std::f32::consts::FRAC_PI_2),
         );
         assert!(at.y < HALF + 0.01, "lying down, your eyes are low");
+    }
+
+    /// play:orphan-body — a `RagdollBody` must die with the player it
+    /// tumbles for, or a mid-tumble despawn orphans a physics capsule.
+    #[test]
+    fn ragdoll_body_despawns_with_player() {
+        let mut app = App::new();
+        app.add_systems(bevy::prelude::Update, sweep_orphan_bodies);
+        let owner = app.world_mut().spawn(Player { id: 1 }).id();
+        let body = app.world_mut().spawn(RagdollBody { owner }).id();
+        app.update();
+        assert!(
+            app.world().get_entity(body).is_ok(),
+            "alive while its player is"
+        );
+        app.world_mut().despawn(owner);
+        app.update();
+        assert!(
+            app.world().get_entity(body).is_err(),
+            "despawns with its player"
+        );
     }
 }

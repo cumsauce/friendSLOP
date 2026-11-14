@@ -83,6 +83,42 @@ fn in_set_piece(p: Vec2, margin: f32) -> bool {
 }
 
 /// Rejection-samples up to `n` points in `zone`, spaced `spacing` apart.
+/// How many of a thing to scatter in a zone, how far apart (m) and how far
+/// in from the zone's edge (m).
+#[derive(serde::Deserialize, Default, Debug, Clone, Copy, PartialEq)]
+pub struct Spread {
+    pub count: usize,
+    pub spacing: f32,
+    pub margin: f32,
+}
+
+impl Spread {
+    fn scatter(&self, rng: &mut Rng, zone: Zone) -> Vec<Vec2> {
+        scatter(rng, zone, self.count, self.spacing, self.margin)
+    }
+}
+
+/// How much of the world's dressing there is: `data/game/scenery.ron`.
+#[derive(serde::Deserialize, Default, Debug)]
+pub struct Scenery {
+    /// The commune's clusters (groves, outcrops, sheds...) and loose flowers.
+    pub commune_clusters: Spread,
+    pub commune_flora: u32,
+    pub forest_trees: Spread,
+    pub forest_logs: Spread,
+    pub forest_rocks: Spread,
+    pub valley_trees: Spread,
+    pub valley_rocks: Spread,
+    pub valley_fences: Spread,
+    pub meadow_copses: Spread,
+    pub meadow_walls: Spread,
+    pub meadow_hay: Spread,
+    pub meadow_boulders: Spread,
+}
+
+pub static SCENERY: friendslop_data::Data<Scenery> =
+    friendslop_data::Data::ron("data/game/scenery.ron");
+
 fn scatter(rng: &mut Rng, zone: Zone, n: usize, spacing: f32, margin: f32) -> Vec<Vec2> {
     let mut out: Vec<Vec2> = Vec::new();
     for _ in 0..n * 25 {
@@ -187,7 +223,8 @@ fn fallen_log(d: &mut Dresser, rng: &mut Rng, c: Vec2) {
 }
 
 fn forest(d: &mut Dresser, rng: &mut Rng) {
-    let trees = scatter(rng, Zone::Forest, 230, 3.6, 1.0);
+    let t = SCENERY.get();
+    let trees = t.forest_trees.scatter(rng, Zone::Forest);
     for p in &trees {
         big_tree(d, rng, *p, 1.2, 2.0);
     }
@@ -200,10 +237,10 @@ fn forest(d: &mut Dresser, rng: &mut Rng) {
         let q = rng.around(*p, 2.5);
         d.model(rng.pick(BUSHES), q, rng.yaw(), s, true);
     }
-    for c in scatter(rng, Zone::Forest, 18, 8.0, 3.0) {
+    for c in t.forest_logs.scatter(rng, Zone::Forest) {
         fallen_log(d, rng, c);
     }
-    for c in scatter(rng, Zone::Forest, 22, 8.0, 2.5) {
+    for c in t.forest_rocks.scatter(rng, Zone::Forest) {
         let s = rng.range(0.8, 1.6);
         d.rock(rng, c, s);
     }
@@ -459,14 +496,15 @@ fn low_wall(d: &mut Dresser, rng: &mut Rng, c: Vec2, len: f32) {
 }
 
 fn valley(d: &mut Dresser, rng: &mut Rng) {
-    for p in scatter(rng, Zone::Valley, 14, 7.0, 1.5) {
+    let t = SCENERY.get();
+    for p in t.valley_trees.scatter(rng, Zone::Valley) {
         big_tree(d, rng, p, 1.0, 1.6);
     }
-    for p in scatter(rng, Zone::Valley, 12, 6.0, 2.0) {
+    for p in t.valley_rocks.scatter(rng, Zone::Valley) {
         let s = rng.range(0.6, 1.4);
         d.rock(rng, p, s);
     }
-    for p in scatter(rng, Zone::Valley, 5, 10.0, 4.0) {
+    for p in t.valley_fences.scatter(rng, Zone::Valley) {
         d.cluster(rng, Cluster::Fence, p);
     }
     // The shepherd's shelter.
@@ -476,8 +514,9 @@ fn valley(d: &mut Dresser, rng: &mut Rng) {
 }
 
 fn meadows(d: &mut Dresser, rng: &mut Rng) {
+    let t = SCENERY.get();
     // Small copses.
-    for c in scatter(rng, Zone::Meadow, 14, 14.0, 5.0) {
+    for c in t.meadow_copses.scatter(rng, Zone::Meadow) {
         for _ in 0..(3 + (rng.f() * 3.0) as u32) {
             let p = rng.around(c, 4.0);
             if free(p, Zone::Meadow, 1.0) {
@@ -489,16 +528,16 @@ fn meadows(d: &mut Dresser, rng: &mut Rng) {
         d.undergrowth(rng, c, 4.0, 4);
     }
     // Field walls and hedgerows.
-    for c in scatter(rng, Zone::Meadow, 18, 12.0, 2.0) {
+    for c in t.meadow_walls.scatter(rng, Zone::Meadow) {
         let len = rng.range(10.0, 18.0);
         low_wall(d, rng, c, len);
     }
     // Haystacks.
-    for c in scatter(rng, Zone::Meadow, 10, 12.0, 3.0) {
+    for c in t.meadow_hay.scatter(rng, Zone::Meadow) {
         d.cluster(rng, Cluster::Hay, c);
     }
     // Scattered single boulders.
-    for c in scatter(rng, Zone::Meadow, 10, 10.0, 2.0) {
+    for c in t.meadow_boulders.scatter(rng, Zone::Meadow) {
         let s = rng.range(0.5, 1.0);
         d.rock(rng, c, s);
     }
@@ -522,6 +561,32 @@ fn windmill(d: &mut Dresser) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_scenery_file_has_every_spread() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/data/game/scenery.ron");
+        let Ok(bytes) = std::fs::read(path) else {
+            panic!("no {path}");
+        };
+        assert!(SCENERY.set_bytes(&bytes), "{path} doesn't parse");
+        let t = SCENERY.get();
+        for s in [
+            t.commune_clusters,
+            t.forest_trees,
+            t.forest_logs,
+            t.forest_rocks,
+            t.valley_trees,
+            t.valley_rocks,
+            t.valley_fences,
+            t.meadow_copses,
+            t.meadow_walls,
+            t.meadow_hay,
+            t.meadow_boulders,
+        ] {
+            assert!(s.count > 0 && s.spacing > 0.0, "{s:?}");
+        }
+        assert!(t.commune_flora > 0);
+    }
 
     #[test]
     fn districts_are_where_the_layout_says() {

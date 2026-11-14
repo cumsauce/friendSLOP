@@ -33,12 +33,7 @@ pub fn plugin(app: &mut App) {
 /// Props stay inside this half-extent (the floor is 50×50, and the outer
 /// edge may get hills, so keep a margin).
 const PLAY_HALF: f32 = 22.5;
-/// How many prop clusters to place.
-const CLUSTER_COUNT: usize = 18;
-/// Minimum distance between cluster centres.
-const CLUSTER_SPACING: f32 = 6.5;
-/// Scattered loose flora between clusters.
-const LOOSE_FLORA: u32 = 50;
+// How many clusters and loose flowers, and how far apart: `data/game/scenery.ron`.
 
 /// Small scenery whose meshes shouldn't cast shadows (cheap, and tiny shadows
 /// just look noisy) and stop drawing in the distance (#151).
@@ -725,15 +720,20 @@ fn dress_floor(
     // Cluster centres: rejection-sampled over the play area, spaced apart and
     // clear of every landmark.
     let mut centres: Vec<Vec2> = Vec::new();
-    for _ in 0..CLUSTER_COUNT * 30 {
-        if centres.len() >= CLUSTER_COUNT {
+    let spread = crate::zones::SCENERY.get();
+    let (cluster_count, cluster_spacing) = (
+        spread.commune_clusters.count,
+        spread.commune_clusters.spacing,
+    );
+    for _ in 0..cluster_count * 30 {
+        if centres.len() >= cluster_count {
             break;
         }
         let p = Vec2::new(
             rng.range(-PLAY_HALF, PLAY_HALF),
             rng.range(-PLAY_HALF, PLAY_HALF),
         );
-        if !is_clear(p, 2.5) || centres.iter().any(|c| c.distance(p) < CLUSTER_SPACING) {
+        if !is_clear(p, 2.5) || centres.iter().any(|c| c.distance(p) < cluster_spacing) {
             continue;
         }
         centres.push(p);
@@ -757,7 +757,7 @@ fn dress_floor(
     }
 
     // Loose flowers and pebbles in the open bits, so the meadow isn't bald.
-    for _ in 0..LOOSE_FLORA {
+    for _ in 0..spread.commune_flora {
         let p = Vec2::new(
             rng.range(-PLAY_HALF, PLAY_HALF),
             rng.range(-PLAY_HALF, PLAY_HALF),

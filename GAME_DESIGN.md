@@ -34,7 +34,7 @@ NPC and get caught 4 times: villagers chase you and float you. Villagers fart an
 Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
 Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 3 min
-and systemd (PID 1) kills you.
+and systemd (PID 1) kills you. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O).
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
@@ -1269,7 +1269,18 @@ under your boba effects (it's a boba-style stack, so it adds to drinks). The eat
 empty for 20 s, then vanishes. Models `toilet` and `toilet-feces`; numbers and lines in
 `data/side/toilets.ron` (`features/toilets.rs`).
 
+## What exists: emotes with friends (#383)
+
+Press **U** to pick an emote (high five, dap up, rock paper scissors) and **O** to offer it to
+the nearest friend within 3 m. They press **O** within 6 s to accept, and both of you get a toast
+("you and player 1 high five. SMACK!"); rock paper scissors throws for both and says who won.
+It changes nothing else. There's no arm animation yet, only the toast. Emotes and lines are in
+`data/side/emotes.ron`.
+
 ## Ideas so far
+
+- catherine (#383): emotes involving other players like high five, rock paper scissors and
+  dapping up (no details). Read as an e.g. list and built exactly those three, as offer/accept toasts.
 
 - catherine (#374): roaming gangs of baby kittens that beat you up while meowing, haunting the
   city streets. Built as kitten gangs on New York's avenue that charge, swat and knock you over.

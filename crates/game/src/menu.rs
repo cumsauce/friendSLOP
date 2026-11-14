@@ -124,6 +124,8 @@ enum Label {
     /// The end of the code, in the gamepad's hex picker.
     CodeTail,
     JoinButton,
+    /// The LAN discovery button (#410).
+    LanButton,
 }
 
 /// The join-code field (the hex picker gives the pad's focus back to it).
@@ -400,7 +402,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 left: px(44),
                 top: px(40),
                 width: px(418),
-                height: px(640),
+                height: px(698),
                 border: UiRect::all(px(b)),
                 border_radius: BorderRadius::all(px(18)),
                 ..default()
@@ -492,39 +494,60 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                     }
                 },
             );
+            // LAN discovery (#410): a game hosted on the same network.
+            ui.spawn((
+                cover_button("", PERIWINKLE, I_INK, 46.0, 381.0),
+                Label::LanButton,
+            ))
+            .observe(
+                |_: On<PointerClick>,
+                 games: Res<crate::lan::LanGames>,
+                 mut code: ResMut<JoinCode>,
+                 mut connecting: ResMut<Connecting>,
+                 mut status: ResMut<NetStatus>,
+                 client: Option<Res<IrohClient>>| {
+                    let Some(game) = games.0.first() else {
+                        status.message =
+                            "No games on your network yet: ask a friend to host.".into();
+                        return;
+                    };
+                    code.0.clone_from(&game.code);
+                    join(&code, &mut connecting, &mut status, client.is_some())
+                },
+            );
             ui.spawn(cover_button(
                 "Character creator",
                 RAISED,
                 CREAM,
                 52.0,
-                381.0,
+                439.0,
             ))
             .observe(
                 |_: On<PointerClick>, mut open: ResMut<crate::creator::CreatorOpen>| {
                     open.0 = !open.0;
                 },
             );
-            ui.spawn(link("Settings", PERIWINKLE, 26.0, 461.0)).observe(
+            ui.spawn(link("Settings", PERIWINKLE, 26.0, 519.0)).observe(
                 |_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>| {
                     crate::ui::settings_panel::toggle(&mut panel);
                 },
             );
-            ui.spawn((Text::new("·"), body(18.0, PERIWINKLE), at(120.0, 461.0, b)));
-            ui.spawn(link("Whose fault is it", PERIWINKLE, 151.0, 461.0))
+            ui.spawn((Text::new("·"), body(18.0, PERIWINKLE), at(120.0, 519.0, b)));
+            ui.spawn(link("Whose fault is it", PERIWINKLE, 151.0, 519.0))
                 .observe(
-                    |_: On<PointerClick>,
-                     mut panel: Query<&mut Node, With<crate::fault::FaultPanel>>| {
-                        crate::fault::toggle(&mut panel);
-                    },
-                );
-            ui.spawn(link("Kori prizes", PERIWINKLE, 26.0, 502.0))
+                |_: On<PointerClick>,
+                 mut panel: Query<&mut Node, With<crate::fault::FaultPanel>>| {
+                    crate::fault::toggle(&mut panel);
+                },
+            );
+            ui.spawn(link("Kori prizes", PERIWINKLE, 26.0, 560.0))
                 .observe(
                 |_: On<PointerClick>,
                  mut panel: Query<&mut Node, With<crate::kori_shelf::ShelfPanel>>| {
                     crate::kori_shelf::toggle(&mut panel);
                 },
             );
-            ui.spawn(link("Quit", CREAM, 151.0, 502.0)).observe(
+            ui.spawn(link("Quit", CREAM, 151.0, 560.0)).observe(
                 |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
                     exit.write(AppExit::Success);
                 },
@@ -536,7 +559,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                     border_radius: BorderRadius::all(px(999)),
                     max_width: px(362),
                     display: Display::None,
-                    ..at(26.0, 540.0, b)
+                    ..at(26.0, 598.0, b)
                 },
                 BackgroundColor(RAISED),
                 StatusPill,
@@ -545,13 +568,13 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             ui.spawn((
                 Text::new("Made by your Discord. Blame accordingly."),
                 body(14.0, PERIWINKLE),
-                at(26.0, 580.0, b),
+                at(26.0, 638.0, b),
             ));
             ui.spawn((
                 Text::new(""),
                 crate::input::Hint("D-pad move  ·  {confirm} select  ·  {back} back".into()),
                 body(14.0, CREAM),
-                at(26.0, 606.0, b),
+                at(26.0, 664.0, b),
                 Visibility::Hidden,
                 crate::ui::pad_nav::PadHint,
             ));
@@ -1123,6 +1146,7 @@ fn refresh_labels(
     connecting: Res<Connecting>,
     client: Option<Res<IrohClient>>,
     time: Res<Time>,
+    lan: Res<crate::lan::LanGames>,
     mut texts: Query<(&mut Text, &Label)>,
     buttons: Query<(&Label, &Children), Without<Text>>,
     mut child_texts: Query<&mut Text, Without<Label>>,
@@ -1134,7 +1158,7 @@ fn refresh_labels(
             Label::Code => code.0.clone(),
             Label::CodeTail if code.0.is_empty() => "(empty: pick 0-f, or Paste)".into(),
             Label::CodeTail => format!("{}  ({})", tail(&code.0, 22), code.0.len()),
-            Label::JoinButton => continue,
+            Label::JoinButton | Label::LanButton => continue,
         };
         if t.0 != new {
             t.0 = new;
@@ -1146,15 +1170,21 @@ fn refresh_labels(
     } else {
         "Join with a code".to_string()
     };
+    let lan = match lan.0.first() {
+        Some(game) => crate::lan::button_text(game),
+        None => "Looking for games on your Wi-Fi...".to_string(),
+    };
     for (label, children) in &buttons {
-        if !matches!(label, Label::JoinButton) {
-            continue;
-        }
+        let join = match label {
+            Label::JoinButton => &join,
+            Label::LanButton => &lan,
+            _ => continue,
+        };
         for child in children.iter() {
             if let Ok(mut t) = child_texts.get_mut(child)
-                && t.0 != join
+                && t.0 != *join
             {
-                t.0.clone_from(&join);
+                t.0.clone_from(join);
             }
         }
     }

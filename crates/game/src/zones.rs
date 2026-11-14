@@ -114,6 +114,17 @@ pub struct Scenery {
     pub meadow_walls: Spread,
     pub meadow_hay: Spread,
     pub meadow_boulders: Spread,
+    /// Wildflower patches in the valley and the meadows.
+    #[serde(default)]
+    pub valley_flowers: Spread,
+    #[serde(default)]
+    pub meadow_flowers: Spread,
+    /// Boulder sets in the valley.
+    #[serde(default)]
+    pub valley_boulders: Spread,
+    /// Reed clumps round the lake shore: how many tries round its edge.
+    #[serde(default)]
+    pub lake_reeds: usize,
 }
 
 pub static SCENERY: friendslop_data::Data<Scenery> =
@@ -179,6 +190,7 @@ fn dress_zones(
     quarry(&mut d, &mut Rng(0x0_0A22));
     valley(&mut d, &mut Rng(0x7A_11E7));
     meadows(&mut d, &mut Rng(0x3E_AD0));
+    wildlife_detail(&mut d, &mut Rng(0xDE_7A11));
     windmill(&mut d);
     map_blocks(&mut d);
 }
@@ -543,6 +555,62 @@ fn meadows(d: &mut Dresser, rng: &mut Rng) {
     }
 }
 
+/// A `models/prefabs` model on the ground at `at` (modeler `zn-*` prefabs).
+fn prefab(d: &mut Dresser, file: &str, at: Vec2, yaw: Quat, scale: f32, small: bool) {
+    let mut e = d.commands.spawn((
+        bevy::world_serialization::WorldAssetRoot(
+            d.assets
+                .load(GltfAssetLabel::Scene(0).from_asset(format!("models/prefabs/{file}.gltf"))),
+        ),
+        Transform::from_xyz(at.x, ground(at), at.y)
+            .with_rotation(yaw)
+            .with_scale(Vec3::splat(scale)),
+        DespawnOnExit(AppState::InGame),
+    ));
+    if small {
+        e.insert(crate::scenery::SmallProp);
+    }
+}
+
+/// Finer dressing (M4 of the detail plan): wildflower drifts, boulder sets,
+/// reeds round the lake. Its own seed, so the older dressing stays put.
+fn wildlife_detail(d: &mut Dresser, rng: &mut Rng) {
+    let t = SCENERY.get();
+    for (spread, zone) in [
+        (&t.valley_flowers, Zone::Valley),
+        (&t.meadow_flowers, Zone::Meadow),
+    ] {
+        for p in spread.scatter(rng, zone) {
+            let s = rng.range(0.8, 1.6);
+            prefab(d, "zn-wildflowers", p, rng.yaw(), s, true);
+        }
+    }
+    for p in t.valley_boulders.scatter(rng, Zone::Valley) {
+        let s = rng.range(0.7, 1.3);
+        let yaw = rng.yaw();
+        prefab(d, "zn-boulders", p, yaw, s, false);
+        d.blocker(
+            Transform::from_xyz(p.x, 0.6 * s, p.y).with_rotation(yaw),
+            Collider::sphere(0.85 * s),
+        );
+    }
+    // Reeds where dry ground meets the lake.
+    let lake = friendslop_world::places::lake_at();
+    for _ in 0..t.lake_reeds {
+        let dir = Vec2::from_angle(rng.f() * TAU);
+        let mut r = 2.0;
+        while r < 80.0 && crate::terrain::is_lake(lake.x + dir.x * r, lake.y + dir.y * r) {
+            r += 0.5;
+        }
+        if r >= 80.0 {
+            continue;
+        }
+        let p = lake + dir * (r + rng.range(-0.6, 0.8));
+        let s = rng.range(0.8, 1.3);
+        prefab(d, "zn-reeds", p, rng.yaw(), s, true);
+    }
+}
+
 /// A whitewashed tower windmill (~12 m) with slowly turning sails.
 fn windmill(d: &mut Dresser) {
     let c = windmill_at();
@@ -582,10 +650,13 @@ mod tests {
             t.meadow_walls,
             t.meadow_hay,
             t.meadow_boulders,
+            t.valley_flowers,
+            t.meadow_flowers,
+            t.valley_boulders,
         ] {
             assert!(s.count > 0 && s.spacing > 0.0, "{s:?}");
         }
-        assert!(t.commune_flora > 0);
+        assert!(t.commune_flora > 0 && t.lake_reeds > 0);
     }
 
     #[test]

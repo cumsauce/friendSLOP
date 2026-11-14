@@ -354,6 +354,7 @@ impl Plugin for HudPlugin {
                     fade_lines,
                     track_local,
                     calm_lines,
+                    site_lines,
                     journal_hint,
                     apply_font,
                 )
@@ -869,6 +870,35 @@ fn calm_lines(
             n.display = d;
         }
         tint(a, &mut color, &mut bg, chip);
+    }
+}
+
+/// Lines and key hints of a site you're not at are hidden (#412). The rules
+/// above decide everything else, so a line coming back on arrival is one
+/// they had up: fading and quiet lines redo it every frame, a plain line is
+/// put back if it has anything to say.
+#[allow(clippy::type_complexity)]
+fn site_lines(
+    awake: Res<crate::sites::Awake>,
+    mut texts: Query<(
+        &Text,
+        &crate::sites::AtSite,
+        &mut Node,
+        Has<Fade>,
+        Has<Calm>,
+    )>,
+) {
+    for (text, site, mut n, fades, calm) in &mut texts {
+        let d = if !awake.me(site.0) {
+            Display::None
+        } else if awake.arrived(site.0) && !fades && !calm && !text.0.trim().is_empty() {
+            Display::Flex
+        } else {
+            continue;
+        };
+        if n.display != d {
+            n.display = d;
+        }
     }
 }
 

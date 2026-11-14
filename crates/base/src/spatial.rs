@@ -706,7 +706,9 @@ pub fn plugin(app: &mut App) {
         .init_resource::<Clips>()
         .add_systems(
             PostUpdate,
-            (start_sounds, occlude, steer).chain().after(follow_ears),
+            (start_sounds, occlude, steer, sleep_sounds)
+                .chain()
+                .after(follow_ears),
         );
 }
 
@@ -865,6 +867,21 @@ fn steer(ears: Res<Ears>, room: Option<Res<Room>>, emitters: Query<(&GlobalTrans
     for (at, e) in &emitters {
         e.link
             .store(&room.apply(shape(&ears, at.translation(), e.carry, e.occluded)));
+    }
+}
+
+/// A sleeping site's sounds hold where they are (#412): paused while you're
+/// away, so they cost nothing, and carried on from there when you're back.
+fn sleep_sounds(
+    awake: Res<crate::sites::Awake>,
+    sounds: Query<(&crate::sites::AtSite, &AudioSink), With<Emitter>>,
+) {
+    for (site, sink) in &sounds {
+        match (awake.me(site.0), sink.is_paused()) {
+            (true, true) => sink.play(),
+            (false, false) => sink.pause(),
+            _ => {}
+        }
     }
 }
 

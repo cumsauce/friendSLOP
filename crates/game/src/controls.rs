@@ -14,33 +14,87 @@
 //! touched. Gamepad: left stick move, right stick look, A jump, B or RT use,
 //! LB (or clicking the left stick) run, X fart, Y help, Back scoreboard,
 //! D-pad up camera, down mute, left journal, right answer the phone, right
-//! stick click "Enter", Start frees the cursor / leaves. Holding RB or LT
-//! (#361) switches the face buttons and D-pad to a second / third set of keys
-//! so every keyboard-only action reaches a pad (Steam Deck): a cheat sheet
-//! shows while one is held ([`PAD_LAYERS`]). In the menu, A or Start hosts.
-//! Stick feel (look speed, response curve, deadzone) is
+//! stick click "Enter". Holding RB or LT (#361) switches the face buttons
+//! and D-pad to a second / third set of keys so every keyboard-only action
+//! reaches a pad (Steam Deck): a cheat sheet shows while one is held
+//! ([`PAD_LAYERS`]). Start opens the settings notebook (its "Leave game"
+//! button leaves). Menus (the title screen, the notebook) take the pad
+//! instead: D-pad / left stick move the focus, A clicks, B backs out
+//! (`ui::pad_nav`). Stick feel (look speed, response curve, deadzone) is
 //! `assets/data/game/controls.ron`.
 
 use std::collections::HashMap;
 
 use bevy::input::InputSystems;
 use bevy::input::gamepad::{Gamepad, GamepadButton};
+use bevy::input::keyboard::KeyboardInput;
+use bevy::input::mouse::{AccumulatedMouseMotion, MouseButtonInput};
 use bevy::input::touch::Touches;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
 use crate::AppState;
 use crate::features::fps::FpsView;
-use crate::net::NetCommand;
 pub use friendslop_base::controls::*;
 
 /// Radians of look per pixel dragged on a touch screen.
 const TOUCH_LOOK: f32 = 0.006;
 /// Joystick throw in logical pixels.
 const STICK_RADIUS: f32 = 60.0;
+/// The gamepad's bindings, for the settings notebook's Controls page (Xbox
+/// names: the Steam Deck shows its pad as one).
+pub const PAD_BINDINGS: &[(&str, &str)] = &[
+    ("Left stick", "walk (click: run)"),
+    ("Right stick", "look around"),
+    ("A", "jump"),
+    ("B / RT", "use what's under the crosshair"),
+    ("LB", "run (hold)"),
+    ("X", "fart"),
+    ("Y", "help, in the journal"),
+    ("D-pad up", "first person <-> overview camera"),
+    ("D-pad down", "mute the mic"),
+    (
+        "RB / LT held",
+        "more actions on the buttons (cheat sheet shows)",
+    ),
+    ("View (Back)", "the journal / scoreboard"),
+    ("Menu (Start)", "settings (and Leave game)"),
+    ("In menus", "D-pad / stick move, A press, B back"),
+];
+
+/// Whether a gamepad was the last thing used (#361): prompts and menus name
+/// its buttons then.
+#[derive(Resource, Default, Debug, Clone, Copy, PartialEq)]
+pub struct PadLast(pub bool);
+
+/// Real devices only: `gather` presses keys for the pad in `ButtonInput`,
+/// but never sends keyboard or mouse messages.
+fn track_last_input(
+    pads: Query<&Gamepad>,
+    mut keys: MessageReader<KeyboardInput>,
+    mut clicks: MessageReader<MouseButtonInput>,
+    motion: Res<AccumulatedMouseMotion>,
+    touches: Res<Touches>,
+    mut last: ResMut<PadLast>,
+) {
+    let pad = pads.iter().any(|p| {
+        p.get_just_pressed().next().is_some()
+            || p.left_stick().length() > 0.5
+            || p.right_stick().length() > 0.5
+    });
+    let other = keys.read().count() > 0
+        || clicks.read().count() > 0
+        || motion.delta.length() > 4.0
+        || touches.any_just_pressed();
+    let want = pad || (!other && last.0);
+    last.set_if_neq(PadLast(want));
+}
+
+/// Touch-stick deadzone (the pad's is a setting, [`PadSettings`]).
 const DEADZONE: f32 = 0.15;
 
-/// Gamepad stick feel (#361): `assets/data/game/controls.ron`.
+/// Gamepad stick feel (#361): `assets/data/game/controls.ron`. The deadzone and
+/// a look-speed multiplier are the player's ([`PadSettings`]).
 #[derive(serde::Deserialize, Default)]
 pub struct PadTuning {
     /// Radians per second of look at full right-stick deflection.
@@ -49,8 +103,6 @@ pub struct PadTuning {
     pub look_vertical: f32,
     /// Look response curve exponent (1 = linear; higher = finer aim near centre).
     pub look_curve: f32,
-    /// Stick deflection ignored around centre (drifting sticks).
-    pub deadzone: f32,
 }
 
 pub static PAD: friendslop_data::Data<PadTuning> =
@@ -176,6 +228,84 @@ pub fn cheat_sheet(layer: PadLayer) -> String {
     format!("{title}  {}", body.join("   "))
 }
 
+/// Gamepad feel (#361), changed in the settings notebook's Controls page and
+/// saved locally like the video options (`pad.txt`).
+#[derive(Resource, Debug, Clone, Copy, PartialEq)]
+pub struct PadSettings {
+    /// Radial stick deadzone, `0..=MAX_DEADZONE` of full throw.
+    pub deadzone: f32,
+    /// Look speed, a multiple of the default, `LOOK_MIN..=LOOK_MAX`.
+    pub look: f32,
+}
+
+impl PadSettings {
+    pub const DEFAULT: Self = Self {
+        deadzone: 0.15,
+        look: 1.0,
+    };
+    pub const MAX_DEADZONE: f32 = 0.4;
+    pub const LOOK_MIN: f32 = 0.25;
+    pub const LOOK_MAX: f32 = 3.0;
+    const FILE: &str = "pad.txt";
+
+    pub fn to_text(self) -> String {
+        format!("deadzone={}\nlook={}\n", self.deadzone, self.look)
+    }
+
+    /// Read [`Self::to_text`]; missing or broken lines keep their defaults.
+    pub fn from_text(text: &str) -> Self {
+        let mut p = Self::DEFAULT;
+        for line in text.lines() {
+            let Some((k, v)) = line.split_once('=') else {
+                continue;
+            };
+            let Ok(v) = v.trim().parse::<f32>() else {
+                continue;
+            };
+            match k.trim() {
+                "deadzone" => p.deadzone = v,
+                "look" => p.look = v,
+                _ => {}
+            }
+        }
+        p.clamped()
+    }
+
+    pub fn clamped(self) -> Self {
+        let ok = |v: f32, lo: f32, hi: f32, d: f32| {
+            if v.is_finite() { v.clamp(lo, hi) } else { d }
+        };
+        Self {
+            deadzone: ok(
+                self.deadzone,
+                0.0,
+                Self::MAX_DEADZONE,
+                Self::DEFAULT.deadzone,
+            ),
+            look: ok(
+                self.look,
+                Self::LOOK_MIN,
+                Self::LOOK_MAX,
+                Self::DEFAULT.look,
+            ),
+        }
+    }
+}
+
+impl Default for PadSettings {
+    fn default() -> Self {
+        crate::settings::load_local(Self::FILE)
+            .map(|t| Self::from_text(&t))
+            .unwrap_or(Self::DEFAULT)
+    }
+}
+
+fn save_pad_settings(p: Res<PadSettings>) {
+    if p.is_changed() && !p.is_added() {
+        crate::settings::save_local(PadSettings::FILE, &p.to_text());
+    }
+}
+
 /// Set once the screen is touched: shows the touch overlay.
 #[derive(Resource, Default, Debug)]
 pub struct TouchMode(pub bool);
@@ -296,6 +426,8 @@ struct TouchState {
     mouse: bool,
     /// The pad layer held this frame (shows the cheat sheet).
     layer: Option<PadLayer>,
+    /// A menu had the pad: ignore A / B / RT until they're let go.
+    pad_hold: bool,
 }
 
 #[derive(Component)]
@@ -317,25 +449,27 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<VirtualInput>()
         .init_resource::<TouchMode>()
         .init_resource::<TouchState>()
+        .init_resource::<PadSettings>()
+        .init_resource::<PadLast>()
+        .add_systems(PreUpdate, track_last_input.after(InputSystems))
         .add_systems(OnEnter(AppState::InGame), (spawn_overlay, spawn_sheet))
-        .add_systems(
-            PreUpdate,
-            (gather, menu_pad.run_if(in_state(AppState::Menu)))
-                .chain()
-                .after(InputSystems),
-        )
+        .add_systems(PreUpdate, gather.after(InputSystems))
         .add_systems(
             Update,
             (draw_overlay, draw_sheet).run_if(in_state(AppState::InGame)),
-        );
+        )
+        .add_systems(PostUpdate, save_pad_settings);
 }
 
-fn axis(v: Vec2) -> Vec2 {
-    if v.length() < DEADZONE {
-        Vec2::ZERO
-    } else {
-        v.clamp_length_max(1.0)
+/// A radial deadzone `dz`, rescaled so the stick still reaches every speed:
+/// zero just past the deadzone, full at full throw.
+fn axis(v: Vec2, dz: f32) -> Vec2 {
+    let len = v.length();
+    if len <= dz || len <= 0.0 {
+        return Vec2::ZERO;
     }
+    let dz = dz.clamp(0.0, 0.95);
+    v / len * ((len - dz) / (1.0 - dz)).min(1.0)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -345,6 +479,8 @@ fn gather(
     window: Query<&Window, With<PrimaryWindow>>,
     time: Res<Time>,
     state: Res<State<AppState>>,
+    overlay: Res<crate::ui::Overlay>,
+    pad_cfg: Res<PadSettings>,
     mut mode: ResMut<TouchMode>,
     mut st: ResMut<TouchState>,
     mut out: ResMut<VirtualInput>,
@@ -406,7 +542,7 @@ fn gather(
         match finger {
             Finger::Stick { start } => {
                 let d = (p - *start) / STICK_RADIUS;
-                out.stick = axis(Vec2::new(d.x, -d.y));
+                out.stick = axis(Vec2::new(d.x, -d.y), DEADZONE);
             }
             Finger::Look { last } => {
                 out.look += (p - *last) * TOUCH_LOOK;
@@ -422,19 +558,43 @@ fn gather(
     }
     out.run = st.running;
 
-    // Gamepads: the first connected one(s) all count.
+    // Gamepads: the first connected one(s) all count. While a menu owns the
+    // pad (`ui::pad_nav`), A and the D-pad drive it instead, B backs out
+    // (Esc), and buttons still held when the menu closes wait for release.
     let dt = time.delta_secs();
     let tune = PAD.get();
+    let ui = crate::ui::pad_nav::ui_owns_pad(state.get(), &overlay);
+    let held_any = gamepads.iter().any(|p| {
+        p.pressed(GamepadButton::South)
+            || p.pressed(GamepadButton::East)
+            || p.pressed(GamepadButton::RightTrigger)
+            || p.pressed(GamepadButton::RightTrigger2)
+    });
+    st.pad_hold = ui || (st.pad_hold && held_any);
     st.layer = None;
     for pad in &gamepads {
-        let move_stick = axis(pad.left_stick());
+        for (button, key) in [
+            (GamepadButton::Select, KeyCode::Tab),
+            (GamepadButton::Start, KeyCode::Escape),
+        ] {
+            if pad.pressed(button) {
+                want_keys.push(key);
+            }
+        }
+        if ui {
+            if pad.pressed(GamepadButton::East) {
+                want_keys.push(KeyCode::Escape);
+            }
+            continue;
+        }
+        let move_stick = axis(pad.left_stick(), pad_cfg.deadzone);
         if move_stick != Vec2::ZERO {
             out.stick = move_stick;
         }
-        let look = look_response(pad.right_stick(), tune.deadzone, tune.look_curve);
-        out.look += Vec2::new(look.x, -look.y * tune.look_vertical) * tune.look_speed * dt;
+        let look = look_response(pad.right_stick(), pad_cfg.deadzone, tune.look_curve);
+        out.look +=
+            Vec2::new(look.x, -look.y * tune.look_vertical) * tune.look_speed * pad_cfg.look * dt;
         out.run |= pad.pressed(GamepadButton::LeftTrigger) || pad.pressed(GamepadButton::LeftThumb);
-        want_mouse |= pad.pressed(GamepadButton::RightTrigger2);
         let layer = pad_layer(
             pad.pressed(GamepadButton::RightTrigger),
             pad.pressed(GamepadButton::LeftTrigger2),
@@ -443,19 +603,13 @@ fn gather(
             st.layer = Some(layer);
         }
         let held = PAD_SLOTS.map(|b| pad.pressed(b));
-        if layer == PadLayer::Base {
+        if layer == PadLayer::Base && !st.pad_hold {
             out.jump |= held[0];
-            want_mouse |= held[1];
+            want_mouse |= held[1] || pad.pressed(GamepadButton::RightTrigger2);
         }
         want_keys.extend(pad_keys(layer, held));
-        for (button, key) in [
-            (GamepadButton::Select, KeyCode::Tab),
-            (GamepadButton::Start, KeyCode::Escape),
-            (GamepadButton::RightThumb, KeyCode::Enter),
-        ] {
-            if pad.pressed(button) {
-                want_keys.push(key);
-            }
+        if pad.pressed(GamepadButton::RightThumb) {
+            want_keys.push(KeyCode::Enter);
         }
     }
 
@@ -491,16 +645,6 @@ fn gather(
     if !in_game {
         out.stick = Vec2::ZERO;
         out.look = Vec2::ZERO;
-    }
-}
-
-/// A gamepad can't point at the menu's buttons: A or Start hosts.
-fn menu_pad(gamepads: Query<&Gamepad>, mut net: MessageWriter<NetCommand>) {
-    if gamepads
-        .iter()
-        .any(|p| p.just_pressed(GamepadButton::South) || p.just_pressed(GamepadButton::Start))
-    {
-        net.write(NetCommand::Host);
     }
 }
 
@@ -720,8 +864,29 @@ mod tests {
 
     #[test]
     fn deadzone_and_clamp() {
-        assert_eq!(axis(Vec2::new(0.1, 0.0)), Vec2::ZERO);
-        assert!((axis(Vec2::new(3.0, 4.0)).length() - 1.0).abs() < 1e-5);
+        assert_eq!(axis(Vec2::new(0.1, 0.0), 0.15), Vec2::ZERO);
+        assert!((axis(Vec2::new(3.0, 4.0), 0.15).length() - 1.0).abs() < 1e-5);
+        // Rescaled: just past the deadzone is slow, full throw is full speed.
+        assert!(axis(Vec2::new(0.0, 0.2), 0.15).length() < 0.1);
+        assert!((axis(Vec2::new(0.0, 1.0), 0.15).y - 1.0).abs() < 1e-5);
+        // Radial: a diagonal keeps its direction.
+        let d = axis(Vec2::new(0.5, 0.5), 0.15);
+        assert!((d.x - d.y).abs() < 1e-6);
+        assert_eq!(axis(Vec2::new(0.3, 0.0), 0.0), Vec2::new(0.3, 0.0));
+    }
+
+    #[test]
+    fn pad_settings_round_trip_and_clamp() {
+        let p = PadSettings {
+            deadzone: 0.25,
+            look: 1.5,
+        };
+        assert_eq!(PadSettings::from_text(&p.to_text()), p);
+        assert_eq!(PadSettings::from_text("junk"), PadSettings::DEFAULT);
+        let wild = PadSettings::from_text("deadzone=9\nlook=-1\n");
+        assert_eq!(wild.deadzone, PadSettings::MAX_DEADZONE);
+        assert_eq!(wild.look, PadSettings::LOOK_MIN);
+        assert_eq!(PadSettings::from_text("look=NaN").look, 1.0);
     }
 
     #[test]

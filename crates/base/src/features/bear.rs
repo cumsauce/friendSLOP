@@ -82,7 +82,7 @@ pub const BEAR_MODEL: &str = "models/creatures/bear.gltf";
 fn dress_bear(mut commands: Commands, new: Query<(Entity, &Bear), Added<Bear>>) {
     for (entity, bear) in &new {
         commands.entity(entity).insert((
-            Transform::from_translation(bear_position(bear, 0.0)),
+            Transform::from_translation(crate::terrain::on_ground(bear_position(bear, 0.0).xz())),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
             crate::rigged::Rigged { path: BEAR_MODEL },
@@ -116,7 +116,7 @@ fn animate_bear(
         if let Ok(dir) = Dir3::new(look) {
             transform.rotation = Transform::default().looking_to(dir, Vec3::Y).rotation;
         }
-        transform.translation = here;
+        transform.translation = crate::terrain::on_ground(here.xz());
         let want = bear_clip(is_growling(t));
         if want.name != clip.name {
             *clip = want;

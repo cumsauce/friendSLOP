@@ -160,7 +160,7 @@ fn dress_music_boxes(
             WorldAssetRoot(
                 assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/music_box.gltf")),
             ),
-            Transform::from_xyz(b.at.x, 0.0, b.at.y),
+            Transform::from_translation(crate::terrain::on_ground(b.at)),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));
@@ -181,7 +181,7 @@ fn bob_music_boxes(
         } else {
             0.0
         };
-        transform.translation = Vec3::new(b.at.x, hop, b.at.y);
+        transform.translation = crate::terrain::on_ground(b.at) + Vec3::Y * hop;
     }
 }
 

@@ -71,7 +71,7 @@ pub const GOAT_MODEL: &str = "models/creatures/goat.gltf";
 fn dress_goat(mut commands: Commands, new: Query<(Entity, &Goat), Added<Goat>>) {
     for (entity, goat) in &new {
         commands.entity(entity).insert((
-            Transform::from_xyz(goat.home.x, 0.0, goat.home.y),
+            Transform::from_translation(crate::terrain::on_ground(goat.home)),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
             crate::rigged::Rigged { path: GOAT_MODEL },
@@ -94,7 +94,7 @@ pub fn goat_clip(since: f32) -> crate::rigged::RigClip {
 fn animate_goat(time: Res<Time>, mut goats: Query<(&Goat, &mut Transform)>) {
     let t = time.elapsed_secs();
     for (goat, mut transform) in &mut goats {
-        transform.translation = Vec3::new(goat.home.x, 0.0, goat.home.y);
+        transform.translation = crate::terrain::on_ground(goat.home);
         transform.rotation = Quat::from_rotation_y(2.4 + (t * 0.7).sin() * 0.25);
     }
 }

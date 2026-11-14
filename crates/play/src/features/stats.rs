@@ -207,9 +207,13 @@ fn orbit_teacup(time: Res<Time>, mut cups: Query<&mut Transform, With<Teacup>>) 
 /// you join, #7, and stay yours from chapter to chapter.)
 fn reroll_stats(
     _reset: On<crate::rules::campaign::NewCampaign>,
+    server: Res<State<ServerState>>,
     mut dice: ResMut<StatDice>,
     mut players: Query<&mut Stats>,
 ) {
+    if *server.get() != ServerState::Running {
+        return;
+    }
     for mut s in &mut players {
         *s = Stats::roll(std::array::from_fn(|_| dice.roll()));
     }
@@ -245,5 +249,43 @@ mod tests {
         assert_eq!(wobble_px(5, 0.0), 0.0);
         assert!(wobble_px(10, 0.8).abs() > wobble_px(1, 0.8).abs());
         assert_eq!(pelf_gold(10), 1.0);
+    }
+
+    /// play:stats-guard — `NewCampaign` rerolls stats on the server only;
+    /// anywhere else (a client applying the event locally) it must do
+    /// nothing.
+    #[test]
+    fn reroll_only_server() {
+        use bevy::state::app::StatesPlugin;
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, StatesPlugin));
+        app.insert_state(ServerState::Stopped);
+        app.init_resource::<StatDice>();
+        app.add_observer(reroll_stats);
+        let player = app
+            .world_mut()
+            .spawn((crate::player::Player { id: 0 }, Stats::roll([0.0; 6])))
+            .id();
+
+        // Not the server: a trigger changes nothing.
+        app.world_mut().trigger(crate::rules::campaign::NewCampaign);
+        let world = app.world_mut();
+        assert_eq!(
+            world.get::<Stats>(player).unwrap(),
+            &Stats::roll([0.0; 6]),
+            "only the server rerolls"
+        );
+
+        // The server: it rerolls from the dice.
+        let mut expect = StatDice(12345);
+        let expected = Stats::roll(std::array::from_fn(|_| expect.roll()));
+        *app.world_mut().resource_mut::<StatDice>() = StatDice(12345);
+        app.world_mut()
+            .resource_mut::<NextState<ServerState>>()
+            .set_if_different(ServerState::Running);
+        app.update();
+        app.world_mut().trigger(crate::rules::campaign::NewCampaign);
+        let world = app.world_mut();
+        assert_eq!(world.get::<Stats>(player).unwrap(), &expected);
     }
 }

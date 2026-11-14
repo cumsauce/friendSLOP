@@ -75,7 +75,7 @@ pub struct AnswerDuel {
 }
 
 /// Client -> server, every frame while duelling.
-#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub struct DuelControl {
     pub stick: Vec2,
     pub yaw: f32,
@@ -125,17 +125,21 @@ pub fn protocol(app: &mut App) {
         .add_systems(
             Update,
             (move_duelists, end_abandoned_duel).run_if(in_state(ServerState::Running)),
-        );
+        )
+        .add_systems(OnExit(ServerState::Running), clear_invites);
 }
 
 /// Server only: open challenges as (from, to), plus whether a duel is live.
 /// `active` is set the moment an answer spawns duelists: the `Duelist`
 /// entities themselves only exist after deferred commands apply, so reading
 /// them alone lets two answers in one frame start overlapping duels.
+/// `spawn_pending` covers the accept→spawn window: `end_abandoned_duel` must
+/// not free the guard there.
 #[derive(Resource, Default)]
 struct DuelInvites {
     open: Vec<(u64, u64)>,
     active: bool,
+    spawn_pending: bool,
 }
 
 /// The two corners duelists start from.
@@ -278,6 +282,7 @@ fn on_answer(
         return;
     }
     invites.active = true;
+    invites.spawn_pending = true;
     invites
         .open
         .retain(|&(f, t)| ![f, t].contains(&me) && ![f, t].contains(&ev.from));
@@ -286,7 +291,8 @@ fn on_answer(
         commands.spawn((
             Duelist {
                 player,
-                lives: tuning().lives,
+                // Lives 0 would mean "already dead" to `on_shoot`'s guard.
+                lives: tuning().lives.max(1),
                 bullets: 1,
                 pos,
                 yaw: yaw_towards(pos, other),
@@ -397,6 +403,12 @@ fn on_shoot(
     let Some(j) = both.iter().position(|(_, d)| d.player != me) else {
         return;
     };
+    // A shot earlier in this batch already ended the duel (the winning
+    // despawn is still queued): `lives` is the synchronous claim, so stop
+    // before the refund-and-kill path can fire `DuelFought` twice.
+    if both[i].1.lives == 0 || both[j].1.lives == 0 {
+        return;
+    }
     let target = *both[j].1;
     let punched = both[i].1.bullets == 0;
     if !resolve_shot(&mut both[i].1, &target) {
@@ -453,11 +465,20 @@ fn end_abandoned_duel(
     duelists: Query<(Entity, &Duelist)>,
     mut invites: ResMut<DuelInvites>,
 ) {
+    // An open challenge to or from a player who left is a stale prompt.
+    invites
+        .open
+        .retain(|&(f, t)| players.iter().any(|p| p.id == f) && players.iter().any(|p| p.id == t));
     if duelists.is_empty() {
-        // The duel is over (or its spawn never happened): free the guard.
-        invites.active = false;
+        // The duel is over — but never free the guard during the
+        // accept→spawn window: an answer's duelists are still queued then,
+        // and a cleared guard lets a second answer start an overlapping duel.
+        if !invites.spawn_pending {
+            invites.active = false;
+        }
         return;
     }
+    invites.spawn_pending = false;
     let gone = duelists
         .iter()
         .any(|(_, d)| !players.iter().any(|p| p.id == d.player));
@@ -468,6 +489,12 @@ fn end_abandoned_duel(
         invites.active = false;
         news(&mut commands, "the duel is off: someone left".into());
     }
+}
+
+/// Session over: no invite may outlive it (a stuck `spawn_pending` would
+/// block every future duel).
+fn clear_invites(mut invites: ResMut<DuelInvites>) {
+    *invites = DuelInvites::default();
 }
 
 // ---------------------------------------------------------------- client side
@@ -511,6 +538,21 @@ struct DuelView {
     pitch: f32,
     /// The first-person revolver child of the camera, while I'm duelling.
     viewmodel: Option<Entity>,
+    /// The last control message sent (so idle frames send nothing).
+    last_sent: Option<DuelControl>,
+}
+
+impl DuelView {
+    /// The control message to send this frame: `None` when nothing moved
+    /// since the last one (the server keeps applying the last state).
+    fn control(&mut self, stick: Vec2, yaw: f32, pitch: f32) -> Option<DuelControl> {
+        let next = DuelControl { stick, yaw, pitch };
+        if self.last_sent == Some(next) {
+            return None;
+        }
+        self.last_sent = Some(next);
+        Some(next)
+    }
 }
 
 fn on_challenged(ev: On<DuelChallenged>, mut view: ResMut<DuelView>) {
@@ -1120,12 +1162,14 @@ fn fight_controls(
     mut view: ResMut<DuelView>,
 ) {
     let Some(d) = my_duelist(me.as_deref(), &duelists) else {
+        view.last_sent = None;
         return;
     };
     if view.saved_camera.is_none() {
         // Just entered the arena: take the server's facing.
         view.yaw = d.yaw;
         view.pitch = d.pitch;
+        view.last_sent = None;
     }
     if let Ok(mut c) = cursor.single_mut()
         && c.grab_mode != CursorGrabMode::Locked
@@ -1133,8 +1177,9 @@ fn fight_controls(
         c.grab_mode = CursorGrabMode::Locked;
         c.visible = false;
     }
-    view.yaw -= motion.delta.x * 0.003;
-    view.pitch = (view.pitch - motion.delta.y * 0.003).clamp(-1.5, 1.5);
+    let sens = super::fps::tuning().look_sensitivity;
+    view.yaw -= motion.delta.x * sens;
+    view.pitch = (view.pitch - motion.delta.y * sens).clamp(-1.5, 1.5);
     let mut stick = Vec2::ZERO;
     for (key, dir) in [
         (KeyCode::KeyW, Vec2::Y),
@@ -1146,11 +1191,10 @@ fn fight_controls(
             stick += dir;
         }
     }
-    commands.client_trigger(DuelControl {
-        stick: stick.normalize_or_zero(),
-        yaw: view.yaw,
-        pitch: view.pitch,
-    });
+    let (yaw, pitch) = (view.yaw, view.pitch);
+    if let Some(msg) = view.control(stick.normalize_or_zero(), yaw, pitch) {
+        commands.client_trigger(msg);
+    }
     if mouse.just_pressed(MouseButton::Left) {
         commands.client_trigger(DuelShoot);
     }
@@ -1365,5 +1409,136 @@ mod tests {
             pick_clip(false, false, false, 0.0).0.map(|c| c.name),
             Some("idle")
         );
+    }
+
+    /// A server with this feature's protocol, four players (0..3), and two
+    /// open invites: (0, 1) and (2, 3). Returns the server and each remote
+    /// player's client entity (index `id - 1`).
+    fn server_with_two_invites() -> (App, Vec<Entity>) {
+        use bevy::state::app::StatesPlugin;
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            StatesPlugin,
+            RepliconPlugins.set(ServerPlugin::new(PostUpdate)),
+        ));
+        protocol(&mut app);
+        app.finish();
+        let owners: Vec<Entity> = (0..3).map(|_| app.world_mut().spawn_empty().id()).collect();
+        for id in 0..4u64 {
+            let owner = if id == 0 {
+                None
+            } else {
+                Some(owners[(id - 1) as usize])
+            };
+            app.world_mut().spawn((
+                crate::player::Player { id },
+                crate::player::PlayerOwner(owner),
+            ));
+        }
+        app.world_mut().resource_mut::<DuelInvites>().open = vec![(0, 1), (2, 3)];
+        app.world_mut()
+            .resource_mut::<NextState<ServerState>>()
+            .set_if_different(ServerState::Running);
+        app.update();
+        (app, owners)
+    }
+
+    fn duelist_count(app: &mut App) -> usize {
+        let world = app.world_mut();
+        world.query::<&Duelist>().iter(world).count()
+    }
+
+    /// play:invites-window — `end_abandoned_duel` must not free the `active`
+    /// guard between an answer and its deferred duelists' spawn: a second
+    /// answer in that window would start an overlapping duel.
+    #[test]
+    fn accept_in_spawn_window_starts_one_duel() {
+        let (mut app, owners) = server_with_two_invites();
+        // Player 1 accepts (0, 1)'s challenge: the guard is claimed and the
+        // duelists spawn (queued commands apply on flush).
+        app.world_mut().trigger(FromClient {
+            client_id: ClientId::Client(owners[0]),
+            message: AnswerDuel {
+                from: 0,
+                accept: true,
+            },
+        });
+        app.world_mut().flush();
+        assert_eq!(
+            duelist_count(&mut app),
+            2,
+            "the first answer starts its duel"
+        );
+        // Now stand in the accept→spawn window: the duelists are not visible
+        // yet (their spawn is deferred), but the guard is already claimed.
+        {
+            let world = app.world_mut();
+            let gone: Vec<Entity> = world
+                .query::<(Entity, &Duelist)>()
+                .iter(world)
+                .map(|(e, _)| e)
+                .collect();
+            for e in gone {
+                world.despawn(e);
+            }
+        }
+        app.update();
+        assert!(
+            app.world().resource::<DuelInvites>().active,
+            "the guard survives the window"
+        );
+        // Player 3 answers (2, 3) inside the window: no second duel.
+        app.world_mut().trigger(FromClient {
+            client_id: ClientId::Client(owners[2]),
+            message: AnswerDuel {
+                from: 2,
+                accept: true,
+            },
+        });
+        app.world_mut().flush();
+        assert_eq!(
+            duelist_count(&mut app),
+            0,
+            "the second answer starts no overlapping duel"
+        );
+    }
+
+    /// play:invite-stale — an open challenge to or from a player who left
+    /// must be pruned, so a reused id can never answer a ghost challenge.
+    #[test]
+    fn invites_prune_departed() {
+        let (mut app, _owners) = server_with_two_invites();
+        // Player 3 leaves.
+        {
+            let world = app.world_mut();
+            let gone: Vec<Entity> = world
+                .query::<(Entity, &crate::player::Player)>()
+                .iter(world)
+                .filter(|(_, p)| p.id == 3)
+                .map(|(e, _)| e)
+                .collect();
+            for e in gone {
+                world.despawn(e);
+            }
+        }
+        app.update();
+        let open = app.world().resource::<DuelInvites>().open.clone();
+        assert_eq!(open, vec![(0, 1)], "the departed player's invite is pruned");
+    }
+
+    /// play:control-spam — `DuelControl` is only sent when the stick or the
+    /// aim changed since the last one; idle frames send nothing.
+    #[test]
+    fn duel_control_sent_on_change_only() {
+        let mut view = DuelView::default();
+        assert!(view.control(Vec2::ZERO, 0.0, 0.0).is_some(), "first sends");
+        assert!(
+            view.control(Vec2::ZERO, 0.0, 0.0).is_none(),
+            "unchanged: nothing sent"
+        );
+        assert!(view.control(Vec2::Y, 0.0, 0.0).is_some(), "stick change");
+        assert!(view.control(Vec2::Y, 0.1, 0.0).is_some(), "look change");
+        assert!(view.control(Vec2::Y, 0.1, 0.0).is_none());
     }
 }

@@ -4,6 +4,7 @@
 mod afterlife;
 mod asset_hygiene;
 mod bsn_salting;
+mod bugs_a;
 mod caught;
 mod fat_cat;
 mod gamble;

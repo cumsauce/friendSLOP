@@ -1,0 +1,669 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-mailbox",
+  "parts": [],
+  "version": 63135,
+  "ops": [
+    {
+      "primitive": {
+        "name": "leg_(-0.2)_(-0.22)",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.25,
+          0.05
+        ],
+        "translation": [
+          -0.2,
+          0.125,
+          -0.22
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_(-0.2)_0.22",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.25,
+          0.05
+        ],
+        "translation": [
+          -0.2,
+          0.125,
+          0.22
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_0.2_(-0.22)",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.25,
+          0.05
+        ],
+        "translation": [
+          0.2,
+          0.125,
+          -0.22
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_0.2_0.22",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.25,
+          0.05
+        ],
+        "translation": [
+          0.2,
+          0.125,
+          0.22
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "body",
+        "kind": "box",
+        "size": [
+          0.46,
+          0.75,
+          0.5
+        ],
+        "translation": [
+          0.0,
+          0.6,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "roof",
+        "kind": "cylinder",
+        "size": [
+          0.23,
+          0.5,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.975,
+          0.0
+        ],
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "chute",
+        "kind": "box",
+        "size": [
+          0.3,
+          0.12,
+          0.06
+        ],
+        "translation": [
+          0.0,
+          0.92,
+          0.27
+        ],
+        "rotation": [
+          -0.17364818,
+          0.0,
+          0.0,
+          0.9848077
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "chute_handle",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.025,
+          0.03
+        ],
+        "translation": [
+          0.0,
+          0.88,
+          0.31
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-mailbox-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1d3f8a"
+                  ],
+                  [
+                    1,
+                    "#24509e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "roof",
+        "input": "roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-mailbox-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1d3f8a"
+                  ],
+                  [
+                    1,
+                    "#24509e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "chute",
+        "input": "chute",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-mailbox-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1d3f8a"
+                  ],
+                  [
+                    1,
+                    "#24509e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "chute_handle",
+        "input": "chute_handle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_(-0.2)_(-0.22)",
+        "input": "leg_(-0.2)_(-0.22)",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-mailbox-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1d3f8a"
+                  ],
+                  [
+                    1,
+                    "#24509e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_(-0.2)_0.22",
+        "input": "leg_(-0.2)_0.22",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-mailbox-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1d3f8a"
+                  ],
+                  [
+                    1,
+                    "#24509e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_0.2_(-0.22)",
+        "input": "leg_0.2_(-0.22)",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-mailbox-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1d3f8a"
+                  ],
+                  [
+                    1,
+                    "#24509e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_0.2_0.22",
+        "input": "leg_0.2_0.22",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-mailbox-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 21,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1d3f8a"
+                  ],
+                  [
+                    1,
+                    "#24509e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.4,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

@@ -173,6 +173,10 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   (trees, rocks, fences, shepherd's shelter); meadows with copses, low stone walls and hedgerows
   (~1.2 m, crouch cover), haystacks and a windmill with turning sails at (-8, -31). The east
   village block (x 35..80, z -35..35) is left for houses. Everything sits on `terrain::height_at`.
+  Finer dressing on top: cattail reeds ring the lake, wildflower patches and boulder sets dot the
+  valley and meadows, scarecrows, beehives and wheelbarrows stand in the fields, post lanterns
+  line the paths (they glow and light up at night), and trees cover the rim hills past the edge.
+  Every count is in `data/game/scenery.ron`.
 - **Commune villagers** (#61, the "NPCs" part). Twenty villagers: ten regulars (Kevin, Brenda, Old Tom, Moss, ...)
   and the ten Discord friends (#159, below),
   built by the same character system as players, rolled from the same option pool, so hiders
@@ -465,6 +469,12 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   a flat city floor: first a strip of forest carrying on over the rim, then a wide avenue with
   four cross streets, sidewalks, curbs, crosswalks, yellow cabs, street lamps, hydrants, brick
   and brownstone walk-ups with water towers, glass and concrete towers with setback crowns.
+  Street furniture (`nyc-kit-*` modeler models placed on `nyc-map`): about 48 street lamps (the
+  park's edges are lit too), 61 street trees, 8 hydrants, 6 newsstands, two bus shelters,
+  parking meters along the kerb, bollards in front of Penn Station and the subway stairs, blue
+  mailboxes (no logos), blank green corner sign poles, red fire alarm posts, newspaper boxes,
+  planters, bike racks, piles of black trash bags at the kerb and 16 benches in the park. Only
+  the bus shelters, newsstands and benches have colliders; you walk through the rest.
   At the south end stand One World Trade Center (a tapered glass tower, 541 m to the spire tip,
   tall enough to make out over the rim from the valley) and the Oculus (72 x 44 m, ribs 34 m up and wings to 51 m, a smaller take on the real 111 m hall),
   white ribs arching over a glass hall with a balcony of shops on each side up two stairs. Four shops face the avenue

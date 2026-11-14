@@ -1,0 +1,207 @@
+{
+  "name": "nyc-sign-green",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 163,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#1c4a2c"
+        ],
+        [
+          1,
+          "#245a36"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.1,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    },
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 22,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#13603a"
+        ],
+        [
+          1,
+          "#187046"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fn",
+      "name": "r",
+      "to": [
+        0.35,
+        0.5
+      ],
+      "type": "remap"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-sign-green",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 163,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#1c4a2c"
+                ],
+                [
+                  1,
+                  "#245a36"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "metallic": 0.0,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+n +c +out"
+      },
+      {
+        "model": {
+          "name": "nyc-sign-green",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 163,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#1c4a2c"
+                ],
+                [
+                  1,
+                  "#245a36"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            },
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 22,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#13603a"
+                ],
+                [
+                  1,
+                  "#187046"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.35,
+                0.5
+              ],
+              "type": "remap"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+fn +col +r ~out"
+      }
+    ],
+    "current": 1
+  }
+}

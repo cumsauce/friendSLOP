@@ -96,6 +96,7 @@ crates/game/src/
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
   place.rs      (base) where you are (`Here`) and each place's look (`PlaceLooks`, data/base/place_looks.ron)
+  sites.rs      (base) where each mechanic lives and whether it's awake (`Awake`, data/base/sites.ron, #412)
   probes.rs     reflections: world env map on the camera, FRIENDSLOP_BAKE=1 bakes every probe
   lod.rs        trees: lighter far meshes, dithered in by distance (#227); modeler LOD nodes; tree wind
   rigged.rs     rigged modeler models: `Rigged { path }` + `RigClip` crossfades their named clips; tails/ears/bobbles get modeler_anim springs
@@ -165,6 +166,14 @@ Rules for growing it:
   in a foundation crate instead when it needs no game state: generators (meshes, textures,
   sounds, maps), maths, file or wire formats, synths, controllers. A Bevy system that reads or
   writes game components stays in the game.
+- **Every mechanic has a site (#412).** A new idea lives somewhere: give it a line in
+  `assets/data/base/sites.ron` (id, name, district, a map `Spot` or a point, its reach) or use
+  a site that's there, and make what it does follow the site: `.run_if(sites::awake("<id>"))`
+  on its simulation (anyone is there), `sites::here` on what only you see and hear,
+  `sites::arrived` / `sites::left` + `sites::put_away::<C>` to bring local dressing out and put
+  it away, `sites::at("<id>")` for where it stands. A sleeping site costs nothing and shows
+  nothing. Nothing new runs everywhere, for everyone, all the time, unless the issue asks for
+  "everywhere". `tests/it/sites.rs` fails on an id the file doesn't have.
 - **Data, not constants.** Anything a friend might want to tweak lives in a data file under
   `crates/game/assets/`, not in Rust: positions and layout (the modeler map), tuning numbers
   (timers, costs, speeds, chances, health, counts: `assets/data/<crate>/<feature>.ron`), and

@@ -85,6 +85,7 @@ fn no_physics_world(trees: Option<Res<avian3d::collider_tree::ColliderTrees>>) -
 }
 
 pub fn protocol(app: &mut App) {
+    app.add_systems(Update, where_is_everyone.after(WalkSet));
     app.replicate::<Walker>()
         .add_client_event::<WalkControl>(Channel::Unreliable)
         .add_observer(on_walk_control)
@@ -380,6 +381,18 @@ pub fn walking_first_person(
     duelists: Query<&Duelist>,
 ) -> bool {
     view.first_person && !me.is_some_and(|m| duelists.iter().any(|d| d.player == m.0))
+}
+
+/// Where everyone's feet are, for the sites (`sites::People`): which places
+/// have anyone at them.
+fn where_is_everyone(
+    walkers: Query<&Walker, With<Player>>,
+    mut people: ResMut<crate::sites::People>,
+) {
+    let at: Vec<Vec2> = walkers.iter().map(|w| w.pos.xz()).collect();
+    if people.0 != at {
+        people.0 = at;
+    }
 }
 
 /// Local: players whose floating name label must stay hidden on this peer

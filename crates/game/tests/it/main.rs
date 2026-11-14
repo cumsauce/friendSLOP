@@ -18,6 +18,7 @@ mod playthrough;
 mod replication;
 mod round_reset;
 mod shipwreck;
+mod sites;
 mod skills;
 mod surf;
 mod underground;

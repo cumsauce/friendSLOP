@@ -239,7 +239,7 @@ fn prowl(
             None => {
                 if kitten.at.distance(p.to) < 0.1 {
                     let r = roll(&mut p.seed);
-                    if r % 3 != 0 {
+                    if !r.is_multiple_of(3) {
                         p.to = spot_on_turf(g, roll(&mut p.seed));
                     }
                 }

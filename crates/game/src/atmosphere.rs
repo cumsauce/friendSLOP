@@ -243,8 +243,9 @@ fn spawn_atmosphere(
         ..default()
     });
     // Golden-hour sun (#131): lower and warmer, so shadows stretch long across
-    // the meadow and faces facing it glow. Four cascades over 100 m keep shadows crisp up close
-    // and cheap (1 shadow-casting light only).
+    // the meadow and faces facing it glow. Three cascades over 80 m keep shadows crisp up close
+    // and cheap (1 shadow-casting light only; every caster is drawn once per cascade, and a
+    // fourth cascade cost more frame time than any other video option).
     commands.spawn((
         DirectionalLight {
             color: Color::srgb(1.0, 0.88, 0.7),
@@ -253,10 +254,10 @@ fn spawn_atmosphere(
             ..default()
         },
         CascadeShadowConfigBuilder {
-            num_cascades: 4,
+            num_cascades: 3,
             minimum_distance: 0.1,
-            first_cascade_far_bound: 10.0,
-            maximum_distance: 100.0,
+            first_cascade_far_bound: 12.0,
+            maximum_distance: 80.0,
             overlap_proportion: 0.2,
         }
         .build(),

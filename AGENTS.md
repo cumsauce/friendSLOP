@@ -102,6 +102,8 @@ crates/game/src/
   web.rs        wasm32 helpers (localStorage)
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
                 FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading/clean)
+  perf.rs       FRIENDSLOP_PERF=1: log fps, frame time, entity/mesh/light counts every 5 s;
+                =2 also lists once which models own the meshes and lights
   features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
 crates/base/src/     friendslop-base: player, assets, settings, voice, hud, music (MusicSignals the score's rules read), people, spatial, rigged, graphics,
                      textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
@@ -287,6 +289,13 @@ Tuning in `data/game/probes.ron`.
 starts: any spot on the commune map (`warehouse`, `lake`, `village`, ...) or a start a feature
 adds with `features::start::StartPoints::add` (`fulton` is Fulton St's top level). Add one when
 you make a place the map doesn't have.
+
+### Finding what's slow
+
+`FRIENDSLOP_PERF=2 FRIENDSLOP_START=<place> cargo run -- host` logs frame time and what's drawn
+every 5 s and, 25 s in, which models own the meshes and lights. Big counts usually mean a model
+with many parts: re-export it with `optimize: {preset: "game", merge: "by_material"}` (one mesh
+per material) unless the game looks its parts up by name. Video options cost most; shadows lead.
 
 ### Checking UI
 

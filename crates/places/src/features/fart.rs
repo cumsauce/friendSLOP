@@ -397,9 +397,8 @@ fn feel_shame(
                 },
             ));
         } else if !shamed && blurred {
-            commands
-                .entity(cam)
-                .remove::<(DepthOfField, DepthPrepass)>();
+            // The camera keeps its depth prepass (graphics.rs wants it always).
+            commands.entity(cam).remove::<DepthOfField>();
         }
     }
     let pulse = 0.5 + 0.5 * (time.elapsed_secs() * 6.0).sin();

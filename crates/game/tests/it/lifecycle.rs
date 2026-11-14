@@ -55,7 +55,13 @@ fn disconnect_despawns_leaver_keeps_host() {
     assert_eq!(before.len(), 3, "host + two clients on the server");
 
     server.disconnect_client(&mut c1);
-    exchange3(&mut server, &mut c0, &mut c1, 3);
+    // The leaver is gone: pump only the surviving peer. (Exchanging with a
+    // disconnected test app panics — its TestClientEntity is removed.)
+    for _ in 0..3 {
+        server.update();
+        server.exchange_with_client(&mut c0);
+        c0.update();
+    }
 
     let after = player_ids(&mut server);
     assert!(after.contains(&0), "host Player id 0 survives");

@@ -66,11 +66,16 @@ impl Sim {
         sim
     }
 
-    /// One frame everywhere: server updates, each client exchanges, updates,
-    /// and exchanges again (so same-tick replies come back).
+    /// One frame everywhere: server updates, each connected client exchanges,
+    /// updates, and exchanges again (so same-tick replies come back). A
+    /// client that was kicked (`disconnect`) is skipped: its test link is
+    /// gone and exchanging with it panics.
     pub fn step(&mut self) {
         self.server.update();
         for client in &mut self.clients {
+            if *client.world().resource::<State<ClientState>>() != ClientState::Connected {
+                continue;
+            }
             self.server.exchange_with_client(client);
             client.update();
             self.server.exchange_with_client(client);

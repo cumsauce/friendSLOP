@@ -18,6 +18,7 @@ pub mod features {
     pub use friendslop_story::features::*;
     pub use friendslop_village::features::*;
     pub mod afterlife;
+    pub mod cat_grave;
     pub mod fat_cat;
     pub mod kitty_lemonade;
     pub mod mute_spell;
@@ -28,6 +29,7 @@ pub mod features {
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
         &features::afterlife::TUNING,
+        &features::cat_grave::TUNING,
         &features::fat_cat::TUNING,
         &features::kitty_lemonade::TUNING,
         &features::mute_spell::TUNING,

@@ -73,6 +73,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(watcher::protocol);
         app.add_plugins(clues::protocol);
         app.add_plugins(broadcast::protocol);
+        app.add_plugins(cat_grave::protocol);
         app.add_plugins(nyc::protocol);
         app.add_plugins(crate::atmosphere::protocol);
         app.add_plugins(nyc_traffic::protocol);
@@ -151,6 +152,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(affair::plugin);
         app.add_plugins(gamble::plugin);
         app.add_plugins(fat_cat::plugin);
+        app.add_plugins(cat_grave::plugin);
         app.add_plugins(gaslighting::plugin);
         app.add_plugins(skills::plugin);
         app.add_plugins(shipwreck::plugin);

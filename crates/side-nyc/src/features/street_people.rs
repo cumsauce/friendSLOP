@@ -276,8 +276,19 @@ struct StreetPerson {
 struct PointingArm;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn)
-        .add_systems(Update, (act, sound).run_if(in_state(AppState::InGame)));
+    // They're only there while you're in the city (#412): they come out when
+    // you arrive and are put away when you leave.
+    app.add_systems(
+        Update,
+        (spawn.run_if(crate::sites::arrived("nyc")), (act, sound))
+            .chain()
+            .run_if(crate::sites::here("nyc"))
+            .run_if(in_state(AppState::InGame)),
+    )
+    .add_systems(
+        Update,
+        crate::sites::put_away::<StreetPerson>.run_if(crate::sites::left("nyc")),
+    );
 }
 
 fn spawn(

@@ -1,0 +1,1038 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-awning-blue",
+  "parts": [],
+  "version": 63584,
+  "ops": [
+    {
+      "primitive": {
+        "name": "canvas",
+        "kind": "box",
+        "size": [
+          3.6,
+          0.03,
+          1.35
+        ],
+        "translation": [
+          0.0,
+          3.1,
+          0.6
+        ],
+        "rotation": [
+          0.21643962,
+          0.0,
+          0.0,
+          0.976296
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "valance",
+        "kind": "box",
+        "size": [
+          3.6,
+          0.28,
+          0.03
+        ],
+        "translation": [
+          0.0,
+          2.7,
+          1.22
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "side_l",
+        "kind": "wedge",
+        "size": [
+          0.03,
+          0.55,
+          1.2
+        ],
+        "translation": [
+          -1.8,
+          3.07,
+          0.62
+        ],
+        "rotation": [
+          0.0,
+          1.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "side_r",
+        "kind": "wedge",
+        "size": [
+          0.03,
+          0.55,
+          1.2
+        ],
+        "translation": [
+          1.8,
+          3.07,
+          0.62
+        ],
+        "rotation": [
+          0.0,
+          1.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "bar",
+        "kind": "box",
+        "size": [
+          3.6,
+          0.04,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          3.4,
+          0.03
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "canvas",
+        "input": "canvas",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#a3221c"
+                  ],
+                  [
+                    1,
+                    "#b82a22"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "valance",
+        "input": "valance",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#a3221c"
+                  ],
+                  [
+                    1,
+                    "#b82a22"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "side_l",
+        "input": "side_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#a3221c"
+                  ],
+                  [
+                    1,
+                    "#b82a22"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "side_r",
+        "input": "side_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#a3221c"
+                  ],
+                  [
+                    1,
+                    "#b82a22"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bar",
+        "input": "bar",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "canvas",
+        "input": "canvas",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1d5a32"
+                  ],
+                  [
+                    1,
+                    "#24693b"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "valance",
+        "input": "valance",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1d5a32"
+                  ],
+                  [
+                    1,
+                    "#24693b"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "side_l",
+        "input": "side_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1d5a32"
+                  ],
+                  [
+                    1,
+                    "#24693b"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "side_r",
+        "input": "side_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1d5a32"
+                  ],
+                  [
+                    1,
+                    "#24693b"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "canvas",
+        "input": "canvas",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1f3f78"
+                  ],
+                  [
+                    1,
+                    "#284c8a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "valance",
+        "input": "valance",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1f3f78"
+                  ],
+                  [
+                    1,
+                    "#284c8a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "side_l",
+        "input": "side_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1f3f78"
+                  ],
+                  [
+                    1,
+                    "#284c8a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "side_r",
+        "input": "side_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-awning-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.3,
+            "resolution": 128,
+            "nodes": [
+              {
+                "center": [
+                  0.075,
+                  0.15
+                ],
+                "name": "band",
+                "size": [
+                  0.15,
+                  0.4
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "stripe",
+                "sdf": "band",
+                "type": "mask"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "base",
+                "stops": [
+                  [
+                    0,
+                    "#1f3f78"
+                  ],
+                  [
+                    1,
+                    "#284c8a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "base",
+                "b": "#ece6da",
+                "name": "col",
+                "opacity": "stripe",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

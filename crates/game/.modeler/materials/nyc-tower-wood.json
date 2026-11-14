@@ -1,0 +1,102 @@
+{
+  "name": "nyc-tower-wood",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 32,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "angle": 90,
+      "input": "fn",
+      "length": 0.15,
+      "name": "br",
+      "type": "dir_blur"
+    },
+    {
+      "input": "br",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#4a3a2c"
+        ],
+        [
+          1,
+          "#6e5a44"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-tower-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 32,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "angle": 90,
+              "input": "fn",
+              "length": 0.15,
+              "name": "br",
+              "type": "dir_blur"
+            },
+            {
+              "input": "br",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#4a3a2c"
+                ],
+                [
+                  1,
+                  "#6e5a44"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +br +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

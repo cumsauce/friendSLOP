@@ -1,0 +1,212 @@
+{
+  "name": "nyc-awning-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.3,
+  "resolution": 128,
+  "nodes": [
+    {
+      "center": [
+        0.075,
+        0.15
+      ],
+      "name": "band",
+      "size": [
+        0.15,
+        0.4
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "stripe",
+      "sdf": "band",
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#a3221c"
+        ],
+        [
+          1,
+          "#b82a22"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "base",
+      "b": "#ece6da",
+      "name": "col",
+      "opacity": "stripe",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-awning-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "center": [
+                0.125,
+                0.25
+              ],
+              "name": "band",
+              "size": [
+                0.125,
+                1
+              ],
+              "type": "rect"
+            },
+            {
+              "input": "band",
+              "name": "rp",
+              "period": [
+                0.25,
+                0.5
+              ],
+              "type": "repeat"
+            },
+            {
+              "name": "stripe",
+              "sdf": "rp",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#a3221c"
+                ],
+                [
+                  1,
+                  "#b82a22"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "base",
+              "b": "#ece6da",
+              "name": "col",
+              "opacity": "stripe",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+band +rp +stripe +n +base +col +out"
+      },
+      {
+        "model": {
+          "name": "nyc-awning-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.3,
+          "resolution": 128,
+          "nodes": [
+            {
+              "center": [
+                0.075,
+                0.15
+              ],
+              "name": "band",
+              "size": [
+                0.15,
+                0.4
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "stripe",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#a3221c"
+                ],
+                [
+                  1,
+                  "#b82a22"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "base",
+              "b": "#ece6da",
+              "name": "col",
+              "opacity": "stripe",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~band ~stripe -rp"
+      }
+    ],
+    "current": 1
+  }
+}

@@ -475,6 +475,14 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   mailboxes (no logos), blank green corner sign poles, red fire alarm posts, newspaper boxes,
   planters, bike racks, piles of black trash bags at the kerb and 16 benches in the park. Only
   the bus shelters, newsstands and benches have colliders; you walk through the rest.
+  Building faces: striped shop awnings (red, green, blue, yellow; no text) on the walk-ups,
+  two green-plywood sidewalk sheds you walk under, iron fire escapes on the sides that face a
+  gap, wooden water towers and AC units on about a third of the roofs, and manhole covers and
+  storm grates on the road (forward decals). Street life: 20 cars parked along both kerbs
+  (cabs, a new sedan, vans, two cruisers, two delivery box trucks), a road dig with sawhorse
+  barriers and cones on the west kerb, two food carts, and a park with lawns, gravel paths,
+  lamps down the middle and benches. Parked cars, carts and the dig's barriers block you; the
+  traffic code is unchanged.
   At the south end stand One World Trade Center (a tapered glass tower, 541 m to the spire tip,
   tall enough to make out over the rim from the valley) and the Oculus (72 x 44 m, ribs 34 m up and wings to 51 m, a smaller take on the real 111 m hall),
   white ribs arching over a glass hall with a balcony of shops on each side up two stairs. Four shops face the avenue

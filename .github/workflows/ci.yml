@@ -105,8 +105,22 @@ jobs:
         with:
           shared-key: linux
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - name: test
-        run: cargo test --workspace --locked
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest@0.9.152
+      # nextest runs every test in its own process: real isolation and a full
+      # failure report per run (.config/nextest.toml: no retries, no fail-fast).
+      # Doctests need plain cargo.
+      - name: test (nextest)
+        run: cargo nextest run --workspace --locked
+      - name: doctests
+        run: cargo test --workspace --locked --doc
+      # Escape hatch: these tests share process state (terrain::HEIGHTS statics,
+      # env) and can flake under per-test processes; re-run them threaded in one
+      # process like plain cargo test does. If nextest ever misbehaves, this
+      # step — or plain `cargo test --workspace --locked` — is the fallback.
+      - name: process-shared suspects (plain cargo test)
+        run: cargo test --workspace --locked -- navmesh place_looks playthrough
 
   # The browser build (#106) must keep compiling. Linux only, no wasm-bindgen.
   web:

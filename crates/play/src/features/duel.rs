@@ -125,17 +125,21 @@ pub fn protocol(app: &mut App) {
         .add_systems(
             Update,
             (move_duelists, end_abandoned_duel).run_if(in_state(ServerState::Running)),
-        );
+        )
+        .add_systems(OnExit(ServerState::Running), clear_invites);
 }
 
 /// Server only: open challenges as (from, to), plus whether a duel is live.
 /// `active` is set the moment an answer spawns duelists: the `Duelist`
 /// entities themselves only exist after deferred commands apply, so reading
 /// them alone lets two answers in one frame start overlapping duels.
+/// `spawn_pending` covers the accept→spawn window: `end_abandoned_duel` must
+/// not free the guard there.
 #[derive(Resource, Default)]
 struct DuelInvites {
     open: Vec<(u64, u64)>,
     active: bool,
+    spawn_pending: bool,
 }
 
 /// The two corners duelists start from.
@@ -278,6 +282,7 @@ fn on_answer(
         return;
     }
     invites.active = true;
+    invites.spawn_pending = true;
     invites
         .open
         .retain(|&(f, t)| ![f, t].contains(&me) && ![f, t].contains(&ev.from));
@@ -461,10 +466,15 @@ fn end_abandoned_duel(
     mut invites: ResMut<DuelInvites>,
 ) {
     if duelists.is_empty() {
-        // The duel is over (or its spawn never happened): free the guard.
-        invites.active = false;
+        // The duel is over — but never free the guard during the
+        // accept→spawn window: an answer's duelists are still queued then,
+        // and a cleared guard lets a second answer start an overlapping duel.
+        if !invites.spawn_pending {
+            invites.active = false;
+        }
         return;
     }
+    invites.spawn_pending = false;
     let gone = duelists
         .iter()
         .any(|(_, d)| !players.iter().any(|p| p.id == d.player));
@@ -475,6 +485,12 @@ fn end_abandoned_duel(
         invites.active = false;
         news(&mut commands, "the duel is off: someone left".into());
     }
+}
+
+/// Session over: no invite may outlive it (a stuck `spawn_pending` would
+/// block every future duel).
+fn clear_invites(mut invites: ResMut<DuelInvites>) {
+    *invites = DuelInvites::default();
 }
 
 // ---------------------------------------------------------------- client side
@@ -1371,6 +1387,93 @@ mod tests {
         assert_eq!(
             pick_clip(false, false, false, 0.0).0.map(|c| c.name),
             Some("idle")
+        );
+    }
+
+    /// A server with this feature's protocol, four players (0..3), and two
+    /// open invites: (0, 1) and (2, 3). Returns the server and each remote
+    /// player's client entity (index `id - 1`).
+    fn server_with_two_invites() -> (App, Vec<Entity>) {
+        use bevy::state::app::StatesPlugin;
+        let mut app = App::new();
+        app.add_plugins((
+            MinimalPlugins,
+            StatesPlugin,
+            RepliconPlugins.set(ServerPlugin::new(PostUpdate)),
+        ));
+        protocol(&mut app);
+        app.finish();
+        let owners: Vec<Entity> = (0..3).map(|_| app.world_mut().spawn_empty().id()).collect();
+        for id in 0..4u64 {
+            let owner = if id == 0 {
+                None
+            } else {
+                Some(owners[(id - 1) as usize])
+            };
+            app.world_mut()
+                .spawn((crate::player::Player { id }, crate::player::PlayerOwner(owner)));
+        }
+        app.world_mut().resource_mut::<DuelInvites>().open = vec![(0, 1), (2, 3)];
+        app.world_mut()
+            .resource_mut::<NextState<ServerState>>()
+            .set_if_different(ServerState::Running);
+        app.update();
+        (app, owners)
+    }
+
+    fn duelist_count(app: &mut App) -> usize {
+        let world = app.world_mut();
+        world.query::<&Duelist>().iter(world).count()
+    }
+
+    /// play:invites-window — `end_abandoned_duel` must not free the `active`
+    /// guard between an answer and its deferred duelists' spawn: a second
+    /// answer in that window would start an overlapping duel.
+    #[test]
+    fn accept_in_spawn_window_starts_one_duel() {
+        let (mut app, owners) = server_with_two_invites();
+        // Player 1 accepts (0, 1)'s challenge: the guard is claimed and the
+        // duelists spawn (queued commands apply on flush).
+        app.world_mut().trigger(FromClient {
+            client_id: ClientId::Client(owners[0]),
+            message: AnswerDuel {
+                from: 0,
+                accept: true,
+            },
+        });
+        app.world_mut().flush();
+        assert_eq!(duelist_count(&mut app), 2, "the first answer starts its duel");
+        // Now stand in the accept→spawn window: the duelists are not visible
+        // yet (their spawn is deferred), but the guard is already claimed.
+        {
+            let world = app.world_mut();
+            let gone: Vec<Entity> = world
+                .query::<(Entity, &Duelist)>()
+                .iter(world)
+                .map(|(e, _)| e)
+                .collect();
+            for e in gone {
+                world.despawn(e);
+            }
+        }
+        app.update();
+        assert!(
+            app.world().resource::<DuelInvites>().active,
+            "the guard survives the window"
+        );
+        // Player 3 answers (2, 3) inside the window: no second duel.
+        app.world_mut().trigger(FromClient {
+            client_id: ClientId::Client(owners[2]),
+            message: AnswerDuel {
+                from: 2,
+                accept: true,
+            },
+        });
+        app.world_mut().flush();
+        assert_eq!(
+            duelist_count(&mut app),
+            0,
+            "the second answer starts no overlapping duel"
         );
     }
 }

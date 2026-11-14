@@ -38,6 +38,7 @@ impl Plugin for MenuPlugin {
                     menu_font,
                     menu_shortcuts,
                     style_status,
+                    picker_esc,
                 )
                     .run_if(in_state(AppState::Menu)),
             )
@@ -120,7 +121,221 @@ pub(crate) const SOFT_INK: Color = theme::SOFT_INK;
 enum Label {
     Status,
     Code,
+    /// The end of the code, in the gamepad's hex picker.
+    CodeTail,
     JoinButton,
+}
+
+/// The join-code field (the hex picker gives the pad's focus back to it).
+#[derive(Component)]
+struct CodeField;
+
+/// The gamepad's join-code keypad (#361), opened by A on the code field. It
+/// doesn't need Steam's on-screen keyboard.
+#[derive(Component)]
+struct HexPicker;
+
+/// One key of the [`HexPicker`].
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
+enum PickKey {
+    Hex(char),
+    Back,
+    Paste,
+    Join,
+}
+
+/// The picker's keys in rows: 0-f, then delete, paste and join.
+const PICKER_ROWS: [&[PickKey]; 5] = [
+    &[
+        PickKey::Hex('0'),
+        PickKey::Hex('1'),
+        PickKey::Hex('2'),
+        PickKey::Hex('3'),
+    ],
+    &[
+        PickKey::Hex('4'),
+        PickKey::Hex('5'),
+        PickKey::Hex('6'),
+        PickKey::Hex('7'),
+    ],
+    &[
+        PickKey::Hex('8'),
+        PickKey::Hex('9'),
+        PickKey::Hex('a'),
+        PickKey::Hex('b'),
+    ],
+    &[
+        PickKey::Hex('c'),
+        PickKey::Hex('d'),
+        PickKey::Hex('e'),
+        PickKey::Hex('f'),
+    ],
+    &[PickKey::Back, PickKey::Paste, PickKey::Join],
+];
+
+impl PickKey {
+    fn label(self) -> String {
+        match self {
+            PickKey::Hex(c) => c.to_string(),
+            PickKey::Back => "Del".into(),
+            PickKey::Paste => "Paste".into(),
+            PickKey::Join => "Join".into(),
+        }
+    }
+
+    /// Apply a key to the code. Returns true for Join.
+    fn press(self, code: &mut JoinCode, clipboard: Option<String>) -> bool {
+        match self {
+            PickKey::Hex(c) => {
+                code.type_key(&Key::Character(c.to_string().into()));
+            }
+            PickKey::Back => {
+                code.0.pop();
+            }
+            PickKey::Paste => {
+                if let Some(text) = clipboard {
+                    code.paste(&text);
+                }
+            }
+            PickKey::Join => return true,
+        }
+        false
+    }
+}
+
+/// The last `n` characters of a code, "…" in front if cut.
+fn tail(code: &str, n: usize) -> String {
+    let len = code.chars().count();
+    if len <= n {
+        code.to_string()
+    } else {
+        format!("…{}", code.chars().skip(len - n).collect::<String>())
+    }
+}
+
+/// Spawn the hex picker beside the title card.
+fn spawn_picker(world: &mut World) {
+    use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK as I_INK, PERIWINKLE, RAISED};
+    use crate::ui::{at, body, head};
+    let (key_w, key_h, gap, pad, b) = (64.0, 50.0, 10.0, 18.0, 2.0);
+    let width = 4.0 * key_w + 3.0 * gap + 2.0 * pad;
+    let top = 92.0;
+    let height = top + 5.0 * key_h + 4.0 * gap + 44.0;
+    world
+        .spawn((
+            HexPicker,
+            Node {
+                position_type: PositionType::Absolute,
+                left: px(486),
+                top: px(220),
+                width: px(width),
+                height: px(height),
+                border: UiRect::all(px(b)),
+                border_radius: BorderRadius::all(px(18)),
+                ..default()
+            },
+            BackgroundColor(I_INK),
+            BorderColor::all(BORDER),
+            GlobalZIndex(40),
+            DespawnOnExit(AppState::Menu),
+        ))
+        .with_children(|p| {
+            p.spawn((Text::new("Join code"), head(22.0, CREAM), at(pad, 12.0, b)));
+            p.spawn((
+                Text::new(""),
+                body(17.0, PERIWINKLE),
+                TextLayout::no_wrap(),
+                Label::CodeTail,
+                at(pad, 50.0, b),
+            ));
+            for (row, keys) in PICKER_ROWS.iter().enumerate() {
+                // The last row has three keys: Paste takes two columns.
+                let mut x = pad;
+                for &key in *keys {
+                    let w = if key == PickKey::Paste {
+                        2.0 * key_w + gap
+                    } else {
+                        key_w
+                    };
+                    let y = top + row as f32 * (key_h + gap);
+                    let (fill, ink) = if key == PickKey::Join {
+                        (BUTTER, I_INK)
+                    } else {
+                        (RAISED, CREAM)
+                    };
+                    p.spawn((
+                        key,
+                        Node {
+                            width: px(w),
+                            height: px(key_h),
+                            border: UiRect::all(px(b)),
+                            border_radius: BorderRadius::all(px(12)),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            ..at(x, y, b)
+                        },
+                        BackgroundColor(fill),
+                        BorderColor::all(BORDER),
+                        BaseColor(fill),
+                        Hovered::default(),
+                        crate::ui::pad_nav::PadFocusable,
+                        children![(Text::new(key.label()), head(21.0, ink))],
+                    ))
+                    .observe(press_picker_key);
+                    x += w + gap;
+                }
+            }
+            p.spawn((
+                Text::new("A press  ·  B close"),
+                body(14.0, PERIWINKLE),
+                at(pad, height - 34.0, b),
+            ));
+        });
+}
+
+#[allow(clippy::too_many_arguments)]
+fn press_picker_key(
+    click: On<PointerClick>,
+    keys: Query<&PickKey>,
+    mut commands: Commands,
+    clip: Res<Clipboard>,
+    mut code: ResMut<JoinCode>,
+    mut connecting: ResMut<Connecting>,
+    mut status: ResMut<NetStatus>,
+    client: Option<Res<IrohClient>>,
+) {
+    let Ok(&key) = keys.get(click.entity) else {
+        return;
+    };
+    let pasted = (key == PickKey::Paste).then(|| clip.get()).flatten();
+    if key.press(&mut code, pasted) {
+        join(&code, &mut connecting, &mut status, client.is_some());
+        commands.queue(close_picker);
+    }
+}
+
+/// Close the hex picker and put the pad's focus back on the code field.
+fn close_picker(world: &mut World) {
+    let mut pickers = world.query_filtered::<Entity, With<HexPicker>>();
+    let open: Vec<Entity> = pickers.iter(world).collect();
+    if open.is_empty() {
+        return;
+    }
+    for e in open {
+        world.despawn(e);
+    }
+    let mut field = world.query_filtered::<Entity, With<CodeField>>();
+    let field = field.iter(world).next();
+    if let Some(mut focus) = world.get_resource_mut::<crate::ui::pad_nav::PadFocus>() {
+        focus.entity = field;
+    }
+}
+
+/// B (Esc) closes the hex picker.
+fn picker_esc(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
+    if keys.just_pressed(KeyCode::Escape) {
+        commands.queue(close_picker);
+    }
 }
 
 /// A button's resting color, brightened while hovered.
@@ -158,6 +373,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             BoxShadow::new(I_INK, px(0), px(5), px(0), px(0)),
             BaseColor(fill),
             Hovered::default(),
+            crate::ui::pad_nav::PadFocusable,
             Squishy::default(),
             UiTransform::default(),
             children![(
@@ -173,6 +389,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             body(18.0, color),
             at(x, y, b),
             Hovered::default(),
+            crate::ui::pad_nav::PadFocusable,
         )
     };
     commands
@@ -235,8 +452,11 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                     join(&code, &mut connecting, &mut status, client.is_some())
                 },
             );
-            // The code field: type, Ctrl/Cmd+V, or click it to paste.
+            // The code field: type, Ctrl/Cmd+V, or click it to paste. A
+            // gamepad's A opens the hex picker instead (#361).
             ui.spawn((
+                CodeField,
+                crate::ui::pad_nav::PadFocusable,
                 Node {
                     width: px(362),
                     height: px(44),
@@ -256,8 +476,17 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 )],
             ))
             .observe(
-                |_: On<PointerClick>, clip: Res<Clipboard>, mut code: ResMut<JoinCode>| {
-                    if let Some(text) = clip.get() {
+                |_: On<PointerClick>,
+                 mut commands: Commands,
+                 focus: Res<crate::ui::pad_nav::PadFocus>,
+                 pickers: Query<(), With<HexPicker>>,
+                 clip: Res<Clipboard>,
+                 mut code: ResMut<JoinCode>| {
+                    if focus.pad_click {
+                        if pickers.is_empty() {
+                            commands.queue(spawn_picker);
+                        }
+                    } else if let Some(text) = clip.get() {
                         code.paste(&text);
                     }
                 },
@@ -279,7 +508,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                     crate::ui::settings_panel::toggle(&mut panel);
                 },
             );
-            ui.spawn(link("·", PERIWINKLE, 120.0, 461.0));
+            ui.spawn((Text::new("·"), body(18.0, PERIWINKLE), at(120.0, 461.0, b)));
             ui.spawn(link("Whose fault is it", PERIWINKLE, 151.0, 461.0))
                 .observe(
                     |_: On<PointerClick>,
@@ -309,6 +538,13 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 Text::new("Made by your Discord. Blame accordingly."),
                 body(14.0, PERIWINKLE),
                 at(26.0, 580.0, b),
+            ));
+            ui.spawn((
+                Text::new("D-pad move  ·  A select  ·  B back  ·  View settings"),
+                body(14.0, CREAM),
+                at(26.0, 606.0, b),
+                Visibility::Hidden,
+                crate::ui::pad_nav::PadHint,
             ));
         });
 }
@@ -887,6 +1123,8 @@ fn refresh_labels(
             Label::Status => status.message.clone(),
             Label::Code if code.0.is_empty() => "Paste code or share link…".into(),
             Label::Code => code.0.clone(),
+            Label::CodeTail if code.0.is_empty() => "(empty: pick 0-f, or Paste)".into(),
+            Label::CodeTail => format!("{}  ({})", tail(&code.0, 22), code.0.len()),
             Label::JoinButton => continue,
         };
         if t.0 != new {
@@ -932,5 +1170,34 @@ mod tests {
         assert_eq!(c.0, "0123abcd");
         assert_eq!(code_in("https://a.b/?join=beef#top"), "beef");
         assert_eq!(code_in("beef"), "beef");
+    }
+
+    #[test]
+    fn hex_picker_types_deletes_pastes_and_joins() {
+        let mut c = JoinCode::default();
+        for k in [PickKey::Hex('a'), PickKey::Hex('0'), PickKey::Hex('f')] {
+            assert!(!k.press(&mut c, None));
+        }
+        assert_eq!(c.0, "a0f");
+        PickKey::Back.press(&mut c, None);
+        assert_eq!(c.0, "a0");
+        PickKey::Paste.press(&mut c, Some("https://x.y/?join=beef".into()));
+        assert_eq!(c.0, "beef");
+        // Nothing on the clipboard: the code stays.
+        PickKey::Paste.press(&mut c, None);
+        assert_eq!(c.0, "beef");
+        assert!(PickKey::Join.press(&mut c, None));
+        // Every hex digit has a key, once.
+        let hex: String = PICKER_ROWS
+            .iter()
+            .flat_map(|r| r.iter())
+            .filter_map(|k| match k {
+                PickKey::Hex(c) => Some(*c),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(hex, "0123456789abcdef");
+        assert_eq!(tail("0123456789", 4), "…6789");
+        assert_eq!(tail("abc", 4), "abc");
     }
 }

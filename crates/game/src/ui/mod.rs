@@ -20,6 +20,7 @@ pub mod chapter;
 pub mod danger;
 pub mod feed;
 pub mod journal;
+pub mod pad_nav;
 pub mod prompt;
 pub mod quest;
 pub mod settings_panel;
@@ -108,6 +109,7 @@ pub fn plugin(app: &mut App) {
             journal::plugin,
             chapter::plugin,
             settings_panel::plugin,
+            pad_nav::plugin,
         ));
 }
 
@@ -226,5 +228,17 @@ mod tests {
         assert_eq!(times(0), "×0");
         assert_eq!(times(99), "×99");
         assert_eq!(times(100), "×99+");
+    }
+
+    #[test]
+    fn steam_deck_screen_fits_the_menus() {
+        // 1280x800 (16:10): authored size, no shrinking, 80 px spare height.
+        let (w, h) = (1280.0, 800.0);
+        let s = indigo::ui_scale(w, h).max(1.0);
+        assert_eq!(s, 1.0);
+        // The settings notebook (1200x664) and the title card (left 44,
+        // top 40, 418x640) stay on screen.
+        assert!(1200.0 * s <= w && 664.0 * s <= h);
+        assert!((44.0 + 418.0) * s <= w && (40.0 + 640.0) * s <= h);
     }
 }

@@ -1,5 +1,6 @@
 //! ContextPrompt: under the aim point, say what clicking does. In reach it's
-//! a card with a hand, the verb ("Pet the cat") and "LMB / B · in reach", and
+//! a card with a hand, the verb ("Pet the cat") and "LMB · in reach" ("B / RT" after
+//! a gamepad was used), and
 //! the crosshair turns into a hand; out of reach it's a small "Too far · move
 //! closer" chip instead (never both).
 
@@ -15,10 +16,12 @@ use crate::theme::indigo::{BORDER, CREAM, INK, PERIWINKLE};
 const BELOW: f32 = 26.0;
 const READY_W: f32 = 248.0;
 
-/// The prompt's text: the verb card, or the too-far line.
-pub fn prompt(label: Option<&str>, in_reach: bool) -> (String, String) {
+/// The prompt's text: the verb card, or the too-far line. The binding names
+/// the gamepad's buttons when a pad was the last thing used (#361).
+pub fn prompt(label: Option<&str>, in_reach: bool, pad: bool) -> (String, String) {
     if in_reach {
-        (verb(label), "LMB / B  ·  in reach".to_string())
+        let how = if pad { "B / RT" } else { "LMB" };
+        (verb(label), format!("{how}  ·  in reach"))
     } else {
         ("Too far · move closer".to_string(), String::new())
     }
@@ -120,11 +123,12 @@ fn spawn(mut commands: Commands, icons: Res<Icons>, root: Query<Entity, With<Hud
 fn update(
     hover: Res<AimHover>,
     scale: Res<UiScale>,
+    pad: Res<crate::controls::PadLast>,
     mut cards: Query<(&Card, &mut Node, &ComputedNode)>,
     mut parts: Query<(&Part, &mut Text)>,
 ) {
     let aim = hover.0;
-    let lines = aim.map(|a| prompt(a.label, a.in_reach));
+    let lines = aim.map(|a| prompt(a.label, a.in_reach, pad.0));
     for (card, mut node, computed) in &mut cards {
         let show = aim.is_some_and(|a| a.in_reach == (*card == Card::Ready));
         let d = if show { Display::Flex } else { Display::None };
@@ -192,13 +196,14 @@ mod tests {
     #[test]
     fn in_reach_names_the_verb_and_too_far_never_claims_reach() {
         assert_eq!(
-            prompt(Some("pet the cat"), true),
-            (
-                "Pet the cat".to_string(),
-                "LMB / B  ·  in reach".to_string()
-            )
+            prompt(Some("pet the cat"), true, false),
+            ("Pet the cat".to_string(), "LMB  ·  in reach".to_string())
         );
-        let (far, line) = prompt(Some("pet the cat"), false);
+        assert_eq!(
+            prompt(Some("pet the cat"), true, true).1,
+            "B / RT  ·  in reach"
+        );
+        let (far, line) = prompt(Some("pet the cat"), false, true);
         assert_eq!(far, "Too far · move closer");
         assert!(line.is_empty());
     }

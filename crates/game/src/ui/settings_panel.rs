@@ -8,10 +8,28 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
+use super::pad_nav::{PadFocusable, PadNudge, PadSlider};
 use super::{at, body, head};
 use crate::AppState;
+use crate::controls::PadSettings;
 use crate::graphics::{GraphicsQuality, Preset, VideoOption};
 use crate::settings::Settings;
+
+/// Column `i` (0 or 1) of the Controls page's bindings: the keyboard's, or
+/// the gamepad's when `pad`.
+pub fn help_column(i: usize, pad: bool) -> String {
+    let list: &[(&str, &str)] = if pad {
+        crate::controls::PAD_BINDINGS
+    } else {
+        crate::hud::KEY_BINDINGS
+    };
+    let half = list.len().div_ceil(2);
+    let part = if i == 0 { &list[..half] } else { &list[half..] };
+    part.iter()
+        .map(|(k, v)| format!("{k}  ·  {v}"))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
 use crate::theme::indigo::{BORDER, CREAM, INDIGO, INK, LAVENDER, PAPER};
 use crate::voice::VoiceMuted;
 
@@ -107,12 +125,82 @@ enum Part {
     Handle(Volume),
     Box(Check),
     BoxLabel(VideoOption),
+    /// One of the Controls page's two columns of bindings.
+    Help(usize),
+    /// "Esc close", or "B close" after a gamepad was used.
+    CloseHint,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Volume {
     Master,
     Voice,
+    /// The gamepad's stick deadzone and look speed (#361).
+    Deadzone,
+    Look,
+}
+
+/// Width of the two gamepad sliders, side by side on the Controls page.
+const PAD_SLIDER_W: f32 = 300.0;
+
+impl Volume {
+    fn width(self) -> f32 {
+        match self {
+            Volume::Master | Volume::Voice => SLIDER_W,
+            Volume::Deadzone | Volume::Look => PAD_SLIDER_W,
+        }
+    }
+
+    /// Snap positions along the track.
+    fn steps(self) -> f32 {
+        match self {
+            Volume::Master | Volume::Voice => 20.0,
+            // 0.05 apart up to 0.4.
+            Volume::Deadzone => 8.0,
+            // 0.25 apart from 0.25 to 3 (1x is a step).
+            Volume::Look => 11.0,
+        }
+    }
+
+    /// How full the track is, `0..=1`.
+    fn frac(self, s: &Settings, p: &PadSettings) -> f32 {
+        match self {
+            Volume::Master => s.master_volume,
+            Volume::Voice => s.voice_volume,
+            Volume::Deadzone => p.deadzone / PadSettings::MAX_DEADZONE,
+            Volume::Look => {
+                (p.look - PadSettings::LOOK_MIN) / (PadSettings::LOOK_MAX - PadSettings::LOOK_MIN)
+            }
+        }
+    }
+
+    /// Set from a track position, snapped to [`Self::steps`].
+    fn set(self, s: &mut Settings, p: &mut PadSettings, frac: f32) {
+        let n = self.steps();
+        let f = (frac.clamp(0.0, 1.0) * n).round() / n;
+        let lerp = |lo: f32, hi: f32| lo + (hi - lo) * f;
+        let (field, want) = match self {
+            Volume::Master => (&mut s.master_volume, f),
+            Volume::Voice => (&mut s.voice_volume, f),
+            Volume::Deadzone => (&mut p.deadzone, lerp(0.0, PadSettings::MAX_DEADZONE)),
+            Volume::Look => (
+                &mut p.look,
+                lerp(PadSettings::LOOK_MIN, PadSettings::LOOK_MAX),
+            ),
+        };
+        if (*field - want).abs() > 1e-4 {
+            *field = want;
+        }
+    }
+
+    /// The number beside the track.
+    fn shown(self, s: &Settings, p: &PadSettings) -> String {
+        match self {
+            Volume::Look => format!("{:.2}x", p.look),
+            Volume::Deadzone => format!("{}%", (p.deadzone * 100.0).round() as i32),
+            v => format!("{}%", (v.frac(s, p) * 100.0).round() as i32),
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -120,20 +208,6 @@ enum Check {
     Mic,
     Halt,
     Video(VideoOption),
-}
-
-fn field(s: &mut Settings, v: Volume) -> &mut f32 {
-    match v {
-        Volume::Master => &mut s.master_volume,
-        Volume::Voice => &mut s.voice_volume,
-    }
-}
-
-fn get(s: &Settings, v: Volume) -> f32 {
-    match v {
-        Volume::Master => s.master_volume,
-        Volume::Voice => s.voice_volume,
-    }
 }
 
 pub fn plugin(app: &mut App) {
@@ -219,6 +293,7 @@ fn button(w: f32, h: f32, radius: f32, fill: Color, x: f32, y: f32) -> impl Bund
         },
         BackgroundColor(fill),
         BorderColor::all(BORDER),
+        PadFocusable,
     )
 }
 
@@ -285,7 +360,10 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
     ));
     p.spawn((
         button(148.0, 42.0, 12.0, PAPER, 1018.0, 20.0),
-        children![label("Esc   close", 17.0, INK, 11.0, 8.0, B)],
+        children![(
+            Part::CloseHint,
+            label("Esc   close", 17.0, INK, 11.0, 8.0, B)
+        )],
     ))
     .observe(close);
     for (i, (page, name)) in [
@@ -326,7 +404,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         ] {
             c.spawn(label(name, 19.0, INK, 20.0, y, 0.0));
             c.spawn((Part::Pct(v), label("", 19.0, INDIGO, 313.0, y, 0.0)));
-            slider(c, v, y + 32.0);
+            slider(c, v, 20.0, y + 32.0);
         }
         check_row(c, check, Check::Mic, "Microphone (M)", 20.0, 268.0);
         check_row(
@@ -395,6 +473,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
                     ..at(x, y, B)
                 },
                 BackgroundColor(PAPER),
+                PadFocusable,
                 children![
                     checkbox(check, Check::Video(o), 12.0, 24.0),
                     (
@@ -435,30 +514,50 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         },
         BackgroundColor(PAPER),
         BorderColor::all(BORDER),
-        children![
-            (Text::new("Controls"), head(26.0, INK), at(18.0, 12.0, B)),
-            (
-                Text::new(crate::hud::help_text()),
-                body(14.0, INK),
+    ))
+    .with_children(|c| {
+        c.spawn((Text::new("Controls"), head(26.0, INK), at(18.0, 12.0, B)));
+        // The gamepad's feel (#361), side by side.
+        for (v, name, x) in [
+            (Volume::Deadzone, "Stick deadzone", 18.0),
+            (Volume::Look, "Stick look speed", 370.0),
+        ] {
+            c.spawn(label(name, 17.0, INK, x, 52.0, B));
+            c.spawn((
+                Part::Pct(v),
+                label("", 17.0, INDIGO, x + PAD_SLIDER_W - 54.0, 52.0, B),
+            ));
+            slider(c, v, x - B, 82.0 - B);
+        }
+        // The bindings in two columns, so the list fits the card.
+        for (i, x) in [18.0, 370.0].into_iter().enumerate() {
+            c.spawn((
+                Part::Help(i),
+                Text::new(help_column(i, false)),
+                body(13.0, INK),
                 Node {
-                    width: px(670),
-                    ..at(18.0, 56.0, B)
-                }
-            ),
-        ],
-    ));
+                    width: px(PAD_SLIDER_W + 30.0),
+                    ..at(x, 122.0, B)
+                },
+            ));
+        }
+    });
 
     p.spawn((
         button(178.0, 42.0, 12.0, PAPER, 780.0, 594.0),
         children![label("Reset defaults", 17.0, INK, 11.0, 8.0, B)],
     ))
     .observe(
-        |_: On<PointerClick>, mut s: ResMut<Settings>, mut q: ResMut<GraphicsQuality>| {
+        |_: On<PointerClick>,
+         mut s: ResMut<Settings>,
+         mut pad: ResMut<PadSettings>,
+         mut q: ResMut<GraphicsQuality>| {
             let keep = s.halt_real_name;
             *s = Settings {
                 halt_real_name: keep,
                 ..default()
             };
+            pad.set_if_neq(PadSettings::DEFAULT);
             let want = GraphicsQuality::platform_default();
             q.set_if_neq(want);
         },
@@ -476,18 +575,20 @@ fn close(_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>) 
     }
 }
 
-fn slider(c: &mut ChildSpawnerCommands, v: Volume, y: f32) {
+fn slider(c: &mut ChildSpawnerCommands, v: Volume, x: f32, y: f32) {
     let track = c
         .spawn((
             Node {
-                width: px(SLIDER_W),
+                width: px(v.width()),
                 height: px(26),
-                ..at(20.0, y + 8.0 - 8.0, 0.0)
+                ..at(x, y, 0.0)
             },
+            PadFocusable,
+            PadSlider,
             children![
                 (
                     Node {
-                        width: px(SLIDER_W),
+                        width: px(v.width()),
                         height: px(10),
                         border_radius: BorderRadius::all(px(5)),
                         ..at(0.0, 8.0, 0.0)
@@ -523,13 +624,25 @@ fn slider(c: &mut ChildSpawnerCommands, v: Volume, y: f32) {
     c.commands_mut()
         .entity(track)
         .observe(
-            move |_: On<PointerPress>, nodes: SliderNodes, mut s: ResMut<Settings>| {
-                set_from_cursor(track, &nodes, v, &mut s);
+            move |_: On<PointerPress>,
+                  nodes: SliderNodes,
+                  mut s: ResMut<Settings>,
+                  mut p: ResMut<PadSettings>| {
+                set_from_cursor(track, &nodes, v, &mut s, &mut p);
             },
         )
         .observe(
-            move |_: On<PointerDrag>, nodes: SliderNodes, mut s: ResMut<Settings>| {
-                set_from_cursor(track, &nodes, v, &mut s);
+            move |_: On<PointerDrag>,
+                  nodes: SliderNodes,
+                  mut s: ResMut<Settings>,
+                  mut p: ResMut<PadSettings>| {
+                set_from_cursor(track, &nodes, v, &mut s, &mut p);
+            },
+        )
+        .observe(
+            move |n: On<PadNudge>, mut s: ResMut<Settings>, mut p: ResMut<PadSettings>| {
+                let f = v.frac(&s, &p) + n.steps as f32 / v.steps();
+                v.set(&mut s, &mut p, f);
             },
         );
 }
@@ -539,7 +652,13 @@ type SliderNodes<'w, 's> = (
     Query<'w, 's, &'static Window, With<PrimaryWindow>>,
 );
 
-fn set_from_cursor(slider: Entity, (nodes, window): &SliderNodes, v: Volume, s: &mut Settings) {
+fn set_from_cursor(
+    slider: Entity,
+    (nodes, window): &SliderNodes,
+    v: Volume,
+    s: &mut Settings,
+    p: &mut PadSettings,
+) {
     let (Ok((node, tf)), Ok(window)) = (nodes.get(slider), window.single()) else {
         return;
     };
@@ -551,11 +670,7 @@ fn set_from_cursor(slider: Entity, (nodes, window): &SliderNodes, v: Volume, s: 
         return;
     }
     let left = tf.translation.x - w / 2.0;
-    let want = volume_at((cursor.x - left) / w);
-    let f = field(s, v);
-    if *f != want {
-        *f = want;
-    }
+    v.set(s, p, (cursor.x - left) / w);
 }
 
 fn check_row(
@@ -572,6 +687,7 @@ fn check_row(
             height: px(36),
             ..at(20.0, y - 4.0, 0.0)
         },
+        PadFocusable,
         children![
             label(name, size, INK, 0.0, 4.0, 0.0),
             checkbox(check, what, 330.0, 0.0),
@@ -618,6 +734,8 @@ fn checkbox(check: &Handle<Image>, what: Check, x: f32, y: f32) -> impl Bundle {
 fn refresh(
     on: Res<OnPage>,
     s: Res<Settings>,
+    pad: Res<PadSettings>,
+    last: Res<crate::controls::PadLast>,
     muted: Res<VoiceMuted>,
     q: Res<GraphicsQuality>,
     mut nodes: Query<&mut Node>,
@@ -658,7 +776,19 @@ fn refresh(
                 }
             }
             Part::Pct(v) => {
-                let want = format!("{}%", (get(&s, v) * 100.0).round() as i32);
+                let want = v.shown(&s, &pad);
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want;
+                }
+            }
+            Part::Help(_) | Part::CloseHint => {
+                let want = match *part {
+                    Part::Help(i) => help_column(i, last.0),
+                    _ if last.0 => "B   close".to_string(),
+                    _ => "Esc   close".to_string(),
+                };
                 if let Some(mut t) = text
                     && t.0 != want
                 {
@@ -666,12 +796,12 @@ fn refresh(
                 }
             }
             Part::Fill(v) | Part::Handle(v) => {
-                let f = get(&s, v);
+                let (f, w) = (v.frac(&s, &pad), v.width());
                 if let Ok(mut n) = nodes.get_mut(e) {
                     let want = if matches!(part, Part::Fill(_)) {
-                        (px(SLIDER_W * f), n.left)
+                        (px(w * f), n.left)
                     } else {
-                        (n.width, px(SLIDER_W * f - 13.0))
+                        (n.width, px(w * f - 13.0))
                     };
                     if (n.width, n.left) != want {
                         (n.width, n.left) = want;
@@ -732,5 +862,29 @@ mod tests {
     fn every_box_is_a_real_option() {
         assert!(!VIDEO_BOXES.contains(&VideoOption::Preset));
         assert_eq!(VIDEO_BOXES.len(), 9);
+    }
+
+    #[test]
+    fn pad_sliders_step_through_their_defaults() {
+        let mut s = Settings::default();
+        let mut p = PadSettings::DEFAULT;
+        for v in [Volume::Deadzone, Volume::Look, Volume::Master] {
+            // One nudge right then one left comes back to where it was.
+            let before = (v.frac(&s, &p), p);
+            v.set(&mut s, &mut p, before.0 + 1.0 / v.steps());
+            assert!(v.frac(&s, &p) > before.0);
+            let back = v.frac(&s, &p) - 1.0 / v.steps();
+            v.set(&mut s, &mut p, back);
+            assert!((v.frac(&s, &p) - before.0).abs() < 1e-4, "{v:?}");
+            assert_eq!(p.clamped(), p);
+        }
+        Volume::Look.set(&mut s, &mut p, 2.0);
+        assert_eq!(p.look, PadSettings::LOOK_MAX);
+        assert_eq!(Volume::Deadzone.shown(&s, &PadSettings::DEFAULT), "15%");
+        assert_eq!(Volume::Look.shown(&s, &PadSettings::DEFAULT), "1.00x");
+        // Every binding lands in one of the two columns.
+        let lines = |pad| help_column(0, pad).lines().count() + help_column(1, pad).lines().count();
+        assert_eq!(lines(false), crate::hud::KEY_BINDINGS.len());
+        assert_eq!(lines(true), crate::controls::PAD_BINDINGS.len());
     }
 }

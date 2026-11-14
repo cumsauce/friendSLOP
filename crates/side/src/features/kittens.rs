@@ -100,7 +100,8 @@ struct Gangs {
 pub fn protocol(app: &mut App) {
     app.replicate::<Kitten>().add_systems(
         Update,
-        (spawn_kittens, prowl)
+        // The gangs only prowl while someone is in the city (#412).
+        (spawn_kittens, prowl.run_if(crate::sites::awake("nyc")))
             .chain()
             .run_if(in_state(ServerState::Running)),
     );
@@ -311,7 +312,11 @@ fn prowl(
 pub fn plugin(app: &mut App) {
     app.add_systems(
         Update,
-        (dress_kittens, glide_kittens, meow).run_if(in_state(AppState::InGame)),
+        (
+            dress_kittens,
+            (glide_kittens, meow).run_if(crate::sites::here("nyc")),
+        )
+            .run_if(in_state(AppState::InGame)),
     );
 }
 

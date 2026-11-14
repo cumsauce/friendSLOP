@@ -34,7 +34,7 @@ use super::wallet::Cash;
 use crate::AppState;
 use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
-use crate::features::smoking::{Smoking, Stash};
+use crate::features::smoking::{Item, Lit, Smoking, Stash, purchase};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// Tuning and writing: `assets/data/side/high_places.ron` (read at run time).
@@ -318,7 +318,7 @@ fn buy(
     let Some((player, _, mut cash, mut stash)) = buyers.iter_mut().find(|b| b.1.0 == me) else {
         return;
     };
-    if cash.dollars < t.price {
+    if !purchase(&mut cash.dollars, &mut stash, t.price) {
         let text = t
             .broke_line
             .replace("{price}", &t.price.to_string())
@@ -326,8 +326,6 @@ fn buy(
         deny(&mut commands, ev.client_id, text);
         return;
     }
-    cash.dollars -= t.price;
-    stash.joints += 1;
     let text = t
         .bought_line
         .replace("{price}", &t.price.to_string())
@@ -354,14 +352,14 @@ fn light_up(
     if busy {
         return;
     }
-    if stash.joints == 0 {
+    if !stash.spend(Item::Joint) {
         deny(&mut commands, ev.client_id, t.no_joint_line.clone());
         return;
     }
-    stash.joints -= 1;
-    commands.entity(e).insert(Smoking {
-        left: t.smoke_secs,
+    commands.trigger(Lit {
+        player: e,
         joint: true,
+        secs: t.smoke_secs,
     });
     news(&mut commands, player.id, t.lit_line.clone(), true);
 }

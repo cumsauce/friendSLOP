@@ -53,14 +53,14 @@ pub fn protocol(app: &mut App) {
 fn spawn_music_boxes(mut commands: Commands) {
     commands.spawn((
         MusicBox {
-            at: Vec2::new(5.0, -5.0),
+            at: crate::sites::at("music_box_1"),
             tune: 0,
         },
         Replicated,
     ));
     commands.spawn((
         MusicBox {
-            at: Vec2::new(-3.0, 7.0),
+            at: crate::sites::at("music_box_2"),
             tune: 1,
         },
         Replicated,

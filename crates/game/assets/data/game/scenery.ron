@@ -1,0 +1,26 @@
+// How much dressing the world gets (crates/game/src/zones.rs, scenery.rs).
+// Placement is seeded, so every player sees the same world; changing a number
+// moves things around. Read when you enter the game (restart to see a change).
+//
+// Each spread: how many, how far apart at least (m), and how far in from the
+// zone's edge (m). A zone fills up before it reaches `count` if `spacing` is
+// too big for it.
+(
+    // The commune centre: clusters (groves, rock outcrops, sheds, bales,
+    // fences, crates...) and single flowers between them.
+    commune_clusters: (count: 18, spacing: 6.5, margin: 0.0),
+    commune_flora: 50,
+    // The forest: trees (with undergrowth and bushes among them), fallen logs, rocks.
+    forest_trees: (count: 230, spacing: 3.6, margin: 1.0),
+    forest_logs: (count: 18, spacing: 8.0, margin: 3.0),
+    forest_rocks: (count: 22, spacing: 8.0, margin: 2.5),
+    // The valley: trees, rocks, fence runs.
+    valley_trees: (count: 14, spacing: 7.0, margin: 1.5),
+    valley_rocks: (count: 12, spacing: 6.0, margin: 2.0),
+    valley_fences: (count: 5, spacing: 10.0, margin: 4.0),
+    // The meadows: copses, field walls and hedgerows, haystacks, boulders.
+    meadow_copses: (count: 14, spacing: 14.0, margin: 5.0),
+    meadow_walls: (count: 18, spacing: 12.0, margin: 2.0),
+    meadow_hay: (count: 10, spacing: 12.0, margin: 3.0),
+    meadow_boulders: (count: 10, spacing: 10.0, margin: 2.0),
+)

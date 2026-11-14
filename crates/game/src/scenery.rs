@@ -818,6 +818,9 @@ pub(crate) fn spawn_bonfire(
 
 /// The fire breathes: gentle flicker on the campfire light.
 fn flicker_bonfire(time: Res<Time>, mut flames: Query<&mut PointLight, With<BonfireFlame>>) {
+    if crate::screenshot::frozen() {
+        return;
+    }
     let t = time.elapsed_secs();
     for mut light in &mut flames {
         let flicker = (t * 7.0).sin() * 200.0 + (t * 13.7).sin() * 150.0;

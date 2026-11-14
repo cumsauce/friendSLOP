@@ -69,6 +69,10 @@ pub fn plugin(app: &mut App) {
 }
 
 fn clock_seed() -> u64 {
+    if crate::screenshot::frozen() {
+        // Screenshot captures pin the RNG (goldens, S3).
+        return 0x5C7EED;
+    }
     crate::settings::since_epoch().as_nanos().max(1) as u64
 }
 

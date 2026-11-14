@@ -307,6 +307,13 @@ fn hide_ui(mut roots: Query<&mut Visibility, (With<Node>, Without<ChildOf>)>) {
     }
 }
 
+/// Screenshot capture is running: world animation freezes and RNGs pin so
+/// the picture is deterministic (goldens, S3). The same check every crate
+/// can make is `friendslop_base::settings::frozen()`.
+pub fn frozen() -> bool {
+    crate::settings::frozen()
+}
+
 /// Screenshot mode. Does nothing unless `FRIENDSLOP_SCREENSHOT` is set.
 pub struct ScreenshotPlugin;
 

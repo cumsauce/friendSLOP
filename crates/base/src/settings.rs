@@ -90,6 +90,13 @@ pub fn since_epoch() -> std::time::Duration {
         .unwrap_or_default()
 }
 
+/// Screenshot capture is running (`FRIENDSLOP_SCREENSHOT` is set to a path):
+/// animation freezes and RNGs pin so the picture is deterministic (goldens).
+/// The game side is `crate::screenshot::frozen()`.
+pub fn frozen() -> bool {
+    std::env::var("FRIENDSLOP_SCREENSHOT").is_ok_and(|p| !p.trim().is_empty())
+}
+
 pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {

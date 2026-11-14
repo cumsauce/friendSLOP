@@ -1,0 +1,20 @@
+# Golden screenshot shots (S3). One row per golden:
+#   out_name start scene camera warehouse_seed wait
+# `-` in a column = the default (no start, plain play scene, the spawn view,
+# no warehouse seed, 12 s wait). `scene` may carry a size: `play@1920x1080`.
+# `camera` is x,y,z,lx,ly,lz (eye, look-at). Rows sharing a start are batched
+# into one game run via FRIENDSLOP_SCREENSHOT_SHOTS. Run scripts/goldens.sh.
+#
+# The capture wave tunes cameras marked "tune" against the real frames; the
+# picks below are the designed set (S3: high = commune/bonfire, penn_street,
+# fulton, penn, warehouse; med = underground, village, lake, wendys; + ui).
+commune_bonfire  bonfire     -    -                           -  12
+penn_street      penn_street -    -                           -  12
+fulton           fulton      -    -                           -  12
+penn             penn        -    -                           -  12
+warehouse        warehouse   -    -                           7  12
+ui_play          centre      play@1920x1080 -                 -  12
+underground      -           -    21,-28,1,21,-29,-25         -  12
+village          village     -    -                           -  12
+lake             lake        -    -                           -  12
+wendys           wendys      -    -                           -  12

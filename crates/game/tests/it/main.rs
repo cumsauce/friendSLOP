@@ -13,6 +13,7 @@ mod kcc;
 mod kitty_lemonade;
 mod mute_spell;
 mod navmesh;
+mod place_looks;
 mod playthrough;
 mod replication;
 mod round_reset;

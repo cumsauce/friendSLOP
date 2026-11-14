@@ -40,6 +40,7 @@ pub mod scenery;
 pub mod screenshot;
 pub use friendslop_art::theme;
 pub use friendslop_base::night_lights;
+pub use friendslop_base::place;
 pub use friendslop_base::settings;
 pub use friendslop_base::spatial;
 pub use friendslop_base::textures;
@@ -123,6 +124,7 @@ impl Plugin for GamePlugin {
             ui::plugin,
             textures::plugin,
             night_lights::plugin,
+            place::plugin,
             lod::plugin,
             rigged::plugin,
             // Live wind sway for the rigged trees (lod.rs steers it).

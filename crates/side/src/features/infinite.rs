@@ -531,17 +531,10 @@ fn put(
 
 // ---------------------------------------------------------------- local
 
-/// Local: am I in a copy, and what the dark replaced.
+/// Local: which copy I'm in, if any.
 #[derive(Resource, Default)]
 pub struct Adrift {
     pub inside: Option<usize>,
-    saved: Option<Saved>,
-}
-
-struct Saved {
-    fog: Option<DistanceFog>,
-    ambient: f32,
-    suns: Vec<(Entity, f32)>,
 }
 
 /// For the music: cut it while I'm in there.
@@ -558,7 +551,12 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<Adrift>()
         .add_systems(OnEnter(AppState::InGame), (build, reset))
         .add_systems(OnExit(AppState::InGame), reset)
-        .add_systems(Update, darkness.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            darkness
+                .in_set(crate::place::PlaceSet)
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 fn reset(mut adrift: ResMut<Adrift>) {
@@ -767,78 +765,34 @@ fn build(
     }
 }
 
-/// Local: in a copy, the sky goes out, the dark closes in and only its
-/// copy shows; coming out brings it all back.
-#[allow(clippy::too_many_arguments)]
+/// The hallway's look (`data/base/place_looks.ron`): no sky, a brown dark.
+pub const LOOK: &str = "infinite";
+
+/// Local: in a copy, the sky goes out and the dark closes in (`place.rs`),
+/// and only that copy shows.
 fn darkness(
-    mut commands: Commands,
     plan: Res<Plan>,
-    me: Option<Res<LocalPlayer>>,
-    walkers: Query<(&Player, &Walker)>,
+    here: Res<crate::place::Here>,
     mut adrift: ResMut<Adrift>,
-    cameras: Query<(Entity, Option<&DistanceFog>), With<MainCamera>>,
-    mut suns: Query<(Entity, &mut DirectionalLight)>,
-    ambient: Option<ResMut<GlobalAmbientLight>>,
+    mut looks: ResMut<crate::place::PlaceLooks>,
     mut shown: Query<(&Shown, &mut Visibility)>,
 ) {
-    let here = me
-        .and_then(|me| walkers.iter().find(|(p, _)| p.id == me.0))
-        .and_then(|(_, w)| plan.space_of(w.pos));
-    if here == adrift.inside {
+    let space = plan.space_of(here.0);
+    if space.is_some() {
+        looks.push(LOOK);
+    }
+    if space == adrift.inside {
         return;
     }
-    let Ok((camera, fog)) = cameras.single() else {
-        return;
-    };
-    let Some(mut ambient) = ambient else { return };
-    let was = adrift.inside;
-    adrift.inside = here;
+    adrift.inside = space;
     for (s, mut v) in &mut shown {
-        let want = if Some(s.0) == here {
+        let want = if Some(s.0) == space {
             Visibility::Inherited
         } else {
             Visibility::Hidden
         };
         if *v != want {
             *v = want;
-        }
-    }
-    if here.is_some() && was.is_none() {
-        adrift.saved = Some(Saved {
-            fog: fog.cloned(),
-            ambient: ambient.brightness,
-            suns: suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
-        });
-        ambient.brightness = 25.0;
-        for (_, mut sun) in &mut suns {
-            sun.illuminance = 0.0;
-        }
-        commands.entity(camera).insert(DistanceFog {
-            color: Color::srgb(0.01, 0.008, 0.006),
-            falloff: FogFalloff::Linear {
-                start: 3.0,
-                end: 26.0,
-            },
-            ..default()
-        });
-    } else if here.is_none()
-        && let Some(saved) = adrift.saved.take()
-    {
-        ambient.brightness = saved.ambient;
-        for (e, lux) in saved.suns {
-            if let Ok((_, mut sun)) = suns.get_mut(e) {
-                // Never back to 0: another dark place may have saved it dark, and
-                // day_night only takes over again from a lit sun.
-                sun.illuminance = lux.max(1.0);
-            }
-        }
-        match saved.fog {
-            Some(f) => {
-                commands.entity(camera).insert(f);
-            }
-            None => {
-                commands.entity(camera).remove::<DistanceFog>();
-            }
         }
     }
 }

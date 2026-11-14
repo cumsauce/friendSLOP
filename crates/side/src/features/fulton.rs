@@ -1332,6 +1332,7 @@ pub fn plugin(app: &mut App) {
             Update,
             (
                 stream_levels,
+                hide_surface,
                 follow_light,
                 light_shadows,
                 station_dark,
@@ -1516,6 +1517,62 @@ fn build_station(
 
 fn camera_at(camera: &Query<&GlobalTransform, With<crate::world::MainCamera>>) -> Option<Vec3> {
     camera.iter().next().map(|g| g.translation())
+}
+
+/// What [`hide_surface`] hid, and how it was before.
+#[derive(Default)]
+struct Hidden {
+    was: Vec<(Entity, Visibility)>,
+    rescan: f32,
+}
+
+/// Local: underground, nothing on the surface can be seen, but it was all
+/// still drawn (ten thousand meshes, a few fps). While the camera is in the
+/// station, hide every top-level thing standing above it (the city, the
+/// commune, their lights), checking now and then for new ones; put it all
+/// back on the way up.
+#[allow(clippy::type_complexity)]
+fn hide_surface(
+    time: Res<Time>,
+    mut hidden: Local<Hidden>,
+    camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
+    mut roots: Query<
+        (Entity, &GlobalTransform, &mut Visibility),
+        (
+            Without<ChildOf>,
+            Without<LevelModels>,
+            Without<Camera>,
+            Without<Node>,
+            Without<DirectionalLight>,
+        ),
+    >,
+) {
+    let below = camera_at(&camera).is_some_and(|at| in_station(at - Vec3::Y * 1.6));
+    if !below {
+        for (e, v) in hidden.was.drain(..) {
+            if let Ok((_, _, mut now)) = roots.get_mut(e) {
+                *now = v;
+            }
+        }
+        return;
+    }
+    hidden.rescan -= time.delta_secs();
+    if hidden.rescan > 0.0 {
+        return;
+    }
+    hidden.rescan = 0.5;
+    for (e, g, mut v) in &mut roots {
+        if *v != Visibility::Hidden && surface(g.translation().y) {
+            hidden.was.push((e, *v));
+            *v = Visibility::Hidden;
+        }
+    }
+}
+
+/// Pure: a top-level thing at this height is on the surface (out of sight from
+/// the station).
+pub fn surface(y: f32) -> bool {
+    y > STATION_TOP_Y + STATION_LEVEL_H
 }
 
 /// Local: draw only the levels around the camera (forty levels of tiles is a lot).
@@ -1828,6 +1885,12 @@ fn toasts(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_station_hides_the_surface_but_not_itself() {
+        assert!(surface(CITY_Y) && surface(0.0));
+        assert!(!surface(STATION_TOP_Y) && !surface(level_floor(10)));
+    }
 
     fn load<T: Send + Sync + 'static>(d: &friendslop_data::Data<T>) {
         let path = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), d.path());

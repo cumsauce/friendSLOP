@@ -37,42 +37,8 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
     TUNING.get()
 }
 
-/// A player's stats, each 1..=10.
-#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Stats {
-    pub spoonth: u8,
-    pub glimbo: u8,
-    pub frumbly: u8,
-    pub hrumph: u8,
-    pub wobblesome: u8,
-    pub pelf: u8,
-}
-
-impl Stats {
-    /// Roll stats from numbers in `0.0..1.0`, one per stat in field order.
-    pub fn roll(r: [f32; 6]) -> Self {
-        let pick = |r: f32| 1 + (r.clamp(0.0, 0.999_999) * 10.0) as u8;
-        Self {
-            spoonth: pick(r[0]),
-            glimbo: pick(r[1]),
-            frumbly: pick(r[2]),
-            hrumph: pick(r[3]),
-            wobblesome: pick(r[4]),
-            pelf: pick(r[5]),
-        }
-    }
-
-    pub fn all(&self) -> [u8; 6] {
-        [
-            self.spoonth,
-            self.glimbo,
-            self.frumbly,
-            self.hrumph,
-            self.wobblesome,
-            self.pelf,
-        ]
-    }
-}
+/// A player's stats, each 1..=10 (the type lives in `base::rules::stats`).
+pub use crate::rules::stats::Stats;
 
 /// Stats text size from the room's best Spoonth: 13 at 0, up to 23 at 10.
 pub fn spoonth_font_size(spoonth: u8) -> f32 {

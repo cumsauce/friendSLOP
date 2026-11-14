@@ -1207,11 +1207,6 @@ pub fn entrance_colliders(t: &Tuning) -> Vec<Block> {
         .collect()
 }
 
-/// Your Pelf after the reward (stats stay within 1..=10).
-pub fn rewarded_pelf(pelf: u8, reward: u8) -> u8 {
-    pelf.saturating_add(reward).min(10)
-}
-
 // ------------------------------------------------------------------ server
 
 /// The station everyone builds from the data files.
@@ -1286,7 +1281,7 @@ fn reward(
     let t = tuning();
     for (p, w, mut stats) in &mut players {
         if on_platform(&t, &station.levels, w.pos) && done.0.insert(p.id) {
-            stats.pelf = rewarded_pelf(stats.pelf, t.reward_pelf);
+            stats.earn_pelf(t.reward_pelf);
         }
     }
 }
@@ -2178,8 +2173,12 @@ mod tests {
 
     #[test]
     fn the_reward_caps_at_ten() {
-        assert_eq!(rewarded_pelf(4, 3), 7);
-        assert_eq!(rewarded_pelf(9, 3), 10);
+        let mut s = Stats::roll([0.0; 6]);
+        s.pelf = 4;
+        s.earn_pelf(3);
+        assert_eq!(s.pelf, 7);
+        s.earn_pelf(3);
+        assert_eq!(s.pelf, 10);
     }
 
     #[test]

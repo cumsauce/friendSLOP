@@ -83,7 +83,13 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
-          key: claude
+          # Restore the shared dependency cache that CI's main runs write
+          # (shared-key: linux); never save here. Claude runs on issue events,
+          # which carry github.ref = the default branch, so a "main only"
+          # save-if would still save every run — and there are up to 20 runs
+          # at once.
+          shared-key: linux
+          save-if: false
       - name: git identity
         run: |
           git config --global user.name "friendslop-bot"

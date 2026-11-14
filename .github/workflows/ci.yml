@@ -32,6 +32,7 @@ jobs:
     outputs:
       rust: ${{ steps.diff.outputs.rust }}
       data: ${{ steps.diff.outputs.data }}
+      wasm: ${{ steps.diff.outputs.wasm }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -46,17 +47,22 @@ jobs:
           if [[ "$EVENT" == pull_request ]]; then base="$BASE";
           elif [[ "$EVENT" == push && -n "$BEFORE" && "$BEFORE" != 0000000000000000000000000000000000000000 ]]; then base="$BEFORE"; fi
           if [[ -z "$base" ]] || ! files=$(git diff --name-only "$base" HEAD); then
-            echo "rust=true" >> "$GITHUB_OUTPUT"; echo "data=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "rust=true" >> "$GITHUB_OUTPUT"; echo "data=true" >> "$GITHUB_OUTPUT"; echo "wasm=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
           echo "$files"
-          rust=false; data=false
+          rust=false; data=false; wasm=false
           while IFS= read -r p; do
             case "$p" in
               *.rs|*Cargo.toml|Cargo.lock|rust-toolchain*|.cargo/*|.github/workflows/ci.yml|flake.nix|flake.lock) rust=true ;;
               crates/game/assets/data/*|crates/game/assets/maps/*.json|crates/game/assets/maps/*.heights) data=true ;;
             esac
+            # The browser build's own inputs (kept separate so a flake.nix
+            # change doesn't spend a wasm32 clippy run).
+            case "$p" in
+              *.rs|*Cargo.toml|Cargo.lock|rust-toolchain*|.cargo/*|.github/workflows/ci.yml|web/*|scripts/build-web.sh|tools/web-textures/*) wasm=true ;;
+            esac
           done <<< "$files"
-          echo "rust=$rust" >> "$GITHUB_OUTPUT"; echo "data=$data" >> "$GITHUB_OUTPUT"
+          echo "rust=$rust" >> "$GITHUB_OUTPUT"; echo "data=$data" >> "$GITHUB_OUTPUT"; echo "wasm=$wasm" >> "$GITHUB_OUTPUT"
   # Lint and test run side by side on their own runners.
   lint:
     name: lint (linux)
@@ -77,15 +83,16 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
-          key: lint
+          shared-key: linux
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: fmt
         run: cargo fmt --all --check
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked
 
-  test:
-    name: test (linux)
+  # Tests split by layer, one runner each, all feeding ci-ok below.
+  test-foundation:
+    name: test (foundation)
     # Claude's PRs are checked in its own session and merged without waiting;
     # main still runs CI after they land (and a failure starts a fix run).
     needs: changes
@@ -94,8 +101,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
       - name: Linux deps
         run: |
           sudo apt-get update
@@ -103,18 +108,89 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
-          key: test
+          shared-key: linux
           save-if: ${{ github.ref == 'refs/heads/main' }}
-      - name: test
-        run: cargo test --workspace --locked
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest@0.9.152
+      - name: test (nextest)
+        run: >-
+          cargo nextest run --locked
+          -p fusion -p friendslop-core -p friendslop-wire -p friendslop-kcc
+          -p friendslop-wfc -p friendslop-structures -p friendslop-art
+          -p friendslop-data -p friendslop-world
+
+  test-game:
+    name: test (game layer)
+    needs: changes
+    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.rust == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: linux
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest@0.9.152
+      - name: test (nextest)
+        run: >-
+          cargo nextest run --locked
+          -p friendslop-base -p friendslop-play -p friendslop-places
+          -p friendslop-village -p friendslop-story -p friendslop-afterlife
+          -p friendslop-side
+      - name: game unit tests (nextest)
+        run: cargo nextest run --locked -p friendslop --lib
+
+  test-it:
+    name: test (it + doctests)
+    needs: changes
+    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.rust == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: linux
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest@0.9.152
+      # nextest runs every test in its own process: real isolation and a full
+      # failure report per run (.config/nextest.toml: no retries, no fail-fast).
+      # Doctests need plain cargo.
+      - name: test (nextest)
+        run: cargo nextest run --locked -p friendslop --test it --test data_files_check
+      - name: doctests
+        run: cargo test --workspace --locked --doc
+      # Escape hatch: these tests share process state (terrain::HEIGHTS statics,
+      # env) and can flake under per-test processes; re-run them threaded in one
+      # process like plain cargo test does. If nextest ever misbehaves, this
+      # step — or plain `cargo test --workspace --locked` — is the fallback.
+      - name: process-shared suspects (plain cargo test)
+        run: cargo test --workspace --locked -- navmesh place_looks playthrough
 
   # The browser build (#106) must keep compiling. Linux only, no wasm-bindgen.
   web:
     name: web (wasm32 check)
     # Claude's PRs are checked in its own session and merged without waiting;
     # main still runs CI after they land (and a failure starts a fix run).
+    # Only when something the browser build reads changed (see `wasm` above).
     needs: changes
-    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.rust == 'true' }}
+    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.wasm == 'true' }}
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings --cfg getrandom_backend="wasm_js"
@@ -126,7 +202,9 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          key: wasm
+          # Same shared key as lint/test; RUSTFLAGS differs (wasm_js cfg), so
+          # the env-hash keeps wasm artifacts in their own cache entry.
+          shared-key: linux
           save-if: ${{ github.ref == 'refs/heads/main' }}
       # iroh's TLS (ring) compiles C for wasm32: needs clang + llvm-ar.
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang llvm
@@ -149,21 +227,21 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
-          key: test
+          shared-key: linux
           save-if: false
       - name: data files parse
         run: |
           cargo test --locked -p friendslop-world
           cargo test --locked -p fusion score_file
-          cargo test --locked -p friendslop --test it data_files
+          cargo test --locked -p friendslop --test data_files_check
 
   # Single required check for branch protection / auto-merge.
   ci-ok:
     if: always()
-    needs: [changes, lint, test, web, data]
+    needs: [changes, lint, test-foundation, test-game, test-it, web, data]
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for r in "${{ needs.changes.result }}" "${{ needs.lint.result }}" "${{ needs.test.result }}" "${{ needs.web.result }}" "${{ needs.data.result }}"; do
+          for r in "${{ needs.changes.result }}" "${{ needs.lint.result }}" "${{ needs.test-foundation.result }}" "${{ needs.test-game.result }}" "${{ needs.test-it.result }}" "${{ needs.web.result }}" "${{ needs.data.result }}"; do
             [[ "$r" == success || "$r" == skipped ]]
           done

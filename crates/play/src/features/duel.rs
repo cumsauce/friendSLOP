@@ -75,7 +75,7 @@ pub struct AnswerDuel {
 }
 
 /// Client -> server, every frame while duelling.
-#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub struct DuelControl {
     pub stick: Vec2,
     pub yaw: f32,
@@ -465,6 +465,10 @@ fn end_abandoned_duel(
     duelists: Query<(Entity, &Duelist)>,
     mut invites: ResMut<DuelInvites>,
 ) {
+    // An open challenge to or from a player who left is a stale prompt.
+    invites.open.retain(|&(f, t)| {
+        players.iter().any(|p| p.id == f) && players.iter().any(|p| p.id == t)
+    });
     if duelists.is_empty() {
         // The duel is over — but never free the guard during the
         // accept→spawn window: an answer's duelists are still queued then,
@@ -534,6 +538,21 @@ struct DuelView {
     pitch: f32,
     /// The first-person revolver child of the camera, while I'm duelling.
     viewmodel: Option<Entity>,
+    /// The last control message sent (so idle frames send nothing).
+    last_sent: Option<DuelControl>,
+}
+
+impl DuelView {
+    /// The control message to send this frame: `None` when nothing moved
+    /// since the last one (the server keeps applying the last state).
+    fn control(&mut self, stick: Vec2, yaw: f32, pitch: f32) -> Option<DuelControl> {
+        let next = DuelControl { stick, yaw, pitch };
+        if self.last_sent == Some(next) {
+            return None;
+        }
+        self.last_sent = Some(next);
+        Some(next)
+    }
 }
 
 fn on_challenged(ev: On<DuelChallenged>, mut view: ResMut<DuelView>) {
@@ -1143,12 +1162,14 @@ fn fight_controls(
     mut view: ResMut<DuelView>,
 ) {
     let Some(d) = my_duelist(me.as_deref(), &duelists) else {
+        view.last_sent = None;
         return;
     };
     if view.saved_camera.is_none() {
         // Just entered the arena: take the server's facing.
         view.yaw = d.yaw;
         view.pitch = d.pitch;
+        view.last_sent = None;
     }
     if let Ok(mut c) = cursor.single_mut()
         && c.grab_mode != CursorGrabMode::Locked
@@ -1156,8 +1177,9 @@ fn fight_controls(
         c.grab_mode = CursorGrabMode::Locked;
         c.visible = false;
     }
-    view.yaw -= motion.delta.x * 0.003;
-    view.pitch = (view.pitch - motion.delta.y * 0.003).clamp(-1.5, 1.5);
+    let sens = super::fps::tuning().look_sensitivity;
+    view.yaw -= motion.delta.x * sens;
+    view.pitch = (view.pitch - motion.delta.y * sens).clamp(-1.5, 1.5);
     let mut stick = Vec2::ZERO;
     for (key, dir) in [
         (KeyCode::KeyW, Vec2::Y),
@@ -1169,11 +1191,10 @@ fn fight_controls(
             stick += dir;
         }
     }
-    commands.client_trigger(DuelControl {
-        stick: stick.normalize_or_zero(),
-        yaw: view.yaw,
-        pitch: view.pitch,
-    });
+    let (yaw, pitch) = (view.yaw, view.pitch);
+    if let Some(msg) = view.control(stick.normalize_or_zero(), yaw, pitch) {
+        commands.client_trigger(msg);
+    }
     if mouse.just_pressed(MouseButton::Left) {
         commands.client_trigger(DuelShoot);
     }
@@ -1475,5 +1496,43 @@ mod tests {
             0,
             "the second answer starts no overlapping duel"
         );
+    }
+
+    /// play:invite-stale — an open challenge to or from a player who left
+    /// must be pruned, so a reused id can never answer a ghost challenge.
+    #[test]
+    fn invites_prune_departed() {
+        let (mut app, _owners) = server_with_two_invites();
+        // Player 3 leaves.
+        {
+            let world = app.world_mut();
+            let gone: Vec<Entity> = world
+                .query::<(Entity, &crate::player::Player)>()
+                .iter(world)
+                .filter(|(_, p)| p.id == 3)
+                .map(|(e, _)| e)
+                .collect();
+            for e in gone {
+                world.despawn(e);
+            }
+        }
+        app.update();
+        let open = app.world().resource::<DuelInvites>().open.clone();
+        assert_eq!(open, vec![(0, 1)], "the departed player's invite is pruned");
+    }
+
+    /// play:control-spam — `DuelControl` is only sent when the stick or the
+    /// aim changed since the last one; idle frames send nothing.
+    #[test]
+    fn duel_control_sent_on_change_only() {
+        let mut view = DuelView::default();
+        assert!(view.control(Vec2::ZERO, 0.0, 0.0).is_some(), "first sends");
+        assert!(
+            view.control(Vec2::ZERO, 0.0, 0.0).is_none(),
+            "unchanged: nothing sent"
+        );
+        assert!(view.control(Vec2::Y, 0.0, 0.0).is_some(), "stick change");
+        assert!(view.control(Vec2::Y, 0.1, 0.0).is_some(), "look change");
+        assert!(view.control(Vec2::Y, 0.1, 0.0).is_none());
     }
 }

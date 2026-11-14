@@ -48,6 +48,13 @@ jobs:
           workspaces: |
             . -> target
             tools/web-textures -> target
+      # Building wasm-bindgen-cli takes minutes. Cache the binaries it installs
+      # (~/.cargo/bin/wasm-bindgen*) keyed on the lockfile alone, so the cache
+      # survives rust-cache misses (its key also hashes RUSTFLAGS etc.).
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/wasm-bindgen*
+          key: wasm-bindgen-${{ hashFiles('Cargo.lock') }}
       - name: wasm-bindgen-cli + binaryen
         run: |
           version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
@@ -65,7 +72,12 @@ jobs:
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
           free -h
+      # 256 px textures on the site (tools/web-textures honors WEB_TEXTURE_MAX;
+      # local default 512) — half the texture memory on phones. The release
+      # zip (web-release.yml) keeps 512.
       - run: scripts/build-web.sh dist/web
+        env:
+          WEB_TEXTURE_MAX: "256"
       # A tiny stamp so anyone can see which commit the site is running.
       - run: echo "${{ github.sha }}" > dist/web/version.txt
       - uses: actions/upload-pages-artifact@v3

@@ -45,6 +45,37 @@ pub fn plugin(app: &mut App) {
             .run_if(in_state(AppState::InGame))
             .run_if(resource_exists_and_changed::<WorldSeed>),
     );
+    app.add_systems(Update, near_lights.run_if(in_state(AppState::InGame)));
+}
+
+/// A room's lamp light. Hundreds of them stand around the map; only the ones
+/// near the camera are lit (their range is 11 m, and the lamp mesh glows on
+/// its own), so the renderer isn't clustering every room in the world.
+#[derive(Component)]
+pub struct RoomLight;
+
+/// Room lights farther than this from the camera (m) are switched off.
+pub const ROOM_LIGHT_RANGE: f32 = 40.0;
+
+/// Pure: is a room light at `light` lit for a camera at `cam`?
+pub fn room_light_on(light: Vec3, cam: Vec3) -> bool {
+    light.distance_squared(cam) < ROOM_LIGHT_RANGE * ROOM_LIGHT_RANGE
+}
+
+fn near_lights(
+    cam: Query<&GlobalTransform, With<Camera3d>>,
+    mut lights: Query<(&Transform, &mut Visibility), With<RoomLight>>,
+) {
+    let Some(c) = cam.iter().next().map(GlobalTransform::translation) else {
+        return;
+    };
+    for (t, mut v) in &mut lights {
+        v.set_if_neq(if room_light_on(t.translation, c) {
+            Visibility::Inherited
+        } else {
+            Visibility::Hidden
+        });
+    }
 }
 
 /// The village's own seed, derived from the world seed. Everything that
@@ -983,6 +1014,8 @@ fn spawn_village(
                 ..default()
             },
             Transform::from_translation(at - Vec3::Y * 0.3),
+            Visibility::Hidden,
+            RoomLight,
             VillagePart,
             DespawnOnExit(AppState::InGame),
         ));
@@ -1004,6 +1037,18 @@ fn material(materials: &mut Assets<StandardMaterial>, mat: Mat) -> Handle<Standa
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn room_lights_only_light_up_near_the_camera() {
+        let lamp = Vec3::new(10.0, 2.0, 10.0);
+        assert!(room_light_on(lamp, Vec3::new(12.0, 1.7, 30.0)));
+        assert!(!room_light_on(
+            lamp,
+            Vec3::new(10.0, 1.7, 10.0 + ROOM_LIGHT_RANGE + 1.0)
+        ));
+        // Never off while you could be inside its 11 m reach.
+        const { assert!(ROOM_LIGHT_RANGE > 11.0 * 2.0) };
+    }
 
     /// World-space AABB of a piece (exact for axis turns, conservative else).
     fn aabb(p: &Piece) -> (Vec3, Vec3) {

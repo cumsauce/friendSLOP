@@ -32,8 +32,9 @@ pub use friendslop_base::people;
 pub use friendslop_base::player;
 /// `bevy_replicon_iroh`'s wire format, shared by the browser transport.
 pub use friendslop_wire as net_wire;
-pub mod scenery;
 /// Screenshot mode for Discord posts (#167); off unless `FRIENDSLOP_SCREENSHOT` is set.
+pub mod perf;
+pub mod scenery;
 pub mod screenshot;
 pub use friendslop_art::theme;
 pub use friendslop_base::settings;

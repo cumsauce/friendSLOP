@@ -52,6 +52,7 @@ fn main() -> AppExit {
     ))
     .add_plugins(friendslop::GamePlugin)
     .add_plugins(friendslop::screenshot::ScreenshotPlugin)
+    .add_plugins(friendslop::perf::PerfPlugin)
     .add_systems(Startup, cli_args)
     .init_resource::<Churn>()
     .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))

@@ -448,6 +448,14 @@ fn apply_camera(
         } else {
             c.remove::<(Bloom, bevy::camera::Hdr)>();
         }
+        // A depth prepass lets alpha-cut leaves shade only their front layer
+        // (discard otherwise shades every overlapping card in full). SSAO
+        // brings one too; Low (no shadows) skips the extra pass.
+        if q.shadows || q.ssao {
+            c.insert(bevy::core_pipeline::prepass::DepthPrepass);
+        } else {
+            c.remove::<bevy::core_pipeline::prepass::DepthPrepass>();
+        }
         if q.ssao {
             c.insert(ScreenSpaceAmbientOcclusion::default());
         } else {

@@ -1,0 +1,11 @@
+// Tree leaves (crates/game/src/lod.rs). Edit and save; trees loaded after
+// that use the new values.
+(
+    // Light shining through the leaves (the models say 0.25). Anything above
+    // 0 makes every leaf pixel light the scene twice (every lamp, the sky),
+    // which is what made a tree up close drop frames. 0 = off.
+    leaf_transmission: 0.0,
+    // A faint glow of the leaf's own colour instead, so canopies don't go
+    // dull without the light through them. 0 = none.
+    leaf_glow: 0.05,
+)

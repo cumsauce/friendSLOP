@@ -46,6 +46,31 @@ const LEVELS: [(f32, usize); 2] = [(40.0, 2), (16.0, 4)];
 /// Further than anything is ever drawn (fog and the far plane end it first).
 const FOREVER: f32 = 100_000.0;
 
+/// Leaf tuning: `assets/data/game/trees.ron` (read at run time).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Trees {
+    /// Diffuse transmission for leaf materials (the models' own is replaced).
+    pub leaf_transmission: f32,
+    /// Emissive glow from the leaf's base colour, in place of transmission.
+    pub leaf_glow: f32,
+}
+
+pub static TREES: friendslop_data::Data<Trees> = friendslop_data::Data::ron("data/game/trees.ron");
+
+/// Pure: a leaf material made cheap. Diffuse transmission runs the whole
+/// lighting (every light, the environment map) a second time per pixel, and
+/// a canopy close up is all leaf pixels, so it's set from [`Trees`], with a
+/// faint glow of the leaf's colour standing in for the light through it.
+pub fn cheap_leaf(m: &mut StandardMaterial, t: &Trees) {
+    if m.diffuse_transmission <= 0.0 {
+        return;
+    }
+    m.diffuse_transmission = t.leaf_transmission;
+    if t.leaf_glow > 0.0 {
+        m.emissive = (m.base_color.to_linear() * t.leaf_glow).with_alpha(1.0);
+    }
+}
+
 /// A tree model: give its meshes far versions. `shadows: false` also keeps
 /// it out of the shadow map (the smaller forest trees, as before).
 #[derive(Component, Clone, Copy, Debug)]
@@ -224,17 +249,26 @@ fn add_lods(
         Option<&SkinnedMesh>,
     )>,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     mut far: ResMut<FarMeshes>,
+    mut leaves_done: Local<std::collections::HashSet<AssetId<StandardMaterial>>>,
 ) {
     let Ok(tree) = trees.get(ready.entity) else {
         return;
     };
+    let tuning = TREES.get();
     for child in children.iter_descendants(ready.entity) {
         let Ok((mesh, material, transform, parent, skin)) = parts.get(child) else {
             continue;
         };
         if !tree.shadows {
             commands.entity(child).insert(NotShadowCaster);
+        }
+        // Materials are shared by every tree using them: change each once.
+        if leaves_done.insert(material.0.id())
+            && let Some(mut m) = materials.get_mut(material.0.id())
+        {
+            cheap_leaf(&mut m, &tuning);
         }
         let id = mesh.0.id();
         let levels = far
@@ -345,6 +379,40 @@ fn modeler_lods(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_trees_file_parses_and_leaves_get_cheap() {
+        let path = format!("{}/assets/{}", env!("CARGO_MANIFEST_DIR"), TREES.path());
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}")
+        };
+        assert!(TREES.set_bytes(&bytes), "{path} doesn't parse");
+        let t = TREES.get();
+        assert!((0.0..=1.0).contains(&t.leaf_transmission) && t.leaf_glow >= 0.0);
+        let mut leaf = StandardMaterial {
+            diffuse_transmission: 0.25,
+            ..default()
+        };
+        cheap_leaf(
+            &mut leaf,
+            &Trees {
+                leaf_transmission: 0.0,
+                leaf_glow: 0.1,
+            },
+        );
+        assert_eq!(leaf.diffuse_transmission, 0.0);
+        assert!(leaf.emissive.red > 0.0);
+        // Bark (no transmission) is left alone.
+        let mut bark = StandardMaterial::default();
+        cheap_leaf(
+            &mut bark,
+            &Trees {
+                leaf_transmission: 0.0,
+                leaf_glow: 0.1,
+            },
+        );
+        assert_eq!(bark.emissive, LinearRgba::BLACK);
+    }
 
     #[test]
     fn trees_sway_slower_and_flutter_less() {

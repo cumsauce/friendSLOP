@@ -141,6 +141,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     files.extend(friendslop_side::data_files());
     files.push(&atmosphere::DAY_NIGHT);
     files.push(&probes::TUNING);
+    files.push(&lod::TREES);
     files.push(&controls::PAD);
     files.push(&ui::annotations::LINES);
     files

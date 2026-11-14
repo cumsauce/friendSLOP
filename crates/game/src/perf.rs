@@ -1,6 +1,6 @@
 //! `FRIENDSLOP_PERF=1`: log frame rate, frame time and what's being drawn every
 //! 5 s (desktop only; for finding what makes a place slow). Prints nothing and
-//! costs nothing without it.
+//! costs nothing without it. `=3` also logs each render pass's GPU time.
 
 use bevy::camera::visibility::ViewVisibility;
 use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
@@ -10,7 +10,12 @@ pub struct PerfPlugin;
 
 impl Plugin for PerfPlugin {
     fn build(&self, app: &mut App) {
-        if std::env::var("FRIENDSLOP_PERF").is_ok_and(|v| v == "1" || v == "2") {
+        let mode = std::env::var("FRIENDSLOP_PERF").unwrap_or_default();
+        if mode == "3" {
+            app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin)
+                .add_systems(Last, gpu_passes);
+        }
+        if matches!(mode.as_str(), "1" | "2" | "3") {
             if !app.is_plugin_added::<FrameTimeDiagnosticsPlugin>() {
                 app.add_plugins(FrameTimeDiagnosticsPlugin::default());
             }
@@ -67,6 +72,32 @@ fn report(
         "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | point/spot lights {} | camera {at:.0}",
         entities.iter().count(),
         lights.iter().count()
+    );
+}
+
+/// `FRIENDSLOP_PERF=3`: every 5 s, the GPU time of each render pass that
+/// took at least 0.05 ms, slowest first.
+fn gpu_passes(time: Res<Time<Real>>, mut last: Local<f32>, diag: Res<DiagnosticsStore>) {
+    let now = time.elapsed_secs();
+    if now - *last < 5.0 {
+        return;
+    }
+    *last = now;
+    let mut rows: Vec<(f64, String)> = diag
+        .iter()
+        .filter_map(|d| {
+            let path = d.path().as_str();
+            let pass = path.strip_prefix("render/")?.strip_suffix("/elapsed_gpu")?;
+            Some((d.smoothed()?, pass.to_string()))
+        })
+        .filter(|(ms, _)| *ms >= 0.05)
+        .collect();
+    rows.sort_by(|a, b| b.0.total_cmp(&a.0));
+    let total: f64 = rows.iter().map(|r| r.0).sum();
+    let list: Vec<String> = rows.iter().map(|(ms, p)| format!("{p} {ms:.2}")).collect();
+    info!(
+        "perf gpu: {total:.2} ms (sum of passes, nested ones count twice) | {}",
+        list.join(", ")
     );
 }
 

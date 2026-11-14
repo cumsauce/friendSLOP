@@ -1,0 +1,8 @@
+// Video settings (crates/base/src/graphics.rs). Edit and save: applies live.
+(
+    // Resolution "Fast" on desktop (the Low preset): the world renders at this
+    // fraction of the window's width and height and is stretched to fit, so a
+    // weak GPU (a Steam Deck) shades fewer pixels. 0.7 is about half the pixels.
+    // The menus and HUD stay sharp. 1 turns it off.
+    fast_scale: 0.7,
+)

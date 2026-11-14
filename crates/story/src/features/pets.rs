@@ -332,6 +332,8 @@ fn move_pets(time: Res<Time>, mut pets: Query<(&Pet, &mut Transform, &mut RigCli
 
 fn floor_point(window: &Window, camera: &Camera, cam_tf: &GlobalTransform) -> Option<Vec2> {
     let cursor = window.cursor_position()?;
+    // The camera may draw into a smaller picture (desktop "Fast" resolution).
+    let cursor = cursor * camera.logical_viewport_size()? / window.size();
     let ray = camera.viewport_to_world(cam_tf, cursor).ok()?;
     let dist = ray.intersect_plane(Vec3::ZERO, InfinitePlane3d::new(Vec3::Y))?;
     let p = ray.get_point(dist);

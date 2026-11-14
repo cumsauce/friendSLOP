@@ -1,0 +1,453 @@
+{
+  "format_version": 1,
+  "name": "kori-little-stinker",
+  "parts": [],
+  "version": 94,
+  "ops": [
+    {
+      "primitive": {
+        "name": "base",
+        "kind": "cylinder",
+        "size": [
+          0.045,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.006,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "c1",
+        "kind": "sphere",
+        "size": [
+          0.045,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.06,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "c2",
+        "kind": "sphere",
+        "size": [
+          0.035,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.04,
+          0.05,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "c3",
+        "kind": "sphere",
+        "size": [
+          0.035,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.04,
+          0.05,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "c4",
+        "kind": "sphere",
+        "size": [
+          0.035,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.015,
+          0.1,
+          -0.005
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "c5",
+        "kind": "sphere",
+        "size": [
+          0.028,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.02,
+          0.11,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "eye_l",
+        "kind": "sphere",
+        "size": [
+          0.009,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.015,
+          0.075,
+          0.04
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "eye_r",
+        "input": "eye_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "pupil_l",
+        "kind": "sphere",
+        "size": [
+          0.004,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.015,
+          0.075,
+          0.048
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "pupil_r",
+        "input": "pupil_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "grin",
+        "kind": "torus",
+        "size": [
+          0.014,
+          0.003,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.052,
+          0.041
+        ],
+        "rotation": [
+          0.6087614,
+          0.0,
+          0.0,
+          0.7933533
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "base",
+        "input": "base",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eye_l",
+        "input": "eye_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ffffff",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pupil_l",
+        "input": "pupil_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "grin",
+        "input": "grin",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eye_r",
+        "input": "eye_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ffffff",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pupil_r",
+        "input": "pupil_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "c1",
+        "input": "c1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "c2",
+        "input": "c2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "c3",
+        "input": "c3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "c4",
+        "input": "c4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "c5",
+        "input": "c5",
+        "visible": false
+      }
+    },
+    {
+      "blob": {
+        "name": "cloud_hi",
+        "inputs": [
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "c5"
+        ],
+        "op": "union",
+        "blend": 0.01,
+        "resolution": 0.003
+      }
+    },
+    {
+      "decimate": {
+        "name": "cloud",
+        "input": "cloud_hi",
+        "tris": 1500
+      }
+    },
+    {
+      "material": {
+        "name": "cloud",
+        "input": "cloud",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#6cc04a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "cloud_hi",
+        "input": "cloud_hi",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

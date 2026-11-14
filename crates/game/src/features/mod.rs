@@ -95,6 +95,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(emotes::protocol);
         app.add_plugins(kori::protocol);
         app.add_plugins(lily_garden::protocol);
+        app.add_plugins(save::protocol);
     }
 }
 

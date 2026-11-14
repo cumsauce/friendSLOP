@@ -25,6 +25,7 @@ pub mod features {
     pub mod mushroom;
     pub mod objective;
     pub mod pets;
+    pub mod save;
     pub mod totems;
 }
 

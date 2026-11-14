@@ -349,7 +349,10 @@ mod tests {
 
         // One failure: one mail.
         {
-            let mut b = app.world_mut().get_mut::<FateBoard>(board).unwrap();
+            let mut b = app
+                .world_mut()
+                .get_mut::<FateBoard>(board)
+                .expect("test setup");
             b.mishaps.push(Mishap {
                 player: 1,
                 outcome: Outcome::Hampter,
@@ -370,7 +373,10 @@ mod tests {
             .resource_mut::<crate::hud::Toast>()
             .secs_left = 0.0;
         {
-            let mut b = app.world_mut().get_mut::<FateBoard>(board).unwrap();
+            let mut b = app
+                .world_mut()
+                .get_mut::<FateBoard>(board)
+                .expect("test setup");
             b.mishaps.clear();
             b.mishaps.push(Mishap {
                 player: 1,
@@ -397,7 +403,9 @@ mod tests {
         app.init_resource::<MailSeen>();
         app.world_mut().spawn(FateBoard::default());
         app.world_mut().resource_mut::<MailSeen>().0 = 7;
-        app.world_mut().run_system_once(clear_boards).unwrap();
+        app.world_mut()
+            .run_system_once(clear_boards)
+            .expect("test setup");
         assert_eq!(app.world().resource::<MailSeen>().0, 0);
         let world = app.world_mut();
         assert_eq!(

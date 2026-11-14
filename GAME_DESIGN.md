@@ -1394,7 +1394,9 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   them). **New York sleeps** while nobody is in the city: the kitten gangs stop prowling and the
   cabs stop driving until someone arrives; the pigeon flocks and the street people are only
   brought out on your own screen while you're there (so a pigeon storm's line is only shown to
-  people in the city), and Miami's crowd and lasers hold still. Decided with the group's host: the centre becomes the story
+  people in the city), and Miami's crowd and lasers hold still. **Positions are data**: the crows, bear, goat, strays,
+  the two loose totems and the music boxes read where they stand from their site in
+  `sites.ron` (the strays' spread in `pets.ron`), still at the same spots in the centre. Decided with the group's host: the centre becomes the story
   hub only (landlord, Dave, vault, lectern, bonfire, arena, about 6 villagers); the five
   chapters stay, their jobs reworded to name sites; all 20 villagers stay, spread out; site
   keys only work at their site. World-wide effects: the Stillness, toilets, gaslighting and

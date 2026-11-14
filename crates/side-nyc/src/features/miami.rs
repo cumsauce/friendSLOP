@@ -260,7 +260,13 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), sober_up)
         .add_systems(
             Update,
-            (dance, lasers, trip, venue_line).run_if(in_state(AppState::InGame)),
+            (
+                // Nobody dances while you're not in the city under it (#412).
+                (dance, lasers).run_if(crate::sites::here("nyc")),
+                trip,
+                venue_line,
+            )
+                .run_if(in_state(AppState::InGame)),
         )
         .add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
 }

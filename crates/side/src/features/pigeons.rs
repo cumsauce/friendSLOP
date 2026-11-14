@@ -255,11 +255,27 @@ pub fn damage(t: &Tuning) -> u32 {
 // ------------------------------------------------------------------ every peer (all local)
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn)
-        .add_systems(
-            Update,
-            (think, fly_all, droppings, storm_line).run_if(in_state(AppState::InGame)),
-        );
+    // The flocks are only there while you're in the city (#412): they come
+    // out when you arrive and are put away when you leave.
+    app.add_systems(
+        Update,
+        (
+            spawn.run_if(crate::sites::arrived("nyc")),
+            (think, fly_all, droppings, storm_line),
+        )
+            .chain()
+            .run_if(crate::sites::here("nyc"))
+            .run_if(in_state(AppState::InGame)),
+    )
+    .add_systems(
+        Update,
+        (
+            crate::sites::put_away::<Pigeon>,
+            crate::sites::put_away::<Dropping>,
+            crate::sites::put_away::<Splat>,
+        )
+            .run_if(crate::sites::left("nyc")),
+    );
 }
 
 #[derive(Component)]

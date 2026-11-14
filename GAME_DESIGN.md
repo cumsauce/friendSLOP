@@ -1241,7 +1241,7 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   almost all pixel shading, which these changes barely touch).
 - **Trees up close** (user: "even a single tree close up makes frames fucked up"). Leaves no
   longer let light through (that lit every leaf pixel twice); a faint glow of their own colour
-  stands in (`data/game/trees.ron`). The camera keeps a depth prepass (always, Low included: it took the Low main pass at the commune from 1.8 to 0.8 ms of GPU, 2.05 to 1.25 ms in all),
+  stands in (`data/game/trees.ron`). The camera keeps a depth prepass whenever shadows are on,
   so overlapping leaf cards shade only the front one. Not measured on the reporter's machine yet.
 - **Second performance pass** (#227, WeiYa: "much more fps ... less vram ... gpu instancing,
   lods, mipmaps ... bake lightmaps ... asset streaming ... chunk the map ... too much popin,
@@ -1391,7 +1391,10 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   sleeps while nobody is there. The first step is the list: `data/base/sites.ron` names each
   site (the commune hub's six, Wendy's, the warehouse, the shipwreck, New York), where it is and
   how far it reaches, and the game tracks which are awake (`sites.rs`; `FRIENDSLOP_PERF=1` logs
-  them). Nothing in play changes yet. Decided with the group's host: the centre becomes the story
+  them). **New York sleeps** while nobody is in the city: the kitten gangs stop prowling and the
+  cabs stop driving until someone arrives; the pigeon flocks and the street people are only
+  brought out on your own screen while you're there (so a pigeon storm's line is only shown to
+  people in the city), and Miami's crowd and lasers hold still. Decided with the group's host: the centre becomes the story
   hub only (landlord, Dave, vault, lectern, bonfire, arena, about 6 villagers); the five
   chapters stay, their jobs reworded to name sites; all 20 villagers stay, spread out; site
   keys only work at their site. World-wide effects: the Stillness, toilets, gaslighting and

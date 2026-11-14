@@ -38,7 +38,7 @@ and systemd (PID 1) kills you. Tiny notes under the Cat card (bottom right) say 
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
-golden, nights are dim and blue. Some nights you hear whispers behind you.
+golden, nights are dark blue with stars, a moon, and a city whose windows and street lamps light up. Some nights you hear whispers behind you.
 Every way in or out (doors, stairs, manholes, train doors) glows and names where it goes.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down (past empty
 subway platforms every few levels), for Pelf, while
@@ -322,9 +322,15 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
 - **Day/night cycle** (#284, doomy, "surprise me"; `atmosphere.rs`). One day lasts 24 minutes
   (`data/game/day_night.ron`). It runs off the real clock, so everyone in a session sees the
   same time of day with nothing sent over the network. The sun swings east to west, gets low and
-  golden at dawn and dusk (sky and fog warm up too), and at night a dim blue moon takes over
-  while sky, fog and ambient light drop to 12%. Purely visual for now: nothing in play cares
-  what time it is. Warehouse, underground and endless-hallway darkness still win while you're in them.
+  golden at dawn and dusk, and at night a dim blue moon takes over while the ambient light drops
+  to 12%. The sky dome's colours blend between day blue, a sunset that glows on the sun's side,
+  and a deep navy night; seeded stars fade in, a moon disc rises opposite the sun, and the
+  clouds go dark instead of glowing (all colours in `day_night.ron`). After dark the city lights
+  up (`night_lights.rs`, `data/base/night_lights.ron`): lit windows, shop fronts, neon and lamp
+  heads glow brighter, tower glass gets a faint office glow, and the nearest 12 street lamps
+  throw real light on the pavement. Bevy's physical Atmosphere was tried and left out: it lights
+  the sky with every directional light (our bounce and moon lights would make extra suns) and
+  replaces our fog. Purely visual for now: nothing in play cares what time it is. Warehouse, underground and endless-hallway darkness still win while you're in them.
 - **Nicer look** (#47). All art is generated in code (`art.rs`), no downloaded assets: a
   seamless procedural grass texture on the floor, a warm sun with soft shadows, sky-blue ambient
   light and distance haze, and a meadow of grass tufts, flowers and pebbles. Creatures got

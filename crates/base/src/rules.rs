@@ -20,6 +20,7 @@ pub struct Duelist {
 pub const EYE: f32 = 1.6;
 pub mod boba;
 pub mod campaign;
+pub mod daylight;
 pub mod depths;
 pub mod house_odds;
 pub mod kori;

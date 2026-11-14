@@ -1200,6 +1200,10 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   `FRIENDSLOP_BENCH=1 cargo run -- host` prints frame times and GPU asset churn; there's no GPU
   in CI so the gains weren't measured on real hardware (in software rendering the frame cost is
   almost all pixel shading, which these changes barely touch).
+- **Trees up close** (user: "even a single tree close up makes frames fucked up"). Leaves no
+  longer let light through (that lit every leaf pixel twice); a faint glow of their own colour
+  stands in (`data/game/trees.ron`). The camera keeps a depth prepass whenever shadows are on,
+  so overlapping leaf cards shade only the front one. Not measured on the reporter's machine yet.
 - **Second performance pass** (#227, WeiYa: "much more fps ... less vram ... gpu instancing,
   lods, mipmaps ... bake lightmaps ... asset streaming ... chunk the map ... too much popin,
   especially seen with the trees ... graphics should not become worse ... goal: at least 3x").

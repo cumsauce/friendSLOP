@@ -296,6 +296,10 @@ you make a place the map doesn't have.
 every 5 s and, 25 s in, which models own the meshes and lights. Big counts usually mean a model
 with many parts: re-export it with `optimize: {preset: "game", merge: "by_material"}` (one mesh
 per material) unless the game looks its parts up by name. Video options cost most; shadows lead.
+Foliage: diffuse transmission on a material lights every pixel twice (every lamp and the sky),
+so leaves have it off (`data/game/trees.ron`); alpha-cut leaves rely on the camera's depth prepass
+(on whenever shadows or SSAO are) to shade only their front layer. The log shows median, p95 and
+worst frame time: the median is the steady cost, the others are hitches.
 
 ### Actions and button hints
 

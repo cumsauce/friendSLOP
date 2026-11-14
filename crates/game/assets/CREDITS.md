@@ -58,11 +58,17 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   every plain material (`friendslop_world::surfaces`).
   `bath_tiles` is the warehouse bathroom's floor tiles.
 - `models/scenery/` — the scenery and district set dressing: logs, stumps,
-  ruin blocks, rubble, the lean-to shed, hay bales, crates, the woodcutter's
-  hut and log pile, the maze statue, the castle arch, the quarry crane, the
-  windmill and its sails, the jetty, log seats, string-light posts, reeds and
+  ruin blocks, rubble, the lean-to shed, hay bales, crates, the maze statue,
+  the windmill's sails, the jetty, log seats, string-light posts, reeds and
   lily pads, the wonky fence's posts and rails, and the field walls (plain and
   mossy stone) and hedgerow segments.
+- `models/prefabs/` — set pieces placed whole on the map. The countryside
+  `zn-*` prefabs: the woodcutter's hut, log pile, castle arch, quarry crane
+  and windmill (the five that earlier lived under `models/scenery/` here),
+  plus beehives, boulders, path lantern, reeds, scarecrow, stump, wheelbarrow
+  and wildflowers. The city prefabs `nyc-*` and the `nyc-kit-*` street
+  furniture kit (benches, bollards, hydrants, shelters, kiosks, towers,
+  tenements, ...) and the PATH/furniture `fu-*` pieces.
 - `models/menu/bunting_pole` — the title screen's bunting poles.
 - `models/features/` — the feature set-pieces and objects: the shipwreck,
   treasure chest, Wendy's shack and burger, the helicopter and its rotors,
@@ -82,6 +88,27 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   cardboard boxes, shelving rack, pallet, fluorescent tube and soul crystal.
 - `textures/*.ktx2` — the baked textures of the models above, shared by
   every model using the same material.
+- `models/hats/` — the bodega's statement hats, one model each with its
+  slogan on the band: `eat-the-rich`, `rent-control`, `tax-me`, `touch-grass`
+  and `yeehaw` (modelled for a 0.28 m head, centre at the origin).
+- `models/kori/` — the claw-machine prize figures the kori coins buy:
+  `little_stinker`, `gassy_duck`, `porcelain_throne`, `rubber_landlord` and
+  `golden_log` (listed in `data/side/kori.ron`).
+- `models/` (root) — the one-model-one-area places, each dropped in whole:
+  `high-places`, `ice-cream`, `miami-factory-town`, `out-of-order`,
+  `penn-station`, `pigeon`, `plane-car`, `plane-gate`, the three boba shops
+  (`nyc-boba-gong-chaw`, `nyc-boba-kung-fu-tee`, `nyc-boba-tiger-sugah`) and
+  the six PATH rail pieces (`path-car`, `path-hall`, `path-platform`,
+  `path-station`, `path-tunnel`, `path-viaduct`).
+- `models/features/` (Fulton St) — `fs-coin`, `fs-insurance-drone`,
+  `fs-wallet`, `gta6-ad`, `surf-door-sign` and `surf-hall`, plus its room,
+  sign and tile kit (`fs_room_*`, `fs_sign_*`, `fs_tile_*`).
+- `maps/` — the modeler map documents and their exports: `commune.bsn`,
+  `commune.map.json` and `commune.ground.heights` (the terrain heights the
+  loader falls back to procedurally when missing), and `nyc.bsn`, `nyc.gltf`,
+  `nyc.bin`, `nyc.map.json`.
+- `probes/` — the baked environment maps for reflections: `world` and
+  `fulton`, each diffuse + specular KTX2 (`friendslop_art::envmap`).
 
 ## Audio (`audio/`)
 

@@ -32,6 +32,7 @@ jobs:
     outputs:
       rust: ${{ steps.diff.outputs.rust }}
       data: ${{ steps.diff.outputs.data }}
+      wasm: ${{ steps.diff.outputs.wasm }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -46,17 +47,22 @@ jobs:
           if [[ "$EVENT" == pull_request ]]; then base="$BASE";
           elif [[ "$EVENT" == push && -n "$BEFORE" && "$BEFORE" != 0000000000000000000000000000000000000000 ]]; then base="$BEFORE"; fi
           if [[ -z "$base" ]] || ! files=$(git diff --name-only "$base" HEAD); then
-            echo "rust=true" >> "$GITHUB_OUTPUT"; echo "data=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "rust=true" >> "$GITHUB_OUTPUT"; echo "data=true" >> "$GITHUB_OUTPUT"; echo "wasm=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
           echo "$files"
-          rust=false; data=false
+          rust=false; data=false; wasm=false
           while IFS= read -r p; do
             case "$p" in
               *.rs|*Cargo.toml|Cargo.lock|rust-toolchain*|.cargo/*|.github/workflows/ci.yml|flake.nix|flake.lock) rust=true ;;
               crates/game/assets/data/*|crates/game/assets/maps/*.json|crates/game/assets/maps/*.heights) data=true ;;
             esac
+            # The browser build's own inputs (kept separate so a flake.nix
+            # change doesn't spend a wasm32 clippy run).
+            case "$p" in
+              *.rs|*Cargo.toml|Cargo.lock|rust-toolchain*|.cargo/*|.github/workflows/ci.yml|web/*|scripts/build-web.sh|tools/web-textures/*) wasm=true ;;
+            esac
           done <<< "$files"
-          echo "rust=$rust" >> "$GITHUB_OUTPUT"; echo "data=$data" >> "$GITHUB_OUTPUT"
+          echo "rust=$rust" >> "$GITHUB_OUTPUT"; echo "data=$data" >> "$GITHUB_OUTPUT"; echo "wasm=$wasm" >> "$GITHUB_OUTPUT"
   # Lint and test run side by side on their own runners.
   lint:
     name: lint (linux)
@@ -182,8 +188,9 @@ jobs:
     name: web (wasm32 check)
     # Claude's PRs are checked in its own session and merged without waiting;
     # main still runs CI after they land (and a failure starts a fix run).
+    # Only when something the browser build reads changed (see `wasm` above).
     needs: changes
-    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.rust == 'true' }}
+    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.wasm == 'true' }}
     runs-on: ubuntu-latest
     env:
       RUSTFLAGS: -D warnings --cfg getrandom_backend="wasm_js"

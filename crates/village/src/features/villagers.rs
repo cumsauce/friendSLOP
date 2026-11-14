@@ -839,6 +839,11 @@ mod tests {
     use super::*;
 
     #[test]
+    fn there_is_a_name_for_every_villager() {
+        assert_eq!(NAMES.get().len(), COUNT);
+    }
+
+    #[test]
     fn points_and_pushes_stay_out_of_the_arena() {
         let half = arena_half() + tuning().arena_margin;
         for p in points().iter().chain(districts().iter()) {

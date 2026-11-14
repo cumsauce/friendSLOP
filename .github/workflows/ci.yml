@@ -171,7 +171,7 @@ jobs:
         run: |
           cargo test --locked -p friendslop-world
           cargo test --locked -p fusion score_file
-          cargo test --locked -p friendslop --test it data_files
+          cargo test --locked -p friendslop --test data_files_check
 
   # Single required check for branch protection / auto-merge.
   ci-ok:

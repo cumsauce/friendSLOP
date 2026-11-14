@@ -1,0 +1,15 @@
+// The tiny notes under the Cat card, bottom right (#388, bben): one line for
+// each world-wide effect happening right now. `{s}` is seconds, `{name}` a player.
+// Edit and save: the running game picks it up within a second.
+(
+    // The Stillness: the whole world is frozen.
+    frozen: "the Stillness: the world is frozen, nobody can move ({s}s)",
+    // The last few seconds before the next Stillness.
+    freeze_soon: "the Stillness comes in {s}s: the world will freeze",
+    // How many seconds before the Stillness the warning shows.
+    freeze_warn_secs: 15,
+    // Night (the day/night cycle): it's dark for everyone.
+    night: "night: the sun is down for everyone",
+    // Someone was muted by the mute spell and carries an RPG.
+    silenced: "mute spell: {name} is muted and hunting their caster with an RPG",
+)

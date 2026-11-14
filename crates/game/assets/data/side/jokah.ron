@@ -1,0 +1,56 @@
+// The Jokah (#377, crates/side-nyc/src/features/jokah.rs): a man who walks
+// from Wendy's to the J station (the Fulton St entrance) laughing to himself,
+// turns into a Michael Jackson impersonator there and walks back scatting and
+// sliding. Edit and save: the running game picks it up within a second.
+(
+    // Where he stands out from Wendy's front door (x, z from the Wendy's spot).
+    wendys_offset: (0.0, -6.5),
+    // Where he stops by the J station (x, z from where you come up out of Fulton St).
+    station_offset: (2.0, 1.5),
+    // Points he walks through on the way to the station, in order (world x, z);
+    // he walks them backwards on the way home.
+    route: [(8.0, 150.0), (-8.0, 160.0)],
+    // How close counts as reaching a point (m).
+    arrive: 0.6,
+    // Walking speed (m/s): as the Jokah, and as Michael.
+    walk_speed: 1.3,
+    mj_speed: 1.6,
+    // Seconds he stands at each end before turning round.
+    pause_secs: 3.0,
+    // Seconds between laughs (min, max), and between scats.
+    laugh_every: (4.0, 9.0),
+    scat_every: (2.5, 5.0),
+    // His three laughs: what the speech synth says, its pitch (Hz) and speed.
+    laughs: [
+        (text: "heh heh heh heh heh", pitch: 105.0, speed: 1.3),
+        (text: "ha ha ha haaa ha ha haaaa", pitch: 150.0, speed: 1.0),
+        (text: "hee hee hee hee hoo hoo hoo", pitch: 210.0, speed: 1.5),
+    ],
+    // Michael's scats (picked at random), and his voice (pitch Hz, speed).
+    scats: [
+        "shamone",
+        "hee hee",
+        "dah dah dah shoo bee doo bop",
+        "ow",
+        "chika dah bop bop dah",
+        "ba da ba dee ow",
+    ],
+    scat_voice: (230.0, 1.4),
+    // Only heard this close (m), and how loud.
+    hear_range: 40.0,
+    volume: 0.9,
+    // Michael's slides: seconds between them (min, max), how long one lasts (s)
+    // and how fast he glides (m/s).
+    slide_every: (3.0, 8.0),
+    slide_secs: 1.4,
+    slide_speed: 1.8,
+    // His clothes: colour index (0..12, hue in 30 degree steps) and accent
+    // (0..6) and accessory (an index into people.rs's ACCESSORIES: 1 flat cap,
+    // 8 none), as the Jokah and as Michael.
+    jokah_clothes: 9,
+    jokah_accent: 3,
+    jokah_accessory: 8,
+    mj_clothes: 0,
+    mj_accent: 0,
+    mj_accessory: 1,
+)

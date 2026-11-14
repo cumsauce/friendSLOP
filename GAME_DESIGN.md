@@ -1352,6 +1352,21 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   the effects that change the world for everyone; per-player things (gods tears, ATTACK MODE)
   already have their own HUD. Words in `data/text/annotations.ron` (`ui/annotations.rs`).
 
+## What exists: The Jokah (#377)
+
+- **The Jokah** (#377: "spawns at Wendy's and paths towards the J station ... 3 unique laughs
+  ... transforms into a Michael Jackson impersonator and paths back to Wendy's ... scatting
+  noises and a random sliding animation"). A man in purple starts outside Wendy's front door
+  and walks a route of points (`data/side/jokah.ron`) over the hills to the Fulton St entrance
+  in New York (read "J station" as that: it's where you find the J), laughing one of three
+  speech-synth laughs (different words, pitch and speed; never the same twice running). There
+  he pauses, turns red with a flat cap (Michael) and walks back scatting ("shamone", "hee
+  hee", ...), every few seconds sliding: a moonwalk backwards or a glide to one side. At
+  Wendy's he turns back into the Jokah and sets off again (the issue didn't say; we looped
+  it). Local dressing like the street people: every peer runs its own, nothing replicated, no
+  model or sound files (the shared commune-person body, `features/jokah.rs`). Open: does
+  anything happen if you follow him, or stop him?
+
 ## Ideas so far
 
 - catherine (#384): "lesbian sex... give me Yuri plot lines and characters and story lines
@@ -1561,6 +1576,10 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
 
 - Kori.exe (#379): randomly spawning toilets filled with feces; eat it for a massive speed
   boost up to 20 s. Chose: near players, one eater per toilet, +100% speed for the full 20 s.
+
+- #377: The Jokah, a laughing NPC walking Wendy's to the J station and back as a Michael
+  Jackson impersonator. Chose: the Fulton St entrance as the J station, a looping walk, a
+  colour and cap change for Michael, speech-synth laughs and scats.
 
 - catherine (#382): Kori coins from farts and poop buy claw machine figures; a main menu spot to
   see and inspect them; hold one like a CS knife for a little speed.

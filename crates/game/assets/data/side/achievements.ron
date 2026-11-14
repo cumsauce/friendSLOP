@@ -1,0 +1,23 @@
+// Pointless achievements (crates/side/src/features/achievements.rs).
+// Edit and save: the running game picks it up within a second.
+// Each one watches a stat: Walked (metres), Still (seconds without moving,
+// in one go), Spun (full turns, looking around counts) or Played (seconds).
+(
+    // Moving slower than this (metres a second) counts as standing still.
+    still_speed: 0.2,
+    // A jump bigger than this in one frame (a teleport) isn't walking.
+    max_step: 5.0,
+    list: [
+        (stat: Walked, at: 10.0, title: "Baby Steps", line: "You walked 10 m. Your mother would be proud. She isn't here."),
+        (stat: Walked, at: 100.0, title: "Legs", line: "You walked 100 m. Nobody is impressed."),
+        (stat: Walked, at: 1000.0, title: "Commuter", line: "1 km on foot. The bus was right there."),
+        (stat: Walked, at: 5000.0, title: "Pilgrim", line: "5 km. You are not getting a medal. This is the medal."),
+        (stat: Still, at: 30.0, title: "Statue", line: "You stood still for 30 seconds. A pigeon is considering you."),
+        (stat: Still, at: 120.0, title: "Furniture", line: "Two minutes of nothing. The villagers think you're a lamp."),
+        (stat: Spun, at: 5.0, title: "Dizzy", line: "You spun five whole times. Why."),
+        (stat: Spun, at: 50.0, title: "Human Ceiling Fan", line: "Fifty turns. Please sit down."),
+        (stat: Played, at: 60.0, title: "Showed Up", line: "One minute in. That's 80% of it."),
+        (stat: Played, at: 1800.0, title: "Touch Grass", line: "Half an hour. There is grass right here. Touch it."),
+        (stat: Played, at: 3600.0, title: "Regular", line: "An hour. The game knows your name now. It won't say it."),
+    ],
+)

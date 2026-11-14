@@ -677,9 +677,19 @@ fn spawn_terrain(
 mod tests {
     use super::*;
 
+    fn lfs_pointer() -> bool {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../game/assets/maps/commune.ground.heights");
+        std::fs::read(path).is_ok_and(|b| b.starts_with(b"version https://git-lfs"))
+    }
+
     #[test]
     fn the_map_terrain_covers_the_world() {
         let grids = baked();
+        // A checkout without LFS data (CI) has only the heights file's pointer.
+        if grids.is_empty() && lfs_pointer() {
+            return;
+        }
         assert!(!grids.is_empty(), "the commune heights decode");
         for (x, z) in [(0.0, 0.0), (-62.0, -6.0), (109.0, -109.0), (-109.0, 109.0)] {
             assert!(grids[0].sample(x, z).is_some(), "{x},{z} is covered");

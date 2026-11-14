@@ -2,4 +2,13 @@
 // Edit and save: the running game picks it up within a second.
 (
     look_sensitivity: 0.003,
+    // Jumping: apex height (m); seconds after leaving a ledge a jump still
+    // works; seconds a press just before landing is kept; how much of the
+    // rise is kept when Space / South is let go early (the short hop).
+    jump: (
+        height: 0.9,
+        coyote_time: 0.1,
+        buffer_time: 0.1,
+        release_cut: 0.5,
+    ),
 )

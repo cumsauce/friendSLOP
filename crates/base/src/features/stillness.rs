@@ -1,4 +1,4 @@
-//! Every 4 minutes (was 60 s) the world freezes for 20 so everyone can socialize and
+//! Every 16 minutes (was 60 s, then 4 min) the world freezes for 75 s so everyone can socialize and
 //! stare with passion. From issue #17 by just meat and cheese.
 //!
 //! The server owns the clock and keeps one replicated `Stillness` entity that
@@ -181,14 +181,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn four_minutes_on_twenty_seconds_off() {
+    fn sixteen_minutes_on_seventy_five_seconds_off() {
         assert!(!phase_at(0.0).frozen);
-        assert_eq!(phase_at(0.0).secs_left, 240);
-        assert!(!phase_at(239.9).frozen);
-        assert!(phase_at(240.0).frozen);
-        assert_eq!(phase_at(240.0).secs_left, 20);
-        assert!(phase_at(259.9).frozen);
-        assert!(!phase_at(260.0).frozen);
-        assert!(phase_at(505.0).frozen);
+        assert_eq!(phase_at(0.0).secs_left, 960);
+        assert!(!phase_at(959.9).frozen);
+        assert!(phase_at(960.0).frozen);
+        assert_eq!(phase_at(960.0).secs_left, 75);
+        assert!(phase_at(1034.9).frozen);
+        assert!(!phase_at(1035.0).frozen);
+        assert!(phase_at(2000.0).frozen);
     }
 }

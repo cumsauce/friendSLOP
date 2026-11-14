@@ -31,7 +31,7 @@ warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, o
 Each chapter ends with the landlord: pay rent in organs, pickpocket him, then a boss fight.
 Each ticked job is a Heaven Pass tier; chapter 5 opens heaven.
 
-**Always going on:** the Stillness freezes everything for 20 s every 4 minutes. Fart near an
+**Always going on:** the Stillness freezes everything for 75 s every 16 minutes. Fart near an
 NPC and get caught 4 times: villagers chase you and float you. Villagers fart and blame you.
 Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
@@ -956,7 +956,7 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   closes it. In game Esc opens the same notebook (#317: settings in the game too), freeing the
   mouse, plus a "Leave game" button bottom-left; Esc no longer quits to the menu. The loading curtain shows the logo, how many models have loaded, a progress bar
   and a tip.
-- **The Stillness** (#17). Every 4 minutes (it was every minute; made rarer at the owner's request) the whole world freezes for 20 seconds so everyone
+- **The Stillness** (#17). Every 16 minutes (it was every minute, then every 4; made rarer at the owner's request) the whole world freezes for 75 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
   in place, gas stops building, and the server ignores every player request (farting, prying,
   duels, totems, pets, tears, the landlord, the mushroom, tuning your fart); a big message with a

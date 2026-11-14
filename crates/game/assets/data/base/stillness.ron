@@ -1,8 +1,8 @@
 // Tuning for stillness (crates/base/src/features/stillness.rs).
 // Edit and save: the running game picks it up within a second.
 (
-    // Seconds of normal play between freezes (was 60; less often, asked by the owner).
-    active_secs: 240.0,
-    // How long a freeze lasts.
-    frozen_secs: 20.0,
+    // Seconds of normal play between freezes (was 60, then 240; 4x rarer, asked by the owner).
+    active_secs: 960.0,
+    // How long a freeze lasts (was 20; a longer pause to socialize).
+    frozen_secs: 75.0,
 )

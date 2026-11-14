@@ -47,6 +47,7 @@ fn ride(air: Air, ticks: usize) -> Vec3 {
         kcc: Kcc {
             velocity: Vec3::new(0.0, 0.0, -8.0),
             grounded: None,
+            ..Default::default()
         },
         feet: Vec3::new(-3.6, -10.3, -20.0),
         air,
@@ -65,6 +66,7 @@ fn ride(air: Air, ticks: usize) -> Vec3 {
                     1.0 / 60.0,
                     &move_and_slide,
                     air,
+                    &friendslop::kcc::Jump::NORMAL,
                 );
             })
             .expect("step");

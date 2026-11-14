@@ -123,8 +123,8 @@ pub const ARRIVE: Vec3 = Vec3::new(-10.0, 0.0, 16.0);
 pub const EXIT: Vec3 = Vec3::new(-14.0, 0.0, 0.2);
 /// On the street, from the map's `penn` spot (the drum's middle; the
 /// entrance faces +x, the avenue): the doors, and where you come out.
-pub const DOORS: Vec3 = Vec3::new(20.2, 0.0, 0.0);
-pub const STREET: Vec3 = Vec3::new(23.0, 0.0, 0.0);
+pub const DOORS: Vec3 = Vec3::new(22.6, 0.0, 0.0);
+pub const STREET: Vec3 = Vec3::new(26.0, 0.0, 0.0);
 
 /// Which side of the station you're on.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -829,6 +829,35 @@ mod tests {
         let out = through(f.transform_point(EXIT), spot, &f, 1.5);
         assert_eq!(out, Some(spot + STREET));
         assert_eq!(through(spot + STREET, spot, &f, 1.5), None);
+    }
+
+    #[test]
+    fn you_can_walk_up_to_the_street_doors() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../game/assets/maps/nyc.map.json"
+        );
+        let Ok(text) = std::fs::read_to_string(path) else {
+            panic!("no {path}");
+        };
+        let Ok(map) = serde_json::from_str::<friendslop_world::places::MapFile>(&text) else {
+            panic!("{path} doesn't parse");
+        };
+        let Some(spot) = street_spot(&map) else {
+            panic!("no penn spot");
+        };
+        // Your feet a body's width short of the doors must stand in the open.
+        let feet = spot + DOORS + Vec3::new(0.5, 1.0, 0.0);
+        for e in map.entities.iter().filter(|e| e.kind == "block") {
+            let d = (feet - Vec3::from_array(e.translation)).abs();
+            let Some(size) = e.size else { continue };
+            let h = Vec3::from_array(size) / 2.0 + Vec3::splat(0.4);
+            assert!(
+                !(d.x < h.x && d.y < h.y && d.z < h.z),
+                "{} is in front of the doors",
+                e.name
+            );
+        }
     }
 
     #[test]

@@ -1196,7 +1196,9 @@ fn darkness(
             ambient.brightness = saved.ambient;
             for (e, lux) in saved.suns {
                 if let Ok((_, mut sun)) = suns.get_mut(e) {
-                    sun.illuminance = lux;
+                    // Never back to 0: another dark place may have saved it dark, and
+                    // day_night only takes over again from a lit sun.
+                    sun.illuminance = lux.max(1.0);
                 }
             }
             match saved.fog {

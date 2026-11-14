@@ -11,8 +11,7 @@ use std::path::PathBuf;
 use crate::harness;
 
 /// Shown whenever a snapshot mismatch means "registrations changed".
-const FAIL_MSG: &str =
-    "protocol registrations changed; if intentional run BLESS=1 cargo test -p friendslop --test it protocol";
+const FAIL_MSG: &str = "protocol registrations changed; if intentional run BLESS=1 cargo test -p friendslop --test it protocol";
 
 fn manifest_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

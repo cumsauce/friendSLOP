@@ -8,8 +8,8 @@ use bevy::prelude::*;
 use bevy::state::app::StatesPlugin;
 use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
-use friendslop::player::Player;
 use friendslop::ProtocolPlugin;
+use friendslop::player::Player;
 
 fn peer() -> App {
     let mut app = App::new();
@@ -65,11 +65,18 @@ fn disconnect_despawns_leaver_keeps_host() {
 
     let after = player_ids(&mut server);
     assert!(after.contains(&0), "host Player id 0 survives");
-    let removed: Vec<u64> = before.iter().filter(|id| !after.contains(id)).copied().collect();
+    let removed: Vec<u64> = before
+        .iter()
+        .filter(|id| !after.contains(id))
+        .copied()
+        .collect();
     assert_eq!(removed.len(), 1, "exactly the leaver's Player despawned");
     assert!(!removed.contains(&0), "the host is not the leaver");
 
     let peer_ids = player_ids(&mut c0);
     assert_eq!(peer_ids, after, "surviving peer agrees with the server");
-    assert!(!peer_ids.contains(&removed[0]), "leaver is gone on the peer");
+    assert!(
+        !peer_ids.contains(&removed[0]),
+        "leaver is gone on the peer"
+    );
 }

@@ -4,8 +4,8 @@
 //!
 //! Allowlist maintenance (keep this comment current):
 //! - `KNOWN_ORPHANS` is the exact set of models nothing references and no
-//!   dynamic template covers. Today that is only `nyc-kit-cruiser`, which is
-//!   deliberately unplaced (`hardening/modeler-todo.md` asks for place-or-drop).
+//!   dynamic template covers. Today that is empty: `nyc-kit-cruiser` is now
+//!   placed in the New York map.
 //!   Placing it anywhere (a `.rs`, data `.ron` or `maps/*.json|bsn` literal) or
 //!   deleting its file flips this test: shrink the list when that happens.
 //! - A model is also covered when it lives under `models/features/` (the
@@ -26,7 +26,7 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 /// Deliberately unreferenced models. See the allowlist comment above.
-const KNOWN_ORPHANS: &[&str] = &["nyc-kit-cruiser"];
+const KNOWN_ORPHANS: &[&str] = &[];
 
 /// Stems loaded by family/dynamic template instead of a literal per file.
 const FAMILY_PREFIXES: &[&str] = &[

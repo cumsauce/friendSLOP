@@ -104,9 +104,10 @@ pub fn protocol(app: &mut App) {
 }
 
 /// Where player `id` appears: a loose line south of the centre, facing it.
+/// One slot per id (5 per row) — never two players on one spot.
 pub fn spawn_point(id: u64) -> Vec3 {
     let col = (id % 5) as f32 - 2.0;
-    let row = (id / 5 % 4) as f32;
+    let row = (id / 5) as f32;
     Vec3::new(col * 1.6, 0.0, 9.0 + row * 1.6)
 }
 
@@ -813,5 +814,17 @@ mod tests {
         assert!(peak > 0.5, "a real hop");
         assert_eq!(p.y, 0.0, "landed");
         assert_eq!(vy, 0.0);
+    }
+
+    /// play:spawn-collide — every player 0..25 gets their own spawn slot.
+    #[test]
+    fn spawn_points_unique_0_to_24() {
+        let all: Vec<Vec3> = (0..25).map(spawn_point).collect();
+        for (i, a) in all.iter().enumerate() {
+            assert!(a.is_finite(), "player {i} spawns in a finite spot");
+            for b in &all[..i] {
+                assert!(a != b, "player {i} spawns on top of another player");
+            }
+        }
     }
 }

@@ -29,7 +29,7 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{SERVER_REACH, deny, within};
 use crate::player::{Player, PlayerOwner};
 
@@ -319,18 +319,12 @@ type Bodies<'w, 's> = Query<
 /// Server: move a body somewhere else entirely (in or out of the warehouse).
 fn put(
     walker: &mut Walker,
-    input: Option<Mut<WalkInput>>,
-    kcc: Option<Mut<crate::kcc::Kcc>>,
+    mut input: Option<Mut<WalkInput>>,
+    mut kcc: Option<Mut<crate::kcc::Kcc>>,
     to: Vec3,
 ) {
-    walker.pos = to;
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(walker, input.as_deref_mut(), kcc.as_deref_mut(), to, yaw);
 }
 
 fn owner_of(client: ClientId) -> Option<Entity> {

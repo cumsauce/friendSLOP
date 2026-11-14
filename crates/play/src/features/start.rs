@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 
-use super::fps::{WalkInput, Walker};
+use super::fps::{WalkInput, Walker, teleport};
 use crate::player::PlayerOwner;
 
 /// Named places a body can start at, added by the features that build them.
@@ -64,17 +64,18 @@ fn start(
     let Some(at) = find(&points, &name) else {
         return;
     };
-    let Some((_, mut walker, input, kcc)) = bodies.iter_mut().find(|b| b.0.0.is_none()) else {
+    let Some((_, mut walker, mut input, mut kcc)) = bodies.iter_mut().find(|b| b.0.0.is_none())
+    else {
         return;
     };
-    walker.pos = at + Vec3::Y * 0.05;
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(
+        &mut walker,
+        input.as_deref_mut(),
+        kcc.as_deref_mut(),
+        at + Vec3::Y * 0.05,
+        yaw,
+    );
     *done = true;
 }
 

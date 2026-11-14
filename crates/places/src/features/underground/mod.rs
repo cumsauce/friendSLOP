@@ -32,7 +32,7 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{SERVER_REACH, deny, within};
 use crate::player::PlayerOwner;
 pub use friendslop_core::WorldSeed;
@@ -385,7 +385,8 @@ fn use_hatch(
         ClientId::Server => None,
         ClientId::Client(c) => Some(c),
     };
-    let Some((_, mut walker, input, kcc)) = bodies.iter_mut().find(|b| b.0.0 == owner) else {
+    let Some((_, mut walker, mut input, mut kcc)) = bodies.iter_mut().find(|b| b.0.0 == owner)
+    else {
         return;
     };
     let here = walker.pos;
@@ -395,18 +396,19 @@ fn use_hatch(
         deny(&mut commands, ev.client_id, "too far away: walk closer");
         return;
     }
-    walker.pos = if underground {
+    let to = if underground {
         up_spot(id)
     } else {
         down_spot(id)
     };
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(
+        &mut walker,
+        input.as_deref_mut(),
+        kcc.as_deref_mut(),
+        to,
+        yaw,
+    );
 }
 
 /// For the music: the camera's down in the tunnels.

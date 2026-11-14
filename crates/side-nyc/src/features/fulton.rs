@@ -50,7 +50,7 @@ use friendslop_wfc as wfc;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, within};
 use crate::features::stats::Stats;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -1254,17 +1254,17 @@ type Body<'a> = (
 fn put(
     to: Vec3,
     walker: &mut Walker,
-    input: Option<Mut<WalkInput>>,
-    kcc: Option<Mut<crate::kcc::Kcc>>,
+    mut input: Option<Mut<WalkInput>>,
+    mut kcc: Option<Mut<crate::kcc::Kcc>>,
 ) {
-    walker.pos = to + Vec3::Y * 0.05;
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+    let yaw = walker.yaw;
+    teleport(
+        walker,
+        input.as_deref_mut(),
+        kcc.as_deref_mut(),
+        to + Vec3::Y * 0.05,
+        yaw,
+    );
 }
 
 /// Server: walk into the entrance and you're on the station's top level.

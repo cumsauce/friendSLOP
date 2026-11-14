@@ -33,7 +33,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// One stop of a line.
@@ -466,18 +466,18 @@ fn drive(
             *r = *n;
         }
     }
-    for (e, mut walker, input, kcc) in &mut bodies {
+    for (e, mut walker, mut input, mut kcc) in &mut bodies {
         let Some(to) = moves.remove(&e) else {
             continue;
         };
-        walker.pos = to;
-        if let Some(mut input) = input {
-            input.stick = Vec2::ZERO;
-            input.jump = false;
-        }
-        if let Some(mut kcc) = kcc {
-            kcc.velocity = Vec3::ZERO;
-        }
+        let yaw = walker.yaw;
+        teleport(
+            &mut walker,
+            input.as_deref_mut(),
+            kcc.as_deref_mut(),
+            to,
+            yaw,
+        );
     }
 }
 

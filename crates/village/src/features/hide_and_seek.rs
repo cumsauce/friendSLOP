@@ -14,7 +14,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{HiddenLabels, WalkSet, Walker};
+use crate::features::fps::{HiddenLabels, WalkSet, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -361,7 +361,8 @@ fn hold_seekers(state: Query<&HideSeek>, mut seekers: Query<(&mut Walker, &HoldA
     }
     for (mut w, hold) in &mut seekers {
         if w.pos != hold.0 {
-            w.pos = hold.0;
+            let yaw = w.yaw;
+            teleport(&mut w, None, None, hold.0, yaw);
         }
     }
 }

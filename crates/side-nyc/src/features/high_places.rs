@@ -32,7 +32,7 @@ use serde::{Deserialize, Serialize};
 
 use super::wallet::Cash;
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::features::smoking::{Smoking, Stash};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -376,18 +376,18 @@ fn elevator(
 ) {
     let Some(foot) = foot() else { return };
     let reach = tuning().door_reach;
-    for (mut walker, input, kcc) in &mut bodies {
+    for (mut walker, mut input, mut kcc) in &mut bodies {
         let Some(to) = ride(walker.pos, foot, reach) else {
             continue;
         };
-        walker.pos = to + Vec3::Y * 0.05;
-        if let Some(mut input) = input {
-            input.stick = Vec2::ZERO;
-            input.jump = false;
-        }
-        if let Some(mut kcc) = kcc {
-            kcc.velocity = Vec3::ZERO;
-        }
+        let yaw = walker.yaw;
+        teleport(
+            &mut walker,
+            input.as_deref_mut(),
+            kcc.as_deref_mut(),
+            to + Vec3::Y * 0.05,
+            yaw,
+        );
     }
 }
 

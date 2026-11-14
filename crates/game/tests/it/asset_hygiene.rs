@@ -276,7 +276,12 @@ fn every_texture_is_named_by_a_gltf() {
     walk(&assets(), "gltf", &mut gltfs);
     let mut text = String::new();
     for rel in &gltfs {
-        text.push_str(&std::fs::read_to_string(root().join(rel)).unwrap_or_default());
+        let body = std::fs::read_to_string(root().join(rel)).unwrap_or_default();
+        // Without LFS data (CI) the models are pointers: nothing to check.
+        if body.starts_with("version https://git-lfs") {
+            return;
+        }
+        text.push_str(&body);
     }
     let mut orphans = Vec::new();
     for rel in &tex {

@@ -10,6 +10,10 @@ fn every_data_file_parses() {
         let Ok(bytes) = std::fs::read(root.join(f.path())) else {
             panic!("missing data file {}", f.path());
         };
+        // A checkout without LFS data (CI) has only a pointer: nothing to parse.
+        if bytes.starts_with(b"version https://git-lfs") {
+            continue;
+        }
         assert!(f.set_bytes(&bytes), "{} doesn't parse", f.path());
         // A folder's files (the songs) too.
         for path in f.wanted() {

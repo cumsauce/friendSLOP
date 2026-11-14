@@ -103,9 +103,11 @@ impl Task {
     /// What to do, and how.
     pub fn label(self) -> &'static str {
         match self {
-            Task::Pack => "Adopt pets and leash them all into one pack",
+            Task::Pack => "Adopt the strays at the picnic corner and leash them all into one pack",
             Task::Mushroom(_) => "Eat the voice mushroom",
-            Task::VaultDoor => "Open a vault door (bring it the matching totem)",
+            Task::VaultDoor => {
+                "Open a vault door: bring it the Wind totem (the hilltop, west) or the Frost totem (the lake shore)"
+            }
             Task::FireTotem => "Take the Fire totem out of the vault",
             Task::Halt(_) => "Break out of HALT ({pry})",
             Task::Tears(_) => "Use gods tears (counted all campaign: no more ever fall)",
@@ -114,7 +116,9 @@ impl Task {
             Task::Landlord => "Beat the landlord",
             Task::Abuela => "Climb the sky islands (south-east) and visit Abuela in heaven",
             Task::Burgers(_) => "Grab human meat burgers at Wendy's (by the road east)",
-            Task::Paul(_) => "Trade a crow egg (by the crows) to Sewer Paul, down the manhole east",
+            Task::Paul(_) => {
+                "Trade a crow egg (the crows are by the windmill) to Sewer Paul, down the manhole east"
+            }
             Task::Jegg(_) => "Bring soul pieces out of the warehouse (south) to Jegg",
         }
     }
@@ -122,9 +126,9 @@ impl Task {
     /// The same job as one short "now: ..." line for the quest card.
     pub fn next(self) -> &'static str {
         match self {
-            Task::Pack => "adopt pets, leash them into one pack",
+            Task::Pack => "adopt the strays (picnic corner), leash them into one pack",
             Task::Mushroom(_) => "eat the voice mushroom",
-            Task::VaultDoor => "bring a totem to its vault door",
+            Task::VaultDoor => "bring a totem (hilltop or lake shore) to its vault door",
             Task::FireTotem => "take the Fire totem from the vault",
             Task::Halt(_) => "break out of HALT (G to pry)",
             Task::Tears(_) => "use gods tears",
@@ -133,7 +137,7 @@ impl Task {
             Task::Landlord => "beat the landlord",
             Task::Abuela => "climb the sky islands to Abuela",
             Task::Burgers(_) => "grab burgers at Wendy's (east)",
-            Task::Paul(_) => "trade a crow egg to Sewer Paul",
+            Task::Paul(_) => "trade a crow egg (windmill) to Sewer Paul",
             Task::Jegg(_) => "bring soul pieces to Jegg",
         }
     }

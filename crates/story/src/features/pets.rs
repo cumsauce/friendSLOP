@@ -96,6 +96,10 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the strays (see world::footprints).
+    for (_, _, at) in stray_spots(crate::sites::at("pets"), &tuning()) {
+        friendslop_world::footprints::claim(at, 1.5);
+    }
     app.replicate::<Pet>()
         .add_client_event::<AdoptPet>(Channel::Ordered)
         .add_client_event::<PetLure>(Channel::Ordered)
@@ -310,7 +314,7 @@ pub fn plugin(app: &mut App) {
 fn dress_pets(mut commands: Commands, new: Query<(Entity, &Pet), Added<Pet>>) {
     for (entity, pet) in &new {
         commands.entity(entity).insert((
-            Transform::from_xyz(pet.at.x, 0.0, pet.at.y),
+            Transform::from_translation(crate::terrain::on_ground(pet.at)),
             Clickable::at_height(0.3).labelled("adopt"),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
@@ -329,7 +333,7 @@ fn move_pets(time: Res<Time>, mut pets: Query<(&Pet, &mut Transform, &mut RigCli
         let gap = pet.at - here;
         let next = here + gap * (time.delta_secs() * 10.0).min(1.0);
         let moving = gap.length() > 0.02;
-        tf.translation = Vec3::new(next.x, 0.0, next.y);
+        tf.translation = crate::terrain::on_ground(next);
         if moving {
             tf.rotation = Quat::from_rotation_y((-gap.x).atan2(-gap.y));
         }

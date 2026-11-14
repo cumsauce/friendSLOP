@@ -215,6 +215,11 @@ pub fn height_at(x: f32, z: f32) -> f32 {
         .unwrap_or_else(|| procedural_height_at(x, z))
 }
 
+/// The point on the ground at (x, z).
+pub fn on_ground(at: Vec2) -> Vec3 {
+    Vec3::new(at.x, height_at(at.x, at.y), at.y)
+}
+
 /// Beyond the play area: hills that hide the edge of the world (added on
 /// top of the map's own ground, which eases flat at its edge).
 fn rim(x: f32, z: f32) -> f32 {

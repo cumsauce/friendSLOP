@@ -18,15 +18,20 @@
         (id: "vault", name: "The vault", district: "commune", place: Spot("vault", (0.0, 0.0)), reach: Round(25.0)),
         (id: "lectern", name: "The Tome of Uncancelling", district: "commune", place: Spot("lectern", (0.0, 0.0)), reach: Round(25.0)),
         (id: "arena", name: "The duel arena", district: "commune", place: Spot("arena", (0.0, 0.0)), reach: Round(30.0)),
-        // The commune's creatures and things, still where they always stood.
-        (id: "crows", name: "The crows", district: "commune", place: Spot("centre", (0.0, 0.0)), reach: Round(25.0)),
-        (id: "bear", name: "The bear", district: "commune", place: Spot("centre", (-6.0, -3.0)), reach: Round(25.0)),
-        (id: "goat", name: "The judgmental goat", district: "commune", place: Spot("centre", (5.0, 4.0)), reach: Round(25.0)),
-        (id: "pets", name: "The strays", district: "commune", place: Spot("centre", (0.0, 0.0)), reach: Round(25.0)),
-        (id: "totem_wind", name: "The Wind totem", district: "commune", place: Spot("centre", (8.0, 3.0)), reach: Round(25.0)),
-        (id: "totem_frost", name: "The Frost totem", district: "commune", place: Spot("centre", (9.0, -8.0)), reach: Round(25.0)),
-        (id: "music_box_1", name: "A music box", district: "commune", place: Spot("centre", (5.0, -5.0)), reach: Round(25.0)),
-        (id: "music_box_2", name: "A music box", district: "commune", place: Spot("centre", (-3.0, 7.0)), reach: Round(25.0)),
+        // The commune's creatures and things, out in the districts (#412).
+        // North meadow, by the windmill: the crows (and their eggs) and a music box.
+        (id: "crows", name: "The crows", district: "north meadow", place: Spot("windmill", (-9.0, 6.0)), reach: Round(30.0)),
+        (id: "music_box_1", name: "The windmill's music box", district: "north meadow", place: Spot("windmill", (7.0, 5.0)), reach: Round(25.0)),
+        // North forest: the bear, in the woodcutter's clearing.
+        (id: "bear", name: "The bear", district: "north forest", place: Spot("forest_clearing", (3.0, 7.0)), reach: Round(30.0)),
+        // Pond and picnic: the goat judges from the pond, the strays wait at the picnic.
+        (id: "goat", name: "The judgmental goat", district: "pond", place: Spot("pond", (-5.0, -2.0)), reach: Round(25.0)),
+        (id: "pets", name: "The strays", district: "pond", place: Spot("picnic", (0.0, 0.0)), reach: Round(30.0)),
+        // West: the Wind totem on the hilltop, the Frost totem on the lake's north shore.
+        (id: "totem_wind", name: "The Wind totem", district: "west valley", place: Spot("hill", (0.0, 0.0)), reach: Round(30.0)),
+        (id: "totem_frost", name: "The Frost totem", district: "lake", place: Spot("lake", (0.0, -10.0)), reach: Round(25.0)),
+        // Ruins: the second music box, by the quarry crane.
+        (id: "music_box_2", name: "The quarry's music box", district: "ruins", place: Spot("quarry", (14.0, -4.0)), reach: Round(25.0)),
         // Places that already stood apart.
         (id: "wendys", name: "Wendy's", district: "road east", place: Spot("wendys", (0.0, 0.0)), reach: Round(35.0)),
         (id: "warehouse", name: "The abandoned warehouse", district: "south", place: Spot("warehouse", (0.0, 0.0)), reach: Round(40.0)),

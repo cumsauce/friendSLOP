@@ -8,4 +8,17 @@
     start_hour: 9.5,
     // How bright the night still is, 0 (pitch black) to 1 (as bright as day).
     night_brightness: 0.12,
+    // The sky's colours (sRGB, 0..1) at the horizon and straight up. Day's blue
+    // stays one a cat can see (#12): keep red and green within 0.1 of each other.
+    day_sky: (horizon: (0.74, 0.82, 0.96), zenith: (0.3, 0.4, 0.95)),
+    // Sunrise and sunset, strongest on the sun's side of the sky.
+    sunset_sky: (horizon: (1.0, 0.56, 0.32), zenith: (0.48, 0.36, 0.62)),
+    night_sky: (horizon: (0.07, 0.09, 0.2), zenith: (0.012, 0.018, 0.07)),
+    // How many stars come out at night, and how big each one is (m, 390 m away).
+    stars: 450,
+    star_size: 0.55,
+    // How much of the clouds' daytime glow is left at night (0..1).
+    cloud_night: 0.012,
+    // The moon's radius (m, 380 m away).
+    moon_size: 9.0,
 )

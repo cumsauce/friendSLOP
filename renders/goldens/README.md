@@ -28,8 +28,8 @@ Time of day is pinned with `FRIENDSLOP_TIME` and world animation freezes
 
 ## Comparing (`scripts/golden_compare.py`)
 
-Per channel, differences of 2/255 or less are noise and count as zero. A pair
-**fails** when either holds:
+Needs Pillow (`pip install pillow`). Per channel, differences of 2/255 or
+less are noise and count as zero. A pair **fails** when either holds:
 
 - more than **1.5%** of pixels have some channel differing by more than
   **8/255**, or

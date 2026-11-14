@@ -201,7 +201,8 @@ fn hdr(c: Color) -> LinearRgba {
 fn dress_camera(add: On<Add<MainCamera>>, mut commands: Commands) {
     let mut camera = commands.entity(add.entity);
     // Without `Hdr`, bloom is a silent no-op (tonemapping then runs in the
-    // material shaders). Browsers skip both (#242, `graphics::HDR_SUPPORTED`).
+    // material shaders). Browsers skip both (#242, `graphics::HDR_SUPPORTED`),
+    // and `graphics` drops both when bloom is off in the video settings (#393).
     if crate::graphics::HDR_SUPPORTED {
         camera.insert((
             bevy::camera::Hdr,

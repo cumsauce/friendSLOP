@@ -444,13 +444,19 @@ fn apply_camera(
             continue;
         }
         let mut c = commands.entity(e);
+        // The HDR (float) target is only for bloom: without it the world
+        // draws straight into the 8-bit target and tonemaps in its shaders,
+        // which skips a full-screen pass and halves the colour bandwidth (#393).
         if q.bloom && HDR_SUPPORTED {
-            c.insert(Bloom {
-                intensity: 0.08,
-                ..Bloom::NATURAL
-            });
+            c.insert((
+                bevy::camera::Hdr,
+                Bloom {
+                    intensity: 0.08,
+                    ..Bloom::NATURAL
+                },
+            ));
         } else {
-            c.remove::<Bloom>();
+            c.remove::<(Bloom, bevy::camera::Hdr)>();
         }
         if q.ssao {
             c.insert(ScreenSpaceAmbientOcclusion::default());

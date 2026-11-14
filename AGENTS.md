@@ -96,6 +96,7 @@ crates/game/src/
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
   probes.rs     reflections: world env map on the camera, FRIENDSLOP_BAKE=1 bakes every probe
+  render_scale.rs  desktop "Fast" resolution: 3D drawn smaller, stretched over the window, UI sharp (#393)
   lod.rs        trees: lighter far meshes, dithered in by distance (#227); modeler LOD nodes; tree wind
   rigged.rs     rigged modeler models: `Rigged { path }` + `RigClip` crossfades their named clips; tails/ears/bobbles get modeler_anim springs
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)

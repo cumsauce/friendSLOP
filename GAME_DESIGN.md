@@ -1382,6 +1382,23 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   your computer's user name. Browsers can't do UDP, so the button just keeps looking there
   (`crates/game/src/lan.rs`).
 
+## What exists: sites (#412)
+
+- **Sites** (#412, bben, "friendSLOP 2": "so many great features but they aren't well structured.
+  Turn the current and future feature list as individual mechanics spread out through the world.
+  Reduce the amount of active UI elements, sound, gameplay, entities, NPCs, etc by
+  redistributing them throughout the world"). Read as: every mechanic gets a place of its own and
+  sleeps while nobody is there. The first step is the list: `data/base/sites.ron` names each
+  site (the commune hub's six, Wendy's, the warehouse, the shipwreck, New York), where it is and
+  how far it reaches, and the game tracks which are awake (`sites.rs`; `FRIENDSLOP_PERF=1` logs
+  them). Nothing in play changes yet. Decided with the group's host: the centre becomes the story
+  hub only (landlord, Dave, vault, lectern, bonfire, arena, about 6 villagers); the five
+  chapters stay, their jobs reworded to name sites; all 20 villagers stay, spread out; site
+  keys only work at their site. World-wide effects: the Stillness, toilets, gaslighting and
+  whispers will only happen inside their site; the fat cat and systemd are picked up at a site
+  and carried; HALT is pried at a terminal; action failing, the Watcher and the helicopter stay
+  everywhere.
+
 ## Ideas so far
 
 - catherine (#384): "lesbian sex... give me Yuri plot lines and characters and story lines

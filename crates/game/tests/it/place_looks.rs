@@ -36,7 +36,7 @@ fn rust_files(dir: &Path, out: &mut Vec<PathBuf>) {
     }
 }
 
-fn sources() -> Vec<(String, String)> {
+pub(crate) fn sources() -> Vec<(String, String)> {
     let mut files = Vec::new();
     let Ok(crates) = std::fs::read_dir(root().join("crates")) else {
         panic!("no crates folder");

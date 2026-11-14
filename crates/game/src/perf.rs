@@ -32,6 +32,7 @@ fn report(
     meshes: Query<&ViewVisibility, With<Mesh3d>>,
     lights: Query<(), Or<(With<PointLight>, With<SpotLight>)>>,
     cam: Query<&GlobalTransform, With<Camera3d>>,
+    awake: Res<crate::sites::Awake>,
 ) {
     let now = time.elapsed_secs();
     if now - *last < 5.0 {
@@ -69,9 +70,10 @@ fn report(
         .map(|g| g.translation())
         .unwrap_or_default();
     info!(
-        "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | point/spot lights {} | camera {at:.0}",
+        "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | point/spot lights {} | camera {at:.0} | sites awake: {}",
         entities.iter().count(),
-        lights.iter().count()
+        lights.iter().count(),
+        awake.ids().join(", ")
     );
 }
 

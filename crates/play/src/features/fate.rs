@@ -117,6 +117,9 @@ pub struct Mishap {
 #[derive(Component, Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct FateBoard {
     pub mishaps: Vec<Mishap>,
+    /// How many failures have ever been pushed here. Monotone: the sob-mail
+    /// counts adds from this, so a wear-off never nets a new failure away.
+    pub total_fails: u64,
 }
 
 /// Server only: chance of failure (tests can change it) and dice.
@@ -183,6 +186,7 @@ impl Fate<'_, '_> {
                 outcome,
                 secs_left: tuning().result_secs,
             });
+            board.total_fails += 1;
         }
         true
     }
@@ -191,12 +195,26 @@ impl Fate<'_, '_> {
 pub fn protocol(app: &mut App) {
     app.replicate::<FateBoard>()
         .init_resource::<FateDice>()
+        .init_resource::<MailSeen>()
         .add_systems(OnEnter(ServerState::Running), spawn_board)
+        .add_systems(OnExit(ServerState::Running), clear_boards)
         .add_systems(Update, wear_off.run_if(in_state(ServerState::Running)));
 }
 
 fn spawn_board(mut commands: Commands) {
     commands.spawn((FateBoard::default(), Replicated));
+}
+
+/// Session over: no board (and no mail memory) may outlive it.
+fn clear_boards(
+    mut commands: Commands,
+    boards: Query<Entity, With<FateBoard>>,
+    mut seen: ResMut<MailSeen>,
+) {
+    for b in &boards {
+        commands.entity(b).try_despawn();
+    }
+    seen.0 = 0;
 }
 
 fn wear_off(time: Res<Time>, mut boards: Query<&mut FateBoard>) {
@@ -274,23 +292,31 @@ fn update_fate_hud(boards: Query<&FateBoard>, mut hud: Query<&mut Text, With<Fat
 /// sobbing emoji"). Pretend: nothing actually leaves the game.
 pub const SOB_MAIL: &str = "📧 emailing the developer a 😭 ... sent";
 
-/// How many new failures appeared since the board last had `before`.
-pub fn new_failures(before: usize, now: usize) -> usize {
+/// How many failures the sob-mail has already sent for (their total count).
+#[derive(Resource, Default)]
+struct MailSeen(u64);
+
+/// How many new failures appeared since the mail last saw `before` of them
+/// (both totals are monotone, so wearing off never nets an add away).
+pub fn new_failures(before: u64, now: u64) -> u64 {
     now.saturating_sub(before)
 }
 
 /// Every new failure emails the developer a sobbing emoji (in a toast).
 fn email_the_developer(
-    boards: Query<&FateBoard, Changed<FateBoard>>,
-    mut seen: Local<usize>,
+    boards: Query<&FateBoard>,
+    changed: Query<(), Changed<FateBoard>>,
+    mut seen: ResMut<MailSeen>,
     toast: Option<ResMut<crate::hud::Toast>>,
 ) {
     let Some(board) = boards.iter().next() else {
         return;
     };
-    let now = board.mishaps.len();
-    let fresh = new_failures(*seen, now);
-    *seen = now;
+    if changed.is_empty() {
+        return;
+    }
+    let fresh = new_failures(seen.0, board.total_fails);
+    seen.0 = board.total_fails;
     if fresh > 0
         && let Some(mut toast) = toast
     {
@@ -305,8 +331,66 @@ mod tests {
     #[test]
     fn only_new_failures_send_mail() {
         assert_eq!(new_failures(0, 1), 1);
-        assert_eq!(new_failures(2, 1), 0, "wearing off isn't a failure");
+        assert_eq!(new_failures(2, 1), 0, "seen ahead of total mails nothing");
         assert_eq!(new_failures(1, 1), 0);
+    }
+
+    /// play:mail-netting — the mail counts failures added, never netted
+    /// against wear-offs: one failure that wears off while another lands
+    /// still mails for the new one.
+    #[test]
+    fn mail_counts_adds_not_net() {
+        let mut app = App::new();
+        app.add_plugins(bevy::prelude::MinimalPlugins);
+        app.init_resource::<crate::hud::Toast>();
+        app.init_resource::<MailSeen>();
+        app.add_systems(bevy::prelude::Update, email_the_developer);
+        let board = app.world_mut().spawn(FateBoard::default()).id();
+
+        // One failure: one mail.
+        {
+            let mut b = app.world_mut().get_mut::<FateBoard>(board).unwrap();
+            b.mishaps.push(Mishap {
+                player: 1,
+                outcome: Outcome::Hampter,
+                secs_left: 60.0,
+            });
+            b.total_fails += 1;
+        }
+        app.update();
+        assert_eq!(app.world().resource::<crate::hud::Toast>().secs_left, crate::hud::Toast::SECS, "the first failure mails");
+
+        // It wears off exactly as the next failure lands: the visible count
+        // nets to zero, but the add must still mail.
+        app.world_mut().resource_mut::<crate::hud::Toast>().secs_left = 0.0;
+        {
+            let mut b = app.world_mut().get_mut::<FateBoard>(board).unwrap();
+            b.mishaps.clear();
+            b.mishaps.push(Mishap {
+                player: 1,
+                outcome: Outcome::BecameAGoose,
+                secs_left: 60.0,
+            });
+            b.total_fails += 1;
+        }
+        app.update();
+        assert_eq!(app.world().resource::<crate::hud::Toast>().secs_left, crate::hud::Toast::SECS, "the add mails even beside a wear-off");
+    }
+
+    /// play:mail-netting (session half) — the session cleanup drops the
+    /// boards and the mail memory, so a re-host starts fresh.
+    #[test]
+    fn mail_memory_resets_with_the_session() {
+        use bevy::ecs::system::RunSystemOnce;
+        let mut app = App::new();
+        app.add_plugins(bevy::prelude::MinimalPlugins);
+        app.init_resource::<MailSeen>();
+        app.world_mut().spawn(FateBoard::default());
+        app.world_mut().resource_mut::<MailSeen>().0 = 7;
+        app.world_mut().run_system_once(clear_boards).unwrap();
+        assert_eq!(app.world().resource::<MailSeen>().0, 0);
+        let world = app.world_mut();
+        assert_eq!(world.query::<&FateBoard>().iter(world).count(), 0, "boards are session state");
     }
 
     #[test]

@@ -1,0 +1,18 @@
+// Emotes with other players (crates/side/src/features/emotes.rs, #383).
+// Edit and save: the running game picks it up within a second.
+(
+    // How far (metres) the other player can be for an emote.
+    reach: 3.0,
+    // Seconds an offer stays open for the other player to accept.
+    window: 6.0,
+    // The emotes, in the order U cycles through them. `name` shows on the
+    // offer; `done` is what both players see when it lands ({a} offered, {b}
+    // accepted). An emote named "rock paper scissors" plays a round instead.
+    emotes: [
+        (name: "high five", done: "{a} and {b} high five. SMACK!"),
+        (name: "dap up", done: "{a} and {b} dap up. respect."),
+        (name: "rock paper scissors", done: ""),
+    ],
+    // Rock paper scissors throws (beats the next one round: rock > scissors > paper > rock).
+    throws: ["rock", "scissors", "paper"],
+)

@@ -98,6 +98,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(lily_garden::protocol);
         app.add_plugins(save::protocol);
         app.add_plugins(drowning::protocol);
+        app.add_plugins(organ_butcher::protocol);
     }
 }
 
@@ -187,6 +188,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(high_places::plugin);
         app.add_plugins(ice_cream::plugin);
         app.add_plugins(hats::plugin);
+        app.add_plugins(organ_butcher::plugin);
         app.add_plugins(hi::plugin);
         app.add_plugins(kittens::plugin);
         app.add_plugins(toilets::plugin);

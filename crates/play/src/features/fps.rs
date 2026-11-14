@@ -169,7 +169,7 @@ pub fn step(
     let mut next = pos + flat;
     if let Some(kept) = crate::rules::nyc::keep_in_city(pos, next) {
         next = kept; // New York City has its own edges (#283)
-    } else {
+    } else if !crate::rules::surf::unbounded(pos) {
         next.x = next.x.clamp(-EDGE, EDGE);
         next.z = next.z.clamp(-EDGE, EDGE);
     }
@@ -283,7 +283,7 @@ pub fn kcc_move_walkers(
         // or New York City's own edges (#283).
         if let Some(kept) = crate::rules::nyc::keep_in_city(walker.pos, pos) {
             pos = kept;
-        } else {
+        } else if !crate::rules::surf::unbounded(walker.pos) {
             pos.x = pos.x.clamp(-EDGE, EDGE);
             pos.z = pos.z.clamp(-EDGE, EDGE);
         }

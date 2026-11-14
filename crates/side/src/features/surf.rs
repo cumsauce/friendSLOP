@@ -4,18 +4,23 @@
 //! The brownstone on the avenue's east side has a neon SURF sign over its
 //! door. Walk up the stoop into the door and the server puts you on the
 //! start pad of a surf hall (bigger on the inside: it hangs high over the
-//! city). Two long ridge ramps with 59 degree faces drop away from the pad
-//! to a neon finish pad. Inside the hall the walker's air control is cranked
+//! city). Five stages of ridge ramps with 59 degree faces (S-bends,
+//! zig-zag transfers, a big sweep, wiggles into a speed ramp and a jump, a
+//! long carve) wind between glass towers to a neon finish pad, 2.4 km of
+//! ramp in all. Each stage starts on a rooftop pad: a checkpoint. Inside the hall the walker's air control is cranked
 //! up the way surf servers do it ([`crate::rules::surf::air_at`]): the faces
 //! are too steep to stand on, so you slide, and strafing into a face while
-//! turning keeps you gliding along it and gains speed. Fall into the void and
-//! you're back on the start pad. Reaching the finish pad shows your time and
+//! turning keeps you gliding along it and gains speed. Fall off a stage
+//! and you're back on its pad; nothing hangs over anything else, so
+//! dropping down skips nothing. Reaching the finish pad shows your time and
 //! your best this game (each screen keeps its own). A post on each pad takes
 //! you back out to the street.
 //!
-//! The ramps and pads below are offsets inside the hall's model
-//! (`surf-hall`, made in the modeler); their colliders come from here, so
-//! they never wait on the file.
+//! The course lives in `data/side/surf.ron` (the stages' pads and ramp
+//! points, and the solid boxes), the same joints the hall's model
+//! (`surf-hall`, made in the modeler) was built from; the colliders come
+//! from the data, so they never wait on the model file. The course is far
+//! bigger than the world, so its edge doesn't hold you in the hall.
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -27,79 +32,21 @@ use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, within};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 pub use crate::rules::surf::*;
 
-/// A surf ramp: a ridge running from `z.0` to `z.1` (hall coordinates), its
-/// top edge dropping from `top.0` to `top.1`, faces `half_width` out and
-/// `height` down to each side.
-#[derive(Clone, Copy, Debug)]
-pub struct Ramp {
-    pub z: (f32, f32),
-    pub top: (f32, f32),
-    pub half_width: f32,
-    pub height: f32,
+/// The start pad (centre, size), hall coordinates: the first stage's pad.
+pub fn start_pad(t: &Tuning) -> (Vec3, Vec3) {
+    t.stages
+        .first()
+        .map_or((Vec3::ZERO, Vec3::ONE), |s| pad(s.pad))
 }
 
-/// The ramps, as the model has them.
-pub const RAMPS: [Ramp; 2] = [
-    Ramp {
-        z: (-16.0, -76.0),
-        top: (-6.0, -14.0),
-        half_width: 6.0,
-        height: 10.0,
-    },
-    Ramp {
-        z: (-84.0, -144.0),
-        top: (-20.0, -28.0),
-        half_width: 6.0,
-        height: 10.0,
-    },
-];
-
-impl Ramp {
-    /// The six corners of the ridge (hall coordinates).
-    pub fn corners(&self) -> Vec<Vec3> {
-        let (w, h) = (self.half_width, self.height);
-        let mut out = Vec::new();
-        for (z, y) in [(self.z.0, self.top.0), (self.z.1, self.top.1)] {
-            out.push(Vec3::new(0.0, y, z));
-            out.push(Vec3::new(-w, y - h, z));
-            out.push(Vec3::new(w, y - h, z));
-        }
-        out
-    }
-
-    /// How steep its faces are, degrees from level.
-    pub fn face_degrees(&self) -> f32 {
-        (self.height / self.half_width).atan().to_degrees()
-    }
-}
-
-/// The start pad (centre, size), hall coordinates.
-pub const START_PAD: (Vec3, Vec3) = (Vec3::new(0.0, -0.5, -5.0), Vec3::new(10.0, 1.0, 10.0));
 /// The finish pad.
-pub const FINISH_PAD: (Vec3, Vec3) = (Vec3::new(0.0, -34.5, -160.0), Vec3::new(16.0, 1.0, 20.0));
-/// Every box in the hall: the pads, its four walls and the void's floor.
-pub const BOXES: [(Vec3, Vec3); 7] = [
-    START_PAD,
-    FINISH_PAD,
-    (Vec3::new(-22.5, -21.0, -86.0), Vec3::new(1.0, 58.0, 180.0)),
-    (Vec3::new(22.5, -21.0, -86.0), Vec3::new(1.0, 58.0, 180.0)),
-    (Vec3::new(0.0, -21.0, 4.5), Vec3::new(46.0, 58.0, 1.0)),
-    (Vec3::new(0.0, -21.0, -176.5), Vec3::new(46.0, 58.0, 1.0)),
-    (Vec3::new(0.0, -50.5, -86.0), Vec3::new(46.0, 1.0, 182.0)),
-];
-
-/// Is a hall-coordinate point standing on this pad?
-pub fn on_pad(pad: (Vec3, Vec3), local: Vec3) -> bool {
-    let (c, s) = pad;
-    let top = c.y + s.y / 2.0;
-    (local.x - c.x).abs() <= s.x / 2.0
-        && (local.z - c.z).abs() <= s.z / 2.0
-        && (top - 0.3..top + 2.0).contains(&local.y)
+pub fn finish_pad(t: &Tuning) -> (Vec3, Vec3) {
+    pad(t.finish)
 }
 
 /// Where you land on the start pad (world).
 pub fn start_at(t: &Tuning) -> Vec3 {
-    hall_at(t) + Vec3::new(0.0, 0.05, -2.0)
+    stage_spawn(t, 0).unwrap_or(hall_at(t)) + Vec3::new(0.0, 0.0, 3.0)
 }
 
 /// Does a body with feet at `feet` walk into the brownstone's door?
@@ -120,13 +67,10 @@ pub fn street_at(t: &Tuning) -> Vec3 {
 /// Posts out of the hall (world): on the start pad and on the finish pad.
 pub fn posts(t: &Tuning) -> [Vec3; 2] {
     let o = hall_at(t);
+    let (s, f) = (start_pad(t), finish_pad(t));
     [
-        o + Vec3::new(3.5, 0.0, -8.5),
-        o + Vec3::new(
-            FINISH_PAD.0.x + 5.0,
-            FINISH_PAD.0.y + 0.5,
-            FINISH_PAD.0.z - 6.0,
-        ),
+        o + s.0 + Vec3::new(3.5, s.1.y / 2.0, 3.5),
+        o + f.0 + Vec3::new(5.0, f.1.y / 2.0, -6.0),
     ]
 }
 
@@ -165,12 +109,33 @@ fn put(
     }
 }
 
-/// Server: in through the door, and back to the top when you fall.
-fn move_bodies(mut bodies: Query<Body>) {
+/// Server: which stage a body has reached (its last checkpoint pad).
+#[derive(Component, Default)]
+struct OnStage(usize);
+
+/// Server: in through the door, back to your stage's pad when you fall off
+/// it, and back to the top when you fall right out.
+fn move_bodies(mut commands: Commands, mut bodies: Query<(Entity, Body, Option<&mut OnStage>)>) {
     let t = tuning();
-    for (_, mut walker, input, kcc) in &mut bodies {
+    for (e, (_, mut walker, input, kcc), stage) in &mut bodies {
         if entering(&t, walker.pos) || fallen(&t, walker.pos) {
             put(start_at(&t), &mut walker, input, kcc);
+            commands.entity(e).insert(OnStage(0));
+            continue;
+        }
+        let Some(local) = in_hall(&t, walker.pos) else {
+            continue;
+        };
+        let Some(mut stage) = stage else {
+            commands.entity(e).insert(OnStage(0));
+            continue;
+        };
+        let (now, fell) = stage_step(&t, stage.0, local);
+        if now != stage.0 {
+            stage.0 = now;
+        }
+        if fell && let Some(at) = stage_spawn(&t, now) {
+            put(at, &mut walker, input, kcc);
         }
     }
 }
@@ -230,20 +195,23 @@ fn build(
         Transform::from_translation(o),
         DespawnOnExit(AppState::InGame),
     ));
-    // Colliders never wait on the model.
-    for ramp in RAMPS {
-        let points: Vec<Vec3> = ramp.corners();
-        let Some(hull) = avian3d::prelude::Collider::convex_hull(&points) else {
-            continue;
-        };
-        commands.spawn((
-            Transform::from_translation(o),
-            avian3d::prelude::RigidBody::Static,
-            hull,
-            DespawnOnExit(AppState::InGame),
-        ));
+    // Colliders never wait on the model: the ramps' pieces and the boxes
+    // come from the data file the model was made from.
+    let ramps = t.stages.iter().flat_map(|s| s.ramps.iter());
+    for ramp in ramps {
+        for piece in pieces(ramp, t.ramp_samples, t.ramp_half_width, t.ramp_height) {
+            let Some(hull) = avian3d::prelude::Collider::convex_hull(&piece) else {
+                continue;
+            };
+            commands.spawn((
+                Transform::from_translation(o),
+                avian3d::prelude::RigidBody::Static,
+                hull,
+                DespawnOnExit(AppState::InGame),
+            ));
+        }
     }
-    for (c, s) in BOXES {
+    for (c, s) in t.blocks.iter().map(|&b| pad(b)) {
         commands.spawn((
             Transform::from_translation(o + c),
             avian3d::prelude::RigidBody::Static,
@@ -251,8 +219,8 @@ fn build(
             DespawnOnExit(AppState::InGame),
         ));
     }
-    // The hall is roofless under the sky; a light over each pad.
-    for at in [START_PAD.0, FINISH_PAD.0] {
+    // Out under the sky; a light over the start and the finish.
+    for at in [start_pad(&t).0, finish_pad(&t).0] {
         commands.spawn((
             PointLight {
                 color: Color::srgb(1.0, 0.6, 0.95),
@@ -319,7 +287,13 @@ pub enum RunEvent {
 
 /// One step of a screen's run timer for feet at `local` (hall coordinates,
 /// `None` outside the hall) at time `now`. Pure, so it's tested.
-fn run_step(run: &mut Run, local: Option<Vec3>, now: f32) -> Option<RunEvent> {
+fn run_step(
+    run: &mut Run,
+    pads: [(Vec3, Vec3); 2],
+    local: Option<Vec3>,
+    now: f32,
+) -> Option<RunEvent> {
+    let [start, finish] = pads;
     let Some(l) = local else {
         *run = Run {
             best: run.best,
@@ -331,9 +305,9 @@ fn run_step(run: &mut Run, local: Option<Vec3>, now: f32) -> Option<RunEvent> {
         run.inside = true;
         return Some(RunEvent::Entered);
     }
-    let on_start = on_pad(START_PAD, l);
+    let on_start = on_pad(start, l);
     match run.started {
-        None if !on_start && l.z < START_PAD.0.z - START_PAD.1.z / 2.0 => {
+        None if !on_start && l.z < start.0.z - start.1.z / 2.0 => {
             run.started = Some(now);
             None
         }
@@ -341,7 +315,7 @@ fn run_step(run: &mut Run, local: Option<Vec3>, now: f32) -> Option<RunEvent> {
             run.started = None;
             Some(RunEvent::WipedOut(now - t0))
         }
-        Some(t0) if on_pad(FINISH_PAD, l) => {
+        Some(t0) if on_pad(finish, l) => {
             run.started = None;
             let secs = now - t0;
             let best = run.best.map_or(secs, |b| b.min(secs));
@@ -368,7 +342,8 @@ fn timer(
     };
     let t = tuning();
     let secs = |s: f32| format!("{s:.2}");
-    match run_step(&mut run, in_hall(&t, w.pos), time.elapsed_secs()) {
+    let pads = [start_pad(&t), finish_pad(&t)];
+    match run_step(&mut run, pads, in_hall(&t, w.pos), time.elapsed_secs()) {
         Some(RunEvent::Entered) => toast.show(t.enter_line.clone()),
         Some(RunEvent::WipedOut(s)) => toast.show(t.wipeout_line.replace("{secs}", &secs(s))),
         Some(RunEvent::Finished { secs: s, best }) => toast.show(
@@ -412,31 +387,77 @@ mod tests {
     }
 
     #[test]
-    fn the_ramps_are_too_steep_to_stand_on() {
-        for r in RAMPS {
-            assert!(r.face_degrees() > 46.0, "{r:?}");
-            assert!(r.top.1 < r.top.0, "ramps drop as they go");
-            assert_eq!(r.corners().len(), 6);
+    fn the_ramps_are_too_steep_to_stand_on_and_never_stack() {
+        let t = t();
+        assert!((t.ramp_height / t.ramp_half_width).atan().to_degrees() > 46.0);
+        assert!(t.stages.len() >= 3 && t.stages.iter().all(|s| !s.ramps.is_empty()));
+        let mut length = 0.0;
+        let mut ridges = Vec::new();
+        for (i, s) in t.stages.iter().enumerate() {
+            for r in &s.ramps {
+                let p = ridge(r, t.ramp_samples);
+                length += p.windows(2).map(|w| w[0].distance(w[1])).sum::<f32>();
+                assert!(
+                    p.last().is_some_and(|e| e.y < p[0].y),
+                    "ramps drop as they go"
+                );
+                ridges.extend(p.into_iter().map(|q| (i, q)));
+                assert!(!pieces(r, t.ramp_samples, t.ramp_half_width, t.ramp_height).is_empty());
+            }
+        }
+        assert!(length > 1500.0, "a long course: {length} m");
+        // No ramp of one stage hangs over another's: dropping down skips nothing.
+        for (i, (a, p)) in ridges.iter().enumerate() {
+            for (b, q) in &ridges[i + 1..] {
+                assert!(a == b || p.xz().distance(q.xz()) > 14.0, "{p} over {q}");
+            }
         }
     }
 
     #[test]
-    fn the_hall_is_over_the_city_and_holds_everything() {
+    fn the_hall_is_in_the_sky_and_holds_everything() {
         let t = t();
         let o = hall_at(&t);
         assert!(o.y > 560.0, "over One World Trade Center");
-        for c in [HALL_MIN, HALL_MAX] {
-            assert!(crate::rules::nyc::in_city(o.x + c.x, o.z + c.z));
+        let (min, max) = (Vec3::from(t.hall.0), Vec3::from(t.hall.1));
+        // Nowhere near the city, whose edges would hold you in it.
+        for c in [
+            min,
+            max,
+            Vec3::new(min.x, 0.0, max.z),
+            Vec3::new(max.x, 0.0, min.z),
+        ] {
+            assert!(!crate::rules::nyc::in_city(o.x + c.x, o.z + c.z));
         }
-        assert!(in_hall(&t, start_at(&t)).is_some());
-        assert!(on_pad(START_PAD, start_at(&t) - o));
+        assert!(unbounded(start_at(&t)) && !unbounded(street_at(&t)));
+        assert!(on_pad(start_pad(&t), start_at(&t) - o));
         for p in posts(&t) {
             assert!(in_hall(&t, p).is_some());
         }
+        for (i, s) in t.stages.iter().enumerate() {
+            let at = stage_spawn(&t, i).expect("stage");
+            assert!(on_pad(pad(s.pad), at - o));
+            assert!(!fallen(&t, at));
+            // Standing on your pad isn't falling off your stage.
+            assert_eq!(stage_step(&t, i, at - o), (i, false));
+        }
         assert!(fallen(&t, o + Vec3::new(0.0, -t.fall_below - 1.0, -80.0)));
-        assert!(!fallen(&t, start_at(&t)));
-        // The finish pad is above where you fall out.
-        assert!(FINISH_PAD.0.y > -t.fall_below);
+        assert!(finish_pad(&t).0.y > -t.fall_below && in_hall(&t, o + finish_pad(&t).0).is_some());
+    }
+
+    #[test]
+    fn stage_pads_are_checkpoints() {
+        let t = t();
+        let o = hall_at(&t);
+        let two = stage_spawn(&t, 1).expect("two stages") - o;
+        // Landing on stage 2's pad moves you on to it...
+        assert_eq!(stage_step(&t, 0, two), (1, false));
+        // ...but not back: stage 1's pad from stage 2 changes nothing.
+        let one = stage_spawn(&t, 0).expect("start") - o;
+        assert_eq!(stage_step(&t, 1, one).0, 1);
+        // Falling well below stage 2's ramps puts you back on its pad.
+        let low = stage_low(&t, 1).expect("ramps") - t.stage_fall - 1.0;
+        assert_eq!(stage_step(&t, 1, Vec3::new(two.x, low, two.z)), (1, true));
     }
 
     #[test]
@@ -452,34 +473,38 @@ mod tests {
     #[test]
     fn a_run_is_timed_from_the_pad_to_the_finish() {
         let mut run = Run::default();
+        let start = (Vec3::new(0.0, -0.5, -5.0), Vec3::new(10.0, 1.0, 10.0));
+        let fin = (Vec3::new(0.0, -34.5, -160.0), Vec3::new(16.0, 1.0, 20.0));
+        let pads = [start, fin];
         let pad = Vec3::new(0.0, 0.0, -2.0);
         let finish = Vec3::new(0.0, -34.0, -160.0);
-        assert_eq!(run_step(&mut run, Some(pad), 0.0), Some(RunEvent::Entered));
+        let away = Vec3::new(0.0, -2.0, -12.0);
         assert_eq!(
-            run_step(&mut run, Some(Vec3::new(0.0, -2.0, -12.0)), 1.0),
-            None
+            run_step(&mut run, pads, Some(pad), 0.0),
+            Some(RunEvent::Entered)
         );
+        assert_eq!(run_step(&mut run, pads, Some(away), 1.0), None);
         assert_eq!(
-            run_step(&mut run, Some(pad), 3.0),
+            run_step(&mut run, pads, Some(pad), 3.0),
             Some(RunEvent::WipedOut(2.0))
         );
-        run_step(&mut run, Some(Vec3::new(0.0, -2.0, -12.0)), 4.0);
+        run_step(&mut run, pads, Some(away), 4.0);
         assert_eq!(
-            run_step(&mut run, Some(finish), 14.0),
+            run_step(&mut run, pads, Some(finish), 14.0),
             Some(RunEvent::Finished {
                 secs: 10.0,
                 best: 10.0
             })
         );
-        run_step(&mut run, Some(Vec3::new(0.0, -2.0, -12.0)), 20.0);
+        run_step(&mut run, pads, Some(away), 20.0);
         assert_eq!(
-            run_step(&mut run, Some(finish), 32.0),
+            run_step(&mut run, pads, Some(finish), 32.0),
             Some(RunEvent::Finished {
                 secs: 12.0,
                 best: 10.0
             })
         );
-        assert_eq!(run_step(&mut run, None, 40.0), None);
+        assert_eq!(run_step(&mut run, pads, None, 40.0), None);
         assert_eq!(run.best, Some(10.0));
     }
 }

@@ -104,7 +104,7 @@ crates/game/src/
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
                 FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading/clean)
   perf.rs       FRIENDSLOP_PERF=1: log fps, frame time, entity/mesh/light counts every 5 s;
-                =2 also lists once which models own the meshes and lights
+                =2 also lists once which models own the meshes and lights; =3 GPU time per pass
   features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
 crates/base/src/     friendslop-base: player, assets, settings, voice, hud, music (MusicSignals the score's rules read), people, spatial, rigged, graphics,
                      textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
@@ -314,6 +314,7 @@ Foliage: diffuse transmission on a material lights every pixel twice (every lamp
 so leaves have it off (`data/game/trees.ron`); alpha-cut leaves rely on the camera's depth prepass
 (on whenever shadows or SSAO are) to shade only their front layer. The log shows median, p95 and
 worst frame time: the median is the steady cost, the others are hitches.
+`FRIENDSLOP_PERF=3` also logs each render pass's GPU time (timestamp queries; Vulkan/DX12).
 
 ### Actions and button hints
 

@@ -1157,7 +1157,7 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   stick moves a yellow focus ring over the title card's and settings notebook's buttons, A
   clicks, B backs out, left/right move a focused slider. A on the join-code field opens a hex
   keypad (0-f, Del, Paste, Join) so no on-screen keyboard is needed. The notebook's Controls page
-  has stick deadzone (radial, rescaled, 12% default) and look-speed sliders, saved in `pad.txt`.
+  has stick deadzone (radial, rescaled, 15% default) and look-speed sliders, saved in `pad.txt`.
   After a pad was used, prompts and hints name its buttons ("B / RT · in reach"). 1280x800
   (16:10) runs at UI scale 1 with room to spare. Not tried on a real Deck yet; the character
   creator and "Whose fault is it" panels aren't pad-navigable.

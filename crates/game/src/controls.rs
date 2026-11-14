@@ -52,6 +52,11 @@ pub const PAD_BINDINGS: &[(&str, &str)] = &[
     ("X", "fart"),
     ("Y", "help, in the journal"),
     ("D-pad up", "first person <-> overview camera"),
+    ("D-pad down", "mute the mic"),
+    (
+        "RB / LT held",
+        "more actions on the buttons (cheat sheet shows)",
+    ),
     ("View (Back)", "the journal / scoreboard"),
     ("Menu (Start)", "settings (and Leave game)"),
     ("In menus", "D-pad / stick move, A press, B back"),
@@ -235,7 +240,7 @@ pub struct PadSettings {
 
 impl PadSettings {
     pub const DEFAULT: Self = Self {
-        deadzone: 0.12,
+        deadzone: 0.15,
         look: 1.0,
     };
     pub const MAX_DEADZONE: f32 = 0.4;
@@ -603,12 +608,8 @@ fn gather(
             want_mouse |= held[1] || pad.pressed(GamepadButton::RightTrigger2);
         }
         want_keys.extend(pad_keys(layer, held));
-        for (button, key) in [
-            (GamepadButton::RightThumb, KeyCode::Enter),
-        ] {
-            if pad.pressed(button) {
-                want_keys.push(key);
-            }
+        if pad.pressed(GamepadButton::RightThumb) {
+            want_keys.push(KeyCode::Enter);
         }
     }
 

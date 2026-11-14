@@ -286,7 +286,8 @@ fn spawn_picker(world: &mut World) {
                 }
             }
             p.spawn((
-                Text::new("A press  ·  B close"),
+                Text::new(""),
+                crate::input::Hint("{confirm} press  ·  {back} close".into()),
                 body(14.0, PERIWINKLE),
                 at(pad, height - 34.0, b),
             ));
@@ -547,7 +548,8 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 at(26.0, 580.0, b),
             ));
             ui.spawn((
-                Text::new("D-pad move  ·  A select  ·  B back  ·  View settings"),
+                Text::new(""),
+                crate::input::Hint("D-pad move  ·  {confirm} select  ·  {back} back".into()),
                 body(14.0, CREAM),
                 at(26.0, 606.0, b),
                 Visibility::Hidden,

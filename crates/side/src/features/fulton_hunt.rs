@@ -829,6 +829,7 @@ fn ring_tone(rate: u32) -> Vec<f32> {
 #[allow(clippy::too_many_arguments)]
 fn ring(
     mut commands: Commands,
+    mut ctx: ResMut<crate::input::InputContexts>,
     time: Res<Time>,
     keys: Res<ButtonInput<KeyCode>>,
     mut call: ResMut<Call>,
@@ -836,7 +837,11 @@ fn ring(
     mut banner: Query<&mut Text, (With<PhoneBanner>, Without<PhoneSubtitle>)>,
     mut subtitle: Query<&mut Text, (With<PhoneSubtitle>, Without<PhoneBanner>)>,
 ) {
-    let Some(n) = call.call else { return };
+    let Some(n) = call.call else {
+        crate::input::switch(&mut ctx, "phone", false);
+        return;
+    };
+    crate::input::switch(&mut ctx, "phone", call.ringing);
     let dt = time.delta_secs();
     let at = camera.iter().next().map_or(Vec3::ZERO, |g| g.translation());
     let w = WRITING.get();
@@ -854,7 +859,7 @@ fn ring(
                 || crate::features::bear::wav_bytes(&ring_tone(22_050), 22_050),
             );
         }
-        set_text(&mut banner, &w.ringing);
+        set_text(&mut banner, &crate::input::fill(&w.ringing));
         if keys.just_pressed(KeyCode::KeyE) || call.wait <= 0.0 {
             call.ringing = false;
             call.wait = 0.3;

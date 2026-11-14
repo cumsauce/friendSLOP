@@ -335,7 +335,7 @@ fn update_tears_hud(
     rows.sort_by_key(|(p, _)| p.id);
     let left = tears.iter().count();
     let mut lines = vec![format!(
-        "gods tears: {left} of {} left, no more will fall (click one to use it)",
+        "gods tears: {left} of {} left, no more will fall ({{use}} one to use it)",
         tuning().total_tears
     )];
     for (player, t) in rows {
@@ -346,7 +346,7 @@ fn update_tears_hud(
             t.0
         ));
     }
-    let want = lines.join("\n");
+    let want = crate::input::fill(&lines.join("\n"));
     for mut text in &mut hud {
         if text.0 != want {
             text.0.clone_from(&want);

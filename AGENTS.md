@@ -297,6 +297,17 @@ every 5 s and, 25 s in, which models own the meshes and lights. Big counts usual
 with many parts: re-export it with `optimize: {preset: "game", merge: "by_material"}` (one mesh
 per material) unless the game looks its parts up by name. Video options cost most; shadows lead.
 
+### Actions and button hints
+
+Every input is an action in `assets/data/base/bindings.ron` (id, label, keys, pad button,
+help group). To add one, add a line there (and a wheel slot or context bind if a pad needs it).
+Never write a key in shown text: write `{action_id}` and pass it through `crate::input::fill`
+(`Toast::show` does it for you; a `Hint("..")` component re-fills when the device changes), so
+keyboard and every pad family see their own buttons. While an event wants A/B (an invite, a
+ringing phone), switch on its context with `input::switch(&mut ctx, "<id>", active)`; the
+context's binds and prompt bar come from the same file. A test fails on unknown ids.
+`FRIENDSLOP_INPUT=keyboard|touch|xbox|playstation|nintendo|steam` forces the device (screenshots).
+
 ### Checking UI
 
 To check UI against its design, screenshot mode can force a HUD state:

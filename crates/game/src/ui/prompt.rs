@@ -18,9 +18,8 @@ const READY_W: f32 = 248.0;
 
 /// The prompt's text: the verb card, or the too-far line. The binding names
 /// the gamepad's buttons when a pad was the last thing used (#361).
-pub fn prompt(label: Option<&str>, in_reach: bool, pad: bool) -> (String, String) {
+pub fn prompt(label: Option<&str>, in_reach: bool, how: &str) -> (String, String) {
     if in_reach {
-        let how = if pad { "B / RT" } else { "LMB" };
         (verb(label), format!("{how}  ·  in reach"))
     } else {
         ("Too far · move closer".to_string(), String::new())
@@ -123,12 +122,12 @@ fn spawn(mut commands: Commands, icons: Res<Icons>, root: Query<Entity, With<Hud
 fn update(
     hover: Res<AimHover>,
     scale: Res<UiScale>,
-    pad: Res<crate::controls::PadLast>,
     mut cards: Query<(&Card, &mut Node, &ComputedNode)>,
     mut parts: Query<(&Part, &mut Text)>,
 ) {
     let aim = hover.0;
-    let lines = aim.map(|a| prompt(a.label, a.in_reach, pad.0));
+    let how = crate::input::label("use");
+    let lines = aim.map(|a| prompt(a.label, a.in_reach, &how));
     for (card, mut node, computed) in &mut cards {
         let show = aim.is_some_and(|a| a.in_reach == (*card == Card::Ready));
         let d = if show { Display::Flex } else { Display::None };
@@ -196,14 +195,14 @@ mod tests {
     #[test]
     fn in_reach_names_the_verb_and_too_far_never_claims_reach() {
         assert_eq!(
-            prompt(Some("pet the cat"), true, false),
+            prompt(Some("pet the cat"), true, "LMB"),
             ("Pet the cat".to_string(), "LMB  ·  in reach".to_string())
         );
         assert_eq!(
-            prompt(Some("pet the cat"), true, true).1,
+            prompt(Some("pet the cat"), true, "B / RT").1,
             "B / RT  ·  in reach"
         );
-        let (far, line) = prompt(Some("pet the cat"), false, true);
+        let (far, line) = prompt(Some("pet the cat"), false, "B / RT");
         assert_eq!(far, "Too far · move closer");
         assert!(line.is_empty());
     }

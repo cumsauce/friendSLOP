@@ -248,7 +248,8 @@ fn smoke_xp(mut players: Query<&mut Skills, Added<super::smoking::Smoking>>) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_ui)
+    app.add_systems(Update, asleep_context)
+        .add_systems(OnEnter(AppState::InGame), spawn_ui)
         .add_systems(
             Update,
             (
@@ -315,7 +316,8 @@ fn show_skills(
         .collect::<Vec<_>>()
         .join(" · ");
     if asleep {
-        want = format!("zzz (Z to get up)\n{want}");
+        let zzz = crate::input::fill("zzz ({sleep} to get up)");
+        want = format!("{zzz}\n{want}");
     }
     // Quiet: shows on a level-up, stays while you sleep (how to get up).
     for (mut t, mut calm) in &mut text {
@@ -397,6 +399,16 @@ fn shrink_puddles(time: Res<Time>, mut puddles: Query<(&mut PuddleAge, &mut Tran
         let s = puddle_scale(age.0);
         tf.scale = Vec3::new(s, 1.0, s);
     }
+}
+
+/// While you sleep, a pad's A gets you up (the "asleep" input context).
+fn asleep_context(
+    mut ctx: ResMut<crate::input::InputContexts>,
+    me: Option<Res<LocalPlayer>>,
+    players: Query<(&Player, Has<Asleep>)>,
+) {
+    let on = me.is_some_and(|m| players.iter().any(|(p, a)| a && p.id == m.0));
+    crate::input::switch(&mut ctx, "asleep", on);
 }
 
 #[cfg(test)]

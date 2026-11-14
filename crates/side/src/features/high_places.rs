@@ -395,6 +395,12 @@ fn elevator(
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Smoke>()
+        .add_systems(
+            Update,
+            |s: Res<Smoke>, mut ctx: ResMut<crate::input::InputContexts>| {
+                crate::input::switch(&mut ctx, "smoking", s.0.is_some());
+            },
+        )
         .add_observer(show_news)
         .add_observer(click)
         .add_systems(OnEnter(AppState::InGame), build)
@@ -540,13 +546,14 @@ fn play(
     );
     vis.set_if_neq(Visibility::Inherited);
     let line = format!(
-        "ember [{}]{}  lungs [{}]\nsmoked {:.0}%  wasted {:.0}%  (left click to draw)",
+        "ember [{}]{}  lungs [{}]\nsmoked {:.0}%  wasted {:.0}%  ({{draw}} to draw)",
         bar(j.heat),
         if j.lit { "" } else { " OUT" },
         bar(j.lungs),
         j.smoked * 100.0,
         j.wasted * 100.0,
     );
+    let line = crate::input::fill(&line);
     // Only touch the text when it reads differently (a change re-lays it out).
     if text.0 != line {
         text.0 = line;

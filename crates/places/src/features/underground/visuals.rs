@@ -89,7 +89,7 @@ fn guide(
                     turn_word(fwd, dir)
                 )
             }
-            None => "Way up: find a ladder and click it to climb out".to_string(),
+            None => crate::input::fill("Way up: find a ladder and {use} it to climb out"),
         }
     } else {
         String::new()

@@ -1433,15 +1433,15 @@ fn show_status(
             } else if wh.delivered >= SOUL_PIECES {
                 "Jegg is whole again. The warehouse is quiet.".to_string()
             } else if wh.seed.is_some() {
-                format!("The warehouse is open: click its door to go back in. {have}.")
+                format!("The warehouse is open: {{use}} its door to go back in. {have}.")
             } else {
                 let agreed = if me.is_some_and(|id| wh.votes.contains(&id)) {
-                    " (you agreed; click again to take it back)"
+                    " (you agreed; {use} again to take it back)"
                 } else {
                     ""
                 };
                 format!(
-                    "The warehouse: {}/{} agree to go in{agreed}. Everyone must click the door. {have}.",
+                    "The warehouse: {}/{} agree to go in{agreed}. Everyone must {{use}} the door. {have}.",
                     wh.votes.len(),
                     players
                 )
@@ -1449,6 +1449,7 @@ fn show_status(
         }
         _ => String::new(),
     };
+    let want = crate::input::fill(&want);
     for mut t in &mut text {
         if t.0 != want {
             t.0.clone_from(&want);

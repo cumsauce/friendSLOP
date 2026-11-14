@@ -127,7 +127,9 @@ pub fn plugin(app: &mut App) {
 
 fn climb_help(mut commands: Commands) {
     commands.spawn((
-        Text::new("climbing: hold W and Space against a wall, rock or tree to climb it."),
+        Text::new(crate::input::fill(
+            "climbing: hold {move} and {jump} against a wall, rock or tree to climb it.",
+        )),
         crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));

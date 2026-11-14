@@ -440,7 +440,7 @@ fn cast_or_fire(
     let mic_live = voice.is_some_and(|v| matches!(v.mic, DeviceState::Live(_)));
     let self_muted = self_muted.is_some_and(|m| m.0);
     if !voice_says_it(mic_live, self_muted, spoke.0) {
-        toast.show("say \"mute\" out loud while you press Q");
+        toast.show("say \"mute\" out loud while you press {mute_spell}");
         return;
     }
     let others: Vec<(u64, Vec3)> = walkers

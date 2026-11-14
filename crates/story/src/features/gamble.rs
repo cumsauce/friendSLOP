@@ -741,7 +741,7 @@ fn update_hud(
 fn spawn_help(mut commands: Commands) {
     commands.spawn((
         Text::new(
-            "Marmalade's wheel (south of the bonfire): spin to make the game fairer or crueller for everyone. Tab shows the house rules",
+            crate::input::fill("Marmalade's wheel (south of the bonfire): spin to make the game fairer or crueller for everyone. {journal} shows the house rules"),
         ),
         crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),

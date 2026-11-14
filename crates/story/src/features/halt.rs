@@ -265,7 +265,9 @@ pub fn halt_line(h: &Halt, user: &str, os: &str, clock: &str) -> String {
             .to_string(),
         None if h.escapes > 0 && h.escape < 10 => REBOOT_TAUNT.to_string(),
         None => match h.wrath {
-            0..=24 => format!("I see you, {user}. G to pry, if you dare."),
+            0..=24 => {
+                crate::input::fill(&format!("I see you, {user}. {{pry}} to pry, if you dare."))
+            }
             25..=49 => format!("It is {clock} on {os}. You should be asleep."),
             50..=74 => format!("Close the window, {user}. I will still be here."),
             _ => format!("{user}. {user}. {user}. I HATE YOU."),

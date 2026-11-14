@@ -285,7 +285,9 @@ fn spawn_mushroom_text(mut commands: Commands) {
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
-        Text::new("mushroom: click it to eat it and change your voice for a while"),
+        Text::new(crate::input::fill(
+            "mushroom: {use} it to eat it and change your voice for a while",
+        )),
         crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));

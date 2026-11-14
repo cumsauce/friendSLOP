@@ -11,16 +11,15 @@
 //! Touch: put your left thumb down anywhere on the left side for a joystick
 //! (it appears under your thumb), drag anywhere else on the right to look,
 //! and tap the round buttons. The overlay only shows once the screen has been
-//! touched. Gamepad: left stick move, right stick look, A jump, B or RT use,
-//! LB (or clicking the left stick) run, X fart, Y help, Back scoreboard,
-//! D-pad up camera, down mute, left journal, right answer the phone, right
-//! stick click "Enter". Holding RB or LT (#361) switches the face buttons
-//! and D-pad to a second / third set of keys so every keyboard-only action
-//! reaches a pad (Steam Deck): a cheat sheet shows while one is held
-//! ([`PAD_LAYERS`]). Start opens the settings notebook (its "Leave game"
-//! button leaves). Menus (the title screen, the notebook) take the pad
-//! instead: D-pad / left stick move the focus, A clicks, B backs out
-//! (`ui::pad_nav`). Stick feel (look speed, response curve, deadzone) is
+//! touched. Gamepad: every button's action comes from
+//! `assets/data/base/bindings.ron` ([`crate::input`]): it presses that
+//! action's key, so features don't know about pads. Rare actions sit on the
+//! action wheel (hold RB, point the right stick, let go; LB flips the page).
+//! While an event is on (a duel invite, the phone, a chapter card, smoking,
+//! sleeping) its context takes over buttons and a prompt bar says which.
+//! Menus (the title screen, the notebook) take the pad instead: D-pad / left
+//! stick move the focus, A clicks, B backs out (`ui::pad_nav`). Stick feel
+//! (look speed, response curve, deadzone) is
 //! `assets/data/game/controls.ron`.
 
 use std::collections::HashMap;
@@ -41,26 +40,10 @@ pub use friendslop_base::controls::*;
 const TOUCH_LOOK: f32 = 0.006;
 /// Joystick throw in logical pixels.
 const STICK_RADIUS: f32 = 60.0;
-/// The gamepad's bindings, for the settings notebook's Controls page (Xbox
-/// names: the Steam Deck shows its pad as one).
-pub const PAD_BINDINGS: &[(&str, &str)] = &[
-    ("Left stick", "walk (click: run)"),
-    ("Right stick", "look around"),
-    ("A", "jump"),
-    ("B / RT", "use what's under the crosshair"),
-    ("LB", "run (hold)"),
-    ("X", "fart"),
-    ("Y", "help, in the journal"),
-    ("D-pad up", "first person <-> overview camera"),
-    ("D-pad down", "mute the mic"),
-    (
-        "RB / LT held",
-        "more actions on the buttons (cheat sheet shows)",
-    ),
-    ("View (Back)", "the journal / scoreboard"),
-    ("Menu (Start)", "settings (and Leave game)"),
-    ("In menus", "D-pad / stick move, A press, B back"),
-];
+/// Every binding for the notebook's Controls page, for `device`.
+pub fn bindings_list(device: crate::input::InputDevice) -> Vec<(String, String)> {
+    crate::input::help_rows(device)
+}
 
 /// Whether a gamepad was the last thing used (#361): prompts and menus name
 /// its buttons then.
@@ -68,26 +51,74 @@ pub const PAD_BINDINGS: &[(&str, &str)] = &[
 pub struct PadLast(pub bool);
 
 /// Real devices only: `gather` presses keys for the pad in `ButtonInput`,
-/// but never sends keyboard or mouse messages.
+/// but never sends keyboard or mouse messages. Also sets
+/// [`crate::input::InputDevice`] (which names hints use).
+#[allow(clippy::too_many_arguments)]
 fn track_last_input(
     pads: Query<&Gamepad>,
     mut keys: MessageReader<KeyboardInput>,
     mut clicks: MessageReader<MouseButtonInput>,
     motion: Res<AccumulatedMouseMotion>,
     touches: Res<Touches>,
+    cfg: Res<PadSettings>,
     mut last: ResMut<PadLast>,
+    mut device: ResMut<crate::input::InputDevice>,
 ) {
-    let pad = pads.iter().any(|p| {
+    use crate::input::{InputDevice, PadFamily};
+    let active = pads.iter().find(|p| {
         p.get_just_pressed().next().is_some()
             || p.left_stick().length() > 0.5
             || p.right_stick().length() > 0.5
     });
-    let other = keys.read().count() > 0
-        || clicks.read().count() > 0
-        || motion.delta.length() > 4.0
-        || touches.any_just_pressed();
-    let want = pad || (!other && last.0);
+    let other = keys.read().count() > 0 || clicks.read().count() > 0 || motion.delta.length() > 4.0;
+    let want = active.is_some() || (!other && !touches.any_just_pressed() && last.0);
     last.set_if_neq(PadLast(want));
+    if forced_device().is_some() {
+        return;
+    }
+    let next = if let Some(p) = active {
+        InputDevice::Pad(cfg.labels.unwrap_or(PadFamily::from_vendor(p.vendor_id())))
+    } else if touches.any_just_pressed() {
+        InputDevice::Touch
+    } else if other {
+        InputDevice::KeyboardMouse
+    } else if let InputDevice::Pad(_) = *device {
+        // The label setting changed while on a pad.
+        let fam = cfg
+            .labels
+            .or_else(|| {
+                pads.iter()
+                    .next()
+                    .map(|p| PadFamily::from_vendor(p.vendor_id()))
+            })
+            .unwrap_or_default();
+        InputDevice::Pad(fam)
+    } else {
+        *device
+    };
+    if *device != next {
+        *device = next;
+        crate::input::set_device(next);
+    }
+}
+
+/// `FRIENDSLOP_INPUT=keyboard|touch|xbox|playstation|nintendo|steam` pins the
+/// device hints name (for screenshots).
+fn forced_device() -> Option<crate::input::InputDevice> {
+    use crate::input::{InputDevice, PadFamily};
+    let v = std::env::var("FRIENDSLOP_INPUT").ok()?;
+    match v.as_str() {
+        "keyboard" => Some(InputDevice::KeyboardMouse),
+        "touch" => Some(InputDevice::Touch),
+        other => PadFamily::from_name(other).map(InputDevice::Pad),
+    }
+}
+
+fn force_device(mut device: ResMut<crate::input::InputDevice>) {
+    if let Some(d) = forced_device() {
+        *device = d;
+        crate::input::set_device(d);
+    }
 }
 
 /// Touch-stick deadzone (the pad's is a setting, [`PadSettings`]).
@@ -108,97 +139,6 @@ pub struct PadTuning {
 pub static PAD: friendslop_data::Data<PadTuning> =
     friendslop_data::Data::ron("data/game/controls.ron");
 
-/// Which set of keys the face buttons and D-pad press.
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum PadLayer {
-    Base,
-    /// RB held.
-    Shift,
-    /// LT held.
-    Alt,
-}
-
-/// Face buttons then D-pad, in this order, per layer.
-const PAD_SLOTS: [GamepadButton; 8] = [
-    GamepadButton::South,
-    GamepadButton::East,
-    GamepadButton::West,
-    GamepadButton::North,
-    GamepadButton::DPadUp,
-    GamepadButton::DPadDown,
-    GamepadButton::DPadLeft,
-    GamepadButton::DPadRight,
-];
-
-/// (key, cheat-sheet label) per slot; `None` = jump / use (base layer).
-type Slot = (Option<KeyCode>, &'static str);
-
-/// The three layers. Base A/B are jump and use, handled separately.
-pub const PAD_LAYERS: [(PadLayer, [Slot; 8]); 3] = [
-    (
-        PadLayer::Base,
-        [
-            (None, "jump"),
-            (None, "use"),
-            (Some(KeyCode::KeyF), "fart"),
-            (Some(KeyCode::KeyH), "help"),
-            (Some(KeyCode::KeyV), "camera"),
-            (Some(KeyCode::KeyM), "mute"),
-            (Some(KeyCode::KeyJ), "journal"),
-            (Some(KeyCode::KeyE), "answer"),
-        ],
-    ),
-    (
-        PadLayer::Shift,
-        [
-            (Some(KeyCode::KeyY), "yes"),
-            (Some(KeyCode::KeyN), "no"),
-            (Some(KeyCode::KeyZ), "sleep"),
-            (Some(KeyCode::KeyX), "piss"),
-            (Some(KeyCode::KeyR), "cast"),
-            (Some(KeyCode::KeyG), "pry"),
-            (Some(KeyCode::KeyK), "hide & seek"),
-            (Some(KeyCode::KeyL), "lex"),
-        ],
-    ),
-    (
-        PadLayer::Alt,
-        [
-            (Some(KeyCode::KeyP), "smoke"),
-            (Some(KeyCode::KeyB), "brag"),
-            (Some(KeyCode::KeyI), "insure"),
-            (Some(KeyCode::KeyQ), "mute spell"),
-            (Some(KeyCode::Digit1), "duel 1"),
-            (Some(KeyCode::Digit3), "duel 3"),
-            (Some(KeyCode::Digit4), "duel 4"),
-            (Some(KeyCode::Digit2), "duel 2"),
-        ],
-    ),
-];
-
-/// The layer for what's held: RB wins over LT.
-pub fn pad_layer(rb: bool, lt: bool) -> PadLayer {
-    if rb {
-        PadLayer::Shift
-    } else if lt {
-        PadLayer::Alt
-    } else {
-        PadLayer::Base
-    }
-}
-
-/// Keys the held slots press on this layer.
-pub fn pad_keys(layer: PadLayer, held: [bool; 8]) -> Vec<KeyCode> {
-    let Some((_, slots)) = PAD_LAYERS.iter().find(|(l, _)| *l == layer) else {
-        return Vec::new();
-    };
-    slots
-        .iter()
-        .zip(held)
-        .filter_map(|((k, _), h)| if h { *k } else { None })
-        .collect()
-}
-
 /// Shapes a look stick: deadzone, then `|v|^curve` keeping direction.
 pub fn look_response(v: Vec2, deadzone: f32, curve: f32) -> Vec2 {
     let len = v.length();
@@ -209,25 +149,6 @@ pub fn look_response(v: Vec2, deadzone: f32, curve: f32) -> Vec2 {
     v / len * t
 }
 
-/// The cheat sheet's text for a layer.
-pub fn cheat_sheet(layer: PadLayer) -> String {
-    let names = ["A", "B", "X", "Y", "Up", "Down", "Left", "Right"];
-    let Some((_, slots)) = PAD_LAYERS.iter().find(|(l, _)| *l == layer) else {
-        return String::new();
-    };
-    let title = match layer {
-        PadLayer::Base => "Pad",
-        PadLayer::Shift => "RB +",
-        PadLayer::Alt => "LT +",
-    };
-    let body: Vec<String> = names
-        .iter()
-        .zip(slots)
-        .map(|(n, (_, label))| format!("{n} {label}"))
-        .collect();
-    format!("{title}  {}", body.join("   "))
-}
-
 /// Gamepad feel (#361), changed in the settings notebook's Controls page and
 /// saved locally like the video options (`pad.txt`).
 #[derive(Resource, Debug, Clone, Copy, PartialEq)]
@@ -236,12 +157,15 @@ pub struct PadSettings {
     pub deadzone: f32,
     /// Look speed, a multiple of the default, `LOOK_MIN..=LOOK_MAX`.
     pub look: f32,
+    /// Button names in hints: `None` = from the pad, else this family.
+    pub labels: Option<crate::input::PadFamily>,
 }
 
 impl PadSettings {
     pub const DEFAULT: Self = Self {
         deadzone: 0.15,
         look: 1.0,
+        labels: None,
     };
     pub const MAX_DEADZONE: f32 = 0.4;
     pub const LOOK_MIN: f32 = 0.25;
@@ -249,7 +173,12 @@ impl PadSettings {
     const FILE: &str = "pad.txt";
 
     pub fn to_text(self) -> String {
-        format!("deadzone={}\nlook={}\n", self.deadzone, self.look)
+        format!(
+            "deadzone={}\nlook={}\nlabels={}\n",
+            self.deadzone,
+            self.look,
+            self.labels.map_or("auto", |f| f.name())
+        )
     }
 
     /// Read [`Self::to_text`]; missing or broken lines keep their defaults.
@@ -259,6 +188,10 @@ impl PadSettings {
             let Some((k, v)) = line.split_once('=') else {
                 continue;
             };
+            if k.trim() == "labels" {
+                p.labels = crate::input::PadFamily::from_name(v.trim());
+                continue;
+            }
             let Ok(v) = v.trim().parse::<f32>() else {
                 continue;
             };
@@ -288,6 +221,7 @@ impl PadSettings {
                 Self::LOOK_MAX,
                 Self::DEFAULT.look,
             ),
+            labels: self.labels,
         }
     }
 }
@@ -424,14 +358,63 @@ struct TouchState {
     /// Keys / mouse buttons we pressed last frame, released when no longer held.
     keys: Vec<KeyCode>,
     mouse: bool,
-    /// The pad layer held this frame (shows the cheat sheet).
-    layer: Option<PadLayer>,
+    /// The action wheel, while its button is held.
+    wheel: Option<Wheel>,
     /// A menu had the pad: ignore A / B / RT until they're let go.
     pad_hold: bool,
 }
 
+/// The action wheel's state while it's open.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Wheel {
+    pub page: usize,
+    /// The slice the right stick points at.
+    pub aim: Option<usize>,
+}
+
+/// Pure: the slice (0 = top, clockwise) a stick direction points at among
+/// `n`, or `None` near the middle.
+pub fn wheel_slice(stick: Vec2, n: usize) -> Option<usize> {
+    if n == 0 || stick.length() < 0.5 {
+        return None;
+    }
+    // Clockwise from straight up (stick y is up).
+    let a = stick.x.atan2(stick.y).rem_euclid(std::f32::consts::TAU);
+    let step = std::f32::consts::TAU / n as f32;
+    Some(((a + step / 2.0) / step) as usize % n)
+}
+
+/// Every pad button the bindings may name.
+const PAD_BUTTONS: [GamepadButton; 16] = [
+    GamepadButton::South,
+    GamepadButton::East,
+    GamepadButton::West,
+    GamepadButton::North,
+    GamepadButton::LeftTrigger,
+    GamepadButton::RightTrigger,
+    GamepadButton::LeftTrigger2,
+    GamepadButton::RightTrigger2,
+    GamepadButton::Select,
+    GamepadButton::Start,
+    GamepadButton::LeftThumb,
+    GamepadButton::RightThumb,
+    GamepadButton::DPadUp,
+    GamepadButton::DPadDown,
+    GamepadButton::DPadLeft,
+    GamepadButton::DPadRight,
+];
+
 #[derive(Component)]
-struct PadSheet;
+struct WheelRoot;
+
+#[derive(Component)]
+struct WheelSlot(usize);
+
+#[derive(Component)]
+struct WheelTitle;
+
+#[derive(Component)]
+struct PromptBar;
 
 #[derive(Component)]
 struct TouchOverlay;
@@ -451,12 +434,16 @@ pub fn plugin(app: &mut App) {
         .init_resource::<TouchState>()
         .init_resource::<PadSettings>()
         .init_resource::<PadLast>()
+        .add_systems(Startup, force_device)
         .add_systems(PreUpdate, track_last_input.after(InputSystems))
-        .add_systems(OnEnter(AppState::InGame), (spawn_overlay, spawn_sheet))
+        .add_systems(
+            OnEnter(AppState::InGame),
+            (spawn_overlay, spawn_wheel, spawn_prompt_bar),
+        )
         .add_systems(PreUpdate, gather.after(InputSystems))
         .add_systems(
             Update,
-            (draw_overlay, draw_sheet).run_if(in_state(AppState::InGame)),
+            (draw_overlay, draw_wheel, draw_prompt_bar).run_if(in_state(AppState::InGame)),
         )
         .add_systems(PostUpdate, save_pad_settings);
 }
@@ -481,6 +468,7 @@ fn gather(
     state: Res<State<AppState>>,
     overlay: Res<crate::ui::Overlay>,
     pad_cfg: Res<PadSettings>,
+    mut contexts: ResMut<crate::input::InputContexts>,
     mut mode: ResMut<TouchMode>,
     mut st: ResMut<TouchState>,
     mut out: ResMut<VirtualInput>,
@@ -571,19 +559,21 @@ fn gather(
             || p.pressed(GamepadButton::RightTrigger2)
     });
     st.pad_hold = ui || (st.pad_hold && held_any);
-    st.layer = None;
+    crate::input::switch(&mut contexts, "menu", ui);
+    let binds = crate::input::BINDINGS.get();
+    let wheel_buttons = binds.pad_for("wheel", &contexts.0);
+    let was_wheel = st.wheel;
+    let mut wheel_now: Option<Wheel> = None;
     for pad in &gamepads {
-        for (button, key) in [
-            (GamepadButton::Select, KeyCode::Tab),
-            (GamepadButton::Start, KeyCode::Escape),
-        ] {
-            if pad.pressed(button) {
-                want_keys.push(key);
-            }
-        }
         if ui {
-            if pad.pressed(GamepadButton::East) {
-                want_keys.push(KeyCode::Escape);
+            for (button, key) in [
+                (GamepadButton::Select, KeyCode::Tab),
+                (GamepadButton::Start, KeyCode::Escape),
+                (GamepadButton::East, KeyCode::Escape),
+            ] {
+                if pad.pressed(button) {
+                    want_keys.push(key);
+                }
             }
             continue;
         }
@@ -591,27 +581,60 @@ fn gather(
         if move_stick != Vec2::ZERO {
             out.stick = move_stick;
         }
+        // The wheel: hold its button, point the right stick, let go.
+        if wheel_buttons.iter().any(|b| pad.pressed(*b)) {
+            let mut w = was_wheel.unwrap_or_default();
+            if pad.just_pressed(GamepadButton::LeftTrigger) && !binds.wheel.is_empty() {
+                w.page = (w.page + 1) % binds.wheel.len();
+                w.aim = None;
+            }
+            let n = binds.wheel.get(w.page).map_or(0, Vec::len);
+            if let Some(a) = wheel_slice(pad.right_stick(), n) {
+                w.aim = Some(a);
+            } else if pad.right_stick().length() < 0.2 && pad.just_pressed(GamepadButton::East) {
+                w.aim = None;
+            }
+            wheel_now = Some(w);
+            continue;
+        }
         let look = look_response(pad.right_stick(), pad_cfg.deadzone, tune.look_curve);
         out.look +=
             Vec2::new(look.x, -look.y * tune.look_vertical) * tune.look_speed * pad_cfg.look * dt;
-        out.run |= pad.pressed(GamepadButton::LeftTrigger) || pad.pressed(GamepadButton::LeftThumb);
-        let layer = pad_layer(
-            pad.pressed(GamepadButton::RightTrigger),
-            pad.pressed(GamepadButton::LeftTrigger2),
-        );
-        if layer != PadLayer::Base {
-            st.layer = Some(layer);
-        }
-        let held = PAD_SLOTS.map(|b| pad.pressed(b));
-        if layer == PadLayer::Base && !st.pad_hold {
-            out.jump |= held[0];
-            want_mouse |= held[1] || pad.pressed(GamepadButton::RightTrigger2);
-        }
-        want_keys.extend(pad_keys(layer, held));
-        if pad.pressed(GamepadButton::RightThumb) {
-            want_keys.push(KeyCode::Enter);
+        for button in PAD_BUTTONS {
+            if !pad.pressed(button) {
+                continue;
+            }
+            let held_over = st.pad_hold
+                && matches!(
+                    button,
+                    GamepadButton::South | GamepadButton::East | GamepadButton::RightTrigger2
+                );
+            if held_over {
+                continue;
+            }
+            match binds.pad_action(button, &contexts.0) {
+                Some("jump") => out.jump = true,
+                Some("run") => out.run = true,
+                Some("use") => want_mouse = true,
+                Some("wheel") | None => {}
+                Some(id) => match binds.action(id).and_then(|a| a.keys.first()) {
+                    Some(k) if k == "Mouse:Left" => want_mouse = true,
+                    Some(k) => want_keys.extend(crate::input::key_code(k)),
+                    None => {}
+                },
+            }
         }
     }
+    // Letting go of the wheel fires what it pointed at (one frame's press).
+    if wheel_now.is_none()
+        && let Some(w) = was_wheel
+        && let Some(i) = w.aim
+        && let Some(id) = binds.wheel.get(w.page).and_then(|p| p.get(i))
+        && let Some(k) = binds.keys_for(id).first()
+    {
+        want_keys.push(*k);
+    }
+    st.wheel = wheel_now;
 
     if leave {
         // Skip "first Esc frees the cursor": there is no cursor on a phone.
@@ -648,28 +671,157 @@ fn gather(
     }
 }
 
-fn spawn_sheet(mut commands: Commands) {
+/// Radius of the wheel's ring of labels (px).
+const WHEEL_R: f32 = 150.0;
+
+fn spawn_wheel(mut commands: Commands) {
+    commands
+        .spawn((
+            Name::new("Action wheel"),
+            WheelRoot,
+            Node {
+                position_type: PositionType::Absolute,
+                width: percent(100),
+                height: percent(100),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            Pickable::IGNORE,
+            Visibility::Hidden,
+            GlobalZIndex(60),
+            DespawnOnExit(AppState::InGame),
+        ))
+        .with_children(|ui| {
+            ui.spawn((
+                Node {
+                    width: px(WHEEL_R * 2.0 + 160.0),
+                    height: px(WHEEL_R * 2.0 + 60.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    border_radius: BorderRadius::all(px(WHEEL_R + 60.0)),
+                    ..default()
+                },
+                BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.45)),
+                Pickable::IGNORE,
+            ))
+            .with_children(|ring| {
+                ring.spawn((
+                    WheelTitle,
+                    Text::new(""),
+                    TextFont::from_font_size(15.0),
+                    TextColor(LABEL),
+                    Pickable::IGNORE,
+                ));
+                for i in 0..8 {
+                    let a = i as f32 / 8.0 * std::f32::consts::TAU;
+                    let (x, y) = (a.sin() * WHEEL_R, -a.cos() * WHEEL_R * 0.8);
+                    ring.spawn((
+                        WheelSlot(i),
+                        Node {
+                            position_type: PositionType::Absolute,
+                            left: px(WHEEL_R + 80.0 + x - 70.0),
+                            top: px(WHEEL_R + 30.0 + y - 14.0),
+                            width: px(140.0),
+                            justify_content: JustifyContent::Center,
+                            padding: UiRect::axes(px(8), px(4)),
+                            border_radius: BorderRadius::all(px(10)),
+                            ..default()
+                        },
+                        BackgroundColor(Color::NONE),
+                        Pickable::IGNORE,
+                        children![(
+                            Text::new(""),
+                            TextFont::from_font_size(16.0),
+                            TextColor(LABEL),
+                            TextLayout::justify(Justify::Center),
+                            Pickable::IGNORE,
+                        )],
+                    ));
+                }
+            });
+        });
+}
+
+/// Shows the wheel's page while it's open, the aimed slice lit.
+fn draw_wheel(
+    st: Res<TouchState>,
+    device: Res<crate::input::InputDevice>,
+    mut root: Query<&mut Visibility, With<WheelRoot>>,
+    mut slots: Query<(&WheelSlot, &mut BackgroundColor, &Children)>,
+    mut title: Query<&mut Text, With<WheelTitle>>,
+    mut texts: Query<&mut Text, Without<WheelTitle>>,
+) {
+    let want = if st.wheel.is_some() {
+        Visibility::Inherited
+    } else {
+        Visibility::Hidden
+    };
+    for mut v in &mut root {
+        v.set_if_neq(want);
+    }
+    let Some(w) = st.wheel else { return };
+    let b = crate::input::BINDINGS.get();
+    let page = b.wheel.get(w.page).cloned().unwrap_or_default();
+    for (slot, mut bg, children) in &mut slots {
+        let label = page
+            .get(slot.0)
+            .and_then(|id| b.action(id))
+            .map_or(String::new(), |a| a.label.clone());
+        let lit = w.aim == Some(slot.0) && !label.is_empty();
+        let c = if lit { DOT_HELD } else { Color::NONE };
+        if bg.0 != c {
+            bg.0 = c;
+        }
+        for c in children {
+            if let Ok(mut t) = texts.get_mut(*c)
+                && t.0 != label
+            {
+                t.0.clone_from(&label);
+            }
+        }
+    }
+    let flip = match *device {
+        crate::input::InputDevice::Pad(f) => {
+            crate::input::button_label(GamepadButton::LeftTrigger, f)
+        }
+        _ => "LB",
+    };
+    let want = if b.wheel.len() > 1 {
+        format!("page {}/{}\n{flip}: next page", w.page + 1, b.wheel.len())
+    } else {
+        String::new()
+    };
+    for mut t in &mut title {
+        if t.0 != want {
+            t.0.clone_from(&want);
+        }
+    }
+}
+
+fn spawn_prompt_bar(mut commands: Commands) {
     commands.spawn((
-        Name::new("Pad cheat sheet"),
-        PadSheet,
+        Name::new("Prompt bar"),
+        PromptBar,
         Node {
             position_type: PositionType::Absolute,
-            bottom: px(90),
+            bottom: px(130),
             width: percent(100),
             justify_content: JustifyContent::Center,
             ..default()
         },
         Pickable::IGNORE,
         Visibility::Hidden,
-        GlobalZIndex(60),
+        GlobalZIndex(55),
         DespawnOnExit(AppState::InGame),
         children![(
             Text::new(""),
-            TextFont::from_font_size(16.0),
+            TextFont::from_font_size(18.0),
             TextColor(LABEL),
             BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.55)),
             Node {
-                padding: UiRect::axes(px(12), px(6)),
+                padding: UiRect::axes(px(14), px(6)),
+                border_radius: BorderRadius::all(px(10)),
                 ..default()
             },
             Pickable::IGNORE,
@@ -677,28 +829,50 @@ fn spawn_sheet(mut commands: Commands) {
     ));
 }
 
-/// Shows which keys the held layer's buttons press.
-fn draw_sheet(
-    st: Res<TouchState>,
-    mut sheet: Query<(&mut Visibility, &Children), With<PadSheet>>,
+/// Pure: the prompt bar's text for the top context ("A accept   B decline").
+pub fn prompt_line(
+    b: &crate::input::Bindings,
+    device: crate::input::InputDevice,
+    contexts: &[String],
+) -> String {
+    let Some(top) = contexts.last().and_then(|c| b.context(c)) else {
+        return String::new();
+    };
+    top.prompt
+        .iter()
+        .filter_map(|id| {
+            b.action(id).map(|a| {
+                format!(
+                    "{}  {}",
+                    crate::input::label_with(b, id, device, contexts),
+                    a.label
+                )
+            })
+        })
+        .collect::<Vec<_>>()
+        .join("     ")
+}
+
+fn draw_prompt_bar(
+    contexts: Res<crate::input::InputContexts>,
+    device: Res<crate::input::InputDevice>,
+    mut bar: Query<(&mut Visibility, &Children), With<PromptBar>>,
     mut text: Query<&mut Text>,
 ) {
-    let Ok((mut vis, children)) = sheet.single_mut() else {
+    let Ok((mut vis, children)) = bar.single_mut() else {
         return;
     };
-    let want = if st.layer.is_some() {
-        Visibility::Inherited
-    } else {
+    let line = prompt_line(&crate::input::BINDINGS.get(), *device, &contexts.0);
+    vis.set_if_neq(if line.is_empty() {
         Visibility::Hidden
-    };
-    vis.set_if_neq(want);
-    let Some(layer) = st.layer else { return };
+    } else {
+        Visibility::Inherited
+    });
     for c in children {
-        if let Ok(mut t) = text.get_mut(*c) {
-            let s = cheat_sheet(layer);
-            if t.0 != s {
-                t.0 = s;
-            }
+        if let Ok(mut t) = text.get_mut(*c)
+            && t.0 != line
+        {
+            t.0.clone_from(&line);
         }
     }
 }
@@ -880,6 +1054,7 @@ mod tests {
         let p = PadSettings {
             deadzone: 0.25,
             look: 1.5,
+            labels: Some(crate::input::PadFamily::PlayStation),
         };
         assert_eq!(PadSettings::from_text(&p.to_text()), p);
         assert_eq!(PadSettings::from_text("junk"), PadSettings::DEFAULT);
@@ -890,30 +1065,13 @@ mod tests {
     }
 
     #[test]
-    fn pad_layers() {
-        assert_eq!(pad_layer(true, true), PadLayer::Shift);
-        assert_eq!(pad_layer(false, true), PadLayer::Alt);
-        let mut held = [false; 8];
-        held[0] = true; // A: jump on base (no key), "yes" on RB
-        held[2] = true;
-        assert_eq!(pad_keys(PadLayer::Base, held), vec![KeyCode::KeyF]);
-        assert_eq!(
-            pad_keys(PadLayer::Shift, held),
-            vec![KeyCode::KeyY, KeyCode::KeyZ]
-        );
-        assert!(cheat_sheet(PadLayer::Alt).contains("smoke"));
-    }
-
-    #[test]
-    fn no_key_on_two_slots() {
-        let mut all: Vec<KeyCode> = PAD_LAYERS
-            .iter()
-            .flat_map(|(_, s)| s.iter().filter_map(|(k, _)| *k))
-            .collect();
-        let n = all.len();
-        all.sort_by_key(|k| format!("{k:?}"));
-        all.dedup();
-        assert_eq!(all.len(), n);
+    fn wheel_slices_go_clockwise_from_the_top() {
+        assert_eq!(wheel_slice(Vec2::new(0.0, 1.0), 8), Some(0));
+        assert_eq!(wheel_slice(Vec2::new(1.0, 0.0), 8), Some(2));
+        assert_eq!(wheel_slice(Vec2::new(0.0, -1.0), 8), Some(4));
+        assert_eq!(wheel_slice(Vec2::new(-1.0, 0.0), 8), Some(6));
+        assert_eq!(wheel_slice(Vec2::new(-0.7, 0.7), 8), Some(7));
+        assert_eq!(wheel_slice(Vec2::new(0.1, 0.1), 8), None);
     }
 
     #[test]

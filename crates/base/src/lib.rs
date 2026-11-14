@@ -16,6 +16,7 @@ pub mod voice_chat {
 pub mod assets;
 pub mod graphics;
 pub mod hud;
+pub mod input;
 pub mod music;
 pub mod people;
 pub mod player;
@@ -63,5 +64,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &rules::surf::TUNING,
         &rules::kori::EARNINGS,
         &textures::GLASS,
+        &input::BINDINGS,
     ]
 }

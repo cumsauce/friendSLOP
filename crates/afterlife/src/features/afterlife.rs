@@ -1164,7 +1164,9 @@ pub fn hud_lines(me: u64, dead: &[(u64, Dead)], tome_holder: Option<u64>) -> Vec
         lines.push(line);
     }
     if tome_holder == Some(me) {
-        lines.push("you hold the Tome of Uncancelling: click a grave to read it".to_string());
+        lines.push(crate::input::fill(
+            "you hold the Tome of Uncancelling: {use} a grave to read it",
+        ));
     }
     lines
 }

@@ -107,10 +107,10 @@ impl Task {
             Task::Mushroom(_) => "Eat the voice mushroom",
             Task::VaultDoor => "Open a vault door (bring it the matching totem)",
             Task::FireTotem => "Take the Fire totem out of the vault",
-            Task::Halt(_) => "Break out of HALT (G to pry)",
+            Task::Halt(_) => "Break out of HALT ({pry})",
             Task::Tears(_) => "Use gods tears (counted all campaign: no more ever fall)",
-            Task::HideSeek(_) => "Play a round of hide and seek (K)",
-            Task::Duel(_) => "Fight a duel (1-9 to challenge)",
+            Task::HideSeek(_) => "Play a round of hide and seek ({hide_seek})",
+            Task::Duel(_) => "Fight a duel ({duel_any} to challenge)",
             Task::Landlord => "Beat the landlord",
             Task::Abuela => "Climb the sky islands (south-east) and visit Abuela in heaven",
             Task::Burgers(_) => "Grab human meat burgers at Wendy's (by the road east)",
@@ -129,7 +129,7 @@ impl Task {
             Task::Halt(_) => "break out of HALT (G to pry)",
             Task::Tears(_) => "use gods tears",
             Task::HideSeek(_) => "play hide and seek (K)",
-            Task::Duel(_) => "fight a duel (1-9)",
+            Task::Duel(_) => "fight a duel ({duel_any})",
             Task::Landlord => "beat the landlord",
             Task::Abuela => "climb the sky islands to Abuela",
             Task::Burgers(_) => "grab burgers at Wendy's (east)",
@@ -437,7 +437,7 @@ pub fn checklist(c: &Campaign, landlord: Option<&str>) -> String {
         } else {
             "[  ]"
         };
-        s.push_str(&format!("\n{mark} {}", t.label()));
+        s.push_str(&format!("\n{mark} {}", crate::input::fill(t.label())));
         if c.waived(t) {
             s.push_str("  (needs 2+ players)");
         } else if t.need() > 1 {
@@ -457,9 +457,9 @@ pub fn checklist(c: &Campaign, landlord: Option<&str>) -> String {
 pub fn next_line(c: &Campaign) -> String {
     let ch = c.current();
     match (0..ch.tasks.len()).find(|&i| !c.task_done(i)) {
-        Some(i) => format!("now: {}", ch.tasks[i].next()),
+        Some(i) => crate::input::fill(&format!("now: {}", ch.tasks[i].next())),
         None if c.finale() => "now: walk into heaven".to_string(),
-        None => "now: press Enter for the next chapter".to_string(),
+        None => crate::input::fill("now: press {confirm} for the next chapter"),
     }
 }
 

@@ -41,6 +41,21 @@ fn report(
         .get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)
         .and_then(|d| d.smoothed())
         .unwrap_or(0.0);
+    // The median, 95th percentile and worst of the last ~120 frames: the median
+    // ignores hitches (unlike the average), the other two are the hitches.
+    let (p50, p95, worst) = diag
+        .get(&FrameTimeDiagnosticsPlugin::FRAME_TIME)
+        .map(|d| {
+            let mut v: Vec<f64> = d.values().copied().collect();
+            v.sort_by(f64::total_cmp);
+            let at = |q: f64| {
+                v.get(((v.len() as f64 - 1.0) * q) as usize)
+                    .copied()
+                    .unwrap_or(0.0)
+            };
+            (at(0.5), at(0.95), v.last().copied().unwrap_or(0.0))
+        })
+        .unwrap_or_default();
     let total = meshes.iter().count();
     let seen = meshes.iter().filter(|v| v.get()).count();
     let at = cam
@@ -49,7 +64,7 @@ fn report(
         .map(|g| g.translation())
         .unwrap_or_default();
     info!(
-        "perf: {fps:.0} fps {ms:.1} ms | entities {} | meshes {total} ({seen} visible) | point/spot lights {} | camera {at:.0}",
+        "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | point/spot lights {} | camera {at:.0}",
         entities.iter().count(),
         lights.iter().count()
     );

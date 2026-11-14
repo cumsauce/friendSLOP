@@ -77,7 +77,7 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
-          key: lint
+          shared-key: linux
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: fmt
         run: cargo fmt --all --check
@@ -103,7 +103,7 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
-          key: test
+          shared-key: linux
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: test
         run: cargo test --workspace --locked
@@ -126,7 +126,9 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          key: wasm
+          # Same shared key as lint/test; RUSTFLAGS differs (wasm_js cfg), so
+          # the env-hash keeps wasm artifacts in their own cache entry.
+          shared-key: linux
           save-if: ${{ github.ref == 'refs/heads/main' }}
       # iroh's TLS (ring) compiles C for wasm32: needs clang + llvm-ar.
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends clang llvm
@@ -149,7 +151,7 @@ jobs:
             pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
       - uses: Swatinem/rust-cache@v2
         with:
-          key: test
+          shared-key: linux
           save-if: false
       - name: data files parse
         run: |

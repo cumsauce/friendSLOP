@@ -2,6 +2,7 @@
 //! link the whole game and Bevy on its own, 18 links per test run.
 
 mod afterlife;
+mod asset_hygiene;
 mod bsn_salting;
 mod caught;
 mod data_files;

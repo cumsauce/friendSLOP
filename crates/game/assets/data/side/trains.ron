@@ -21,11 +21,8 @@
     // Where the ride cars hang (x, y, z), deep under the city: one per line,
     // 30 m apart along x. Nobody sees them from outside.
     ride_at: (40.0, -300.0, 300.0),
-    // The ambient light in a ride car (dark as a tunnel: only its lamp and
-    // the lights going by) and in an underground station's hall. The sky's
-    // reflection dims with it.
-    ride_ambient: 0.0,
-    hall_ambient: 30.0,
+    // How dark a ride car and an underground hall are: data/base/place_looks.ron
+    // (train_ride, train_hall).
     // The announcer's voice: pitch and speed.
     voice: (80.0, 0.9),
     // Shown while a train waits to leave with you.

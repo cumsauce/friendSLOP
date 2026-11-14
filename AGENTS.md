@@ -95,6 +95,7 @@ crates/game/src/
   controls.rs   touch overlay + gamepad, fed into the same keys / WalkInput as keyboard+mouse
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
+  place.rs      (base) where you are (`Here`) and each place's look (`PlaceLooks`, data/base/place_looks.ron)
   probes.rs     reflections: world env map on the camera, FRIENDSLOP_BAKE=1 bakes every probe
   lod.rs        trees: lighter far meshes, dithered in by distance (#227); modeler LOD nodes; tree wind
   rigged.rs     rigged modeler models: `Rigged { path }` + `RigClip` crossfades their named clips; tails/ears/bobbles get modeler_anim springs
@@ -229,6 +230,18 @@ Rules for growing it:
   terrain's mesh and collider leave it open, meshes under a `holes::Cut` (New York's map) are cut
   as they load, `holes::slab_colliders` splits a flat floor around it, and a lining runs `depth`
   down its sides. Fulton St's entrance (`fulton::entrance_hole`) is the example.
+- **Places own their look through `place.rs`, never by touching the world's light.** A place
+  that changes how the world looks (no sky, a haze, dim light) pushes its id each frame you're
+  in it: `looks.push(LOOK)` in a system `.in_set(place::PlaceSet)`, with `pub const LOOK: &str`
+  naming an entry in `data/base/place_looks.ron` (its priority, sun lux, ambient, fog colour and
+  range). The day/night cycle (`atmosphere.rs`) is the only writer of the sun, the ambient light
+  and the camera's fog: it works out the outdoors and lays the winning look over it, so nothing
+  is ever saved and put back and overlapping places can't leave the world dark. Ask "am I
+  inside?" from `place::Here` (your feet, or the camera without a body), not the camera or the
+  walker. To hide world geometry while you're somewhere, add your name to `place::HiddenBy`
+  (`HiddenBy::new` / `add` / `remove`) instead of setting `Visibility` and restoring it.
+  `tests/it/place_looks.rs` fails on any other file writing the light, and on a look id the data
+  file doesn't have.
 - **Next split (not done yet): scenery and zones.** `scenery.rs` and `zones.rs` still import
   older features' spots (`warehouse::covers`, `underground::covers`,
   ...) and lean on the camera and ambience. Move those features over to

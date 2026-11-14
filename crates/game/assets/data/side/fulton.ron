@@ -47,11 +47,7 @@
         probe: 1.0,
         // The nearest this many cell lights cast shadows (0 for none).
         shadow_lights: 4,
-        // Down here the sky is out: the ambient light (outside it's 1100), and
-        // a dim haze from fog_start to fog_end metres.
-        ambient: 25.0,
-        fog_start: 12.0,
-        fog_end: 45.0,
+        // How dark it is down here (no sky, a dim haze): data/base/place_looks.ron ("fulton").
     ),
     // Big rooms (concourses, fare halls) a few cells across among the
     // corridors, so a level isn't all hallways: the chance a level has any,

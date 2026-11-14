@@ -153,11 +153,6 @@ pub struct Lights {
     /// The nearest this many cell lights cast shadows (0: none; off when the
     /// video settings turn shadows off).
     pub shadow_lights: usize,
-    /// Down here the sky is out: the ambient light's brightness...
-    pub ambient: f32,
-    /// ...and a dim haze from this far (m) to this far.
-    pub fog_start: f32,
-    pub fog_end: f32,
 }
 
 /// Big rooms: rectangles of cells with no walls between them, stamped on a
@@ -1335,7 +1330,7 @@ pub fn plugin(app: &mut App) {
                 hide_surface,
                 follow_light,
                 light_shadows,
-                station_dark,
+                station_look.in_set(crate::place::PlaceSet),
                 toasts,
                 echo,
             )
@@ -1519,26 +1514,28 @@ fn camera_at(camera: &Query<&GlobalTransform, With<crate::world::MainCamera>>) -
     camera.iter().next().map(|g| g.translation())
 }
 
-/// What [`hide_surface`] hid, and how it was before.
-#[derive(Default)]
-struct Hidden {
-    was: Vec<(Entity, Visibility)>,
-    rescan: f32,
-}
+/// Hidden by the station (`place::HiddenBy`).
+const HIDES: &str = "fulton";
 
 /// Local: underground, nothing on the surface can be seen, but it was all
-/// still drawn (ten thousand meshes, a few fps). While the camera is in the
+/// still drawn (ten thousand meshes, a few fps). While you're in the
 /// station, hide every top-level thing standing above it (the city, the
-/// commune, their lights), checking now and then for new ones; put it all
-/// back on the way up.
+/// commune, their lights), checking now and then for new ones; let it all
+/// go on the way up.
 #[allow(clippy::type_complexity)]
 fn hide_surface(
+    mut commands: Commands,
     time: Res<Time>,
-    mut hidden: Local<Hidden>,
-    camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
+    mut rescan: Local<Option<f32>>,
+    here: Res<crate::place::Here>,
     mut roots: Query<
-        (Entity, &GlobalTransform, &mut Visibility),
         (
+            Entity,
+            &GlobalTransform,
+            Option<&mut crate::place::HiddenBy>,
+        ),
+        (
+            With<Visibility>,
             Without<ChildOf>,
             Without<LevelModels>,
             Without<Camera>,
@@ -1547,24 +1544,40 @@ fn hide_surface(
         ),
     >,
 ) {
-    let below = camera_at(&camera).is_some_and(|at| in_station(at - Vec3::Y * 1.6));
-    if !below {
-        for (e, v) in hidden.was.drain(..) {
-            if let Ok((_, _, mut now)) = roots.get_mut(e) {
-                *now = v;
+    if !in_station(here.0) {
+        // Just came up: let go of everything.
+        if rescan.take().is_some() {
+            for (_, _, h) in &mut roots {
+                if let Some(mut h) = h
+                    && h.has(HIDES)
+                {
+                    h.remove(HIDES);
+                }
             }
         }
         return;
     }
-    hidden.rescan -= time.delta_secs();
-    if hidden.rescan > 0.0 {
+    let left = rescan.get_or_insert(0.0);
+    *left -= time.delta_secs();
+    if *left > 0.0 {
         return;
     }
-    hidden.rescan = 0.5;
-    for (e, g, mut v) in &mut roots {
-        if *v != Visibility::Hidden && surface(g.translation().y) {
-            hidden.was.push((e, *v));
-            *v = Visibility::Hidden;
+    *left = 0.5;
+    for (e, g, h) in &mut roots {
+        if !surface(g.translation().y) {
+            continue;
+        }
+        match h {
+            Some(mut h) => {
+                if !h.has(HIDES) {
+                    h.add(HIDES);
+                }
+            }
+            None => {
+                commands
+                    .entity(e)
+                    .insert(crate::place::HiddenBy::new(HIDES));
+            }
         }
     }
 }
@@ -1743,60 +1756,13 @@ fn light_shadows(
     }
 }
 
-/// Local: inside the station the sky is out: no sun, little ambient light
-/// and a dim haze, all put back on the way out.
-#[allow(clippy::type_complexity)]
-fn station_dark(
-    mut commands: Commands,
-    camera: Query<(Entity, &GlobalTransform, Option<&DistanceFog>), With<crate::world::MainCamera>>,
-    mut suns: Query<(Entity, &mut DirectionalLight)>,
-    ambient: Option<ResMut<GlobalAmbientLight>>,
-    mut saved: Local<Option<(Option<DistanceFog>, f32, Vec<(Entity, f32)>)>>,
-) {
-    let Ok((cam, at, fog)) = camera.single() else {
-        return;
-    };
-    let Some(mut ambient) = ambient else { return };
-    let inside = in_station(at.translation() - Vec3::Y * 1.6);
-    if inside == saved.is_some() {
-        return;
-    }
-    if inside {
-        let t = tuning();
-        *saved = Some((
-            fog.cloned(),
-            ambient.brightness,
-            suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
-        ));
-        ambient.brightness = t.light.ambient;
-        for (_, mut sun) in &mut suns {
-            sun.illuminance = 0.0;
-        }
-        commands.entity(cam).insert(DistanceFog {
-            color: Color::srgb(0.03, 0.035, 0.04),
-            falloff: FogFalloff::Linear {
-                start: t.light.fog_start,
-                end: t.light.fog_end,
-            },
-            ..default()
-        });
-    } else if let Some((fog, amb, lux)) = saved.take() {
-        ambient.brightness = amb;
-        for (e, l) in lux {
-            if let Ok((_, mut sun)) = suns.get_mut(e) {
-                // Never back to 0: another dark place may have saved it dark, and
-                // day_night only takes over again from a lit sun.
-                sun.illuminance = l.max(1.0);
-            }
-        }
-        match fog {
-            Some(f) => {
-                commands.entity(cam).insert(f);
-            }
-            None => {
-                commands.entity(cam).remove::<DistanceFog>();
-            }
-        }
+/// The station's look (`data/base/place_looks.ron`): no sky, little light, a dim haze.
+pub const LOOK: &str = "fulton";
+
+/// Local: inside the station the sky is out (`place.rs`).
+fn station_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
+    if in_station(here.0) {
+        looks.push(LOOK);
     }
 }
 

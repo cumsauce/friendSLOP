@@ -359,8 +359,31 @@ pub fn walking_first_person(
 #[derive(Resource, Default, Debug)]
 pub struct HiddenLabels(pub std::collections::HashSet<u64>);
 
+/// Local: where "you" are for every place check (`place::Here`): your feet,
+/// or the camera with no body of your own (the menu, screenshots).
+fn where_am_i(
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &Walker)>,
+    camera: Query<&GlobalTransform, With<MainCamera>>,
+    mut here: ResMut<crate::place::Here>,
+) {
+    let feet = me.and_then(|me| {
+        walkers
+            .iter()
+            .find(|(p, _)| p.id == me.0)
+            .map(|(_, w)| w.pos)
+    });
+    let Some(at) = feet.or_else(|| camera.iter().next().map(|g| g.translation())) else {
+        return;
+    };
+    if here.0 != at {
+        here.0 = at;
+    }
+}
+
 pub fn plugin(app: &mut App) {
-    app.init_resource::<FpsView>()
+    app.add_systems(Update, where_am_i.before(crate::place::PlaceSet))
+        .init_resource::<FpsView>()
         .init_resource::<HiddenLabels>()
         .add_systems(OnEnter(AppState::InGame), (reset_view, spawn_crosshair))
         .add_systems(OnExit(AppState::InGame), free_cursor)

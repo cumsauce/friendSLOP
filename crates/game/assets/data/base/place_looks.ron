@@ -1,0 +1,56 @@
+// How each place changes the world's light (crates/base/src/place.rs).
+// Edit and save: the running game picks it up within a second.
+//
+// A place you're in pushes its id; when you're in several, the highest
+// `priority` wins. Everything a look leaves out (a missing `sun`, `ambient`
+// or `fog`) stays as the day/night cycle has it outside (day_night.ron).
+//   sun:     the sun's brightness in lux (0 puts the sky's light out;
+//            outside at noon it's 15000).
+//   ambient: the ambient light (outside it's 1100 by day). The sky's
+//            reflection dims with it.
+//   fog:     the haze: colour (sRGB 0..1), and where it starts and is
+//            thickest (m). Outside it's the sky's horizon colour.
+(
+    looks: {
+        // A train's ride car: dark as a tunnel, only its lamp and the lights
+        // going by (trains.rs).
+        "train_ride": (priority: 1, sun: Some(0.0), ambient: Some(0.0)),
+        // An underground station's hall (trains.rs).
+        "train_hall": (priority: 1, sun: Some(0.0), ambient: Some(30.0)),
+        // Fulton St station under New York (fulton.rs).
+        "fulton": (
+            priority: 2,
+            sun: Some(0.0),
+            ambient: Some(25.0),
+            fog: Some((color: (0.03, 0.035, 0.04), start: 12.0, end: 45.0)),
+        ),
+        // The sewers, cellars and secret passages (underground).
+        "underground": (
+            priority: 2,
+            sun: Some(0.0),
+            ambient: Some(45.0),
+            fog: Some((color: (0.015, 0.02, 0.015), start: 4.0, end: 34.0)),
+        ),
+        // Inside the warehouse: black, your flashlight only (warehouse).
+        "warehouse": (
+            priority: 2,
+            sun: Some(0.0),
+            ambient: Some(12.0),
+            fog: Some((color: (0.005, 0.005, 0.008), start: 2.0, end: 24.0)),
+        ),
+        // The warehouse's nightmare bathroom: a flat, pale haze and more light.
+        "warehouse_bathroom": (
+            priority: 3,
+            sun: Some(0.0),
+            ambient: Some(45.0),
+            fog: Some((color: (0.11, 0.12, 0.1), start: 6.0, end: 34.0)),
+        ),
+        // The endless hallway (infinite.rs).
+        "infinite": (
+            priority: 2,
+            sun: Some(0.0),
+            ambient: Some(25.0),
+            fog: Some((color: (0.01, 0.008, 0.006), start: 3.0, end: 26.0)),
+        ),
+    },
+)

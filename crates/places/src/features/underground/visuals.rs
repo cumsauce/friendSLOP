@@ -31,7 +31,7 @@ pub fn plugin(app: &mut App) {
                 adopt_looks.run_if(|l: Res<Looks>| !l.waiting.is_empty()),
                 build_tunnels.run_if(resource_exists_and_changed::<Tunnels>),
                 show_new,
-                darkness,
+                darkness.in_set(crate::place::PlaceSet),
                 guide,
             )
                 .chain()
@@ -101,17 +101,10 @@ fn guide(
     }
 }
 
-/// Local: is my body in the tunnels, and what the dark replaced.
+/// Local: am I down in the tunnels.
 #[derive(Resource, Default)]
 pub struct Below {
     pub inside: bool,
-    saved: Option<Saved>,
-}
-
-struct Saved {
-    fog: Option<DistanceFog>,
-    ambient: f32,
-    suns: Vec<(Entity, f32)>,
 }
 
 fn reset(mut below: ResMut<Below>) {
@@ -727,39 +720,29 @@ fn click(ev: On<Clicked>, mut commands: Commands, hatches: Query<&Hatch>) {
     }
 }
 
-/// Local: going down puts the sky out and shows the tunnels; coming up
-/// brings it all back.
-#[allow(clippy::too_many_arguments)]
+/// The tunnels' look (`data/base/place_looks.ron`): no sky, a green-black haze.
+pub const LOOK: &str = "underground";
+
+/// Local: going down puts the sky out (`place.rs`) and shows the tunnels;
+/// coming up hides them again.
 fn darkness(
-    mut commands: Commands,
-    me: Option<Res<LocalPlayer>>,
-    walkers: Query<(&Player, &Walker)>,
+    here: Res<crate::place::Here>,
+    mut looks: ResMut<crate::place::PlaceLooks>,
     mut below: ResMut<Below>,
-    cameras: Query<(Entity, Option<&DistanceFog>, &GlobalTransform), With<MainCamera>>,
-    mut suns: Query<(Entity, &mut DirectionalLight)>,
-    ambient: Option<ResMut<GlobalAmbientLight>>,
     mut deep: Query<&mut Visibility, With<Deep>>,
     toast: Option<ResMut<Toast>>,
     tunnels: Option<Res<Tunnels>>,
 ) {
-    let mine = me
-        .and_then(|me| walkers.iter().find(|(p, _)| p.id == me.0))
-        .map(|(_, w)| w.pos)
-        .filter(|p| super::below(*p))
-        // A camera put down there on its own (screenshots) sees it too.
-        .or_else(|| {
-            let eye = cameras.single().ok()?.2.translation();
-            super::below(eye).then_some(eye)
-        });
-    if mine.is_some() == below.inside {
+    let at = here.0;
+    let inside = super::below(at);
+    if inside {
+        looks.push(LOOK);
+    }
+    if inside == below.inside {
         return;
     }
-    let Ok((camera, fog, _)) = cameras.single() else {
-        return;
-    };
-    let Some(mut ambient) = ambient else { return };
-    below.inside = mine.is_some();
-    let show = if below.inside {
+    below.inside = inside;
+    let show = if inside {
         Visibility::Inherited
     } else {
         Visibility::Hidden
@@ -767,26 +750,9 @@ fn darkness(
     for mut v in &mut deep {
         *v = show;
     }
-    if let Some(at) = mine {
-        below.saved = Some(Saved {
-            fog: fog.cloned(),
-            ambient: ambient.brightness,
-            suns: suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
-        });
-        ambient.brightness = 45.0;
-        for (_, mut sun) in &mut suns {
-            sun.illuminance = 0.0;
-        }
-        commands.entity(camera).insert(DistanceFog {
-            color: Color::srgb(0.015, 0.02, 0.015),
-            falloff: FogFalloff::Linear {
-                start: 4.0,
-                end: 34.0,
-            },
-            ..default()
-        });
-        let here = tunnels.and_then(|t| t.part(cell_of(at.xz())));
-        let text = match here {
+    if inside {
+        let part = tunnels.and_then(|t| t.part(cell_of(at.xz())));
+        let text = match part {
             Some(Part::Cellar) => "a damp cellar: the tunnels go on from here",
             Some(Part::Passage) => "a secret passage: it joins the sewers",
             _ => "the sewers: every tunnel down here joins up",
@@ -794,23 +760,6 @@ fn darkness(
         let text = format!("{text}. Click a lit ladder to climb out");
         if let Some(mut toast) = toast {
             toast.show(text);
-        }
-    } else if let Some(saved) = below.saved.take() {
-        ambient.brightness = saved.ambient;
-        for (e, lux) in saved.suns {
-            if let Ok((_, mut sun)) = suns.get_mut(e) {
-                // Never back to 0: another dark place may have saved it dark, and
-                // day_night only takes over again from a lit sun.
-                sun.illuminance = lux.max(1.0);
-            }
-        }
-        match saved.fog {
-            Some(f) => {
-                commands.entity(camera).insert(f);
-            }
-            None => {
-                commands.entity(camera).remove::<DistanceFog>();
-            }
         }
     }
 }

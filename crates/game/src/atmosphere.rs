@@ -44,7 +44,8 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), spawn_atmosphere)
         .add_systems(
             Update,
-            (drift_clouds, day_night).run_if(in_state(AppState::InGame)),
+            (drift_clouds, day_night.after(crate::place::PlaceSet))
+                .run_if(in_state(AppState::InGame)),
         )
         .add_systems(OnEnter(ServerState::Running), start_day);
 }
@@ -185,27 +186,30 @@ struct CloudLook(Handle<StandardMaterial>, LinearRgba);
 #[derive(Resource, Default)]
 struct SkyDrawn(Option<f32>);
 
-/// Swing the sun over the sky and dim light, sky and fog at night. Places that black the
-/// world out (warehouse, underground, infinite) set the sun to 0 lux: leave it alone then.
+/// Swing the sun over the sky and dim light, sky and fog at night, then lay
+/// the look of the place you're in over it (`place.rs`). This is the only
+/// system that writes the sun's and bounce's brightness, the ambient light
+/// and the camera's fog: nothing is saved and put back, so leaving places in
+/// any order always comes back to the right sky.
 #[allow(clippy::type_complexity, clippy::too_many_arguments)]
 fn day_night(
+    mut commands: Commands,
     mut sun: Query<
         (&mut DirectionalLight, &mut Transform),
         (With<Sun>, Without<Bounce>, Without<Moon>),
     >,
     mut bounce: Query<&mut DirectionalLight, (With<Bounce>, Without<Sun>)>,
     ambient: Option<ResMut<GlobalAmbientLight>>,
-    mut fog: Query<&mut DistanceFog, With<MainCamera>>,
+    mut fog: Query<(Entity, Option<&mut DistanceFog>), With<MainCamera>>,
     started: Query<&DayStart>,
     mut darkness: ResMut<friendslop_base::rules::daylight::Darkness>,
+    places: Res<crate::place::PlaceLooks>,
+    quality: Option<Res<crate::graphics::GraphicsQuality>>,
     mut sky: SkyParts,
 ) {
     let Ok((mut light, mut tf)) = sun.single_mut() else {
         return;
     };
-    if light.illuminance == 0.0 {
-        return;
-    }
     let tuning = DAY_NIGHT.get();
     let now = crate::settings::since_epoch().as_secs_f64();
     let start = started.iter().next().map_or(now, |d| d.0);
@@ -221,7 +225,6 @@ fn day_night(
     // Golden near the horizon, white at noon; the night "sun" is a cool moon from the same side.
     let warm = Color::srgb(1.0, 0.9, 0.55).mix(&Color::srgb(1.0, 0.92, 0.8), h.clamp(0.0, 1.0));
     light.color = warm.mix(&Color::srgb(0.55, 0.65, 1.0), 1.0 - day);
-    light.illuminance = (SUN_LUX * lit).max(1.0);
     // Sun travels east to west; at night the moon takes the opposite arc. Never lower than
     // ~10 degrees so shadows stay sane.
     let a = t * std::f32::consts::TAU;
@@ -231,19 +234,73 @@ fn day_night(
         Vec3::new(a.sin(), (-h).max(0.18), 0.45)
     };
     *tf = Transform::from_translation(dir.normalize() * 10.0).looking_at(Vec3::ZERO, Vec3::Y);
-    for mut b in &mut bounce {
-        b.illuminance = BOUNCE_LUX * lit;
-    }
-    if let Some(mut ambient) = ambient {
-        ambient.brightness = AMBIENT * lit;
-    }
-    // Fog is the sky's horizon, so the world's edge melts into it at any hour.
+    // Outdoors: the fog is the sky's horizon, so the world's edge melts into it at any hour.
     let (horizon, _) = sky_colors(t, 0.5, &tuning);
-    for mut f in &mut fog {
-        f.color = Color::LinearRgba(hdr(horizon));
+    let (fog_start, fog_end) = if quality.as_ref().is_none_or(|q| q.far) {
+        (60.0, 230.0)
+    } else {
+        (40.0, 140.0)
+    };
+    let outdoor = crate::place::Light {
+        sun: (SUN_LUX * lit).max(1.0),
+        ambient: AMBIENT * lit,
+        fog_color: Color::LinearRgba(hdr(horizon)),
+        fog_start,
+        fog_end,
+        indoor_fog: false,
+    };
+    let looks = crate::place::LOOKS.get();
+    let here = crate::place::pick(places.ids(), &looks).map(|(_, l)| l);
+    let lights = crate::place::blend(outdoor, here);
+    set(&mut light.illuminance, lights.sun);
+    // The bounce follows the sun (out with it in a dark place).
+    let bounce_lux = BOUNCE_LUX * lit * lights.sun / outdoor.sun;
+    for mut b in &mut bounce {
+        set(&mut b.illuminance, bounce_lux);
+    }
+    if let Some(mut ambient) = ambient
+        && ambient.brightness != lights.ambient
+    {
+        ambient.brightness = lights.ambient;
+    }
+    let want = DistanceFog {
+        color: lights.fog_color,
+        directional_light_color: if lights.indoor_fog {
+            Color::NONE
+        } else {
+            Color::srgba(1.0, 0.9, 0.7, 0.35)
+        },
+        directional_light_exponent: 24.0,
+        falloff: FogFalloff::Linear {
+            start: lights.fog_start,
+            end: lights.fog_end,
+        },
+    };
+    for (camera, f) in &mut fog {
+        match f {
+            Some(mut f) => {
+                if f.color != want.color
+                    || f.directional_light_color != want.directional_light_color
+                    || !matches!(f.falloff, FogFalloff::Linear { start, end }
+                        if start == lights.fog_start && end == lights.fog_end)
+                {
+                    *f = want.clone();
+                }
+            }
+            None => {
+                commands.entity(camera).insert(want.clone());
+            }
+        }
     }
     let sun_dir = Vec3::new(-a.sin(), h, 0.45).normalize();
     sky.draw(t, sun_dir, &tuning);
+}
+
+/// Writes `value` only when it changed (so change detection stays quiet).
+fn set(slot: &mut f32, value: f32) {
+    if *slot != value {
+        *slot = value;
+    }
 }
 
 /// Everything in the sky that changes with the hour.

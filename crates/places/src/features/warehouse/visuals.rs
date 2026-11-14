@@ -40,7 +40,7 @@ pub fn plugin(app: &mut App) {
                 animate_pieces,
                 animate_monsters,
                 flicker,
-                darkness,
+                darkness.in_set(crate::place::PlaceSet),
                 fade_scare,
                 show_status.run_if(crate::world::hud_tick()),
             )
@@ -52,19 +52,12 @@ pub fn plugin(app: &mut App) {
         );
 }
 
-/// Local: is my body in the warehouse, and what the dark replaced.
+/// Local: is my body in the warehouse, and its drone.
 #[derive(Resource, Default)]
 pub struct Spooked {
     pub inside: bool,
-    saved: Option<Saved>,
     drone: Option<Entity>,
     sounds: Option<Sounds>,
-}
-
-struct Saved {
-    fog: Option<DistanceFog>,
-    ambient: f32,
-    suns: Vec<(Entity, f32)>,
 }
 
 #[derive(Clone)]
@@ -1112,59 +1105,35 @@ fn animate_monsters(
     }
 }
 
-/// The ambient light left in the dark.
-const DARK_AMBIENT: f32 = 12.0;
+/// The warehouse's look (`data/base/place_looks.ron`): black, flashlight only.
+pub const LOOK: &str = "warehouse";
 
-/// The black fog of the dark.
-fn dark_fog() -> DistanceFog {
-    DistanceFog {
-        color: Color::srgb(0.005, 0.005, 0.008),
-        falloff: FogFalloff::Linear {
-            start: 2.0,
-            end: 24.0,
-        },
-        ..default()
-    }
-}
-
-/// Local: going in turns the world off; coming out turns it back on.
+/// Local: going in turns the world off (`place.rs`) and hands you a
+/// flashlight and the drone; coming out takes them away.
 #[allow(clippy::too_many_arguments)]
 fn darkness(
     mut commands: Commands,
-    me: Option<Res<LocalPlayer>>,
-    walkers: Query<(&Player, &Walker)>,
+    here: Res<crate::place::Here>,
+    mut looks: ResMut<crate::place::PlaceLooks>,
     mut spooked: ResMut<Spooked>,
-    mut cameras: Query<(Entity, Option<&mut DistanceFog>), With<MainCamera>>,
-    mut suns: Query<(Entity, &mut DirectionalLight)>,
-    ambient: Option<ResMut<GlobalAmbientLight>>,
+    cameras: Query<Entity, With<MainCamera>>,
     flashlights: Query<Entity, With<Flashlight>>,
     settings: Option<Res<crate::settings::Settings>>,
     quality: Option<Res<crate::graphics::GraphicsQuality>>,
     audio: Option<ResMut<Assets<AudioSource>>>,
 ) {
-    let mine = me
-        .and_then(|me| walkers.iter().find(|(p, _)| p.id == me.0))
-        .is_some_and(|(_, w)| inside(w.pos));
+    let mine = inside(here.0);
+    if mine {
+        looks.push(LOOK);
+    }
     if mine == spooked.inside {
         return;
     }
-    let Ok((camera, fog)) = cameras.single_mut() else {
+    let Ok(camera) = cameras.single() else {
         return;
     };
-    let Some(mut ambient) = ambient else { return };
     spooked.inside = mine;
     if mine {
-        let saved = Saved {
-            fog: fog.as_deref().cloned(),
-            ambient: ambient.brightness,
-            suns: suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
-        };
-        spooked.saved = Some(saved);
-        ambient.brightness = DARK_AMBIENT;
-        for (_, mut sun) in &mut suns {
-            sun.illuminance = 0.0;
-        }
-        commands.entity(camera).insert(dark_fog());
         commands.spawn((
             Flashlight,
             SpotLight {
@@ -1192,24 +1161,6 @@ fn darkness(
             spooked.drone = Some(drone);
         }
     } else {
-        if let Some(saved) = spooked.saved.take() {
-            ambient.brightness = saved.ambient;
-            for (e, lux) in saved.suns {
-                if let Ok((_, mut sun)) = suns.get_mut(e) {
-                    // Never back to 0: another dark place may have saved it dark, and
-                    // day_night only takes over again from a lit sun.
-                    sun.illuminance = lux.max(1.0);
-                }
-            }
-            match saved.fog {
-                Some(f) => {
-                    commands.entity(camera).insert(f);
-                }
-                None => {
-                    commands.entity(camera).remove::<DistanceFog>();
-                }
-            }
-        }
         for e in &flashlights {
             commands.entity(e).despawn();
         }

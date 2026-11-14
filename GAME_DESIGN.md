@@ -1050,6 +1050,11 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   gobbled: they die (heaven, see Dying), everyone sees "GULP. ...", and the meal settles the
   cat back to 1x with its fuse out. Anyone can be eaten, not just the owner (including friends
   walking up to pet it from the front).
+  **Letting it go**: press Delete with your own cat close and it dies, gently: its ghost floats
+  slowly up into the sky and fades, a soft sad tune plays, everyone sees a quiet line. Nothing
+  follows you after that. A small stray kitten waits where the cat was: click it (it is yours
+  only) to adopt a cat again, a merely fat one. Only your own cat, never anyone else's. Optional:
+  the cat follows you as always unless you do this.
   (Asked for by the owner directly, no issue.)
 - **systemd** (#238, bben: "pid 1, usually systemd"). Every player is a service and PID 1
   watches them. Moving or turning your head pings its watchdog; stand perfectly still for

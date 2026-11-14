@@ -1,0 +1,39 @@
+// What lights up at night (crates/base/src/night_lights.rs).
+// Edit and save: the running game picks it up within a second (glow rules
+// apply to models as they load).
+(
+    // Materials that glow more as it gets dark. `name` is part of the
+    // material's name in the model (`*` matches anything); the first rule that
+    // matches wins. `day` and `night` multiply the model's own glow; `add` is
+    // extra glow at night (linear RGB) for materials with none of their own.
+    glow: [
+        // Lit windows in the city's brick, brownstone and limestone walls.
+        (name: "-win-", day: 0.15, night: 4.0),
+        // Shop fronts.
+        (name: "storefront", day: 0.3, night: 1.5),
+        // Neon signs: there by day, loud at night.
+        (name: "neon", day: 0.6, night: 2.2),
+        // Lamp heads (street lamps, cars' lights).
+        (name: "nyc-glow", day: 0.25, night: 2.5),
+        (name: "ns-glow", day: 0.4, night: 2.0),
+        // Glass towers' curtain walls: a pale glow from the offices inside.
+        (name: "nyc-curtain", day: 1.0, night: 1.0, add: (0.06, 0.055, 0.035)),
+        // Shop windows on the small NYC places.
+        (name: "ns-window", day: 1.0, night: 1.0, add: (0.6, 0.5, 0.3)),
+    ],
+    // Models that hold a lamp; it shines at night. `offset` is the bulb in
+    // the model (m), `lumens` its brightness at full dark.
+    lamps: [
+        (
+            model: "models/prefabs/nyc-kit-streetlamp.gltf",
+            offset: (0.0, 8.2, 2.625),
+            lumens: 4000000.0,
+            color: (1.0, 0.82, 0.55),
+            range: 24.0,
+        ),
+    ],
+    // How many lamps can be lit at once (the nearest), and how far away one
+    // still lights up (m).
+    max_lamps: 12,
+    lamp_reach: 70.0,
+)

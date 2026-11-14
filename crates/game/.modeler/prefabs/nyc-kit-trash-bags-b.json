@@ -1,0 +1,155 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-trash-bags-b",
+  "parts": [],
+  "version": 63207,
+  "ops": [
+    {
+      "sdf": {
+        "name": "bags",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.24,
+              0.0
+            ],
+            "size": [
+              0.32,
+              0.26,
+              0.28
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.45,
+              0.22,
+              -0.15
+            ],
+            "size": [
+              0.26,
+              0.24,
+              0.25
+            ]
+          },
+          {
+            "shape": "ellipsoid",
+            "at": [
+              -0.15,
+              0.55,
+              -0.05
+            ],
+            "size": [
+              0.24,
+              0.2,
+              0.22
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.45,
+              0.48,
+              -0.15
+            ],
+            "radius": [
+              0.05
+            ]
+          }
+        ],
+        "blend": 0.06,
+        "warps": [
+          {
+            "mode": "displace",
+            "amount": 0.03,
+            "scale": 0.15,
+            "seed": 7
+          }
+        ],
+        "resolution": 0.04
+      }
+    },
+    {
+      "decimate": {
+        "name": "bags_lo",
+        "input": "bags",
+        "tris": 450
+      }
+    },
+    {
+      "material": {
+        "name": "bags_lo",
+        "input": "bags_lo",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-trash-bag",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 23,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#0c0c0e"
+                  ],
+                  [
+                    1,
+                    "#202024"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.15,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "bags",
+        "input": "bags",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

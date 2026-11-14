@@ -1,0 +1,419 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-sign-pole",
+  "parts": [],
+  "version": 63156,
+  "ops": [
+    {
+      "primitive": {
+        "name": "pole",
+        "kind": "cylinder",
+        "size": [
+          0.04,
+          3.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.5,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "finial",
+        "kind": "sphere",
+        "size": [
+          0.05,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          3.02,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "blade_a",
+        "kind": "box",
+        "size": [
+          0.9,
+          0.16,
+          0.02
+        ],
+        "translation": [
+          0.4,
+          2.75,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "blade_b",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.16,
+          0.9
+        ],
+        "translation": [
+          0.0,
+          2.55,
+          0.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "pole",
+        "input": "pole",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sign-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 163,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1c4a2c"
+                  ],
+                  [
+                    1,
+                    "#245a36"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.1,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              },
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 22,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#13603a"
+                  ],
+                  [
+                    1,
+                    "#187046"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.5
+                ],
+                "type": "remap"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "finial",
+        "input": "finial",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sign-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 163,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1c4a2c"
+                  ],
+                  [
+                    1,
+                    "#245a36"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.1,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              },
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 22,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#13603a"
+                  ],
+                  [
+                    1,
+                    "#187046"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.5
+                ],
+                "type": "remap"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade_a",
+        "input": "blade_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sign-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 163,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1c4a2c"
+                  ],
+                  [
+                    1,
+                    "#245a36"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.1,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              },
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 22,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#13603a"
+                  ],
+                  [
+                    1,
+                    "#187046"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.5
+                ],
+                "type": "remap"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade_b",
+        "input": "blade_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-sign-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 163,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1c4a2c"
+                  ],
+                  [
+                    1,
+                    "#245a36"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.1,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              },
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 22,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#13603a"
+                  ],
+                  [
+                    1,
+                    "#187046"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.5
+                ],
+                "type": "remap"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

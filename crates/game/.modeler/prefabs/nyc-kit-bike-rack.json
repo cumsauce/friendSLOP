@@ -1,0 +1,464 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-bike-rack",
+  "parts": [],
+  "version": 63186,
+  "ops": [
+    {
+      "sweep": {
+        "name": "hoop0",
+        "profile": [
+          [
+            0.025,
+            0.0
+          ],
+          [
+            0.020225426,
+            0.014694631
+          ],
+          [
+            0.0077254246,
+            0.023776414
+          ],
+          [
+            -0.0077254237,
+            0.023776414
+          ],
+          [
+            -0.020225426,
+            0.01469463
+          ],
+          [
+            -0.025,
+            -2.1855695e-9
+          ],
+          [
+            -0.020225426,
+            -0.014694628
+          ],
+          [
+            -0.0077254274,
+            -0.023776412
+          ],
+          [
+            0.0077254283,
+            -0.023776412
+          ],
+          [
+            0.020225424,
+            -0.014694633
+          ]
+        ],
+        "path": [
+          [
+            -0.8,
+            0.0,
+            -0.3
+          ],
+          [
+            -0.8,
+            0.6,
+            -0.3
+          ],
+          [
+            -0.8,
+            0.82,
+            -0.08
+          ],
+          [
+            -0.8,
+            0.82,
+            0.08
+          ],
+          [
+            -0.8,
+            0.6,
+            0.3
+          ],
+          [
+            -0.8,
+            0.0,
+            0.3
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "material": {
+        "name": "hoop0",
+        "input": "hoop0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "sweep": {
+        "name": "hoop1",
+        "profile": [
+          [
+            0.025,
+            0.0
+          ],
+          [
+            0.020225426,
+            0.014694631
+          ],
+          [
+            0.0077254246,
+            0.023776414
+          ],
+          [
+            -0.0077254237,
+            0.023776414
+          ],
+          [
+            -0.020225426,
+            0.01469463
+          ],
+          [
+            -0.025,
+            -2.1855695e-9
+          ],
+          [
+            -0.020225426,
+            -0.014694628
+          ],
+          [
+            -0.0077254274,
+            -0.023776412
+          ],
+          [
+            0.0077254283,
+            -0.023776412
+          ],
+          [
+            0.020225424,
+            -0.014694633
+          ]
+        ],
+        "path": [
+          [
+            0.0,
+            0.0,
+            -0.3
+          ],
+          [
+            0.0,
+            0.6,
+            -0.3
+          ],
+          [
+            0.0,
+            0.82,
+            -0.08
+          ],
+          [
+            0.0,
+            0.82,
+            0.08
+          ],
+          [
+            0.0,
+            0.6,
+            0.3
+          ],
+          [
+            0.0,
+            0.0,
+            0.3
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "material": {
+        "name": "hoop1",
+        "input": "hoop1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "sweep": {
+        "name": "hoop2",
+        "profile": [
+          [
+            0.025,
+            0.0
+          ],
+          [
+            0.020225426,
+            0.014694631
+          ],
+          [
+            0.0077254246,
+            0.023776414
+          ],
+          [
+            -0.0077254237,
+            0.023776414
+          ],
+          [
+            -0.020225426,
+            0.01469463
+          ],
+          [
+            -0.025,
+            -2.1855695e-9
+          ],
+          [
+            -0.020225426,
+            -0.014694628
+          ],
+          [
+            -0.0077254274,
+            -0.023776412
+          ],
+          [
+            0.0077254283,
+            -0.023776412
+          ],
+          [
+            0.020225424,
+            -0.014694633
+          ]
+        ],
+        "path": [
+          [
+            0.8,
+            0.0,
+            -0.3
+          ],
+          [
+            0.8,
+            0.6,
+            -0.3
+          ],
+          [
+            0.8,
+            0.82,
+            -0.08
+          ],
+          [
+            0.8,
+            0.82,
+            0.08
+          ],
+          [
+            0.8,
+            0.6,
+            0.3
+          ],
+          [
+            0.8,
+            0.0,
+            0.3
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "material": {
+        "name": "hoop2",
+        "input": "hoop2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

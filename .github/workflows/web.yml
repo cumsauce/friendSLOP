@@ -48,6 +48,13 @@ jobs:
           workspaces: |
             . -> target
             tools/web-textures -> target
+      # Building wasm-bindgen-cli takes minutes. Cache the binaries it installs
+      # (~/.cargo/bin/wasm-bindgen*) keyed on the lockfile alone, so the cache
+      # survives rust-cache misses (its key also hashes RUSTFLAGS etc.).
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/wasm-bindgen*
+          key: wasm-bindgen-${{ hashFiles('Cargo.lock') }}
       - name: wasm-bindgen-cli + binaryen
         run: |
           version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)

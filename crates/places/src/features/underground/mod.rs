@@ -119,6 +119,14 @@ pub fn covers(p: Vec2, margin: f32) -> bool {
         .any(|e| p.distance(e.at + e.out * 0.8) < 2.2 + margin)
 }
 
+// W1 claims prep: claim the same ground as [`covers`] (world::footprints),
+// so scenery/zones can switch to `claimed` and this goes away (follow-up).
+fn claim_ground() {
+    for e in entrances() {
+        friendslop_world::footprints::claim(e.at + e.out * 0.8, 2.2);
+    }
+}
+
 /// Where you arrive at the bottom of entrance `i`'s ladder.
 pub fn down_spot(i: usize) -> Vec3 {
     let e = entrance(i);
@@ -335,6 +343,7 @@ pub struct UseHatch {
 }
 
 pub fn protocol(app: &mut App) {
+    claim_ground();
     app.add_client_event::<UseHatch>(Channel::Ordered)
         .add_observer(use_hatch)
         .add_systems(
@@ -492,6 +501,25 @@ mod tests {
             for z in (-90..=90).step_by(6) {
                 let h = crate::terrain::height_at(x as f32, z as f32);
                 assert!(h > TUNNEL_Y + TUNNEL_H + 10.0, "{x},{z}");
+            }
+        }
+    }
+
+    #[test]
+    fn claims_cover_the_sample_points_covers_does() {
+        claim_ground();
+        for e in entrances() {
+            let c = e.at + e.out * 0.8;
+            for margin in [0.0, 1.0] {
+                for d in [Vec2::ZERO, Vec2::X, Vec2::Y, -Vec2::X, -Vec2::Y] {
+                    let p = c + d * 2.1;
+                    if covers(p, margin) {
+                        assert!(
+                            friendslop_world::footprints::claimed(p, margin),
+                            "covers but unclaimed at {p}"
+                        );
+                    }
+                }
             }
         }
     }

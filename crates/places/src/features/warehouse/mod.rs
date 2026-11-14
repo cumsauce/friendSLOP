@@ -128,6 +128,26 @@ pub fn covers(p: Vec2, margin: f32) -> bool {
     lot || yard
 }
 
+// W1 claims prep: claim the same ground as [`covers`] (world::footprints),
+// so scenery/zones can switch to `claimed` and this goes away (follow-up).
+// The lot is a circle grid: corners, mid-edges and the middle, radius half
+// the shorter lot side, so every spot is within a radius of one of them.
+fn claim_ground() {
+    let h = outside_size() / 2.0 + Vec2::splat(2.0);
+    let r = h.x.min(h.y);
+    let at = outside_at();
+    let nx = (h.x / r).ceil().max(1.0) as i32;
+    let nz = (h.y / r).ceil().max(1.0) as i32;
+    for i in -nx..=nx {
+        for j in -nz..=nz {
+            let p = at + Vec2::new(h.x * i as f32 / nx as f32, h.y * j as f32 / nz as f32);
+            friendslop_world::footprints::claim(p, r);
+        }
+    }
+    // The 6 m yard circle in front of the loading door.
+    friendslop_world::footprints::claim(Vec2::new(at.x, at.y - h.y - 3.0), 6.0);
+}
+
 /// World position of an interior cell's middle (on the floor).
 pub fn cell_world(x: usize, z: usize) -> Vec3 {
     let c = cell_centre(x, z);
@@ -241,6 +261,7 @@ struct MonsterBrain {
 }
 
 pub fn protocol(app: &mut App) {
+    claim_ground();
     app.replicate::<Warehouse>()
         .replicate::<SoulPiece>()
         .replicate::<Monster>()
@@ -997,5 +1018,27 @@ mod tests {
         assert!(!covers(Vec2::ZERO, 0.0));
         assert!(jegg_at().xz().distance(out_spot(0).xz()) < 8.0);
         assert!(within(in_spot(0), exit_at(), SERVER_REACH + 1.0));
+    }
+
+    #[test]
+    fn claims_cover_the_sample_points_covers_does() {
+        claim_ground();
+        let h = outside_size() / 2.0;
+        for dx in [-1.0, -0.5, 0.0, 0.5, 1.0] {
+            for dz in [-1.0, -0.5, 0.0, 0.5, 1.0] {
+                for margin in [0.0, 1.0] {
+                    let p = outside_at() + Vec2::new(h.x * dx, h.y * dz);
+                    if covers(p, margin) {
+                        assert!(
+                            friendslop_world::footprints::claimed(p, margin),
+                            "covers but unclaimed at {p}"
+                        );
+                    }
+                }
+            }
+        }
+        // The old covers test's sample points.
+        assert!(covers(door_at().xz(), 0.0));
+        assert!(friendslop_world::footprints::claimed(door_at().xz(), 0.0));
     }
 }

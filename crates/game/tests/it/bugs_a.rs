@@ -138,3 +138,48 @@ fn duel_shot_at_dead_victim_fires_no_second_fought() {
         "the duel was already decided: no second DuelFought"
     );
 }
+
+/// play:mishap-attrs — a failure by a client with no player (it just left)
+/// must not be blamed on player 0; the board just doesn't record it.
+#[test]
+fn unknown_client_mishap_not_player_zero() {
+    use bevy::ecs::system::RunSystemOnce;
+    use friendslop::features::fate::{Fate, FateBoard, FateDice};
+
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    step(&mut server, &mut client);
+    // Every action fails from here on.
+    server.world_mut().resource_mut::<FateDice>().chance = 100.0;
+    // A client entity with no `Player`: its failure has no one to blame.
+    let ghost = server.world_mut().spawn_empty().id();
+    server
+        .world_mut()
+        .run_system_once(move |mut fate: Fate| {
+            assert!(fate.fails(ClientId::Client(ghost)));
+        })
+        .unwrap();
+    {
+        let world = server.world_mut();
+        let board = world.query::<&FateBoard>().iter(world).next().unwrap();
+        assert!(
+            board.mishaps.is_empty(),
+            "an unknown client's mishap is not blamed on player 0: {:?}",
+            board.mishaps
+        );
+    }
+    // The host's own failure is still theirs (player 0).
+    server
+        .world_mut()
+        .run_system_once(|mut fate: Fate| {
+            assert!(fate.fails(ClientId::Server));
+        })
+        .unwrap();
+    let world = server.world_mut();
+    let board = world.query::<&FateBoard>().iter(world).next().unwrap();
+    assert_eq!(
+        board.mishaps.iter().map(|m| m.player).collect::<Vec<_>>(),
+        vec![0],
+        "the host's failure is player 0's"
+    );
+}

@@ -166,11 +166,16 @@ impl Fate<'_, '_> {
             ClientId::Server => None,
             ClientId::Client(e) => Some(e),
         };
-        let player = self
+        // A failure with no player behind it (the client just left) cannot
+        // be blamed on anyone: never default to player 0.
+        let Some(player) = self
             .players
             .iter()
             .find(|(_, o)| o.0 == owner)
-            .map_or(0, |(p, _)| p.id);
+            .map(|(p, _)| p.id)
+        else {
+            return true;
+        };
         let outcome = Outcome::pick(self.dice.roll());
         if let Some(mut board) = self.boards.iter_mut().next() {
             board.mishaps.push(Mishap {

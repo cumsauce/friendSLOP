@@ -1,0 +1,8 @@
+// Render scale (#393, crates/game/src/render_scale.rs): with the video
+// setting Resolution on "Fast" (the Low preset) the desktop game draws the 3D
+// world smaller and stretches it over the window; the UI stays sharp.
+(
+    // Share of the window's width and height to draw at (1 = full size,
+    // 0.7 = about half the pixels). Lower is faster and blurrier.
+    fast: 0.7,
+)

@@ -30,6 +30,7 @@ pub use friendslop_base::rigged;
 #[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
 pub mod net;
 pub mod probes;
+pub mod render_scale;
 pub use friendslop_base::people;
 pub use friendslop_base::player;
 /// `bevy_replicon_iroh`'s wire format, shared by the browser transport.
@@ -116,6 +117,7 @@ impl Plugin for GamePlugin {
             input::plugin,
             controls::plugin,
             graphics::plugin,
+            render_scale::plugin,
             surfaces::plugin,
             fault::plugin,
             kori_shelf::plugin,
@@ -141,6 +143,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     files.extend(friendslop_side::data_files());
     files.push(&atmosphere::DAY_NIGHT);
     files.push(&probes::TUNING);
+    files.push(&render_scale::TUNING);
     files.push(&controls::PAD);
     files.push(&ui::annotations::LINES);
     files

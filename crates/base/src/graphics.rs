@@ -13,10 +13,12 @@
 //! - Bloom: the glow around the bonfire and emissives.
 //! - Anti-aliasing: smooth edges.
 //! - Draw distance: how far the fog starts and the camera draws.
-//! - Resolution (browser only, #191): "Sharp" renders at the screen's pixel
-//!   density (up to 2x), "Fast" at 1x (phones are 2-3x, so that's 4-9x fewer
-//!   pixels). index.html picks it before the game starts, so a change applies
-//!   on the next page load. Desktop always renders at the window's size.
+//! - Resolution (#191, #393): in the browser "Sharp" renders at the screen's
+//!   pixel density (up to 2x), "Fast" at 1x (phones are 2-3x, so that's 4-9x
+//!   fewer pixels). index.html picks it before the game starts, so a change
+//!   applies on the next page load. On desktop "Fast" draws the 3D world
+//!   smaller and stretches it over the window, live (`render_scale.rs` in the
+//!   game, for GPU-bound machines like the Steam Deck).
 //! - Grass & particles: half or full (applies the next time a world is built).
 //! - VSync and Fullscreen: the window.
 //!
@@ -37,13 +39,14 @@ const FILE: &str = "graphics.txt";
 /// Can this platform do ambient occlusion?
 pub const SSAO_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
 
-/// Can the render resolution be lowered? Only in the browser, where
-/// index.html sets the canvas's pixel ratio before the game starts (#191).
 /// Bloom needs an HDR (float) target, which phone browsers' WebGL2 can't
 /// always render into (#242: hosting showed only a blue screen on iPhone).
 /// The browser renders straight to the screen's 8-bit target instead.
 pub const HDR_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
-pub const RESOLUTION_ADJUSTABLE: bool = cfg!(target_arch = "wasm32");
+/// Does the Resolution setting apply at once? On desktop the game scales its
+/// own 3D picture (#393); in the browser index.html sets the canvas's pixel
+/// ratio before the game starts (#191), so a change needs a reload.
+pub const RESOLUTION_LIVE: bool = !cfg!(target_arch = "wasm32");
 
 /// The Resolution setting the page started with (what index.html applied).
 static BOOT_SHARP: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
@@ -96,7 +99,8 @@ impl Preset {
             bloom: !low && HDR_SUPPORTED,
             antialias: !low,
             far: !low,
-            sharp: high || !RESOLUTION_ADJUSTABLE,
+            // Medium stays sharp on desktop; the browser's Medium was always Fast.
+            sharp: high || (!low && RESOLUTION_LIVE),
             dense: !low,
             ..q
         }
@@ -187,7 +191,13 @@ impl GraphicsQuality {
                     "Near"
                 }
             }
-            VideoOption::Resolution if !RESOLUTION_ADJUSTABLE => "N/A",
+            VideoOption::Resolution if RESOLUTION_LIVE => {
+                if self.sharp {
+                    "Sharp"
+                } else {
+                    "Fast"
+                }
+            }
             VideoOption::Resolution => {
                 let boot = BOOT_SHARP.get().copied().unwrap_or(self.sharp);
                 match (self.sharp, boot == self.sharp) {
@@ -225,7 +235,7 @@ impl GraphicsQuality {
             VideoOption::Bloom => self.bloom = !self.bloom && HDR_SUPPORTED,
             VideoOption::AntiAlias => self.antialias = !self.antialias,
             VideoOption::DrawDistance => self.far = !self.far,
-            VideoOption::Resolution => self.sharp = !self.sharp || !RESOLUTION_ADJUSTABLE,
+            VideoOption::Resolution => self.sharp = !self.sharp,
             VideoOption::Grass => self.dense = !self.dense,
             VideoOption::VSync => self.vsync = !self.vsync,
             VideoOption::Fullscreen => self.fullscreen = !self.fullscreen,
@@ -282,7 +292,6 @@ impl GraphicsQuality {
         }
         q.ssao &= SSAO_SUPPORTED;
         q.bloom &= HDR_SUPPORTED;
-        q.sharp |= !RESOLUTION_ADJUSTABLE;
         any.then_some(q)
     }
 
@@ -373,7 +382,7 @@ fn save_quality(q: Res<GraphicsQuality>) {
 }
 
 /// UI size, vsync and fullscreen. (The render resolution is index.html's
-/// job, see [`RESOLUTION_ADJUSTABLE`]: a scale factor override only changes
+/// job in the browser and `render_scale.rs`'s on desktop: a scale factor override only changes
 /// how big the UI is, never how many pixels get drawn.)
 fn apply_window(q: Res<GraphicsQuality>, mut window: Query<&mut Window, With<PrimaryWindow>>) {
     let Ok(mut window) = window.single_mut() else {

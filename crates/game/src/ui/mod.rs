@@ -16,6 +16,7 @@ use crate::AppState;
 use crate::theme::indigo;
 pub use friendslop_base::ui::*;
 
+pub mod annotations;
 pub mod chapter;
 pub mod danger;
 pub mod feed;
@@ -105,6 +106,7 @@ pub fn plugin(app: &mut App) {
             danger::plugin,
             feed::plugin,
             status::plugin,
+            annotations::plugin,
             prompt::plugin,
             journal::plugin,
             chapter::plugin,

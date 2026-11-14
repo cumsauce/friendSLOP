@@ -34,7 +34,7 @@ NPC and get caught 4 times: villagers chase you and float you. Villagers fart an
 Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
 Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 3 min
-and systemd (PID 1) kills you. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O).
+and systemd (PID 1) kills you. Tiny notes under the Cat card (bottom right) say which world-wide effect is on right now. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O).
 **Dying** puts you in heaven: friends beg at your grave (out loud counts double) within 60 s,
 or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava pit to get out.
 **Day and night** (#284): a 24-minute day everyone shares; the sun crosses the sky, dusk goes
@@ -1298,6 +1298,16 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
 (click to read). Sweet, never explicit: the issue title is read as lesbian romance. Models
 `lily-sign`, `lily-bench`, `lily-bed`; layout and writing in `data/side/lily_garden.ron`
 (`features/lily_garden.rs`). Open: does the love story ever matter to the chapters?
+
+## What exists: annotations (#388)
+
+- **Annotations** (#388, bben: "in very small font in the bottom right corner underneath the
+  Cat box and the edge of the screen, put an explanation for any global effect happening at
+  the time"). Under the bottom-right status stack, in 9 px faded text, one line per world-wide
+  effect on right now: the Stillness (frozen, and a warning 15 s before), a mute-spell hunt
+  (who's muted with an RPG) and night. Nothing on, no text. Chose those three because they're
+  the effects that change the world for everyone; per-player things (gods tears, ATTACK MODE)
+  already have their own HUD. Words in `data/text/annotations.ron` (`ui/annotations.rs`).
 
 ## Ideas so far
 

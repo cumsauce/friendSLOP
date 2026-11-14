@@ -1,7 +1,8 @@
 //! The bottom-right status stack (200 wide, 5 px off the bottom edge): gas
 //! meter, mic chip and your fat cat's size. At critical mass the cat card
 //! becomes the butter "PET. THE. CAT." fuse card, in its own slot above the
-//! gas meter, never in the toast queue.
+//! gas meter, never in the toast queue. The stoned meter (#369) sits above
+//! the gas meter while you're high.
 
 use bevy::prelude::*;
 
@@ -9,6 +10,7 @@ use super::{Icons, at, body, glyph, head, mmss};
 use crate::AppState;
 use crate::features::fart::Gas;
 use crate::features::fat_cat::{FatCat, Fuse, Lapping, MAX_SIZE};
+use crate::features::weed::High;
 use crate::player::{LocalPlayer, Player};
 use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK, PERIWINKLE, RAISED};
 use crate::voice::VoiceMuted;
@@ -21,6 +23,7 @@ const TRACK: f32 = 172.0;
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
 enum Card {
     Bomb,
+    Stoned,
     Gas,
     Mic,
     Cat,
@@ -31,6 +34,8 @@ enum Part {
     GasLabel,
     GasFill,
     GasHint,
+    StonedLabel,
+    StonedFill,
     MicIcon,
     MicSlash,
     MicLabel,
@@ -55,6 +60,18 @@ pub fn gas_lines(gas: u8) -> (String, f32, &'static str) {
         "fills up over time"
     };
     (label, gas as f32 / 100.0, hint)
+}
+
+/// The stoned card's label for a meter of `frac` (0..1) and the fill width
+/// fraction.
+pub fn stoned_line(frac: f32) -> (String, f32) {
+    let frac = frac.clamp(0.0, 1.0);
+    let word = match frac {
+        f if f >= 0.8 => "baked",
+        f if f >= 0.4 => "stoned",
+        _ => "buzzed",
+    };
+    (format!("Stoned {:.0}% · {word}", frac * 100.0), frac)
 }
 
 /// Is the gas card up: filled past `show_percent`, or ready to fart.
@@ -95,6 +112,7 @@ fn fill_mount(
         });
         commands.entity(mount).with_children(|c| {
             c.spawn(bomb(&icons));
+            c.spawn(stoned());
             c.spawn(gas(&icons));
             c.spawn(mic(&icons));
             c.spawn(cat(&icons));
@@ -158,6 +176,44 @@ fn gas(icons: &Icons) -> impl Bundle {
         ],
     )
 }
+
+fn stoned() -> impl Bundle {
+    let b = 2.0;
+    (
+        shell(Card::Stoned, 56.0, 18.0, INK, BORDER),
+        children![
+            (
+                Part::StonedLabel,
+                Text::new(""),
+                body(17.0, PERIWINKLE),
+                at(12.0, 8.0, b)
+            ),
+            (
+                Node {
+                    width: px(TRACK),
+                    height: px(10),
+                    border_radius: BorderRadius::all(px(5)),
+                    overflow: Overflow::clip(),
+                    ..at(12.0, 34.0, b)
+                },
+                BackgroundColor(RAISED),
+                children![(
+                    Part::StonedFill,
+                    Node {
+                        width: px(0),
+                        height: percent(100),
+                        border_radius: BorderRadius::all(px(5)),
+                        ..default()
+                    },
+                    BackgroundColor(STONED),
+                )],
+            ),
+        ],
+    )
+}
+
+/// The stoned meter's fill: a leafy green.
+const STONED: Color = Color::srgb(0.45, 0.78, 0.38);
 
 fn mic(icons: &Icons) -> impl Bundle {
     let b = 2.0;
@@ -262,6 +318,7 @@ fn update(
     me: Option<Res<LocalPlayer>>,
     muted: Option<Res<VoiceMuted>>,
     activity: Option<Res<VoiceActivity>>,
+    high: Option<Res<High>>,
     players: Query<(&Player, Option<&Gas>)>,
     cats: Query<(&FatCat, Option<&Fuse>, Has<Lapping>)>,
     mut cards: Query<(&Card, &mut Node, &mut BackgroundColor), Without<Part>>,
@@ -281,6 +338,10 @@ fn update(
         .find(|(p, _)| Some(p.id) == me)
         .and_then(|(_, g)| g.map(|g| g.0))
         .unwrap_or(0);
+    let stoned = high.map_or(0.0, |h| {
+        crate::features::weed::meter(h.level, &crate::features::weed::TUNING.get())
+    });
+    let (stoned_label, stoned_frac) = stoned_line(stoned);
     let cat = cats.iter().find(|(c, ..)| Some(c.owner) == me);
     let fuse = cat.and_then(|(_, f, _)| f.map(|f| f.0));
     let muted = muted.is_some_and(|m| m.0);
@@ -304,6 +365,7 @@ fn update(
         let show = match card {
             Card::Bomb => fuse.is_some(),
             Card::Cat => cat_up && fuse.is_none(),
+            Card::Stoned => all.0 || stoned > 0.0,
             Card::Gas => gas_up,
             Card::Mic => mic_up,
         };
@@ -351,6 +413,13 @@ fn update(
                 }
                 if let Some(mut bg) = bg {
                     bg.set_if_neq(BackgroundColor(if ready { BUTTER } else { PERIWINKLE }));
+                }
+            }
+            Part::StonedLabel => set(stoned_label.clone()),
+            Part::StonedFill => {
+                let w = px(TRACK * stoned_frac);
+                if node.width != w {
+                    node.width = w;
                 }
             }
             Part::MicLabel => set(crate::input::fill(if muted {
@@ -402,6 +471,13 @@ mod tests {
         assert_eq!(cat_size(4.2), "4.2× / 25×");
         assert_eq!(cat_size(24.8), "24.8× / 25×");
         assert_eq!(cat_size(99.0), "25.0× / 25×");
+    }
+
+    #[test]
+    fn stoned_meter_reads_in_words() {
+        assert_eq!(stoned_line(0.1), ("Stoned 10% · buzzed".to_string(), 0.1));
+        assert!(stoned_line(0.5).0.ends_with("stoned"));
+        assert_eq!(stoned_line(2.0), ("Stoned 100% · baked".to_string(), 1.0));
     }
 
     #[test]

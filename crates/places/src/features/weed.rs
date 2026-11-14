@@ -60,6 +60,14 @@ pub fn fade(level: f32, dt: f32, t: &Tuning) -> f32 {
     (level - t.fade_per_sec * dt).max(0.0)
 }
 
+/// The stoned meter (#369): how full your high is, 0 (sober) to 1 (the cap).
+pub fn meter(level: f32, t: &Tuning) -> f32 {
+    if t.max_high <= 0.0 {
+        return 0.0;
+    }
+    (level / t.max_high).clamp(0.0, 1.0)
+}
+
 /// The camera's extra rotation at this high and time. Stronger, but less
 /// than linearly, the higher you are.
 pub fn wobble(level: f32, time: f32, t: &Tuning) -> Quat {
@@ -193,6 +201,24 @@ mod tests {
         }
         assert_eq!(l, 4.0);
         assert_eq!(fade(0.005, 1.0, &t), 0.0);
+    }
+
+    #[test]
+    fn the_meter_rises_per_joint_and_drains_over_time() {
+        let t = t();
+        assert_eq!(meter(0.0, &t), 0.0);
+        let one = meter(add_joint(0.0, &t), &t);
+        assert_eq!(one, 0.25);
+        let two = meter(add_joint(add_joint(0.0, &t), &t), &t);
+        assert!(two > one);
+        assert_eq!(meter(99.0, &t), 1.0);
+        // A joint's worth drains in per_joint / fade_per_sec seconds.
+        let mut l = add_joint(0.0, &t);
+        let before = meter(l, &t);
+        l = fade(l, 10.0, &t);
+        assert!(meter(l, &t) < before);
+        l = fade(l, 1000.0, &t);
+        assert_eq!(meter(l, &t), 0.0);
     }
 
     #[test]

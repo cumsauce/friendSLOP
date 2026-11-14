@@ -1718,6 +1718,9 @@ fn accessory_on_body(p: &mut ChildSpawnerCommands, ctx: &Ctx) {
 }
 
 fn track_gait(time: Res<Time>, mut q: Query<(&GlobalTransform, &mut Gait)>) {
+    if crate::settings::frozen() {
+        return;
+    }
     let dt = time.delta_secs();
     if dt <= 0.0 {
         return;

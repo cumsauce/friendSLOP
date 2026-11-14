@@ -64,10 +64,34 @@ fn start_day(mut commands: Commands, existing: Query<(), With<DayStart>>) {
     if existing.is_empty() {
         commands.spawn((
             Replicated,
-            DayStart(crate::settings::since_epoch().as_secs_f64()),
+            DayStart(day_start_at()),
             DespawnOnExit(AppState::InGame),
         ));
     }
+}
+
+/// When the session's day starts. `FRIENDSLOP_TIME=0..1` (goldens, S3) pins
+/// the time of day by computing [`DayStart`] backwards so `time_of_day`
+/// reads the target at session start; otherwise it is just now. Host env
+/// only — [`DayStart`] replicates, so every peer counts the same day.
+fn day_start_at() -> f64 {
+    let now = crate::settings::since_epoch().as_secs_f64();
+    let Some(target) = std::env::var("FRIENDSLOP_TIME")
+        .ok()
+        .and_then(|v| v.trim().parse::<f64>().ok())
+        .filter(|t| t.is_finite())
+    else {
+        return now;
+    };
+    let tuning = DAY_NIGHT.get();
+    now - elapsed_for(target, tuning.day_minutes, tuning.start_hour)
+}
+
+/// Seconds after [`DayStart`] at which [`time_of_day`] reads `target` (0..1).
+fn elapsed_for(target: f64, day_minutes: f32, start_hour: f32) -> f64 {
+    let len = (day_minutes.max(0.1) as f64) * 60.0;
+    let start = (start_hour as f64 / 24.0).rem_euclid(1.0);
+    len * (target - start).rem_euclid(1.0)
 }
 
 /// Day/night tuning: `assets/data/game/day_night.ron` (read at run time).
@@ -704,6 +728,9 @@ fn star_field(count: u32, size: f32) -> Mesh {
 }
 
 fn drift_clouds(time: Res<Time>, mut clouds: Query<(&mut Transform, &Cloud)>) {
+    if crate::screenshot::frozen() {
+        return;
+    }
     let dt = time.delta_secs();
     for (mut tf, cloud) in &mut clouds {
         tf.translation.x += cloud.speed * dt;
@@ -774,5 +801,16 @@ mod tests {
         assert!((time_of_day(0.0, 24.0, 9.5) - 9.5 / 24.0).abs() < 1e-6);
         // Half a day later it's half past nine at night.
         assert!((time_of_day(12.0 * 60.0, 24.0, 9.5) - 21.5 / 24.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn a_pinned_time_of_day_hits_the_target() {
+        for target in [0.0, 0.25, 0.35, 0.5, 0.75, 0.999] {
+            let elapsed = elapsed_for(target, 24.0, 9.5);
+            assert!(
+                (time_of_day(elapsed, 24.0, 9.5) - target as f32).abs() < 1e-4,
+                "target {target}"
+            );
+        }
     }
 }

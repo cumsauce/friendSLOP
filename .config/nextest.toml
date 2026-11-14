@@ -1,0 +1,8 @@
+# CI's nextest profile (read by `cargo nextest run` from the repo root).
+[profile.default]
+# A retry hides flaky tests instead of fixing them.
+retries = 0
+# Run every test so one failure doesn't hide the rest of the run.
+fail-fast = false
+# Tests taking longer than a minute are listed as slow in the output.
+slow-timeout = "60s"

@@ -1,4 +1,7 @@
 //! Every data file the game reads parses, with every field it needs.
+//!
+//! Standalone from `tests/it`: the data job runs just this, so it doesn't
+//! link the whole game test binary.
 
 #[test]
 fn every_data_file_parses() {
@@ -16,10 +19,4 @@ fn every_data_file_parses() {
             assert!(f.set_file(&path, &bytes), "{path} doesn't parse");
         }
     }
-}
-
-#[test]
-fn there_is_a_name_for_every_villager() {
-    use friendslop::features::villagers::{COUNT, NAMES};
-    assert_eq!(NAMES.get().len(), COUNT);
 }

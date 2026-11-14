@@ -52,7 +52,10 @@ fn start_duel(server: &mut App, client: &mut App) {
     step(server, client);
     let world = server.world_mut();
     assert_eq!(
-        world.query::<&friendslop::features::duel::Duelist>().iter(world).count(),
+        world
+            .query::<&friendslop::features::duel::Duelist>()
+            .iter(world)
+            .count(),
         2,
         "the duel started"
     );
@@ -82,11 +85,11 @@ fn duel_two_shots_one_kill_fires_one_fought() {
 
     let (mut server, mut client) = (peer(), peer());
     server.init_resource::<Fought>();
-    server
-        .world_mut()
-        .add_observer(|ev: On<friendslop::features::duel::DuelFought>, mut c: ResMut<Fought>| {
+    server.world_mut().add_observer(
+        |ev: On<friendslop::features::duel::DuelFought>, mut c: ResMut<Fought>| {
             c.0.push((ev.winner, ev.loser));
-        });
+        },
+    );
     server.connect_client(&mut client);
     step(&mut server, &mut client);
     start_duel(&mut server, &mut client);
@@ -117,11 +120,11 @@ fn duel_shot_at_dead_victim_fires_no_second_fought() {
 
     let (mut server, mut client) = (peer(), peer());
     server.init_resource::<Fought>();
-    server
-        .world_mut()
-        .add_observer(|ev: On<friendslop::features::duel::DuelFought>, mut c: ResMut<Fought>| {
+    server.world_mut().add_observer(
+        |ev: On<friendslop::features::duel::DuelFought>, mut c: ResMut<Fought>| {
             c.0.push((ev.winner, ev.loser));
-        });
+        },
+    );
     server.connect_client(&mut client);
     step(&mut server, &mut client);
     start_duel(&mut server, &mut client);

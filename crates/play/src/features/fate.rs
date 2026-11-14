@@ -358,11 +358,17 @@ mod tests {
             b.total_fails += 1;
         }
         app.update();
-        assert_eq!(app.world().resource::<crate::hud::Toast>().secs_left, crate::hud::Toast::SECS, "the first failure mails");
+        assert_eq!(
+            app.world().resource::<crate::hud::Toast>().secs_left,
+            crate::hud::Toast::SECS,
+            "the first failure mails"
+        );
 
         // It wears off exactly as the next failure lands: the visible count
         // nets to zero, but the add must still mail.
-        app.world_mut().resource_mut::<crate::hud::Toast>().secs_left = 0.0;
+        app.world_mut()
+            .resource_mut::<crate::hud::Toast>()
+            .secs_left = 0.0;
         {
             let mut b = app.world_mut().get_mut::<FateBoard>(board).unwrap();
             b.mishaps.clear();
@@ -374,7 +380,11 @@ mod tests {
             b.total_fails += 1;
         }
         app.update();
-        assert_eq!(app.world().resource::<crate::hud::Toast>().secs_left, crate::hud::Toast::SECS, "the add mails even beside a wear-off");
+        assert_eq!(
+            app.world().resource::<crate::hud::Toast>().secs_left,
+            crate::hud::Toast::SECS,
+            "the add mails even beside a wear-off"
+        );
     }
 
     /// play:mail-netting (session half) — the session cleanup drops the
@@ -390,7 +400,11 @@ mod tests {
         app.world_mut().run_system_once(clear_boards).unwrap();
         assert_eq!(app.world().resource::<MailSeen>().0, 0);
         let world = app.world_mut();
-        assert_eq!(world.query::<&FateBoard>().iter(world).count(), 0, "boards are session state");
+        assert_eq!(
+            world.query::<&FateBoard>().iter(world).count(),
+            0,
+            "boards are session state"
+        );
     }
 
     #[test]

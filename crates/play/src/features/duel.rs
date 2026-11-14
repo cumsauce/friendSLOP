@@ -466,9 +466,9 @@ fn end_abandoned_duel(
     mut invites: ResMut<DuelInvites>,
 ) {
     // An open challenge to or from a player who left is a stale prompt.
-    invites.open.retain(|&(f, t)| {
-        players.iter().any(|p| p.id == f) && players.iter().any(|p| p.id == t)
-    });
+    invites
+        .open
+        .retain(|&(f, t)| players.iter().any(|p| p.id == f) && players.iter().any(|p| p.id == t));
     if duelists.is_empty() {
         // The duel is over — but never free the guard during the
         // accept→spawn window: an answer's duelists are still queued then,
@@ -1431,8 +1431,10 @@ mod tests {
             } else {
                 Some(owners[(id - 1) as usize])
             };
-            app.world_mut()
-                .spawn((crate::player::Player { id }, crate::player::PlayerOwner(owner)));
+            app.world_mut().spawn((
+                crate::player::Player { id },
+                crate::player::PlayerOwner(owner),
+            ));
         }
         app.world_mut().resource_mut::<DuelInvites>().open = vec![(0, 1), (2, 3)];
         app.world_mut()
@@ -1463,7 +1465,11 @@ mod tests {
             },
         });
         app.world_mut().flush();
-        assert_eq!(duelist_count(&mut app), 2, "the first answer starts its duel");
+        assert_eq!(
+            duelist_count(&mut app),
+            2,
+            "the first answer starts its duel"
+        );
         // Now stand in the accept→spawn window: the duelists are not visible
         // yet (their spawn is deferred), but the guard is already claimed.
         {

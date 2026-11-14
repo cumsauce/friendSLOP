@@ -84,8 +84,9 @@ jobs:
       - name: clippy
         run: cargo clippy --workspace --all-targets --locked
 
-  test:
-    name: test (linux)
+  # Tests split by layer, one runner each, all feeding ci-ok below.
+  test-foundation:
+    name: test (foundation)
     # Claude's PRs are checked in its own session and merged without waiting;
     # main still runs CI after they land (and a failure starts a fix run).
     needs: changes
@@ -94,8 +95,62 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
+      - name: Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+      - uses: Swatinem/rust-cache@v2
         with:
-          components: rustfmt, clippy
+          shared-key: linux
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest@0.9.152
+      - name: test (nextest)
+        run: >-
+          cargo nextest run --locked
+          -p fusion -p friendslop-core -p friendslop-wire -p friendslop-kcc
+          -p friendslop-wfc -p friendslop-structures -p friendslop-art
+          -p friendslop-data -p friendslop-world
+
+  test-game:
+    name: test (game layer)
+    needs: changes
+    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.rust == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libasound2-dev libudev-dev libwayland-dev libxkbcommon-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: linux
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: nextest@0.9.152
+      - name: test (nextest)
+        run: >-
+          cargo nextest run --locked
+          -p friendslop-base -p friendslop-play -p friendslop-places
+          -p friendslop-village -p friendslop-story -p friendslop-afterlife
+          -p friendslop-side
+      - name: game unit tests (nextest)
+        run: cargo nextest run --locked -p friendslop --lib
+
+  test-it:
+    name: test (it + doctests)
+    needs: changes
+    if: ${{ !startsWith(github.head_ref, 'claude/') && needs.changes.outputs.rust == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
       - name: Linux deps
         run: |
           sudo apt-get update
@@ -112,7 +167,7 @@ jobs:
       # failure report per run (.config/nextest.toml: no retries, no fail-fast).
       # Doctests need plain cargo.
       - name: test (nextest)
-        run: cargo nextest run --workspace --locked
+        run: cargo nextest run --locked -p friendslop --test it --test data_files_check
       - name: doctests
         run: cargo test --workspace --locked --doc
       # Escape hatch: these tests share process state (terrain::HEIGHTS statics,
@@ -176,10 +231,10 @@ jobs:
   # Single required check for branch protection / auto-merge.
   ci-ok:
     if: always()
-    needs: [changes, lint, test, web, data]
+    needs: [changes, lint, test-foundation, test-game, test-it, web, data]
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for r in "${{ needs.changes.result }}" "${{ needs.lint.result }}" "${{ needs.test.result }}" "${{ needs.web.result }}" "${{ needs.data.result }}"; do
+          for r in "${{ needs.changes.result }}" "${{ needs.lint.result }}" "${{ needs.test-foundation.result }}" "${{ needs.test-game.result }}" "${{ needs.test-it.result }}" "${{ needs.web.result }}" "${{ needs.data.result }}"; do
             [[ "$r" == success || "$r" == skipped ]]
           done

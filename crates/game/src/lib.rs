@@ -43,6 +43,7 @@ pub use friendslop_art::theme;
 pub use friendslop_base::night_lights;
 pub use friendslop_base::place;
 pub use friendslop_base::settings;
+pub use friendslop_base::sites;
 pub use friendslop_base::spatial;
 pub use friendslop_base::textures;
 pub use friendslop_world::surfaces;
@@ -70,6 +71,8 @@ pub struct ProtocolPlugin;
 
 impl Plugin for ProtocolPlugin {
     fn build(&self, app: &mut App) {
+        // The sites first: the features' simulation asks which are awake.
+        app.add_plugins(sites::plugin);
         app.add_plugins((player::PlayerPlugin, features::FeaturesProtocolPlugin));
     }
 }

@@ -1,0 +1,308 @@
+{
+  "format_version": 1,
+  "name": "zn-boulders",
+  "parts": [],
+  "version": 63512,
+  "ops": [
+    {
+      "primitive": {
+        "name": "b1s",
+        "kind": "sphere",
+        "size": [
+          0.9,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.55,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "b2s",
+        "kind": "sphere",
+        "size": [
+          0.55,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          1.2,
+          0.3,
+          0.4
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "b3s",
+        "kind": "sphere",
+        "size": [
+          0.35,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.9,
+          0.2,
+          0.8
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "deform": {
+        "name": "b1",
+        "input": "b1s",
+        "mode": "displace",
+        "amount": 0.25,
+        "seed": 1,
+        "noise": "ridged",
+        "detail": 0.2
+      }
+    },
+    {
+      "deform": {
+        "name": "b2",
+        "input": "b2s",
+        "mode": "displace",
+        "amount": 0.15,
+        "seed": 2,
+        "noise": "ridged",
+        "detail": 0.15
+      }
+    },
+    {
+      "deform": {
+        "name": "b3",
+        "input": "b3s",
+        "mode": "displace",
+        "amount": 0.1,
+        "seed": 3,
+        "noise": "ridged",
+        "detail": 0.12
+      }
+    },
+    {
+      "material": {
+        "name": "b1",
+        "input": "b1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "stone",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 21,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#4a4a4e"
+                  ],
+                  [
+                    1,
+                    "#8a8a90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "h",
+                "to": [
+                  0,
+                  0.004
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "b2",
+        "input": "b2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "stone",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 21,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#4a4a4e"
+                  ],
+                  [
+                    1,
+                    "#8a8a90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "h",
+                "to": [
+                  0,
+                  0.004
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "b3",
+        "input": "b3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "stone",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 21,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#4a4a4e"
+                  ],
+                  [
+                    1,
+                    "#8a8a90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "h",
+                "to": [
+                  0,
+                  0.004
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "b1s",
+        "input": "b1s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "b2s",
+        "input": "b2s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "b3s",
+        "input": "b3s",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

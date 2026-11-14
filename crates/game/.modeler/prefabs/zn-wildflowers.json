@@ -1,0 +1,458 @@
+{
+  "format_version": 1,
+  "name": "zn-wildflowers",
+  "parts": [],
+  "version": 63499,
+  "ops": [
+    {
+      "extrude": {
+        "name": "fstem",
+        "profile": [
+          [
+            [
+              0.006,
+              0.0
+            ],
+            [
+              -0.003,
+              0.005
+            ],
+            [
+              -0.003,
+              -0.005
+            ]
+          ]
+        ],
+        "height": 0.4,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "bloom",
+        "profile": [
+          [
+            [
+              0.055,
+              0.0
+            ],
+            [
+              0.0275,
+              0.048
+            ],
+            [
+              -0.0275,
+              0.048
+            ],
+            [
+              -0.055,
+              0.0
+            ],
+            [
+              -0.0275,
+              -0.048
+            ],
+            [
+              0.0275,
+              -0.048
+            ]
+          ]
+        ],
+        "height": 0.02,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.4,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "blade",
+        "profile": [
+          [
+            [
+              0.01,
+              0.0
+            ],
+            [
+              -0.01,
+              0.004
+            ],
+            [
+              -0.01,
+              -0.004
+            ]
+          ]
+        ],
+        "height": 0.3,
+        "scale_top": [
+          0.1,
+          0.1
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.104528464,
+          0.9945219
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "base",
+        "kind": "box",
+        "size": [
+          1.8,
+          0.02,
+          1.8
+        ],
+        "translation": [
+          0.0,
+          -0.01,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "scatter": {
+        "name": "f",
+        "input": [
+          [
+            "fstem",
+            "bloom"
+          ],
+          [
+            "blade"
+          ]
+        ],
+        "on": "base",
+        "count": 60,
+        "max": 2000,
+        "seed": 11,
+        "scale": [
+          0.7,
+          1.3
+        ],
+        "rotate": "random_y",
+        "align": 0.0,
+        "min_spacing": 0.04,
+        "sink": 0.0,
+        "faces": "up",
+        "weights": [
+          1.0,
+          1.5
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "fstem",
+        "input": "fstem",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "grass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "from": [
+                  0,
+                  0,
+                  0
+                ],
+                "name": "g",
+                "to": [
+                  0,
+                  "$top",
+                  0
+                ],
+                "type": "gradient"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  -0.15,
+                  0.15
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g",
+                "b": "nt",
+                "name": "gg",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "gg",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#2f5418"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#a9c25a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "type": "hsv"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "top": 0.6
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade",
+        "input": "blade",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "grass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "from": [
+                  0,
+                  0,
+                  0
+                ],
+                "name": "g",
+                "to": [
+                  0,
+                  "$top",
+                  0
+                ],
+                "type": "gradient"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 31,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  -0.15,
+                  0.15
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "g",
+                "b": "nt",
+                "name": "gg",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "gg",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#2f5418"
+                  ],
+                  [
+                    0.5,
+                    "#5f8f2f"
+                  ],
+                  [
+                    1.0,
+                    "#a9c25a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "type": "hsv"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "top": 0.6
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bloom",
+        "input": "bloom",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 32,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 2,
+                "seed": 161,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#f28fb5"
+                  ],
+                  [
+                    1,
+                    "#ffc4da"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "fstem",
+        "input": "fstem",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bloom",
+        "input": "bloom",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "blade",
+        "input": "blade",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "base",
+        "input": "base",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

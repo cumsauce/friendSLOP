@@ -9,3 +9,5 @@ crates/game/assets/**/*.ogg filter=lfs diff=lfs merge=lfs -text
 crates/game/assets/**/*.wav filter=lfs diff=lfs merge=lfs -text
 crates/game/assets/**/*.mp3 filter=lfs diff=lfs merge=lfs -text
 crates/game/assets/**/*.ttf filter=lfs diff=lfs merge=lfs -text
+# Screenshot goldens (S3): per-backend captures under renders/goldens/.
+renders/goldens/**/*.png filter=lfs diff=lfs merge=lfs -text

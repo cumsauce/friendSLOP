@@ -88,6 +88,14 @@ impl Plugin for NetPlugin {
             .init_resource::<Clipboard>()
             .add_message::<NetCommand>()
             .init_resource::<DropReason>()
+            // Not a registration: an observer never touches the protocol hash.
+            .add_observer(
+                |_on: On<ProtocolMismatch>, mut reason: ResMut<DropReason>| {
+                    // The server reports the mismatch and disconnects right
+                    // away; name it before the generic close reason lands.
+                    reason.0 = Some(MISMATCH_REASON.to_string());
+                },
+            )
             .add_systems(
                 PreUpdate,
                 close_dead_client.before(ClientSystems::ReceivePackets),
@@ -103,11 +111,24 @@ impl Plugin for NetPlugin {
 #[derive(Resource, Default)]
 struct DropReason(Option<String>);
 
+/// What the menu says when the server rejects this build's protocol hash.
+pub const MISMATCH_REASON: &str = "this build doesn't match the host's game version";
+
 /// What the menu says after losing the host (pure, for tests).
 pub fn drop_message(reason: Option<&str>) -> String {
     match reason {
         Some(reason) => format!("Lost the connection to the host: {reason}"),
         None => "Disconnected.".into(),
+    }
+}
+
+/// Record why the host connection went away. First-write-wins: the first
+/// reason is the most specific one (a `ProtocolMismatch` names the version
+/// skew; the generic close reason that follows the server's immediate
+/// disconnect must not clobber it).
+fn note_drop(slot: &mut Option<String>, reason: String) {
+    if slot.is_none() {
+        *slot = Some(reason);
     }
 }
 
@@ -125,7 +146,8 @@ fn close_dead_client(world: &mut World) {
         return;
     };
     warn!("host connection closed: {reason}");
-    world.insert_resource(DropReason(Some(reason.to_string())));
+    let mut slot = world.resource_mut::<DropReason>();
+    note_drop(&mut slot.0, reason.to_string());
     teardown_transport(world);
 }
 
@@ -243,17 +265,36 @@ fn back_to_menu(
     for e in &replicated {
         commands.entity(e).despawn();
     }
+    status.join_code = None;
     status.message = drop_message(reason.0.take().as_deref());
     next.set(AppState::Menu);
 }
 
 #[cfg(test)]
 mod tests {
-    use super::drop_message;
+    use super::{MISMATCH_REASON, drop_message, note_drop};
 
     #[test]
     fn drop_message_names_the_reason() {
         assert_eq!(drop_message(None), "Disconnected.");
         assert!(drop_message(Some("timed out")).ends_with("host: timed out"));
+    }
+
+    #[test]
+    fn mismatch_message_names_the_version_mismatch() {
+        let msg = drop_message(Some(MISMATCH_REASON));
+        assert!(msg.starts_with("Lost the connection to the host: "));
+        assert!(msg.contains("doesn't match the host's game version"));
+    }
+
+    #[test]
+    fn the_first_drop_reason_wins() {
+        let mut slot = Some(MISMATCH_REASON.to_string());
+        note_drop(&mut slot, "connection closed".to_string());
+        assert_eq!(slot.as_deref(), Some(MISMATCH_REASON));
+
+        let mut slot = None;
+        note_drop(&mut slot, "timed out".to_string());
+        assert_eq!(slot.as_deref(), Some("timed out"));
     }
 }

@@ -132,8 +132,10 @@ fn sway_near(
     let Some(eye) = camera.iter().next().map(GlobalTransform::translation) else {
         return;
     };
+    let frozen = crate::screenshot::frozen();
     for (mut sway, at) in &mut rigs {
-        let live = sways(eye.distance(at.translation()));
+        // Screenshot captures hold every tree still (goldens, S3).
+        let live = !frozen && sways(eye.distance(at.translation()));
         if sway.live != live {
             sway.live = live;
         }
@@ -145,6 +147,12 @@ fn steer_wind(
     still: Query<&crate::features::stillness::Stillness>,
     mut wind: ResMut<modeler_bevy::Wind>,
 ) {
+    if crate::screenshot::frozen() {
+        if wind.enabled {
+            wind.enabled = false;
+        }
+        return;
+    }
     let strength = wind_strength(gusts.map_or(0.0, |g| g.strength()));
     let enabled = !crate::features::stillness::is_frozen(&still);
     if wind.strength != Some(strength) || wind.enabled != enabled {

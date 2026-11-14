@@ -27,7 +27,7 @@ fn features_mod_src() -> String {
 }
 
 fn blessed() -> bool {
-    std::env::var("BLESS").map_or(false, |v| v == "1")
+    std::env::var("BLESS").is_ok_and(|v| v == "1")
 }
 
 /// Compare `got` against the snapshot file; with `BLESS=1` rewrite the file.

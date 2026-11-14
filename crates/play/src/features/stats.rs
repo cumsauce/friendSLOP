@@ -271,7 +271,7 @@ mod tests {
         app.world_mut().trigger(crate::rules::campaign::NewCampaign);
         let world = app.world_mut();
         assert_eq!(
-            world.get::<Stats>(player).unwrap(),
+            world.get::<Stats>(player).expect("test setup"),
             &Stats::roll([0.0; 6]),
             "only the server rerolls"
         );
@@ -286,6 +286,6 @@ mod tests {
         app.update();
         app.world_mut().trigger(crate::rules::campaign::NewCampaign);
         let world = app.world_mut();
-        assert_eq!(world.get::<Stats>(player).unwrap(), &expected);
+        assert_eq!(world.get::<Stats>(player).expect("test setup"), &expected);
     }
 }

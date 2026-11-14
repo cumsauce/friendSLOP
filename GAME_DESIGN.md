@@ -1173,7 +1173,10 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   Fullscreen. Low is everything off (default in the browser, or `FRIENDSLOP_LOW=1`), Medium is
   everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
   Fullscreen alone. Saved locally (old Low/High saves still load). 60 fps on low-end phones is
-  the aim for Low, not measured.
+  the aim for Low, not measured. Steam Deck (#393, Tally): GPU-bound even on Low-ish settings;
+  Bloom off now also drops the HDR float render target, so Low draws into an 8-bit target
+  (about half the per-pixel memory traffic). Open: desktop has no render-scale option yet, the
+  biggest remaining lever; no Deck before/after numbers yet.
 - **Better lighting** (#131, doomy: "surprise me"). The sun is now a lower, warmer golden-hour
   sun, so shadows stretch long and lit faces glow, with a slightly stronger cool bounce from the
   other side. With the video options on (High): ambient occlusion (soft darkening where things touch the ground or

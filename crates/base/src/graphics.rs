@@ -10,7 +10,8 @@
 //! - Ambient occlusion (#131): soft contact shadows where things meet. Not in
 //!   the browser (WebGL2 can't); it needs MSAA off, so anti-aliasing is FXAA
 //!   while it's on and MSAA otherwise.
-//! - Bloom: the glow around the bonfire and emissives.
+//! - Bloom: the glow around the bonfire and emissives. Off also drops the
+//!   HDR render target (#393), which is most of what bloom costs a weak GPU.
 //! - Anti-aliasing: smooth edges.
 //! - Draw distance: how far the fog starts and the camera draws.
 //! - Resolution (browser only, #191): "Sharp" renders at the screen's pixel
@@ -435,13 +436,17 @@ fn apply_camera(
             continue;
         }
         let mut c = commands.entity(e);
+        // Bloom is the only reason for the HDR (float) target: without it
+        // tonemapping runs in the material shaders into an 8-bit target,
+        // half the memory traffic per pixel (#393: the Steam Deck is GPU-bound).
         if q.bloom && HDR_SUPPORTED {
+            c.insert(bevy::camera::Hdr);
             c.insert(Bloom {
                 intensity: 0.08,
                 ..Bloom::NATURAL
             });
         } else {
-            c.remove::<Bloom>();
+            c.remove::<(Bloom, bevy::camera::Hdr)>();
         }
         if q.ssao {
             c.insert(ScreenSpaceAmbientOcclusion::default());

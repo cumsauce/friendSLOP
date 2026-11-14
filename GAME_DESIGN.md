@@ -119,7 +119,9 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   character controller (`crates/kcc`, ported from bevy_ahoy at `630a4573`, MIT OR Apache-2.0) — it
   slides along walls, walks slopes up to 45°, steps up stairs and kerbs up to 0.5 m (village
   stairs, ramps, the tower — no special-cased floors anymore), snaps down slopes instead of
-  hopping, and jumps ~0.9 m. Headless tests (no physics) fall back to a plain terrain-height
+  hopping, and jumps ~0.9 m (Space or pad South/A; a fresh press each jump, no double jump,
+  0.1 s coyote time off ledges, a 0.1 s buffer for presses just before landing, and letting go
+  early cuts the rise for a short hop; numbers in `data/play/fps.ron`). Headless tests (no physics) fall back to a plain terrain-height
   walk. V swaps to the old
   overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
   put you in the arena with a duel body; your walking body waits where you left it. Each body

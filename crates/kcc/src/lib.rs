@@ -70,6 +70,95 @@ pub struct Kcc {
     pub velocity: Vec3,
     /// The ground under the feet, if any.
     pub grounded: Option<MoveHitData>,
+    /// Jump timing: coyote time, the press buffer and the early-release cut.
+    pub jump: JumpState,
+}
+
+/// How a jump feels: apex height, forgiveness windows and the short hop.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Jump {
+    /// Apex height (m) of a held jump.
+    pub height: f32,
+    /// Seconds after walking off a ledge that a jump still counts.
+    pub coyote: f32,
+    /// Seconds a press made just before landing is kept for the landing.
+    pub buffer: f32,
+    /// Rising speed kept when the button is let go early (0..=1).
+    pub release_cut: f32,
+}
+
+impl Jump {
+    pub const NORMAL: Jump = Jump {
+        height: JUMP_HEIGHT,
+        coyote: 0.1,
+        buffer: 0.1,
+        release_cut: 0.5,
+    };
+}
+
+impl Default for Jump {
+    fn default() -> Self {
+        Self::NORMAL
+    }
+}
+
+/// Per-walker jump timing, fed the held button every tick. A jump needs a
+/// fresh press, so holding the button does not bounce and there is no second
+/// jump in the air.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct JumpState {
+    /// Button state last tick, to find fresh presses.
+    held: bool,
+    /// Seconds left on a buffered press.
+    buffered: f32,
+    /// Seconds since we last stood on ground; `None` once a jump used it.
+    since_ground: Option<f32>,
+    /// In a jump whose rise the button still holds.
+    rising: bool,
+}
+
+impl JumpState {
+    /// One tick: `grounded` is whether we stood on ground at its start.
+    /// Returns true when a jump starts now.
+    pub fn tick(&mut self, held: bool, grounded: bool, dt: f32, tuning: &Jump) -> bool {
+        let pressed = held && !self.held;
+        self.held = held;
+        self.buffered = if pressed {
+            tuning.buffer
+        } else {
+            (self.buffered - dt).max(0.0)
+        };
+        if grounded {
+            self.since_ground = Some(0.0);
+            self.rising = false;
+        } else if let Some(t) = &mut self.since_ground {
+            *t += dt;
+        }
+        let can = self.since_ground.is_some_and(|t| t <= tuning.coyote);
+        if self.buffered > 0.0 && can {
+            self.buffered = 0.0;
+            self.since_ground = None;
+            self.rising = true;
+            return true;
+        }
+        false
+    }
+
+    /// True once per jump, on the tick the button is let go while rising.
+    pub fn cut(&mut self, vertical_speed: f32) -> bool {
+        if !self.rising {
+            return false;
+        }
+        if vertical_speed <= 0.0 {
+            self.rising = false;
+            return false;
+        }
+        if self.held {
+            return false;
+        }
+        self.rising = false;
+        true
+    }
 }
 
 /// Air control and the speed cap: [`Air::NORMAL`] everywhere, except places
@@ -113,10 +202,12 @@ pub fn step(
         dt,
         move_and_slide,
         Air::NORMAL,
+        &Jump::NORMAL,
     )
 }
 
-/// [`step`] with its own air control (see [`Air`]).
+/// [`step`] with its own air control (see [`Air`]) and jump feel (see
+/// [`Jump`]). `jump` is whether the button is held this tick.
 #[allow(clippy::too_many_arguments)]
 pub fn step_with(
     kcc: &mut Kcc,
@@ -128,6 +219,7 @@ pub fn step_with(
     dt: f32,
     move_and_slide: &MoveAndSlide,
     air: Air,
+    jump_tuning: &Jump,
 ) -> Vec3 {
     let shape = body();
     let rotation = Quat::from_rotation_y(yaw);
@@ -160,13 +252,18 @@ pub fn step_with(
     // half a tick of fall (upstream `start_gravity` / `finish_gravity`).
     kcc.velocity.y -= GRAVITY * 0.5 * dt;
 
-    // Jumping (upstream `handle_jump`, minus coyote time and tic tacs).
-    let mut jumped = false;
-    if kcc.grounded.is_some() && jump {
-        jumped = true;
+    // Jumping (upstream `handle_jump` with its coyote time and a press
+    // buffer, minus tic tacs). A coyote jump replaces the fall speed.
+    let grounded = kcc.grounded.is_some();
+    let jumped = kcc.jump.tick(jump, grounded, dt, jump_tuning);
+    if jumped {
         kcc.grounded = None;
-        // v = sqrt(2 g h): reach `JUMP_HEIGHT` against linear deceleration.
-        kcc.velocity.y += (2.0 * GRAVITY * JUMP_HEIGHT).sqrt();
+        // v = sqrt(2 g h): reach the apex against linear deceleration.
+        kcc.velocity.y =
+            kcc.velocity.y.max(0.0) + (2.0 * GRAVITY * jump_tuning.height.max(0.0)).sqrt();
+    } else if kcc.jump.cut(kcc.velocity.y) {
+        // Let go early: a short hop.
+        kcc.velocity.y *= jump_tuning.release_cut.clamp(0.0, 1.0);
     }
 
     // Friction before moving (upstream `friction`, no per-surface friction).
@@ -464,3 +561,83 @@ fn update_grounded(
 pub const WALK_SPEED: f32 = 5.0;
 /// Sprint at 10.5 m/s (the old `RUN_SPEED`).
 pub const RUN_SPEED: f32 = 10.5;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const DT: f32 = 1.0 / 60.0;
+
+    fn ticks(state: &mut JumpState, held: bool, grounded: bool, n: usize) -> usize {
+        (0..n)
+            .filter(|_| state.tick(held, grounded, DT, &Jump::NORMAL))
+            .count()
+    }
+
+    #[test]
+    fn a_press_on_the_ground_jumps_once() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, true, 5);
+        assert!(s.tick(true, true, DT, &Jump::NORMAL));
+        // Holding does not bounce, on the ground or in the air.
+        assert_eq!(ticks(&mut s, true, true, 30), 0);
+    }
+
+    #[test]
+    fn coyote_time_forgives_a_late_press_once() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, true, 5);
+        ticks(&mut s, false, false, 4); // walked off, ~67 ms ago
+        assert!(s.tick(true, false, DT, &Jump::NORMAL));
+        // No second jump in the air.
+        ticks(&mut s, false, false, 1);
+        assert!(!s.tick(true, false, DT, &Jump::NORMAL));
+    }
+
+    #[test]
+    fn coyote_time_runs_out() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, true, 5);
+        ticks(&mut s, false, false, 12); // 200 ms after the ledge
+        assert!(!s.tick(true, false, DT, &Jump::NORMAL));
+    }
+
+    #[test]
+    fn a_press_just_before_landing_is_buffered() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, false, 30); // falling
+        assert!(!s.tick(true, false, DT, &Jump::NORMAL));
+        ticks(&mut s, true, false, 3);
+        assert!(s.tick(true, true, DT, &Jump::NORMAL), "jumps on landing");
+    }
+
+    #[test]
+    fn an_early_press_expires() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, false, 30);
+        s.tick(true, false, DT, &Jump::NORMAL);
+        ticks(&mut s, false, false, 12); // 200 ms before landing
+        assert!(!s.tick(false, true, DT, &Jump::NORMAL));
+    }
+
+    #[test]
+    fn letting_go_while_rising_cuts_once() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, true, 2);
+        assert!(s.tick(true, true, DT, &Jump::NORMAL));
+        assert!(!s.cut(5.0), "still held");
+        s.tick(false, false, DT, &Jump::NORMAL);
+        assert!(s.cut(4.0));
+        assert!(!s.cut(3.0), "only once");
+    }
+
+    #[test]
+    fn letting_go_after_the_apex_does_not_cut() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, true, 2);
+        s.tick(true, true, DT, &Jump::NORMAL);
+        assert!(!s.cut(-0.1));
+        s.tick(false, false, DT, &Jump::NORMAL);
+        assert!(!s.cut(-1.0));
+    }
+}

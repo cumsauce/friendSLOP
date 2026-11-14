@@ -36,6 +36,42 @@ const EDGE: f32 = FLOOR_HALF - 2.0;
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
     pub look_sensitivity: f32,
+    #[serde(default)]
+    pub jump: JumpTuning,
+}
+
+/// How a jump feels (see `kcc::Jump`); the controller's own numbers when the
+/// file leaves them out.
+#[derive(serde::Deserialize, Debug, Clone, Copy)]
+#[serde(default)]
+pub struct JumpTuning {
+    pub height: f32,
+    pub coyote_time: f32,
+    pub buffer_time: f32,
+    pub release_cut: f32,
+}
+
+impl Default for JumpTuning {
+    fn default() -> Self {
+        let j = crate::kcc::Jump::NORMAL;
+        Self {
+            height: j.height,
+            coyote_time: j.coyote,
+            buffer_time: j.buffer,
+            release_cut: j.release_cut,
+        }
+    }
+}
+
+impl From<JumpTuning> for crate::kcc::Jump {
+    fn from(t: JumpTuning) -> Self {
+        Self {
+            height: t.height,
+            coyote: t.coyote_time,
+            buffer: t.buffer_time,
+            release_cut: t.release_cut,
+        }
+    }
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/play/fps.ron");
@@ -137,6 +173,7 @@ pub fn teleport(
     if let Some(kcc) = kcc {
         kcc.velocity = Vec3::ZERO;
         kcc.grounded = None;
+        kcc.jump = default();
     }
 }
 
@@ -288,6 +325,7 @@ pub fn kcc_move_walkers(
     }
     // The old movement ticked per frame with a clamped dt; keep that.
     let dt = time.delta_secs().min(0.1);
+    let jump: crate::kcc::Jump = tuning().jump.into();
     for (player, mut walker, input, mut kcc, skills, buzz, held) in &mut walkers {
         if input.climbing || duelists.iter().any(|d| d.player == player.id) {
             continue; // climbing (see `climb.rs`), or your duel body is moving
@@ -310,6 +348,7 @@ pub fn kcc_move_walkers(
             &move_and_slide,
             // The surf map's air control (#306), else the usual.
             crate::rules::surf::air_at(walker.pos),
+            &jump,
         );
         // The soft wall at the edge of the world (the old `step` clamped too),
         // or New York City's own edges (#283).

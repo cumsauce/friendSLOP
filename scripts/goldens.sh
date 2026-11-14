@@ -156,7 +156,7 @@ while [[ $i -lt $n ]]; do
       echo "$capture_dir/${rows_out[$j]}.png ${rows_cam[$j]}" >>"$shots"
     done
     RUN_OUT="$capture_dir/${rows_out[$i]}.png" RUN_CAMERA=${rows_cam[$i]}
-    RUN_SHOTS=$shots RUN_LAST="$capture_dir/${rows_out[${group[-1]}]}.png"
+    RUN_SHOTS=$shots RUN_LAST="$capture_dir/${rows_out[${group[${#group[@]}-1]}]}.png"
     echo "== batch at '${rows_start[$i]}' (${rows_scene[$i]} ${rows_size[$i]}): ${#group[@]} shots"
     run_game
     rm -f "$shots"

@@ -43,7 +43,7 @@ use super::fulton::{
     tuning,
 };
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::rules::nyc::in_station;
@@ -662,16 +662,17 @@ fn hunt(
                 hunted.hiding.remove(&id);
                 // Andrew starts over from the top.
                 hunted.calls.remove(&id);
-                if let Some((_, owner, mut w, input, kcc)) =
+                if let Some((_, owner, mut w, mut input, mut kcc)) =
                     players.iter_mut().find(|p| p.0.id == id)
                 {
-                    w.pos = street_at(&t) + Vec3::Y * 0.05;
-                    if let Some(mut input) = input {
-                        input.stick = Vec2::ZERO;
-                    }
-                    if let Some(mut kcc) = kcc {
-                        kcc.velocity = Vec3::ZERO;
-                    }
+                    let yaw = w.yaw;
+                    teleport(
+                        &mut w,
+                        input.as_deref_mut(),
+                        kcc.as_deref_mut(),
+                        street_at(&t) + Vec3::Y * 0.05,
+                        yaw,
+                    );
                     tell(&mut commands, owner, Phone::Caught);
                 }
                 if id == brain.target {
@@ -702,7 +703,14 @@ fn hide(
     if let Some(spot) = hunted.hiding.remove(&p.id) {
         // Out the locker's door, a step forward.
         let out = (w.pos - spot).xz();
-        w.pos = spot + Vec3::new(out.x, 0.0, out.y).normalize_or(Vec3::Z) * 1.2;
+        let yaw = w.yaw;
+        teleport(
+            &mut w,
+            None,
+            None,
+            spot + Vec3::new(out.x, 0.0, out.y).normalize_or(Vec3::Z) * 1.2,
+            yaw,
+        );
         tell(&mut commands, o, Phone::Hidden(false));
         return;
     }
@@ -718,7 +726,8 @@ fn hide(
         crate::features::interact::deny(&mut commands, ev.client_id, "too far away: walk closer");
         return;
     }
-    w.pos = spot + Vec3::Y * 0.05;
+    let yaw = w.yaw;
+    teleport(&mut w, None, None, spot + Vec3::Y * 0.05, yaw);
     hunted.hiding.insert(p.id, spot);
     tell(&mut commands, o, Phone::Hidden(true));
 }

@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::abuela::heaven;
-use crate::features::fps::{Walker, spawn_point};
+use crate::features::fps::{Walker, spawn_point, teleport};
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, in_reach, within};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -316,11 +316,9 @@ fn tell(commands: &mut Commands, player: u64, fate: Fate) {
 }
 
 /// Move a body somewhere, stopping it dead.
-fn put(walker: &mut Walker, kcc: Option<Mut<crate::kcc::Kcc>>, at: Vec3) {
-    walker.pos = at;
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-    }
+fn put(walker: &mut Walker, mut kcc: Option<Mut<crate::kcc::Kcc>>, at: Vec3) {
+    let yaw = walker.yaw;
+    teleport(walker, None, kcc.as_deref_mut(), at, yaw);
 }
 
 /// The player who sent a client event: (entity, id).

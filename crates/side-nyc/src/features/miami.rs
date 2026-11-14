@@ -24,7 +24,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, in_reach};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
@@ -240,17 +240,13 @@ fn catch_fallers(
     >,
 ) {
     let t = tuning();
-    for (mut w, input, kcc) in &mut bodies {
+    for (mut w, mut input, mut kcc) in &mut bodies {
         if !fallen(&t, w.pos) {
             continue;
         }
-        w.pos = Vec3::new(t.back_to.0, t.ground.1 + 0.3, t.back_to.1);
-        if let Some(mut input) = input {
-            input.stick = Vec2::ZERO;
-        }
-        if let Some(mut kcc) = kcc {
-            kcc.velocity = Vec3::ZERO;
-        }
+        let to = Vec3::new(t.back_to.0, t.ground.1 + 0.3, t.back_to.1);
+        let yaw = w.yaw;
+        teleport(&mut w, input.as_deref_mut(), kcc.as_deref_mut(), to, yaw);
     }
 }
 

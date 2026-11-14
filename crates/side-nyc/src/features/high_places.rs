@@ -32,9 +32,9 @@ use serde::{Deserialize, Serialize};
 
 use super::wallet::Cash;
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
-use crate::features::smoking::{Smoking, Stash};
+use crate::features::smoking::{Item, Lit, Smoking, Stash, purchase};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// Tuning and writing: `assets/data/side/high_places.ron` (read at run time).
@@ -318,7 +318,7 @@ fn buy(
     let Some((player, _, mut cash, mut stash)) = buyers.iter_mut().find(|b| b.1.0 == me) else {
         return;
     };
-    if cash.dollars < t.price {
+    if !purchase(&mut cash.dollars, &mut stash, t.price) {
         let text = t
             .broke_line
             .replace("{price}", &t.price.to_string())
@@ -326,8 +326,6 @@ fn buy(
         deny(&mut commands, ev.client_id, text);
         return;
     }
-    cash.dollars -= t.price;
-    stash.joints += 1;
     let text = t
         .bought_line
         .replace("{price}", &t.price.to_string())
@@ -354,14 +352,14 @@ fn light_up(
     if busy {
         return;
     }
-    if stash.joints == 0 {
+    if !stash.spend(Item::Joint) {
         deny(&mut commands, ev.client_id, t.no_joint_line.clone());
         return;
     }
-    stash.joints -= 1;
-    commands.entity(e).insert(Smoking {
-        left: t.smoke_secs,
+    commands.trigger(Lit {
+        player: e,
         joint: true,
+        secs: t.smoke_secs,
     });
     news(&mut commands, player.id, t.lit_line.clone(), true);
 }
@@ -376,18 +374,18 @@ fn elevator(
 ) {
     let Some(foot) = foot() else { return };
     let reach = tuning().door_reach;
-    for (mut walker, input, kcc) in &mut bodies {
+    for (mut walker, mut input, mut kcc) in &mut bodies {
         let Some(to) = ride(walker.pos, foot, reach) else {
             continue;
         };
-        walker.pos = to + Vec3::Y * 0.05;
-        if let Some(mut input) = input {
-            input.stick = Vec2::ZERO;
-            input.jump = false;
-        }
-        if let Some(mut kcc) = kcc {
-            kcc.velocity = Vec3::ZERO;
-        }
+        let yaw = walker.yaw;
+        teleport(
+            &mut walker,
+            input.as_deref_mut(),
+            kcc.as_deref_mut(),
+            to + Vec3::Y * 0.05,
+            yaw,
+        );
     }
 }
 

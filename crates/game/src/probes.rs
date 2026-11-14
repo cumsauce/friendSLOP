@@ -166,14 +166,16 @@ fn bake(
         Stage::Start => {
             // Stand the host there (eye height above the feet).
             if let Some((_, mut w)) = walkers.iter_mut().find(|(o, _)| o.0.is_none()) {
-                w.pos = at - Vec3::Y * 1.6;
+                let yaw = w.yaw;
+                crate::features::fps::teleport(&mut w, None, None, at - Vec3::Y * 1.6, yaw);
             }
             info!("bake: {name} at {at}");
             job.stage = Stage::Settle(t.settle_secs);
         }
         Stage::Settle(left) => {
             if let Some((_, mut w)) = walkers.iter_mut().find(|(o, _)| o.0.is_none()) {
-                w.pos = at - Vec3::Y * 1.6;
+                let yaw = w.yaw;
+                crate::features::fps::teleport(&mut w, None, None, at - Vec3::Y * 1.6, yaw);
             }
             let left = left - time.delta_secs();
             if left > 0.0 {

@@ -53,6 +53,39 @@ pub struct Stash {
     pub love: u32,
 }
 
+/// One thing a [`Stash`] counts.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Item {
+    Egg,
+    Cig,
+    Joint,
+}
+
+impl Stash {
+    /// Pocket one more of `what`.
+    pub fn earn(&mut self, what: Item) {
+        match what {
+            Item::Egg => self.eggs += 1,
+            Item::Cig => self.cigs += 1,
+            Item::Joint => self.joints += 1,
+        }
+    }
+
+    /// Use up one of `what`: false (and nothing spent) if you have none.
+    pub fn spend(&mut self, what: Item) -> bool {
+        let pocket = match what {
+            Item::Egg => &mut self.eggs,
+            Item::Cig => &mut self.cigs,
+            Item::Joint => &mut self.joints,
+        };
+        if *pocket == 0 {
+            return false;
+        }
+        *pocket -= 1;
+        true
+    }
+}
+
 /// On a player while they smoke: seconds left, and whether it's a joint.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub struct Smoking {
@@ -116,6 +149,36 @@ pub fn light(stash: &mut Stash) -> Option<bool> {
     }
 }
 
+/// Buy one joint for `price` dollars out of `cash`. False if you can't
+/// afford it (nothing changes then).
+pub fn purchase(cash: &mut u32, stash: &mut Stash, price: u32) -> bool {
+    if *cash < price {
+        return false;
+    }
+    *cash -= price;
+    stash.earn(Item::Joint);
+    true
+}
+
+/// Server: someone lights up. Only [`start`] turns this into [`Smoking`],
+/// so the component is inserted in this module alone.
+#[derive(Event, Clone, Copy, Debug)]
+pub struct Lit {
+    pub player: Entity,
+    /// A joint (true) or a cig (false).
+    pub joint: bool,
+    /// How long this one lasts: a dealer's joint burns longer than a cig.
+    pub secs: f32,
+}
+
+/// The one place [`Smoking`] is inserted.
+fn start(lit: On<Lit>, mut commands: Commands) {
+    commands.entity(lit.player).insert(Smoking {
+        left: lit.secs,
+        joint: lit.joint,
+    });
+}
+
 /// Where Sewer Paul stands: in his chamber halfway between the junction and
 /// the first manhole (pinned whatever the world seed), off to one side of
 /// the water.
@@ -145,6 +208,7 @@ pub fn protocol(app: &mut App) {
         .add_observer(take_egg)
         .add_observer(visit_paul)
         .add_observer(smoke)
+        .add_observer(start)
         .add_systems(OnEnter(ServerState::Running), lay_eggs)
         .add_systems(OnExit(ServerState::Running), clear_eggs)
         .add_systems(
@@ -237,7 +301,7 @@ fn take_egg(
     let Some((_, mut stash)) = stashes.iter_mut().find(|(o, _)| o.0 == owner) else {
         return;
     };
-    stash.eggs += 1;
+    stash.earn(Item::Egg);
     commands.entity(egg).despawn();
     *timer = Some(tuning().egg_secs);
     say(&mut commands, take.client_id, "you pocket a crow egg");
@@ -281,9 +345,10 @@ fn smoke(
         );
         return;
     };
-    commands.entity(player).insert(Smoking {
-        left: tuning().smoke_secs,
+    commands.trigger(Lit {
+        player,
         joint,
+        secs: tuning().smoke_secs,
     });
     let text = if joint {
         "you spark the joint. everything is very funny now"
@@ -522,6 +587,20 @@ mod tests {
         assert_eq!(light(&mut s), Some(false));
         assert_eq!(light(&mut s), Some(true));
         assert_eq!(light(&mut s), None);
+    }
+
+    #[test]
+    fn you_buy_with_what_you_have() {
+        let mut s = Stash::default();
+        let mut cash = 9;
+        assert!(!purchase(&mut cash, &mut s, 10), "too rich for you");
+        assert_eq!((cash, s.joints), (9, 0));
+        assert!(purchase(&mut cash, &mut s, 9));
+        assert_eq!((cash, s.joints), (0, 1));
+        assert!(s.spend(Item::Joint));
+        assert!(!s.spend(Item::Joint), "empty pockets spend nothing");
+        s.earn(Item::Cig);
+        assert_eq!((s.cigs, s.joints), (1, 0));
     }
 
     #[test]

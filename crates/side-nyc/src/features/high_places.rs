@@ -280,7 +280,9 @@ pub fn protocol(app: &mut App) {
             Update,
             elevator
                 .run_if(in_state(AppState::InGame))
-                .run_if(in_state(ServerState::Running)),
+                .run_if(in_state(ServerState::Running))
+                // One World Trade Center is in New York (#412).
+                .run_if(crate::sites::awake("nyc")),
         );
 }
 
@@ -404,7 +406,8 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), build)
         .add_systems(
             Update,
-            (play, arrive_line).run_if(in_state(AppState::InGame)),
+            (play, arrive_line.run_if(crate::sites::here("nyc")))
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

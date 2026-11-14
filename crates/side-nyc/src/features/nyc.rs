@@ -320,7 +320,8 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), build_city)
         .add_systems(
             Update,
-            (where_am_i, cull_city).run_if(in_state(AppState::InGame)),
+            (where_am_i.run_if(crate::sites::here("nyc")), cull_city)
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

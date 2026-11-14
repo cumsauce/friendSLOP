@@ -1235,6 +1235,8 @@ pub fn protocol(app: &mut App) {
             Update,
             (go_down, reward)
                 .run_if(in_state(ServerState::Running))
+                // The entrance and the J are in New York (#412).
+                .run_if(crate::sites::awake("nyc"))
                 .run_if(resource_exists::<Station>),
         );
 }

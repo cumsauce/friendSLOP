@@ -531,6 +531,8 @@ pub fn protocol(app: &mut App) {
             (calls, hunt)
                 .chain()
                 .run_if(in_state(ServerState::Running))
+                // The phones and the hunters are under New York (#412).
+                .run_if(crate::sites::awake("nyc"))
                 .run_if(resource_exists::<Station>),
         );
 }
@@ -742,7 +744,9 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), (build_ui, place_lockers))
         .add_systems(
             Update,
-            (ring, move_hunters).run_if(in_state(AppState::InGame)),
+            (ring, move_hunters)
+                .run_if(in_state(AppState::InGame))
+                .run_if(crate::sites::here("nyc")),
         );
 }
 
@@ -774,12 +778,14 @@ fn build_ui(mut commands: Commands, mut call: ResMut<Call>) {
         TextColor(Color::srgb(0.55, 1.0, 0.6)),
         PhoneBanner,
         crate::hud::slot(crate::hud::HudSlot::CenterBanner),
+        crate::sites::AtSite("nyc"),
         DespawnOnExit(AppState::InGame),
     ));
     commands.spawn((
         Text::new(""),
         PhoneSubtitle,
         crate::hud::slot(crate::hud::HudSlot::Subtitle),
+        crate::sites::AtSite("nyc"),
         DespawnOnExit(AppState::InGame),
     ));
 }

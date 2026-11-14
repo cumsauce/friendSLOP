@@ -240,7 +240,8 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), build)
         .add_systems(
             Update,
-            (show_buzz, step_in).run_if(in_state(AppState::InGame)),
+            (show_buzz, step_in.run_if(crate::sites::here("nyc")))
+                .run_if(in_state(AppState::InGame)),
         )
         .add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
 }

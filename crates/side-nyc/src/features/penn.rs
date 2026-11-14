@@ -366,13 +366,19 @@ pub fn plugin(app: &mut App) {
         })
         .add_systems(
             Update,
-            (queue, pizza_line, side_line, fires, music_signals).run_if(in_state(AppState::InGame)),
+            (
+                // Penn Station is under New York: it sleeps with it (#412).
+                (queue, pizza_line, side_line, fires).run_if(crate::sites::here("nyc")),
+                music_signals,
+            )
+                .run_if(in_state(AppState::InGame)),
         )
         .add_systems(
             Update,
             walk_through
                 .run_if(in_state(AppState::InGame))
-                .run_if(in_state(ServerState::Running)),
+                .run_if(in_state(ServerState::Running))
+                .run_if(crate::sites::awake("nyc")),
         );
 }
 

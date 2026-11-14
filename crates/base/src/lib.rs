@@ -68,6 +68,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &textures::GLASS,
         &night_lights::NIGHT_LIGHTS,
         &place::LOOKS,
+        &graphics::TUNING,
         &input::BINDINGS,
     ]
 }

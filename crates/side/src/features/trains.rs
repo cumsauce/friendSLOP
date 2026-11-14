@@ -1056,7 +1056,9 @@ fn dark(
                 ambient.brightness = amb;
                 for (e, l) in lux {
                     if let Ok((_, mut sun)) = suns.get_mut(e) {
-                        sun.illuminance = l;
+                        // Never back to 0: another dark place may have saved it dark, and
+                        // day_night only takes over again from a lit sun.
+                        sun.illuminance = l.max(1.0);
                     }
                 }
             }

@@ -849,14 +849,17 @@ mod tests {
             pos: Vec3::ZERO,
             yaw: 0.0,
         };
-        let mut input = WalkInput::default();
-        input.stick = Vec2::X;
-        input.jump = true;
-        input.run = true;
-        input.vy = 3.0;
-        input.climbing = true;
-        let mut kcc = crate::kcc::Kcc::default();
-        kcc.velocity = Vec3::new(1.0, 2.0, 3.0);
+        let mut input = WalkInput {
+            stick: Vec2::X,
+            jump: true,
+            run: true,
+            vy: 3.0,
+            climbing: true,
+        };
+        let mut kcc = crate::kcc::Kcc {
+            velocity: Vec3::new(1.0, 2.0, 3.0),
+            ..Default::default()
+        };
         let to = Vec3::new(4.0, 5.0, 6.0);
         teleport(&mut walker, Some(&mut input), Some(&mut kcc), to, 1.5);
         assert_eq!(walker.pos, to);

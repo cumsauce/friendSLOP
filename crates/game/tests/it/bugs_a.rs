@@ -161,10 +161,14 @@ fn unknown_client_mishap_not_player_zero() {
         .run_system_once(move |mut fate: Fate| {
             assert!(fate.fails(ClientId::Client(ghost)));
         })
-        .unwrap();
+        .expect("test setup");
     {
         let world = server.world_mut();
-        let board = world.query::<&FateBoard>().iter(world).next().unwrap();
+        let board = world
+            .query::<&FateBoard>()
+            .iter(world)
+            .next()
+            .expect("test setup");
         assert!(
             board.mishaps.is_empty(),
             "an unknown client's mishap is not blamed on player 0: {:?}",
@@ -177,9 +181,13 @@ fn unknown_client_mishap_not_player_zero() {
         .run_system_once(|mut fate: Fate| {
             assert!(fate.fails(ClientId::Server));
         })
-        .unwrap();
+        .expect("test setup");
     let world = server.world_mut();
-    let board = world.query::<&FateBoard>().iter(world).next().unwrap();
+    let board = world
+        .query::<&FateBoard>()
+        .iter(world)
+        .next()
+        .expect("test setup");
     assert_eq!(
         board.mishaps.iter().map(|m| m.player).collect::<Vec<_>>(),
         vec![0],

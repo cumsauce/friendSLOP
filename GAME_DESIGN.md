@@ -1241,7 +1241,7 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   almost all pixel shading, which these changes barely touch).
 - **Trees up close** (user: "even a single tree close up makes frames fucked up"). Leaves no
   longer let light through (that lit every leaf pixel twice); a faint glow of their own colour
-  stands in (`data/game/trees.ron`). The camera keeps a depth prepass whenever shadows are on,
+  stands in (`data/game/trees.ron`). The camera keeps a depth prepass (always, Low included: it took the Low main pass at the commune from 1.8 to 0.8 ms of GPU, 2.05 to 1.25 ms in all),
   so overlapping leaf cards shade only the front one. Not measured on the reporter's machine yet.
 - **Second performance pass** (#227, WeiYa: "much more fps ... less vram ... gpu instancing,
   lods, mipmaps ... bake lightmaps ... asset streaming ... chunk the map ... too much popin,

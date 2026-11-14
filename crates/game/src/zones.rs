@@ -125,6 +125,15 @@ pub struct Scenery {
     /// Reed clumps round the lake shore: how many tries round its edge.
     #[serde(default)]
     pub lake_reeds: usize,
+    /// Country props in the meadows and valley (scarecrows, beehives, wheelbarrows).
+    #[serde(default)]
+    pub country_props: Spread,
+    /// A lantern every this many metres along the map's paths (0: none).
+    #[serde(default)]
+    pub path_lantern_every: f32,
+    /// Trees on the rim hills past the play area, so the edge isn't bare.
+    #[serde(default)]
+    pub rim_trees: usize,
 }
 
 pub static SCENERY: friendslop_data::Data<Scenery> =
@@ -609,6 +618,63 @@ fn wildlife_detail(d: &mut Dresser, rng: &mut Rng) {
         let s = rng.range(0.8, 1.3);
         prefab(d, "zn-reeds", p, rng.yaw(), s, true);
     }
+    // Country props: scarecrows, beehives, wheelbarrows (each blocks a little).
+    const COUNTRY: [(&str, f32); 3] = [
+        ("zn-scarecrow", 0.4),
+        ("zn-beehives", 1.1),
+        ("zn-wheelbarrow", 0.5),
+    ];
+    let mut pts = t.country_props.scatter(rng, Zone::Meadow);
+    pts.extend(
+        t.country_props
+            .scatter(rng, Zone::Valley)
+            .into_iter()
+            .take(3),
+    );
+    for (i, p) in pts.into_iter().enumerate() {
+        let (file, r) = COUNTRY[i % COUNTRY.len()];
+        let yaw = rng.yaw();
+        prefab(d, file, p, yaw, 1.0, true);
+        d.blocker(
+            Transform::from_xyz(p.x, 0.5, p.y),
+            Collider::cylinder(r, 1.0),
+        );
+    }
+    // Lanterns along the paths, alternating sides.
+    if t.path_lantern_every > 0.5 {
+        for (a, b) in &friendslop_world::places::layout().paths {
+            let len = a.distance(*b);
+            let dir = (*b - *a) / len.max(0.01);
+            let side = dir.perp() * 1.8;
+            let n = (len / t.path_lantern_every) as usize;
+            for i in 1..n {
+                let p = *a
+                    + dir * (i as f32 * t.path_lantern_every)
+                    + if i % 2 == 0 { side } else { -side };
+                if wet_or_taken(p, 0.5) || zone_of(p) == Zone::Outside {
+                    continue;
+                }
+                prefab(d, "zn-path-lantern", p, Quat::IDENTITY, 1.0, true);
+                d.blocker(
+                    Transform::from_xyz(p.x, 0.8, p.y),
+                    Collider::cuboid(0.12, 1.6, 0.12),
+                );
+            }
+        }
+    }
+    // The rim hills: trees past the edge (out of reach, so no colliders).
+    for _ in 0..t.rim_trees {
+        let edge = rng.range(90.0, 106.0);
+        let along = rng.range(-edge, edge);
+        let p = match (rng.f() * 4.0) as u32 {
+            0 => Vec2::new(edge, along),
+            1 => Vec2::new(-edge, along),
+            2 => Vec2::new(along, edge),
+            _ => Vec2::new(along, -edge),
+        };
+        let s = rng.range(1.3, 2.2);
+        d.model(rng.pick(TREES), p, rng.yaw(), s, true);
+    }
 }
 
 /// A whitewashed tower windmill (~12 m) with slowly turning sails.
@@ -653,10 +719,16 @@ mod tests {
             t.valley_flowers,
             t.meadow_flowers,
             t.valley_boulders,
+            t.country_props,
         ] {
             assert!(s.count > 0 && s.spacing > 0.0, "{s:?}");
         }
-        assert!(t.commune_flora > 0 && t.lake_reeds > 0);
+        assert!(
+            t.commune_flora > 0
+                && t.lake_reeds > 0
+                && t.rim_trees > 0
+                && t.path_lantern_every > 0.0
+        );
     }
 
     #[test]

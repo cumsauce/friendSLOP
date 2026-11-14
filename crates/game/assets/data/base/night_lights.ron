@@ -16,6 +16,8 @@
         // Lamp heads (street lamps, cars' lights).
         (name: "nyc-glow", day: 0.25, night: 2.5),
         (name: "ns-glow", day: 0.4, night: 2.0),
+        // The valley's path lanterns.
+        (name: "zn-lamp", day: 0.3, night: 3.0, add: (0.9, 0.6, 0.25)),
         // Glass towers' curtain walls: a pale glow from the offices inside.
         (name: "nyc-curtain", day: 1.0, night: 1.0, add: (0.06, 0.055, 0.035)),
         // Shop windows on the small NYC places.
@@ -30,6 +32,13 @@
             lumens: 4000000.0,
             color: (1.0, 0.82, 0.55),
             range: 24.0,
+        ),
+        (
+            model: "models/prefabs/zn-path-lantern.gltf",
+            offset: (0.0, 1.47, 0.0),
+            lumens: 300000.0,
+            color: (1.0, 0.75, 0.45),
+            range: 9.0,
         ),
     ],
     // How many lamps can be lit at once (the nearest), and how far away one

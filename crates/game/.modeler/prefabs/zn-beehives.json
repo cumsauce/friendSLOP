@@ -1,0 +1,601 @@
+{
+  "format_version": 1,
+  "name": "zn-beehives",
+  "parts": [],
+  "version": 63543,
+  "ops": [
+    {
+      "primitive": {
+        "name": "bench",
+        "kind": "box",
+        "size": [
+          2.2,
+          0.06,
+          0.6
+        ],
+        "translation": [
+          0.0,
+          0.35,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg",
+        "kind": "box",
+        "size": [
+          0.08,
+          0.32,
+          0.5
+        ],
+        "translation": [
+          -1.0,
+          0.16,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "legs",
+        "input": "leg",
+        "count": 2,
+        "offset": [
+          2.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "box",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.5,
+          0.45
+        ],
+        "translation": [
+          -0.7,
+          0.63,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "boxes",
+        "input": "box",
+        "count": 3,
+        "offset": [
+          0.7,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "roof",
+        "kind": "box",
+        "size": [
+          0.6,
+          0.06,
+          0.55
+        ],
+        "translation": [
+          -0.7,
+          0.91,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "roofs",
+        "input": "roof",
+        "count": 3,
+        "offset": [
+          0.7,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "bench",
+        "input": "bench",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wv",
+                "octaves": 2,
+                "seed": 51,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "amount": 0.05,
+                "by": "wv",
+                "name": "wp",
+                "type": "warp"
+              },
+              {
+                "coords": "wp",
+                "name": "g",
+                "size": [
+                  1.0,
+                  0.02
+                ],
+                "stagger": 0.36,
+                "type": "tile_grid"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "gr",
+                "seed": 52,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 53,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "a": "gr",
+                "b": "fn",
+                "c": 0.4,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "name": "pl",
+                "size": [
+                  1.0,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "id": "pl.id",
+                "max": 0.2,
+                "min": -0.2,
+                "name": "pt",
+                "seed": 54,
+                "type": "random"
+              },
+              {
+                "a": "t0",
+                "b": "pt",
+                "name": "t1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t1",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#6e5238"
+                  ],
+                  [
+                    0.5,
+                    "#8f6c4a"
+                  ],
+                  [
+                    1,
+                    "#a7835c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "pl.edge",
+                "b": 0.003,
+                "c": 0.012,
+                "name": "gv",
+                "op": "smoothstep",
+                "type": "math"
+              },
+              {
+                "a": "#3a2616",
+                "b": "wc",
+                "c": "gv",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gv",
+                "b": 0.004,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": 0.001,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg",
+        "input": "leg",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "wv",
+                "octaves": 2,
+                "seed": 51,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "amount": 0.05,
+                "by": "wv",
+                "name": "wp",
+                "type": "warp"
+              },
+              {
+                "coords": "wp",
+                "name": "g",
+                "size": [
+                  1.0,
+                  0.02
+                ],
+                "stagger": 0.36,
+                "type": "tile_grid"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "gr",
+                "seed": 52,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 53,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "a": "gr",
+                "b": "fn",
+                "c": 0.4,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "name": "pl",
+                "size": [
+                  1.0,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "id": "pl.id",
+                "max": 0.2,
+                "min": -0.2,
+                "name": "pt",
+                "seed": 54,
+                "type": "random"
+              },
+              {
+                "a": "t0",
+                "b": "pt",
+                "name": "t1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t1",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#6e5238"
+                  ],
+                  [
+                    0.5,
+                    "#8f6c4a"
+                  ],
+                  [
+                    1,
+                    "#a7835c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "pl.edge",
+                "b": 0.003,
+                "c": 0.012,
+                "name": "gv",
+                "op": "smoothstep",
+                "type": "math"
+              },
+              {
+                "a": "#3a2616",
+                "b": "wc",
+                "c": "gv",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gv",
+                "b": 0.004,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": 0.001,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h0",
+                "b": "h1",
+                "name": "h",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "box",
+        "input": "box",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-plaster",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.5,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 101,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 2,
+                "seed": 102,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "fn",
+                "b": "bn",
+                "c": 0.5,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#cfc6b6"
+                  ],
+                  [
+                    0.5,
+                    "#e4dccd"
+                  ],
+                  [
+                    1,
+                    "#f1ebdf"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "fn",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "roof",
+        "input": "roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-shingle",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.25,
+                  0.25
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 81,
+                "type": "random"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 82,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "a": "tone",
+                "b": "fn",
+                "c": 0.35,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "sc",
+                "stops": [
+                  [
+                    0,
+                    "#6f2e22"
+                  ],
+                  [
+                    0.5,
+                    "#8c3f2e"
+                  ],
+                  [
+                    1,
+                    "#a5543a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "g.edge",
+                "b": 0.004,
+                "c": 0.016,
+                "name": "gv",
+                "op": "smoothstep",
+                "type": "math"
+              },
+              {
+                "a": "#3a1a12",
+                "b": "sc",
+                "c": "gv",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gv",
+                "b": 0.006,
+                "name": "h0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h0",
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

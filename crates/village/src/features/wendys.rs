@@ -67,6 +67,7 @@ pub struct TakeBurger {
 }
 
 pub fn protocol(app: &mut App) {
+    claim_ground();
     app.replicate::<Burger>()
         .replicate::<BurgerBag>()
         .add_client_event::<TakeBurger>(Channel::Ordered)
@@ -118,6 +119,26 @@ pub fn burger_spot(slot: u8) -> Vec3 {
 pub fn covers(p: Vec2, margin: f32) -> bool {
     let d = p - wendys_at();
     d.x.abs() < HALF_W + 0.4 + margin && d.y > -FRONT - 1.2 - margin && d.y < BACK + 0.3 + margin
+}
+
+// W1 claims prep: claim the same ground as [`covers`] (world::footprints),
+// building plus the front yard strip, so scenery/zones can switch to
+// `claimed` and this goes away (follow-up). A circle grid over the rect:
+// corners, mid-edges and the middle, radius half the shorter side.
+fn claim_ground() {
+    let h = Vec2::new(HALF_W + 0.4, (FRONT + 1.2 + BACK + 0.3) / 2.0);
+    let at = wendys_at() + Vec2::new(0.0, (BACK + 0.3 - FRONT - 1.2) / 2.0);
+    let r = h.x.min(h.y);
+    let nx = (h.x / r).ceil().max(1.0) as i32;
+    let nz = (h.y / r).ceil().max(1.0) as i32;
+    for i in -nx..=nx {
+        for j in -nz..=nz {
+            friendslop_world::footprints::claim(
+                at + Vec2::new(h.x * i as f32 / nx as f32, h.y * j as f32 / nz as f32),
+                r,
+            );
+        }
+    }
 }
 
 fn give_bag(add: On<Add<Player>>, server: Res<State<ServerState>>, mut commands: Commands) {
@@ -565,6 +586,25 @@ mod tests {
                 );
                 assert!(!crate::terrain::is_pond(x, z));
                 assert!(covers(Vec2::new(x, z), 0.0));
+            }
+        }
+    }
+
+    #[test]
+    fn claims_cover_the_sample_points_covers_does() {
+        claim_ground();
+        // The same sample points as `the_restaurant_is_in_the_open_meadow_off_the_road`.
+        for dx in [-HALF_W, 0.0, HALF_W] {
+            for dz in [-FRONT, 0.0, BACK / 2.0, BACK] {
+                for margin in [0.0, 1.0] {
+                    let p = wendys_at() + Vec2::new(dx, dz);
+                    if covers(p, margin) {
+                        assert!(
+                            friendslop_world::footprints::claimed(p, margin),
+                            "covers but unclaimed at {dx},{dz}"
+                        );
+                    }
+                }
             }
         }
     }

@@ -30,7 +30,7 @@ use bevy_replicon::prelude::*;
 
 use crate::AppState;
 use crate::buildings::{self, Mat, Solid, WALKABLE};
-use crate::features::fps::{WalkInput, WalkSet, Walker};
+use crate::features::fps::{WalkInput, WalkSet, Walker, teleport};
 use crate::player::{LocalPlayer, Player};
 use crate::world::MainCamera;
 
@@ -471,7 +471,9 @@ fn haunt(
                 commands.entity(entity).remove::<Lost>();
                 haunt.cooldown.insert(id, tuning().cooldown);
             } else if let Some(to) = space.wrap(pos) {
-                walker.pos = to; // keep the momentum: it's the same hallway
+                // Keep the momentum: it's the same hallway.
+                let yaw = walker.yaw;
+                teleport(&mut walker, None, None, to, yaw);
             }
             haunt.last.insert(id, walker.pos);
             continue;
@@ -500,7 +502,8 @@ fn haunt(
             };
             haunt.spared.insert((id, i));
             let to = landing(space, &entry, pos);
-            walker.pos = to;
+            let yaw = walker.yaw;
+            teleport(&mut walker, None, None, to, yaw);
             haunt.last.insert(id, to);
             commands.entity(entity).insert(Lost {
                 space: entry.space,
@@ -514,19 +517,12 @@ fn haunt(
 /// Move a body somewhere else entirely and stop it.
 fn put(
     walker: &mut Walker,
-    input: Option<Mut<WalkInput>>,
-    kcc: Option<Mut<crate::kcc::Kcc>>,
+    mut input: Option<Mut<WalkInput>>,
+    mut kcc: Option<Mut<crate::kcc::Kcc>>,
     to: Vec3,
 ) {
-    walker.pos = to;
-    if let Some(mut input) = input {
-        input.stick = Vec2::ZERO;
-        input.jump = false;
-    }
-    if let Some(mut kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-        kcc.grounded = None;
-    }
+    let yaw = walker.yaw;
+    teleport(walker, input.as_deref_mut(), kcc.as_deref_mut(), to, yaw);
 }
 
 // ---------------------------------------------------------------- local

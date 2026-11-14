@@ -23,7 +23,7 @@ use bevy_replicon::prelude::*;
 
 use crate::AppState;
 use crate::features::duel::Duelist;
-use crate::features::fps::{WalkInput, Walker};
+use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::player::Player;
 
 pub const KNEES: f32 = 0.3;
@@ -241,7 +241,9 @@ fn climb(
         kcc.velocity = velocity;
         kcc.grounded = None;
         if walker.pos != pos {
-            walker.pos = pos;
+            // The climb's motion carries on in `kcc` above: nothing to reset.
+            let yaw = walker.yaw;
+            teleport(&mut walker, None, None, pos, yaw);
         }
     }
 }

@@ -14,7 +14,7 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::fps::Walker;
+use super::fps::{Walker, teleport};
 use crate::people::{CharacterRig, RigRoot};
 use crate::player::Player;
 
@@ -233,7 +233,8 @@ fn tumble(
                 commands.entity(b).try_despawn();
             }
             if !moved && let Some(rest) = t.rest {
-                walker.pos = rest;
+                let yaw = walker.yaw;
+                teleport(&mut walker, None, None, rest, yaw);
             }
             if let Some(mut kcc) = kcc {
                 kcc.velocity = Vec3::ZERO;
@@ -274,7 +275,8 @@ fn tumble(
         };
         let tilt = Quat::IDENTITY.slerp(tilt, up);
         if walker.pos != feet {
-            walker.pos = feet;
+            let yaw = walker.yaw;
+            teleport(&mut walker, None, None, feet, yaw);
         }
         t.feet = feet;
         if ragdoll.tilt != tilt {

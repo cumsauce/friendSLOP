@@ -18,12 +18,14 @@ asked for, and what nobody has decided yet.
 posts this section every few landed ideas (#153). Keep it under ~1800 characters. -->
 **Play in the browser:** https://cumsauce.github.io/friendSLOP/
 
+**Same Wi-Fi?** Host, and friends on your network see a "Join <you>'s commune" button.
+
 **The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
 
 **Each chapter:** a checklist (top-left) of jobs in new places:
-1 *Moving In*: leash the pets, eat the mushroom, climb the sky islands to Abuela in heaven.
+1 *Moving In*: leash the strays (picnic corner), eat the mushroom, climb the sky islands to Abuela in heaven.
 2 *Rent Day*: open a vault door, break out of HALT, hide and seek, grab burgers at Wendy's.
-3 *The Heist*: carry out the Fire totem, use gods tears, a duel, trade a crow egg to Sewer
+3 *The Heist*: carry out the Fire totem, use gods tears, a duel, trade a crow egg (crows: by the windmill) to Sewer
 Paul in the tunnels. 4 *General Strike*: all of it at once, plus 2 soul pieces from the
 warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, one last time.
 Each chapter ends with the landlord: pay rent in organs, pickpocket him, then a boss fight.
@@ -74,7 +76,7 @@ now and then they all poop at once.
 Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
 ankles until they knock you flying. Run: they're slower than you.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, the bear (north forest), the goat (pond), Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -475,6 +477,14 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   mailboxes (no logos), blank green corner sign poles, red fire alarm posts, newspaper boxes,
   planters, bike racks, piles of black trash bags at the kerb and 16 benches in the park. Only
   the bus shelters, newsstands and benches have colliders; you walk through the rest.
+  Building faces: striped shop awnings (red, green, blue, yellow; no text) on the walk-ups,
+  two green-plywood sidewalk sheds you walk under, iron fire escapes on the sides that face a
+  gap, wooden water towers and AC units on about a third of the roofs, and manhole covers and
+  storm grates on the road (forward decals). Street life: 20 cars parked along both kerbs
+  (cabs, a new sedan, vans, two cruisers, two delivery box trucks), a road dig with sawhorse
+  barriers and cones on the west kerb, two food carts, and a park with lawns, gravel paths,
+  lamps down the middle and benches. Parked cars, carts and the dig's barriers block you; the
+  traffic code is unchanged.
   At the south end stand One World Trade Center (a tapered glass tower, 541 m to the spire tip,
   tall enough to make out over the rim from the valley) and the Oculus (72 x 44 m, ribs 34 m up and wings to 51 m, a smaller take on the real 111 m hall),
   white ribs arching over a glass hall with a balcony of shops on each side up two stairs. Four shops face the avenue
@@ -874,6 +884,11 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   rocks and rolls and every colour slowly turns round the colour wheel (more saturated), both
   stronger the more you've smoked; sober, the hues ease back. Only you see your own high
   (`features/weed.rs`, tuning in `data/places/weed.ron`).
+- **Stoned meter** (#369: "a stoned meter which increases as the player consumes weed and
+  decreases over time. The effects of weed should correlate with the meter's level."). Your high
+  shows as a green "Stoned NN% · buzzed / stoned / baked" bar in the bottom-right status stack,
+  above the gas meter, while it's above zero: each joint fills a fifth, it drains as the high
+  wears off, and the wobble and colour shift follow it. Local to you, like the high itself.
 - **The affair** (#160, doomy: "allow me to cheat on my wife with a beautiful chinese
   intelligence officer", details left to us). Your wife (a commune person in an apron; it's a
   commune, so she's married to all of you) walks back and forth between the bonfire and the east
@@ -1188,15 +1203,19 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   what's important and maybe have presets"). Settings → Video opens a card with a **Preset**
   (Low / Medium / High; reads Custom once you change anything) and each option on its own:
   Shadows, Ambient occlusion (desktop only), Bloom, Anti-aliasing (MSAA, or FXAA while ambient
-  occlusion is on), Draw distance (Near 140 m / Far), Resolution (Sharp = native pixel density,
-  Fast = 1x; browser only, applies on reload, #191), Grass & particles (Half / Full, applies on the next world build), VSync and
+  occlusion is on), Draw distance (Near 140 m / Far), Resolution (browser: Sharp = native pixel
+  density, Fast = 1x, applies on reload, #191; desktop: Fast draws the world at 0.7 of the window,
+  about half the pixels, and stretches it, UI stays sharp, live), Grass & particles (Half / Full, applies on the next world build), VSync and
   Fullscreen. Low is everything off (default in the browser, or `FRIENDSLOP_LOW=1`), Medium is
   everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
   Fullscreen alone. Saved locally (old Low/High saves still load). 60 fps on low-end phones is
   the aim for Low, not measured. Steam Deck (#393, Tally): GPU-bound even on Low-ish settings;
   Bloom off now also drops the HDR float render target, so Low draws into an 8-bit target
-  (about half the per-pixel memory traffic). Open: desktop has no render-scale option yet, the
-  biggest remaining lever; no Deck before/after numbers yet.
+  (about half the per-pixel memory traffic). Low on desktop now also renders at 0.7 scale
+  (`data/base/graphics.ron`; Medium and High stay sharp). Measured on a desktop GPU, Low-ish
+  settings, 1280x720: GPU busy at the commune 80% -> 62%, Fulton St 43% -> 26%. Still costly:
+  the main opaque pass is ~95% of GPU time and only partly pixel-bound (likely the skinned,
+  alpha-cut trees and grass); `FRIENDSLOP_PERF=3` logs GPU time per pass. No Deck numbers yet.
 - **Better lighting** (#131, doomy: "surprise me"). The sun is now a lower, warmer golden-hour
   sun, so shadows stretch long and lit faces glow, with a slightly stronger cool bounce from the
   other side. With the video options on (High): ambient occlusion (soft darkening where things touch the ground or
@@ -1338,6 +1357,57 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   (who's muted with an RPG) and night. Nothing on, no text. Chose those three because they're
   the effects that change the world for everyone; per-player things (gods tears, ATTACK MODE)
   already have their own HUD. Words in `data/text/annotations.ron` (`ui/annotations.rs`).
+
+## What exists: The Jokah (#377)
+
+- **The Jokah** (#377: "spawns at Wendy's and paths towards the J station ... 3 unique laughs
+  ... transforms into a Michael Jackson impersonator and paths back to Wendy's ... scatting
+  noises and a random sliding animation"). A man in purple starts outside Wendy's front door
+  and walks a route of points (`data/side/jokah.ron`) over the hills to the Fulton St entrance
+  in New York (read "J station" as that: it's where you find the J), laughing one of three
+  speech-synth laughs (different words, pitch and speed; never the same twice running). There
+  he pauses, turns red with a flat cap (Michael) and walks back scatting ("shamone", "hee
+  hee", ...), every few seconds sliding: a moonwalk backwards or a glide to one side. At
+  Wendy's he turns back into the Jokah and sets off again (the issue didn't say; we looped
+  it). Local dressing like the street people: every peer runs its own, nothing replicated, no
+  model or sound files (the shared commune-person body, `features/jokah.rs`). Open: does
+  anything happen if you follow him, or stop him?
+
+## What exists: LAN discovery (#410)
+
+- **LAN discovery** (#410, bben: "LAN discovery for multiplayer", no details). While you host on
+  the desktop, the game broadcasts its join code on the local network once a second (UDP port
+  47410). The menu listens and shows a "Join <host>'s commune (LAN)" button under the code field
+  (or "Looking for games on your Wi-Fi..."); one click joins through iroh as usual. The name is
+  your computer's user name. Browsers can't do UDP, so the button just keeps looking there
+  (`crates/game/src/lan.rs`).
+
+## What exists: sites (#412)
+
+- **Sites** (#412, bben, "friendSLOP 2": "so many great features but they aren't well structured.
+  Turn the current and future feature list as individual mechanics spread out through the world.
+  Reduce the amount of active UI elements, sound, gameplay, entities, NPCs, etc by
+  redistributing them throughout the world"). Read as: every mechanic gets a place of its own and
+  sleeps while nobody is there. The first step is the list: `data/base/sites.ron` names each
+  site (the commune hub's six, Wendy's, the warehouse, the shipwreck, New York), where it is and
+  how far it reaches, and the game tracks which are awake (`sites.rs`; `FRIENDSLOP_PERF=1` logs
+  them). **New York sleeps** while nobody is in the city: the kitten gangs stop prowling and the
+  cabs stop driving until someone arrives; the pigeon flocks and the street people are only
+  brought out on your own screen while you're there (so a pigeon storm's line is only shown to
+  people in the city), and Miami's crowd and lasers hold still. **Positions are data**: the crows, bear, goat, strays,
+  the two loose totems and the music boxes read where they stand from their site in
+  `sites.ron` (the strays' spread in `pets.ron`), and (#412's first move) **they have left the centre**: the crows and their eggs and one
+  music box are by the windmill, the bear is in the forest's woodcutter clearing, the goat judges
+  from the pond, the strays wait at the picnic corner, the Wind totem stands on the western
+  hilltop, the Frost totem on the lake's north shore, and the other music box is by the quarry
+  crane. Each clears its own ground and stands on it (they used to sit at height 0). The chapter
+  jobs for the strays, the vault doors and the crow egg now say where to go. Decided with the group's host: the centre becomes the story
+  hub only (landlord, Dave, vault, lectern, bonfire, arena, about 6 villagers); the five
+  chapters stay, their jobs reworded to name sites; all 20 villagers stay, spread out; site
+  keys only work at their site. World-wide effects: the Stillness, toilets, gaslighting and
+  whispers will only happen inside their site; the fat cat and systemd are picked up at a site
+  and carried; HALT is pried at a terminal; action failing, the Watcher and the helicopter stay
+  everywhere.
 
 ## Ideas so far
 
@@ -1548,6 +1618,10 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
 
 - Kori.exe (#379): randomly spawning toilets filled with feces; eat it for a massive speed
   boost up to 20 s. Chose: near players, one eater per toilet, +100% speed for the full 20 s.
+
+- #377: The Jokah, a laughing NPC walking Wendy's to the J station and back as a Michael
+  Jackson impersonator. Chose: the Fulton St entrance as the J station, a looping walk, a
+  colour and cap change for Michael, speech-synth laughs and scats.
 
 - catherine (#382): Kori coins from farts and poop buy claw machine figures; a main menu spot to
   see and inspect them; hold one like a CS knife for a little speed.

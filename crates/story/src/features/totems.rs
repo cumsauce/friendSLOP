@@ -116,6 +116,10 @@ pub struct SpellCast {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the loose totems (see world::footprints).
+    for id in ["totem_wind", "totem_frost"] {
+        friendslop_world::footprints::claim(crate::sites::at(id), 1.5);
+    }
     app.replicate::<Totem>()
         .replicate::<Door>()
         .add_client_event::<GrabTotem>(Channel::Ordered)
@@ -156,11 +160,11 @@ fn spawn_totems_and_doors(commands: &mut Commands) {
         slotted: None,
     };
     commands.spawn((
-        totem(1, Magic::Wind, Vec2::new(8.0, 3.0), false),
+        totem(1, Magic::Wind, crate::sites::at("totem_wind"), false),
         Replicated,
     ));
     commands.spawn((
-        totem(2, Magic::Frost, Vec2::new(9.0, -8.0), false),
+        totem(2, Magic::Frost, crate::sites::at("totem_frost"), false),
         Replicated,
     ));
     commands.spawn((totem(3, Magic::Fire, vault_at(), true), Replicated));
@@ -399,7 +403,7 @@ fn dress_totems(
         commands
             .entity(entity)
             .insert((
-                Transform::from_xyz(totem.at.x, 0.0, totem.at.y),
+                Transform::from_translation(crate::terrain::on_ground(totem.at)),
                 Clickable::at_height(0.5).labelled("take the totem"),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
@@ -483,7 +487,7 @@ fn dress_doors(
     }
 }
 
-/// Free totems stand on the floor, inserted ones glow above their door,
+/// Free totems stand on the ground, inserted ones glow above their door,
 /// carried ones are with their (bodiless) holder and so not shown.
 fn place_totems(doors: Query<&Door>, mut totems: Query<(&Totem, &mut Transform, &mut Visibility)>) {
     for (t, mut tf, mut vis) in &mut totems {
@@ -491,8 +495,8 @@ fn place_totems(doors: Query<&Door>, mut totems: Query<(&Totem, &mut Transform, 
             .slotted
             .and_then(|d| doors.iter().find(|door| door.id == d))
             .map_or(t.at, |door| door.at);
-        let y = if t.slotted.is_some() { 1.5 } else { 0.0 };
-        let at = Vec3::new(pos.x, y, pos.y);
+        let lift = if t.slotted.is_some() { 1.5 } else { 0.0 };
+        let at = crate::terrain::on_ground(pos) + Vec3::Y * lift;
         if tf.translation != at {
             tf.translation = at;
         }

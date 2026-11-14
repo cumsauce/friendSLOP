@@ -1,0 +1,160 @@
+{
+  "name": "nyc-manhole",
+  "format_version": 1,
+  "domain": "decal",
+  "tile": 0.8,
+  "resolution": 256,
+  "nodes": [
+    {
+      "center": [
+        0.4,
+        0.4
+      ],
+      "name": "disc",
+      "radius": 0.36,
+      "type": "circle"
+    },
+    {
+      "name": "shape",
+      "sdf": "disc",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.4
+      ],
+      "name": "inner",
+      "radius": 0.3,
+      "type": "circle"
+    },
+    {
+      "name": "rim",
+      "sdf": "inner",
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "iron",
+      "stops": [
+        [
+          0,
+          "#1c1c1e"
+        ],
+        [
+          1,
+          "#3a3836"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#4a4744",
+      "b": "iron",
+      "name": "col",
+      "opacity": "rim",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.5,
+      "name": "out",
+      "opacity": "shape",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-manhole",
+          "format_version": 1,
+          "domain": "decal",
+          "tile": 0.8,
+          "resolution": 256,
+          "nodes": [
+            {
+              "center": [
+                0.4,
+                0.4
+              ],
+              "name": "disc",
+              "radius": 0.36,
+              "type": "circle"
+            },
+            {
+              "name": "shape",
+              "sdf": "disc",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.4
+              ],
+              "name": "inner",
+              "radius": 0.3,
+              "type": "circle"
+            },
+            {
+              "name": "rim",
+              "sdf": "inner",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "iron",
+              "stops": [
+                [
+                  0,
+                  "#1c1c1e"
+                ],
+                [
+                  1,
+                  "#3a3836"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#4a4744",
+              "b": "iron",
+              "name": "col",
+              "opacity": "rim",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.5,
+              "name": "out",
+              "opacity": "shape",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+disc +shape +inner +rim +n +iron +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

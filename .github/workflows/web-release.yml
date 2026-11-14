@@ -29,10 +29,19 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: release-web
+      # Building wasm-bindgen-cli takes minutes. Cache the binaries it installs
+      # (~/.cargo/bin/wasm-bindgen*) keyed on the lockfile alone, so the cache
+      # survives rust-cache misses (its key also hashes RUSTFLAGS etc.).
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/wasm-bindgen*
+          key: wasm-bindgen-${{ hashFiles('Cargo.lock') }}
       - name: wasm-bindgen-cli + binaryen
         run: |
           version=$(awk '/^name = "wasm-bindgen"$/{getline; gsub(/version = |"/, ""); print; exit}' Cargo.lock)
-          cargo install wasm-bindgen-cli --version "$version" --locked
+          if [[ "$(wasm-bindgen --version 2>/dev/null | awk '{print $2}')" != "$version" ]]; then
+            cargo install wasm-bindgen-cli --version "$version" --locked --force
+          fi
           sudo apt-get update && sudo apt-get install -y --no-install-recommends binaryen clang llvm
       # The web profile's fat-LTO link of the whole game needs more memory
       # than the runner has (it was killed mid-link). Add swap.

@@ -18,6 +18,11 @@ pub fn plugin(app: &mut App) { /* app.add_systems(...); */ }
 Add `pub mod <short_name>;` to that crate's `lib.rs`, then add it to `FeaturesProtocolPlugin` and `FeaturesPlugin` in `mod.rs`. Put it in the protocol list
 **at the end**, so features stay in the same order on every peer.
 
+**Give it a site (#412).** A mechanic lives at a place and sleeps when nobody is there: add a line to
+`assets/data/base/sites.ron` (or reuse a site) and gate its systems with `sites::awake("<id>")`
+(simulation), `sites::here("<id>")` (local visuals and sound) and `sites::arrived` / `sites::left`
+(bring local dressing out, put it away); see "Every mechanic has a site" in AGENTS.md.
+
 **Loading assets.** Keep a strong handle to anything you're waiting on (in a resource or
 component). Calling `assets.load(..)` each frame and dropping the result throws the half-finished
 load away, so it restarts every frame and never finishes. The duel's cowboy models did this,

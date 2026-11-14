@@ -27,6 +27,7 @@ pub mod rigged;
 pub mod rules;
 pub mod settings;
 pub mod shared;
+pub mod sites;
 pub mod spatial;
 pub mod textures;
 pub mod voice;
@@ -68,6 +69,8 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &textures::GLASS,
         &night_lights::NIGHT_LIGHTS,
         &place::LOOKS,
+        &graphics::TUNING,
         &input::BINDINGS,
+        &sites::SITES,
     ]
 }

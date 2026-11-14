@@ -21,15 +21,17 @@ pub struct Bear {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the bear's figure-eight (see world::footprints).
+    friendslop_world::footprints::claim(crate::sites::at("bear"), 4.0);
     app.replicate::<Bear>()
         .add_systems(OnEnter(ServerState::Running), spawn_bear);
 }
 
-/// Server only: one bear, a little off-centre so it doesn't sit on the crows.
+/// Server only: one bear, at its site.
 fn spawn_bear(mut commands: Commands) {
     commands.spawn((
         Bear {
-            home: Vec2::new(-6.0, -3.0),
+            home: crate::sites::at("bear"),
         },
         Replicated,
     ));
@@ -82,7 +84,7 @@ pub const BEAR_MODEL: &str = "models/creatures/bear.gltf";
 fn dress_bear(mut commands: Commands, new: Query<(Entity, &Bear), Added<Bear>>) {
     for (entity, bear) in &new {
         commands.entity(entity).insert((
-            Transform::from_translation(bear_position(bear, 0.0)),
+            Transform::from_translation(crate::terrain::on_ground(bear_position(bear, 0.0).xz())),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
             crate::rigged::Rigged { path: BEAR_MODEL },
@@ -116,7 +118,7 @@ fn animate_bear(
         if let Ok(dir) = Dir3::new(look) {
             transform.rotation = Transform::default().looking_to(dir, Vec3::Y).rotation;
         }
-        transform.translation = here;
+        transform.translation = crate::terrain::on_ground(here.xz());
         let want = bear_clip(is_growling(t));
         if want.name != clip.name {
             *clip = want;

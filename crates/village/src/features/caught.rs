@@ -19,7 +19,7 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::features::fps::Walker;
+use crate::features::fps::{Walker, teleport};
 use crate::features::punishment::AttackMode;
 
 use crate::hud::Toast;
@@ -344,7 +344,8 @@ fn hold_bodies(
             let right = Vec2::from_angle(-v.yaw) * side;
             let pos = Vec3::new(v.pos.x + right.x, ground + c.lift + 1.9, v.pos.y + right.y);
             if w.pos != pos {
-                w.pos = pos;
+                let yaw = w.yaw;
+                teleport(&mut w, None, None, pos, yaw);
             }
             if let Some(mut kcc) = kcc {
                 kcc.velocity = Vec3::ZERO;

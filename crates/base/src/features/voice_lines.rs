@@ -46,6 +46,10 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the music boxes (see world::footprints).
+    for id in ["music_box_1", "music_box_2"] {
+        friendslop_world::footprints::claim(crate::sites::at(id), 1.5);
+    }
     app.replicate::<MusicBox>()
         .add_systems(OnEnter(ServerState::Running), spawn_music_boxes);
 }
@@ -53,14 +57,14 @@ pub fn protocol(app: &mut App) {
 fn spawn_music_boxes(mut commands: Commands) {
     commands.spawn((
         MusicBox {
-            at: Vec2::new(5.0, -5.0),
+            at: crate::sites::at("music_box_1"),
             tune: 0,
         },
         Replicated,
     ));
     commands.spawn((
         MusicBox {
-            at: Vec2::new(-3.0, 7.0),
+            at: crate::sites::at("music_box_2"),
             tune: 1,
         },
         Replicated,
@@ -160,7 +164,7 @@ fn dress_music_boxes(
             WorldAssetRoot(
                 assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/music_box.gltf")),
             ),
-            Transform::from_xyz(b.at.x, 0.0, b.at.y),
+            Transform::from_translation(crate::terrain::on_ground(b.at)),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));
@@ -181,7 +185,7 @@ fn bob_music_boxes(
         } else {
             0.0
         };
-        transform.translation = Vec3::new(b.at.x, hop, b.at.y);
+        transform.translation = crate::terrain::on_ground(b.at) + Vec3::Y * hop;
     }
 }
 

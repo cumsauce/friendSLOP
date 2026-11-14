@@ -12,10 +12,7 @@ doctest = false
 bevy.workspace = true
 bevy_replicon.workspace = true
 avian3d.workspace = true
-bevy_rerecast.workspace = true
 avian_rerecast.workspace = true
-bevy_landmass.workspace = true
-landmass_rerecast.workspace = true
 serde.workspace = true
 serde_json = "1"
 friendslop-data = { path = "../data" }
@@ -24,17 +21,14 @@ fusion = { path = "../fusion" }
 friendslop-art = { path = "../art" }
 friendslop-core = { path = "../core" }
 friendslop-kcc = { path = "../kcc" }
-friendslop-wfc = { path = "../wfc" }
-# Andrew's voice on the phone in Fulton St station: pure-Rust retro speech synth (MIT OR Apache-2.0).
-samiam = "0.1.3"
 friendslop-structures = { path = "../structures" }
 friendslop-world = { path = "../world" }
-modeler_bevy = { git = "https://github.com/cumsauce/modeler", rev = "ba0fd6ad741e26bb65f76e10e52f64b16b6c4bac" }
 friendslop-base = { path = "../base" }
 friendslop-play = { path = "../play" }
 friendslop-places = { path = "../places" }
 friendslop-village = { path = "../village" }
 friendslop-story = { path = "../story" }
+friendslop-side-nyc = { path = "../side-nyc" }
 
 [lints]
 workspace = true

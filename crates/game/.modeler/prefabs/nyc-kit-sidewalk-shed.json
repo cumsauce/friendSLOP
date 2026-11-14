@@ -1,0 +1,1155 @@
+{
+  "format_version": 1,
+  "name": "nyc-kit-sidewalk-shed",
+  "parts": [],
+  "version": 63695,
+  "ops": [
+    {
+      "primitive": {
+        "name": "deck",
+        "kind": "box",
+        "size": [
+          12.0,
+          0.3,
+          3.3
+        ],
+        "translation": [
+          0.0,
+          3.15,
+          1.65
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "parapet",
+        "kind": "box",
+        "size": [
+          12.0,
+          1.0,
+          0.06
+        ],
+        "translation": [
+          0.0,
+          3.8,
+          3.27
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "parapet_l",
+        "kind": "box",
+        "size": [
+          0.06,
+          1.0,
+          3.3
+        ],
+        "translation": [
+          -5.97,
+          3.8,
+          1.65
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "parapet_r",
+        "kind": "box",
+        "size": [
+          0.06,
+          1.0,
+          3.3
+        ],
+        "translation": [
+          5.97,
+          3.8,
+          1.65
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "post0",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          -5.9,
+          1.5,
+          3.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wpost0",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          -5.9,
+          1.5,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "post0",
+        "input": "post0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wpost0",
+        "input": "wpost0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "post1",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          -3.54,
+          1.5,
+          3.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wpost1",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          -3.54,
+          1.5,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "post1",
+        "input": "post1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wpost1",
+        "input": "wpost1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "post2",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          -1.18,
+          1.5,
+          3.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wpost2",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          -1.18,
+          1.5,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "post2",
+        "input": "post2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wpost2",
+        "input": "wpost2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "post3",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          1.18,
+          1.5,
+          3.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wpost3",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          1.18,
+          1.5,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "post3",
+        "input": "post3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wpost3",
+        "input": "wpost3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "post4",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          3.54,
+          1.5,
+          3.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wpost4",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          3.54,
+          1.5,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "post4",
+        "input": "post4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wpost4",
+        "input": "wpost4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "post5",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          5.9,
+          1.5,
+          3.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "wpost5",
+        "kind": "box",
+        "size": [
+          0.12,
+          3.0,
+          0.12
+        ],
+        "translation": [
+          5.9,
+          1.5,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "post5",
+        "input": "post5",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wpost5",
+        "input": "wpost5",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "beam",
+        "kind": "box",
+        "size": [
+          12.0,
+          0.2,
+          0.15
+        ],
+        "translation": [
+          0.0,
+          2.9,
+          3.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "deck",
+        "input": "deck",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "parapet",
+        "input": "parapet",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "parapet_l",
+        "input": "parapet_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "parapet_r",
+        "input": "parapet_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-plywood-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 31,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2c5a36"
+                  ],
+                  [
+                    1,
+                    "#356a40"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "beam",
+        "input": "beam",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

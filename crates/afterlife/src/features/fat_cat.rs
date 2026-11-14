@@ -28,7 +28,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::fps::Walker;
+use crate::features::fps::{Walker, teleport};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::world::MainCamera;
 
@@ -392,17 +392,16 @@ fn burn_fuses(
                 commands.entity(e).remove::<Fuse>();
                 let at = cat.pos;
                 cat.size = 1.0;
-                for (mut w, kcc) in &mut walkers {
+                for (mut w, mut kcc) in &mut walkers {
                     let to = flung(w.pos.xz(), at.xz());
                     if to != w.pos.xz() {
-                        w.pos = Vec3::new(
+                        let pos = Vec3::new(
                             to.x,
                             crate::terrain::height_at(to.x, to.y).max(w.pos.y),
                             to.y,
                         );
-                        if let Some(mut kcc) = kcc {
-                            kcc.velocity = Vec3::ZERO;
-                        }
+                        let yaw = w.yaw;
+                        teleport(&mut w, None, kcc.as_deref_mut(), pos, yaw);
                     }
                 }
                 commands.server_trigger(ToClients {

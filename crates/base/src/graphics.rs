@@ -14,10 +14,13 @@
 //!   HDR render target (#393), which is most of what bloom costs a weak GPU.
 //! - Anti-aliasing: smooth edges.
 //! - Draw distance: how far the fog starts and the camera draws.
-//! - Resolution (browser only, #191): "Sharp" renders at the screen's pixel
+//! - Resolution: in the browser (#191) "Sharp" renders at the screen's pixel
 //!   density (up to 2x), "Fast" at 1x (phones are 2-3x, so that's 4-9x fewer
-//!   pixels). index.html picks it before the game starts, so a change applies
-//!   on the next page load. Desktop always renders at the window's size.
+//!   pixels); index.html picks it before the game starts, so a change applies
+//!   on the next page load. On desktop "Fast" (the Low preset) renders the
+//!   world at `fast_scale` of the window (`data/base/graphics.ron`) and
+//!   stretches it to fit, live; the UI stays sharp. A weak GPU (the Steam
+//!   Deck, #393) spends most of its frame shading pixels.
 //! - Grass & particles: half or full (applies the next time a world is built).
 //! - VSync and Fullscreen: the window.
 //!
@@ -38,13 +41,20 @@ const FILE: &str = "graphics.txt";
 /// Can this platform do ambient occlusion?
 pub const SSAO_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
 
-/// Can the render resolution be lowered? Only in the browser, where
-/// index.html sets the canvas's pixel ratio before the game starts (#191).
 /// Bloom needs an HDR (float) target, which phone browsers' WebGL2 can't
 /// always render into (#242: hosting showed only a blue screen on iPhone).
 /// The browser renders straight to the screen's 8-bit target instead.
 pub const HDR_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
-pub const RESOLUTION_ADJUSTABLE: bool = cfg!(target_arch = "wasm32");
+
+/// Tuning: `assets/data/base/graphics.ron`.
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Tuning {
+    /// Desktop "Fast": the world's render size as a fraction of the window's.
+    pub fast_scale: f32,
+}
+
+pub static TUNING: friendslop_data::Data<Tuning> =
+    friendslop_data::Data::ron("data/base/graphics.ron");
 
 /// The Resolution setting the page started with (what index.html applied).
 static BOOT_SHARP: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
@@ -97,7 +107,8 @@ impl Preset {
             bloom: !low && HDR_SUPPORTED,
             antialias: !low,
             far: !low,
-            sharp: high || !RESOLUTION_ADJUSTABLE,
+            // Desktop Medium stays sharp: only Low trades pixels for speed.
+            sharp: high || (!low && !cfg!(target_arch = "wasm32")),
             dense: !low,
             ..q
         }
@@ -188,7 +199,13 @@ impl GraphicsQuality {
                     "Near"
                 }
             }
-            VideoOption::Resolution if !RESOLUTION_ADJUSTABLE => "N/A",
+            VideoOption::Resolution if !cfg!(target_arch = "wasm32") => {
+                if self.sharp {
+                    "Sharp"
+                } else {
+                    "Fast"
+                }
+            }
             VideoOption::Resolution => {
                 let boot = BOOT_SHARP.get().copied().unwrap_or(self.sharp);
                 match (self.sharp, boot == self.sharp) {
@@ -226,7 +243,7 @@ impl GraphicsQuality {
             VideoOption::Bloom => self.bloom = !self.bloom && HDR_SUPPORTED,
             VideoOption::AntiAlias => self.antialias = !self.antialias,
             VideoOption::DrawDistance => self.far = !self.far,
-            VideoOption::Resolution => self.sharp = !self.sharp || !RESOLUTION_ADJUSTABLE,
+            VideoOption::Resolution => self.sharp = !self.sharp,
             VideoOption::Grass => self.dense = !self.dense,
             VideoOption::VSync => self.vsync = !self.vsync,
             VideoOption::Fullscreen => self.fullscreen = !self.fullscreen,
@@ -283,7 +300,6 @@ impl GraphicsQuality {
         }
         q.ssao &= SSAO_SUPPORTED;
         q.bloom &= HDR_SUPPORTED;
-        q.sharp |= !RESOLUTION_ADJUSTABLE;
         any.then_some(q)
     }
 
@@ -340,6 +356,8 @@ pub fn plugin(app: &mut App) {
             apply_draw_ranges,
         ),
     );
+    #[cfg(not(target_arch = "wasm32"))]
+    app.add_systems(PostUpdate, render_scale::apply);
 }
 
 pub use friendslop_core::DrawRange;
@@ -441,13 +459,9 @@ fn apply_camera(
             c.remove::<(Bloom, bevy::camera::Hdr)>();
         }
         // A depth prepass lets alpha-cut leaves shade only their front layer
-        // (discard otherwise shades every overlapping card in full). SSAO
-        // brings one too; Low (no shadows) skips the extra pass.
-        if q.shadows || q.ssao {
-            c.insert(bevy::core_pipeline::prepass::DepthPrepass);
-        } else {
-            c.remove::<bevy::core_pipeline::prepass::DepthPrepass>();
-        }
+        // (discard otherwise shades every overlapping card in full). It pays
+        // for itself even on Low, where it halves the main pass.
+        c.insert(bevy::core_pipeline::prepass::DepthPrepass);
         if q.ssao {
             c.insert(ScreenSpaceAmbientOcclusion::default());
         } else {
@@ -506,6 +520,37 @@ mod tests {
         assert_eq!(q.preset(), Some(Preset::Low));
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn fast_renders_fewer_pixels_and_sharp_none_less() {
+        let w = UVec2::new(1280, 800);
+        assert_eq!(render_scale::size(w, true, 0.7), None);
+        assert_eq!(render_scale::size(w, false, 1.0), None);
+        assert_eq!(
+            render_scale::size(w, false, 0.7),
+            Some(UVec2::new(896, 560))
+        );
+        assert_eq!(
+            render_scale::size(UVec2::ZERO, false, 0.5),
+            Some(UVec2::ONE)
+        );
+    }
+
+    #[test]
+    fn the_data_file_parses_and_has_everything() {
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            TUNING.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}")
+        };
+        assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
+        let s = TUNING.get().fast_scale;
+        assert!(s > 0.0 && s <= 1.0);
+    }
+
     #[test]
     fn small_screens_shrink_the_ui_to_fit() {
         // A desktop window, at 1x and on a 2x screen: untouched.
@@ -527,5 +572,114 @@ mod tests {
         let low = GraphicsQuality::from_text("low");
         assert_eq!(low.and_then(|q| q.preset()), Some(Preset::Low));
         assert_eq!(GraphicsQuality::from_text("garbage"), None);
+    }
+}
+
+/// Desktop "Fast" resolution: the main camera draws into a smaller picture,
+/// and a 2D camera on the window stretches it over the screen. Being the
+/// highest window camera, that one also draws the UI, at full sharpness.
+/// Sharp leaves the main camera on the window, exactly as before.
+#[cfg(not(target_arch = "wasm32"))]
+mod render_scale {
+    use bevy::camera::visibility::RenderLayers;
+    use bevy::camera::{ImageRenderTarget, RenderTarget};
+    use bevy::core_pipeline::tonemapping::Tonemapping;
+    use bevy::prelude::*;
+    use bevy::render::render_resource::TextureFormat;
+    use bevy::window::{PrimaryWindow, WindowRef};
+
+    use super::{GraphicsQuality, TUNING};
+    use crate::world::MainCamera;
+
+    /// A layer nothing else is on, so the stretch camera draws only the picture.
+    const LAYER: usize = 31;
+
+    /// The stretch camera and the sprite showing the picture.
+    #[derive(Component)]
+    pub(super) struct Stretch;
+
+    /// The world's render size for a window this many physical pixels big,
+    /// or `None` to draw straight to the window.
+    pub(super) fn size(window: UVec2, sharp: bool, scale: f32) -> Option<UVec2> {
+        if sharp || !(scale > 0.0 && scale < 1.0) {
+            return None;
+        }
+        Some(
+            (window.as_vec2() * scale)
+                .round()
+                .as_uvec2()
+                .max(UVec2::ONE),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn apply(
+        mut commands: Commands,
+        q: Res<GraphicsQuality>,
+        mut images: ResMut<Assets<Image>>,
+        window: Query<&Window, With<PrimaryWindow>>,
+        mut main: Query<&mut RenderTarget, With<MainCamera>>,
+        stretch: Query<Entity, With<Stretch>>,
+        mut sprites: Query<&mut Sprite, With<Stretch>>,
+        mut current: Local<Option<(Handle<Image>, UVec2)>>,
+    ) {
+        let Ok(window) = window.single() else { return };
+        let want = size(
+            window.resolution.physical_size(),
+            q.sharp,
+            TUNING.get().fast_scale,
+        );
+        let has_main = !main.is_empty();
+        let Some(want) = want.filter(|_| has_main) else {
+            if current.take().is_some() {
+                stretch.iter().for_each(|e| commands.entity(e).despawn());
+                for mut t in &mut main {
+                    *t = RenderTarget::Window(WindowRef::Primary);
+                }
+            }
+            return;
+        };
+        let fresh = current.as_ref().is_none_or(|(_, at)| *at != want);
+        let stale = main.iter().any(|t| !matches!(t, RenderTarget::Image(_)));
+        if fresh || stale {
+            let handle = images.add(Image::new_target_texture(
+                want.x,
+                want.y,
+                TextureFormat::Rgba8UnormSrgb,
+                None,
+            ));
+            for mut t in &mut main {
+                *t = RenderTarget::Image(ImageRenderTarget::from(handle.clone()));
+            }
+            if stretch.is_empty() {
+                commands.spawn((
+                    Stretch,
+                    Camera2d,
+                    Camera {
+                        order: 1,
+                        ..default()
+                    },
+                    Msaa::Off,
+                    Tonemapping::None,
+                    RenderLayers::layer(LAYER),
+                ));
+                commands.spawn((
+                    Stretch,
+                    Sprite::from_image(handle.clone()),
+                    RenderLayers::layer(LAYER),
+                ));
+            } else {
+                for mut s in &mut sprites {
+                    s.image = handle.clone();
+                }
+            }
+            *current = Some((handle, want));
+        }
+        let fit = Some(window.resolution.size());
+        for mut s in &mut sprites {
+            if s.custom_size != fit {
+                s.custom_size = fit;
+            }
+        }
     }
 }

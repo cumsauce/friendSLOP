@@ -22,6 +22,7 @@ pub use friendslop_base::hud;
 pub use friendslop_base::input;
 pub use friendslop_kcc as kcc;
 pub use friendslop_world::landmarks;
+pub mod lan;
 pub mod loading;
 pub mod lod;
 pub mod menu;
@@ -42,6 +43,7 @@ pub use friendslop_art::theme;
 pub use friendslop_base::night_lights;
 pub use friendslop_base::place;
 pub use friendslop_base::settings;
+pub use friendslop_base::sites;
 pub use friendslop_base::spatial;
 pub use friendslop_base::textures;
 pub use friendslop_world::surfaces;
@@ -69,6 +71,8 @@ pub struct ProtocolPlugin;
 
 impl Plugin for ProtocolPlugin {
     fn build(&self, app: &mut App) {
+        // The sites first: the features' simulation asks which are awake.
+        app.add_plugins(sites::plugin);
         app.add_plugins((player::PlayerPlugin, features::FeaturesProtocolPlugin));
     }
 }
@@ -97,7 +101,7 @@ impl Plugin for GamePlugin {
                 ambience::plugin,
                 loading::plugin,
             ))
-            .add_plugins(probes::plugin)
+            .add_plugins((probes::plugin, lan::plugin))
             .add_plugins((
                 landmarks::plugin,
                 zones::plugin,
@@ -143,6 +147,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     files.extend(friendslop_story::data_files());
     files.extend(friendslop_afterlife::data_files());
     files.extend(friendslop_side::data_files());
+    files.extend(friendslop_side_nyc::data_files());
     files.push(&atmosphere::DAY_NIGHT);
     files.push(&zones::SCENERY);
     files.push(&probes::TUNING);

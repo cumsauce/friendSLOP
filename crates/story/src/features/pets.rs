@@ -83,6 +83,8 @@ pub struct Tuning {
     pub speed: f32,
     /// Pets stop this short of the pointer.
     pub heel: f32,
+    /// Where the dog, cat, bunny and duck wait, from the middle of their site (x, z).
+    pub strays: Vec<(f32, f32)>,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -94,6 +96,10 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the strays (see world::footprints).
+    for (_, _, at) in stray_spots(crate::sites::at("pets"), &tuning()) {
+        friendslop_world::footprints::claim(at, 1.5);
+    }
     app.replicate::<Pet>()
         .add_client_event::<AdoptPet>(Channel::Ordered)
         .add_client_event::<PetLure>(Channel::Ordered)
@@ -110,13 +116,21 @@ pub fn protocol(app: &mut App) {
 #[derive(Resource, Default)]
 struct Lures(HashMap<u64, Vec2>);
 
+/// The strays, in the order `strays` in the data file places them.
+const STRAYS: [Animal; 4] = [Animal::Dog, Animal::Cat, Animal::Bunny, Animal::Duck];
+
+/// Where each stray waits: round the pets' site, as the data file spreads them.
+pub fn stray_spots(middle: Vec2, t: &Tuning) -> Vec<(u32, Animal, Vec2)> {
+    STRAYS
+        .into_iter()
+        .zip(&t.strays)
+        .zip(1..)
+        .map(|((animal, &(x, z)), id)| (id, animal, middle + Vec2::new(x, z)))
+        .collect()
+}
+
 fn place_strays(mut commands: Commands) {
-    for (id, animal, at) in [
-        (1, Animal::Dog, Vec2::new(-4.0, 4.0)),
-        (2, Animal::Cat, Vec2::new(3.0, 8.0)),
-        (3, Animal::Bunny, Vec2::new(-9.0, 2.0)),
-        (4, Animal::Duck, Vec2::new(7.0, -2.0)),
-    ] {
+    for (id, animal, at) in stray_spots(crate::sites::at("pets"), &tuning()) {
         commands.spawn((
             Pet {
                 id,
@@ -300,7 +314,7 @@ pub fn plugin(app: &mut App) {
 fn dress_pets(mut commands: Commands, new: Query<(Entity, &Pet), Added<Pet>>) {
     for (entity, pet) in &new {
         commands.entity(entity).insert((
-            Transform::from_xyz(pet.at.x, 0.0, pet.at.y),
+            Transform::from_translation(crate::terrain::on_ground(pet.at)),
             Clickable::at_height(0.3).labelled("adopt"),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
@@ -319,7 +333,7 @@ fn move_pets(time: Res<Time>, mut pets: Query<(&Pet, &mut Transform, &mut RigCli
         let gap = pet.at - here;
         let next = here + gap * (time.delta_secs() * 10.0).min(1.0);
         let moving = gap.length() > 0.02;
-        tf.translation = Vec3::new(next.x, 0.0, next.y);
+        tf.translation = crate::terrain::on_ground(next);
         if moving {
             tf.rotation = Quat::from_rotation_y((-gap.x).atan2(-gap.y));
         }
@@ -332,6 +346,8 @@ fn move_pets(time: Res<Time>, mut pets: Query<(&Pet, &mut Transform, &mut RigCli
 
 fn floor_point(window: &Window, camera: &Camera, cam_tf: &GlobalTransform) -> Option<Vec2> {
     let cursor = window.cursor_position()?;
+    // The camera may draw into a smaller picture (desktop "Fast" resolution).
+    let cursor = cursor * camera.logical_viewport_size()? / window.size();
     let ray = camera.viewport_to_world(cam_tf, cursor).ok()?;
     let dist = ray.intersect_plane(Vec3::ZERO, InfinitePlane3d::new(Vec3::Y))?;
     let p = ray.get_point(dist);
@@ -455,6 +471,18 @@ fn update_pet_hud(pets: Query<&Pet>, mut hud: Query<&mut Text, With<PetHud>>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn each_stray_waits_at_its_spot_round_the_site() {
+        let t = Tuning {
+            strays: vec![(-4.0, 4.0), (3.0, 8.0), (-9.0, 2.0), (7.0, -2.0)],
+            ..Default::default()
+        };
+        let spots = stray_spots(Vec2::new(10.0, 20.0), &t);
+        assert_eq!(spots.len(), 4);
+        assert_eq!(spots[0], (1, Animal::Dog, Vec2::new(6.0, 24.0)));
+        assert_eq!(spots[3], (4, Animal::Duck, Vec2::new(17.0, 18.0)));
+    }
 
     #[test]
     fn pets_trot_towards_the_pointer_and_stop_at_heel() {

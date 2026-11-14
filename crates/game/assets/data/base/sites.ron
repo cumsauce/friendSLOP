@@ -1,0 +1,43 @@
+// Sites (#412, crates/base/src/sites.rs): where every mechanic lives. A site
+// is asleep until somebody is within its reach: its creatures don't move, its
+// sounds don't play, its HUD lines and key hints aren't shown.
+// A new idea adds one line here and asks `sites::awake("<id>")`.
+// Edit and save: the running game picks it up within a second.
+(
+    // A woken site stays awake until everyone is this far (m) outside its reach.
+    linger: 15.0,
+    // Each site: its id (what code asks for), its name (the journal), its
+    // district, its middle (`Spot("<map spot>", (dx, dz))` on the commune map,
+    // or `At(x, z)` for places off it) and its reach from there
+    // (`Round(radius)` or `Box(half x, half z)`, m).
+    sites: [
+        // The commune centre: the story hub.
+        (id: "bonfire", name: "The bonfire", district: "commune", place: Spot("bonfire", (0.0, 0.0)), reach: Round(25.0)),
+        (id: "landlord", name: "The landlord", district: "commune", place: Spot("landlord", (0.0, 0.0)), reach: Round(25.0)),
+        (id: "parliament", name: "The Commune of Dave", district: "commune", place: Spot("parliament", (0.0, 0.0)), reach: Round(25.0)),
+        (id: "vault", name: "The vault", district: "commune", place: Spot("vault", (0.0, 0.0)), reach: Round(25.0)),
+        (id: "lectern", name: "The Tome of Uncancelling", district: "commune", place: Spot("lectern", (0.0, 0.0)), reach: Round(25.0)),
+        (id: "arena", name: "The duel arena", district: "commune", place: Spot("arena", (0.0, 0.0)), reach: Round(30.0)),
+        // The commune's creatures and things, out in the districts (#412).
+        // North meadow, by the windmill: the crows (and their eggs) and a music box.
+        (id: "crows", name: "The crows", district: "north meadow", place: Spot("windmill", (-9.0, 6.0)), reach: Round(30.0)),
+        (id: "music_box_1", name: "The windmill's music box", district: "north meadow", place: Spot("windmill", (7.0, 5.0)), reach: Round(25.0)),
+        // North forest: the bear, in the woodcutter's clearing.
+        (id: "bear", name: "The bear", district: "north forest", place: Spot("forest_clearing", (3.0, 7.0)), reach: Round(30.0)),
+        // Pond and picnic: the goat judges from the pond, the strays wait at the picnic.
+        (id: "goat", name: "The judgmental goat", district: "pond", place: Spot("pond", (-5.0, -2.0)), reach: Round(25.0)),
+        (id: "pets", name: "The strays", district: "pond", place: Spot("picnic", (0.0, 0.0)), reach: Round(30.0)),
+        // West: the Wind totem on the hilltop, the Frost totem on the lake's north shore.
+        (id: "totem_wind", name: "The Wind totem", district: "west valley", place: Spot("hill", (0.0, 0.0)), reach: Round(30.0)),
+        (id: "totem_frost", name: "The Frost totem", district: "lake", place: Spot("lake", (0.0, -10.0)), reach: Round(25.0)),
+        // Ruins: the second music box, by the quarry crane.
+        (id: "music_box_2", name: "The quarry's music box", district: "ruins", place: Spot("quarry", (14.0, -4.0)), reach: Round(25.0)),
+        // Places that already stood apart.
+        (id: "wendys", name: "Wendy's", district: "road east", place: Spot("wendys", (0.0, 0.0)), reach: Round(35.0)),
+        (id: "warehouse", name: "The abandoned warehouse", district: "south", place: Spot("warehouse", (0.0, 0.0)), reach: Round(40.0)),
+        (id: "wreck", name: "The shipwreck", district: "lake", place: Spot("wreck", (0.0, 0.0)), reach: Round(45.0)),
+        // New York: the city floor (x -90..90, z 116..330) and 25 m round it;
+        // Penn Station, Fulton St and Miami are stacked over and under it.
+        (id: "nyc", name: "New York City", district: "new york", place: At(0.0, 223.0), reach: Box(115.0, 132.0)),
+    ],
+)

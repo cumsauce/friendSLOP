@@ -96,6 +96,7 @@ crates/game/src/
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
   place.rs      (base) where you are (`Here`) and each place's look (`PlaceLooks`, data/base/place_looks.ron)
+  sites.rs      (base) where each mechanic lives and whether it's awake (`Awake`, data/base/sites.ron, #412)
   probes.rs     reflections: world env map on the camera, FRIENDSLOP_BAKE=1 bakes every probe
   lod.rs        trees: lighter far meshes, dithered in by distance (#227); modeler LOD nodes; tree wind
   rigged.rs     rigged modeler models: `Rigged { path }` + `RigClip` crossfades their named clips; tails/ears/bobbles get modeler_anim springs
@@ -104,7 +105,7 @@ crates/game/src/
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
                 FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading/clean)
   perf.rs       FRIENDSLOP_PERF=1: log fps, frame time, entity/mesh/light counts every 5 s;
-                =2 also lists once which models own the meshes and lights
+                =2 also lists once which models own the meshes and lights; =3 GPU time per pass
   features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
 crates/base/src/     friendslop-base: player, assets, settings, voice, hud, music (MusicSignals the score's rules read), people, spatial, rigged, graphics,
                      textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
@@ -115,6 +116,7 @@ crates/places/       friendslop-places: warehouse, underground, smoking, skills,
 crates/village/      friendslop-village: villagers, caught, punishment, hide_and_seek, romance, wendys, ...
 crates/story/        friendslop-story: campaign, objective, landlord, totems, gods_tears, abuela, gamble, ...
 crates/afterlife/    friendslop-afterlife: afterlife, fat_cat, kitty_lemonade, mute_spell, systemd
+crates/side-nyc/     friendslop-side-nyc: NYC and its ideas (fulton, fulton_hunt, hats, high_places, ice_cream, miami, nyc, nyc_traffic, penn, street_people, toilets, trains, vessel, vessel_jump, wallet, boba)
 crates/side/         friendslop-side: standalone ideas (affair, fusion, goat, rats, shipwreck, ...)
 crates/fusion/       the generated soundtrack (no Bevy): synths in code; the score (every mood's songs) and the mix
                      are data in assets/data/music/; `cargo run -p fusion --bin fusion-render -- help`
@@ -144,7 +146,7 @@ The workspace has three layers, and dependencies only ever point down:
    - `friendslop-world`: `core`, `art`, `structures` and `data`.
 2. **The game layer** (split so a change rebuilds only its crate and those above it; a single
    47k-line crate took CI 18 minutes): `friendslop-base` → `play` → `places` → `village` →
-   `story` → {`afterlife`, `side`}. Each crate's `features` module re-exports every feature
+   `story` → {`afterlife`, `side-nyc`} → `side`. Each crate's `features` module re-exports every feature
    below it and its lib.rs re-exports base's modules, so code keeps writing `crate::hud`,
    `crate::features::fps`, `super::warehouse` unchanged.
 3. **The game** (`crates/game`, package `friendslop`): networking, menus, the UI, camera,
@@ -164,6 +166,14 @@ Rules for growing it:
   in a foundation crate instead when it needs no game state: generators (meshes, textures,
   sounds, maps), maths, file or wire formats, synths, controllers. A Bevy system that reads or
   writes game components stays in the game.
+- **Every mechanic has a site (#412).** A new idea lives somewhere: give it a line in
+  `assets/data/base/sites.ron` (id, name, district, a map `Spot` or a point, its reach) or use
+  a site that's there, and make what it does follow the site: `.run_if(sites::awake("<id>"))`
+  on its simulation (anyone is there), `sites::here` on what only you see and hear,
+  `sites::arrived` / `sites::left` + `sites::put_away::<C>` to bring local dressing out and put
+  it away, `sites::at("<id>")` for where it stands. A sleeping site costs nothing and shows
+  nothing. Nothing new runs everywhere, for everyone, all the time, unless the issue asks for
+  "everywhere". `tests/it/sites.rs` fails on an id the file doesn't have.
 - **Data, not constants.** Anything a friend might want to tweak lives in a data file under
   `crates/game/assets/`, not in Rust: positions and layout (the modeler map), tuning numbers
   (timers, costs, speeds, chances, health, counts: `assets/data/<crate>/<feature>.ron`), and
@@ -311,8 +321,9 @@ with many parts: re-export it with `optimize: {preset: "game", merge: "by_materi
 per material) unless the game looks its parts up by name. Video options cost most; shadows lead.
 Foliage: diffuse transmission on a material lights every pixel twice (every lamp and the sky),
 so leaves have it off (`data/game/trees.ron`); alpha-cut leaves rely on the camera's depth prepass
-(on whenever shadows or SSAO are) to shade only their front layer. The log shows median, p95 and
+(always on) to shade only their front layer. The log shows median, p95 and
 worst frame time: the median is the steady cost, the others are hitches.
+`FRIENDSLOP_PERF=3` also logs each render pass's GPU time (timestamp queries; Vulkan/DX12).
 
 ### Actions and button hints
 

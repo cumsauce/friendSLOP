@@ -40,7 +40,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::duel::{arena_center, arena_half};
-use crate::features::fps::{WalkSet, Walker};
+use crate::features::fps::{WalkSet, Walker, teleport};
 use crate::features::hide_and_seek::{HideSeek, HideSeekNews, Phase, Role};
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
 use crate::hud::Toast;
@@ -379,7 +379,8 @@ fn hold_fooled(
         if now >= f.until {
             commands.entity(e).remove::<Fooled>();
         } else if w.pos != f.at {
-            w.pos = f.at;
+            let yaw = w.yaw;
+            teleport(&mut w, None, None, f.at, yaw);
         }
     }
 }
@@ -837,6 +838,11 @@ fn mutter(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn there_is_a_name_for_every_villager() {
+        assert_eq!(NAMES.get().len(), COUNT);
+    }
 
     #[test]
     fn points_and_pushes_stay_out_of_the_arena() {

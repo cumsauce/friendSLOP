@@ -1,0 +1,134 @@
+{
+  "name": "nyc-awning-blue",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.3,
+  "resolution": 128,
+  "nodes": [
+    {
+      "center": [
+        0.075,
+        0.15
+      ],
+      "name": "band",
+      "size": [
+        0.15,
+        0.4
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "stripe",
+      "sdf": "band",
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#1f3f78"
+        ],
+        [
+          1,
+          "#284c8a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "base",
+      "b": "#ece6da",
+      "name": "col",
+      "opacity": "stripe",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-awning-blue",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.3,
+          "resolution": 128,
+          "nodes": [
+            {
+              "center": [
+                0.075,
+                0.15
+              ],
+              "name": "band",
+              "size": [
+                0.15,
+                0.4
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "stripe",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#1f3f78"
+                ],
+                [
+                  1,
+                  "#284c8a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "base",
+              "b": "#ece6da",
+              "name": "col",
+              "opacity": "stripe",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+band +stripe +n +base +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

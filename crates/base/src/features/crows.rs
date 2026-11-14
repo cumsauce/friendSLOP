@@ -26,15 +26,18 @@ pub struct Crow {
 }
 
 pub fn protocol(app: &mut App) {
+    // Keep trees and rocks off the crows' ring (see world::footprints).
+    friendslop_world::footprints::claim(crate::sites::at("crows"), 6.5);
     app.replicate::<Crow>()
         .add_systems(OnEnter(ServerState::Running), spawn_crows);
 }
 
-/// Server only: scatter the crows around the middle of the floor.
+/// Server only: scatter the crows in a ring round their site.
 fn spawn_crows(mut commands: Commands) {
+    let middle = crate::sites::at("crows");
     for id in 0..CROW_COUNT {
         let angle = id as f32 / CROW_COUNT as f32 * std::f32::consts::TAU;
-        let home = Vec2::from_angle(angle) * 4.0;
+        let home = middle + Vec2::from_angle(angle) * 4.0;
         commands.spawn((Crow { id, home }, Replicated));
     }
 }
@@ -97,7 +100,7 @@ fn dress_crows(mut commands: Commands, new: Query<(Entity, &Crow), Added<Crow>>)
             ))
             .id();
         commands.entity(entity).insert((
-            Transform::from_translation(crow_position(crow, 0.0)),
+            Transform::from_translation(on_the_ground(crow_position(crow, 0.0))),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
             CrowRig(rig),
@@ -131,8 +134,13 @@ fn animate_crows(
         if look.length_squared() > 1e-6 {
             transform.look_to(look, Vec3::Y);
         }
-        transform.translation = here;
+        transform.translation = on_the_ground(here);
     }
+}
+
+/// `p` lifted by the ground under it: a crow hops on whatever it stands on.
+fn on_the_ground(p: Vec3) -> Vec3 {
+    p + Vec3::Y * crate::terrain::height_at(p.x, p.z)
 }
 
 /// Pick the hop or caw clip and keep it in step with the session clock.

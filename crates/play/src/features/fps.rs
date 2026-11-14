@@ -85,6 +85,7 @@ fn no_physics_world(trees: Option<Res<avian3d::collider_tree::ColliderTrees>>) -
 }
 
 pub fn protocol(app: &mut App) {
+    app.add_systems(Update, where_is_everyone.after(WalkSet));
     app.replicate::<Walker>()
         .add_client_event::<WalkControl>(Channel::Unreliable)
         .add_observer(on_walk_control)
@@ -109,6 +110,34 @@ pub fn spawn_point(id: u64) -> Vec3 {
     let col = (id % 5) as f32 - 2.0;
     let row = (id / 5) as f32;
     Vec3::new(col * 1.6, 0.0, 9.0 + row * 1.6)
+}
+
+/// Move a walker somewhere and face it that way, stopping it dead: the walk
+/// input and the kinematic controller's velocity go back to zero so no
+/// momentum carries through the jump. Pass `None` for the pieces a caller
+/// keeps (a wrap that carries momentum, a climb step that hands its motion
+/// on). Every relocation of a walker goes through here, so `Walker.pos` is
+/// written by this fn and the movement systems only.
+pub fn teleport(
+    walker: &mut Walker,
+    walkinput: Option<&mut WalkInput>,
+    kcc: Option<&mut crate::kcc::Kcc>,
+    to: Vec3,
+    yaw: f32,
+) {
+    walker.pos = to;
+    walker.yaw = yaw;
+    if let Some(input) = walkinput {
+        input.stick = Vec2::ZERO;
+        input.jump = false;
+        input.run = false;
+        input.vy = 0.0;
+        input.climbing = false;
+    }
+    if let Some(kcc) = kcc {
+        kcc.velocity = Vec3::ZERO;
+        kcc.grounded = None;
+    }
 }
 
 fn give_bodies(mut commands: Commands, new: Query<(Entity, &Player), Without<Walker>>) {
@@ -353,6 +382,18 @@ pub fn walking_first_person(
     duelists: Query<&Duelist>,
 ) -> bool {
     view.first_person && !me.is_some_and(|m| duelists.iter().any(|d| d.player == m.0))
+}
+
+/// Where everyone's feet are, for the sites (`sites::People`): which places
+/// have anyone at them.
+fn where_is_everyone(
+    walkers: Query<&Walker, With<Player>>,
+    mut people: ResMut<crate::sites::People>,
+) {
+    let at: Vec<Vec2> = walkers.iter().map(|w| w.pos.xz()).collect();
+    if people.0 != at {
+        people.0 = at;
+    }
 }
 
 /// Local: players whose floating name label must stay hidden on this peer
@@ -826,5 +867,33 @@ mod tests {
                 assert!(a != b, "player {i} spawns on top of another player");
             }
         }
+    }
+
+    #[test]
+    fn teleport_puts_you_there_and_stops_you_dead() {
+        let mut walker = Walker {
+            pos: Vec3::ZERO,
+            yaw: 0.0,
+        };
+        let mut input = WalkInput {
+            stick: Vec2::X,
+            jump: true,
+            run: true,
+            vy: 3.0,
+            climbing: true,
+        };
+        let mut kcc = crate::kcc::Kcc {
+            velocity: Vec3::new(1.0, 2.0, 3.0),
+            ..Default::default()
+        };
+        let to = Vec3::new(4.0, 5.0, 6.0);
+        teleport(&mut walker, Some(&mut input), Some(&mut kcc), to, 1.5);
+        assert_eq!(walker.pos, to);
+        assert_eq!(walker.yaw, 1.5);
+        assert_eq!(input.stick, Vec2::ZERO);
+        assert!(!input.jump && !input.run && !input.climbing);
+        assert_eq!(input.vy, 0.0);
+        assert_eq!(kcc.velocity, Vec3::ZERO);
+        assert!(kcc.grounded.is_none());
     }
 }

@@ -8,7 +8,9 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  # One run at a time per branch, never interrupted. A newer push waits as the single pending run
+  # and replaces any older pending one, so intermediate versions are skipped (#390).
+  cancel-in-progress: false
 
 env:
   CARGO_TERM_COLOR: always

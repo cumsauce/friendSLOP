@@ -1,0 +1,47 @@
+// Tuning and writing for the Lily Garden (crates/side/src/features/lily_garden.rs, #384).
+// Edit and save: the running game picks it up within a second.
+(
+    // The map spot the garden sits next to, and how far from it (x, z metres).
+    near: "pond",
+    offset: (2.0, 13.0),
+    // Ground kept clear of trees and rocks around the garden (metres).
+    radius: 7.0,
+    // The two women. `at` is where each pines alone (garden-local x, z);
+    // once together they share the bench. `look` seeds their appearance.
+    women: [
+        (name: "Marigold", look: 3841, clothes: 10, at: (-4.5, 1.5)),
+        (name: "Juniper", look: 9127, clothes: 7, at: (4.5, 1.5)),
+    ],
+    // Where the bench and the flowerbeds go (garden-local x, z) and the bench's yaw.
+    bench: (0.0, -3.0),
+    beds: [(-3.5, -1.0), (3.5, -1.0), (0.0, 3.5)],
+    // Signposts pointing to the garden: (spot, offset x, offset z). The arrow turns to face the garden.
+    signs: [("centre", 3.0, 3.0), ("village", -22.0, 6.0), ("bonfire", 3.0, -3.0)],
+    sign_line: "LILY GARDEN →  (women in love, probably)",
+    // The story, one letter at a time. Letter `i` is written by woman `i % 2`
+    // and carried to the other. `take` shows when you pick it up, `give` to
+    // everyone when it's delivered.
+    letters: [
+        (take: "Marigold, blushing: \"Could you... give this to Juniper? Don't read it. Okay you can read it. It just says 'hi'.\"",
+         give: "Juniper read Marigold's note ('hi') eleven times and is now writing back."),
+        (take: "Juniper: \"Tell her I said hi back. No wait. Give her this. It's a pressed lily. Is that too much? It's too much.\"",
+         give: "Marigold got the pressed lily and had to sit down for a bit."),
+        (take: "Marigold: \"This one's a poem. It rhymes 'Juniper' with 'soup in her'. I'm so sorry. Please hurry.\"",
+         give: "Juniper loved the poem. She says nobody has ever rhymed her with soup before."),
+        (take: "Juniper, shaking: \"Okay. This one says I like her. Like LIKE like. If she laughs I'm moving to the lake.\"",
+         give: "Marigold read it, dropped everything, and is running to the bench. They're holding hands. Everyone clap."),
+    ],
+    // Shown when you click the woman who isn't writing right now.
+    waiting_line: "She's pretending not to look at the other one. Talk to the other one first.",
+    // Shown when you already carry a letter and click the writer again.
+    carrying_line: "You're already carrying her letter. Go on, deliver it!",
+    // Clicking either of them once they're together.
+    together_lines: [
+        "Marigold: \"We're going to adopt eleven cats.\"",
+        "Juniper: \"She's my girlfriend. Did you know? She's my GIRLFRIEND.\"",
+        "Marigold and Juniper are sharing one pair of headphones and ignoring you, lovingly.",
+        "Juniper: \"Thank you, letter gremlin. We'll name a lily after you.\"",
+    ],
+    // How many hearts float over them once they're together.
+    heart_count: 6,
+)

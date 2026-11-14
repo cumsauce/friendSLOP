@@ -74,7 +74,7 @@ now and then they all poop at once.
 Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
 ankles until they knock you flying. Run: they're slower than you.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -1287,8 +1287,22 @@ is saved on your own machine (`kori_prizes.txt`), so it lasts between games; coi
 session. Main menu "Kori prizes" lists them (unwon ones are ???) and spins the one you click.
 In game, the . key cycles through your figures: everyone sees it in your hand and it adds +8% walking
 speed (`features/kori.rs`, `kori_shelf.rs`). Open: should coins buy anything else, or be saved?
+## What exists: the Lily Garden (#384)
+
+North of the pond is a little garden of lily flowerbeds with a bench. Marigold stands at one
+end, Juniper at the other, both pining and too shy to talk. Click whoever's writing to take
+her letter, walk it over, click the other to deliver it; everyone sees how it landed and the
+reply starts. Four letters (a "hi", a pressed lily, a soup poem, a confession) and they meet
+on the bench hand in hand with hearts floating over them; clicking them then gets happy
+couple lines. Pink-heart signposts at the centre, the bonfire and the village point the way
+(click to read). Sweet, never explicit: the issue title is read as lesbian romance. Models
+`lily-sign`, `lily-bench`, `lily-bed`; layout and writing in `data/side/lily_garden.ron`
+(`features/lily_garden.rs`). Open: does the love story ever matter to the chapters?
 
 ## Ideas so far
+
+- catherine (#384): "lesbian sex... give me Yuri plot lines and characters and story lines
+  and imagery and sign posts and locations". Built as the Lily Garden love-letter story.
 
 - catherine (#383): emotes involving other players like high five, rock paper scissors and
   dapping up (no details). Read as an e.g. list and built exactly those three, as offer/accept toasts.

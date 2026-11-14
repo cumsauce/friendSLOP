@@ -516,7 +516,14 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                         crate::fault::toggle(&mut panel);
                     },
                 );
-            ui.spawn(link("Quit", CREAM, 26.0, 502.0)).observe(
+            ui.spawn(link("Kori prizes", PERIWINKLE, 26.0, 502.0))
+                .observe(
+                |_: On<PointerClick>,
+                 mut panel: Query<&mut Node, With<crate::kori_shelf::ShelfPanel>>| {
+                    crate::kori_shelf::toggle(&mut panel);
+                },
+            );
+            ui.spawn(link("Quit", CREAM, 151.0, 502.0)).observe(
                 |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
                     exit.write(AppExit::Success);
                 },

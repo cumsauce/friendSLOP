@@ -1,0 +1,52 @@
+// The Kori coin claw machine (#382). What farts and feces pay is in
+// data/base/kori.ron.
+(
+    // Coins a go costs.
+    price: 5,
+    // Chance (0..1) the claw actually holds on to something.
+    win_chance: 0.35,
+    // Walking speed a figure in your hand adds (0.08 = +8%).
+    held_speed: 0.08,
+    // Where the machine stands, metres (x, z) from the gambling table...
+    offset: (3.5, -2.0),
+    // ...and how it's turned (degrees).
+    yaw_deg: 200.0,
+    // Every figure: name, the shelf's blurb, its model and how often the claw
+    // grabs it (bigger = more often).
+    prizes: [
+        (
+            name: "Little Stinker",
+            blurb: "A fart with a face. Smells faintly of the bonfire.",
+            model: "models/kori/little_stinker.gltf",
+            weight: 4.0,
+        ),
+        (
+            name: "Gassy Duck",
+            blurb: "Squeeze it and it doesn't squeak.",
+            model: "models/kori/gassy_duck.gltf",
+            weight: 3.0,
+        ),
+        (
+            name: "Porcelain Throne",
+            blurb: "One of the toilets that keep turning up, small enough to pocket.",
+            model: "models/kori/porcelain_throne.gltf",
+            weight: 2.5,
+        ),
+        (
+            name: "Rubber Landlord",
+            blurb: "He still wants rent from you. Squishy, though.",
+            model: "models/kori/rubber_landlord.gltf",
+            weight: 1.5,
+        ),
+        (
+            name: "Golden Log",
+            blurb: "The rarest thing in the machine. Don't ask where it came from.",
+            model: "models/kori/golden_log.gltf",
+            weight: 0.5,
+        ),
+    ],
+    win_line: "{who} won a {prize} from the Kori claw!",
+    miss_line: "The claw drops it. Of course it does.",
+    broke_line: "A go is {price} Kori coins. You have {coins}. Go fart.",
+    coins_line: "{coins} Kori coins",
+)

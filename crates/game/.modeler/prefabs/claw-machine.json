@@ -1,0 +1,1430 @@
+{
+  "format_version": 1,
+  "name": "claw-machine",
+  "parts": [],
+  "version": 64,
+  "ops": [
+    {
+      "primitive": {
+        "name": "cabinet",
+        "kind": "box",
+        "size": [
+          0.9,
+          1.0,
+          0.9
+        ],
+        "translation": [
+          0.0,
+          0.5,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "trim",
+        "kind": "box",
+        "size": [
+          0.92,
+          0.05,
+          0.92
+        ],
+        "translation": [
+          0.0,
+          1.025,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "chute",
+        "kind": "box",
+        "size": [
+          0.32,
+          0.28,
+          0.04
+        ],
+        "translation": [
+          0.18,
+          0.3,
+          0.45
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "chute_flap",
+        "kind": "box",
+        "size": [
+          0.28,
+          0.12,
+          0.01
+        ],
+        "translation": [
+          0.18,
+          0.38,
+          0.472
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "panel",
+        "kind": "box",
+        "size": [
+          0.9,
+          0.08,
+          0.2
+        ],
+        "translation": [
+          0.0,
+          0.96,
+          0.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stick",
+        "kind": "cylinder",
+        "size": [
+          0.012,
+          0.1,
+          0.0
+        ],
+        "translation": [
+          -0.2,
+          1.05,
+          0.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "stick_ball",
+        "kind": "sphere",
+        "size": [
+          0.035,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.2,
+          1.11,
+          0.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "button",
+        "kind": "cylinder",
+        "size": [
+          0.055,
+          0.03,
+          0.0
+        ],
+        "translation": [
+          0.18,
+          1.015,
+          0.55
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "coin_plate",
+        "kind": "box",
+        "size": [
+          0.1,
+          0.16,
+          0.02
+        ],
+        "translation": [
+          -0.25,
+          0.65,
+          0.46
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "coin_slot",
+        "kind": "box",
+        "size": [
+          0.01,
+          0.06,
+          0.01
+        ],
+        "translation": [
+          -0.25,
+          0.67,
+          0.474
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "glass",
+        "kind": "box",
+        "size": [
+          0.86,
+          0.7,
+          0.86
+        ],
+        "translation": [
+          0.0,
+          1.4,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "posts",
+        "kind": "box",
+        "size": [
+          0.04,
+          0.7,
+          0.04
+        ],
+        "translation": [
+          0.43,
+          1.4,
+          0.43
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "posts_l",
+        "input": "posts",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "posts_b",
+        "kind": "box",
+        "size": [
+          0.04,
+          0.7,
+          0.04
+        ],
+        "translation": [
+          0.43,
+          1.4,
+          -0.43
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "posts_bl",
+        "input": "posts_b",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "header",
+        "kind": "box",
+        "size": [
+          0.92,
+          0.15,
+          0.92
+        ],
+        "translation": [
+          0.0,
+          1.825,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "text": {
+        "name": "sign",
+        "text": "KORI",
+        "font": "bold",
+        "size": 0.1,
+        "depth": 0.02,
+        "align": "center",
+        "line_spacing": 1.0,
+        "translation": [
+          0.0,
+          1.775,
+          0.48
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail",
+        "kind": "box",
+        "size": [
+          0.8,
+          0.03,
+          0.03
+        ],
+        "translation": [
+          0.0,
+          1.7,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "trolley",
+        "kind": "box",
+        "size": [
+          0.08,
+          0.05,
+          0.08
+        ],
+        "translation": [
+          0.05,
+          1.68,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "cable",
+        "kind": "cylinder",
+        "size": [
+          0.004,
+          0.25,
+          0.0
+        ],
+        "translation": [
+          0.05,
+          1.53,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "claw_hub",
+        "kind": "sphere",
+        "size": [
+          0.035,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.05,
+          1.4,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "prong",
+        "kind": "box",
+        "size": [
+          0.012,
+          0.09,
+          0.012
+        ],
+        "translation": [
+          0.08,
+          1.35,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.17364818,
+          0.9848077
+        ]
+      }
+    },
+    {
+      "radial_array": {
+        "name": "prongs",
+        "input": "prong",
+        "count": 3,
+        "center": [
+          0.05,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_a",
+        "kind": "sphere",
+        "size": [
+          0.08,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.25,
+          1.11,
+          -0.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_b",
+        "kind": "sphere",
+        "size": [
+          0.07,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.08,
+          1.1,
+          0.05
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_c",
+        "kind": "sphere",
+        "size": [
+          0.09,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.2,
+          1.12,
+          -0.15
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_d",
+        "kind": "sphere",
+        "size": [
+          0.07,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.1,
+          -0.28
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_e",
+        "kind": "sphere",
+        "size": [
+          0.075,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.28,
+          1.1,
+          0.2
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_f",
+        "kind": "sphere",
+        "size": [
+          0.06,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.12,
+          1.2,
+          -0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_g",
+        "kind": "sphere",
+        "size": [
+          0.08,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.25,
+          1.11,
+          0.22
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plush_h",
+        "kind": "sphere",
+        "size": [
+          0.06,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.05,
+          1.18,
+          -0.12
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "cabinet",
+        "input": "cabinet",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-pink",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#e0409a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "trim",
+        "input": "trim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "chute",
+        "input": "chute",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "chute_flap",
+        "input": "chute_flap",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "panel",
+        "input": "panel",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-purple",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#7a3bc4",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stick",
+        "input": "stick",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "stick_ball",
+        "input": "stick_ball",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-red-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#e02020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "button",
+        "input": "button",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-yellow-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f5d020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "coin_plate",
+        "input": "coin_plate",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "coin_slot",
+        "input": "coin_slot",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "glass",
+        "input": "glass",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-glass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "alpha": "blend",
+                "base_color": "#cfe8ff",
+                "metallic": 0,
+                "name": "out",
+                "opacity": 0.25,
+                "roughness": 0.05,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "posts",
+        "input": "posts",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-purple",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#7a3bc4",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "posts_l",
+        "input": "posts_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-purple",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#7a3bc4",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "posts_b",
+        "input": "posts_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-purple",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#7a3bc4",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "posts_bl",
+        "input": "posts_bl",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-purple",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#7a3bc4",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "header",
+        "input": "header",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-purple",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#7a3bc4",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sign",
+        "input": "sign",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-yellow-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f5d020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rail",
+        "input": "rail",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "trolley",
+        "input": "trolley",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cable",
+        "input": "cable",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "claw_hub",
+        "input": "claw_hub",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "prong",
+        "input": "prong",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "prongs_1",
+        "input": "prongs_1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "prongs_2",
+        "input": "prongs_2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_a",
+        "input": "plush_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-plush-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3fa0e8",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_b",
+        "input": "plush_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-yellow-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f5d020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_c",
+        "input": "plush_c",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#6cc04a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_d",
+        "input": "plush_d",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-pink",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#e0409a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_e",
+        "input": "plush_e",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-red-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#e02020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_f",
+        "input": "plush_f",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ffffff",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_g",
+        "input": "plush_g",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-paint-purple",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#7a3bc4",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plush_h",
+        "input": "plush_h",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-plush-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3fa0e8",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

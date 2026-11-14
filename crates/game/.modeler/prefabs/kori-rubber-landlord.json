@@ -1,0 +1,586 @@
+{
+  "format_version": 1,
+  "name": "kori-rubber-landlord",
+  "parts": [],
+  "version": 149,
+  "ops": [
+    {
+      "primitive": {
+        "name": "base",
+        "kind": "cylinder",
+        "size": [
+          0.045,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.006,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_l",
+        "kind": "cylinder",
+        "size": [
+          0.008,
+          0.03,
+          0.0
+        ],
+        "translation": [
+          -0.012,
+          0.025,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "leg_r",
+        "input": "leg_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "body",
+        "kind": "sphere",
+        "size": [
+          0.032,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.06,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "shirt",
+        "kind": "box",
+        "size": [
+          0.012,
+          0.03,
+          0.004
+        ],
+        "translation": [
+          0.0,
+          0.07,
+          0.029
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tie",
+        "kind": "box",
+        "size": [
+          0.005,
+          0.022,
+          0.003
+        ],
+        "translation": [
+          0.0,
+          0.068,
+          0.0315
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm_l",
+        "kind": "capsule",
+        "size": [
+          0.007,
+          0.025,
+          0.0
+        ],
+        "translation": [
+          -0.033,
+          0.062,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.21643962,
+          0.976296
+        ]
+      }
+    },
+    {
+      "mirror": {
+        "name": "arm_r",
+        "input": "arm_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "head",
+        "kind": "sphere",
+        "size": [
+          0.019,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.107,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "eye_l",
+        "kind": "sphere",
+        "size": [
+          0.0025,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.006,
+          0.11,
+          0.018
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "eye_r",
+        "input": "eye_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "brim",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.003,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.121,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "hat",
+        "kind": "cylinder",
+        "size": [
+          0.014,
+          0.03,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.137,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "base",
+        "input": "base",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_l",
+        "input": "leg_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-suit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3f55",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_r",
+        "input": "leg_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-suit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3f55",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-suit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3f55",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shirt",
+        "input": "shirt",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ffffff",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tie",
+        "input": "tie",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-red-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#e02020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "arm_l",
+        "input": "arm_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-suit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3f55",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "arm_r",
+        "input": "arm_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-suit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#3a3f55",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "head",
+        "input": "head",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-skin",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f0c09a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eye_l",
+        "input": "eye_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eye_r",
+        "input": "eye_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "brim",
+        "input": "brim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "hat",
+        "input": "hat",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

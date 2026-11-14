@@ -74,7 +74,7 @@ now and then they all poop at once.
 Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
 ankles until they knock you flying. Run: they're slower than you.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed).
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, bear, goat, Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -1277,6 +1277,17 @@ the nearest friend within 3 m. They press **O** within 6 s to accept, and both o
 It changes nothing else. There's no arm animation yet, only the toast. Emotes and lines are in
 `data/side/emotes.ron`.
 
+## What exists: Kori coins and the claw machine (#382)
+
+Kori coins (bottom left) come from farts (1, +2 if an NPC was shamed) and eating a toilet's feces
+(5) (`data/base/kori.ron`). A claw machine (`claw-machine` model) stands 3.5 m from the gambling
+table: 5 coins a go, 35% win, a figure picked by weight from five (`kori-*` models: Little Stinker,
+Gassy Duck, Porcelain Throne, Rubber Landlord, rare Golden Log; `data/side/kori.ron`). What you win
+is saved on your own machine (`kori_prizes.txt`), so it lasts between games; coins only last the
+session. Main menu "Kori prizes" lists them (unwon ones are ???) and spins the one you click.
+In game, the . key cycles through your figures: everyone sees it in your hand and it adds +8% walking
+speed (`features/kori.rs`, `kori_shelf.rs`). Open: should coins buy anything else, or be saved?
+
 ## Ideas so far
 
 - catherine (#383): emotes involving other players like high five, rock paper scissors and
@@ -1483,6 +1494,9 @@ It changes nothing else. There's no arm animation yet, only the toast. Emotes an
 
 - Kori.exe (#379): randomly spawning toilets filled with feces; eat it for a massive speed
   boost up to 20 s. Chose: near players, one eater per toilet, +100% speed for the full 20 s.
+
+- catherine (#382): Kori coins from farts and poop buy claw machine figures; a main menu spot to
+  see and inspect them; hold one like a CS knife for a little speed.
 
 ## Open questions
 

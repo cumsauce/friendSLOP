@@ -44,6 +44,7 @@ pub mod features {
     pub mod shipwreck;
     pub mod street_people;
     pub mod surf;
+    pub mod toilets;
     pub mod trains;
     pub mod vessel;
     pub mod vessel_jump;
@@ -94,5 +95,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::ice_cream::TUNING,
         &features::hats::TUNING,
         &features::kittens::TUNING,
+        &features::toilets::TUNING,
     ]
 }

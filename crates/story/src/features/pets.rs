@@ -83,6 +83,8 @@ pub struct Tuning {
     pub speed: f32,
     /// Pets stop this short of the pointer.
     pub heel: f32,
+    /// Where the dog, cat, bunny and duck wait, from the middle of their site (x, z).
+    pub strays: Vec<(f32, f32)>,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -110,13 +112,21 @@ pub fn protocol(app: &mut App) {
 #[derive(Resource, Default)]
 struct Lures(HashMap<u64, Vec2>);
 
+/// The strays, in the order `strays` in the data file places them.
+const STRAYS: [Animal; 4] = [Animal::Dog, Animal::Cat, Animal::Bunny, Animal::Duck];
+
+/// Where each stray waits: round the pets' site, as the data file spreads them.
+pub fn stray_spots(middle: Vec2, t: &Tuning) -> Vec<(u32, Animal, Vec2)> {
+    STRAYS
+        .into_iter()
+        .zip(&t.strays)
+        .zip(1..)
+        .map(|((animal, &(x, z)), id)| (id, animal, middle + Vec2::new(x, z)))
+        .collect()
+}
+
 fn place_strays(mut commands: Commands) {
-    for (id, animal, at) in [
-        (1, Animal::Dog, Vec2::new(-4.0, 4.0)),
-        (2, Animal::Cat, Vec2::new(3.0, 8.0)),
-        (3, Animal::Bunny, Vec2::new(-9.0, 2.0)),
-        (4, Animal::Duck, Vec2::new(7.0, -2.0)),
-    ] {
+    for (id, animal, at) in stray_spots(crate::sites::at("pets"), &tuning()) {
         commands.spawn((
             Pet {
                 id,
@@ -457,6 +467,18 @@ fn update_pet_hud(pets: Query<&Pet>, mut hud: Query<&mut Text, With<PetHud>>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn each_stray_waits_at_its_spot_round_the_site() {
+        let t = Tuning {
+            strays: vec![(-4.0, 4.0), (3.0, 8.0), (-9.0, 2.0), (7.0, -2.0)],
+            ..Default::default()
+        };
+        let spots = stray_spots(Vec2::new(10.0, 20.0), &t);
+        assert_eq!(spots.len(), 4);
+        assert_eq!(spots[0], (1, Animal::Dog, Vec2::new(6.0, 24.0)));
+        assert_eq!(spots[3], (4, Animal::Duck, Vec2::new(17.0, 18.0)));
+    }
 
     #[test]
     fn pets_trot_towards_the_pointer_and_stop_at_heel() {

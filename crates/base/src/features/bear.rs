@@ -25,11 +25,11 @@ pub fn protocol(app: &mut App) {
         .add_systems(OnEnter(ServerState::Running), spawn_bear);
 }
 
-/// Server only: one bear, a little off-centre so it doesn't sit on the crows.
+/// Server only: one bear, at its site.
 fn spawn_bear(mut commands: Commands) {
     commands.spawn((
         Bear {
-            home: Vec2::new(-6.0, -3.0),
+            home: crate::sites::at("bear"),
         },
         Replicated,
     ));

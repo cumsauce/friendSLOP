@@ -30,11 +30,12 @@ pub fn protocol(app: &mut App) {
         .add_systems(OnEnter(ServerState::Running), spawn_crows);
 }
 
-/// Server only: scatter the crows around the middle of the floor.
+/// Server only: scatter the crows in a ring round their site.
 fn spawn_crows(mut commands: Commands) {
+    let middle = crate::sites::at("crows");
     for id in 0..CROW_COUNT {
         let angle = id as f32 / CROW_COUNT as f32 * std::f32::consts::TAU;
-        let home = Vec2::from_angle(angle) * 4.0;
+        let home = middle + Vec2::from_angle(angle) * 4.0;
         commands.spawn((Crow { id, home }, Replicated));
     }
 }

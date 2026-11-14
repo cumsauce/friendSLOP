@@ -31,7 +31,7 @@ pub fn protocol(app: &mut App) {
 fn spawn_goat(mut commands: Commands) {
     commands.spawn((
         Goat {
-            home: Vec2::new(5.0, 4.0),
+            home: crate::sites::at("goat"),
         },
         Replicated,
     ));

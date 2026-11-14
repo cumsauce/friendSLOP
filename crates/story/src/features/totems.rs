@@ -156,11 +156,11 @@ fn spawn_totems_and_doors(commands: &mut Commands) {
         slotted: None,
     };
     commands.spawn((
-        totem(1, Magic::Wind, Vec2::new(8.0, 3.0), false),
+        totem(1, Magic::Wind, crate::sites::at("totem_wind"), false),
         Replicated,
     ));
     commands.spawn((
-        totem(2, Magic::Frost, Vec2::new(9.0, -8.0), false),
+        totem(2, Magic::Frost, crate::sites::at("totem_frost"), false),
         Replicated,
     ));
     commands.spawn((totem(3, Magic::Fire, vault_at(), true), Replicated));

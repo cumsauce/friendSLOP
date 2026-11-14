@@ -20,6 +20,7 @@ pub mod input;
 pub mod music;
 pub mod night_lights;
 pub mod people;
+pub mod place;
 pub mod player;
 pub mod probes;
 pub mod rigged;
@@ -66,6 +67,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &rules::kori::EARNINGS,
         &textures::GLASS,
         &night_lights::NIGHT_LIGHTS,
+        &place::LOOKS,
         &input::BINDINGS,
     ]
 }

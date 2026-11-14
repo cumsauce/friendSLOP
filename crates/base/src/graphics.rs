@@ -421,17 +421,9 @@ fn ui_fit(physical: Vec2, base: f32) -> Option<f32> {
 fn apply_camera(
     mut commands: Commands,
     q: Res<GraphicsQuality>,
-    mut cameras: Query<
-        (
-            Entity,
-            &mut Projection,
-            Option<&mut DistanceFog>,
-            Ref<MainCamera>,
-        ),
-        With<MainCamera>,
-    >,
+    mut cameras: Query<(Entity, &mut Projection, Ref<MainCamera>), With<MainCamera>>,
 ) {
-    for (e, mut projection, fog, cam) in &mut cameras {
+    for (e, mut projection, cam) in &mut cameras {
         if !q.is_changed() && !cam.is_added() {
             continue;
         }
@@ -472,13 +464,11 @@ fn apply_camera(
         } else {
             ShadowFilteringMethod::Hardware2x2
         });
-        let (start, end) = if q.far { (60.0, 230.0) } else { (40.0, 140.0) };
-        if let Some(mut fog) = fog {
-            fog.falloff = FogFalloff::Linear { start, end };
-        }
+        // The fog itself (where it starts and ends with `far`) is the
+        // day/night cycle's to write (`atmosphere.rs`), with the places' looks.
         if let Projection::Perspective(p) = projection.as_mut() {
             // Nothing past the fog is visible anyway: don't draw it.
-            p.far = if q.far { 1000.0 } else { end + 20.0 };
+            p.far = if q.far { 1000.0 } else { 160.0 };
         }
     }
 }

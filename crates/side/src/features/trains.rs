@@ -124,10 +124,6 @@ pub struct Tuning {
     pub ride_at: (f32, f32, f32),
     /// The announcer's voice: pitch and speed.
     pub voice: (f32, f32),
-    /// The ambient light in a ride car (dark as a tunnel: only its own lamp)
-    /// and in an underground station's hall. The sky's reflection dims with it.
-    pub ride_ambient: f32,
-    pub hall_ambient: f32,
     /// Shown while a train waits to leave with you.
     pub boarding_line: String,
     pub lines: Vec<Line>,
@@ -619,7 +615,12 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), build)
         .add_systems(
             Update,
-            (announce, tunnel_lights, move_cars, dark).run_if(in_state(AppState::InGame)),
+            (announce, tunnel_lights, move_cars).run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(
+            Update,
+            look.in_set(crate::place::PlaceSet)
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -1004,11 +1005,15 @@ fn move_cars(runs: Query<&Run>, mut cars: Query<(&CarOf, &mut Transform)>) {
     }
 }
 
-/// The ambient light at `p` if it's somewhere dark: a ride car (deep under
-/// everything) or an underground station's hall and tunnel.
-pub fn dark_at(t: &Tuning, p: Vec3) -> Option<f32> {
+/// The looks (`data/base/place_looks.ron`) of a ride car and an underground hall.
+pub const RIDE_LOOK: &str = "train_ride";
+pub const HALL_LOOK: &str = "train_hall";
+
+/// Which look `p` is in, if it's somewhere dark: a ride car (deep under
+/// the map) or an underground station's hall.
+pub fn dark_at(t: &Tuning, p: Vec3) -> Option<&'static str> {
     if p.y < t.ride_at.1 + 30.0 {
-        return Some(t.ride_ambient);
+        return Some(RIDE_LOOK);
     }
     let under = t.lines.iter().flat_map(|l| l.stops.iter()).any(|s| {
         if s.depth <= 0.0 {
@@ -1019,51 +1024,13 @@ pub fn dark_at(t: &Tuning, p: Vec3) -> Option<f32> {
             && (-TRACK_W - 1.0..HALL_Z + 1.0).contains(&l.z)
             && (-1.0..s.depth - 0.9).contains(&l.y)
     });
-    under.then_some(t.hall_ambient)
+    under.then_some(HALL_LOOK)
 }
 
-/// Local: no sun and little ambient light (so little sky in reflections)
-/// while this screen's camera is in a ride car or an underground hall; put
-/// back as it leaves.
-fn dark(
-    camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
-    mut suns: Query<(Entity, &mut DirectionalLight)>,
-    ambient: Option<ResMut<GlobalAmbientLight>>,
-    mut saved: Local<Option<(f32, Vec<(Entity, f32)>)>>,
-) {
-    let Ok(at) = camera.single() else {
-        return;
-    };
-    let Some(mut ambient) = ambient else { return };
-    match (dark_at(&tuning(), at.translation()), saved.is_some()) {
-        (Some(level), false) => {
-            *saved = Some((
-                ambient.brightness,
-                suns.iter().map(|(e, s)| (e, s.illuminance)).collect(),
-            ));
-            ambient.brightness = level;
-            for (_, mut sun) in &mut suns {
-                sun.illuminance = 0.0;
-            }
-        }
-        (Some(level), true) => {
-            if ambient.brightness != level {
-                ambient.brightness = level;
-            }
-        }
-        (None, true) => {
-            if let Some((amb, lux)) = saved.take() {
-                ambient.brightness = amb;
-                for (e, l) in lux {
-                    if let Ok((_, mut sun)) = suns.get_mut(e) {
-                        // Never back to 0: another dark place may have saved it dark, and
-                        // day_night only takes over again from a lit sun.
-                        sun.illuminance = l.max(1.0);
-                    }
-                }
-            }
-        }
-        (None, false) => {}
+/// Local: a ride car or an underground hall puts the sky out (`place.rs`).
+fn look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
+    if let Some(id) = dark_at(&tuning(), here.0) {
+        looks.push(id);
     }
 }
 
@@ -1329,7 +1296,7 @@ mod tests {
     fn the_ride_and_the_hall_are_dark_and_the_valley_isnt() {
         let t = t();
         let ride = ride_origin(&t, 0, 1) + ABOARD;
-        assert_eq!(dark_at(&t, ride), Some(t.ride_ambient));
+        assert_eq!(dark_at(&t, ride), Some(RIDE_LOOK));
         let path = &t.lines[0];
         let wtc = path
             .stops
@@ -1337,7 +1304,7 @@ mod tests {
             .find(|s| s.depth > 0.0)
             .expect("underground");
         let platform = stop_frame(wtc).transform_point(Vec3::new(0.0, 1.8, 3.0));
-        assert_eq!(dark_at(&t, platform), Some(t.hall_ambient));
+        assert_eq!(dark_at(&t, platform), Some(HALL_LOOK));
         // Up in the Oculus it's daylight.
         assert_eq!(dark_at(&t, platform.with_y(1.8)), None);
         let valley = path

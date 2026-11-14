@@ -24,7 +24,7 @@ pub fn plugin(app: &mut App) {
             load_bath_models,
             tile_floors,
             drift_clouds,
-            bathroom_air.after(darkness),
+            bathroom_air.after(darkness).in_set(crate::place::PlaceSet),
         )
             .run_if(in_state(AppState::InGame)),
     );
@@ -597,55 +597,32 @@ fn in_bathroom(seed: Option<u32>, feet: Option<Vec3>) -> Option<Zone> {
     (inside(feet) && zone.holds(feet.xz())).then_some(zone)
 }
 
-/// Local: the air changes in the bathroom. A flat, pale haze instead of the
-/// black fog, more light, and the drone of the dark ducks under the hum.
+/// The bathroom's look (`data/base/place_looks.ron`): a flat, pale haze.
+pub const LOOK: &str = "warehouse_bathroom";
+
+/// Local: the air changes in the bathroom (a flat, pale haze instead of the
+/// black fog, more light: `place.rs`), and the drone of the dark ducks
+/// under the hum.
 #[allow(clippy::too_many_arguments)]
 fn bathroom_air(
-    mut commands: Commands,
     mut was: Local<bool>,
-    me: Option<Res<LocalPlayer>>,
-    walkers: Query<(&Player, &Walker)>,
+    here: Res<crate::place::Here>,
+    mut looks: ResMut<crate::place::PlaceLooks>,
     warehouse: Query<&Warehouse>,
     spooked: Res<Spooked>,
-    cameras: Query<Entity, With<MainCamera>>,
-    ambient: Option<ResMut<GlobalAmbientLight>>,
     mut sinks: Query<&mut AudioSink>,
     settings: Option<Res<crate::settings::Settings>>,
 ) {
-    if !spooked.inside {
-        *was = false;
-        return;
-    }
-    let feet = me.and_then(|me| {
-        walkers
-            .iter()
-            .find(|(p, _)| p.id == me.0)
-            .map(|(_, w)| w.pos)
-    });
     let seed = warehouse.iter().next().and_then(|w| w.seed);
-    let now = in_bathroom(seed, feet).is_some();
+    let now = spooked.inside && in_bathroom(seed, Some(here.0)).is_some();
+    if now {
+        looks.push(LOOK);
+    }
     if now == *was {
         return;
     }
-    let (Ok(camera), Some(mut ambient)) = (cameras.single(), ambient) else {
-        return;
-    };
     *was = now;
     let master = settings.map_or(0.8, |s| s.master_volume);
-    if now {
-        commands.entity(camera).insert(DistanceFog {
-            color: Color::srgb(0.11, 0.12, 0.1),
-            falloff: FogFalloff::Linear {
-                start: 6.0,
-                end: 34.0,
-            },
-            ..default()
-        });
-        ambient.brightness = 45.0;
-    } else {
-        commands.entity(camera).insert(dark_fog());
-        ambient.brightness = DARK_AMBIENT;
-    }
     if let Some(mut sink) = spooked.drone.and_then(|d| sinks.get_mut(d).ok()) {
         let v = if now { 0.1 } else { 0.55 };
         sink.set_volume(Volume::Linear(v * master));

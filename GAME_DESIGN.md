@@ -330,7 +330,11 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   heads glow brighter, tower glass gets a faint office glow, and the nearest 12 street lamps
   throw real light on the pavement. Bevy's physical Atmosphere was tried and left out: it lights
   the sky with every directional light (our bounce and moon lights would make extra suns) and
-  replaces our fog. Purely visual for now: nothing in play cares what time it is. Warehouse, underground and endless-hallway darkness still win while you're in them.
+  replaces our fog. Purely visual for now: nothing in play cares what time it is.
+  The dark places (train rides and halls, Fulton St, the underground, the warehouse and its
+  bathroom, the endless hallway) don't change the light themselves: each says it's where you
+  are, and the cycle lays that place's look (`data/base/place_looks.ron`) over the sky, so going
+  between them never leaves the world dark (`place.rs`).
 - **Nicer look** (#47). All art is generated in code (`art.rs`), no downloaded assets: a
   seamless procedural grass texture on the floor, a warm sun with soft shadows, sky-blue ambient
   light and distance haze, and a meadow of grass tufts, flowers and pebbles. Creatures got

@@ -1,0 +1,172 @@
+{
+  "name": "nyc-grate",
+  "format_version": 1,
+  "domain": "decal",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "name": "r",
+      "size": [
+        0.9,
+        0.5
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "shape",
+      "sdf": "r",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "name": "slot",
+      "size": [
+        0.8,
+        0.4
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "inner",
+      "sdf": "slot",
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "size": 0.02,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "iron",
+      "stops": [
+        [
+          0,
+          "#0c0c0c"
+        ],
+        [
+          1,
+          "#1e1e1e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#3c3a38",
+      "b": "iron",
+      "name": "col",
+      "opacity": "inner",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.6,
+      "name": "out",
+      "opacity": "shape",
+      "roughness": 0.55,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-grate",
+          "format_version": 1,
+          "domain": "decal",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "name": "r",
+              "size": [
+                0.9,
+                0.5
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "shape",
+              "sdf": "r",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "name": "slot",
+              "size": [
+                0.8,
+                0.4
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "inner",
+              "sdf": "slot",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "iron",
+              "stops": [
+                [
+                  0,
+                  "#0c0c0c"
+                ],
+                [
+                  1,
+                  "#1e1e1e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#3c3a38",
+              "b": "iron",
+              "name": "col",
+              "opacity": "inner",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.6,
+              "name": "out",
+              "opacity": "shape",
+              "roughness": 0.55,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+r +shape +slot +inner +n +iron +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

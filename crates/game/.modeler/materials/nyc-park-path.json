@@ -1,0 +1,88 @@
+{
+  "name": "nyc-park-path",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 5,
+      "seed": 44,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#9c8f78"
+        ],
+        [
+          1,
+          "#b5a88e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.9,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-park-path",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 5,
+              "seed": 44,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#9c8f78"
+                ],
+                [
+                  1,
+                  "#b5a88e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.9,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

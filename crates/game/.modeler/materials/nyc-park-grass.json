@@ -1,0 +1,88 @@
+{
+  "name": "nyc-park-grass",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 5,
+      "seed": 45,
+      "size": 0.1,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#3b6a2a"
+        ],
+        [
+          1,
+          "#4f7f34"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-park-grass",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 5,
+              "seed": 45,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#3b6a2a"
+                ],
+                [
+                  1,
+                  "#4f7f34"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -80,7 +80,249 @@ pub fn plugin(app: &mut App) {
         .add_observer(add_lods)
         .add_observer(modeler_lods)
         .add_observer(calm_trees)
-        .add_systems(Update, (sway_near, steer_wind));
+        .init_resource::<TreeTemplates>()
+        .add_observer(template_ready)
+        .add_observer(rig_ready)
+        .add_systems(
+            Update,
+            (
+                (ask_templates, build_static, swap_rigs).chain(),
+                sway_near,
+                steer_wind,
+            ),
+        );
+}
+
+/// A tree placed by scenery. From afar it is a few plain meshes shared by
+/// every tree of its model (no bones: a rigged glTF brings ~35 entities per
+/// tree, which is what made a forest slow, not its triangles). Within
+/// [`RIG_RANGE`] the rigged model is spawned under it so it sways, and it's
+/// despawned again past [`RIG_RANGE`] + [`RIG_HYSTERESIS`].
+#[derive(Component, Debug)]
+pub struct StaticTree {
+    file: String,
+    shadows: bool,
+    holder: Option<Entity>,
+    rig: Option<Entity>,
+    rig_ready: bool,
+}
+
+impl StaticTree {
+    pub fn new(file: &str, shadows: bool) -> Self {
+        Self {
+            file: file.to_owned(),
+            shadows,
+            holder: None,
+            rig: None,
+            rig_ready: false,
+        }
+    }
+}
+
+/// Trees nearer than this get their rigged, swaying model (metres).
+pub const RIG_RANGE: f32 = SWAY_RANGE;
+/// How much further you must go before the rig is put away again.
+pub const RIG_HYSTERESIS: f32 = 8.0;
+
+/// Pure: whether a tree `distance` metres away should have its rig, given
+/// whether it has one now.
+pub fn wants_rig(distance: f32, has_rig: bool) -> bool {
+    if has_rig {
+        distance < RIG_RANGE + RIG_HYSTERESIS
+    } else {
+        distance < RIG_RANGE
+    }
+}
+
+/// One mesh of a tree model in its plain form: the unskinned detailed mesh
+/// and its far twins, and the material.
+#[derive(Clone)]
+struct StaticPart {
+    levels: [Option<Handle<Mesh>>; 3],
+    material: MeshMaterial3d<StandardMaterial>,
+}
+
+/// The plain meshes of each tree model, built from a hidden copy of it.
+#[derive(Resource, Default)]
+struct TreeTemplates {
+    asked: std::collections::HashSet<String>,
+    ready: HashMap<String, Vec<StaticPart>>,
+}
+
+/// The hidden copy of a tree model the plain meshes are read from.
+#[derive(Component)]
+struct TreeTemplate(String);
+
+/// The rigged model under a [`StaticTree`].
+#[derive(Component)]
+struct TreeRig;
+
+/// Pure: `mesh` without its skin (joint indices and weights), so it draws
+/// as an ordinary, batchable mesh in its rest pose.
+pub fn unskinned(mesh: &Mesh) -> Mesh {
+    let mut plain = mesh.clone();
+    plain.remove_attribute(Mesh::ATTRIBUTE_JOINT_INDEX);
+    plain.remove_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT);
+    plain
+}
+
+fn ask_templates(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    trees: Query<&StaticTree, Added<StaticTree>>,
+    mut templates: ResMut<TreeTemplates>,
+) {
+    for tree in &trees {
+        if templates.asked.insert(tree.file.clone()) {
+            commands.spawn((
+                crate::scenery::nature_model(&assets, &tree.file),
+                Transform::from_xyz(0.0, -1000.0, 0.0),
+                Visibility::Hidden,
+                TreeTemplate(tree.file.clone()),
+                DespawnOnExit(crate::AppState::InGame),
+            ));
+        }
+    }
+}
+
+fn template_ready(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    templates_q: Query<&TreeTemplate>,
+    children: Query<&Children>,
+    parts: Query<(&Mesh3d, &MeshMaterial3d<StandardMaterial>)>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut templates: ResMut<TreeTemplates>,
+) {
+    let Ok(template) = templates_q.get(ready.entity) else {
+        return;
+    };
+    let tuning = TREES.get();
+    let mut out = Vec::new();
+    for child in children.iter_descendants(ready.entity) {
+        let Ok((mesh, material)) = parts.get(child) else {
+            continue;
+        };
+        let Some(plain) = meshes.get(mesh.0.id()).map(unskinned) else {
+            continue;
+        };
+        if let Some(mut m) = materials.get_mut(material.0.id()) {
+            cheap_leaf(&mut m, &tuning);
+        }
+        let far =
+            LEVELS.map(|(detail, keep)| far_mesh(&plain, detail, keep).map(|m| meshes.add(m)));
+        let [far1, far2] = far;
+        out.push(StaticPart {
+            levels: [Some(meshes.add(plain)), far1, far2],
+            material: material.clone(),
+        });
+    }
+    templates.ready.insert(template.0.clone(), out);
+    commands.entity(ready.entity).despawn();
+}
+
+fn build_static(
+    mut commands: Commands,
+    templates: Res<TreeTemplates>,
+    mut trees: Query<(Entity, &mut StaticTree)>,
+) {
+    for (entity, mut tree) in &mut trees {
+        if tree.holder.is_some() {
+            continue;
+        }
+        let Some(parts) = templates.ready.get(&tree.file) else {
+            continue;
+        };
+        let visibility = if tree.rig_ready {
+            Visibility::Hidden
+        } else {
+            Visibility::Inherited
+        };
+        let holder = commands
+            .spawn((Transform::IDENTITY, visibility, ChildOf(entity)))
+            .id();
+        for part in parts {
+            let present = part.levels.clone().map(|l| l.is_some());
+            for (level, handle) in part.levels.iter().enumerate() {
+                let Some(handle) = handle else {
+                    continue;
+                };
+                let mut e = commands.spawn((
+                    Mesh3d(handle.clone()),
+                    part.material.clone(),
+                    Transform::IDENTITY,
+                    range(level, present),
+                    ChildOf(holder),
+                ));
+                if !tree.shadows {
+                    e.insert(NotShadowCaster);
+                }
+            }
+        }
+        tree.holder = Some(holder);
+    }
+}
+
+fn swap_rigs(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, With<crate::world::MainCamera>)>,
+    mut trees: Query<(Entity, &GlobalTransform, &mut StaticTree)>,
+) {
+    let Some(eye) = camera.iter().next().map(GlobalTransform::translation) else {
+        return;
+    };
+    for (entity, at, mut tree) in &mut trees {
+        let want = wants_rig(eye.distance(at.translation()), tree.rig.is_some());
+        match (want, tree.rig) {
+            (true, None) => {
+                let rig = commands
+                    .spawn((
+                        crate::scenery::nature_model(&assets, &tree.file),
+                        Transform::IDENTITY,
+                        TreeLod {
+                            shadows: tree.shadows,
+                        },
+                        TreeRig,
+                        ChildOf(entity),
+                    ))
+                    .id();
+                tree.rig = Some(rig);
+            }
+            (false, Some(rig)) => {
+                commands.entity(rig).despawn();
+                tree.rig = None;
+                tree.rig_ready = false;
+                if let Some(holder) = tree.holder {
+                    commands.entity(holder).insert(Visibility::Inherited);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// The rigged model is in: hide the plain meshes it replaces.
+fn rig_ready(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    rigs: Query<&ChildOf, With<TreeRig>>,
+    mut trees: Query<&mut StaticTree>,
+) {
+    let Ok(parent) = rigs.get(ready.entity) else {
+        return;
+    };
+    let Ok(mut tree) = trees.get_mut(parent.parent()) else {
+        return;
+    };
+    if tree.rig != Some(ready.entity) {
+        return;
+    }
+    tree.rig_ready = true;
+    if let Some(holder) = tree.holder {
+        commands.entity(holder).insert(Visibility::Hidden);
+    }
 }
 
 /// Trees further than this from the camera hold still (metres).
@@ -472,6 +714,33 @@ mod tests {
         };
         assert!(far.attribute(Mesh::ATTRIBUTE_JOINT_INDEX).is_some());
         assert!(far.attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT).is_some());
+    }
+
+    #[test]
+    fn rigs_come_in_near_and_leave_a_little_further_out() {
+        assert!(wants_rig(RIG_RANGE - 1.0, false));
+        assert!(!wants_rig(RIG_RANGE + 1.0, false));
+        // Between the two, a tree keeps whatever it has (no flicker).
+        assert!(wants_rig(RIG_RANGE + 1.0, true));
+        assert!(!wants_rig(RIG_RANGE + RIG_HYSTERESIS + 1.0, true));
+    }
+
+    #[test]
+    fn plain_trees_lose_their_skin() {
+        let mut mesh = Sphere::new(1.0).mesh().uv(8, 6);
+        let n = mesh.count_vertices();
+        mesh.insert_attribute(
+            Mesh::ATTRIBUTE_JOINT_INDEX,
+            VertexAttributeValues::Uint16x4(vec![[0, 1, 0, 0]; n]),
+        );
+        mesh.insert_attribute(
+            Mesh::ATTRIBUTE_JOINT_WEIGHT,
+            vec![[1.0f32, 0.0, 0.0, 0.0]; n],
+        );
+        let plain = unskinned(&mesh);
+        assert!(plain.attribute(Mesh::ATTRIBUTE_JOINT_INDEX).is_none());
+        assert!(plain.attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT).is_none());
+        assert_eq!(plain.count_vertices(), n);
     }
 
     #[test]

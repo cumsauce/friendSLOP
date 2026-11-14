@@ -882,6 +882,11 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   rocks and rolls and every colour slowly turns round the colour wheel (more saturated), both
   stronger the more you've smoked; sober, the hues ease back. Only you see your own high
   (`features/weed.rs`, tuning in `data/places/weed.ron`).
+- **Stoned meter** (#369: "a stoned meter which increases as the player consumes weed and
+  decreases over time. The effects of weed should correlate with the meter's level."). Your high
+  shows as a green "Stoned NN% · buzzed / stoned / baked" bar in the bottom-right status stack,
+  above the gas meter, while it's above zero: each joint fills a fifth, it drains as the high
+  wears off, and the wobble and colour shift follow it. Local to you, like the high itself.
 - **The affair** (#160, doomy: "allow me to cheat on my wife with a beautiful chinese
   intelligence officer", details left to us). Your wife (a commune person in an apron; it's a
   commune, so she's married to all of you) walks back and forth between the bonfire and the east

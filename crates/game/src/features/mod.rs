@@ -93,6 +93,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(kittens::protocol);
         app.add_plugins(toilets::protocol);
         app.add_plugins(emotes::protocol);
+        app.add_plugins(kori::protocol);
     }
 }
 
@@ -185,5 +186,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(kittens::plugin);
         app.add_plugins(toilets::plugin);
         app.add_plugins(emotes::plugin);
+        app.add_plugins(kori::plugin);
     }
 }

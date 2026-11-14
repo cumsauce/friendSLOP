@@ -177,7 +177,12 @@ fn eat(
     mut commands: Commands,
     walkers: Query<(&PlayerOwner, &Walker)>,
     mut toilets: Query<&mut Toilet>,
-    mut eaters: Query<(&Player, &PlayerOwner, &mut Buzz)>,
+    mut eaters: Query<(
+        &Player,
+        &PlayerOwner,
+        &mut Buzz,
+        Option<&mut crate::rules::kori::KoriCoins>,
+    )>,
 ) {
     let t = tuning();
     let Some(mut toilet) = toilets
@@ -198,10 +203,11 @@ fn eat(
         ClientId::Server => None,
         ClientId::Client(c) => Some(c),
     };
-    let Some((player, _, mut buzz)) = eaters.iter_mut().find(|b| b.1.0 == owner) else {
+    let Some((player, _, mut buzz, coins)) = eaters.iter_mut().find(|b| b.1.0 == owner) else {
         return;
     };
     toilet.full = false;
+    crate::rules::kori::pay(coins, crate::rules::kori::earnings().feces);
     buzz.add(
         Stack {
             drink: t.boost_name.clone(),

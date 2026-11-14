@@ -1,0 +1,346 @@
+{
+  "format_version": 1,
+  "name": "kori-porcelain-throne",
+  "parts": [],
+  "version": 122,
+  "ops": [
+    {
+      "primitive": {
+        "name": "base",
+        "kind": "cylinder",
+        "size": [
+          0.05,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.006,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pedestal",
+        "kind": "cylinder",
+        "size": [
+          0.018,
+          0.04,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.032,
+          0.005
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "bowl",
+        "profile": [
+          [
+            [
+              0.0,
+              0.045
+            ],
+            [
+              0.022,
+              0.045
+            ],
+            [
+              0.032,
+              0.065
+            ],
+            [
+              0.034,
+              0.075
+            ],
+            [
+              0.0,
+              0.075
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.008
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "seat",
+        "kind": "torus",
+        "size": [
+          0.027,
+          0.006,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.078,
+          0.008
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tank",
+        "kind": "box",
+        "size": [
+          0.06,
+          0.07,
+          0.022
+        ],
+        "translation": [
+          0.0,
+          0.1,
+          -0.03
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tank_lid",
+        "kind": "box",
+        "size": [
+          0.064,
+          0.008,
+          0.026
+        ],
+        "translation": [
+          0.0,
+          0.139,
+          -0.03
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "handle",
+        "kind": "box",
+        "size": [
+          0.012,
+          0.004,
+          0.004
+        ],
+        "translation": [
+          -0.02,
+          0.125,
+          -0.017
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "base",
+        "input": "base",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pedestal",
+        "input": "pedestal",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f2f2ee",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.15,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bowl",
+        "input": "bowl",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f2f2ee",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.15,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "seat",
+        "input": "seat",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#ffffff",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tank",
+        "input": "tank",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f2f2ee",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.15,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tank_lid",
+        "input": "tank_lid",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f2f2ee",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.15,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "handle",
+        "input": "handle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#c8c8d0",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

@@ -1,0 +1,434 @@
+{
+  "format_version": 1,
+  "name": "kori-gassy-duck",
+  "parts": [],
+  "version": 178,
+  "ops": [
+    {
+      "primitive": {
+        "name": "base",
+        "kind": "cylinder",
+        "size": [
+          0.05,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.006,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "sdf": {
+        "name": "duck",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.042,
+              0.0
+            ],
+            "size": [
+              0.034,
+              0.03,
+              0.042
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.094,
+              0.016
+            ],
+            "radius": [
+              0.024
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              0.06,
+              -0.042
+            ],
+            "radius": [
+              0.011
+            ]
+          }
+        ],
+        "resolution": 0.0025
+      }
+    },
+    {
+      "primitive": {
+        "name": "beak",
+        "kind": "box",
+        "size": [
+          0.018,
+          0.007,
+          0.018
+        ],
+        "translation": [
+          0.0,
+          0.09,
+          0.044
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "eye_l",
+        "kind": "sphere",
+        "size": [
+          0.0035,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.014,
+          0.1,
+          0.033
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "eye_r",
+        "input": "eye_l",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "puff1",
+        "kind": "sphere",
+        "size": [
+          0.012,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.05,
+          -0.056
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "puff2",
+        "kind": "sphere",
+        "size": [
+          0.009,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.008,
+          0.064,
+          -0.064
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "puff3",
+        "kind": "sphere",
+        "size": [
+          0.007,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          -0.006,
+          0.075,
+          -0.07
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "base",
+        "input": "base",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "duck",
+        "input": "duck",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-yellow-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f5d020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "beak",
+        "input": "beak",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-orange",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f08a1c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eye_l",
+        "input": "eye_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "eye_r",
+        "input": "eye_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-black-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#1a1a1e",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "puff1",
+        "input": "puff1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#6cc04a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "puff2",
+        "input": "puff2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#6cc04a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "puff3",
+        "input": "puff3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#6cc04a",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "duck_lo",
+        "input": "duck",
+        "tris": 1500
+      }
+    },
+    {
+      "material": {
+        "name": "duck_lo",
+        "input": "duck_lo",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "kori-yellow-plastic",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#f5d020",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "duck",
+        "input": "duck",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

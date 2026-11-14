@@ -16,6 +16,7 @@ pub mod fault;
 pub mod features;
 pub mod footsteps;
 pub mod gz_assets;
+pub mod kori_shelf;
 pub use friendslop_base::graphics;
 pub use friendslop_base::hud;
 pub use friendslop_kcc as kcc;
@@ -115,6 +116,7 @@ impl Plugin for GamePlugin {
             graphics::plugin,
             surfaces::plugin,
             fault::plugin,
+            kori_shelf::plugin,
             ui::plugin,
             textures::plugin,
             lod::plugin,

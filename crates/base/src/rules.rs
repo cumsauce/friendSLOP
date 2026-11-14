@@ -22,6 +22,7 @@ pub mod boba;
 pub mod campaign;
 pub mod depths;
 pub mod house_odds;
+pub mod kori;
 pub mod morality;
 pub mod nyc;
 pub mod skills;

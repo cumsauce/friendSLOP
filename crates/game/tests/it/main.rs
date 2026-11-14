@@ -17,6 +17,7 @@ mod mute_spell;
 mod navmesh;
 mod place_looks;
 mod playthrough;
+mod protocol_cfg;
 mod protocol_order;
 mod replication;
 mod round_reset;

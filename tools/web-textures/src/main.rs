@@ -4,8 +4,14 @@
 //! byte before the world looks right and then holds each one in GPU memory
 //! (16 MB+ apiece with mipmaps), which iOS Safari doesn't forgive. The browser
 //! build renders at 1x on a small screen, so anything past 512 px is wasted.
-//! Rewrites every PNG/JPEG under `dir` bigger than `max` (default 512) in
-//! place, keeping its name and aspect ratio, so the glTFs still find them.
+//! Rewrites every PNG/JPEG under `dir` bigger than `max` in place, keeping its
+//! name and aspect ratio, so the glTFs still find them.
+//!
+//! Size rungs (driven by `WEB_TEXTURE_MAX` in `scripts/build-web.sh`):
+//! **512** is the local default (sharp enough to eyeball on a laptop);
+//! **256** is the deploy rung the web workflow should build with
+//! (`WEB_TEXTURE_MAX=256` on the deploy step — half the texels, a quarter of
+//! the bytes on a phone); **0** skips the pass entirely.
 //!
 //! The modeler's exports point at shared KTX2 files (BC7 / BC5 / BC4, zstd).
 //! Desktop GPUs sample those as they are, but phones have no BC formats and

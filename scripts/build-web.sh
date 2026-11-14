@@ -38,10 +38,15 @@ rm -rf "$OUT"
 mkdir -p "$OUT"
 wasm-bindgen --no-typescript --remove-name-section --remove-producers-section --target web --out-dir "$OUT" --out-name friendslop \
   "$TARGET_DIR/wasm32-unknown-unknown/web/friendslop.wasm"
-if command -v wasm-opt >/dev/null; then
-  wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int \
-    -o "$OUT/friendslop_bg.wasm" "$OUT/friendslop_bg.wasm" || echo "wasm-opt failed; keeping the unoptimized wasm" >&2
+# wasm-opt is required: without it the wasm is too big for phones (#191) and
+# the size budget silently slips. Install binaryen (`brew install binaryen`,
+# `apt install binaryen`) before building.
+if ! command -v wasm-opt >/dev/null; then
+  echo "error: wasm-opt not found; install binaryen (brew/apt install binaryen)" >&2
+  exit 1
 fi
+wasm-opt -Oz --enable-bulk-memory --enable-nontrapping-float-to-int \
+  -o "$OUT/friendslop_bg.wasm" "$OUT/friendslop_bg.wasm"
 # index.html shows download progress; servers often gzip the .wasm (so
 # Content-Length is the compressed size), so tell it the real size.
 wasm_bytes=$(wc -c < "$OUT/friendslop_bg.wasm" | tr -d ' ')

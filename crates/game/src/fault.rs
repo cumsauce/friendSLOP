@@ -92,6 +92,13 @@ pub fn toggle(panel: &mut Query<&mut Node, With<FaultPanel>>) {
     }
 }
 
+/// Hide the screen.
+pub fn close<'a>(panel: impl Iterator<Item = Mut<'a, Node>>) {
+    for mut node in panel {
+        node.display = Display::None;
+    }
+}
+
 fn spawn_panel(mut commands: Commands) {
     let list = faults(DESIGN);
     commands
@@ -164,16 +171,36 @@ fn spawn_panel(mut commands: Commands) {
                     });
                 }
             });
+            crate::creator::small_button(ui, "Back", menu::LILAC, 150.0).observe(
+                |_: On<PointerClick>, mut panel: Query<&mut Node, With<FaultPanel>>| {
+                    close(panel.iter_mut());
+                },
+            );
         });
 }
 
-/// Mouse wheel scrolls the list while the screen is open.
+/// How fast the pad's stick or D-pad scrolls the list (px per second).
+const PAD_SCROLL: f32 = 600.0;
+
+/// Mouse wheel, stick or D-pad scrolls the list while the screen is open.
 fn scroll(
     mut wheel: MessageReader<MouseWheel>,
+    time: Res<Time>,
+    pads: Query<&Gamepad>,
     panel: Query<&Node, With<FaultPanel>>,
     mut lists: Query<&mut ScrollPosition, With<FaultList>>,
 ) {
     let open = panel.iter().any(|n| n.display != Display::None);
+    let held = pads
+        .iter()
+        .map(|p| crate::ui::pad_nav::held_dir(p).y)
+        .find(|y| *y != 0)
+        .unwrap_or(0);
+    if open && held != 0 {
+        for mut pos in &mut lists {
+            pos.y = (pos.y + held as f32 * PAD_SCROLL * time.delta_secs()).max(0.0);
+        }
+    }
     for ev in wheel.read() {
         if !open {
             continue;

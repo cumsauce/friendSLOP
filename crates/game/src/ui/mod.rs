@@ -21,6 +21,7 @@ pub mod chapter;
 pub mod danger;
 pub mod feed;
 pub mod journal;
+pub mod menu_back;
 pub mod pad_nav;
 pub mod prompt;
 pub mod quest;
@@ -111,6 +112,7 @@ pub fn plugin(app: &mut App) {
             journal::plugin,
             chapter::plugin,
             settings_panel::plugin,
+            menu_back::plugin,
             pad_nav::plugin,
         ));
 }

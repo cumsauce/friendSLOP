@@ -954,7 +954,9 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   the menu with the reason ("Lost the connection to the host: ...") instead of crashing (#194).
   Since the UI redesign (phase 3, UI polish) the title screen is an ink "journal cover" on the
   left over the meadow: the illustrated friendSLOP logo, Host a commune, Join with a code, a code
-  field (click it to paste), Character creator, and Settings / Whose fault is it / Quit links.
+  field (click it to paste), Character creator, and Settings / Whose fault is it / Kori prizes / Quit
+  links. Those panels take turns (opening one closes the others), each has a Back button the pad
+  can focus, and B / Esc closes the top one; the pad scrolls the fault list with the stick.
   Settings is one big "Make yourself comfortable" notebook: volume sliders, mic and HALT as
   square checkboxes, video presets (Low / Medium / High, Custom when you change anything) as
   tabs and every video option as a checkbox card; a Controls tab lists the keys; Esc or Done

@@ -71,6 +71,7 @@ pub fn box_label(q: GraphicsQuality, o: VideoOption) -> String {
         VideoOption::Resolution => "Sharp resolution",
         VideoOption::VSync => "V-sync",
         VideoOption::Bloom => "Bloom",
+        VideoOption::Shadows if q.value(o) == "Short" => "Short shadows",
         o => o.name(),
     };
     if q.value(o).contains("reload") {

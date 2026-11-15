@@ -573,12 +573,14 @@ fn gather(
     let mut wheel_now: Option<Wheel> = None;
     for pad in &gamepads {
         if ui {
+            // Select opens the notebook on the title screen; in game it would
+            // open the journal on top of it.
             for (button, key) in [
                 (GamepadButton::Select, KeyCode::Tab),
                 (GamepadButton::Start, KeyCode::Escape),
                 (GamepadButton::East, KeyCode::Escape),
             ] {
-                if pad.pressed(button) {
+                if pad.pressed(button) && !(in_game && key == KeyCode::Tab) {
                     want_keys.push(key);
                 }
             }

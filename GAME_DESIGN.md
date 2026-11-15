@@ -497,9 +497,12 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   and you can walk in: a bodega (with a cat), a 99¢ pizza place, a laundromat and a diner; step
   in and its line shows. Glass in places you can walk into (the Oculus, the shops, the PATH car,
   the plane, Wendy's, the helicopter: `data/base/glass.ron`) is see-through. Getting there: the PATH train (below); the old trail posts are gone. All
-  The Vessel (`features/vessel.rs`, `nyc-vessel` model, the map's `vessel` spot at (-62, 172.5), where four filler towers stood): 18 levels of 8 landings,
-  each with flights up to the two landings above (none steeper than 42 degrees), 15 m across at the foot flaring to 46 m;
-  colliders are ramps, parapets and landing slabs built from the same numbers. `FRIENDSLOP_START=vessel` / `vessel_top`. A glowing knob on the top landing (`features/vessel_jump.rs`) offers the way down: click it and you ragdoll to the plaza and leave a blood splat (`data/side/vessel_jump.ron`).
+  The Vessel (`features/vessel.rs`, `nyc-vessel` model, the map's `vessel` spot at (-62, 172.5), where four filler towers stood): built to the real one's
+  numbers: 16 levels of 5 landings (80), 154 flights, 46 m tall, 15 m across at the foot flaring to 46 m, with a walkway
+  round the top. Each landing has an inner and an outer lane (flights going round one way take the inner, the other way
+  the outer) so no flight runs over another and you can walk all the way up (none steeper than 40 degrees; a headless
+  test walks a body to the top). `vessel::pieces()` is both the colliders and the model: `scripts/vessel-model.py`
+  builds those boxes in the modeler and exports it. `FRIENDSLOP_START=vessel` / `vessel_top`. A glowing knob on the top landing (`features/vessel_jump.rs`) offers the way down: click it and you ragdoll to the plaza and leave a blood splat (`data/side/vessel_jump.ron`).
   code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
   `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
 - **Boba shops** (#356, catherine: "have them be fully staffed and modeled and even have music

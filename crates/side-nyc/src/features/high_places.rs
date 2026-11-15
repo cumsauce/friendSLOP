@@ -394,6 +394,9 @@ fn elevator(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
+    crate::area::on_sim(app, build_sim);
+    crate::area::on_show(app, build);
+    crate::features::start::provide(starts);
     app.init_resource::<Smoke>()
         .add_systems(
             Update,
@@ -403,7 +406,12 @@ pub fn plugin(app: &mut App) {
         )
         .add_observer(show_news)
         .add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build)
+        .add_systems(
+            Update,
+            build_ui
+                .run_if(in_state(AppState::InGame))
+                .run_if(not(any_with_component::<Meter>)),
+        )
         .add_systems(
             Update,
             (play, arrive_line.run_if(crate::sites::here("nyc")))
@@ -430,16 +438,8 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn((
         WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset("models/high-places.gltf"))),
         Transform::from_translation(top),
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
-    for (c, s) in boxes() {
-        commands.spawn((
-            Transform::from_translation(top + c),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
     let price = tuning().price;
     for (thing, at, label) in [
         (Thing::Counter, COUNTER, format!("buy a joint (${price})")),
@@ -449,10 +449,11 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
             thing,
             Transform::from_translation(top + at),
             Clickable::at_height(1.0).labelled(label.leak()),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
-    use crate::features::doorway::{Doorway, spawn, yaw_towards};
+    use crate::area::doorway as spawn;
+    use crate::features::doorway::{Doorway, yaw_towards};
     spawn(
         &mut commands,
         foot + GROUND_DOOR,
@@ -465,6 +466,34 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
         yaw_towards(Vec2::NEG_X),
         Doorway::new(crate::features::doorway::Way::Down, "the street").size(1.6, 2.3),
     );
+}
+
+fn build_sim(mut commands: Commands) {
+    let Some(foot) = foot() else { return };
+    let top = deck(foot);
+    for (c, s) in boxes() {
+        commands.spawn((
+            Transform::from_translation(top + c),
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
+            crate::area::sim(),
+        ));
+    }
+}
+
+/// `FRIENDSLOP_START=high_places` starts you on the roof, `wtc_door` at its street door.
+fn starts() -> Vec<(String, Vec3)> {
+    let Some(foot) = foot() else {
+        return Vec::new();
+    };
+    vec![
+        ("high_places".into(), deck(foot) + ROOF_OUT),
+        ("wtc_door".into(), foot + GROUND_OUT),
+    ]
+}
+
+/// The minigame's meter (the HUD's: hidden until you're smoking).
+fn build_ui(mut commands: Commands) {
     // The minigame's meter (hidden until you're smoking).
     commands.spawn((
         Meter,
@@ -484,13 +513,6 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
         Visibility::Hidden,
         DespawnOnExit(AppState::InGame),
     ));
-    let (up, down) = (top + ROOF_OUT, foot + GROUND_OUT);
-    commands.queue(move |world: &mut World| {
-        if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>() {
-            p.add("high_places", up);
-            p.add("wtc_door", down);
-        }
-    });
 }
 
 fn click(click: On<Clicked>, mut commands: Commands, things: Query<&Thing>, smoke: Res<Smoke>) {

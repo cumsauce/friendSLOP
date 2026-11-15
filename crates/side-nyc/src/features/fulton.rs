@@ -1318,8 +1318,13 @@ fn leave(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
+    crate::area::on_sim(app, build_sim);
+    crate::area::on_show(app, build_station.after(build_sim));
+    crate::features::start::provide(starts);
     app.add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build_station)
+        .add_systems(OnExit(AppState::InGame), |mut commands: Commands| {
+            commands.remove_resource::<Station>()
+        })
         .add_systems(
             Update,
             (
@@ -1365,20 +1370,11 @@ fn build_station(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     assets: Res<AssetServer>,
+    station: Option<Res<Station>>,
 ) {
     let t = tuning();
-    let levels = generate(&t, &TILES.get());
-    // Colliders never wait on a model: boxes from the plan, every level.
-    for (li, level) in levels.iter().enumerate() {
-        for b in colliders(&t, li, level) {
-            commands.spawn((
-                Transform::from_translation(b.centre).with_rotation(b.rotation),
-                avian3d::prelude::RigidBody::Static,
-                avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
-                DespawnOnExit(AppState::InGame),
-            ));
-        }
-    }
+    let Some(station) = station else { return };
+    let levels = &station.levels;
     // The entrance on the sidewalk: the city's subway entrance model over
     // its hole in the street, with its stairs and walls as colliders.
     let at = entrance_at(&t);
@@ -1388,11 +1384,12 @@ fn build_station(
             GltfAssetLabel::Scene(0).from_asset("models/prefabs/nyc-kit-subway-entrance.gltf"),
         )),
         Transform::from_translation(at).with_rotation(turn),
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
     // The way in: a glowing threshold where the stairs start, at the open end.
     {
-        use crate::features::doorway::{Doorway, spawn};
+        use crate::area::doorway as spawn;
+        use crate::features::doorway::Doorway;
         let h = &t.entrance_hole;
         spawn(
             &mut commands,
@@ -1418,22 +1415,14 @@ fn build_station(
             );
         }
     }
-    for b in entrance_colliders(&t) {
-        commands.spawn((
-            Transform::from_translation(b.centre).with_rotation(b.rotation),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
     // The way-out posts: top level, and on the J platform.
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     let pole = materials.add(Color::srgb(0.2, 0.3, 0.22));
     let sign = materials.add(Color::srgb(0.6, 0.4, 0.2));
     let posts = [
-        (start_at(&t, &levels), false, t.exit_label.clone()),
+        (start_at(&t, levels), false, t.exit_label.clone()),
         (
-            platform_at(&t, &levels).unwrap_or_else(|| start_at(&t, &levels)),
+            platform_at(&t, levels).unwrap_or_else(|| start_at(&t, levels)),
             true,
             t.ride_label.clone(),
         ),
@@ -1450,7 +1439,7 @@ fn build_station(
                 Clickable::at_height(1.6)
                     .radius(60.0)
                     .labelled(label.leak()),
-                DespawnOnExit(AppState::InGame),
+                crate::area::show(),
             ))
             .with_children(|p| {
                 p.spawn((
@@ -1475,7 +1464,7 @@ fn build_station(
         },
         Transform::default(),
         Visibility::Hidden,
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
     // Its reflections: one probe baked in a hall (or the arrival), used on
     // every level (they all look alike).
@@ -1488,23 +1477,54 @@ fn build_station(
             let b = cell_world(&t, li, (r.at.0 + r.size.0 - 1, r.at.1 + r.size.1 - 1));
             Some((a + b) / 2.0)
         })
-        .unwrap_or_else(|| start_at(&t, &levels))
+        .unwrap_or_else(|| start_at(&t, levels))
         + Vec3::Y * 1.7;
     commands.queue(move |world: &mut World| {
         if let Some(mut b) = world.get_resource_mut::<friendslop_base::probes::ProbeBakes>() {
             b.add("fulton", bake_at);
         }
     });
-    // `FRIENDSLOP_START=fulton` starts you on the top level.
-    commands.queue({
-        let at = start_at(&t, &levels);
-        move |world: &mut World| {
-            if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>() {
-                p.add("fulton", at);
-            }
+}
+
+/// The station's plan (once a game, every peer: replicated state and the
+/// server's systems read it) and its colliders, in New York's colliders layer.
+fn build_sim(mut commands: Commands, station: Option<Res<Station>>) {
+    let t = tuning();
+    let levels = match station {
+        Some(s) => s.levels.clone(),
+        None => {
+            let levels = generate(&t, &TILES.get());
+            commands.insert_resource(Station {
+                levels: levels.clone(),
+            });
+            levels
         }
-    });
-    commands.insert_resource(Station { levels });
+    };
+    // Colliders never wait on a model: boxes from the plan, every level.
+    for (li, level) in levels.iter().enumerate() {
+        for b in colliders(&t, li, level) {
+            commands.spawn((
+                Transform::from_translation(b.centre).with_rotation(b.rotation),
+                avian3d::prelude::RigidBody::Static,
+                avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
+                crate::area::sim(),
+            ));
+        }
+    }
+    for b in entrance_colliders(&t) {
+        commands.spawn((
+            Transform::from_translation(b.centre).with_rotation(b.rotation),
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
+            crate::area::sim(),
+        ));
+    }
+}
+
+/// `FRIENDSLOP_START=fulton` starts you on the top level.
+fn starts() -> Vec<(String, Vec3)> {
+    let t = tuning();
+    vec![("fulton".into(), start_at(&t, &generate(&t, &TILES.get())))]
 }
 
 fn camera_at(camera: &Query<&GlobalTransform, With<crate::world::MainCamera>>) -> Option<Vec3> {
@@ -1619,7 +1639,7 @@ fn stream_levels(
                 LevelModels(li),
                 Transform::default(),
                 Visibility::default(),
-                DespawnOnExit(AppState::InGame),
+                crate::area::show(),
             ))
             .id();
         // The level's reflections.

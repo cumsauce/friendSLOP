@@ -11,6 +11,8 @@ pub(crate) use friendslop_base::{
     terrain, textures, theme, ui, voice, voice_chat, world, zones,
 };
 
+pub mod area;
+
 pub mod features {
     #![allow(unused_imports)]
     pub use friendslop_base::features::*;

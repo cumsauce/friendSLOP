@@ -35,6 +35,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
+use friendslop_base::areas::{InArea, Layer, Loaded, nearest_area};
 
 /// One stop of a line.
 #[derive(Deserialize, Default, Debug, Clone)]
@@ -612,16 +613,24 @@ pub fn step_all<K: Copy + Eq + std::hash::Hash>(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), build)
-        .add_systems(
-            Update,
-            (announce, tunnel_lights, move_cars).run_if(in_state(AppState::InGame)),
-        )
-        .add_systems(
-            Update,
-            look.in_set(crate::place::PlaceSet)
-                .run_if(in_state(AppState::InGame)),
-        );
+    crate::features::start::provide(starts);
+    // Each stop is built in its own area (the valley's in the commune, the
+    // city's in New York), its colliders and its visuals as each loads.
+    app.add_systems(
+        PreUpdate,
+        build
+            .after(friendslop_base::areas::AreaSet)
+            .run_if(in_state(AppState::InGame)),
+    )
+    .add_systems(
+        Update,
+        (announce, tunnel_lights, move_cars).run_if(in_state(AppState::InGame)),
+    )
+    .add_systems(
+        Update,
+        look.in_set(crate::place::PlaceSet)
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
@@ -769,13 +778,14 @@ pub fn station_boxes(s: &Stop) -> Vec<(Vec3, Vec3, Quat)> {
     out
 }
 
-fn spawn_boxes(commands: &mut Commands, at: Transform, boxes: &[(Vec3, Vec3, Quat)]) {
+fn spawn_boxes(commands: &mut Commands, at: Transform, boxes: &[(Vec3, Vec3, Quat)], area: &str) {
     for (c, s, tilt) in boxes {
         commands.spawn((
             Transform::from_translation(at.transform_point(*c)).with_rotation(at.rotation * *tilt),
             avian3d::prelude::RigidBody::Static,
             avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
             DespawnOnExit(AppState::InGame),
+            InArea::sim(area),
         ));
     }
 }
@@ -803,184 +813,261 @@ pub fn start_name(s: &Stop) -> String {
         .join("_")
 }
 
+/// The area a stop (or a ride car) at `at` is in.
+fn area_of(at: Vec3) -> String {
+    nearest_area(at.xz()).unwrap_or_else(|| crate::area::NYC.to_owned())
+}
+
+/// Every stop's `FRIENDSLOP_START` (its platform), from the data file.
+fn starts() -> Vec<(String, Vec3)> {
+    tuning()
+        .lines
+        .iter()
+        .flat_map(|l| l.stops.iter())
+        .map(|s| {
+            let at = stop_frame(s);
+            (
+                start_name(s),
+                at.transform_point(Vec3::new(0.0, FLOOR + 0.05, 3.25)),
+            )
+        })
+        .collect()
+}
+
+/// Build each stop and ride car's colliders and visuals as its area's
+/// layers load.
 fn build(
     mut commands: Commands,
+    loaded: Res<Loaded>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     assets: Res<AssetServer>,
 ) {
     let t = tuning();
-    let shut = car_boxes(true);
-    let open = car_boxes(false);
     for (li, l) in t.lines.iter().enumerate() {
         for (si, s) in l.stops.iter().enumerate() {
             let at = stop_frame(s);
-            // Both doors glow as a way in, named for where the train goes.
-            let to = &l.stops[1 - si].name;
-            for x in DOORS {
-                crate::features::doorway::spawn(
-                    &mut commands,
-                    at.transform_point(Vec3::new(x, FLOOR, HALF_WIDE + 0.1)),
-                    s.yaw.to_radians(),
-                    crate::features::doorway::Doorway::way_in(format!("{} to {to}", l.name))
-                        .size(DOOR_W, 2.1),
-                );
+            let area = area_of(at.translation);
+            if loaded.loaded(&area, Layer::Sim) {
+                stop_sim(&mut commands, li, si, s, &area);
             }
-            // The car: a moving body with its walls as children.
-            commands
-                .spawn((
-                    CarOf {
-                        line: li as u8,
-                        stop: si as u8,
-                    },
-                    at,
-                    Visibility::default(),
-                    avian3d::prelude::RigidBody::Kinematic,
-                    DespawnOnExit(AppState::InGame),
-                ))
-                .with_children(|car| {
-                    car.spawn((model(&assets, l.vehicle.car()), Transform::default()));
-                    for (c, size) in &open {
-                        car.spawn((
-                            Transform::from_translation(*c),
-                            avian3d::prelude::Collider::cuboid(size.x, size.y, size.z),
-                        ));
-                    }
-                });
-            // The station.
-            let mut files = vec!["path-platform.gltf"];
-            if l.vehicle == Vehicle::Plane {
-                // A gate: its platform and canopy, no tunnel (the plane flies off).
-                files = vec!["plane-gate.gltf"];
-            } else if s.depth > 0.0 {
-                files.push("path-hall.gltf");
-            } else {
-                files.push("path-station.gltf");
+            if loaded.loaded(&area, Layer::Show) {
+                stop_show(&mut commands, &assets, li, si, l, s, &area);
             }
-            for file in files {
-                commands.spawn((model(&assets, file), at, DespawnOnExit(AppState::InGame)));
-            }
-            // GTA VI ads at the back of the platform, facing the track (#359).
-            if l.vehicle == Vehicle::Train {
-                for x in AD_X {
-                    commands.spawn((
-                        model(&assets, "features/gta6-ad.gltf"),
-                        Transform::from_translation(at.transform_point(Vec3::new(
-                            x,
-                            0.0,
-                            PLATFORM_Z.1 - 0.4,
-                        )))
-                        .with_rotation(at.rotation * Quat::from_rotation_y(std::f32::consts::PI)),
-                        DespawnOnExit(AppState::InGame),
-                    ));
-                }
-            }
-            let portal = at.with_translation(at.transform_point(Vec3::X * PORTAL_X));
-            if l.vehicle == Vehicle::Train {
-                // Out in the open the track runs off on a viaduct; else into a tunnel.
-                let file = if open_air(s) {
-                    "path-viaduct.gltf"
-                } else {
-                    "path-tunnel.gltf"
-                };
-                commands.spawn((
-                    model(&assets, file),
-                    portal,
-                    DespawnOnExit(AppState::InGame),
-                ));
-            }
-            spawn_boxes(&mut commands, at, &station_boxes(s));
-            if s.depth > 0.0 {
-                // The hall's lights along the platform, and the way up.
-                for i in 0..4 {
-                    commands.spawn((
-                        PointLight {
-                            intensity: 120_000.0,
-                            range: 14.0,
-                            ..default()
-                        },
-                        Transform::from_translation(at.transform_point(Vec3::new(
-                            HALL_X + 4.0 + i as f32 * ((PORTAL_X - HALL_X - 8.0) / 3.0),
-                            s.depth - 1.0,
-                            3.5,
-                        ))),
-                        DespawnOnExit(AppState::InGame),
-                    ));
-                }
-                let (bottom, _) = stairs_ends(s.depth);
-                crate::features::doorway::spawn(
-                    &mut commands,
-                    at.transform_point(bottom - Vec3::X * 0.4),
-                    s.yaw.to_radians() - std::f32::consts::FRAC_PI_2,
-                    crate::features::doorway::Doorway::new(
-                        crate::features::doorway::Way::Up,
-                        s.name.clone(),
-                    )
-                    .size(STAIRS_W, 2.4),
-                );
-            }
-            // `FRIENDSLOP_START=<stop>` starts you on its platform.
-            let name = start_name(s);
-            let feet = at.transform_point(Vec3::new(0.0, FLOOR + 0.05, 3.25));
-            commands.queue(move |world: &mut World| {
-                if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>()
-                {
-                    p.add(&name, feet);
-                }
-            });
         }
         for to in 0..2 {
             let o = ride_origin(&t, li, to);
-            let at = Transform::from_translation(o);
+            let area = area_of(o);
+            if loaded.loaded(&area, Layer::Sim) {
+                let boxes: Vec<_> = car_boxes(true)
+                    .iter()
+                    .map(|(c, s)| (*c, *s, Quat::IDENTITY))
+                    .collect();
+                spawn_boxes(&mut commands, Transform::from_translation(o), &boxes, &area);
+            }
+            if loaded.loaded(&area, Layer::Show) {
+                ride_show(
+                    &mut commands,
+                    &assets,
+                    &mut meshes,
+                    &mut materials,
+                    l,
+                    o,
+                    &area,
+                );
+            }
+        }
+    }
+}
+
+/// A stop's colliders: its station and its car (a moving body).
+fn stop_sim(commands: &mut Commands, li: usize, si: usize, s: &Stop, area: &str) {
+    let at = stop_frame(s);
+    commands
+        .spawn((
+            CarOf {
+                line: li as u8,
+                stop: si as u8,
+            },
+            at,
+            Visibility::default(),
+            avian3d::prelude::RigidBody::Kinematic,
+            DespawnOnExit(AppState::InGame),
+            InArea::sim(area),
+        ))
+        .with_children(|car| {
+            for (c, size) in &car_boxes(false) {
+                car.spawn((
+                    Transform::from_translation(*c),
+                    avian3d::prelude::Collider::cuboid(size.x, size.y, size.z),
+                ));
+            }
+        });
+    spawn_boxes(commands, at, &station_boxes(s), area);
+}
+
+/// A stop's models, lights and ways in.
+fn stop_show(
+    commands: &mut Commands,
+    assets: &AssetServer,
+    li: usize,
+    si: usize,
+    l: &Line,
+    s: &Stop,
+    area: &str,
+) {
+    let at = stop_frame(s);
+    let tag = || (DespawnOnExit(AppState::InGame), InArea::show(area));
+    let doorway = |commands: &mut Commands, at, yaw, d| {
+        let e = crate::features::doorway::spawn(commands, at, yaw, d);
+        commands.entity(e).insert(InArea::show(area));
+    };
+    // Both doors glow as a way in, named for where the train goes.
+    let to = &l.stops[1 - si].name;
+    for x in DOORS {
+        doorway(
+            commands,
+            at.transform_point(Vec3::new(x, FLOOR, HALF_WIDE + 0.1)),
+            s.yaw.to_radians(),
+            crate::features::doorway::Doorway::way_in(format!("{} to {to}", l.name))
+                .size(DOOR_W, 2.1),
+        );
+    }
+    // The car's model, moved along with its body (`move_cars`).
+    commands
+        .spawn((
+            CarOf {
+                line: li as u8,
+                stop: si as u8,
+            },
+            at,
+            Visibility::default(),
+            tag(),
+        ))
+        .with_child((model(assets, l.vehicle.car()), Transform::default()));
+    // The station.
+    let mut files = vec!["path-platform.gltf"];
+    if l.vehicle == Vehicle::Plane {
+        // A gate: its platform and canopy, no tunnel (the plane flies off).
+        files = vec!["plane-gate.gltf"];
+    } else if s.depth > 0.0 {
+        files.push("path-hall.gltf");
+    } else {
+        files.push("path-station.gltf");
+    }
+    for file in files {
+        commands.spawn((model(assets, file), at, tag()));
+    }
+    // GTA VI ads at the back of the platform, facing the track (#359).
+    if l.vehicle == Vehicle::Train {
+        for x in AD_X {
             commands.spawn((
-                model(&assets, l.vehicle.car()),
-                at,
-                DespawnOnExit(AppState::InGame),
+                model(assets, "features/gta6-ad.gltf"),
+                Transform::from_translation(at.transform_point(Vec3::new(
+                    x,
+                    0.0,
+                    PLATFORM_Z.1 - 0.4,
+                )))
+                .with_rotation(at.rotation * Quat::from_rotation_y(std::f32::consts::PI)),
+                tag(),
             ));
-            let boxes: Vec<_> = shut.iter().map(|(c, s)| (*c, *s, Quat::IDENTITY)).collect();
-            spawn_boxes(&mut commands, at, &boxes);
+        }
+    }
+    let portal = at.with_translation(at.transform_point(Vec3::X * PORTAL_X));
+    if l.vehicle == Vehicle::Train {
+        // Out in the open the track runs off on a viaduct; else into a tunnel.
+        let file = if open_air(s) {
+            "path-viaduct.gltf"
+        } else {
+            "path-tunnel.gltf"
+        };
+        commands.spawn((model(assets, file), portal, tag()));
+    }
+    if s.depth > 0.0 {
+        // The hall's lights along the platform, and the way up.
+        for i in 0..4 {
             commands.spawn((
                 PointLight {
-                    intensity: 60_000.0,
-                    range: 12.0,
+                    intensity: 120_000.0,
+                    range: 14.0,
                     ..default()
                 },
-                Transform::from_translation(o + Vec3::Y * 2.6),
-                DespawnOnExit(AppState::InGame),
+                Transform::from_translation(at.transform_point(Vec3::new(
+                    HALL_X + 4.0 + i as f32 * ((PORTAL_X - HALL_X - 8.0) / 3.0),
+                    s.depth - 1.0,
+                    3.5,
+                ))),
+                tag(),
             ));
-            // The tunnel: lights streaming past both sides (a plane: clouds).
-            let (mesh, glow) = if l.vehicle == Vehicle::Plane {
-                (
-                    meshes.add(Sphere::new(1.4)),
-                    materials.add(StandardMaterial {
-                        base_color: Color::WHITE,
-                        emissive: LinearRgba::rgb(1.5, 1.5, 1.6),
-                        ..default()
-                    }),
-                )
-            } else {
-                (
-                    meshes.add(Cuboid::new(1.2, 0.15, 0.15)),
-                    materials.add(StandardMaterial {
-                        base_color: Color::BLACK,
-                        emissive: LinearRgba::rgb(6.0, 5.0, 3.0),
-                        ..default()
-                    }),
-                )
-            };
-            for i in 0..8 {
-                for side in [-3.0, 3.0] {
-                    commands.spawn((
-                        TunnelLight { origin: o },
-                        Mesh3d(mesh.clone()),
-                        MeshMaterial3d(glow.clone()),
-                        Transform::from_translation(
-                            o + Vec3::new(-40.0 + i as f32 * 10.0, 2.0, side),
-                        ),
-                        DespawnOnExit(AppState::InGame),
-                    ));
-                }
-            }
+        }
+        let (bottom, _) = stairs_ends(s.depth);
+        doorway(
+            commands,
+            at.transform_point(bottom - Vec3::X * 0.4),
+            s.yaw.to_radians() - std::f32::consts::FRAC_PI_2,
+            crate::features::doorway::Doorway::new(
+                crate::features::doorway::Way::Up,
+                s.name.clone(),
+            )
+            .size(STAIRS_W, 2.4),
+        );
+    }
+}
+
+/// A ride car's model, light and the tunnel lights streaming past.
+fn ride_show(
+    commands: &mut Commands,
+    assets: &AssetServer,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    l: &Line,
+    o: Vec3,
+    area: &str,
+) {
+    let tag = || (DespawnOnExit(AppState::InGame), InArea::show(area));
+    commands.spawn((
+        model(assets, l.vehicle.car()),
+        Transform::from_translation(o),
+        tag(),
+    ));
+    commands.spawn((
+        PointLight {
+            intensity: 60_000.0,
+            range: 12.0,
+            ..default()
+        },
+        Transform::from_translation(o + Vec3::Y * 2.6),
+        tag(),
+    ));
+    // The tunnel: lights streaming past both sides (a plane: clouds).
+    let (mesh, glow) = if l.vehicle == Vehicle::Plane {
+        (
+            meshes.add(Sphere::new(1.4)),
+            materials.add(StandardMaterial {
+                base_color: Color::WHITE,
+                emissive: LinearRgba::rgb(1.5, 1.5, 1.6),
+                ..default()
+            }),
+        )
+    } else {
+        (
+            meshes.add(Cuboid::new(1.2, 0.15, 0.15)),
+            materials.add(StandardMaterial {
+                base_color: Color::BLACK,
+                emissive: LinearRgba::rgb(6.0, 5.0, 3.0),
+                ..default()
+            }),
+        )
+    };
+    for i in 0..8 {
+        for side in [-3.0, 3.0] {
+            commands.spawn((
+                TunnelLight { origin: o },
+                Mesh3d(mesh.clone()),
+                MeshMaterial3d(glow.clone()),
+                Transform::from_translation(o + Vec3::new(-40.0 + i as f32 * 10.0, 2.0, side)),
+                tag(),
+            ));
         }
     }
 }

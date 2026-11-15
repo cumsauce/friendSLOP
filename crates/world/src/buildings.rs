@@ -17,6 +17,8 @@
 use avian3d::prelude::*;
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
+use bevy::world_serialization::WorldInstanceReady;
+use friendslop_core::DrawRange;
 
 use friendslop_structures::build::{batches, bodies, drawn};
 use friendslop_structures::furniture::{bed, crates, shelf, table};
@@ -46,6 +48,7 @@ pub fn plugin(app: &mut App) {
             .run_if(resource_exists_and_changed::<WorldSeed>),
     );
     app.add_systems(Update, near_lights.run_if(in_state(AppState::InGame)));
+    app.add_observer(dress_prop_meshes);
 }
 
 /// A room's lamp light. Hundreds of them stand around the map; only the ones
@@ -934,6 +937,80 @@ pub const PROP_MODELS: &[&str] = &[
     "well",
 ];
 
+/// One class of props in `data/world/props.ron`: how far they draw and
+/// whether they cast shadows.
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct PropClass {
+    /// The `PROP_MODELS` names in this class.
+    pub names: Vec<String>,
+    /// Gone past this many metres on the Near draw distance.
+    pub near: f32,
+    /// Gone past this many metres on the Far draw distance.
+    pub far: f32,
+    /// Whether their meshes cast shadows.
+    pub shadows: bool,
+}
+
+/// Draw distances for building props: `assets/data/world/props.ron`.
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct PropTuning {
+    /// Prop classes; a prop in none always draws and casts shadows.
+    pub classes: Vec<PropClass>,
+}
+
+pub static PROPS: friendslop_data::Data<PropTuning> =
+    friendslop_data::Data::ron("data/world/props.ron");
+
+/// How a prop model's meshes are drawn, put on its scene root and copied
+/// onto the meshes when the scene is ready.
+#[derive(Component, Clone, Copy, Debug)]
+pub struct PropLook {
+    pub range: Option<DrawRange>,
+    pub shadows: bool,
+}
+
+/// The look of the prop called `name`, from its class (if any).
+pub fn prop_look(t: &PropTuning, name: &str) -> PropLook {
+    match t.classes.iter().find(|c| c.names.iter().any(|n| n == name)) {
+        Some(c) => PropLook {
+            range: Some(DrawRange {
+                near: c.near,
+                far: c.far,
+                from_bounds: false,
+            }),
+            shadows: c.shadows,
+        },
+        None => PropLook {
+            range: None,
+            shadows: true,
+        },
+    }
+}
+
+fn dress_prop_meshes(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    looks: Query<&PropLook>,
+    children: Query<&Children>,
+    meshes: Query<(), With<Mesh3d>>,
+) {
+    let Ok(look) = looks.get(ready.entity) else {
+        return;
+    };
+    for child in children.iter_descendants(ready.entity) {
+        if meshes.get(child).is_err() {
+            continue;
+        }
+        let mut e = commands.entity(child);
+        if let Some(range) = look.range {
+            e.try_insert(range);
+        }
+        if !look.shadows {
+            e.try_insert(NotShadowCaster);
+        }
+    }
+}
+
 fn has_model(name: &str) -> bool {
     PROP_MODELS.contains(&name)
 }
@@ -975,9 +1052,11 @@ fn spawn_village(
             e.insert(NotShadowCaster);
         }
     }
+    let tuning = PROPS.get();
     for prop in kit.props.iter().filter(|p| has_model(p.name)) {
         let path = format!("models/props/{}.gltf", prop.name);
         commands.spawn((
+            prop_look(&tuning, prop.name),
             WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset(path))),
             Transform {
                 translation: prop.at,
@@ -1037,6 +1116,27 @@ fn material(materials: &mut Assets<StandardMaterial>, mat: Mat) -> Handle<Standa
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn props_file_classes_every_small_prop() {
+        let src = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../game/assets/data/world/props.ron"
+        ))
+        .unwrap_or_default();
+        assert!(PROPS.set_bytes(src.as_bytes()), "props.ron parses");
+        let t = PROPS.get();
+        assert!(!t.classes.is_empty(), "props.ron parses");
+        for c in &t.classes {
+            assert!(c.near > 0.0 && c.far >= c.near, "{:?}", c.names);
+            for n in &c.names {
+                assert!(PROP_MODELS.contains(&n.as_str()), "unknown prop {n}");
+            }
+        }
+        let shelf = prop_look(&t, "shelf");
+        assert!(shelf.range.is_some() && !shelf.shadows);
+        assert!(prop_look(&t, "tower").range.is_none());
+    }
 
     #[test]
     fn room_lights_only_light_up_near_the_camera() {

@@ -208,6 +208,14 @@ fn baked() -> std::sync::Arc<Vec<HeightGrid>> {
 /// grid covers (x, z), or the file is missing, the procedural ground
 /// ([`procedural_height_at`]).
 pub fn height_at(x: f32, z: f32) -> f32 {
+    if crate::wastes::covers(x, z) {
+        return crate::wastes::height(crate::wastes::tuning().seed, x, z);
+    }
+    map_height_at(x, z)
+}
+
+/// The hand-made map's ground alone (no wastes), anywhere.
+pub fn map_height_at(x: f32, z: f32) -> f32 {
     baked()
         .iter()
         .find_map(|g| g.sample(x, z))

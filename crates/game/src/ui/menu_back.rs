@@ -9,6 +9,7 @@ use crate::AppState;
 use crate::creator::CreatorOpen;
 use crate::fault::{self, FaultPanel};
 use crate::kori_shelf::{self, ShelfPanel};
+use crate::menu::JoinPanel;
 use crate::ui::settings_panel::SettingsPanel;
 
 /// A panel on top of the title card.
@@ -18,13 +19,21 @@ pub enum Layer {
     Creator,
     Fault,
     Kori,
+    /// The join card.
+    Join,
 }
 
 /// What B closes: the top-most open layer (settings float over the rest).
 pub fn back_target(open: &[Layer]) -> Option<Layer> {
-    [Layer::Settings, Layer::Creator, Layer::Fault, Layer::Kori]
-        .into_iter()
-        .find(|l| open.contains(l))
+    [
+        Layer::Settings,
+        Layer::Creator,
+        Layer::Fault,
+        Layer::Kori,
+        Layer::Join,
+    ]
+    .into_iter()
+    .find(|l| open.contains(l))
 }
 
 /// The layers to close so that only the one that opened last stays up.
@@ -43,7 +52,7 @@ pub fn plugin(app: &mut App) {
 }
 
 #[derive(SystemParam)]
-struct Layers<'w, 's> {
+pub(crate) struct Layers<'w, 's> {
     settings: Query<'w, 's, &'static mut Node, With<SettingsPanel>>,
     fault: Query<'w, 's, &'static mut Node, (With<FaultPanel>, Without<SettingsPanel>)>,
     kori: Query<
@@ -54,6 +63,17 @@ struct Layers<'w, 's> {
             With<ShelfPanel>,
             Without<SettingsPanel>,
             Without<FaultPanel>,
+        ),
+    >,
+    join: Query<
+        'w,
+        's,
+        &'static mut Node,
+        (
+            With<JoinPanel>,
+            Without<SettingsPanel>,
+            Without<FaultPanel>,
+            Without<ShelfPanel>,
         ),
     >,
     creator: ResMut<'w, CreatorOpen>,
@@ -75,6 +95,9 @@ impl Layers<'_, '_> {
         if self.kori.iter().any(shown) {
             open.push(Layer::Kori);
         }
+        if self.join.iter().any(shown) {
+            open.push(Layer::Join);
+        }
         open
     }
 
@@ -87,6 +110,10 @@ impl Layers<'_, '_> {
             Layer::Creator => self.creator.0 = false,
             Layer::Fault => fault::close(self.fault.iter_mut()),
             Layer::Kori => kori_shelf::close(self.kori.iter_mut()),
+            Layer::Join => self
+                .join
+                .iter_mut()
+                .for_each(|mut n| n.display = Display::None),
         }
     }
 }
@@ -99,7 +126,7 @@ fn exclusive(mut layers: Layers, mut before: Local<Vec<Layer>>) {
     *before = layers.open();
 }
 
-fn back(
+pub(crate) fn back(
     keys: Res<ButtonInput<KeyCode>>,
     picker: Query<(), With<crate::menu::HexPicker>>,
     mut layers: Layers,
@@ -123,6 +150,7 @@ mod tests {
         assert_eq!(back_target(&[]), None);
         assert_eq!(back_target(&[Kori, Fault]), Some(Fault));
         assert_eq!(back_target(&[Fault, Settings, Creator]), Some(Settings));
+        assert_eq!(back_target(&[Join]), Some(Join));
     }
 
     #[test]
@@ -162,6 +190,32 @@ mod tests {
             n.display = Display::Flex;
         }
         app.update();
+    }
+
+    #[test]
+    fn esc_closes_the_join_card_and_it_crowds_out_the_others() {
+        let (mut app, settings, ..) = title();
+        let card = app
+            .world_mut()
+            .spawn((
+                JoinPanel,
+                Node {
+                    display: Display::None,
+                    ..default()
+                },
+            ))
+            .id();
+        app.update();
+        open(&mut app, card);
+        assert!(shown(&app, card));
+        open(&mut app, settings);
+        assert!(shown(&app, settings) && !shown(&app, card));
+        open(&mut app, card);
+        app.world_mut()
+            .resource_mut::<ButtonInput<KeyCode>>()
+            .press(KeyCode::Escape);
+        app.update();
+        assert!(!shown(&app, card));
     }
 
     #[test]

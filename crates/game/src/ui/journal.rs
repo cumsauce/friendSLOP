@@ -200,7 +200,7 @@ fn spawn(mut commands: Commands) {
                     BorderColor::all(BORDER),
                     children![(
                         Text::new(""),
-                        crate::input::Hint("{journal}   close".into()),
+                        crate::input::Hint("{back}   close".into()),
                         body(17.0, INK),
                         at(11.0, 8.0, B)
                     )],

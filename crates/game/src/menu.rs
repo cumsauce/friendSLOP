@@ -8,6 +8,7 @@ use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::*;
 
 use crate::net::IrohClient;
+use bevy::input::gamepad::{Gamepad, GamepadButton};
 use bevy::picking::hover::Hovered;
 use bevy_replicon::prelude::*;
 
@@ -16,7 +17,7 @@ use crate::hud::Toast;
 use crate::net::{Clipboard, NetCommand, NetStatus};
 use crate::player::LocalPlayer;
 use crate::scenery;
-use crate::theme::{self, Pop, Squishy};
+use crate::theme;
 
 pub struct MenuPlugin;
 
@@ -31,7 +32,7 @@ impl Plugin for MenuPlugin {
                     type_join_code,
                     start_pending_join,
                     connect_timeout,
-                    refresh_labels,
+                    (refresh_labels, refresh_lan, pad_shortcuts),
                     hover_buttons,
                     orbit_camera,
                     backdrop_fallbacks,
@@ -39,7 +40,7 @@ impl Plugin for MenuPlugin {
                     menu_shortcuts,
                     style_status,
                     picker_esc,
-                    cancel_join,
+                    cancel_join.before(crate::ui::menu_back::back),
                 )
                     .run_if(in_state(AppState::Menu)),
             )
@@ -131,8 +132,6 @@ enum Label {
     /// The end of the code, in the gamepad's hex picker.
     CodeTail,
     JoinButton,
-    /// The LAN discovery button (#410).
-    LanButton,
 }
 
 /// The join-code field (the hex picker gives the pad's focus back to it).
@@ -222,85 +221,93 @@ fn tail(code: &str, n: usize) -> String {
     }
 }
 
-/// Spawn the hex picker beside the title card.
+/// Spawn the hex picker over the join card: a soot panel with the keys as kit buttons.
 fn spawn_picker(world: &mut World) {
-    use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK as I_INK, PERIWINKLE, RAISED};
-    use crate::ui::{at, body, head};
-    let (key_w, key_h, gap, pad, b) = (64.0, 50.0, 10.0, 18.0, 2.0);
-    let width = 4.0 * key_w + 3.0 * gap + 2.0 * pad;
-    let top = 92.0;
-    let height = top + 5.0 * key_h + 4.0 * gap + 44.0;
+    use crate::theme::kit::{self as t, size};
+    use crate::ui::kit::{self, Glyph, Look, hint};
+    use crate::ui::{body, head};
+    let (key_w, gap) = (80.0, 10.0);
+    let width = 4.0 * key_w + 3.0 * gap;
     world
         .spawn((
             HexPicker,
             Node {
                 position_type: PositionType::Absolute,
-                left: px(486),
-                top: px(220),
-                width: px(width),
-                height: px(height),
-                border: UiRect::all(px(b)),
-                border_radius: BorderRadius::all(px(18)),
+                width: percent(100),
+                height: percent(100),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
                 ..default()
             },
-            BackgroundColor(I_INK),
-            BorderColor::all(BORDER),
+            BackgroundColor(t::SOOT_900.with_alpha(0.6)),
             GlobalZIndex(40),
             DespawnOnExit(AppState::Menu),
         ))
-        .with_children(|p| {
-            p.spawn((Text::new("Join code"), head(22.0, CREAM), at(pad, 12.0, b)));
-            p.spawn((
-                Text::new(""),
-                body(17.0, PERIWINKLE),
-                TextLayout::no_wrap(),
-                Label::CodeTail,
-                at(pad, 50.0, b),
-            ));
-            for (row, keys) in PICKER_ROWS.iter().enumerate() {
-                // The last row has three keys: Paste takes two columns.
-                let mut x = pad;
-                for &key in *keys {
-                    let w = if key == PickKey::Paste {
-                        2.0 * key_w + gap
-                    } else {
-                        key_w
-                    };
-                    let y = top + row as f32 * (key_h + gap);
-                    let (fill, ink) = if key == PickKey::Join {
-                        (BUTTER, I_INK)
-                    } else {
-                        (RAISED, CREAM)
-                    };
-                    p.spawn((
-                        key,
-                        Node {
-                            width: px(w),
-                            height: px(key_h),
-                            border: UiRect::all(px(b)),
-                            border_radius: BorderRadius::all(px(12)),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            ..at(x, y, b)
-                        },
-                        BackgroundColor(fill),
-                        BorderColor::all(BORDER),
-                        BaseColor(fill),
-                        Hovered::default(),
-                        crate::ui::pad_nav::PadFocusable,
-                        children![(Text::new(key.label()), head(21.0, ink))],
-                    ))
-                    .observe(press_picker_key);
-                    x += w + gap;
+        .with_children(|scrim| {
+            styled_now(scrim.spawn(kit::panel()), |n| n.row_gap = px(gap)).with_children(|p| {
+                p.spawn((Text::new("Join code"), head(size::H2, t::TEXT)));
+                p.spawn((
+                    Text::new(""),
+                    body(size::LABEL, t::TEXT_DIM),
+                    TextLayout::no_wrap(),
+                    Label::CodeTail,
+                ));
+                for keys in PICKER_ROWS {
+                    p.spawn(Node {
+                        column_gap: px(gap),
+                        ..default()
+                    })
+                    .with_children(|row| {
+                        for &key in keys {
+                            // The last row has three keys, each a little wider.
+                            let w = if keys.len() == 3 {
+                                (width - 2.0 * gap) / 3.0
+                            } else {
+                                key_w
+                            };
+                            let look = if key == PickKey::Join {
+                                Look::Primary
+                            } else {
+                                Look::Plain
+                            };
+                            styled_now(
+                                row.spawn((key, kit::button(look, &key.label(), px(w)))),
+                                |n| {
+                                    n.justify_content = JustifyContent::Center;
+                                    n.padding = UiRect::ZERO;
+                                },
+                            )
+                            .observe(press_picker_key);
+                        }
+                    });
                 }
-            }
-            p.spawn((
-                Text::new(""),
-                crate::input::Hint("{confirm} press  ·  {back} close".into()),
-                body(14.0, PERIWINKLE),
-                at(pad, height - 34.0, b),
-            ));
+                p.spawn((
+                    Node {
+                        margin: UiRect::top(px(6)),
+                        column_gap: px(28),
+                        ..default()
+                    },
+                    children![hint(Glyph::A, "Press"), hint(Glyph::B, "Close")],
+                ));
+            });
         });
+}
+
+/// Adjust the [`Node`] a kit piece spawned with (its width, gap or placement).
+fn styled<'a>(
+    mut e: EntityCommands<'a>,
+    f: impl FnOnce(&mut Node) + Send + Sync + 'static,
+) -> EntityCommands<'a> {
+    e.entry::<Node>().and_modify(move |mut n| f(&mut n));
+    e
+}
+
+/// [`styled`] for a world-spawned piece.
+fn styled_now<'a>(mut e: EntityWorldMut<'a>, f: impl FnOnce(&mut Node)) -> EntityWorldMut<'a> {
+    if let Some(mut n) = e.get_mut::<Node>() {
+        f(&mut n);
+    }
+    e
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -350,8 +357,8 @@ fn picker_esc(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
 
 /// B (Esc) calls off a join in progress: the button went to "Joining..." and
 /// nothing else would end it before the timeout.
-fn cancel_join(
-    keys: Res<ButtonInput<KeyCode>>,
+pub(crate) fn cancel_join(
+    mut keys: ResMut<ButtonInput<KeyCode>>,
     client: Option<Res<IrohClient>>,
     joining: Option<Res<crate::net::JoinTask>>,
     mut connecting: ResMut<Connecting>,
@@ -362,6 +369,8 @@ fn cancel_join(
     if !keys.just_pressed(KeyCode::Escape) || !busy {
         return;
     }
+    // This B is spent: the join card stays up behind the cancelled join.
+    keys.clear_just_pressed(KeyCode::Escape);
     connecting.pending = None;
     connecting.waited = 0.0;
     commands.queue(crate::net::teardown_transport);
@@ -380,240 +389,564 @@ struct StatusPill;
 #[derive(Component)]
 struct MenuCamera;
 
-/// The title screen's "Indigo journal cover" (Figma 3:1836): an ink card on
-/// the left over the meadow diorama, with the logo, Host / Join / Character
-/// creator buttons, the join-code field and quiet text links.
+/// The join card, a layer over the title like the settings: shut until "Join a friend".
+#[derive(Component)]
+pub(crate) struct JoinPanel;
+
+/// The sticky note naming a game hosted near you.
+#[derive(Component)]
+struct LanNote;
+
+#[derive(Component)]
+struct LanNoteText(Cell);
+
+/// A row of the "open near you" list.
+#[derive(Component)]
+struct LanRow(usize);
+
+#[derive(Component)]
+struct LanRowName(usize);
+
+/// The line shown while nobody near you is hosting.
+#[derive(Component)]
+struct LanEmpty;
+
+/// Which line of the sticky note.
+#[derive(Clone, Copy)]
+enum Cell {
+    Who,
+    Join,
+}
+
+/// Open games listed on the join card.
+const LAN_ROWS: usize = 3;
+
+/// The title screen (the "commune noticeboard" menu): a soot panel on the left over the meadow
+/// with the logo and the buttons, a sticky note for a game hosted near you, and the hint bar.
 fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
-    use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK as I_INK, PERIWINKLE, RAISED};
-    use crate::ui::{at, body, head};
+    use crate::theme::kit::{self as t, size};
+    use crate::ui::kit::{self, Glyph, Look, hint};
+    use crate::ui::{body, head};
     let logo: Handle<Image> = assets.map(|a| a.load("ui/logo.png")).unwrap_or_default();
-    let b = 2.0;
-    let cover_button = |label: &str, size: f32, fill: Color, ink: Color, h: f32, y: f32| {
-        (
-            Node {
-                width: px(362),
-                height: px(h),
-                border: UiRect::all(px(b)),
-                border_radius: BorderRadius::all(px(18)),
-                ..at(26.0, y, b)
-            },
-            BackgroundColor(fill),
-            BorderColor::all(BORDER),
-            // A hard ink shadow 5 px down, like the design's lip.
-            BoxShadow::new(I_INK, px(0), px(5), px(0), px(0)),
-            BaseColor(fill),
-            Hovered::default(),
-            crate::ui::pad_nav::PadFocusable,
-            Squishy::default(),
-            UiTransform::default(),
-            children![(
-                Text::new(label.to_string()),
-                head(size, ink),
-                at(16.0, 9.0, b)
-            )],
-        )
-    };
-    let link = |label: &str, color: Color, x: f32, y: f32| {
-        (
-            Text::new(label.to_string()),
-            body(18.0, color),
-            at(x, y, b),
-            Hovered::default(),
-            crate::ui::pad_nav::PadFocusable,
-        )
-    };
+    let (full, half) = (percent(100), percent(48.5));
     commands
         .spawn((
             Node {
                 position_type: PositionType::Absolute,
-                left: px(44),
-                top: px(40),
-                width: px(418),
-                height: px(698),
-                border: UiRect::all(px(b)),
-                border_radius: BorderRadius::all(px(18)),
+                left: px(0),
+                top: px(0),
+                width: px(440),
+                height: percent(100),
+                flex_direction: FlexDirection::Column,
+                row_gap: px(12),
+                padding: UiRect::axes(px(t::EDGE * 2.0), px(t::EDGE * 1.5)),
                 ..default()
             },
-            BackgroundColor(I_INK),
-            BorderColor::all(BORDER),
-            Pop::now(0.85),
-            UiTransform::default(),
+            BackgroundColor(t::SOOT_900.with_alpha(0.92)),
             DespawnOnExit(AppState::Menu),
         ))
         .with_children(|ui| {
             ui.spawn((
                 Text::new("a commune of terrible ideas"),
-                body(17.0, PERIWINKLE),
-                at(26.0, 20.0, b),
+                body(size::LABEL, t::TEXT_DIM),
             ));
             // The illustrated logo; the wordmark stands in if the file is missing.
             ui.spawn((
                 Node {
-                    width: px(362),
-                    height: px(104.4),
-                    ..at(26.0, 44.0, b)
+                    width: px(344),
+                    height: px(99.7),
+                    ..default()
                 },
                 ImageNode::new(logo),
             ));
             ui.spawn((
                 Text::new("1–6 friends. One very bad landlord."),
-                body(17.0, CREAM),
-                at(26.0, 151.0, b),
-            ));
-            ui.spawn(cover_button(
-                "Host a commune",
-                23.0,
-                BUTTER,
-                I_INK,
-                54.0,
-                179.0,
-            ))
-            .observe(
-                |_: On<PointerClick>,
-                 mut net: MessageWriter<NetCommand>,
-                 mut connecting: ResMut<Connecting>| {
-                    connecting.pending = None;
-                    net.write(NetCommand::Host);
-                },
-            );
-            ui.spawn((
-                cover_button("Join with a code", 23.0, RAISED, CREAM, 52.0, 252.0),
-                Label::JoinButton,
-            ))
-            .observe(
-                |_: On<PointerClick>,
-                 code: Res<JoinCode>,
-                 mut connecting: ResMut<Connecting>,
-                 mut status: ResMut<NetStatus>,
-                 client: Option<Res<IrohClient>>| {
-                    join(&code, &mut connecting, &mut status, client.is_some())
-                },
-            );
-            // The code field: type, Ctrl/Cmd+V, or click it to paste. A
-            // gamepad's A opens the hex picker instead (#361).
-            ui.spawn((
-                CodeField,
-                crate::ui::pad_nav::PadFocusable,
+                body(size::BODY_REG, t::TEXT_DIM),
+                crate::ui::Regular,
                 Node {
-                    width: px(362),
-                    height: px(44),
-                    border: UiRect::all(px(b)),
-                    border_radius: BorderRadius::all(px(12)),
-                    overflow: Overflow::clip(),
-                    ..at(26.0, 317.0, b)
+                    margin: UiRect::bottom(px(12)),
+                    ..default()
                 },
-                BackgroundColor(RAISED),
-                BorderColor::all(BORDER),
-                children![(
-                    Text::new(""),
-                    body(17.0, PERIWINKLE),
-                    TextLayout::no_wrap(),
-                    Label::Code,
-                    at(12.0, 9.0, b),
-                )],
-            ))
-            .observe(
-                |_: On<PointerClick>,
-                 mut commands: Commands,
-                 focus: Res<crate::ui::pad_nav::PadFocus>,
-                 pickers: Query<(), With<HexPicker>>,
-                 clip: Res<Clipboard>,
-                 mut code: ResMut<JoinCode>| {
-                    if focus.pad_click {
-                        if pickers.is_empty() {
-                            commands.queue(spawn_picker);
+            ));
+            ui.spawn(kit::button(Look::Primary, "Host a commune", full))
+                .observe(
+                    |_: On<PointerClick>,
+                     mut net: MessageWriter<NetCommand>,
+                     mut connecting: ResMut<Connecting>| {
+                        connecting.pending = None;
+                        net.write(NetCommand::Host);
+                    },
+                );
+            ui.spawn(kit::button(Look::Cardboard, "Join a friend", full))
+                .observe(
+                    |_: On<PointerClick>, mut panel: Query<&mut Node, With<JoinPanel>>| {
+                        for mut n in &mut panel {
+                            n.display = Display::Flex;
                         }
-                    } else if let Some(text) = clip.get() {
-                        code.paste(&text);
-                    }
-                },
-            );
-            // LAN discovery (#410): a game hosted on the same network.
-            ui.spawn((
-                cover_button("", 19.0, PERIWINKLE, I_INK, 46.0, 381.0),
-                Label::LanButton,
-            ))
-            .observe(
-                |_: On<PointerClick>,
-                 games: Res<crate::lan::LanGames>,
-                 mut code: ResMut<JoinCode>,
-                 mut connecting: ResMut<Connecting>,
-                 mut status: ResMut<NetStatus>,
-                 client: Option<Res<IrohClient>>| {
-                    let Some(game) = games.0.first() else {
-                        status.message =
-                            "Nobody near you is hosting yet: ask a friend to host.".into();
-                        return;
-                    };
-                    code.0.clone_from(&game.code);
-                    join(&code, &mut connecting, &mut status, client.is_some())
-                },
-            );
-            ui.spawn(cover_button(
-                "Character creator",
-                23.0,
-                RAISED,
-                CREAM,
-                52.0,
-                439.0,
-            ))
-            .observe(
-                |_: On<PointerClick>, mut open: ResMut<crate::creator::CreatorOpen>| {
-                    open.0 = !open.0;
-                },
-            );
-            ui.spawn(link("Settings", PERIWINKLE, 26.0, 519.0)).observe(
-                |_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>| {
-                    crate::ui::settings_panel::toggle(&mut panel);
-                },
-            );
-            ui.spawn((Text::new("·"), body(18.0, PERIWINKLE), at(120.0, 519.0, b)));
-            ui.spawn(link("Whose fault is it", PERIWINKLE, 151.0, 519.0))
+                    },
+                );
+            ui.spawn(kit::button(Look::Cardboard, "Character", full))
                 .observe(
-                |_: On<PointerClick>,
-                 mut panel: Query<&mut Node, With<crate::fault::FaultPanel>>| {
-                    crate::fault::toggle(&mut panel);
-                },
-            );
-            ui.spawn(link("Kori prizes", PERIWINKLE, 26.0, 560.0))
+                    |_: On<PointerClick>, mut open: ResMut<crate::creator::CreatorOpen>| {
+                        open.0 = !open.0;
+                    },
+                );
+            ui.spawn(kit::button(Look::Plain, "Settings", full))
                 .observe(
-                |_: On<PointerClick>,
-                 mut panel: Query<&mut Node, With<crate::kori_shelf::ShelfPanel>>| {
-                    crate::kori_shelf::toggle(&mut panel);
-                },
-            );
-            ui.spawn(link("Quit", CREAM, 151.0, 560.0)).observe(
-                |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
-                    exit.write(AppExit::Success);
-                },
-            );
-            // Connection news ("Connecting...", errors) above the footer.
-            ui.spawn((
-                Node {
-                    padding: UiRect::axes(px(12), px(5)),
-                    border_radius: BorderRadius::all(px(999)),
-                    max_width: px(362),
-                    display: Display::None,
-                    ..at(26.0, 598.0, b)
-                },
-                BackgroundColor(RAISED),
-                StatusPill,
-                children![(Text::new(""), body(14.0, CREAM), Label::Status)],
-            ));
+                    |_: On<PointerClick>, mut panel: Query<&mut Node, With<SettingsPanel>>| {
+                        crate::ui::settings_panel::toggle(&mut panel);
+                    },
+                );
+            ui.spawn(kit::button(Look::Plain, "Whose fault is it", full))
+                .observe(
+                    |_: On<PointerClick>,
+                     mut panel: Query<&mut Node, With<crate::fault::FaultPanel>>| {
+                        crate::fault::toggle(&mut panel);
+                    },
+                );
+            ui.spawn(Node {
+                justify_content: JustifyContent::SpaceBetween,
+                width: full,
+                ..default()
+            })
+            .with_children(|row| {
+                row.spawn(kit::button(Look::Plain, "Kori prizes", half))
+                    .observe(
+                        |_: On<PointerClick>,
+                         mut panel: Query<&mut Node, With<crate::kori_shelf::ShelfPanel>>| {
+                            crate::kori_shelf::toggle(&mut panel);
+                        },
+                    );
+                row.spawn(kit::button(Look::Plain, "Quit", half)).observe(
+                    |_: On<PointerClick>, mut exit: MessageWriter<AppExit>| {
+                        exit.write(AppExit::Success);
+                    },
+                );
+            });
+            // News ("Left the game.", errors) above the footer.
+            ui.spawn(status_pill());
             ui.spawn((
                 Text::new("Made by your Discord. Blame accordingly."),
-                body(14.0, PERIWINKLE),
-                at(26.0, 638.0, b),
-            ));
-            ui.spawn((
-                Text::new(""),
-                crate::input::Hint("D-pad move  ·  {confirm} select  ·  {back} back".into()),
-                body(14.0, CREAM),
-                at(26.0, 664.0, b),
-                Visibility::Hidden,
-                crate::ui::pad_nav::PadHint,
+                body(size::LABEL, t::TEXT_DIM),
+                Node {
+                    margin: UiRect::top(Val::Auto),
+                    ..default()
+                },
             ));
         });
+
+    // A game hosted near you, as a sticky note top right.
+    let note = commands
+        .spawn((
+            LanNote,
+            crate::ui::pad_nav::PadFocusable,
+            Node {
+                position_type: PositionType::Absolute,
+                right: px(t::EDGE * 2.0),
+                top: px(t::EDGE * 2.0),
+                width: px(320),
+                display: Display::None,
+                ..default()
+            },
+            DespawnOnExit(AppState::Menu),
+        ))
+        .observe(join_first_near)
+        .id();
+    commands
+        .spawn((kit::card(t::BUTTER_400, -2.0), ChildOf(note)))
+        .with_children(|note| {
+            note.spawn(kit::tape());
+            note.spawn((
+                LanNoteText(Cell::Who),
+                Text::new(""),
+                body(size::LABEL, t::INK),
+            ));
+            note.spawn((
+                LanNoteText(Cell::Join),
+                Text::new(""),
+                head(size::H2, t::INK),
+            ));
+            note.spawn(Node {
+                align_self: AlignSelf::FlexEnd,
+                ..default()
+            })
+            .with_children(|g| {
+                g.spawn(kit::glyph(Glyph::Y));
+            });
+        });
+
+    spawn_join_panel(&mut commands);
+
+    commands.spawn((
+        Node {
+            position_type: PositionType::Absolute,
+            right: px(t::EDGE * 2.0),
+            bottom: px(t::EDGE),
+            column_gap: px(36),
+            ..default()
+        },
+        crate::ui::pad_nav::PadHint,
+        Visibility::Hidden,
+        DespawnOnExit(AppState::Menu),
+        children![hint(Glyph::A, "Select")],
+    ));
+}
+
+/// The pill behind a news line (tinted by what the message says).
+fn status_pill() -> impl Bundle {
+    use crate::theme::kit::{self as t, size};
+    (
+        Node {
+            padding: UiRect::axes(px(14), px(6)),
+            border_radius: BorderRadius::all(px(999)),
+            display: Display::None,
+            align_self: AlignSelf::FlexStart,
+            ..default()
+        },
+        BackgroundColor(t::SOOT_700),
+        StatusPill,
+        children![(
+            Text::new(""),
+            crate::ui::body(size::LABEL, t::TEXT),
+            Label::Status
+        )],
+    )
+}
+
+/// Join a friend: a cardboard card with the code box, Paste and Join, and the games open near you.
+fn spawn_join_panel(commands: &mut Commands) {
+    use crate::theme::kit::{self as t, size};
+    use crate::ui::kit::{self, Glyph, Look, hint};
+    use crate::ui::{body, head};
+    commands
+        .spawn((
+            JoinPanel,
+            Node {
+                position_type: PositionType::Absolute,
+                width: percent(100),
+                height: percent(100),
+                display: Display::None,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            BackgroundColor(t::SOOT_900.with_alpha(0.7)),
+            GlobalZIndex(20),
+            DespawnOnExit(AppState::Menu),
+        ))
+        .with_children(|scrim| {
+            styled(scrim.spawn(kit::card(t::CARD_100, 0.0)), |n| {
+                n.width = px(640);
+                n.row_gap = px(10);
+                n.padding = UiRect::all(px(t::EDGE + 8.0));
+            })
+            .with_children(|card| {
+                card.spawn(kit::tape());
+                card.spawn(kit::display("Join a friend", size::H1, t::INK));
+                card.spawn((
+                    Text::new(
+                        "Ask the host for their code, or pick a commune that's open near you.",
+                    ),
+                    body(size::BODY_REG, t::INK),
+                    crate::ui::Regular,
+                ));
+                card.spawn((
+                    Text::new("JOIN CODE"),
+                    body(size::LABEL, t::INK),
+                    Node {
+                        margin: UiRect::top(px(8)),
+                        ..default()
+                    },
+                ));
+                // The code box: type, Ctrl/Cmd+V, or click to paste; a pad's A opens the hex picker.
+                card.spawn(Node {
+                    column_gap: px(14),
+                    align_items: AlignItems::Center,
+                    ..default()
+                })
+                .with_children(|row| {
+                    row.spawn((
+                        CodeField,
+                        crate::ui::pad_nav::PadFocusable,
+                        Node {
+                            flex_grow: 1.0,
+                            height: px(t::BUTTON_H),
+                            padding: UiRect::horizontal(px(16)),
+                            align_items: AlignItems::Center,
+                            border: UiRect::all(px(3)),
+                            border_radius: BorderRadius::all(px(t::R_BUTTON)),
+                            overflow: Overflow::clip(),
+                            ..default()
+                        },
+                        BackgroundColor(t::CARD_100.mix(&Color::WHITE, 0.4)),
+                        BorderColor::all(t::BUTTER_400),
+                        children![(
+                            Text::new(""),
+                            body(size::BODY_REG, t::CARD_500),
+                            TextLayout::no_wrap(),
+                            Label::Code,
+                        )],
+                    ))
+                    .observe(
+                        |_: On<PointerClick>,
+                         mut commands: Commands,
+                         focus: Res<crate::ui::pad_nav::PadFocus>,
+                         pickers: Query<(), With<HexPicker>>,
+                         clip: Res<Clipboard>,
+                         mut code: ResMut<JoinCode>| {
+                            if focus.pad_click {
+                                if pickers.is_empty() {
+                                    commands.queue(spawn_picker);
+                                }
+                            } else if let Some(text) = clip.get() {
+                                code.paste(&text);
+                            }
+                        },
+                    );
+                    row.spawn(kit::button(Look::Cardboard, "Paste", px(150)))
+                        .observe(
+                            |_: On<PointerClick>,
+                             clip: Res<Clipboard>,
+                             mut code: ResMut<JoinCode>| {
+                                if let Some(text) = clip.get() {
+                                    code.paste(&text);
+                                }
+                            },
+                        );
+                });
+                card.spawn((
+                    kit::button(Look::Primary, "Join", percent(100)),
+                    Label::JoinButton,
+                ))
+                .observe(
+                    |_: On<PointerClick>,
+                     code: Res<JoinCode>,
+                     mut connecting: ResMut<Connecting>,
+                     mut status: ResMut<NetStatus>,
+                     client: Option<Res<IrohClient>>| {
+                        join(&code, &mut connecting, &mut status, client.is_some())
+                    },
+                );
+                card.spawn((
+                    Node {
+                        height: px(2),
+                        margin: UiRect::vertical(px(10)),
+                        ..default()
+                    },
+                    BackgroundColor(t::CARD_500),
+                ));
+                card.spawn((Text::new("OPEN NEAR YOU"), body(size::LABEL, t::INK)));
+                card.spawn((
+                    LanEmpty,
+                    Text::new("Nobody near you is hosting yet. Ask a friend to host."),
+                    body(size::BODY_REG, t::INK),
+                    crate::ui::Regular,
+                ));
+                for i in 0..LAN_ROWS {
+                    card.spawn((
+                        LanRow(i),
+                        Node {
+                            align_items: AlignItems::Center,
+                            column_gap: px(14),
+                            padding: UiRect::axes(px(14), px(8)),
+                            border_radius: BorderRadius::all(px(6)),
+                            display: Display::None,
+                            ..default()
+                        },
+                        BackgroundColor(t::CARD_300),
+                    ))
+                    .with_children(|row| {
+                        row.spawn((
+                            Node {
+                                width: px(22),
+                                height: px(22),
+                                border_radius: BorderRadius::MAX,
+                                ..default()
+                            },
+                            BackgroundColor(t::seat(i + 1)),
+                        ));
+                        row.spawn((
+                            LanRowName(i),
+                            Node {
+                                flex_grow: 1.0,
+                                ..default()
+                            },
+                            Text::new(""),
+                            head(size::H2, t::INK),
+                        ));
+                        row.spawn(kit::button(Look::Plain, "Join", px(120)))
+                            .observe(
+                            move |_: On<PointerClick>,
+                                  games: Res<crate::lan::LanGames>,
+                                  mut code: ResMut<JoinCode>,
+                                  mut connecting: ResMut<Connecting>,
+                                  mut status: ResMut<NetStatus>,
+                                  client: Option<Res<IrohClient>>| {
+                                if let Some(game) = games.0.get(i) {
+                                    code.0.clone_from(&game.code);
+                                    join(&code, &mut connecting, &mut status, client.is_some());
+                                }
+                            },
+                        );
+                    });
+                }
+                card.spawn(status_pill());
+            });
+            scrim.spawn((
+                Node {
+                    position_type: PositionType::Absolute,
+                    right: px(t::EDGE * 2.0),
+                    bottom: px(t::EDGE),
+                    column_gap: px(36),
+                    ..default()
+                },
+                crate::ui::pad_nav::PadHint,
+                Visibility::Hidden,
+                children![
+                    hint(Glyph::A, "Select"),
+                    hint(Glyph::X, "Paste"),
+                    hint(Glyph::B, "Back"),
+                ],
+            ));
+        });
+}
+
+/// The sticky note's click: join the first game heard near you.
+fn join_first_near(
+    _: On<PointerClick>,
+    games: Res<crate::lan::LanGames>,
+    mut code: ResMut<JoinCode>,
+    mut connecting: ResMut<Connecting>,
+    mut status: ResMut<NetStatus>,
+    client: Option<Res<IrohClient>>,
+) {
+    let Some(game) = games.0.first() else {
+        return;
+    };
+    code.0.clone_from(&game.code);
+    join(&code, &mut connecting, &mut status, client.is_some())
+}
+
+/// Pad shortcuts the hint bars promise: X pastes on the join card, Y joins the sticky note's game.
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+fn pad_shortcuts(
+    pads: Query<&Gamepad>,
+    layers: Query<
+        &Node,
+        Or<(
+            With<JoinPanel>,
+            With<SettingsPanel>,
+            With<crate::fault::FaultPanel>,
+            With<crate::kori_shelf::ShelfPanel>,
+        )>,
+    >,
+    join_panel: Query<&Node, With<JoinPanel>>,
+    creator: Res<crate::creator::CreatorOpen>,
+    picker: Query<(), With<HexPicker>>,
+    clip: Res<Clipboard>,
+    games: Res<crate::lan::LanGames>,
+    mut code: ResMut<JoinCode>,
+    mut connecting: ResMut<Connecting>,
+    mut status: ResMut<NetStatus>,
+    client: Option<Res<IrohClient>>,
+) {
+    let up = |n: &Node| n.display != Display::None;
+    let pressed = |b| pads.iter().any(|p| p.just_pressed(b));
+    if !picker.is_empty() {
+        return;
+    }
+    if join_panel.iter().any(up) {
+        if pressed(GamepadButton::West)
+            && let Some(text) = clip.get()
+        {
+            code.paste(&text);
+        }
+    } else if !layers.iter().any(up)
+        && !creator.0
+        && pressed(GamepadButton::North)
+        && let Some(game) = games.0.first()
+    {
+        code.0.clone_from(&game.code);
+        join(&code, &mut connecting, &mut status, client.is_some());
+    }
+}
+
+/// Show the games heard near you: the sticky note for the first, a row each on the join card.
+#[allow(clippy::type_complexity)]
+fn refresh_lan(
+    lan: Res<crate::lan::LanGames>,
+    join_panel: Query<&Node, With<JoinPanel>>,
+    mut note: Query<
+        &mut Node,
+        (
+            With<LanNote>,
+            Without<LanRow>,
+            Without<LanEmpty>,
+            Without<JoinPanel>,
+        ),
+    >,
+    mut note_text: Query<(&LanNoteText, &mut Text), (Without<LanRowName>, Without<LanEmpty>)>,
+    mut rows: Query<
+        (&LanRow, &mut Node),
+        (Without<LanNote>, Without<LanEmpty>, Without<JoinPanel>),
+    >,
+    mut names: Query<(&LanRowName, &mut Text), (Without<LanNoteText>, Without<LanEmpty>)>,
+    mut empty: Query<
+        &mut Node,
+        (
+            With<LanEmpty>,
+            Without<LanNote>,
+            Without<LanRow>,
+            Without<JoinPanel>,
+        ),
+    >,
+) {
+    let first = lan.0.first();
+    // The sticky note gives way to the join card, which lists the same games.
+    let card_up = join_panel.iter().any(|n| n.display != Display::None);
+    for mut n in &mut note {
+        n.display = if first.is_some() && !card_up {
+            Display::Flex
+        } else {
+            Display::None
+        };
+    }
+    for (which, mut t) in &mut note_text {
+        let want = match (which.0, first) {
+            (_, None) => String::new(),
+            (Cell::Who, Some(g)) => {
+                format!("{} is hosting nearby", crate::ui::ellipsize(&g.host, 18))
+            }
+            (Cell::Join, Some(g)) => crate::lan::button_text(g),
+        };
+        if t.0 != want {
+            t.0 = want;
+        }
+    }
+    for (row, mut n) in &mut rows {
+        n.display = if lan.0.get(row.0).is_some() {
+            Display::Flex
+        } else {
+            Display::None
+        };
+    }
+    for (name, mut t) in &mut names {
+        let want = lan
+            .0
+            .get(name.0)
+            .map(|g| format!("{}'s commune", crate::ui::ellipsize(&g.host, 20)))
+            .unwrap_or_default();
+        if t.0 != want {
+            t.0 = want;
+        }
+    }
+    for mut n in &mut empty {
+        n.display = if lan.0.is_empty() {
+            Display::Flex
+        } else {
+            Display::None
+        };
+    }
 }
 
 /// The settings notebook (`ui::settings_panel`).
@@ -1002,7 +1335,7 @@ fn menu_shortcuts(
     }
 }
 
-/// Tint the status pill: green for good news, red for trouble.
+/// Tint the news pills: butter for trouble, slime for good news.
 fn style_status(
     status: Res<NetStatus>,
     mut pill: Query<(&mut Node, &mut BackgroundColor), With<StatusPill>>,
@@ -1014,13 +1347,12 @@ fn style_status(
     let m = status.message.to_lowercase();
     let bad = m.contains("could not") || m.contains("doesn't") || m.contains("first");
     let good = m.contains("hosting") || m.contains("connected!");
-    // Never red vs green (UI direction E): butter for trouble.
     let tint = if bad {
-        crate::theme::indigo::BUTTER
+        theme::kit::BUTTER_400
     } else if good {
-        crate::theme::indigo::PERIWINKLE
+        theme::kit::SLOP_400
     } else {
-        crate::theme::indigo::CREAM
+        theme::kit::TEXT
     };
     for (mut node, mut bg) in &mut pill {
         node.display = if m.is_empty() {
@@ -1028,7 +1360,7 @@ fn style_status(
         } else {
             Display::Flex
         };
-        bg.0 = crate::theme::indigo::RAISED;
+        bg.0 = theme::kit::SOOT_900;
     }
     for (l, mut c) in &mut label {
         if matches!(l, Label::Status) {
@@ -1181,20 +1513,26 @@ fn refresh_labels(
     client: Option<Res<IrohClient>>,
     joining: Option<Res<crate::net::JoinTask>>,
     time: Res<Time>,
-    lan: Res<crate::lan::LanGames>,
-    mut texts: Query<(&mut Text, &Label)>,
+    mut texts: Query<(&mut Text, &Label, Option<&mut TextColor>)>,
     buttons: Query<(&Label, &Children), Without<Text>>,
     mut child_texts: Query<&mut Text, Without<Label>>,
 ) {
-    for (mut t, label) in &mut texts {
+    for (mut t, label, color) in &mut texts {
         let new = match label {
             Label::Status => status.message.clone(),
-            Label::Code if code.0.is_empty() => "Paste code or share link…".into(),
+            Label::Code if code.0.is_empty() => "paste the host's code here".into(),
             Label::Code => code.0.clone(),
             Label::CodeTail if code.0.is_empty() => "(empty: pick 0-f, or Paste)".into(),
             Label::CodeTail => format!("{}  ({})", tail(&code.0, 22), code.0.len()),
-            Label::JoinButton | Label::LanButton => continue,
+            Label::JoinButton => continue,
         };
+        if let (Label::Code, Some(mut c)) = (label, color) {
+            c.0 = if code.0.is_empty() {
+                theme::kit::CARD_500
+            } else {
+                theme::kit::INK
+            };
+        }
         if t.0 != new {
             t.0 = new;
         }
@@ -1203,23 +1541,17 @@ fn refresh_labels(
     let join = if connecting.pending.is_some() || client.is_some() || joining.is_some() {
         format!("Joining{dots}")
     } else {
-        "Join with a code".to_string()
-    };
-    let lan = match lan.0.first() {
-        Some(game) => crate::lan::button_text(game),
-        None => "Looking for friends near you...".to_string(),
+        "Join".to_string()
     };
     for (label, children) in &buttons {
-        let join = match label {
-            Label::JoinButton => &join,
-            Label::LanButton => &lan,
-            _ => continue,
-        };
+        if !matches!(label, Label::JoinButton) {
+            continue;
+        }
         for child in children.iter() {
             if let Ok(mut t) = child_texts.get_mut(child)
-                && t.0 != *join
+                && t.0 != join
             {
-                t.0.clone_from(join);
+                t.0.clone_from(&join);
             }
         }
     }
@@ -1273,5 +1605,32 @@ mod tests {
         assert_eq!(hex, "0123456789abcdef");
         assert_eq!(tail("0123456789", 4), "…6789");
         assert_eq!(tail("abc", 4), "abc");
+    }
+
+    #[test]
+    fn b_cancels_a_join_and_is_spent() {
+        let mut app = App::new();
+        app.init_resource::<ButtonInput<KeyCode>>()
+            .init_resource::<NetStatus>()
+            .insert_resource(Connecting {
+                pending: Some(("beef".into(), 5)),
+                waited: 1.0,
+            })
+            .add_systems(Update, cancel_join);
+        app.world_mut()
+            .resource_mut::<ButtonInput<KeyCode>>()
+            .press(KeyCode::Escape);
+        app.update();
+        assert!(app.world().resource::<Connecting>().pending.is_none());
+        // The join card behind it must not also see this Esc.
+        assert!(
+            !app.world()
+                .resource::<ButtonInput<KeyCode>>()
+                .just_pressed(KeyCode::Escape)
+        );
+        assert_eq!(
+            app.world().resource::<NetStatus>().message,
+            "Join cancelled."
+        );
     }
 }

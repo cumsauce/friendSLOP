@@ -12,7 +12,7 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::wallet::Cash;
+use super::wallet::{Cash, Doubloons};
 use crate::AppState;
 use crate::features::fps::Walker;
 use crate::features::interact::{Clickable, Clicked, deny, in_reach};
@@ -33,8 +33,12 @@ pub struct HatKind {
 #[derive(Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
     pub hats: Vec<HatKind>,
+    /// The bodega takes pirate doubloons too (#215): this many dollars each.
+    pub doubloon_dollars: u32,
     /// Bought ({hat}, {price}, {cash}).
     pub bought_line: String,
+    /// Bought with doubloons ({hat}, {price}, {cash}, {doubloons} spent).
+    pub doubloon_line: String,
     /// Can't pay ({hat}, {price}, {cash}).
     pub broke_line: String,
     /// Took it off ({hat}).
@@ -85,18 +89,29 @@ pub enum Deal {
     Off,
     /// Too poor.
     Broke,
-    /// Pay and wear it.
-    Buy,
+    /// Pay (dollars, doubloons) and wear it.
+    Buy(u32, u32),
+}
+
+/// Pure: how to pay `price` dollars: your dollars first, then doubloons worth
+/// `rate` dollars each for what's left. `None` if you can't.
+pub fn pay(price: u32, cash: u32, doubloons: u32, rate: u32) -> Option<(u32, u32)> {
+    if cash >= price {
+        return Some((price, 0));
+    }
+    let short = price - cash;
+    let need = short.div_ceil(rate.max(1));
+    (rate > 0 && doubloons >= need).then_some((cash, need))
 }
 
 /// Pure: the deal.
-pub fn deal(now: Hat, pick: u8, price: u32, cash: u32) -> Deal {
+pub fn deal(now: Hat, pick: u8, price: u32, cash: u32, doubloons: u32, rate: u32) -> Deal {
     if now.0 == Some(pick) {
-        Deal::Off
-    } else if cash < price {
-        Deal::Broke
-    } else {
-        Deal::Buy
+        return Deal::Off;
+    }
+    match pay(price, cash, doubloons, rate) {
+        Some((d, b)) => Deal::Buy(d, b),
+        None => Deal::Broke,
     }
 }
 
@@ -138,7 +153,7 @@ fn pick(
     ev: On<FromClient<PickHat>>,
     mut commands: Commands,
     walkers: Query<(&PlayerOwner, &Walker)>,
-    mut buyers: Query<(&Player, &PlayerOwner, &mut Cash, &mut Hat)>,
+    mut buyers: Query<(&Player, &PlayerOwner, &mut Cash, &mut Doubloons, &mut Hat)>,
 ) {
     let t = tuning();
     let Some(kind) = t.hats.get(ev.0 as usize) else {
@@ -153,10 +168,19 @@ fn pick(
         ClientId::Server => None,
         ClientId::Client(c) => Some(c),
     };
-    let Some((player, _, mut cash, mut hat)) = buyers.iter_mut().find(|b| b.1.0 == owner) else {
+    let Some((player, _, mut cash, mut booty, mut hat)) =
+        buyers.iter_mut().find(|b| b.1.0 == owner)
+    else {
         return;
     };
-    let text = match deal(*hat, ev.0, kind.price, cash.dollars) {
+    let text = match deal(
+        *hat,
+        ev.0,
+        kind.price,
+        cash.dollars,
+        booty.0,
+        t.doubloon_dollars,
+    ) {
         Deal::Off => {
             *hat = Hat(None);
             fill(&t.off_line, &kind.name, kind.price, cash.dollars)
@@ -166,10 +190,17 @@ fn pick(
             deny(&mut commands, ev.client_id, text);
             return;
         }
-        Deal::Buy => {
-            cash.dollars -= kind.price;
+        Deal::Buy(dollars, doubloons) => {
+            cash.dollars -= dollars;
+            booty.0 -= doubloons;
             *hat = Hat(Some(ev.0));
-            fill(&t.bought_line, &kind.name, kind.price, cash.dollars)
+            let line = if doubloons > 0 {
+                &t.doubloon_line
+            } else {
+                &t.bought_line
+            };
+            fill(line, &kind.name, kind.price, cash.dollars)
+                .replace("{doubloons}", &doubloons.to_string())
         }
     };
     commands.server_trigger(ToClients {
@@ -312,15 +343,26 @@ mod tests {
         for h in &t.hats {
             assert!(!h.name.is_empty() && h.model.starts_with("models/hats/") && h.price > 0);
         }
+        assert!(t.doubloon_dollars > 0 && t.doubloon_line.contains("{doubloons}"));
         assert!(!t.bought_line.is_empty() && !t.broke_line.is_empty() && !t.off_line.is_empty());
     }
 
     #[test]
     fn buying_swapping_and_taking_off() {
-        assert_eq!(deal(Hat(None), 0, 10, 5), Deal::Broke);
-        assert_eq!(deal(Hat(None), 0, 10, 10), Deal::Buy);
-        assert_eq!(deal(Hat(Some(1)), 0, 10, 50), Deal::Buy);
-        assert_eq!(deal(Hat(Some(0)), 0, 10, 0), Deal::Off);
+        assert_eq!(deal(Hat(None), 0, 10, 5, 0, 3), Deal::Broke);
+        assert_eq!(deal(Hat(None), 0, 10, 10, 0, 3), Deal::Buy(10, 0));
+        assert_eq!(deal(Hat(Some(1)), 0, 10, 50, 0, 3), Deal::Buy(10, 0));
+        assert_eq!(deal(Hat(Some(0)), 0, 10, 0, 0, 3), Deal::Off);
+    }
+
+    #[test]
+    fn doubloons_top_up_your_dollars() {
+        // $4 short at 3 dollars a doubloon: two doubloons.
+        assert_eq!(pay(10, 6, 2, 3), Some((6, 2)));
+        assert_eq!(pay(10, 6, 1, 3), None);
+        assert_eq!(pay(10, 0, 4, 3), Some((0, 4)));
+        // A bodega that takes no doubloons says no.
+        assert_eq!(pay(10, 6, 99, 0), None);
         assert_eq!(
             fill("{hat} ${price} left ${cash}", "TAX ME", 30, 4),
             "TAX ME $30 left $4"

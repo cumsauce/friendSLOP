@@ -283,7 +283,7 @@ fn handle_net_commands(
                         continue;
                     }
                 };
-                status.message = "Connecting through iroh's relay...".into();
+                status.message = crate::input::fill("Connecting... {back} cancels.");
                 commands.queue(teardown_transport);
                 commands.insert_resource(join(id));
             }

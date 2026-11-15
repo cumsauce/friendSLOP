@@ -39,6 +39,7 @@ impl Plugin for MenuPlugin {
                     menu_shortcuts,
                     style_status,
                     picker_esc,
+                    cancel_join,
                 )
                     .run_if(in_state(AppState::Menu)),
             )
@@ -341,6 +342,24 @@ fn picker_esc(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
     }
 }
 
+/// B (Esc) calls off a join in progress: the button went to "Joining..." and
+/// nothing else would end it before the timeout.
+fn cancel_join(
+    keys: Res<ButtonInput<KeyCode>>,
+    client: Option<Res<IrohClient>>,
+    mut connecting: ResMut<Connecting>,
+    mut status: ResMut<NetStatus>,
+    mut commands: Commands,
+) {
+    if !keys.just_pressed(KeyCode::Escape) || (connecting.pending.is_none() && client.is_none()) {
+        return;
+    }
+    connecting.pending = None;
+    connecting.waited = 0.0;
+    commands.queue(crate::net::teardown_transport);
+    status.message = "Join cancelled.".into();
+}
+
 /// A button's resting color, brightened while hovered.
 #[derive(Component, Clone, Copy)]
 pub(crate) struct BaseColor(pub(crate) Color);
@@ -361,7 +380,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     use crate::ui::{at, body, head};
     let logo: Handle<Image> = assets.map(|a| a.load("ui/logo.png")).unwrap_or_default();
     let b = 2.0;
-    let cover_button = |label: &str, fill: Color, ink: Color, h: f32, y: f32| {
+    let cover_button = |label: &str, size: f32, fill: Color, ink: Color, h: f32, y: f32| {
         (
             Node {
                 width: px(362),
@@ -381,7 +400,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             UiTransform::default(),
             children![(
                 Text::new(label.to_string()),
-                head(23.0, ink),
+                head(size, ink),
                 at(16.0, 9.0, b)
             )],
         )
@@ -433,17 +452,24 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                 body(17.0, CREAM),
                 at(26.0, 151.0, b),
             ));
-            ui.spawn(cover_button("Host a commune", BUTTER, I_INK, 54.0, 179.0))
-                .observe(
-                    |_: On<PointerClick>,
-                     mut net: MessageWriter<NetCommand>,
-                     mut connecting: ResMut<Connecting>| {
-                        connecting.pending = None;
-                        net.write(NetCommand::Host);
-                    },
-                );
+            ui.spawn(cover_button(
+                "Host a commune",
+                23.0,
+                BUTTER,
+                I_INK,
+                54.0,
+                179.0,
+            ))
+            .observe(
+                |_: On<PointerClick>,
+                 mut net: MessageWriter<NetCommand>,
+                 mut connecting: ResMut<Connecting>| {
+                    connecting.pending = None;
+                    net.write(NetCommand::Host);
+                },
+            );
             ui.spawn((
-                cover_button("Join with a code", RAISED, CREAM, 52.0, 252.0),
+                cover_button("Join with a code", 23.0, RAISED, CREAM, 52.0, 252.0),
                 Label::JoinButton,
             ))
             .observe(
@@ -496,7 +522,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             );
             // LAN discovery (#410): a game hosted on the same network.
             ui.spawn((
-                cover_button("", PERIWINKLE, I_INK, 46.0, 381.0),
+                cover_button("", 19.0, PERIWINKLE, I_INK, 46.0, 381.0),
                 Label::LanButton,
             ))
             .observe(
@@ -508,7 +534,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
                  client: Option<Res<IrohClient>>| {
                     let Some(game) = games.0.first() else {
                         status.message =
-                            "No games on your network yet: ask a friend to host.".into();
+                            "Nobody near you is hosting yet: ask a friend to host.".into();
                         return;
                     };
                     code.0.clone_from(&game.code);
@@ -517,6 +543,7 @@ fn spawn_menu(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             );
             ui.spawn(cover_button(
                 "Character creator",
+                23.0,
                 RAISED,
                 CREAM,
                 52.0,
@@ -1009,7 +1036,7 @@ fn join(code: &JoinCode, connecting: &mut Connecting, status: &mut NetStatus, bu
     if code.0.is_empty() {
         status.message = "Type or paste a join code first.".into();
     } else if connecting.pending.is_none() {
-        status.message = "Connecting... (this can take a few seconds)".into();
+        status.message = crate::input::fill("Connecting... {back} cancels.");
         connecting.pending = Some((code.0.clone(), 2));
         connecting.waited = 0.0;
     }
@@ -1171,7 +1198,7 @@ fn refresh_labels(
     };
     let lan = match lan.0.first() {
         Some(game) => crate::lan::button_text(game),
-        None => "Looking for games on your Wi-Fi...".to_string(),
+        None => "Looking for friends near you...".to_string(),
     };
     for (label, children) in &buttons {
         let join = match label {

@@ -243,7 +243,7 @@ fn handle_net_commands(
                         continue;
                     }
                 };
-                status.message = "Connecting...".into();
+                status.message = crate::input::fill("Connecting... {back} cancels.");
                 commands.queue(teardown_transport);
                 // Blocks up to `connect_timeout` (15s). Fine for now; a feature
                 // can move this to a background task if it gets annoying.

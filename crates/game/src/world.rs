@@ -100,16 +100,16 @@ fn update_hud(
 ) {
     let n = players.iter().count();
     let mut lines = vec![format!(
-        "{n} {}  |  H help",
+        "{n} {}  |  {{help}} help",
         if n == 1 { "player" } else { "players" },
     )];
     if let Some(code) = &status.join_code {
         lines.push(format!(
-            "join code {}  (C copies)",
+            "join code {}  ({{copy}} copies)",
             crate::hud::short_code(code)
         ));
     }
-    let text = lines.join("\n");
+    let text = crate::input::fill(&lines.join("\n"));
     for mut t in &mut hud {
         if t.0 != text {
             t.0.clone_from(&text);

@@ -14,6 +14,12 @@ impl Plugin for PerfPlugin {
         if mode == "3" {
             app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin)
                 .add_systems(Last, gpu_passes);
+            if let Some(render) = app.get_sub_app_mut(bevy::render::RenderApp) {
+                render.add_systems(
+                    bevy::render::Render,
+                    draws.in_set(bevy::render::RenderSystems::Cleanup),
+                );
+            }
         }
         if matches!(mode.as_str(), "1" | "2" | "3") {
             if !app.is_plugin_added::<FrameTimeDiagnosticsPlugin>() {
@@ -177,4 +183,75 @@ fn breakdown(
     for (k, (n, sh)) in rows.iter().take(25) {
         info!("perf lights: {n:5} ({sh} with shadows) {k}");
     }
+}
+
+/// One render phase's draws, summed over its views: `(views, draws, entities
+/// drawn one by one)`. A draw is a multidraw batch set or a batch; each costs
+/// the CPU a pipeline, bind group and buffer switch, whatever it draws.
+fn phase_draws<P: bevy::render::render_phase::BinnedPhaseItem>(
+    phases: &bevy::render::render_phase::ViewBinnedRenderPhases<P>,
+) -> (usize, usize, usize) {
+    let mut sum = (0, 0, 0);
+    for phase in phases.0.values() {
+        let single: usize = phase
+            .unbatchable_meshes
+            .values()
+            .map(|u| u.entities.len())
+            .sum();
+        let draws = phase.multidrawable_meshes.len() + phase.batchable_meshes.len() + single;
+        if draws > 0 {
+            sum.0 += 1;
+        }
+        sum.1 += draws;
+        sum.2 += single;
+    }
+    sum
+}
+
+/// `FRIENDSLOP_PERF=3`: every 5 s, how many draws each render phase makes
+/// (render world). Draw calls, not triangles, are what the CPU pays for.
+#[allow(clippy::too_many_arguments)]
+fn draws(
+    mut last: Local<Option<bevy::platform::time::Instant>>,
+    opaque: Res<
+        bevy::render::render_phase::ViewBinnedRenderPhases<bevy::core_pipeline::core_3d::Opaque3d>,
+    >,
+    mask: Res<
+        bevy::render::render_phase::ViewBinnedRenderPhases<
+            bevy::core_pipeline::core_3d::AlphaMask3d,
+        >,
+    >,
+    pre: Res<
+        bevy::render::render_phase::ViewBinnedRenderPhases<
+            bevy::core_pipeline::prepass::Opaque3dPrepass,
+        >,
+    >,
+    pre_mask: Res<
+        bevy::render::render_phase::ViewBinnedRenderPhases<
+            bevy::core_pipeline::prepass::AlphaMask3dPrepass,
+        >,
+    >,
+    shadow: Res<bevy::render::render_phase::ViewBinnedRenderPhases<bevy::pbr::Shadow>>,
+    blended: Res<
+        bevy::render::render_phase::ViewSortedRenderPhases<
+            bevy::core_pipeline::core_3d::Transparent3d,
+        >,
+    >,
+) {
+    if last.is_some_and(|at| at.elapsed().as_secs_f32() < 5.0) {
+        return;
+    }
+    *last = Some(bevy::platform::time::Instant::now());
+    let row = |name: &str, (views, draws, single): (usize, usize, usize)| {
+        format!("{name} {draws} in {views} views ({single} unbatched)")
+    };
+    let see_through: usize = blended.0.values().map(|p| p.items.len()).sum();
+    info!(
+        "perf draws: {} | {} | {} | {} | {} | transparent {see_through}",
+        row("opaque", phase_draws(&opaque)),
+        row("alpha-cut", phase_draws(&mask)),
+        row("prepass", phase_draws(&pre)),
+        row("prepass alpha-cut", phase_draws(&pre_mask)),
+        row("shadow", phase_draws(&shadow)),
+    );
 }

@@ -20,7 +20,9 @@
 //!   on the next page load. On desktop "Fast" (the Low preset) renders the
 //!   world at `fast_scale` of the window (`data/base/graphics.ron`) and
 //!   stretches it to fit, live; the UI stays sharp. A weak GPU (the Steam
-//!   Deck, #393) spends most of its frame shading pixels.
+//!   Deck, #393) spends most of its frame shading pixels. Sharp or Fast,
+//!   the world is never rendered at more than `max_megapixels` (a Retina
+//!   screen has four times the pixels of a plain one the same size).
 //! - Grass & particles: half or full (applies the next time a world is built).
 //! - VSync and Fullscreen: the window.
 //!
@@ -51,6 +53,31 @@ pub const HDR_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
 pub struct Tuning {
     /// Desktop "Fast": the world's render size as a fraction of the window's.
     pub fast_scale: f32,
+    /// How many samples ambient occlusion takes per pixel.
+    pub ssao_quality: SsaoQuality,
+    /// Desktop: the most pixels (millions) the world is ever rendered at.
+    /// A bigger window is rendered at this many and stretched. 0 = no cap.
+    pub max_megapixels: f32,
+}
+
+/// Ambient occlusion's sample count, cheapest first.
+#[derive(serde::Deserialize, Default, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SsaoQuality {
+    #[default]
+    Low,
+    Medium,
+    High,
+}
+
+impl SsaoQuality {
+    fn level(self) -> bevy::pbr::ScreenSpaceAmbientOcclusionQualityLevel {
+        use bevy::pbr::ScreenSpaceAmbientOcclusionQualityLevel as Level;
+        match self {
+            Self::Low => Level::Low,
+            Self::Medium => Level::Medium,
+            Self::High => Level::High,
+        }
+    }
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -464,7 +491,13 @@ fn apply_camera(
         // for itself even on Low, where it halves the main pass.
         c.insert(bevy::core_pipeline::prepass::DepthPrepass);
         if q.ssao {
-            c.insert(ScreenSpaceAmbientOcclusion::default());
+            // Bevy's default (High) took 2.6 ms of a 12.6 ms GPU frame at
+            // 2560x1440 in the forest; Low takes 1.4 and its blur hides the
+            // difference.
+            c.insert(ScreenSpaceAmbientOcclusion {
+                quality_level: TUNING.get().ssao_quality.level(),
+                ..default()
+            });
         } else {
             c.remove::<ScreenSpaceAmbientOcclusion>();
         }
@@ -525,16 +558,41 @@ mod tests {
     #[test]
     fn fast_renders_fewer_pixels_and_sharp_none_less() {
         let w = UVec2::new(1280, 800);
-        assert_eq!(render_scale::size(w, true, 0.7), None);
-        assert_eq!(render_scale::size(w, false, 1.0), None);
+        assert_eq!(render_scale::size(w, true, 0.7, 0.0), None);
+        assert_eq!(render_scale::size(w, false, 1.0, 0.0), None);
         assert_eq!(
-            render_scale::size(w, false, 0.7),
+            render_scale::size(w, false, 0.7, 0.0),
             Some(UVec2::new(896, 560))
         );
         assert_eq!(
-            render_scale::size(UVec2::ZERO, false, 0.5),
+            render_scale::size(UVec2::ZERO, false, 0.5, 0.0),
             Some(UVec2::ONE)
         );
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn big_windows_render_at_the_pixel_budget() {
+        // A window under the budget is drawn straight to the screen.
+        assert_eq!(
+            render_scale::size(UVec2::new(1920, 1080), true, 0.7, 2.5),
+            None
+        );
+        // A Retina fullscreen is shrunk to the budget, same shape.
+        let full = UVec2::new(3024, 1964);
+        let Some(got) = render_scale::size(full, true, 0.7, 2.5) else {
+            panic!("5.9 million pixels is over a 2.5 million budget");
+        };
+        let pixels = got.x as f32 * got.y as f32;
+        assert!((pixels - 2.5e6).abs() < 2.0e4, "{got}");
+        let shape = |v: UVec2| v.x as f32 / v.y as f32;
+        assert!((shape(got) - shape(full)).abs() < 0.01);
+        // Fast already under the budget keeps its own size; no cap at 0.
+        assert_eq!(
+            render_scale::size(UVec2::new(1280, 800), false, 0.7, 2.5),
+            Some(UVec2::new(896, 560))
+        );
+        assert_eq!(render_scale::size(full, true, 0.7, 0.0), None);
     }
 
     #[test]
@@ -550,6 +608,10 @@ mod tests {
         assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
         let s = TUNING.get().fast_scale;
         assert!(s > 0.0 && s <= 1.0);
+        // The file says which quality it wants (a missing field would not parse).
+        let text = String::from_utf8_lossy(&bytes);
+        assert!(text.contains("ssao_quality") && text.contains("max_megapixels"));
+        assert!(TUNING.get().max_megapixels >= 0.0);
     }
 
     #[test]
@@ -579,7 +641,8 @@ mod tests {
 /// Desktop "Fast" resolution: the main camera draws into a smaller picture,
 /// and a 2D camera on the window stretches it over the screen. Being the
 /// highest window camera, that one also draws the UI, at full sharpness.
-/// Sharp leaves the main camera on the window, exactly as before.
+/// Sharp leaves the main camera on the window, unless the window has more
+/// pixels than the budget (`max_megapixels`): then it's stretched too.
 #[cfg(not(target_arch = "wasm32"))]
 mod render_scale {
     use bevy::camera::visibility::RenderLayers;
@@ -601,12 +664,33 @@ mod render_scale {
 
     /// The world's render size for a window this many physical pixels big,
     /// or `None` to draw straight to the window.
-    pub(super) fn size(window: UVec2, sharp: bool, scale: f32) -> Option<UVec2> {
-        if sharp || !(scale > 0.0 && scale < 1.0) {
+    ///
+    /// Fast shrinks each side by `scale`; then, Sharp or Fast, anything over
+    /// `max_megapixels` million pixels is shrunk to that many (0 = no cap).
+    /// A Retina screen has four times the pixels of its size in points, and
+    /// the GPU's frame is mostly shading them.
+    pub(super) fn size(
+        window: UVec2,
+        sharp: bool,
+        scale: f32,
+        max_megapixels: f32,
+    ) -> Option<UVec2> {
+        let mut factor = if sharp || !(scale > 0.0 && scale < 1.0) {
+            1.0
+        } else {
+            scale
+        };
+        let pixels = window.x as f32 * window.y as f32 * factor * factor;
+        let budget = max_megapixels * 1.0e6;
+        if budget > 0.0 && pixels > budget {
+            factor *= (budget / pixels).sqrt();
+        }
+        // Within a hair of the window's own size: not worth a stretch.
+        if factor > 0.97 {
             return None;
         }
         Some(
-            (window.as_vec2() * scale)
+            (window.as_vec2() * factor)
                 .round()
                 .as_uvec2()
                 .max(UVec2::ONE),
@@ -629,6 +713,7 @@ mod render_scale {
             window.resolution.physical_size(),
             q.sharp,
             TUNING.get().fast_scale,
+            TUNING.get().max_megapixels,
         );
         let has_main = !main.is_empty();
         let Some(want) = want.filter(|_| has_main) else {

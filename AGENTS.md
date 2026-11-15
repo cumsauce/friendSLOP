@@ -323,7 +323,14 @@ Foliage: diffuse transmission on a material lights every pixel twice (every lamp
 so leaves have it off (`data/game/trees.ron`); alpha-cut leaves rely on the camera's depth prepass
 (always on) to shade only their front layer. The log shows median, p95 and
 worst frame time: the median is the steady cost, the others are hitches.
-`FRIENDSLOP_PERF=3` also logs each render pass's GPU time (timestamp queries; Vulkan/DX12).
+`FRIENDSLOP_PERF=3` also logs each render pass's GPU time (timestamp queries; Vulkan/DX12) and
+how many draws each render phase makes. On a Mac there are no pass times: run with
+`MTL_HUD_ENABLED=1 MTL_HUD_LOG_ENABLED=1` and the log's `metal-HUD:` lines pair each frame's
+interval with its GPU time (the GPU clocks down when it has slack, so compare runs at the same
+frame rate), and `sample <pid> 5` shows where the CPU goes. The window always presents in step
+with the screen, so frame times snap to its refresh (8.3, 16.7, 25 ms): read GPU time, not fps.
+Dev builds switch off objc2's debug assertions (`Cargo.toml`): with them every Metal call is
+type-checked at run time, which was most of the render thread.
 
 ### Actions and button hints
 

@@ -5,4 +5,15 @@
     // weak GPU (a Steam Deck) shades fewer pixels. 0.7 is about half the pixels.
     // The menus and HUD stay sharp. 1 turns it off.
     fast_scale: 0.7,
+    // Ambient occlusion's samples per pixel: Low, Medium or High. It's blurred
+    // afterwards, so Low looks the same in play and costs about half of High
+    // (1.4 ms against 2.6 ms of GPU time a frame at 2560x1440). Read when
+    // ambient occlusion is switched on or the game starts.
+    ssao_quality: Low,
+    // Desktop: the most pixels, in millions, the world is ever rendered at.
+    // A window with more (a Retina screen has four times the pixels of its
+    // size: fullscreen on a 14" MacBook is 5.9) renders at this many and is
+    // stretched to fit; the menus and HUD stay sharp. 1920x1080 is 2.1,
+    // 2560x1440 is 3.7. 0 = no cap.
+    max_megapixels: 2.6,
 )

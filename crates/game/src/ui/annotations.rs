@@ -11,7 +11,7 @@ use crate::atmosphere::{DAY_NIGHT, DayStart, daylight, sun_height, time_of_day};
 use crate::features::mute_spell::Silenced;
 use crate::features::stillness::Stillness;
 use crate::player::Player;
-use crate::theme::indigo::CREAM;
+use crate::theme::kit::TEXT;
 use friendslop_base::ui::StatusMount;
 
 /// The annotation lines: `assets/data/text/annotations.ron` (read at run time).
@@ -76,7 +76,7 @@ fn mount(mut commands: Commands, mounts: Query<Entity, Added<StatusMount>>) {
         commands.entity(m).with_child((
             Annotations,
             Text::new(""),
-            body(9.0, CREAM.with_alpha(0.75)),
+            body(crate::theme::kit::size::LABEL, TEXT.with_alpha(0.85)),
             TextLayout::justify(Justify::Right),
             Node {
                 width: Val::Percent(100.0),

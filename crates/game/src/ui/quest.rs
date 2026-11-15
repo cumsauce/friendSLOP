@@ -6,7 +6,7 @@ use bevy::prelude::*;
 use super::{HudRoot, at, body, head};
 use crate::AppState;
 use crate::features::campaign::{CHAPTERS, Campaign, heaven_tiers, next_line};
-use crate::theme::indigo::{BORDER, CREAM, EDGE, INK, PERIWINKLE};
+use crate::theme::kit::{CARD_100, CARD_300, CARD_500, EDGE, INK, SLOP_400, TAPE_200, size};
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
 enum Line {
@@ -18,6 +18,14 @@ enum Line {
 
 #[derive(Component)]
 struct QuestCard;
+
+/// The fill of the jobs-done meter under the title.
+#[derive(Component)]
+struct JobsFill;
+
+/// The whole jobs meter (hidden while the card is folded).
+#[derive(Component)]
+struct JobsBar;
 
 pub fn plugin(app: &mut App) {
     app.add_systems(
@@ -39,7 +47,7 @@ pub fn full_card(age: f32, t: &crate::hud::Tuning) -> bool {
 
 /// Card height and the "now:" line's top, full or folded.
 fn shape(full: bool) -> (f32, f32) {
-    if full { (148.0, 100.0) } else { (52.0, 8.0) }
+    if full { (156.0, 106.0) } else { (52.0, 8.0) }
 }
 
 /// The four lines for a campaign state.
@@ -60,7 +68,7 @@ pub fn lines(c: &Campaign) -> [String; 4] {
 
 fn spawn(mut commands: Commands, root: Query<Entity, With<HudRoot>>) {
     let Ok(root) = root.single() else { return };
-    let b = 2.0;
+    let b = 0.0;
     commands.entity(root).with_child((
         QuestCard,
         Node {
@@ -68,41 +76,74 @@ fn spawn(mut commands: Commands, root: Query<Entity, With<HudRoot>>) {
             left: px(EDGE),
             top: px(EDGE),
             width: px(390),
-            height: px(148),
-            border: UiRect::all(px(b)),
-            border_radius: BorderRadius::all(px(18)),
+            height: px(156),
+            border_radius: BorderRadius::all(px(4)),
             ..default()
         },
-        BackgroundColor(INK),
-        BorderColor::all(BORDER),
+        BackgroundColor(CARD_100),
+        // Cardboard on its shade layer, held on by a strip of tape.
+        BoxShadow::new(CARD_500, px(4), px(5), px(0), px(0)),
+        UiTransform::from_rotation(Rot2::degrees(-0.6)),
         Visibility::Hidden,
         children![
             (
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: px(-9),
+                    left: px(150),
+                    width: px(80),
+                    height: px(20),
+                    ..default()
+                },
+                BackgroundColor(TAPE_200.with_alpha(0.9)),
+                UiTransform::from_rotation(Rot2::degrees(-3.0)),
+            ),
+            (
                 Line::Chapter,
                 Text::new(""),
-                body(16.0, PERIWINKLE),
-                at(16.0, 10.0, b)
+                body(size::LABEL, INK),
+                at(16.0, 12.0, b)
             ),
             (
                 Line::Title,
                 Text::new(""),
-                head(25.0, CREAM),
-                at(16.0, 34.0, b)
+                head(size::H2, INK),
+                at(16.0, 32.0, b)
             ),
             (
                 Line::Progress,
                 Text::new(""),
-                body(17.0, CREAM),
-                at(16.0, 70.0, b)
+                body(size::LABEL, INK),
+                at(16.0, 68.0, b)
+            ),
+            (
+                JobsBar,
+                Node {
+                    width: px(390.0 - 32.0),
+                    height: px(10),
+                    border_radius: BorderRadius::all(px(5)),
+                    overflow: Overflow::clip(),
+                    ..at(16.0, 92.0, b)
+                },
+                BackgroundColor(CARD_300),
+                children![(
+                    JobsFill,
+                    Node {
+                        width: px(0),
+                        height: percent(100),
+                        ..default()
+                    },
+                    BackgroundColor(SLOP_400),
+                )],
             ),
             (
                 Line::Next,
                 Text::new(""),
-                body(16.0, PERIWINKLE),
+                body(size::LABEL, INK),
                 // Wraps inside the card: two lines fit.
                 Node {
-                    width: px(390.0 - 2.0 * b - 32.0),
-                    ..at(16.0, 100.0, b)
+                    width: px(390.0 - 32.0),
+                    ..at(16.0, 106.0, b)
                 }
             ),
         ],
@@ -116,7 +157,12 @@ fn update(
     mut last: Local<f32>,
     campaign: Query<&Campaign>,
     mut card: Query<(&mut Visibility, &mut Node), With<QuestCard>>,
-    mut texts: Query<(&Line, &mut Text, &mut Node), Without<QuestCard>>,
+    mut texts: Query<
+        (&Line, &mut Text, &mut Node),
+        (Without<QuestCard>, Without<JobsBar>, Without<JobsFill>),
+    >,
+    mut bar: Query<&mut Node, (With<JobsBar>, Without<QuestCard>)>,
+    mut fill: Query<&mut Node, (With<JobsFill>, Without<JobsBar>, Without<QuestCard>)>,
 ) {
     let Ok((mut vis, mut card_node)) = card.single_mut() else {
         return;
@@ -140,6 +186,19 @@ fn update(
     if card_node.height != px(h) {
         card_node.height = px(h);
     }
+    for mut node in &mut bar {
+        let d = if full { Display::Flex } else { Display::None };
+        if node.display != d {
+            node.display = d;
+        }
+    }
+    let share = c.done_count() as f32 / c.current().tasks.len().max(1) as f32;
+    for mut node in &mut fill {
+        let w = percent(share.clamp(0.0, 1.0) * 100.0);
+        if node.width != w {
+            node.width = w;
+        }
+    }
     for (line, mut text, mut node) in &mut texts {
         let d = if full || *line == Line::Next {
             Display::Flex
@@ -149,8 +208,8 @@ fn update(
         if node.display != d {
             node.display = d;
         }
-        if *line == Line::Next && node.top != px(next_top - 2.0) {
-            node.top = px(next_top - 2.0);
+        if *line == Line::Next && node.top != px(next_top) {
+            node.top = px(next_top);
         }
         let want = match line {
             Line::Chapter => &chapter,

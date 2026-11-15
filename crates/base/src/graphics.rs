@@ -303,7 +303,8 @@ impl GraphicsQuality {
         any.then_some(q)
     }
 
-    /// Browser builds (and `FRIENDSLOP_LOW=1`) start on Low, others on High.
+    /// Browser and Android builds (and `FRIENDSLOP_LOW=1`) start on Low,
+    /// others on High.
     pub fn platform_default() -> Self {
         let windowed = Self {
             shadows: false,
@@ -316,7 +317,7 @@ impl GraphicsQuality {
             vsync: true,
             fullscreen: false,
         };
-        if cfg!(target_arch = "wasm32")
+        if cfg!(any(target_arch = "wasm32", target_os = "android"))
             || std::env::var_os("FRIENDSLOP_LOW").is_some_and(|v| v != "0")
         {
             Preset::Low.apply(windowed)

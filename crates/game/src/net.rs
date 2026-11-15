@@ -6,6 +6,7 @@
 
 use std::net::SocketAddr;
 use std::str::FromStr;
+#[cfg(not(target_os = "android"))]
 use std::sync::Mutex;
 
 use bevy::prelude::*;
@@ -38,15 +39,17 @@ pub struct NetStatus {
 #[derive(Resource)]
 struct TokioRuntime(#[allow(dead_code)] tokio::runtime::Runtime);
 
-/// Kept alive so the copied join code stays on the clipboard (Linux drops it otherwise).
-#[derive(Resource, Default)]
-pub struct Clipboard(Mutex<Option<arboard::Clipboard>>);
-
 /// What the host hands friends: on the desktop, the bare join code.
 pub fn share_text(code: &str) -> String {
     code.to_string()
 }
 
+/// Kept alive so the copied join code stays on the clipboard (Linux drops it otherwise).
+#[cfg(not(target_os = "android"))]
+#[derive(Resource, Default)]
+pub struct Clipboard(Mutex<Option<arboard::Clipboard>>);
+
+#[cfg(not(target_os = "android"))]
 impl Clipboard {
     pub fn set(&self, text: &str) {
         let Ok(mut guard) = self.0.lock() else { return };
@@ -66,6 +69,24 @@ impl Clipboard {
             *guard = arboard::Clipboard::new().ok();
         }
         guard.as_mut()?.get_text().ok()
+    }
+}
+
+/// Android (#354): arboard has no Android backend, and the clipboard there
+/// needs the Java `ClipboardManager`. Copy and paste do nothing for now; the
+/// join code stays on screen to type in.
+#[cfg(target_os = "android")]
+#[derive(Resource, Default)]
+pub struct Clipboard;
+
+#[cfg(target_os = "android")]
+impl Clipboard {
+    pub fn set(&self, _text: &str) {
+        info!("no clipboard on Android yet");
+    }
+
+    pub fn get(&self) -> Option<String> {
+        None
     }
 }
 

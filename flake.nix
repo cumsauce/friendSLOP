@@ -5,6 +5,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     crane.url = "github:ipetkov/crane";
     flake-utils.url = "github:numtide/flake-utils";
+    # Android only (`nix develop .#android`): a Rust with the Android std libraries.
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -13,6 +18,7 @@
       nixpkgs,
       crane,
       flake-utils,
+      rust-overlay,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -75,6 +81,30 @@
         );
 
         ideaBot = pkgs.callPackage ./tools/idea-bot/package.nix { };
+
+        # Android (#354): SDK + NDK from nixpkgs' androidenv (unfree licences,
+        # accepted here so `nix develop .#android` needs no extra config).
+        androidPkgs = import nixpkgs {
+          inherit system;
+          overlays = [ rust-overlay.overlays.default ];
+          config = {
+            allowUnfree = true;
+            android_sdk.accept_license = true;
+          };
+        };
+        androidSdk =
+          (androidPkgs.androidenv.composeAndroidPackages {
+            platformVersions = [ "35" ];
+            buildToolsVersions = [ "35.0.0" ];
+            includeNDK = true;
+            ndkVersions = [ "27.2.12479018" ];
+          }).androidsdk;
+        androidRust = androidPkgs.rust-bin.stable.latest.default.override {
+          targets = [
+            "aarch64-linux-android"
+            "x86_64-linux-android"
+          ];
+        };
       in
       {
         packages = {
@@ -128,6 +158,18 @@
               export ALSA_PLUGIN_DIR ALSA_CONFIG_PATH
             fi
           '';
+        };
+
+        # `nix develop .#android`, then `scripts/build-android.sh` (#354).
+        devShells.android = androidPkgs.mkShell {
+          packages = [
+            androidRust
+            androidSdk
+            androidPkgs.cargo-apk
+            androidPkgs.jdk17_headless
+          ];
+          ANDROID_HOME = "${androidSdk}/libexec/android-sdk";
+          ANDROID_NDK_ROOT = "${androidSdk}/libexec/android-sdk/ndk/27.2.12479018";
         };
 
         formatter = pkgs.nixfmt-rfc-style;

@@ -6,7 +6,8 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::RepliconPlugins;
 use friendslop::net::NetCommand;
 
-fn main() -> AppExit {
+/// Also the Android entry point (crates/android includes this file).
+pub fn main() -> AppExit {
     let mut app = App::new();
     // Browser (#242): models ship gzipped; inflate them as they arrive.
     #[cfg(target_arch = "wasm32")]

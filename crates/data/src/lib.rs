@@ -39,11 +39,11 @@ pub struct Data<T> {
     parse: Parse<T>,
     value: RwLock<Option<Arc<T>>>,
     /// The file's modification time when it was last read (desktop).
-    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+    #[cfg_attr(any(target_arch = "wasm32", target_os = "android"), allow(dead_code))]
     stamp: RwLock<Option<std::time::SystemTime>>,
     /// The modification time of a version that didn't parse: it's not read
     /// again until the file changes (desktop).
-    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+    #[cfg_attr(any(target_arch = "wasm32", target_os = "android"), allow(dead_code))]
     failed: RwLock<Option<std::time::SystemTime>>,
 }
 
@@ -184,7 +184,7 @@ struct Entry<T> {
     value: Option<Arc<T>>,
     /// Read (or fetched) at least once, whether or not it parsed.
     tried: bool,
-    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+    #[cfg_attr(any(target_arch = "wasm32", target_os = "android"), allow(dead_code))]
     stamp: Option<std::time::SystemTime>,
 }
 
@@ -428,7 +428,7 @@ impl<T: Send + Sync> DataFile for Data<T> {
     }
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(any(target_arch = "wasm32", target_os = "android")))]
 mod disk {
     use std::path::PathBuf;
     use std::sync::RwLock;
@@ -489,7 +489,9 @@ mod disk {
     }
 }
 
-#[cfg(target_arch = "wasm32")]
+/// Browser and Android: no assets folder on disk (Android packs it into the
+/// APK), so files come through the asset server instead (plugin.rs).
+#[cfg(any(target_arch = "wasm32", target_os = "android"))]
 mod disk {
     use super::Data;
 

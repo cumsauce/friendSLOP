@@ -234,7 +234,19 @@ fn spawn(mut commands: Commands) {
         .add_child(panel);
 }
 
-fn keys(keys: Res<ButtonInput<KeyCode>>, overlay: Res<Overlay>, mut journal: ResMut<Journal>) {
+/// The tab `step` places along from `tab`, wrapping round.
+pub fn tab_step(tab: Tab, step: isize) -> Tab {
+    let n = Tab::ALL.len() as isize;
+    let at = Tab::ALL.iter().position(|t| *t == tab).unwrap_or(0) as isize;
+    Tab::ALL[(at + step).rem_euclid(n) as usize]
+}
+
+fn keys(
+    keys: Res<ButtonInput<KeyCode>>,
+    pads: Query<&Gamepad>,
+    overlay: Res<Overlay>,
+    mut journal: ResMut<Journal>,
+) {
     let tab_held = keys.pressed(KeyCode::Tab);
     // Esc goes to the chapter intro first when it's up.
     let esc = keys.just_pressed(KeyCode::Escape) && !overlay.intro;
@@ -251,6 +263,19 @@ fn keys(keys: Res<ButtonInput<KeyCode>>, overlay: Res<Overlay>, mut journal: Res
     }
     if journal.tab != tab {
         journal.tab = tab;
+    }
+    // A pad's bumpers turn the pages while the journal is up (LB back, RB on).
+    if kept || tab_held {
+        let turn = pads
+            .iter()
+            .map(|p| {
+                isize::from(p.just_pressed(GamepadButton::RightTrigger))
+                    - isize::from(p.just_pressed(GamepadButton::LeftTrigger))
+            })
+            .sum::<isize>();
+        if turn != 0 {
+            journal.tab = tab_step(journal.tab, turn);
+        }
     }
     // Tab released after a peek: back to the party page next time.
     if !kept && !tab_held && journal.tab != Tab::Party {
@@ -762,6 +787,13 @@ mod tests {
         assert!(s.contains("Fart gas: 40%"));
         assert!(s.contains("Your cat: 2.0×"));
         assert!(right_now(&[], None, None).is_empty());
+    }
+
+    #[test]
+    fn bumpers_wrap_round_the_tabs() {
+        assert_eq!(tab_step(Tab::Party, 1), Tab::Bag);
+        assert_eq!(tab_step(Tab::Party, -1), Tab::Credits);
+        assert_eq!(tab_step(Tab::Credits, 1), Tab::Party);
     }
 
     #[test]

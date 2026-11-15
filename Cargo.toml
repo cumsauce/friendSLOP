@@ -37,6 +37,16 @@ debug = "line-tables-only"
 opt-level = 3
 debug = "line-tables-only"
 
+# macOS: with debug assertions on, objc2 checks the type signature of every
+# Objective-C message at run time, and every Metal call wgpu makes is one.
+# Profiled in the forest, that check (and the threads queueing for the
+# Objective-C runtime's lock to do it) was most of the render thread: a dev
+# build drew 40 fps where a release build drew 60. Off, dev builds keep up.
+[profile.dev.package.objc2]
+opt-level = 3
+debug = "line-tables-only"
+debug-assertions = false
+
 # Proc macros (Bevy's derives, `bsn!`) and build scripts optimised too: the
 # macros run on every rebuild of the game crate, and run faster optimised.
 [profile.dev.build-override]

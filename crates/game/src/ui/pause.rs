@@ -97,7 +97,7 @@ pub fn plugin(app: &mut App) {
         );
 }
 
-fn open(panel: &Query<&mut Node, With<PausePanel>>) -> bool {
+fn open(panel: &Query<&Node, With<PausePanel>>) -> bool {
     panel.iter().any(|n| n.display != Display::None)
 }
 
@@ -117,7 +117,11 @@ fn esc(
         return;
     }
     let settings_up = settings.iter().any(|n| n.display != Display::None);
-    match esc_action(settings_up, open(&pause), overlay.journal || overlay.intro) {
+    match esc_action(
+        settings_up,
+        pause.iter().any(|n| n.display != Display::None),
+        overlay.journal || overlay.intro,
+    ) {
         EscAction::CloseSettings => {
             for mut n in &mut settings {
                 n.display = Display::None;
@@ -180,7 +184,7 @@ fn copy_code(status: &NetStatus, clip: &Clipboard, toast: &mut Toast) {
 
 fn copy_from_pad(
     pads: Query<&Gamepad>,
-    pause: Query<&mut Node, With<PausePanel>>,
+    pause: Query<&Node, With<PausePanel>>,
     status: Res<NetStatus>,
     clip: Res<Clipboard>,
     mut toast: ResMut<Toast>,
@@ -251,14 +255,14 @@ fn spawn(mut commands: Commands) {
                             super::settings_panel::toggle_any(&mut s);
                         },
                     );
-                col.spawn((
+                let mut leave = col.spawn((
                     LeaveButton,
-                    Node {
-                        margin: UiRect::top(px(40)),
-                        ..default()
-                    },
-                    children![kit::button(Look::Danger, "Leave game", percent(100))],
+                    kit::button(Look::Danger, "Leave game", percent(100)),
                 ));
+                leave
+                    .entry::<Node>()
+                    .and_modify(|mut n| n.margin = UiRect::top(px(40)));
+                leave.observe(leave_ask);
             });
             root.spawn(Node {
                 flex_direction: FlexDirection::Column,
@@ -371,7 +375,7 @@ fn spawn(mut commands: Commands) {
 #[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn fill(
     mut commands: Commands,
-    pause: Query<&mut Node, With<PausePanel>>,
+    pause: Query<&Node, With<PausePanel>>,
     status: Res<NetStatus>,
     me: Option<Res<LocalPlayer>>,
     muted: Option<Res<VoiceMuted>>,
@@ -386,7 +390,7 @@ fn fill(
             Option<&mut Text>,
             Option<&mut BackgroundColor>,
         ),
-        Without<InviteCard>,
+        (Without<InviteCard>, Without<PausePanel>),
     >,
     copy: Query<Entity, With<CopyButton>>,
     mut wired: Local<bool>,
@@ -475,10 +479,9 @@ fn fill(
 /// The Leave game button asks first: its label says so once armed, and the screen
 /// closing disarms it.
 fn leave_label(
-    pause: Query<&mut Node, With<PausePanel>>,
+    pause: Query<&Node, With<PausePanel>>,
     mut armed: ResMut<LeaveArmed>,
     button: Query<&Children, With<LeaveButton>>,
-    inner: Query<&Children>,
     mut texts: Query<&mut Text>,
 ) {
     if armed.0 && !open(&pause) {
@@ -491,12 +494,10 @@ fn leave_label(
     };
     for kids in &button {
         for k in kids {
-            for t in inner.get(*k).into_iter().flatten() {
-                if let Ok(mut text) = texts.get_mut(*t)
-                    && text.0 != want
-                {
-                    text.0 = want.into();
-                }
+            if let Ok(mut text) = texts.get_mut(*k)
+                && text.0 != want
+            {
+                text.0 = want.into();
             }
         }
     }

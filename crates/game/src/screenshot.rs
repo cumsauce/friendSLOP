@@ -64,6 +64,8 @@ pub enum Scene {
     Join,
     /// The journal kept open on its first tab.
     Journal,
+    /// The pause screen (Esc in game).
+    Pause,
     /// The loading curtain, shot before it lifts.
     Loading,
     /// The world with no UI at all (README pictures).
@@ -84,6 +86,7 @@ impl Scene {
             "settings" => Scene::Settings,
             "join" => Scene::Join,
             "journal" => Scene::Journal,
+            "pause" => Scene::Pause,
             "loading" => Scene::Loading,
             "clean" => Scene::Clean,
             "full" => Scene::Full,
@@ -97,6 +100,7 @@ impl Scene {
             // After the chapter card (9 s).
             Scene::Play
             | Scene::Journal
+            | Scene::Pause
             | Scene::Tab
             | Scene::Busy
             | Scene::Full
@@ -387,6 +391,9 @@ impl Plugin for ScreenshotPlugin {
             Scene::Join => {
                 app.add_systems(Update, stage_join.run_if(in_state(AppState::Menu)));
             }
+            Scene::Pause => {
+                app.add_systems(Update, open_pause.run_if(in_state(AppState::InGame)));
+            }
             Scene::Journal => {
                 app.add_systems(
                     Update,
@@ -513,15 +520,36 @@ fn open_settings(
     }
 }
 
+/// Pause scene: open the pause screen once.
+fn open_pause(
+    mut done: Local<bool>,
+    mut panel: Query<&mut Node, With<crate::ui::pause::PausePanel>>,
+) {
+    if !*done && !panel.is_empty() {
+        *done = true;
+        for mut n in &mut panel {
+            n.display = Display::Flex;
+        }
+    }
+}
+
 /// Join scene: a code in the box and a join under way, once.
 fn stage_join(
     mut done: Local<bool>,
     mut code: ResMut<crate::menu::JoinCode>,
     mut connecting: ResMut<crate::menu::Connecting>,
     mut status: ResMut<crate::net::NetStatus>,
+    mut panel: Query<&mut Node, With<crate::menu::JoinPanel>>,
+    mut lan: ResMut<crate::lan::LanGames>,
 ) {
-    if !*done {
+    // Two games heard near you, kept fresh so the list is still there for the picture.
+    lan.heard("5be1f0c3a9d24e87", "Moss");
+    lan.heard("c04d77e2b19a3f60", "Dave");
+    if !*done && !panel.is_empty() {
         *done = true;
+        for mut n in &mut panel {
+            n.display = Display::Flex;
+        }
         code.0 = "9f3ac1d27be84e0653a1c7d9".into();
         connecting.stage(&code.0);
         status.message = crate::input::fill("Connecting... {back} cancels.");

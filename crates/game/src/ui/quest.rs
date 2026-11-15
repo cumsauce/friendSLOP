@@ -3,6 +3,7 @@
 
 use bevy::prelude::*;
 
+use super::pause::PausePanel;
 use super::{HudRoot, at, body, head};
 use crate::AppState;
 use crate::features::campaign::{CHAPTERS, Campaign, heaven_tiers, next_line};
@@ -156,13 +157,27 @@ fn update(
     mut seen: Local<crate::hud::Recent>,
     mut last: Local<f32>,
     campaign: Query<&Campaign>,
-    mut card: Query<(&mut Visibility, &mut Node), With<QuestCard>>,
+    pause: Query<&Node, With<PausePanel>>,
+    mut card: Query<(&mut Visibility, &mut Node), (With<QuestCard>, Without<PausePanel>)>,
     mut texts: Query<
         (&Line, &mut Text, &mut Node),
-        (Without<QuestCard>, Without<JobsBar>, Without<JobsFill>),
+        (
+            Without<QuestCard>,
+            Without<JobsBar>,
+            Without<JobsFill>,
+            Without<PausePanel>,
+        ),
     >,
-    mut bar: Query<&mut Node, (With<JobsBar>, Without<QuestCard>)>,
-    mut fill: Query<&mut Node, (With<JobsFill>, Without<JobsBar>, Without<QuestCard>)>,
+    mut bar: Query<&mut Node, (With<JobsBar>, Without<QuestCard>, Without<PausePanel>)>,
+    mut fill: Query<
+        &mut Node,
+        (
+            With<JobsFill>,
+            Without<JobsBar>,
+            Without<QuestCard>,
+            Without<PausePanel>,
+        ),
+    >,
 ) {
     let Ok((mut vis, mut card_node)) = card.single_mut() else {
         return;
@@ -171,7 +186,13 @@ fn update(
         vis.set_if_neq(Visibility::Hidden);
         return;
     };
-    vis.set_if_neq(Visibility::Inherited);
+    // The pause screen has the stage: no card ghosting under its scrim.
+    let paused = pause.iter().any(|n| n.display != Display::None);
+    vis.set_if_neq(if paused {
+        Visibility::Hidden
+    } else {
+        Visibility::Inherited
+    });
     let [chapter, title, progress, next] = lines(c);
     // `hud_tick` runs this a few times a second: count real time between runs.
     let now = time.elapsed_secs();

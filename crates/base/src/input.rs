@@ -23,6 +23,8 @@ use bevy::input::gamepad::GamepadButton;
 use bevy::prelude::*;
 use serde::Deserialize;
 
+use crate::theme::kit;
+
 /// An action, by its id in `bindings.ron`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Act(pub &'static str);
@@ -425,35 +427,55 @@ pub fn label(id: &str) -> String {
     label_with(&BINDINGS.get(), id, device(), &contexts_now())
 }
 
+/// One piece of a hint template: plain words or an `{action_id}` token.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Segment<'a> {
+    Text(&'a str),
+    Action(&'a str),
+}
+
+/// Split `text` into words and the `{action_id}` tokens `b` knows.
+/// Unknown ids and other braces stay in the words.
+pub fn segments<'a>(text: &'a str, b: &Bindings) -> Vec<Segment<'a>> {
+    let mut out = Vec::new();
+    let mut from = 0;
+    let mut at = 0;
+    while let Some(i) = text[at..].find('{').map(|i| i + at) {
+        let after = &text[i + 1..];
+        let known = after.find('}').filter(|&j| {
+            after[..j]
+                .chars()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+                && b.action(&after[..j]).is_some()
+        });
+        match known {
+            Some(j) => {
+                if from < i {
+                    out.push(Segment::Text(&text[from..i]));
+                }
+                out.push(Segment::Action(&after[..j]));
+                from = i + j + 2;
+                at = from;
+            }
+            None => at = i + 1,
+        }
+    }
+    if from < text.len() {
+        out.push(Segment::Text(&text[from..]));
+    }
+    out
+}
+
 /// Replace every `{action_id}` in `text` with its button for `device`.
 /// Unknown ids and other braces are left as they are.
 pub fn fill_with(text: &str, b: &Bindings, device: InputDevice, contexts: &[String]) -> String {
-    if !text.contains('{') {
-        return text.to_string();
-    }
-    let mut out = String::with_capacity(text.len());
-    let mut rest = text;
-    while let Some(i) = rest.find('{') {
-        out.push_str(&rest[..i]);
-        let after = &rest[i + 1..];
-        match after.find('}') {
-            Some(j)
-                if after[..j]
-                    .chars()
-                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
-                    && b.action(&after[..j]).is_some() =>
-            {
-                out.push_str(&label_with(b, &after[..j], device, contexts));
-                rest = &after[j + 1..];
-            }
-            _ => {
-                out.push('{');
-                rest = after;
-            }
-        }
-    }
-    out.push_str(rest);
-    out
+    segments(text, b)
+        .into_iter()
+        .map(|s| match s {
+            Segment::Text(t) => t.to_string(),
+            Segment::Action(id) => label_with(b, id, device, contexts),
+        })
+        .collect()
 }
 
 /// [`fill_with`] for the current device and contexts.
@@ -535,6 +557,116 @@ fn refresh_hints(
             let want = h.text();
             if t.0 != want {
                 t.0 = want;
+            }
+        }
+    }
+}
+
+/// A row of words with each `{action}` drawn as keycaps that follow the device: put
+/// `KeyRow::new(Hint(template))` on an empty node and its children are rebuilt whenever
+/// the device, the contexts or the template change; the node brings its own layout (a row,
+/// centred, with a gap). A label with several buttons
+/// ("Tab / J") becomes several caps.
+#[derive(Component, Clone, Debug)]
+pub struct KeyRow {
+    pub hint: Hint,
+    pub style: KeyStyle,
+}
+
+/// Where a [`KeyRow`] sits, which picks its colours.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum KeyStyle {
+    /// On a soot card.
+    Dark,
+    /// On a cardboard card.
+    Card,
+}
+
+impl KeyStyle {
+    fn words(self) -> Color {
+        match self {
+            KeyStyle::Dark => kit::TEXT,
+            KeyStyle::Card => kit::CARD_500,
+        }
+    }
+
+    /// Cap fill, lip and letters.
+    fn cap(self) -> (Color, Color, Color) {
+        match self {
+            KeyStyle::Dark => (kit::SOOT_700, kit::SOOT_500, kit::TEXT),
+            KeyStyle::Card => (kit::CARD_300, kit::CARD_500, kit::INK),
+        }
+    }
+}
+
+impl KeyRow {
+    pub fn new(hint: Hint, style: KeyStyle) -> Self {
+        Self { hint, style }
+    }
+}
+
+/// One keycap: the label in a small rounded plate with a lip, round for a lone character.
+fn keycap(label: &str, style: KeyStyle) -> impl Bundle {
+    let (fill, lip, ink) = style.cap();
+    let round = label.chars().count() == 1;
+    (
+        Node {
+            min_width: px(kit::size::LABEL + 12.0),
+            padding: UiRect::axes(px(if round { 4.0 } else { 8.0 }), px(0)),
+            border: UiRect {
+                left: px(2),
+                right: px(2),
+                top: px(2),
+                bottom: px(4),
+            },
+            border_radius: BorderRadius::all(px(if round { 99.0 } else { 7.0 })),
+            justify_content: JustifyContent::Center,
+            ..default()
+        },
+        BackgroundColor(fill),
+        BorderColor::all(lip),
+        children![(
+            Text::new(label.to_string()),
+            crate::ui::body(kit::size::LABEL, ink)
+        )],
+    )
+}
+
+fn rebuild_key_rows(
+    mut commands: Commands,
+    device: Res<InputDevice>,
+    contexts: Res<InputContexts>,
+    rows: Query<(Entity, Ref<KeyRow>)>,
+) {
+    let every = device.is_changed() || contexts.is_changed();
+    let b = BINDINGS.get();
+    for (e, row) in &rows {
+        if !(every || row.is_changed()) {
+            continue;
+        }
+        let mut node = commands.entity(e);
+        node.despawn_children();
+        for seg in segments(&row.hint.0, &b) {
+            match seg {
+                Segment::Text(t) if t.trim().is_empty() => {}
+                Segment::Text(t) => {
+                    node.with_child((
+                        Text::new(t.trim().to_string()),
+                        crate::ui::body(kit::size::LABEL, row.style.words()),
+                    ));
+                }
+                Segment::Action(id) => {
+                    let label = label_with(&b, id, *device, &contexts.0);
+                    for (i, part) in label.split(" / ").enumerate() {
+                        if i > 0 {
+                            node.with_child((
+                                Text::new("/"),
+                                crate::ui::body(kit::size::LABEL, row.style.words()),
+                            ));
+                        }
+                        node.with_child(keycap(part, row.style));
+                    }
+                }
             }
         }
     }
@@ -623,6 +755,7 @@ impl Actions<'_> {
 pub fn plugin(app: &mut App) {
     app.init_resource::<InputContexts>()
         .init_resource::<InputDevice>()
+        .add_systems(Update, rebuild_key_rows)
         .add_systems(PostUpdate, refresh_hints)
         .add_systems(Last, publish_contexts);
 }
@@ -825,6 +958,15 @@ mod tests {
                 &none
             ),
             "${damage} B / RT"
+        );
+    }
+
+    #[test]
+    fn segments_split_words_from_actions() {
+        let b = b();
+        assert_eq!(
+            segments("{fart} to fart, {nope} {", &b,),
+            vec![Segment::Action("fart"), Segment::Text(" to fart, {nope} {")]
         );
     }
 

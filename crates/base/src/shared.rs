@@ -137,7 +137,7 @@ pub mod ui {
         pub hand: Handle<Image>,
     }
 
-    /// Text in the UI face (Atkinson Hyperlegible) once it has loaded.
+    /// Text in the UI face (Slop Legible) once it has loaded.
     #[derive(Component, Clone, Copy, Debug, Default)]
     pub struct Body;
 
@@ -145,7 +145,7 @@ pub mod ui {
     #[derive(Component, Clone, Copy, Debug, Default)]
     pub struct Regular;
 
-    /// Text in the heading face (Lilita One, or Atkinson Hyperlegible Bold when
+    /// Text in the heading face (Lilita One, or Slop Legible Bold when
     /// the Lilita file is missing) once it has loaded.
     #[derive(Component, Clone, Copy, Debug, Default)]
     pub struct Head;

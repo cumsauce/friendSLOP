@@ -233,9 +233,15 @@ fn mic(icons: &Icons) -> impl Bundle {
             ),
             (
                 Part::MicLabel,
-                Text::new(""),
-                body(size::LABEL, TEXT),
-                at(42.0, 12.0, b)
+                crate::input::KeyRow::new(
+                    crate::input::Hint("{mic}  mic on".into()),
+                    crate::input::KeyStyle::Dark
+                ),
+                Node {
+                    align_items: AlignItems::Center,
+                    column_gap: px(8),
+                    ..at(42.0, 8.0, b)
+                },
             ),
             (
                 Part::MicWave,
@@ -334,6 +340,7 @@ fn update(
             &mut Node,
             Option<&mut Text>,
             Option<&mut BackgroundColor>,
+            Option<&mut crate::input::KeyRow>,
         ),
         Without<Card>,
     >,
@@ -401,7 +408,7 @@ fn update(
 
     let (gas_label, gas_frac, gas_hint) = gas_lines(gas);
     let ready = gas >= crate::features::fart::tuning().min_gas;
-    for (part, mut node, text, bg) in &mut parts {
+    for (part, mut node, text, bg, key_row) in &mut parts {
         let set = |s: String| {
             if let Some(mut t) = text
                 && t.0 != s
@@ -428,11 +435,18 @@ fn update(
                     node.width = w;
                 }
             }
-            Part::MicLabel => set(crate::input::fill(if muted {
-                "{mic}  muted"
-            } else {
-                "{mic}  mic on"
-            })),
+            Part::MicLabel => {
+                let want = if muted {
+                    "{mic}  muted"
+                } else {
+                    "{mic}  mic on"
+                };
+                if let Some(mut row) = key_row
+                    && row.hint.0 != want
+                {
+                    row.hint.0 = want.into();
+                }
+            }
             Part::MicSlash | Part::MicWave | Part::MicIcon => {
                 let show = match part {
                     Part::MicSlash => muted,

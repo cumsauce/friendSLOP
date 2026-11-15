@@ -249,15 +249,28 @@ fn card_for(c: &Campaign) -> impl Bundle {
                 },
                 children![
                     (
-                        Text::new(""),
-                        crate::input::Hint(
-                            "Shrinks to the quest card in 6 s  ·  {back} dismiss".into()
-                        ),
-                        body(size::LABEL, CARD_500),
                         Node {
-                            max_width: px(240),
+                            flex_direction: FlexDirection::Column,
+                            row_gap: px(6),
                             ..default()
                         },
+                        children![
+                            (
+                                Text::new("Shrinks to the quest card in 6 s"),
+                                body(size::LABEL, CARD_500),
+                            ),
+                            (
+                                Node {
+                                    align_items: AlignItems::Center,
+                                    column_gap: px(8),
+                                    ..default()
+                                },
+                                crate::input::KeyRow::new(
+                                    crate::input::Hint("{back} dismiss".into()),
+                                    crate::input::KeyStyle::Card,
+                                ),
+                            ),
+                        ],
                     ),
                     (PadHint, kit::hint(Glyph::A, "Got it")),
                 ],

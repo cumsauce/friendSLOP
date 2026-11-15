@@ -1053,16 +1053,15 @@ fn connect_timeout(
 
 /// The settings notebook's "Leave game" button (#317; Esc used to leave):
 /// disconnect (or stop hosting) and go back to the menu.
-pub(crate) fn leave_game(
-    _: On<PointerClick>,
-    mut commands: Commands,
-    replicated: Query<Entity, With<Replicated>>,
+pub(crate) fn leave(
+    commands: &mut Commands,
+    replicated: &Query<Entity, With<Replicated>>,
     mut status: ResMut<NetStatus>,
     mut next: ResMut<NextState<AppState>>,
 ) {
     commands.queue(crate::net::teardown_transport);
     commands.remove_resource::<LocalPlayer>();
-    for e in &replicated {
+    for e in replicated {
         commands.entity(e).despawn();
     }
     status.join_code = None;

@@ -1,0 +1,31 @@
+// How far building props (models/props/, crates/world/src/buildings.rs) draw, and which cast shadows.
+// Each class lists prop names; a prop in no class always draws and casts shadows (the
+// village buildings' shells). Distances are metres for the Near / Far draw distance setting;
+// props dither out over the last 30% of it. Edit and save: newly built props pick it up.
+(
+    classes: [
+        // Furniture and clutter indoors: only seen up close, through a door or window.
+        (
+            names: ["bed", "table", "chair", "stool", "counter", "cupboard", "shelf", "crates",
+                "crates_single", "barrel", "rug", "wall_lamp", "hanging_lamp", "pipe_run",
+                "cobweb", "debris", "books", "cup_plate", "bucket", "sack"],
+            near: 25.0,
+            far: 45.0,
+            shadows: false,
+        ),
+        // House trim in the walls: seen from across the village, gone in the fog past that.
+        (
+            names: ["window", "door", "shutter", "chimney_cap"],
+            near: 60.0,
+            far: 110.0,
+            shadows: false,
+        ),
+        // Bigger trim: shopfronts, awnings and barn doors.
+        (
+            names: ["shopfront", "awning", "barn_door"],
+            near: 80.0,
+            far: 140.0,
+            shadows: true,
+        ),
+    ],
+)

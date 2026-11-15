@@ -1438,6 +1438,18 @@ act, HALT, pets, tears, stats, morality, dollars) still starts fresh each sessio
 restarts its world anyway. Saves are versioned and fitted to the chapter list if it's edited
 (`features/save.rs`, story crate).
 
+## What exists: Android (#354)
+
+- An Android APK: `nix develop .#android -c scripts/build-android.sh` writes
+  `dist/android/friendslop.apk` (arm64, Android 9+, Vulkan). The flake's `android` shell brings
+  Rust with the Android targets, the SDK, the NDK and cargo-apk. `crates/android` is the app
+  (NativeActivity); it runs the desktop `main.rs`, so menus, iroh hosting/joining and voice are the
+  same code. Assets ship inside the APK; data files load through the asset server, as in the browser.
+- Starts on the Low graphics preset, like the browser. Touch controls are the web ones.
+- Not there yet: the clipboard (the join code has to be typed), and the microphone needs the
+  permission granted once in Android's app settings (NativeActivity can't ask). Built and
+  checked (`aapt2 dump badging`) but not yet run on a device or emulator.
+
 ## Ideas so far
 
 - (#378): "Come up with your own signature addition to the game. Be creative." The AI picked

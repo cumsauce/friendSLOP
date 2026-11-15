@@ -69,9 +69,12 @@ modeler_bevy = { git = "https://github.com/cumsauce/modeler", rev = "ba0fd6ad741
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 bevy_replicon_iroh.workspace = true
 tokio.workspace = true
-arboard.workspace = true
 # Local time zone, for real-world night (whispers, #235). The browser asks JS `Date`.
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+# No clipboard crate for Android (#354, net.rs).
+[target.'cfg(not(any(target_arch = "wasm32", target_os = "android")))'.dependencies]
+arboard.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", features = [

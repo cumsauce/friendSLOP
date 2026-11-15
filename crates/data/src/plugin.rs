@@ -6,6 +6,10 @@ use bevy::prelude::*;
 
 use super::DataFile;
 
+/// Browser and Android: data files come through the asset server (the
+/// browser over HTTP, Android from the APK) instead of the assets folder.
+const FETCHED: bool = cfg!(any(target_arch = "wasm32", target_os = "android"));
+
 /// The game's data files, loaded and kept fresh.
 pub struct DataPlugin {
     pub files: Vec<&'static dyn DataFile>,
@@ -56,7 +60,7 @@ pub struct FilesReady(pub bool);
 
 fn fetch(mut files: ResMut<Files>, assets: Res<AssetServer>, mut commands: Commands) {
     commands.init_resource::<FilesReady>();
-    if cfg!(target_arch = "wasm32") {
+    if FETCHED {
         ask(&mut files, &assets);
     } else {
         // Desktop reads from disk now, so systems never see a default.
@@ -110,7 +114,7 @@ fn take_fetched(
             false
         });
     }
-    if got && cfg!(target_arch = "wasm32") {
+    if got && FETCHED {
         ask(&mut files, &assets);
     }
     if let Some(ready) = ready.as_mut()
@@ -123,7 +127,7 @@ fn take_fetched(
 /// Desktop: re-reads changed files about once a second.
 fn watch(time: Res<Time>, mut files: ResMut<Files>, mut out: MessageWriter<DataReloaded>) {
     files.since_check += time.delta_secs();
-    if files.since_check < 1.0 || cfg!(target_arch = "wasm32") {
+    if files.since_check < 1.0 || FETCHED {
         return;
     }
     files.since_check = 0.0;

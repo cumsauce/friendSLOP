@@ -48,7 +48,7 @@ impl Plugin for MenuPlugin {
 }
 
 /// Joining in progress. The join is sent a couple of frames after the click so
-/// "Connecting..." is drawn before the (blocking) connect starts, then we give
+/// "Connecting..." is drawn first, then the connect runs on a task and we give
 /// the host [`Connecting::TIMEOUT_SECS`] to answer.
 #[derive(Resource, Default, Debug)]
 pub struct Connecting {
@@ -347,11 +347,13 @@ fn picker_esc(keys: Res<ButtonInput<KeyCode>>, mut commands: Commands) {
 fn cancel_join(
     keys: Res<ButtonInput<KeyCode>>,
     client: Option<Res<IrohClient>>,
+    joining: Option<Res<crate::net::JoinTask>>,
     mut connecting: ResMut<Connecting>,
     mut status: ResMut<NetStatus>,
     mut commands: Commands,
 ) {
-    if !keys.just_pressed(KeyCode::Escape) || (connecting.pending.is_none() && client.is_none()) {
+    let busy = connecting.pending.is_some() || client.is_some() || joining.is_some();
+    if !keys.just_pressed(KeyCode::Escape) || !busy {
         return;
     }
     connecting.pending = None;
@@ -1171,6 +1173,7 @@ fn refresh_labels(
     code: Res<JoinCode>,
     connecting: Res<Connecting>,
     client: Option<Res<IrohClient>>,
+    joining: Option<Res<crate::net::JoinTask>>,
     time: Res<Time>,
     lan: Res<crate::lan::LanGames>,
     mut texts: Query<(&mut Text, &Label)>,
@@ -1191,7 +1194,7 @@ fn refresh_labels(
         }
     }
     let dots = &"..."[..(time.elapsed_secs() * 3.0) as usize % 4];
-    let join = if connecting.pending.is_some() || client.is_some() {
+    let join = if connecting.pending.is_some() || client.is_some() || joining.is_some() {
         format!("Joining{dots}")
     } else {
         "Join with a code".to_string()

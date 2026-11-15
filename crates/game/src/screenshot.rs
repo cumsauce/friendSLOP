@@ -60,6 +60,10 @@ pub enum Scene {
     Title,
     /// The title screen with the settings notebook open (run without `host`).
     Settings,
+    /// The join screen with a code typed in and the join under way (run without `host`).
+    Join,
+    /// The journal kept open on its first tab.
+    Journal,
     /// The loading curtain, shot before it lifts.
     Loading,
     /// The world with no UI at all (README pictures).
@@ -78,6 +82,8 @@ impl Scene {
             "tab" => Scene::Tab,
             "title" => Scene::Title,
             "settings" => Scene::Settings,
+            "join" => Scene::Join,
+            "journal" => Scene::Journal,
             "loading" => Scene::Loading,
             "clean" => Scene::Clean,
             "full" => Scene::Full,
@@ -90,6 +96,7 @@ impl Scene {
         match self {
             // After the chapter card (9 s).
             Scene::Play
+            | Scene::Journal
             | Scene::Tab
             | Scene::Busy
             | Scene::Full
@@ -98,7 +105,7 @@ impl Scene {
             // Before the chapter intro shrinks away.
             Scene::Chapter => 2.0,
             // Real seconds after the title screen opens.
-            Scene::Title | Scene::Settings => 4.0,
+            Scene::Title | Scene::Settings | Scene::Join => 4.0,
             // Real seconds after entering the game, curtain still up.
             Scene::Loading => 0.6,
         }
@@ -106,12 +113,15 @@ impl Scene {
 
     /// Shot on the title screen instead of in game.
     pub fn on_title(self) -> bool {
-        matches!(self, Scene::Title | Scene::Settings)
+        matches!(self, Scene::Title | Scene::Settings | Scene::Join)
     }
 
     /// Doesn't wait for the loading curtain to lift.
     fn early(self) -> bool {
-        matches!(self, Scene::Title | Scene::Settings | Scene::Loading)
+        matches!(
+            self,
+            Scene::Title | Scene::Settings | Scene::Join | Scene::Loading
+        )
     }
 }
 
@@ -374,6 +384,16 @@ impl Plugin for ScreenshotPlugin {
             Scene::Settings => {
                 app.add_systems(Update, open_settings.run_if(in_state(AppState::Menu)));
             }
+            Scene::Join => {
+                app.add_systems(Update, stage_join.run_if(in_state(AppState::Menu)));
+            }
+            Scene::Journal => {
+                app.add_systems(
+                    Update,
+                    (|mut journal: ResMut<crate::ui::journal::Journal>| journal.kept = true)
+                        .run_if(in_state(AppState::InGame)),
+                );
+            }
             Scene::Busy | Scene::Full => {
                 if scene == Scene::Full {
                     app.insert_resource(crate::hud::ShowAll(true));
@@ -490,6 +510,21 @@ fn open_settings(
     if !*done && !panel.is_empty() {
         *done = true;
         crate::ui::settings_panel::toggle(&mut panel);
+    }
+}
+
+/// Join scene: a code in the box and a join under way, once.
+fn stage_join(
+    mut done: Local<bool>,
+    mut code: ResMut<crate::menu::JoinCode>,
+    mut connecting: ResMut<crate::menu::Connecting>,
+    mut status: ResMut<crate::net::NetStatus>,
+) {
+    if !*done {
+        *done = true;
+        code.0 = "9f3ac1d27be84e0653a1c7d9".into();
+        connecting.stage(&code.0);
+        status.message = crate::input::fill("Connecting... {back} cancels.");
     }
 }
 

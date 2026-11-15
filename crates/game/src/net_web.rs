@@ -209,6 +209,11 @@ impl Plugin for NetPlugin {
 
 /// Close the transports: dropping them ends their tasks, which close the
 /// connection and endpoint cleanly. No-op without either.
+/// The desktop joins on a task (`net::JoinTask`); the browser's connect is
+/// already async, so this is never inserted and only keeps the menu shared.
+#[derive(Resource)]
+pub struct JoinTask;
+
 pub fn teardown_transport(world: &mut World) {
     world.remove_resource::<IrohClient>();
     world.remove_resource::<IrohServer>();

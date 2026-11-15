@@ -1349,6 +1349,14 @@ fn four_catches_set_the_villagers_on_you() {
     use friendslop::features::punishment::{AttackMode, STRIKES_TO_ATTACK, Strikes};
 
     let (mut server, mut client) = (peer(), peer());
+    // #368: gas fills on game time. On a busy machine one real frame could
+    // top the 99 up to 100, the body went off by itself and the count was
+    // off by one. Fixed 60 Hz steps make it the same on every machine.
+    for app in [&mut server, &mut client] {
+        app.insert_resource(bevy::time::TimeUpdateStrategy::ManualDuration(
+            std::time::Duration::from_secs_f64(1.0 / 60.0),
+        ));
+    }
     server.connect_client(&mut client);
     step_all(&mut server, &mut [&mut client]);
     let strikes = |app: &mut App| {

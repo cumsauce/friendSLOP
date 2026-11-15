@@ -181,6 +181,7 @@ pub fn key_code(name: &str) -> Option<KeyCode> {
     Some(match name {
         "Space" => Space,
         "Tab" => Tab,
+        "Delete" => Delete,
         "Escape" => Escape,
         "Enter" => Enter,
         "ShiftLeft" => ShiftLeft,

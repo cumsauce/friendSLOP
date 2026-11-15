@@ -957,7 +957,7 @@ fn orbit_camera(time: Res<Time>, mut cams: Query<&mut Transform, With<MenuCamera
     }
 }
 
-/// Menu text uses the rounded Nunito font once it has loaded (missing file:
+/// Menu text uses the Atkinson Hyperlegible font once it has loaded (missing file:
 /// Bevy's default font stays).
 fn menu_font(
     font: Option<Res<crate::assets::UiFont>>,

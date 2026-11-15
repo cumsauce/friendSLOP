@@ -19,8 +19,8 @@ pub struct Sfx {
     pub eat: Handle<AudioSource>,
 }
 
-/// The round display font for titles and banners
-/// (`assets/fonts/Sniglet-ExtraBold.ttf`, OFL). Same fallback rules as [`UiFont`].
+/// The heavy display font for the logo words, banners and big numbers
+/// (`assets/fonts/BowlbyOne-Regular.ttf`, OFL). Same fallback rules as [`UiFont`].
 #[derive(Resource, Clone)]
 pub struct DisplayFont(pub Handle<Font>);
 
@@ -34,11 +34,17 @@ impl DisplayFont {
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub struct DisplayText;
 
-/// The friendly rounded HUD font (`assets/fonts/Nunito.ttf`, OFL). Only use it
-/// once [`UiFont::ready`] says so; until then (or if the file is missing) text
-/// keeps Bevy's built-in default font.
+/// The reading font (`assets/fonts/AtkinsonHyperlegible-Regular.ttf`, OFL; the
+/// Bold file is the same family, kept alive in [`UiFontBold`], and weight 700
+/// picks it). Only use it once [`UiFont::ready`] says so; until then (or if the
+/// file is missing) text keeps Bevy's built-in default font.
 #[derive(Resource, Clone)]
 pub struct UiFont(pub Handle<Font>);
+
+/// The bold face of the reading font. Nothing reads the handle: holding it keeps
+/// the face registered, so weight 700 text in [`UiFont`]'s family is drawn bold.
+#[derive(Resource, Clone)]
+pub struct UiFontBold(pub Handle<Font>);
 
 impl UiFont {
     pub fn ready(&self, assets: &AssetServer) -> bool {
@@ -74,8 +80,9 @@ fn apply_display_font(
 
 fn load_font(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     let Some(assets) = assets else { return };
-    commands.insert_resource(UiFont(assets.load("fonts/Nunito.ttf")));
-    commands.insert_resource(DisplayFont(assets.load("fonts/Sniglet-ExtraBold.ttf")));
+    commands.insert_resource(UiFont(assets.load("fonts/AtkinsonHyperlegible-Regular.ttf")));
+    commands.insert_resource(UiFontBold(assets.load("fonts/AtkinsonHyperlegible-Bold.ttf")));
+    commands.insert_resource(DisplayFont(assets.load("fonts/BowlbyOne-Regular.ttf")));
 }
 
 fn load_sfx(mut commands: Commands, assets: Option<Res<AssetServer>>) {

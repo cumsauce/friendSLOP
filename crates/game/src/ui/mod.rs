@@ -29,12 +29,12 @@ pub mod settings_panel;
 pub mod status;
 pub mod team;
 
-/// Display-face text: `size` logical px, semibold, in `color`.
+/// Heading-face text: `size` logical px, in `color`.
 pub fn head(size: f32, color: Color) -> impl Bundle {
     (
         TextFont {
             font_size: FontSize::Px(size),
-            weight: FontWeight(600),
+            weight: FontWeight(400),
             ..default()
         },
         TextColor(color),
@@ -91,7 +91,7 @@ pub fn card(w: f32, h: f32, radius: f32, border: f32, fill: Color, line: Color) 
 #[derive(Component)]
 pub struct HudRoot;
 
-/// The display font (Fredoka). Missing file: [`Head`] text falls back to Nunito.
+/// The heading font (Lilita One). Missing file: [`Head`] text falls back to Atkinson Hyperlegible Bold.
 #[derive(Resource, Clone)]
 pub struct HeadFont(pub Handle<Font>);
 
@@ -133,7 +133,7 @@ fn load(mut commands: Commands, assets: Option<Res<AssetServer>>) {
         target: png("target"),
         hand: png("hand"),
     });
-    commands.insert_resource(HeadFont(assets.load("fonts/Fredoka.ttf")));
+    commands.insert_resource(HeadFont(assets.load("fonts/LilitaOne-Regular.ttf")));
 }
 
 /// Author at 1280x720, scale uniformly with the window. Never below 1:
@@ -147,8 +147,8 @@ fn scale_ui(window: Query<&Window, With<PrimaryWindow>>, mut scale: ResMut<UiSca
     }
 }
 
-/// Give [`Body`] / [`Head`] text their faces once loaded. A missing Fredoka
-/// falls back to Nunito at a heavier weight; a missing Nunito keeps Bevy's font.
+/// Give [`Body`] / [`Head`] text their faces once loaded. A missing Lilita One
+/// falls back to Atkinson Hyperlegible Bold; a missing Atkinson keeps Bevy's font.
 fn apply_fonts(
     assets: Option<Res<AssetServer>>,
     ui: Option<Res<crate::assets::UiFont>>,
@@ -175,8 +175,8 @@ fn apply_fonts(
             continue;
         }
         let want = match (is_head, head) {
-            (true, Some(h)) => Some((h.0.clone(), 600)),
-            _ if ui_ok => Some((ui.0.clone(), if is_head { 800 } else { 700 })),
+            (true, Some(h)) => Some((h.0.clone(), 400)),
+            _ if ui_ok => Some((ui.0.clone(), 700)),
             _ => None,
         };
         let Some((font, weight)) = want else { continue };

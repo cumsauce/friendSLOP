@@ -207,7 +207,7 @@ fn spawn(mut commands: Commands) {
                 padding: UiRect::axes(px(56), px(48)),
                 ..default()
             },
-            BackgroundColor(t::SOOT_900.with_alpha(0.55)),
+            BackgroundColor(t::SOOT_900.with_alpha(0.82)),
             GlobalZIndex(28),
             DespawnOnExit(AppState::InGame),
         ))

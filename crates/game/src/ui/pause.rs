@@ -20,6 +20,11 @@ use crate::player::{LocalPlayer, Player};
 use crate::theme::kit::{self as t, size};
 use crate::voice::{MicMuted, VoiceMuted};
 
+/// How opaque the dark behind the pause screen is. The UI blends in linear light, so an alpha
+/// of 0.82 left about 46% of the meadow's brightness on screen (0.18 ^ (1/2.2) is the other way
+/// round); the design's "0.82 dark" reads as 0.18 of the brightness, which is 1 - 0.18 ^ 2.2.
+const SCRIM_ALPHA: f32 = 0.977;
+
 /// The pause screen's root: shown while Esc has it open.
 #[derive(Component)]
 pub struct PausePanel;
@@ -207,7 +212,7 @@ fn spawn(mut commands: Commands) {
                 padding: UiRect::axes(px(56), px(48)),
                 ..default()
             },
-            BackgroundColor(t::SOOT_900.with_alpha(0.82)),
+            BackgroundColor(t::SOOT_900.with_alpha(SCRIM_ALPHA)),
             GlobalZIndex(28),
             DespawnOnExit(AppState::InGame),
         ))
@@ -506,6 +511,13 @@ fn leave_label(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_scrim_leaves_a_fifth_of_the_brightness() {
+        // Linear blending: what shows through is (1 - alpha) in light, 18% perceived.
+        let seen = (1.0 - SCRIM_ALPHA).powf(1.0 / 2.2);
+        assert!((seen - 0.18).abs() < 0.01, "{seen}");
+    }
 
     #[test]
     fn leaving_takes_two_presses() {

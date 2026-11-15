@@ -43,6 +43,13 @@ pub fn toggle(panel: &mut Query<&mut Node, With<ShelfPanel>>) {
     }
 }
 
+/// Hide the page.
+pub fn close<'a>(panel: impl Iterator<Item = Mut<'a, Node>>) {
+    for mut node in panel {
+        node.display = Display::None;
+    }
+}
+
 /// Pure: a prize's row: its name and count, or "???" until you have one.
 pub fn row_text(name: &str, count: u32) -> String {
     if count == 0 {
@@ -137,12 +144,17 @@ fn spawn_panel(mut commands: Commands, mut images: ResMut<Assets<Image>>, shelf:
                 .with_children(|list| {
                     for (i, p) in t.prizes.iter().enumerate() {
                         let n = shelf.count(&p.name);
-                        list.spawn((
+                        let mut row = list.spawn((
                             Text::new(row_text(&p.name, n)),
                             TextFont::from_font_size(18.0),
                             TextColor(if n > 0 { INK } else { SOFT_INK }),
-                        ))
-                        .observe(move |_: On<PointerClick>, mut commands: Commands, shelf: Res<Shelf>,
+                        ));
+                        // Only the prizes you've won can be inspected, so only
+                        // those take the pad's focus.
+                        if n > 0 {
+                            row.insert(crate::ui::pad_nav::PadFocusable);
+                        }
+                        row.observe(move |_: On<PointerClick>, mut commands: Commands, shelf: Res<Shelf>,
                                        assets: Res<AssetServer>,
                                        staged: Query<Entity, With<OnStage>>,
                                        mut cams: Query<&mut Camera, With<StageCamera>>,
@@ -184,11 +196,16 @@ fn spawn_panel(mut commands: Commands, mut images: ResMut<Assets<Image>>, shelf:
                 ));
             });
             ui.spawn((
-                Text::new("Click a prize you've won to inspect it."),
+                Text::new("Pick a prize you've won to inspect it."),
                 TextFont::from_font_size(15.0),
                 TextColor(SOFT_INK),
                 Blurb,
             ));
+            crate::creator::small_button(ui, "Back", menu::LILAC, 150.0).observe(
+                |_: On<PointerClick>, mut panel: Query<&mut Node, With<ShelfPanel>>| {
+                    close(panel.iter_mut());
+                },
+            );
         });
 }
 

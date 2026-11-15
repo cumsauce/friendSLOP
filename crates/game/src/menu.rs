@@ -135,7 +135,7 @@ struct CodeField;
 /// The gamepad's join-code keypad (#361), opened by A on the code field. It
 /// doesn't need Steam's on-screen keyboard.
 #[derive(Component)]
-struct HexPicker;
+pub(crate) struct HexPicker;
 
 /// One key of the [`HexPicker`].
 #[derive(Component, Clone, Copy, Debug, PartialEq)]

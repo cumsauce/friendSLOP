@@ -238,7 +238,6 @@ pub fn plugin(app: &mut App) {
         .init_resource::<Freed>()
         .add_systems(OnEnter(AppState::Menu), spawn_in(AppState::Menu))
         .add_systems(OnEnter(AppState::InGame), spawn_in(AppState::InGame))
-        .add_systems(Update, close_on_esc.run_if(in_state(AppState::Menu)))
         .add_systems(
             Update,
             (esc_in_game, free_mouse)
@@ -294,14 +293,6 @@ fn free_mouse(
 /// Spawn the (hidden) notebook for `state`, gone when it ends.
 fn spawn_in(state: AppState) -> impl Fn(Commands, Option<Res<AssetServer>>) {
     move |commands, assets| spawn(commands, assets, state)
-}
-
-fn close_on_esc(keys: Res<ButtonInput<KeyCode>>, mut panel: Query<&mut Node, With<SettingsPanel>>) {
-    if keys.just_pressed(KeyCode::Escape) {
-        for mut n in &mut panel {
-            n.display = Display::None;
-        }
-    }
 }
 
 /// A bordered button `w`x`h` at Figma `x, y` in its (2 px bordered) parent.

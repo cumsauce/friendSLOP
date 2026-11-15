@@ -44,7 +44,14 @@ pub fn plugin(app: &mut App) {
     )
     .add_systems(
         Update,
-        (dress_bear, animate_bear, growl).run_if(in_state(AppState::InGame)),
+        (
+            dress_bear,
+            animate_bear,
+            // Its walk follows the shared clock, so it never jumps on
+            // waking; only its growl sleeps with the clearing (#412).
+            growl.run_if(crate::sites::here("bear")),
+        )
+            .run_if(in_state(AppState::InGame)),
     );
 }
 
@@ -137,6 +144,7 @@ fn spawn_growl_text(mut commands: Commands) {
         Text::new(""),
         GrowlText,
         crate::hud::slot(crate::hud::HudSlot::Subtitle),
+        crate::sites::AtSite("bear"),
         DespawnOnExit(AppState::InGame),
     ));
 }

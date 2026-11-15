@@ -393,6 +393,7 @@ fn spawn_ui(mut commands: Commands) {
             crate::input::fill("shipwreck (east shore of the valley lake): {use} the pirates to battle them, then the chest"),
         ),
         crate::hud::slot(crate::hud::HudSlot::Help),
+        crate::sites::AtSite("wreck"),
         DespawnOnExit(AppState::InGame),
     ));
 }

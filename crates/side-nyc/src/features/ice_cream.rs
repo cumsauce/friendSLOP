@@ -248,7 +248,12 @@ pub fn plugin(app: &mut App) {
     app.add_observer(show_news)
         .add_observer(click)
         .add_systems(OnEnter(AppState::InGame), build)
-        .add_systems(Update, show_state.run_if(in_state(AppState::InGame)));
+        .add_systems(
+            Update,
+            show_state
+                .run_if(in_state(AppState::InGame))
+                .run_if(crate::sites::here("nyc")),
+        );
 }
 
 #[derive(Component)]

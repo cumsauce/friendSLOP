@@ -1403,7 +1403,17 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
   them). **New York sleeps** while nobody is in the city: the kitten gangs stop prowling and the
   cabs stop driving until someone arrives; the pigeon flocks and the street people are only
   brought out on your own screen while you're there (so a pigeon storm's line is only shown to
-  people in the city), and Miami's crowd and lasers hold still. **Positions are data**: the crows, bear, goat, strays,
+  people in the city), and Miami's crowd and lasers hold still. **The other places sleep too**:
+  Penn Station's line and fires, Fulton St's way in and the J's reward, the phone hunters, the
+  High Places elevator and its arrival line, the shop lines and the ice cream machine only run
+  while someone (or you) is in New York, and the phone call's banner only shows there. Lines and
+  key hints marked with a site are hidden while you're away from it (Wendy's and the shipwreck's
+  H-overlay hints, the bear's growl, the crows' cawing), its looping sounds pause and pick up
+  where they were (the bonfire crackle), the bear stops growling and the music boxes only sing
+  to whoever is at one. Creatures whose walk follows the shared clock (the bear, the crows, the
+  goat, the music boxes, the pirates) keep walking, so nothing jumps when a site wakes; the
+  warehouse is not asleep yet (its inside is under the commune, which a ground-plane site can't
+  tell apart). **Positions are data**: the crows, bear, goat, strays,
   the two loose totems and the music boxes read where they stand from their site in
   `sites.ron` (the strays' spread in `pets.ron`), and (#412's first move) **they have left the centre**: the crows and their eggs and one
   music box are by the windmill, the bear is in the forest's woodcutter clearing, the goat judges

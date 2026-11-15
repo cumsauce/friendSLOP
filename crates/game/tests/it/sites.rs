@@ -4,7 +4,7 @@
 use friendslop::sites::{Place, SITES, Sites};
 
 /// The asks that name a site: `sites::awake("nyc")` and friends.
-const ASKS: [&str; 5] = ["awake", "here", "arrived", "left", "at"];
+const ASKS: [&str; 6] = ["awake", "here", "arrived", "left", "at", "AtSite"];
 
 fn sites() -> std::sync::Arc<Sites> {
     let assets = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets");

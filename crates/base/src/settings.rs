@@ -26,6 +26,42 @@ impl Default for Settings {
 
 impl Settings {
     pub const STEP: f32 = 0.1;
+    /// The saved file (see [`load_local`]).
+    pub const FILE: &'static str = "settings.txt";
+
+    /// Saved as `key=value` lines.
+    pub fn to_text(self) -> String {
+        format!(
+            "master={}\nvoice={}\nhalt_name={}\n",
+            self.master_volume,
+            self.voice_volume,
+            u8::from(self.halt_real_name)
+        )
+    }
+
+    /// Reads [`to_text`](Self::to_text); a missing or unreadable key keeps
+    /// its default and volumes are clamped to `0..=1`.
+    pub fn from_text(text: &str) -> Self {
+        let mut s = Self::default();
+        for (k, v) in text.lines().filter_map(|l| l.split_once('=')) {
+            let v = v.trim();
+            let volume = || v.parse::<f32>().ok().filter(|f| f.is_finite());
+            match k.trim() {
+                "master" => s.master_volume = volume().unwrap_or(s.master_volume),
+                "voice" => s.voice_volume = volume().unwrap_or(s.voice_volume),
+                "halt_name" => s.halt_real_name = v != "0",
+                _ => {}
+            }
+        }
+        s.master_volume = s.master_volume.clamp(0.0, 1.0);
+        s.voice_volume = s.voice_volume.clamp(0.0, 1.0);
+        s
+    }
+
+    /// What was saved last time, or the defaults.
+    pub fn load() -> Self {
+        load_local(Self::FILE).map_or_else(Self::default, |t| Self::from_text(&t))
+    }
 
     /// Nudge a volume by `steps` and clamp it, snapping to tenths.
     pub fn nudge(value: f32, steps: i32) -> f32 {
@@ -94,8 +130,19 @@ pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<Settings>()
-            .add_systems(Update, apply_settings.before(VoiceChatSystems::Devices));
+        app.insert_resource(Settings::load()).add_systems(
+            Update,
+            (
+                save_settings,
+                apply_settings.before(VoiceChatSystems::Devices),
+            ),
+        );
+    }
+}
+
+fn save_settings(s: Res<Settings>) {
+    if s.is_changed() && !s.is_added() {
+        save_local(Settings::FILE, &s.to_text());
     }
 }
 
@@ -133,6 +180,22 @@ mod tests {
         assert_eq!(Settings::nudge(0.95, 3), 1.0);
         assert_eq!(Settings::nudge(0.1, -5), 0.0);
         assert_eq!(Settings::nudge(0.30000004, -1), 0.2);
+    }
+
+    #[test]
+    fn settings_save_and_load() {
+        let s = Settings {
+            master_volume: 0.2,
+            voice_volume: 0.55,
+            halt_real_name: false,
+        };
+        assert_eq!(Settings::from_text(&s.to_text()), s);
+        // Missing keys keep the defaults; junk and out-of-range values are tamed.
+        assert_eq!(Settings::from_text(""), Settings::default());
+        let odd = Settings::from_text("master=9\nvoice=nan\nhalt_name=0\nstray\n");
+        assert_eq!(odd.master_volume, 1.0);
+        assert_eq!(odd.voice_volume, Settings::default().voice_volume);
+        assert!(!odd.halt_real_name);
     }
 
     #[test]

@@ -1224,7 +1224,9 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   about half the pixels, and stretches it, UI stays sharp, live), Grass & particles (Half / Full, applies on the next world build), VSync and
   Fullscreen. Low is everything off (default in the browser, or `FRIENDSLOP_LOW=1`), Medium is
   everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
-  Fullscreen alone. Saved locally (old Low/High saves still load). 60 fps on low-end phones is
+  Fullscreen alone. Saved locally (old Low/High saves still load). Master and voice volume and
+  the HALT-username switch are saved the same way (UI audit); the mic mute is not, so you never
+  start a session silent by accident. 60 fps on low-end phones is
   the aim for Low, not measured. Steam Deck (#393, Tally): GPU-bound even on Low-ish settings;
   Bloom off now also drops the HDR float render target, so Low draws into an 8-bit target
   (about half the per-pixel memory traffic). Low on desktop now also renders at 0.7 scale

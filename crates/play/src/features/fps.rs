@@ -879,8 +879,9 @@ mod tests {
         assert_eq!(vy, 0.0);
         let (p, _) = step(Vec3::ZERO, 0.0, Vec2::Y, true, false, 0.0, 1.0);
         assert!(p.z < -crate::kcc::WALK_SPEED, "running is faster");
-        let (p, _) = step(Vec3::ZERO, 0.0, Vec2::Y, true, false, 0.0, 100.0);
-        assert_eq!(p.z, -EDGE, "can't walk off the floor");
+        // Walking back is the south wall; the north is open to the wastes (#391).
+        let (p, _) = step(Vec3::ZERO, 0.0, Vec2::NEG_Y, true, false, 0.0, 100.0);
+        assert_eq!(p.z, EDGE, "can't walk off the floor");
     }
 
     #[test]

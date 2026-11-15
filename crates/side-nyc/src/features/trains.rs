@@ -1037,9 +1037,17 @@ fn look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLook
 /// Speed of the tunnel lights going by (m/s).
 const TUNNEL_SPEED: f32 = 25.0;
 
-fn tunnel_lights(time: Res<Time>, mut lights: Query<(&TunnelLight, &mut Transform)>) {
+fn tunnel_lights(
+    time: Res<Time>,
+    mut lights: Query<(&TunnelLight, &mut Transform, &ViewVisibility)>,
+) {
+    // They only show from inside a tunnel: while none is on screen, leave
+    // them be (each move re-propagates its transform).
+    if !lights.iter().any(|(_, _, seen)| seen.get()) {
+        return;
+    }
     let dx = TUNNEL_SPEED * time.delta_secs();
-    for (l, mut tf) in &mut lights {
+    for (l, mut tf, _) in &mut lights {
         tf.translation.x -= dx;
         if tf.translation.x < l.origin.x - 40.0 {
             tf.translation.x += 80.0;

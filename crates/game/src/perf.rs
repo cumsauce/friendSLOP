@@ -5,6 +5,33 @@
 use bevy::camera::visibility::ViewVisibility;
 use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy::transform::TransformSystems;
+
+/// What changed since the last report: material edits (each one re-uploads
+/// the material) and transforms the propagation had to rewrite.
+#[derive(Resource, Default)]
+struct Churn {
+    materials: usize,
+    transforms: usize,
+    frames: usize,
+    /// Frames that took over 25 ms (a visible hitch at 60 fps).
+    hitches: usize,
+}
+
+fn count_churn(
+    time: Res<Time<Real>>,
+    mut churn: ResMut<Churn>,
+    mut events: MessageReader<AssetEvent<StandardMaterial>>,
+    moved: Query<(), Changed<GlobalTransform>>,
+) {
+    churn.materials += events
+        .read()
+        .filter(|e| matches!(e, AssetEvent::Modified { .. }))
+        .count();
+    churn.transforms += moved.iter().count();
+    churn.frames += 1;
+    churn.hitches += (time.delta_secs() > 0.025) as usize;
+}
 
 pub struct PerfPlugin;
 
@@ -25,7 +52,9 @@ impl Plugin for PerfPlugin {
             if !app.is_plugin_added::<FrameTimeDiagnosticsPlugin>() {
                 app.add_plugins(FrameTimeDiagnosticsPlugin::default());
             }
-            app.add_systems(Last, (report, breakdown));
+            app.init_resource::<Churn>()
+                .add_systems(PostUpdate, count_churn.after(TransformSystems::Propagate))
+                .add_systems(Last, (report, breakdown, moved_breakdown));
         }
     }
 }
@@ -39,12 +68,15 @@ fn report(
     lights: Query<(), Or<(With<PointLight>, With<SpotLight>)>>,
     cam: Query<&GlobalTransform, With<Camera3d>>,
     awake: Res<crate::sites::Awake>,
+    mut churn: ResMut<Churn>,
 ) {
     let now = time.elapsed_secs();
     if now - *last < 5.0 {
         return;
     }
+    let secs = (now - *last).max(0.001);
     *last = now;
+    let churn = std::mem::take(&mut *churn);
     let fps = diag
         .get(&FrameTimeDiagnosticsPlugin::FPS)
         .and_then(|d| d.smoothed())
@@ -76,9 +108,12 @@ fn report(
         .map(|g| g.translation())
         .unwrap_or_default();
     info!(
-        "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | point/spot lights {} | camera {at:.0} | sites awake: {}",
+        "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | point/spot lights {} | camera {at:.0} | materials changed {:.0}/s | transforms changed {:.0}/frame | hitches {} | sites awake: {}",
         entities.iter().count(),
         lights.iter().count(),
+        churn.materials as f32 / secs,
+        churn.transforms as f32 / churn.frames.max(1) as f32,
+        churn.hitches,
         awake.ids().join(", ")
     );
 }
@@ -182,6 +217,46 @@ fn breakdown(
     rows.sort_by_key(|r| std::cmp::Reverse(r.1.0));
     for (k, (n, sh)) in rows.iter().take(25) {
         info!("perf lights: {n:5} ({sh} with shadows) {k}");
+    }
+}
+
+/// `FRIENDSLOP_PERF=2`: once, 25 s in, which models own the transforms that
+/// changed this frame (each one is re-propagated down its hierarchy). Runs
+/// every frame so `Changed` means "since last frame".
+fn moved_breakdown(
+    time: Res<Time<Real>>,
+    mut done: Local<bool>,
+    moved: Query<Entity, Changed<Transform>>,
+    parents: Query<&ChildOf>,
+    scenes: Query<&bevy::world_serialization::WorldAssetRoot>,
+    names: Query<&Name>,
+    world: &World,
+) {
+    if *done
+        || time.elapsed_secs() < 25.0
+        || !std::env::var("FRIENDSLOP_PERF").is_ok_and(|v| v == "2")
+    {
+        return;
+    }
+    *done = true;
+    let mut by: std::collections::HashMap<String, usize> = default();
+    for e in &moved {
+        let mut k = owner(e, &parents, &scenes, &names);
+        if k.starts_with("(unnamed") {
+            // Name it by its components instead (short type names).
+            let mut parts: Vec<String> = world
+                .inspect_entity(e)
+                .map(|c| c.map(|(_, i)| i.name().shortname().to_string()).collect())
+                .unwrap_or_default();
+            parts.sort();
+            k = format!("(unnamed) {}", parts.join(" "));
+        }
+        *by.entry(k).or_default() += 1;
+    }
+    let mut rows: Vec<_> = by.into_iter().collect();
+    rows.sort_by_key(|r| std::cmp::Reverse(r.1));
+    for (k, n) in rows.iter().take(25) {
+        info!("perf moved: {n:6} {k}");
     }
 }
 

@@ -35,6 +35,7 @@ pub mod features {
     pub mod kittens;
     pub mod kori;
     pub mod lily_garden;
+    pub mod organ_butcher;
     pub mod pigeons;
     pub mod rats;
     pub mod sesbian_lex;
@@ -60,6 +61,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::hi::TUNING,
         &features::goat::TUNING,
         &features::infinite::TUNING,
+        &features::organ_butcher::TUNING,
         &features::rats::TUNING,
         &features::sesbian_lex::TUNING,
         &features::shipwreck::TUNING,

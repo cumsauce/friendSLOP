@@ -1,0 +1,10 @@
+// Organ butcher (#217, crates/side/src/features/organ_butcher.rs): the
+// chopping block in Wendy's backroom buys your cheapest organ for dollars.
+// Edit and save: the running game picks it up within a second.
+(
+    // Organ value that buys one dollar (at least one dollar is always paid).
+    value_per_dollar: 4,
+    // {organ}, {dollars} are filled in.
+    sold_line: "the butcher weighs your {organ}, nods and slides you ${dollars}. no questions. that's Wendy's.",
+    empty_line: "the butcher looks you over. you have nothing left to sell.",
+)

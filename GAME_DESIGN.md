@@ -965,11 +965,13 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   field (click it to paste), Character creator, and Settings / Whose fault is it / Kori prizes / Quit
   links. Those panels take turns (opening one closes the others), each has a Back button the pad
   can focus, and B / Esc closes the top one; the pad scrolls the fault list with the stick.
-  Settings is one big "Make yourself comfortable" notebook: volume sliders, mic and HALT as
-  square checkboxes, video presets (Low / Medium / High, Custom when you change anything) as
-  tabs and every video option as a checkbox card; a Controls tab lists the keys; Esc or Done
-  closes it. In game Esc opens the same notebook (#317: settings in the game too), freeing the
-  mouse, plus a "Leave game" button bottom-left; Esc no longer quits to the menu. The loading curtain shows the logo, how many models have loaded, a progress bar
+  Settings is one big "Make yourself comfortable" notebook with three pages: Audio + voice
+  (volume sliders, mic and HALT as square checkboxes), Video (presets Low / Medium / High as
+  tabs, "Custom" is just what shows once you change anything, and every video option as a
+  checkbox card) and Controls (the keys, the pad's feel); Esc or Done closes it. In game Esc opens the
+  same notebook (#317: settings in the game too), freeing the mouse (walking keys do nothing while
+  it is up, and a pad's Select doesn't open the journal over it), plus a "Leave game" button
+  bottom-left that asks "Really leave?" before it leaves; Esc no longer quits to the menu. The loading curtain shows the logo, how many models have loaded, a progress bar
   and a tip.
 - **The Stillness** (#17). Every 16 minutes (it was every minute, then every 4; made rarer at the owner's request) the whole world freezes for 75 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop

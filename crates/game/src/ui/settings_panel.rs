@@ -12,7 +12,10 @@ use super::pad_nav::{PadFocusable, PadNudge, PadSlider};
 use super::{at, body, head};
 use crate::AppState;
 use crate::controls::PadSettings;
+use bevy_replicon::prelude::Replicated;
+
 use crate::graphics::{GraphicsQuality, Preset, VideoOption};
+use crate::net::NetStatus;
 use crate::settings::Settings;
 
 /// Column `i` (0 or 1) of the Controls page's bindings for `device` (from
@@ -34,6 +37,9 @@ const TRACK: Color = Color::srgb_u8(0xD8, 0xCC, 0xE7);
 const OFF_FILL: Color = Color::srgb_u8(0xE5, 0xDC, 0xE6);
 const OFF_LINE: Color = Color::srgb_u8(0xC5, 0xB7, 0xD3);
 const SLIDER_W: f32 = 370.0;
+/// Where each page's one card stands: centred in the 1200 px notebook.
+const CARD_X: f32 = 245.0;
+const AUDIO_X: f32 = 395.0;
 
 /// The video options shown as checkboxes, in grid order.
 pub const VIDEO_BOXES: [VideoOption; 9] = [
@@ -108,6 +114,18 @@ enum Page {
     Controls,
 }
 
+impl Page {
+    /// Does this page show `card`? Each page has exactly one card.
+    fn shows(self, card: Part) -> bool {
+        matches!(
+            (self, card),
+            (Page::Audio, Part::AudioCard)
+                | (Page::Video, Part::VideoCard)
+                | (Page::Controls, Part::ControlsCard)
+        )
+    }
+}
+
 #[derive(Resource)]
 struct OnPage(Page);
 
@@ -115,6 +133,8 @@ struct OnPage(Page);
 enum Part {
     PageTab(Page),
     PresetTab(Option<Preset>),
+    /// The audio page: volumes, mic and the HALT switch.
+    AudioCard,
     VideoCard,
     ControlsCard,
     Pct(Volume),
@@ -128,6 +148,33 @@ enum Part {
     CloseHint,
     /// The button-names choice ("Button names: Auto").
     Labels,
+    /// "Leave game", or "Really leave?" once pressed.
+    LeaveLabel,
+}
+
+/// Leaving is two presses: the first arms the button, the second leaves.
+/// Closing the notebook disarms it.
+#[derive(Resource, Default)]
+struct LeaveArmed(bool);
+
+/// A press on Leave game: whether to leave now, and the button's new armed state.
+pub fn leave_press(armed: bool) -> (bool, bool) {
+    if armed { (true, false) } else { (false, true) }
+}
+
+fn ask_leave(
+    _: On<PointerClick>,
+    mut armed: ResMut<LeaveArmed>,
+    mut commands: Commands,
+    replicated: Query<Entity, With<Replicated>>,
+    status: ResMut<NetStatus>,
+    next: ResMut<NextState<AppState>>,
+) {
+    let (leave, now) = leave_press(armed.0);
+    armed.0 = now;
+    if leave {
+        crate::menu::leave(&mut commands, &replicated, status, next);
+    }
 }
 
 /// Pure: the next button-names choice (Auto, then each pad family).
@@ -236,11 +283,12 @@ enum Check {
 pub fn plugin(app: &mut App) {
     app.insert_resource(OnPage(Page::Video))
         .init_resource::<Freed>()
+        .init_resource::<LeaveArmed>()
         .add_systems(OnEnter(AppState::Menu), spawn_in(AppState::Menu))
         .add_systems(OnEnter(AppState::InGame), spawn_in(AppState::InGame))
         .add_systems(
             Update,
-            (esc_in_game, free_mouse)
+            (esc_in_game, free_mouse, disarm_leave)
                 .chain()
                 .run_if(in_state(AppState::InGame)),
         )
@@ -270,6 +318,13 @@ fn esc_in_game(
         return;
     }
     toggle(&mut panel);
+}
+
+/// Shutting the notebook un-asks "Really leave?".
+fn disarm_leave(panel: Query<&mut Node, With<SettingsPanel>>, mut armed: ResMut<LeaveArmed>) {
+    if armed.0 && !is_open(&panel) {
+        armed.0 = false;
+    }
 }
 
 /// Free the mouse while the notebook is open, and tell clicks and Esc it's up.
@@ -346,9 +401,12 @@ fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>, state: AppSta
                 if state == AppState::InGame {
                     p.spawn((
                         button(192.0, 42.0, 12.0, PAPER, 26.0, 594.0),
-                        children![label("Leave game", 17.0, INK, 11.0, 8.0, B)],
+                        children![(
+                            Part::LeaveLabel,
+                            label("Leave game", 17.0, INK, 11.0, 8.0, B)
+                        )],
                     ))
-                    .observe(crate::menu::leave_game);
+                    .observe(ask_leave);
                 }
             });
     });
@@ -396,13 +454,14 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         .observe(move |_: On<PointerClick>, mut on: ResMut<OnPage>| on.0 = page);
     }
 
-    // Left: your ears & your name.
+    // Audio page: your ears & your name.
     p.spawn((
+        Part::AudioCard,
         Node {
             width: px(410),
             height: px(436),
             border_radius: BorderRadius::all(px(18)),
-            ..at(26.0, 141.0, B)
+            ..at(AUDIO_X, 141.0, B)
         },
         BackgroundColor(PAPER),
     ))
@@ -447,7 +506,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             height: px(436),
             border: UiRect::all(px(B)),
             border_radius: BorderRadius::all(px(18)),
-            ..at(460.0, 141.0, B)
+            ..at(CARD_X, 141.0, B)
         },
         BackgroundColor(PAPER),
         BorderColor::all(BORDER),
@@ -465,12 +524,17 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             (None, "Custom"),
         ];
         for (i, (preset, name)) in tabs.into_iter().enumerate() {
-            c.spawn((
+            let mut tab = c.spawn((
                 Part::PresetTab(preset),
                 button(158.0, 42.0, 12.0, PAPER, 18.0 + 170.0 * i as f32, 55.0),
                 children![label(name, 17.0, INK, 11.0, 8.0, B)],
-            ))
-            .observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+            ));
+            // "Custom" is what the options add up to, not a preset to pick:
+            // nothing to press, so the pad skips it.
+            if preset.is_none() {
+                tab.remove::<PadFocusable>();
+            }
+            tab.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
                 if let Some(p) = preset {
                     let want = p.apply(*q);
                     q.set_if_neq(want);
@@ -479,7 +543,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         }
         for (i, o) in VIDEO_BOXES.into_iter().enumerate() {
             let (x, y) = (18.0 + 228.0 * (i % 3) as f32, 118.0 + 90.0 * (i / 3) as f32);
-            c.spawn((
+            let mut card = c.spawn((
                 Node {
                     width: px(214),
                     height: px(76),
@@ -487,7 +551,6 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
                     ..at(x, y, B)
                 },
                 BackgroundColor(PAPER),
-                PadFocusable,
                 children![
                     checkbox(check, Check::Video(o), 12.0, 24.0),
                     (
@@ -500,8 +563,12 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
                         }
                     ),
                 ],
-            ))
-            .observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+            ));
+            // An option this build can't do has nothing to press.
+            if GraphicsQuality::platform_default().value(o) != "N/A" {
+                card.insert(PadFocusable);
+            }
+            card.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
                 if q.value(o) != "N/A" {
                     q.cycle(o);
                 }
@@ -524,7 +591,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             border: UiRect::all(px(B)),
             border_radius: BorderRadius::all(px(18)),
             display: Display::None,
-            ..at(460.0, 141.0, B)
+            ..at(CARD_X, 141.0, B)
         },
         BackgroundColor(PAPER),
         BorderColor::all(BORDER),
@@ -760,6 +827,7 @@ fn refresh(
     device: Res<crate::input::InputDevice>,
     muted: Res<VoiceMuted>,
     q: Res<GraphicsQuality>,
+    armed: Res<LeaveArmed>,
     mut nodes: Query<&mut Node>,
     mut parts: Query<(
         Entity,
@@ -788,8 +856,8 @@ fn refresh(
         match *part {
             Part::PageTab(p) => tab(p == on.0, bg, &mut texts),
             Part::PresetTab(p) => tab(p == preset, bg, &mut texts),
-            Part::VideoCard | Part::ControlsCard => {
-                let show = matches!(part, Part::ControlsCard) == (on.0 == Page::Controls);
+            Part::AudioCard | Part::VideoCard | Part::ControlsCard => {
+                let show = on.0.shows(*part);
                 if let Ok(mut n) = nodes.get_mut(e) {
                     let d = if show { Display::Flex } else { Display::None };
                     if n.display != d {
@@ -803,6 +871,18 @@ fn refresh(
                     && t.0 != want
                 {
                     t.0 = want;
+                }
+            }
+            Part::LeaveLabel => {
+                let want = if armed.0 {
+                    "Really leave?"
+                } else {
+                    "Leave game"
+                };
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want.into();
                 }
             }
             Part::Labels => {
@@ -893,6 +973,21 @@ mod tests {
         assert_eq!(volume_at(0.79), 0.8);
         assert_eq!(volume_at(-1.0), 0.0);
         assert_eq!(volume_at(1.7), 1.0);
+    }
+
+    #[test]
+    fn leaving_takes_two_presses() {
+        assert_eq!(leave_press(false), (false, true));
+        assert_eq!(leave_press(true), (true, false));
+    }
+
+    #[test]
+    fn each_page_shows_only_its_card() {
+        let cards = [Part::AudioCard, Part::VideoCard, Part::ControlsCard];
+        for (page, want) in [(Page::Audio, 0), (Page::Video, 1), (Page::Controls, 2)] {
+            let shown: Vec<usize> = (0..3).filter(|&i| page.shows(cards[i])).collect();
+            assert_eq!(shown, vec![want]);
+        }
     }
 
     #[test]

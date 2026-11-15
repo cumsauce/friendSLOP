@@ -1344,7 +1344,9 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   from 50% or when ready; the cat's size when it grows a whole step, when you're near it or
   past 75% of max (the fuse card always); the mic chip only when muted; your own team badge
   only when muted, talking, your tears just changed, or others are here. The "Tab / J
-  journal" and "M mic" hints show for the first 90 s of a session.
+  journal" and "M mic" hints show for the first 90 s of a session. Keys inside hints are drawn
+  as keycaps (`input::KeyRow`) that follow the device (Tab, J, Esc on keyboard, pad buttons on a
+  pad); UI numbers use plain zeros (the bundled Atkinson's slash is opened up).
 - **The commune journal and chapter intro** (UI polish, phase 2 of the same brief). Hold Tab to
   peek at the journal, J keeps it open, H opens it on Help, Esc closes it (Esc no longer leaves
   the game while it's open; the mouse is freed so its tabs can be clicked). Tabs: **Party** (a

@@ -56,6 +56,9 @@ Step in front of a cab and you're punted and ragdoll for a couple of seconds bef
 in static, leaving a scrap of a message. Find all 5, then gather in the ruins' tower: a buried
 TV broadcasts a riddle that leads outside the game.
 
+**Far north:** climb over the rim hills and the world goes on: empty wasteland, dunes, mesas and
+dry washes, the same for everyone, up to 4 km out. Nothing lives there yet.
+
 **Far south:** a PATH train waits at a little station near the valley's south edge. Step in
 and it pulls out along a stone viaduct, rattles along in the dark (a robot voice calling the
 stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
@@ -81,7 +84,7 @@ ankles until they knock you flying. Run: they're slower than you.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free, and dollars only buy boba, joints and hats so far. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you.
+free, and dollars only buy boba, joints and hats so far. Six players beat the landlord fast. Only the RPG, a 10x cat and systemd can kill you. The wastes are empty.
 
 ## What exists
 
@@ -1463,6 +1466,19 @@ restarts its world anyway. Saves are versioned and fitted to the chapter list if
 - Not there yet: the clipboard (the join code has to be typed), and the microphone needs the
   permission granted once in Android's app settings (NativeActivity can't ask). Built and
   checked (`aapt2 dump badging`) but not yet run on a device or emulator.
+
+## What exists: the wastes (#391)
+
+- bben: when you reach the edge of the designed world it should go on as procedurally generated
+  wasteland. Design and plan: `docs/design/infinite-world.md`.
+- Step 1 (now): past the map's north edge (z < -110) the ground is a grid of 55 m chunks
+  generated from a world seed and the chunk's coordinates (`friendslop_world::wastes`), the same
+  on every peer and never sent over the wire. Dunes, flat-topped mesas and dry washes, blended
+  into the map's own rim hills over 40 m so there's no step. Chunks within 220 m of any player or
+  the camera are built (mesh + heightfield collider, 2 a frame, nearest first) and dropped past
+  280 m. The north soft wall is open out to 4 km. Tuning: `data/world/wastes.ron` (seed, open,
+  load, unload, per frame, limit). About 1 ms of CPU per chunk on the desktop.
+- Not yet: roads, props, generated sites, the east/west sides, LOD, saving changes.
 
 ## Ideas so far
 

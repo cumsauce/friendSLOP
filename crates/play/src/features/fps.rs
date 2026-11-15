@@ -237,8 +237,9 @@ pub fn step(
     if let Some(kept) = crate::rules::nyc::keep_in_city(pos, next) {
         next = kept; // New York City has its own edges (#283)
     } else if !crate::rules::surf::unbounded(pos) {
-        next.x = next.x.clamp(-EDGE, EDGE);
-        next.z = next.z.clamp(-EDGE, EDGE);
+        // The soft wall, open to the north when the wastes are (#391).
+        let kept = friendslop_world::wastes::keep_in(Vec2::new(next.x, next.z), EDGE);
+        (next.x, next.z) = (kept.x, kept.y);
     }
     let ground = crate::rules::depths::ground_at(next.x, next.z, pos.y);
     // Standing on the ground where we were: follow it up and down slopes
@@ -355,8 +356,8 @@ pub fn kcc_move_walkers(
         if let Some(kept) = crate::rules::nyc::keep_in_city(walker.pos, pos) {
             pos = kept;
         } else if !crate::rules::surf::unbounded(walker.pos) {
-            pos.x = pos.x.clamp(-EDGE, EDGE);
-            pos.z = pos.z.clamp(-EDGE, EDGE);
+            let kept = friendslop_world::wastes::keep_in(Vec2::new(pos.x, pos.z), EDGE);
+            (pos.x, pos.z) = (kept.x, kept.y);
         }
         if walker.pos != pos {
             walker.pos = pos;
@@ -878,8 +879,9 @@ mod tests {
         assert_eq!(vy, 0.0);
         let (p, _) = step(Vec3::ZERO, 0.0, Vec2::Y, true, false, 0.0, 1.0);
         assert!(p.z < -crate::kcc::WALK_SPEED, "running is faster");
-        let (p, _) = step(Vec3::ZERO, 0.0, Vec2::Y, true, false, 0.0, 100.0);
-        assert_eq!(p.z, -EDGE, "can't walk off the floor");
+        // Walking back is the south wall; the north is open to the wastes (#391).
+        let (p, _) = step(Vec3::ZERO, 0.0, Vec2::NEG_Y, true, false, 0.0, 100.0);
+        assert_eq!(p.z, EDGE, "can't walk off the floor");
     }
 
     #[test]

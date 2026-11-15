@@ -40,6 +40,7 @@ pub mod features {
     pub mod sesbian_lex;
     pub mod shipwreck;
     pub mod surf;
+    pub mod wastes;
     pub mod watcher;
 }
 

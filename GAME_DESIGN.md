@@ -1315,7 +1315,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   cards held on with tape for anything you read (quest card, chapter intro), slime green for
   progress, butter for news and focus, landlord red for danger only (`theme::kit` and
   `ui/kit.rs`; the old `theme::indigo` palette is only left in the loading curtain), Lilita One for titles
-  and counters, Atkinson Hyperlegible for the rest, Bowlby One for big headings, authored at
+  and counters, Slop Legible for the rest, Bowlby One for big headings, authored at
   1280x800 and scaled up uniformly with bigger windows (`ui/`). On
   screen: a **quest card** top-left (chapter N/5 and its name, jobs done, Heaven Pass tier, and
   "now:" the next job); a **team strip** top-right (one badge per player: mic, name, gods' tears
@@ -1346,7 +1346,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   only when muted, talking, your tears just changed, or others are here. The "Tab / J
   journal" and "M mic" hints show for the first 90 s of a session. Keys inside hints are drawn
   as keycaps (`input::KeyRow`) that follow the device (Tab, J, Esc on keyboard, pad buttons on a
-  pad); UI numbers use plain zeros (the bundled Atkinson's slash is opened up).
+  pad); UI numbers use plain zeros (the bundled Slop Legible (from Atkinson)'s slash is opened up).
 - **The commune journal and chapter intro** (UI polish, phase 2 of the same brief). Hold Tab to
   peek at the journal, J keeps it open, H opens it on Help, Esc closes it (Esc no longer leaves
   the game while it's open; the mouse is freed so its tabs can be clicked). Tabs: **Party** (a

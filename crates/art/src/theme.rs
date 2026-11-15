@@ -148,11 +148,11 @@ pub mod kit {
         pub const H1: f32 = 34.0;
         /// Card titles and tabs (Lilita One).
         pub const H2: f32 = 28.0;
-        /// Buttons and rows (Atkinson Hyperlegible Bold).
+        /// Buttons and rows (Slop Legible Bold).
         pub const BODY: f32 = 22.0;
-        /// Explanations and toasts (Atkinson Hyperlegible Regular).
+        /// Explanations and toasts (Slop Legible Regular).
         pub const BODY_REG: f32 = 20.0;
-        /// Chips, hints and captions, the Deck minimum (Atkinson Hyperlegible Bold).
+        /// Chips, hints and captions, the Deck minimum (Slop Legible Bold).
         pub const LABEL: f32 = 17.0;
         /// Timers, money, counts (Lilita One).
         pub const NUM: f32 = 30.0;

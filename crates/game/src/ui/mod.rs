@@ -1,4 +1,4 @@
-//! The "E · Indigo journal" HUD (Figma spec node 3:2918; UI polish, not a
+//! The commune noticeboard HUD (first drawn as "E · Indigo journal", Figma spec node 3:2918; UI polish, not a
 //! friend idea). Quiet corners: the quest card top-left, the team strip
 //! top-right with the danger lane under it, the event feed on the left, the
 //! gas / mic / cat stack bottom-right, the journal hint bottom-left and the

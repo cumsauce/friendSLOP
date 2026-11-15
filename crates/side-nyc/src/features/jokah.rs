@@ -312,7 +312,7 @@ fn body(
         &mut crate::people::CharacterLook,
     )>,
 ) {
-    let Some(area) = friendslop_base::areas::nearest_area(j.pos) else {
+    let Some(area) = friendslop_base::areas::nearest_area(ground(j.pos)) else {
         return;
     };
     let at = Transform::from_translation(ground(j.pos))

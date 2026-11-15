@@ -14,22 +14,52 @@ use friendslop_structures::{Kit, Palette, Solid};
 
 use super::*;
 use crate::AppState;
+use crate::areas::{self, Layer};
 use crate::features::interact::{Clickable, Clicked};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player};
 use crate::world::MainCamera;
 
+/// The tunnels' area (`data/base/areas.ron`), under the whole map.
+pub const AREA: &str = "underground";
+
+/// Every peer (the host for anyone down there): the tunnels' colliders, laid
+/// when the area's colliders load and again whenever [`Tunnels`] change.
+pub(super) fn protocol(app: &mut App) {
+    app.add_systems(
+        PreUpdate,
+        build_walls
+            .after(areas::AreaSet)
+            .run_if(in_state(AppState::InGame))
+            .run_if(areas::live(AREA))
+            .run_if(anew(Layer::Sim)),
+    );
+}
+
+/// Lay `layer` again: the tunnels changed, or the layer just loaded.
+fn anew(layer: Layer) -> impl FnMut(Option<Res<Tunnels>>, Res<areas::Loaded>) -> bool + Clone {
+    move |t: Option<Res<Tunnels>>, l: Res<areas::Loaded>| {
+        t.is_some_and(|t| t.is_changed()) || l.loaded(AREA, layer)
+    }
+}
+
 pub fn plugin(app: &mut App) {
+    areas::on_show(app, "commune", build);
+    // `FRIENDSLOP_START=tunnels`: at the foot of the first ladder.
+    crate::features::start::provide(|| vec![("tunnels".into(), down_spot(0))]);
     app.init_resource::<Below>()
         .init_resource::<Looks>()
         .add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), (build, reset))
         .add_systems(OnExit(AppState::InGame), reset)
         .add_systems(
             Update,
             (
                 adopt_looks.run_if(|l: Res<Looks>| !l.waiting.is_empty()),
-                build_tunnels.run_if(resource_exists_and_changed::<Tunnels>),
+                // The tunnels' look, while you're down there (anew when the
+                // seed changes them or their surfaces arrive).
+                build_tunnels
+                    .run_if(areas::shown(AREA))
+                    .run_if(anew(Layer::Show)),
                 show_new,
                 darkness.in_set(crate::place::PlaceSet),
                 guide,
@@ -142,7 +172,7 @@ fn deep_model(
         show,
         model(assets, file),
         tf,
-        DespawnOnExit(AppState::InGame),
+        areas::show(AREA),
     ));
 }
 
@@ -201,7 +231,7 @@ fn block(
         Mesh3d(m.cube.clone()),
         MeshMaterial3d(mat.clone()),
         tf,
-        DespawnOnExit(AppState::InGame),
+        areas::show(AREA),
     ));
     if deep {
         e.insert((Deep, Tunnel, NotShadowCaster, Visibility::Hidden));
@@ -231,7 +261,7 @@ fn light(commands: &mut Commands, at: Vec3, color: Color, intensity: f32, range:
         },
         Transform::from_translation(at),
         Visibility::Hidden,
-        DespawnOnExit(AppState::InGame),
+        areas::show(AREA),
     ));
 }
 
@@ -379,7 +409,7 @@ fn build_tops(commands: &mut Commands, assets: &AssetServer) {
         commands.spawn((
             model(assets, file),
             Transform::from_translation(at),
-            DespawnOnExit(AppState::InGame),
+            areas::show("commune"),
         ));
         let mut hatch = commands.spawn((
             Hatch(i as u8),
@@ -388,7 +418,7 @@ fn build_tops(commands: &mut Commands, assets: &AssetServer) {
             Clickable::at_height(0.3)
                 .radius(80.0)
                 .labelled("climb down"),
-            DespawnOnExit(AppState::InGame),
+            areas::show("commune"),
         ));
         // A glowing square round the way down (not the woodcutter's
         // trapdoor: that one's a secret).
@@ -471,12 +501,57 @@ fn style(p: Part) -> Style<M> {
     }
 }
 
+/// The network below laid with the hallway kit (the same on every peer).
+fn lay(tunnels: &Tunnels) -> Kit<M> {
+    let l = &tunnels.0;
+    let mut kit = Kit::<M>::default();
+    kit.place(Vec3::ZERO, 0);
+    let spec = Hall {
+        cell: CELL,
+        floor: TUNNEL_Y,
+        height: TUNNEL_H,
+        thick: 0.3,
+    };
+    let cells: Vec<Cell> = l.cells.keys().copied().collect();
+    hall(&mut kit, &spec, &cells, |c| l.part(c).map(style));
+    kit
+}
+
+/// A tunnel collider, replaced when [`Tunnels`] change.
+#[derive(Component)]
+struct Wall;
+
+/// The network's colliders: plain static bodies, kept out of the navmesh.
+fn build_walls(
+    mut commands: Commands,
+    tunnels: Option<Res<Tunnels>>,
+    old: Query<Entity, With<Wall>>,
+) {
+    let Some(tunnels) = tunnels else { return };
+    for e in &old {
+        commands.entity(e).despawn();
+    }
+    for body in bodies(&lay(&tunnels).pieces) {
+        if body.solid == Solid::None {
+            continue;
+        }
+        commands.spawn((
+            Wall,
+            Transform::from_translation(body.centre).with_rotation(body.rot),
+            RigidBody::Static,
+            body.collider,
+            avian_rerecast::ExcludeColliderFromNavmesh,
+            areas::sim(AREA),
+        ));
+    }
+}
+
 /// The network below, from [`Tunnels`]: the old one goes, the new one is
-/// laid with the hallway kit, merged into a few meshes and colliders.
+/// laid with the hallway kit, merged into a few meshes.
 #[allow(clippy::too_many_arguments)]
 fn build_tunnels(
     mut commands: Commands,
-    tunnels: Res<Tunnels>,
+    tunnels: Option<Res<Tunnels>>,
     old: Query<Entity, With<Tunnel>>,
     below: Res<Below>,
     looks: Res<Looks>,
@@ -484,7 +559,9 @@ fn build_tunnels(
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    let (Some(assets), Some(mut meshes), Some(mut materials)) = (assets, meshes, materials) else {
+    let (Some(tunnels), Some(assets), Some(mut meshes), Some(mut materials)) =
+        (tunnels, assets, meshes, materials)
+    else {
         return;
     };
     for e in &old {
@@ -495,16 +572,7 @@ fn build_tunnels(
     };
     let l = &tunnels.0;
     let (y, top) = (TUNNEL_Y, TUNNEL_Y + TUNNEL_H);
-    let mut kit = Kit::<M>::default();
-    kit.place(Vec3::ZERO, 0);
-    let spec = Hall {
-        cell: CELL,
-        floor: y,
-        height: TUNNEL_H,
-        thick: 0.3,
-    };
-    let cells: Vec<Cell> = l.cells.keys().copied().collect();
-    hall(&mut kit, &spec, &cells, |c| l.part(c).map(style));
+    let kit = lay(&tunnels);
     let mut handles: HashMap<M, Handle<StandardMaterial>> = HashMap::new();
     let show = if below.inside {
         Visibility::Inherited
@@ -537,21 +605,7 @@ fn build_tunnels(
             Mesh3d(meshes.add(batch.mesh)),
             MeshMaterial3d(handle),
             Transform::from_translation(batch.origin),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-    // Colliders as before: plain static bodies, kept out of the navmesh.
-    for body in bodies(&kit.pieces) {
-        if body.solid == Solid::None {
-            continue;
-        }
-        commands.spawn((
-            Tunnel,
-            Transform::from_translation(body.centre).with_rotation(body.rot),
-            RigidBody::Static,
-            body.collider,
-            avian_rerecast::ExcludeColliderFromNavmesh,
-            DespawnOnExit(AppState::InGame),
+            areas::show(AREA),
         ));
     }
     for at in &kit.lights {
@@ -682,7 +736,7 @@ fn build_tunnels(
                 Transform::from_translation(base),
                 show,
                 Clickable::at_height(1.4).radius(90.0).labelled("climb up"),
-                DespawnOnExit(AppState::InGame),
+                areas::show(AREA),
             ))
             // The way up glows at the ladder's foot, facing you as you arrive.
             .with_child((

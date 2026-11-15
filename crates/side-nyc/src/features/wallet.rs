@@ -626,7 +626,7 @@ fn dress(
 ) {
     use friendslop_base::areas::{Layer, nearest_area};
     let mut put = |e: Entity, children: Option<&Children>, at: Vec3, place: Transform, file| {
-        let Some(area) = nearest_area(at.xz()) else {
+        let Some(area) = nearest_area(at) else {
             return;
         };
         if crate::area::dressed(children, &dresses) || !loaded.is(&area, Layer::Show) {

@@ -815,7 +815,7 @@ pub fn start_name(s: &Stop) -> String {
 
 /// The area a stop (or a ride car) at `at` is in.
 fn area_of(at: Vec3) -> String {
-    nearest_area(at.xz()).unwrap_or_else(|| crate::area::NYC.to_owned())
+    nearest_area(at).unwrap_or_else(|| crate::area::NYC.to_owned())
 }
 
 /// Every stop's `FRIENDSLOP_START` (its platform), from the data file.

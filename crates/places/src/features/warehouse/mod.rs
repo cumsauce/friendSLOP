@@ -290,6 +290,7 @@ pub fn protocol(app: &mut App) {
         .add_observer(give_to_jegg)
         .add_observer(reset_round);
     bathroom::protocol(app);
+    visuals::protocol(app);
 }
 
 pub fn plugin(app: &mut App) {

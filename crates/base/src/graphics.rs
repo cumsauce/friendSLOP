@@ -3,8 +3,8 @@
 //! A preset (Low / Medium / High) sets every option at once, and each option
 //! can then be changed on its own, which makes the preset read "Custom"
 //! (#132, doomy: "include what's important and maybe have presets").
-//! Low is picked automatically in the browser (and with `FRIENDSLOP_LOW=1`)
-//! so phones can hold 60 fps. The choice is saved locally.
+//! Low is picked automatically in the browser, on a Steam Deck (and with
+//! `FRIENDSLOP_LOW=1`) so phones and the Deck can hold 60 fps. The choice is saved locally.
 //!
 //! - Shadows: the sun's shadow maps.
 //! - Ambient occlusion (#131): soft contact shadows where things meet. Not in
@@ -303,7 +303,8 @@ impl GraphicsQuality {
         any.then_some(q)
     }
 
-    /// Browser builds (and `FRIENDSLOP_LOW=1`) start on Low, others on High.
+    /// Browser builds, the Steam Deck (and `FRIENDSLOP_LOW=1`) start on Low,
+    /// others on High.
     pub fn platform_default() -> Self {
         let windowed = Self {
             shadows: false,
@@ -317,6 +318,7 @@ impl GraphicsQuality {
             fullscreen: false,
         };
         if cfg!(target_arch = "wasm32")
+            || on_steam_deck()
             || std::env::var_os("FRIENDSLOP_LOW").is_some_and(|v| v != "0")
         {
             Preset::Low.apply(windowed)
@@ -328,12 +330,27 @@ impl GraphicsQuality {
 
 impl Default for GraphicsQuality {
     fn default() -> Self {
-        let q = crate::settings::load_local(FILE)
+        let mut q = crate::settings::load_local(FILE)
             .and_then(|t| Self::from_text(&t))
             .unwrap_or_else(Self::platform_default);
+        // Settings saved on a Steam Deck before it started on Low were the
+        // old High default (#393): move them to Low once, then leave them be.
+        if on_steam_deck() && crate::settings::load_local(DECK_FILE).is_none() {
+            q = Preset::Low.apply(q);
+            crate::settings::save_local(FILE, &q.to_text());
+            crate::settings::save_local(DECK_FILE, "low\n");
+        }
         BOOT_SHARP.get_or_init(|| q.sharp);
         q
     }
+}
+
+/// Marks that a Steam Deck's settings were moved to Low once.
+const DECK_FILE: &str = "graphics-deck.txt";
+
+/// Steam sets `SteamDeck=1` for games it starts on a Steam Deck.
+fn on_steam_deck() -> bool {
+    std::env::var_os("SteamDeck").is_some_and(|v| v == "1")
 }
 
 /// Grass/particle density for spawners that may run without this resource

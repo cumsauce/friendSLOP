@@ -1302,8 +1302,10 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   how many meshes there are, how many distinct ones, and their vertex count.
 - **HUD: "E · Indigo journal"** (UI polish, not a friend idea; from the Figma UI brief in
   `docs/figma-ui-brief.md`, which answered "about 12 floating cards at once"). Solid deep-indigo
-  cards with cream text (`theme::indigo`), Fredoka for titles and countdowns, Nunito Bold for
-  the rest, authored at 1280x720 and scaled up uniformly with bigger windows (`ui/`). On
+  cards with cream text (`theme::indigo`; the restyle to the soot-and-cardboard "commune
+  noticeboard" kit, `theme::kit` and `ui/kit.rs`, is landing layer by layer), Lilita One for titles
+  and counters, Atkinson Hyperlegible for the rest, Bowlby One for big headings, authored at
+  1280x800 and scaled up uniformly with bigger windows (`ui/`). On
   screen: a **quest card** top-left (chapter N/5 and its name, jobs done, Heaven Pass tier, and
   "now:" the next job); a **team strip** top-right (one badge per player: mic, name, gods' tears
   ×N; butter with a waveform while they talk, a slash when muted; mute state is replicated

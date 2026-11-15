@@ -316,7 +316,8 @@ you make a place the map doesn't have.
 ### Finding what's slow
 
 `FRIENDSLOP_PERF=2 FRIENDSLOP_START=<place> cargo run -- host` logs frame time and what's drawn
-every 5 s and, 25 s in, which models own the meshes and lights. Big counts usually mean a model
+every 5 s (with material edits a second, transforms rewritten a frame and frames over 25 ms) and,
+25 s in, which models own the meshes, the lights and the transforms that moved. Big counts usually mean a model
 with many parts: re-export it with `optimize: {preset: "game", merge: "by_material"}` (one mesh
 per material) unless the game looks its parts up by name. Video options cost most; shadows lead.
 Foliage: diffuse transmission on a material lights every pixel twice (every lamp and the sky),

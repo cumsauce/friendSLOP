@@ -1736,13 +1736,27 @@ fn track_gait(time: Res<Time>, mut q: Query<(&GlobalTransform, &mut Gait)>) {
     }
 }
 
+/// A ball round a body, generous so its shadow and a raised arm count (m).
+const BODY_RADIUS: f32 = 2.5;
+
 /// The procedural animator: walk cycle from speed, breathing, idle glances.
-fn animate_bones(time: Res<Time>, gaits: Query<&Gait>, mut bones: Query<(&Bone, &mut Transform)>) {
+fn animate_bones(
+    time: Res<Time>,
+    gaits: Query<(&Gait, &GlobalTransform)>,
+    camera: Query<&bevy::camera::primitives::Frustum, With<crate::shared::world::MainCamera>>,
+    mut bones: Query<(&Bone, &mut Transform)>,
+) {
     let now = time.elapsed_secs();
+    let frustum = camera.iter().next();
     for (bone, mut tf) in &mut bones {
-        let Ok(g) = gaits.get(bone.root) else {
+        let Ok((g, at)) = gaits.get(bone.root) else {
             continue;
         };
+        // The pose is a function of time, so a body out of view can hold
+        // still and pick up where it should be when you look back.
+        if !crate::shared::world::in_view(frustum, at.translation() + Vec3::Y, BODY_RADIUS) {
+            continue;
+        }
         let walk = (g.speed / 4.0).clamp(0.0, 1.0);
         let still = 1.0 - walk;
         let t = now + bone.idle;

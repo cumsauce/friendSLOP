@@ -1172,8 +1172,12 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   a real download progress bar and only offers "Tap to play" once the game is running (it used
   to say Ready at once and leave a blank screen while ~66 MB downloaded). The .wasm is built
   with a size-first `web` cargo profile (opt-level s, fat LTO; the soundtrack and physics stay
-  at full speed), and `build-web.sh` shrinks the bundled textures to 512 px
-  (`tools/web-textures`, ~20 MB to ~2.5 MB, far less GPU memory). Whole bundle 94 MB to 56 MB (the
+  at full speed), and `build-web.sh` shrinks the bundled textures to 256 px
+  (`tools/web-textures`; 512 px was the default until #242, when a WebKit tab passed 1.4 GB
+  loading the world and died). #242 also found the browser quitting on its first frame (a
+  blank page): Bevy 0.20 can't draw LOD crossfades on WebGL2, so the browser switches LOD
+  levels at the middle of each band instead (`lod.rs`), and model textures drop their wasm
+  copy once uploaded (`textures.rs`). Whole bundle 94 MB to 56 MB (the
   .wasm 66 MB to 47 MB, ~15 MB gzipped); the wasm is still the bulk (Bevy, wgpu's shader
   translator, iroh's crypto). The browser draws at 1x pixel
   density unless Resolution is Sharp (then up to 2x): on a 3x iPhone that's 9x fewer pixels.

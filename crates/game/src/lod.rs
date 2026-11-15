@@ -81,6 +81,36 @@ pub fn plugin(app: &mut App) {
         .add_observer(modeler_lods)
         .add_observer(calm_trees)
         .add_systems(Update, (sway_near, steer_wind));
+    #[cfg(target_arch = "wasm32")]
+    app.add_observer(abrupt_on_webgl);
+}
+
+/// WebGL2 (#242): Bevy 0.20 declares the crossfade's distance table as a
+/// 1 KiB uniform array but lays the binding out for 16 bytes, so wgpu
+/// rejects every pipeline that dithers between levels and the app quits on
+/// its first frame (a blank page). Abrupt ranges skip the dither and that
+/// binding: in the browser every level switches at the middle of its band.
+#[cfg(target_arch = "wasm32")]
+fn abrupt_on_webgl(added: On<Insert<VisibilityRange>>, mut ranges: Query<&mut VisibilityRange>) {
+    if let Ok(mut range) = ranges.get_mut(added.entity) {
+        let sharp = abrupt(&range);
+        if *range != sharp {
+            *range = sharp;
+        }
+    }
+}
+
+/// Pure: `range` with each fade band collapsed to its middle.
+pub fn abrupt(range: &VisibilityRange) -> VisibilityRange {
+    let mid = |r: &Range<f32>| {
+        let m = (r.start + r.end) * 0.5;
+        m..m
+    };
+    VisibilityRange {
+        start_margin: mid(&range.start_margin),
+        end_margin: mid(&range.end_margin),
+        use_aabb: range.use_aabb,
+    }
 }
 
 /// Trees further than this from the camera hold still (metres).
@@ -376,6 +406,14 @@ fn modeler_lods(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn abrupt_ranges_switch_mid_band_without_a_fade() {
+        let sharp = abrupt(&range(1, [true, true, true]));
+        assert_eq!(sharp.start_margin, 24.0..24.0);
+        assert_eq!(sharp.end_margin, 62.5..62.5);
+        assert!(sharp.is_abrupt());
+    }
 
     #[test]
     fn the_trees_file_parses_and_leaves_get_cheap() {

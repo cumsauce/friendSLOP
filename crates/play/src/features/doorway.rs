@@ -375,10 +375,16 @@ fn pulse(time: Res<Time>, kit: Option<Res<Kit>>, mut materials: ResMut<Assets<St
         return;
     };
     let t = tuning();
-    let a = glow_at(&t, time.elapsed_secs());
+    // Each material edit re-uploads it to the GPU, so step the glow in
+    // 1/32ths and only touch a material when its step moved (a few times a
+    // second instead of every frame).
+    let a = (glow_at(&t, time.elapsed_secs()) * 32.0).round() / 32.0;
     for (way, m) in &kit.mats {
-        if let Some(mut m) = materials.get_mut(m) {
-            m.base_color = colour(&t, *way).with_alpha(a);
+        let want = colour(&t, *way).with_alpha(a);
+        if materials.get(m).is_some_and(|m| m.base_color != want)
+            && let Some(mut m) = materials.get_mut(m)
+        {
+            m.base_color = want;
         }
     }
 }

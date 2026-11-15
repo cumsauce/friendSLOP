@@ -58,6 +58,40 @@ pub struct Tuning {
     /// Desktop: the most pixels (millions) the world is ever rendered at.
     /// A bigger window is rendered at this many and stretched. 0 = no cap.
     pub max_megapixels: f32,
+    /// The sun's shadow cascades when Shadows is Long (every preset's look).
+    pub long_shadows: Cascades,
+    /// ... and when it's Short.
+    pub short_shadows: Cascades,
+}
+
+/// The sun's shadow cascades.
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Cascades {
+    /// How many shadow maps (every caster is drawn once per cascade).
+    pub count: usize,
+    /// How far the first (sharpest) cascade reaches (m).
+    pub first: f32,
+    /// How far shadows reach at all (m).
+    pub distance: f32,
+}
+
+impl Cascades {
+    fn config(&self) -> bevy::light::CascadeShadowConfig {
+        let count = self.count.max(1);
+        let distance = self.distance.max(1.0);
+        bevy::light::CascadeShadowConfigBuilder {
+            num_cascades: count,
+            minimum_distance: 0.1,
+            first_cascade_far_bound: if count == 1 {
+                distance
+            } else {
+                self.first.clamp(0.2, distance)
+            },
+            maximum_distance: distance,
+            overlap_proportion: 0.2,
+        }
+        .build()
+    }
 }
 
 /// Ambient occlusion's sample count, cheapest first.
@@ -95,9 +129,16 @@ const UI_MIN: Vec2 = Vec2::new(960.0, 600.0);
 #[derive(Resource, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct GraphicsQuality {
     pub shadows: bool,
+    /// Short shadows: fewer cascades over a shorter distance (#6 of the
+    /// performance plan; each cascade costs about 0.8-1 ms at 2560x1440).
+    pub short_shadows: bool,
     pub ssao: bool,
     pub bloom: bool,
     pub antialias: bool,
+    /// Anti-aliasing with MSAA (4x) rather than FXAA, when ambient occlusion
+    /// is off (they don't mix). MSAA costs ~1.2 ms more at 2560x1440 and
+    /// doesn't smooth alpha-cut leaves, so only High picks it.
+    pub msaa: bool,
     pub far: bool,
     pub sharp: bool,
     pub dense: bool,
@@ -132,7 +173,9 @@ impl Preset {
             shadows: !low,
             ssao: high && SSAO_SUPPORTED,
             bloom: !low && HDR_SUPPORTED,
+            short_shadows: false,
             antialias: !low,
+            msaa: high,
             far: !low,
             // Desktop Medium stays sharp: only Low trades pixels for speed.
             sharp: high || (!low && !cfg!(target_arch = "wasm32")),
@@ -211,13 +254,15 @@ impl GraphicsQuality {
     pub fn value(self, o: VideoOption) -> &'static str {
         match o {
             VideoOption::Preset => self.preset().map_or("Custom", Preset::label),
-            VideoOption::Shadows => on_off(self.shadows),
+            VideoOption::Shadows if !self.shadows => "Off",
+            VideoOption::Shadows if self.short_shadows => "Short",
+            VideoOption::Shadows => "Long",
             VideoOption::AmbientOcclusion if !SSAO_SUPPORTED => "N/A",
             VideoOption::Bloom if !HDR_SUPPORTED => "N/A",
             VideoOption::AmbientOcclusion => on_off(self.ssao),
             VideoOption::Bloom => on_off(self.bloom),
             VideoOption::AntiAlias if !self.antialias => "Off",
-            VideoOption::AntiAlias if self.ssao => "FXAA",
+            VideoOption::AntiAlias if self.ssao || !self.msaa => "FXAA",
             VideoOption::AntiAlias => "MSAA",
             VideoOption::DrawDistance => {
                 if self.far {
@@ -265,7 +310,12 @@ impl GraphicsQuality {
                 };
                 *self = next.apply(*self);
             }
-            VideoOption::Shadows => self.shadows = !self.shadows,
+            // Long -> Short -> Off -> Long.
+            VideoOption::Shadows => match (self.shadows, self.short_shadows) {
+                (true, false) => self.short_shadows = true,
+                (true, true) => self.shadows = false,
+                (false, _) => (self.shadows, self.short_shadows) = (true, false),
+            },
             VideoOption::AmbientOcclusion => self.ssao = !self.ssao && SSAO_SUPPORTED,
             VideoOption::Bloom => self.bloom = !self.bloom && HDR_SUPPORTED,
             VideoOption::AntiAlias => self.antialias = !self.antialias,
@@ -281,9 +331,11 @@ impl GraphicsQuality {
     pub fn to_text(self) -> String {
         [
             ("shadows", self.shadows),
+            ("short_shadows", self.short_shadows),
             ("ssao", self.ssao),
             ("bloom", self.bloom),
             ("antialias", self.antialias),
+            ("msaa", self.msaa),
             ("far", self.far),
             ("sharp", self.sharp),
             ("dense", self.dense),
@@ -312,9 +364,11 @@ impl GraphicsQuality {
             let v = v.trim() == "1";
             let field = match k.trim() {
                 "shadows" => &mut q.shadows,
+                "short_shadows" => &mut q.short_shadows,
                 "ssao" => &mut q.ssao,
                 "bloom" => &mut q.bloom,
                 "antialias" => &mut q.antialias,
+                "msaa" => &mut q.msaa,
                 "far" => &mut q.far,
                 "sharp" => &mut q.sharp,
                 "dense" => &mut q.dense,
@@ -335,9 +389,11 @@ impl GraphicsQuality {
     pub fn platform_default() -> Self {
         let windowed = Self {
             shadows: false,
+            short_shadows: false,
             ssao: false,
             bloom: false,
             antialias: false,
+            msaa: false,
             far: false,
             sharp: false,
             dense: false,
@@ -501,10 +557,11 @@ fn apply_camera(
         } else {
             c.remove::<ScreenSpaceAmbientOcclusion>();
         }
-        // Ambient occlusion needs MSAA off, so it smooths edges with FXAA.
-        match (q.antialias, q.ssao) {
-            (true, true) => c.insert((Msaa::Off, Fxaa::default())),
-            (true, false) => c.remove::<Fxaa>().insert(Msaa::default()),
+        // Ambient occlusion needs MSAA off, so it smooths edges with FXAA,
+        // and so does everything but High (FXAA is cheaper, #5).
+        match (q.antialias, q.msaa && !q.ssao) {
+            (true, false) => c.insert((Msaa::Off, Fxaa::default())),
+            (true, true) => c.remove::<Fxaa>().insert(Msaa::default()),
             (false, _) => c.remove::<Fxaa>().insert(Msaa::Off),
         };
         c.insert(if q.shadows {
@@ -525,15 +582,27 @@ fn apply_camera(
 #[derive(Component)]
 pub struct SunShadows;
 
-/// Only the sun casts shadows.
+/// Only the sun casts shadows: its cascades come from the tuning file,
+/// long or short.
 fn apply_shadows(
+    mut commands: Commands,
     q: Res<GraphicsQuality>,
-    mut lights: Query<(&mut DirectionalLight, Ref<SunShadows>)>,
+    mut lights: Query<(Entity, &mut DirectionalLight, Ref<SunShadows>)>,
 ) {
-    for (mut light, sun) in &mut lights {
-        if (q.is_changed() || sun.is_added()) && light.shadow_maps_enabled != q.shadows {
+    for (e, mut light, sun) in &mut lights {
+        if !q.is_changed() && !sun.is_added() {
+            continue;
+        }
+        if light.shadow_maps_enabled != q.shadows {
             light.shadow_maps_enabled = q.shadows;
         }
+        let t = TUNING.get();
+        let s = if q.short_shadows {
+            &t.short_shadows
+        } else {
+            &t.long_shadows
+        };
+        commands.entity(e).insert(s.config());
     }
 }
 
@@ -612,6 +681,9 @@ mod tests {
         let text = String::from_utf8_lossy(&bytes);
         assert!(text.contains("ssao_quality") && text.contains("max_megapixels"));
         assert!(TUNING.get().max_megapixels >= 0.0);
+        assert!(text.contains("long_shadows") && text.contains("short_shadows"));
+        assert!(TUNING.get().long_shadows.count >= TUNING.get().short_shadows.count);
+        assert!(TUNING.get().short_shadows.count >= 1);
     }
 
     #[test]
@@ -635,6 +707,22 @@ mod tests {
         let low = GraphicsQuality::from_text("low");
         assert_eq!(low.and_then(|q| q.preset()), Some(Preset::Low));
         assert_eq!(GraphicsQuality::from_text("garbage"), None);
+    }
+
+    #[test]
+    fn medium_uses_fxaa_and_shadows_cycle_long_short_off() {
+        let base = GraphicsQuality::platform_default();
+        let mut m = Preset::Medium.apply(base);
+        assert_eq!(m.value(VideoOption::AntiAlias), "FXAA");
+        assert!(!Preset::High.apply(base).short_shadows);
+        assert_eq!(m.value(VideoOption::Shadows), "Long");
+        m.cycle(VideoOption::Shadows);
+        assert_eq!(m.value(VideoOption::Shadows), "Short");
+        assert_eq!(m.preset(), None);
+        m.cycle(VideoOption::Shadows);
+        assert_eq!(m.value(VideoOption::Shadows), "Off");
+        m.cycle(VideoOption::Shadows);
+        assert_eq!(m.preset(), Some(Preset::Medium));
     }
 }
 

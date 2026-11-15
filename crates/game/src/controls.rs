@@ -70,7 +70,14 @@ fn track_last_input(
             || p.left_stick().length() > 0.5
             || p.right_stick().length() > 0.5
     });
-    let other = keys.read().count() > 0 || clicks.read().count() > 0 || motion.delta.length() > 4.0;
+    // Android pads send their buttons as keys (android_pad.rs).
+    let other = keys
+        .read()
+        .filter(|k| crate::android_pad::key_pad_button(k).is_none())
+        .count()
+        > 0
+        || clicks.read().count() > 0
+        || motion.delta.length() > 4.0;
     let want = active.is_some() || (!other && !touches.any_just_pressed() && last.0);
     last.set_if_neq(PadLast(want));
     if forced_device().is_some() {

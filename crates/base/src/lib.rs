@@ -13,6 +13,7 @@ pub mod voice_chat {
     pub use bevy_voice_chat::prelude::*;
 }
 
+pub mod android_pad;
 pub mod assets;
 pub mod graphics;
 pub mod hud;

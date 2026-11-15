@@ -1,0 +1,16 @@
+// Tuning for the wastes past the map's north edge (crates/world/src/wastes.rs, #391).
+// Edit and save: the running game picks it up within a second.
+(
+    // The world seed: the same seed is the same wastes.
+    seed: 391,
+    // Whether the map's north edge is open (walk out into the wastes).
+    open: true,
+    // A chunk is built when someone is this close to it (m).
+    load: 220.0,
+    // A chunk is dropped when everyone is further than this (m); more than `load`.
+    unload: 280.0,
+    // Chunks built per frame at most.
+    per_frame: 2,
+    // The wastes end this far from the middle of the map (m).
+    limit: 4000.0,
+)

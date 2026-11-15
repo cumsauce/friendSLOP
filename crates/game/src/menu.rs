@@ -118,13 +118,6 @@ pub fn code_in(text: &str) -> &str {
     }
 }
 
-pub(crate) const CARD: Color = theme::CARD;
-pub(crate) const PINK: Color = theme::PINK;
-pub(crate) const LILAC: Color = theme::LILAC;
-pub(crate) const MINT: Color = theme::MINT;
-pub(crate) const INK: Color = theme::INK;
-pub(crate) const SOFT_INK: Color = theme::SOFT_INK;
-
 #[derive(Component, Clone, Copy)]
 enum Label {
     Status,
@@ -1469,14 +1462,6 @@ fn hover_buttons(
             base.0
         };
     }
-}
-
-pub(crate) fn text(ui: &mut ChildSpawnerCommands, s: &str, size: f32, color: Color) {
-    ui.spawn((
-        Text::new(s),
-        TextFont::from_font_size(size),
-        TextColor(color),
-    ));
 }
 
 pub(crate) fn row(ui: &mut ChildSpawnerCommands, f: impl FnOnce(&mut ChildSpawnerCommands)) {

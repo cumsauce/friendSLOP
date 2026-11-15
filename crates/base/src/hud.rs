@@ -11,7 +11,7 @@ use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 
 use crate::AppState;
-use crate::theme::indigo as idg;
+use crate::theme::kit as kit_t;
 use crate::theme::{self, Pop};
 
 /// Where a piece of HUD text lives.
@@ -63,7 +63,7 @@ impl HudSlot {
     fn node(self) -> Node {
         // UI direction E: the slots sit around the new widgets (quest card
         // top-left, team strip top-right, status stack bottom-right).
-        let m = px(idg::EDGE);
+        let m = px(kit_t::EDGE);
         let mut n = Node {
             position_type: PositionType::Absolute,
             flex_direction: FlexDirection::Column,
@@ -153,16 +153,16 @@ pub struct First;
 /// Longest a shortened line gets before it's cut short (full text: Tab).
 const OWN_LINE_CHARS: usize = 44;
 
-// HUD lines sit on solid indigo-ink chips (UI direction E), so text is cream
-// with periwinkle and butter accents.
-pub const TEXT: Color = idg::CREAM;
-pub const DIM: Color = idg::PERIWINKLE;
-pub const WARN: Color = idg::BUTTER;
-pub const ACCENT: Color = idg::PERIWINKLE;
+// HUD lines sit on soot chips (the commune noticeboard kit), so text is cream
+// with dim and butter accents.
+pub const TEXT: Color = kit_t::TEXT;
+pub const DIM: Color = kit_t::TEXT_DIM;
+pub const WARN: Color = kit_t::BUTTER_400;
+pub const ACCENT: Color = kit_t::TEXT_DIM;
 /// Light text for labels floating over the world (no chip behind them).
-pub const LABEL: Color = theme::CREAM;
-const PANEL: Color = idg::INK;
-const BIG_PANEL: Color = idg::INK;
+pub const LABEL: Color = kit_t::TEXT;
+const PANEL: Color = kit_t::SOOT_800;
+const BIG_PANEL: Color = kit_t::SOOT_800;
 
 /// A feature's text colour, made readable on an ink chip: the old warning
 /// reds become butter, anything dark becomes cream, light colours stay.
@@ -170,11 +170,11 @@ pub fn on_ink(c: Color) -> Color {
     let s = c.to_srgba();
     let warm_warning = s.red > 0.7 && s.green < 0.45 && s.blue < 0.65;
     if warm_warning {
-        return idg::BUTTER.with_alpha(s.alpha);
+        return kit_t::BUTTER_400.with_alpha(s.alpha);
     }
     let luma = 0.2126 * s.red + 0.7152 * s.green + 0.0722 * s.blue;
     if luma < 0.55 {
-        idg::CREAM.with_alpha(s.alpha)
+        kit_t::TEXT.with_alpha(s.alpha)
     } else {
         c
     }
@@ -184,16 +184,22 @@ const FADE_HOLD: f32 = 5.0;
 const FADE_OUT: f32 = 1.2;
 
 pub fn normal() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(15.0), TextColor(TEXT))
+    (
+        TextFont::from_font_size(kit_t::size::LABEL),
+        TextColor(TEXT),
+    )
 }
 pub fn small() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(14.0), TextColor(DIM))
+    (TextFont::from_font_size(kit_t::size::LABEL), TextColor(DIM))
 }
 pub fn warning() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(15.0), TextColor(WARN))
+    (
+        TextFont::from_font_size(kit_t::size::LABEL),
+        TextColor(WARN),
+    )
 }
 pub fn banner() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(26.0), TextColor(TEXT))
+    (TextFont::from_font_size(kit_t::size::H2), TextColor(TEXT))
 }
 /// A cute rounded display-font heading (falls back to the HUD font).
 pub fn heading(size: f32) -> impl Bundle {
@@ -205,16 +211,19 @@ pub fn heading(size: f32) -> impl Bundle {
 }
 /// Section title (the "Commune of Dave" banner, overlay headings).
 pub fn title() -> (TextFont, TextColor) {
-    (TextFont::from_font_size(13.0), TextColor(ACCENT))
+    (
+        TextFont::from_font_size(kit_t::size::LABEL),
+        TextColor(ACCENT),
+    )
 }
 
 /// The card behind one line of slotted HUD text: solid ink, a quiet
 /// outline (subtitles: none), rounded corners. Banners get more air.
 fn chip(slot: HudSlot) -> impl Bundle {
     let (pad, radius, line) = match slot {
-        HudSlot::CenterBanner => (UiRect::axes(px(26), px(16)), 18.0, idg::BORDER),
-        HudSlot::Subtitle => (UiRect::axes(px(8), px(8)), 12.0, idg::INK),
-        _ => (UiRect::axes(px(8), px(6)), 12.0, idg::BORDER),
+        HudSlot::CenterBanner => (UiRect::axes(px(26), px(16)), 18.0, kit_t::SOOT_500),
+        HudSlot::Subtitle => (UiRect::axes(px(8), px(8)), 12.0, kit_t::SOOT_800),
+        _ => (UiRect::axes(px(10), px(7)), 10.0, kit_t::SOOT_500),
     };
     let border = 2.0;
     (
@@ -369,7 +378,7 @@ fn spawn_slots(mut commands: Commands) {
         let mut e = commands.spawn((s.node(), SlotRoot(s), DespawnOnExit(AppState::InGame)));
         let panel = (
             BackgroundColor(BIG_PANEL),
-            BorderColor::all(idg::BORDER),
+            BorderColor::all(kit_t::SOOT_500),
             theme::shadow(8.0, 28.0),
             UiTransform::default(),
         );
@@ -410,19 +419,20 @@ fn spawn_slots(mut commands: Commands) {
                 e.with_child((
                     JournalHint,
                     Node {
-                        width: px(188),
                         height: px(40),
-                        padding: UiRect::axes(px(12.0 - b), px(8.0 - b)),
+                        padding: UiRect::axes(px(14.0 - b), px(8.0 - b)),
                         border: UiRect::all(px(b)),
                         border_radius: BorderRadius::all(px(12)),
                         ..default()
                     },
-                    BackgroundColor(idg::INK),
-                    BorderColor::all(idg::BORDER),
+                    BackgroundColor(kit_t::SOOT_800),
+                    BorderColor::all(kit_t::SOOT_500),
                     children![(
                         Text::new(""),
-                        crate::input::Hint("{journal} / {journal_keep}   journal".into()),
-                        crate::ui::body(17.0, idg::CREAM)
+                        crate::input::Hint(
+                            "{journal} / {journal_keep}   journal    {settings}   pause".into()
+                        ),
+                        crate::ui::body(kit_t::size::LABEL, kit_t::TEXT)
                     )],
                 ));
             }
@@ -433,7 +443,7 @@ fn spawn_slots(mut commands: Commands) {
         Text::new(""),
         FpsText,
         TextFont::from_font_size(12.0),
-        TextColor(theme::INK),
+        TextColor(kit_t::INK),
         Node {
             position_type: PositionType::Absolute,
             bottom: px(4),

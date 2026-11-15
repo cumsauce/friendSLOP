@@ -11,6 +11,7 @@ use bevy::prelude::*;
 use super::pad_nav::PadFocusable;
 use super::{Regular, body, head};
 use crate::assets::DisplayText;
+use crate::input::{InputDevice, PadFamily};
 use crate::theme::Squishy;
 use crate::theme::kit::{self as t, size};
 
@@ -66,6 +67,35 @@ pub struct Fill(pub Color);
 /// Add the click with `.observe(..)`. For [`Look::Off`] use [`button_off`], which the pad skips.
 pub fn button(look: Look, label: &str, width: Val) -> impl Bundle {
     (button_base(look, label, width), PadFocusable)
+}
+
+/// A compact button, 44 px tall with its label centred: for rows of controls and for Back on
+/// a panel. Same colours as [`button`], pad-reachable.
+pub fn button_small(look: Look, label: &str, width: Val) -> impl Bundle {
+    button_sized(look, label, width, t::BUTTON_H - 12.0)
+}
+
+/// [`button_small`] at an explicit `height`, for a tall list of rows that must fit a panel.
+pub fn button_sized(look: Look, label: &str, width: Val, height: f32) -> impl Bundle {
+    (
+        Node {
+            width,
+            height: px(height),
+            padding: UiRect::horizontal(px(8)),
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            border_radius: BorderRadius::all(px(t::R_BUTTON)),
+            ..default()
+        },
+        BackgroundColor(look.fill()),
+        BoxShadow::new(look.lip(), px(0), px(t::LIP), px(0), px(0)),
+        Fill(look.fill()),
+        Hovered::default(),
+        Squishy::default(),
+        UiTransform::default(),
+        PadFocusable,
+        children![(Text::new(label.to_string()), body(size::BODY, look.ink()))],
+    )
 }
 
 /// A button that is not available yet: soot, dim text, skipped by the pad.
@@ -210,12 +240,52 @@ impl Glyph {
         }
     }
 
-    fn letter(self) -> &'static str {
-        match self {
-            Glyph::A => "A",
-            Glyph::B => "B",
-            Glyph::X => "X",
-            Glyph::Y => "Y",
+    /// The letter on this face button for the pad in the player's hands. A, B, X and Y name
+    /// the Xbox positions (bottom, right, left, top); other makers label the same
+    /// positions differently, so the text follows the family while the colour stays put.
+    pub fn letter(self, family: PadFamily) -> &'static str {
+        match (self, family) {
+            (Glyph::A, PadFamily::PlayStation) => "×",
+            (Glyph::B, PadFamily::PlayStation) => "O",
+            (Glyph::X, PadFamily::PlayStation) => "Sq",
+            (Glyph::Y, PadFamily::PlayStation) => "Tr",
+            (Glyph::A, PadFamily::Nintendo) => "B",
+            (Glyph::B, PadFamily::Nintendo) => "A",
+            (Glyph::X, PadFamily::Nintendo) => "Y",
+            (Glyph::Y, PadFamily::Nintendo) => "X",
+            (Glyph::A, _) => "A",
+            (Glyph::B, _) => "B",
+            (Glyph::X, _) => "X",
+            (Glyph::Y, _) => "Y",
+        }
+    }
+}
+
+/// The family of pad the player used last; keyboard and touch keep Xbox letters.
+fn current_family() -> PadFamily {
+    match crate::input::device() {
+        InputDevice::Pad(f) => f,
+        _ => PadFamily::Xbox,
+    }
+}
+
+/// Marks a glyph's letter so it is re-lettered when the player changes pad.
+#[derive(Component, Clone, Copy)]
+struct GlyphLetter(Glyph);
+
+fn relabel_glyphs(
+    mut last: Local<Option<PadFamily>>,
+    mut letters: Query<(Ref<GlyphLetter>, &mut Text)>,
+) {
+    let family = current_family();
+    let changed = *last != Some(family);
+    *last = Some(family);
+    for (letter, mut text) in &mut letters {
+        if changed || letter.is_added() {
+            let want = letter.0.letter(family);
+            if text.0 != want {
+                text.0 = want.to_string();
+            }
         }
     }
 }
@@ -234,7 +304,11 @@ pub fn glyph(g: Glyph) -> impl Bundle {
         },
         BackgroundColor(t::SOOT_900),
         BorderColor::all(g.ring()),
-        children![(Text::new(g.letter()), body(size::LABEL, t::TEXT))],
+        children![(
+            Text::new(g.letter(current_family())),
+            GlyphLetter(g),
+            body(size::LABEL, t::TEXT)
+        )],
     )
 }
 
@@ -296,7 +370,7 @@ pub fn meter(share: f32, fill: Color) -> impl Bundle {
 }
 
 /// Heading text in Bowlby One at `size`.
-pub fn display(text: &str, size: f32, color: Color) -> impl Bundle {
+pub fn display(text: &str, size: f32, color: Color) -> impl Bundle + use<> {
     (
         Text::new(text.to_string()),
         TextFont {
@@ -320,7 +394,7 @@ fn hover_fill(mut q: Query<(&Hovered, &Fill, &mut BackgroundColor), Changed<Hove
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(Update, hover_fill);
+    app.add_systems(Update, (hover_fill, relabel_glyphs));
 }
 
 #[cfg(test)]
@@ -335,6 +409,17 @@ mod tests {
         }
         // Dim text on soot, never ink on soot.
         assert_eq!(Look::Off.ink(), t::TEXT_DIM);
+    }
+
+    #[test]
+    fn letters_follow_the_pad_family() {
+        assert_eq!(Glyph::A.letter(PadFamily::Xbox), "A");
+        assert_eq!(Glyph::A.letter(PadFamily::Steam), "A");
+        // Nintendo's bottom button is B and its right one is A.
+        assert_eq!(Glyph::A.letter(PadFamily::Nintendo), "B");
+        assert_eq!(Glyph::B.letter(PadFamily::Nintendo), "A");
+        assert_eq!(Glyph::A.letter(PadFamily::PlayStation), "×");
+        assert_eq!(Glyph::B.letter(PadFamily::PlayStation), "O");
     }
 
     #[test]

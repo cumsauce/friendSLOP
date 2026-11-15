@@ -137,14 +137,16 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 
 ## Fonts (`fonts/`)
 
-- `fonts/AtkinsonHyperlegible-Regular.ttf`, `fonts/AtkinsonHyperlegible-Bold.ttf` —
+- `fonts/SlopLegible-Regular.ttf`, `fonts/SlopLegible-Bold.ttf` — modified from
   **Atkinson Hyperlegible** by the Braille Institute of America (https://brailleinstitute.org/freefont),
-  licensed under the [SIL Open Font License 1.1](https://openfontlicense.org). Reading text:
+  licensed under the [SIL Open Font License 1.1](https://openfontlicense.org) (the licence stays
+  with the files; the copyright notice is kept in the font). Modified: the slashed zero is an open
+  oval, so numbers read as plain figures; renamed so the original name is not used. Reading text:
   buttons, rows, toasts, hints. The HUD falls back to Bevy's built-in font if the files are missing.
 - `fonts/LilitaOne-Regular.ttf` — **Lilita One** by Juan Montoreano, from
   [google/fonts](https://github.com/google/fonts/tree/main/ofl/lilitaone), licensed under the
   [SIL Open Font License 1.1](https://openfontlicense.org). Card titles, tabs and counters;
-  that text falls back to Atkinson Hyperlegible Bold if the file is missing.
+  that text falls back to Slop Legible Bold if the file is missing.
 - `fonts/BowlbyOne-Regular.ttf` — **Bowlby One** by Vernon Adams, from
   [google/fonts](https://github.com/google/fonts/tree/main/ofl/bowlbyone), licensed under the
   [SIL Open Font License 1.1](https://openfontlicense.org). Screen headings, the logo words and

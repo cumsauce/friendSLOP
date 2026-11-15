@@ -93,7 +93,7 @@ pub fn card(w: f32, h: f32, radius: f32, border: f32, fill: Color, line: Color) 
 #[derive(Component)]
 pub struct HudRoot;
 
-/// The heading font (Lilita One). Missing file: [`Head`] text falls back to Atkinson Hyperlegible Bold.
+/// The heading font (Lilita One). Missing file: [`Head`] text falls back to Slop Legible Bold.
 #[derive(Resource, Clone)]
 pub struct HeadFont(pub Handle<Font>);
 
@@ -152,7 +152,7 @@ fn scale_ui(window: Query<&Window, With<PrimaryWindow>>, mut scale: ResMut<UiSca
 }
 
 /// Give [`Body`] / [`Head`] text their faces once loaded. A missing Lilita One
-/// falls back to Atkinson Hyperlegible Bold; a missing Atkinson keeps Bevy's font.
+/// falls back to Slop Legible Bold; a missing Slop Legible keeps Bevy's font.
 fn apply_fonts(
     assets: Option<Res<AssetServer>>,
     ui: Option<Res<crate::assets::UiFont>>,

@@ -196,16 +196,17 @@ fn spawn(mut commands: Commands) {
                         height: px(42),
                         border: UiRect::all(px(B)),
                         border_radius: BorderRadius::all(px(12)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        column_gap: px(8),
                         ..at(1018.0, 20.0, B)
                     },
                     BackgroundColor(SOOT_700),
                     BorderColor::all(SOOT_500),
-                    children![(
-                        Text::new(""),
+                    crate::input::KeyRow::new(
                         crate::input::Hint("{back}   close".into()),
-                        body(17.0, TEXT),
-                        at(11.0, 8.0, B)
-                    )],
+                        crate::input::KeyStyle::Dark,
+                    ),
                 ),
                 (
                     Content,

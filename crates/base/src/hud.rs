@@ -420,20 +420,21 @@ fn spawn_slots(mut commands: Commands) {
                     JournalHint,
                     Node {
                         height: px(40),
-                        padding: UiRect::axes(px(14.0 - b), px(8.0 - b)),
+                        align_items: AlignItems::Center,
+                        column_gap: px(8),
+                        padding: UiRect::axes(px(14.0 - b), px(0)),
                         border: UiRect::all(px(b)),
                         border_radius: BorderRadius::all(px(12)),
                         ..default()
                     },
                     BackgroundColor(kit_t::SOOT_800),
                     BorderColor::all(kit_t::SOOT_500),
-                    children![(
-                        Text::new(""),
+                    crate::input::KeyRow::new(
                         crate::input::Hint(
-                            "{journal} / {journal_keep}   journal    {settings}   pause".into()
+                            "{journal} / {journal_keep}   journal    {settings}   pause".into(),
                         ),
-                        crate::ui::body(kit_t::size::LABEL, kit_t::TEXT)
-                    )],
+                        crate::input::KeyStyle::Dark,
+                    ),
                 ));
             }
             _ => {}

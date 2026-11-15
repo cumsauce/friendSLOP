@@ -34,7 +34,7 @@ impl DisplayFont {
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub struct DisplayText;
 
-/// The reading font (`assets/fonts/AtkinsonHyperlegible-Regular.ttf`, OFL; the
+/// The reading font (`assets/fonts/SlopLegible-Regular.ttf`, OFL; the
 /// Bold file is the same family, kept alive in [`UiFontBold`], and weight 700
 /// picks it). Only use it once [`UiFont::ready`] says so; until then (or if the
 /// file is missing) text keeps Bevy's built-in default font.
@@ -80,12 +80,8 @@ fn apply_display_font(
 
 fn load_font(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     let Some(assets) = assets else { return };
-    commands.insert_resource(UiFont(
-        assets.load("fonts/AtkinsonHyperlegible-Regular.ttf"),
-    ));
-    commands.insert_resource(UiFontBold(
-        assets.load("fonts/AtkinsonHyperlegible-Bold.ttf"),
-    ));
+    commands.insert_resource(UiFont(assets.load("fonts/SlopLegible-Regular.ttf")));
+    commands.insert_resource(UiFontBold(assets.load("fonts/SlopLegible-Bold.ttf")));
     commands.insert_resource(DisplayFont(assets.load("fonts/BowlbyOne-Regular.ttf")));
 }
 

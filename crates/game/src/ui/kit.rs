@@ -63,7 +63,7 @@ impl Look {
 #[derive(Component, Clone, Copy, Debug)]
 pub struct Fill(pub Color);
 
-/// A button: `label` in Atkinson Bold 22, a lip under it, [`t::BUTTON_H`] tall and `width` wide.
+/// A button: `label` in Slop Legible Bold 22, a lip under it, [`t::BUTTON_H`] tall and `width` wide.
 /// Add the click with `.observe(..)`. For [`Look::Off`] use [`button_off`], which the pad skips.
 pub fn button(look: Look, label: &str, width: Val) -> impl Bundle {
     (button_base(look, label, width), PadFocusable)

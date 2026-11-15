@@ -137,21 +137,18 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 
 ## Fonts (`fonts/`)
 
-- `fonts/Nunito.ttf` — **Nunito** (variable weight) by The Nunito Project Authors
-  (https://github.com/googlefonts/nunito), from
-  [google/fonts](https://github.com/google/fonts/tree/main/ofl/nunito), licensed under the
-  [SIL Open Font License 1.1](https://openfontlicense.org). Used for HUD text; the HUD falls
-  back to Bevy's built-in font if the file is missing.
-- `fonts/Sniglet-ExtraBold.ttf` — **Sniglet** ExtraBold by Haley Fiege, Brenda Gallo and Pablo
-  Impallari, from [google/fonts](https://github.com/google/fonts/tree/main/ofl/sniglet), licensed
-  under the [SIL Open Font License 1.1](https://openfontlicense.org). Round display font for
-  titles and banners; they keep the HUD font if the file is missing.
-- `fonts/Fredoka.ttf` — **Fredoka** (variable weight and width) by The Fredoka Project Authors
-  (https://github.com/hafontia/Fredoka-One), from
-  [google/fonts](https://github.com/google/fonts/tree/main/ofl/fredoka), licensed under the
-  [SIL Open Font License 1.1](https://openfontlicense.org). Display face of the "Indigo
-  journal" HUD (card titles, countdowns, the prompt's verb), used at SemiBold; that text
-  falls back to Nunito ExtraBold if the file is missing.
+- `fonts/AtkinsonHyperlegible-Regular.ttf`, `fonts/AtkinsonHyperlegible-Bold.ttf` —
+  **Atkinson Hyperlegible** by the Braille Institute of America (https://brailleinstitute.org/freefont),
+  licensed under the [SIL Open Font License 1.1](https://openfontlicense.org). Reading text:
+  buttons, rows, toasts, hints. The HUD falls back to Bevy's built-in font if the files are missing.
+- `fonts/LilitaOne-Regular.ttf` — **Lilita One** by Juan Montoreano, from
+  [google/fonts](https://github.com/google/fonts/tree/main/ofl/lilitaone), licensed under the
+  [SIL Open Font License 1.1](https://openfontlicense.org). Card titles, tabs and counters;
+  that text falls back to Atkinson Hyperlegible Bold if the file is missing.
+- `fonts/BowlbyOne-Regular.ttf` — **Bowlby One** by Vernon Adams, from
+  [google/fonts](https://github.com/google/fonts/tree/main/ofl/bowlbyone), licensed under the
+  [SIL Open Font License 1.1](https://openfontlicense.org). Screen headings, the logo words and
+  big numbers; they keep the reading font if the file is missing.
 - `ui/*.png` (mic, mic_slash, tear, gas, cat, warn, target, hand) — the HUD's glyphs, drawn
   for friendSLOP in its Figma UI kit ("E · Indigo journal") and released as **CC0**.
   Rasterised white at 64 px with `resvg` and tinted in game; a missing file draws nothing

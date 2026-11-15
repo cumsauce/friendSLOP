@@ -5,23 +5,26 @@
 
 use bevy::prelude::*;
 
-use super::{Overlay, at, body, head};
+use super::kit::{self, Glyph};
+use super::pad_nav::PadHint;
+use super::pause::PausePanel;
+use super::{Overlay, Regular, body, head};
 use crate::AppState;
 use crate::features::campaign::{CHAPTERS, Campaign};
-use crate::theme::indigo::{BORDER, BUTTER, CREAM, INDIGO, INK, PERIWINKLE};
+use crate::theme::kit::{CARD_100, CARD_500, INK, RENT_500, SLOP_400, SLOP_600, TAPE_200, size};
 
-const B: f32 = 2.0;
 /// How long the card stays before shrinking away.
 pub const STAY_SECS: f32 = 6.0;
 const SHRINK_SECS: f32 = 0.35;
 
-/// "CHAPTER 02     /     05".
-pub fn chapter_line(chapter: usize) -> String {
-    format!(
-        "CHAPTER {:02}     /     {:02}",
-        chapter + 1,
-        CHAPTERS.get().len()
-    )
+/// "02", the chapter's number in the big red digits.
+pub fn chapter_number(chapter: usize) -> String {
+    format!("{:02}", chapter + 1)
+}
+
+/// "/ 05", how many chapters there are, beside the big number.
+pub fn chapter_total() -> String {
+    format!("/ {:02}", CHAPTERS.get().len())
 }
 
 /// The intro flattened onto one paragraph (the source wraps for the old
@@ -68,11 +71,12 @@ fn show(
     ready: Option<Res<crate::loading::WorldReady>>,
     mut intro: ResMut<Intro>,
     campaign: Query<&Campaign>,
-    mut card: Query<(Entity, &mut UiTransform), With<Card>>,
+    pause: Query<&Node, With<PausePanel>>,
+    mut card: Query<(Entity, &mut UiTransform, &mut Visibility), With<Card>>,
 ) {
     let Ok(c) = campaign.single() else { return };
     if intro.shown != Some(c.chapter) {
-        for (e, _) in &card {
+        for (e, ..) in &card {
             commands.entity(e).despawn();
         }
         *intro = Intro {
@@ -85,6 +89,20 @@ fn show(
     if intro.dismissed {
         return;
     }
+    let Ok((e, mut tf, mut vis)) = card.single_mut() else {
+        return;
+    };
+    // The pause screen has the stage: the card waits behind it, unseen, not ageing, and
+    // Esc (which closes the pause screen) does not also put the card away.
+    let paused = pause.iter().any(|n| n.display != Display::None);
+    vis.set_if_neq(if paused {
+        Visibility::Hidden
+    } else {
+        Visibility::Inherited
+    });
+    if paused {
+        return;
+    }
     // The clock starts once the loading curtain has lifted.
     if ready.is_some_and(|r| r.ready) {
         intro.age += time.delta_secs();
@@ -92,9 +110,6 @@ fn show(
     if keys.any_just_pressed([KeyCode::Enter, KeyCode::NumpadEnter, KeyCode::Escape]) {
         intro.age = intro.age.max(STAY_SECS);
     }
-    let Ok((e, mut tf)) = card.single_mut() else {
-        return;
-    };
     let t = ((intro.age - STAY_SECS) / SHRINK_SECS).clamp(0.0, 1.0);
     if t >= 1.0 {
         intro.dismissed = true;
@@ -102,13 +117,17 @@ fn show(
         return;
     }
     // Shrink up towards the quest card in the top-left corner.
-    let s = 1.0 - t * t;
+    let s: f32 = 1.0 - t * t;
     let want = Vec2::splat(s.max(0.05));
     if tf.scale != want {
         tf.scale = want;
         tf.translation = Val2::px(-220.0 * t, -300.0 * t);
     }
 }
+
+/// Longest task line the card shows before it ends in "..." (20 px bold text in a
+/// 400 px column, with room to spare).
+const TASK_CHARS: usize = 38;
 
 fn card_for(c: &Campaign) -> impl Bundle {
     let ch = c.current();
@@ -120,73 +139,92 @@ fn card_for(c: &Campaign) -> impl Bundle {
         .map(|(i, t)| (t.label().to_string(), c.task_done(i)))
         .collect();
     let more = ch.tasks.len().saturating_sub(4);
+    let number = chapter_number(c.chapter);
     (
         Card,
         Node {
             position_type: PositionType::Absolute,
             left: px(24),
-            top: px(198),
+            top: px(190),
             width: px(465),
-            height: px(411),
-            border: UiRect::all(px(B)),
-            border_radius: BorderRadius::all(px(18)),
-            overflow: Overflow::clip(),
+            flex_direction: FlexDirection::Column,
+            padding: UiRect::axes(px(26), px(22)),
+            border_radius: BorderRadius::all(px(4)),
             ..default()
         },
         UiTransform::default(),
-        BackgroundColor(INK),
-        BorderColor::all(BORDER),
+        // Cardboard on its shade layer, held on by tape, like the rest of the notice board.
+        BackgroundColor(CARD_100),
+        BoxShadow::new(CARD_500, px(5), px(6), px(0), px(0)),
         GlobalZIndex(25),
         Pickable::IGNORE,
         DespawnOnExit(AppState::InGame),
         Children::spawn((
             Spawn((
-                Text::new(chapter_line(c.chapter)),
-                body(18.0, PERIWINKLE),
-                at(22.0, 18.0, B),
+                Node {
+                    position_type: PositionType::Absolute,
+                    top: px(-10),
+                    left: px(150),
+                    width: px(90),
+                    height: px(22),
+                    ..default()
+                },
+                BackgroundColor(TAPE_200.with_alpha(0.9)),
+                UiTransform::from_rotation(Rot2::degrees(-3.0)),
+            )),
+            Spawn((Text::new("CHAPTER"), body(size::LABEL, INK))),
+            Spawn((
+                Node {
+                    align_items: AlignItems::Baseline,
+                    column_gap: px(12),
+                    ..default()
+                },
+                children![
+                    kit::display(&number, size::DISPLAY, RENT_500),
+                    (Text::new(chapter_total()), head(size::H2, CARD_500),),
+                ],
             )),
             Spawn((
                 Text::new(ch.name.clone()),
-                head(40.0, CREAM),
+                head(size::H1, INK),
                 Node {
-                    width: px(417),
-                    ..at(22.0, 52.0, B)
+                    margin: UiRect::vertical(px(6)),
+                    ..default()
                 },
             )),
             Spawn((
                 Text::new(blurb(&ch.intro)),
-                body(15.0, CREAM),
+                body(size::BODY_REG, INK),
+                Regular,
                 Node {
-                    width: px(417),
-                    ..at(22.0, 106.0, B)
+                    margin: UiRect::bottom(px(12)),
+                    ..default()
                 },
             )),
-            SpawnIter(tasks.into_iter().enumerate().map(|(i, (label, done))| {
+            SpawnIter(tasks.into_iter().map(|(label, done)| {
                 (
                     Node {
-                        width: px(417),
                         column_gap: px(10),
                         align_items: AlignItems::Center,
-                        ..at(22.0, 218.0 + 27.0 * i as f32, B)
+                        margin: UiRect::bottom(px(6)),
+                        ..default()
                     },
                     children![
                         (
                             Node {
-                                width: px(12),
-                                height: px(12),
-                                border: UiRect::all(px(2)),
-                                border_radius: BorderRadius::all(px(3)),
+                                width: px(13),
+                                height: px(13),
+                                border_radius: BorderRadius::MAX,
                                 ..default()
                             },
-                            BorderColor::all(CREAM),
-                            BackgroundColor(if done { BUTTER } else { Color::NONE }),
+                            BackgroundColor(if done { SLOP_400 } else { SLOP_600 }),
                         ),
                         (
-                            Text::new(label),
-                            body(15.0, CREAM),
+                            Text::new(super::ellipsize(&label, TASK_CHARS)),
+                            body(size::BODY_REG, INK),
                             TextLayout::no_wrap(),
                             Node {
-                                max_width: px(395),
+                                max_width: px(390),
                                 overflow: Overflow::clip(),
                                 ..default()
                             },
@@ -200,34 +238,42 @@ fn card_for(c: &Campaign) -> impl Bundle {
                 } else {
                     String::new()
                 }),
-                body(13.0, PERIWINKLE),
-                at(22.0, 218.0 + 27.0 * 4.0, B),
+                body(size::LABEL, CARD_500),
             )),
             Spawn((
                 Node {
-                    width: px(190),
-                    height: px(44),
-                    border: UiRect::all(px(B)),
-                    border_radius: BorderRadius::all(px(12)),
-                    ..at(22.0, 342.0, B)
+                    margin: UiRect::top(px(16)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::SpaceBetween,
+                    ..default()
                 },
-                BackgroundColor(INDIGO),
-                BorderColor::all(BORDER),
-                children![(
-                    Text::new(""),
-                    crate::input::Hint("{confirm}   continue".into()),
-                    body(17.0, CREAM),
-                    at(10.0, 8.0, B)
-                )],
-            )),
-            Spawn((
-                Text::new(""),
-                crate::input::Hint("Shrinks to goal card in 6 s  ·  {back} dismiss".into()),
-                body(13.0, CREAM),
-                Node {
-                    width: px(215),
-                    ..at(228.0, 349.0, B)
-                },
+                children![
+                    (
+                        Node {
+                            flex_direction: FlexDirection::Column,
+                            row_gap: px(6),
+                            ..default()
+                        },
+                        children![
+                            (
+                                Text::new("Shrinks to the quest card in 6 s"),
+                                body(size::LABEL, CARD_500),
+                            ),
+                            (
+                                Node {
+                                    align_items: AlignItems::Center,
+                                    column_gap: px(8),
+                                    ..default()
+                                },
+                                crate::input::KeyRow::new(
+                                    crate::input::Hint("{back} dismiss".into()),
+                                    crate::input::KeyStyle::Card,
+                                ),
+                            ),
+                        ],
+                    ),
+                    (PadHint, kit::hint(Glyph::A, "Got it")),
+                ],
             )),
         )),
     )
@@ -239,7 +285,8 @@ mod tests {
 
     #[test]
     fn chapter_line_and_blurb() {
-        assert_eq!(chapter_line(1), "CHAPTER 02     /     05");
+        assert_eq!(chapter_number(1), "02");
+        assert_eq!(chapter_total(), format!("/ {:02}", CHAPTERS.get().len()));
         assert_eq!(blurb("one two\n   three"), "one two three");
     }
 }

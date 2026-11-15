@@ -11,7 +11,8 @@
 //! # the 9 s "CHAPTER 1" card is gone)
 //! FRIENDSLOP_SCREENSHOT_WAIT=12
 //! # optional: force a HUD state for visual checks against the Figma frames
-//! # (play, busy, full, clickable, chapter, tab; see `Scene`)
+//! # (play, busy, full, clickable, chapter, tab, pause, journal; title, settings, join, creator,
+//! # fault and kori run without `host`; see `Scene`)
 //! FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt  (lines `out.png x,y,z,lx,ly,lz`; edit and save it
 //!   while the game runs to take more pictures without restarting)
 //! FRIENDSLOP_SCREENSHOT_SCENE=busy
@@ -60,6 +61,18 @@ pub enum Scene {
     Title,
     /// The title screen with the settings notebook open (run without `host`).
     Settings,
+    /// The join screen with a code typed in and the join under way (run without `host`).
+    Join,
+    /// The character creator open (run without `host`).
+    Creator,
+    /// The Whose fault is it list open (run without `host`).
+    Fault,
+    /// The Kori prize shelf open (run without `host`).
+    Kori,
+    /// The journal kept open on its first tab.
+    Journal,
+    /// The pause screen (Esc in game).
+    Pause,
     /// The loading curtain, shot before it lifts.
     Loading,
     /// The world with no UI at all (README pictures).
@@ -78,6 +91,12 @@ impl Scene {
             "tab" => Scene::Tab,
             "title" => Scene::Title,
             "settings" => Scene::Settings,
+            "join" => Scene::Join,
+            "creator" => Scene::Creator,
+            "fault" => Scene::Fault,
+            "kori" => Scene::Kori,
+            "journal" => Scene::Journal,
+            "pause" => Scene::Pause,
             "loading" => Scene::Loading,
             "clean" => Scene::Clean,
             "full" => Scene::Full,
@@ -90,6 +109,8 @@ impl Scene {
         match self {
             // After the chapter card (9 s).
             Scene::Play
+            | Scene::Journal
+            | Scene::Pause
             | Scene::Tab
             | Scene::Busy
             | Scene::Full
@@ -98,7 +119,12 @@ impl Scene {
             // Before the chapter intro shrinks away.
             Scene::Chapter => 2.0,
             // Real seconds after the title screen opens.
-            Scene::Title | Scene::Settings => 4.0,
+            Scene::Title
+            | Scene::Settings
+            | Scene::Join
+            | Scene::Creator
+            | Scene::Fault
+            | Scene::Kori => 4.0,
             // Real seconds after entering the game, curtain still up.
             Scene::Loading => 0.6,
         }
@@ -106,12 +132,29 @@ impl Scene {
 
     /// Shot on the title screen instead of in game.
     pub fn on_title(self) -> bool {
-        matches!(self, Scene::Title | Scene::Settings)
+        matches!(
+            self,
+            Scene::Title
+                | Scene::Settings
+                | Scene::Join
+                | Scene::Creator
+                | Scene::Fault
+                | Scene::Kori
+        )
     }
 
     /// Doesn't wait for the loading curtain to lift.
     fn early(self) -> bool {
-        matches!(self, Scene::Title | Scene::Settings | Scene::Loading)
+        matches!(
+            self,
+            Scene::Title
+                | Scene::Settings
+                | Scene::Join
+                | Scene::Creator
+                | Scene::Fault
+                | Scene::Kori
+                | Scene::Loading
+        )
     }
 }
 
@@ -374,6 +417,38 @@ impl Plugin for ScreenshotPlugin {
             Scene::Settings => {
                 app.add_systems(Update, open_settings.run_if(in_state(AppState::Menu)));
             }
+            Scene::Join => {
+                app.add_systems(Update, stage_join.run_if(in_state(AppState::Menu)));
+            }
+            Scene::Creator => {
+                app.add_systems(
+                    Update,
+                    (|mut open: ResMut<crate::creator::CreatorOpen>| open.0 = true)
+                        .run_if(in_state(AppState::Menu)),
+                );
+            }
+            Scene::Fault => {
+                app.add_systems(
+                    Update,
+                    open_panel::<crate::fault::FaultPanel>.run_if(in_state(AppState::Menu)),
+                );
+            }
+            Scene::Kori => {
+                app.add_systems(
+                    Update,
+                    open_panel::<crate::kori_shelf::ShelfPanel>.run_if(in_state(AppState::Menu)),
+                );
+            }
+            Scene::Pause => {
+                app.add_systems(Update, open_pause.run_if(in_state(AppState::InGame)));
+            }
+            Scene::Journal => {
+                app.add_systems(
+                    Update,
+                    (|mut journal: ResMut<crate::ui::journal::Journal>| journal.kept = true)
+                        .run_if(in_state(AppState::InGame)),
+                );
+            }
             Scene::Busy | Scene::Full => {
                 if scene == Scene::Full {
                     app.insert_resource(crate::hud::ShowAll(true));
@@ -490,6 +565,52 @@ fn open_settings(
     if !*done && !panel.is_empty() {
         *done = true;
         crate::ui::settings_panel::toggle(&mut panel);
+    }
+}
+
+/// Fault and Kori scenes: show the panel once.
+fn open_panel<P: Component>(mut done: Local<bool>, mut panel: Query<&mut Node, With<P>>) {
+    if !*done && !panel.is_empty() {
+        *done = true;
+        for mut n in &mut panel {
+            n.display = Display::Flex;
+        }
+    }
+}
+
+/// Pause scene: open the pause screen once.
+fn open_pause(
+    mut done: Local<bool>,
+    mut panel: Query<&mut Node, With<crate::ui::pause::PausePanel>>,
+) {
+    if !*done && !panel.is_empty() {
+        *done = true;
+        for mut n in &mut panel {
+            n.display = Display::Flex;
+        }
+    }
+}
+
+/// Join scene: a code in the box and a join under way, once.
+fn stage_join(
+    mut done: Local<bool>,
+    mut code: ResMut<crate::menu::JoinCode>,
+    mut connecting: ResMut<crate::menu::Connecting>,
+    mut status: ResMut<crate::net::NetStatus>,
+    mut panel: Query<&mut Node, With<crate::menu::JoinPanel>>,
+    mut lan: ResMut<crate::lan::LanGames>,
+) {
+    // Two games heard near you, kept fresh so the list is still there for the picture.
+    lan.heard("5be1f0c3a9d24e87", "Moss");
+    lan.heard("c04d77e2b19a3f60", "Dave");
+    if !*done && !panel.is_empty() {
+        *done = true;
+        for mut n in &mut panel {
+            n.display = Display::Flex;
+        }
+        code.0 = "9f3ac1d27be84e0653a1c7d9".into();
+        connecting.stage(&code.0);
+        status.message = crate::input::fill("Connecting... {back} cancels.");
     }
 }
 

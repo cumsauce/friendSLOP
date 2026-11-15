@@ -12,6 +12,7 @@ use super::pad_nav::{PadFocusable, PadNudge, PadSlider};
 use super::{at, body, head};
 use crate::AppState;
 use crate::controls::PadSettings;
+
 use crate::graphics::{GraphicsQuality, Preset, VideoOption};
 use crate::settings::Settings;
 
@@ -26,14 +27,24 @@ pub fn help_column(i: usize, device: crate::input::InputDevice) -> String {
         .collect::<Vec<_>>()
         .join("\n")
 }
-use crate::theme::indigo::{BORDER, CREAM, INDIGO, INK, LAVENDER, PAPER};
+use crate::theme::kit as t;
 use crate::voice::VoiceMuted;
 
 const B: f32 = 2.0;
-const TRACK: Color = Color::srgb_u8(0xD8, 0xCC, 0xE7);
-const OFF_FILL: Color = Color::srgb_u8(0xE5, 0xDC, 0xE6);
-const OFF_LINE: Color = Color::srgb_u8(0xC5, 0xB7, 0xD3);
+/// Text on soot, rows on a panel, the one slime-green accent, ink on slime, soot borders.
+const TEXT: Color = t::TEXT;
+const RAISED: Color = t::SOOT_700;
+const PANEL: Color = t::SOOT_800;
+const ACCENT: Color = t::SLOP_400;
+const ON_ACCENT: Color = t::INK;
+const LINE: Color = t::SOOT_500;
+const TRACK: Color = t::SOOT_900;
+const OFF_FILL: Color = t::SOOT_800;
+const OFF_LINE: Color = t::SOOT_700;
 const SLIDER_W: f32 = 370.0;
+/// Where each page's one card stands: centred in the 1200 px notebook.
+const CARD_X: f32 = 245.0;
+const AUDIO_X: f32 = 395.0;
 
 /// The video options shown as checkboxes, in grid order.
 pub const VIDEO_BOXES: [VideoOption; 9] = [
@@ -91,6 +102,17 @@ pub fn volume_at(frac: f32) -> f32 {
 pub struct SettingsPanel;
 
 /// Open or close the notebook.
+pub fn toggle_any<F: bevy::ecs::query::QueryFilter>(panel: &mut Query<&mut Node, F>) {
+    for mut n in panel.iter_mut() {
+        n.display = if n.display == Display::None {
+            Display::Flex
+        } else {
+            Display::None
+        };
+    }
+}
+
+/// Open or close the notebook.
 pub fn toggle(panel: &mut Query<&mut Node, With<SettingsPanel>>) {
     for mut n in panel.iter_mut() {
         n.display = if n.display == Display::None {
@@ -108,6 +130,18 @@ enum Page {
     Controls,
 }
 
+impl Page {
+    /// Does this page show `card`? Each page has exactly one card.
+    fn shows(self, card: Part) -> bool {
+        matches!(
+            (self, card),
+            (Page::Audio, Part::AudioCard)
+                | (Page::Video, Part::VideoCard)
+                | (Page::Controls, Part::ControlsCard)
+        )
+    }
+}
+
 #[derive(Resource)]
 struct OnPage(Page);
 
@@ -115,6 +149,8 @@ struct OnPage(Page);
 enum Part {
     PageTab(Page),
     PresetTab(Option<Preset>),
+    /// The audio page: volumes, mic and the HALT switch.
+    AudioCard,
     VideoCard,
     ControlsCard,
     Pct(Volume),
@@ -235,73 +271,18 @@ enum Check {
 
 pub fn plugin(app: &mut App) {
     app.insert_resource(OnPage(Page::Video))
-        .init_resource::<Freed>()
         .add_systems(OnEnter(AppState::Menu), spawn_in(AppState::Menu))
         .add_systems(OnEnter(AppState::InGame), spawn_in(AppState::InGame))
-        .add_systems(Update, close_on_esc.run_if(in_state(AppState::Menu)))
         .add_systems(
             Update,
-            (esc_in_game, free_mouse)
-                .chain()
-                .run_if(in_state(AppState::InGame)),
+            super::pause::free_mouse.run_if(in_state(AppState::InGame)),
         )
         .add_systems(Update, refresh);
-}
-
-/// Whether opening the notebook freed a locked first-person mouse (so
-/// closing it locks it again).
-#[derive(Resource, Default)]
-struct Freed(bool);
-
-fn is_open(panel: &Query<&mut Node, With<SettingsPanel>>) -> bool {
-    panel.iter().any(|n| n.display != Display::None)
-}
-
-/// Esc in game opens or closes the notebook (unless the journal or chapter
-/// intro is up: that Esc is theirs).
-fn esc_in_game(
-    keys: Res<ButtonInput<KeyCode>>,
-    overlay: Res<crate::ui::Overlay>,
-    mut panel: Query<&mut Node, With<SettingsPanel>>,
-) {
-    if !keys.just_pressed(KeyCode::Escape) {
-        return;
-    }
-    if !is_open(&panel) && (overlay.journal || overlay.intro) {
-        return;
-    }
-    toggle(&mut panel);
-}
-
-/// Free the mouse while the notebook is open, and tell clicks and Esc it's up.
-fn free_mouse(
-    panel: Query<&mut Node, With<SettingsPanel>>,
-    mut overlay: ResMut<crate::ui::Overlay>,
-    mut view: ResMut<crate::features::fps::FpsView>,
-    mut freed: ResMut<Freed>,
-) {
-    let open = is_open(&panel);
-    overlay.settings = open;
-    if open && view.first_person && !view.released {
-        view.released = true;
-        freed.0 = true;
-    } else if !open && freed.0 {
-        freed.0 = false;
-        view.released = false;
-    }
 }
 
 /// Spawn the (hidden) notebook for `state`, gone when it ends.
 fn spawn_in(state: AppState) -> impl Fn(Commands, Option<Res<AssetServer>>) {
     move |commands, assets| spawn(commands, assets, state)
-}
-
-fn close_on_esc(keys: Res<ButtonInput<KeyCode>>, mut panel: Query<&mut Node, With<SettingsPanel>>) {
-    if keys.just_pressed(KeyCode::Escape) {
-        for mut n in &mut panel {
-            n.display = Display::None;
-        }
-    }
 }
 
 /// A bordered button `w`x`h` at Figma `x, y` in its (2 px bordered) parent.
@@ -315,7 +296,7 @@ fn button(w: f32, h: f32, radius: f32, fill: Color, x: f32, y: f32) -> impl Bund
             ..at(x, y, B)
         },
         BackgroundColor(fill),
-        BorderColor::all(BORDER),
+        BorderColor::all(LINE),
         PadFocusable,
     )
 }
@@ -333,7 +314,7 @@ fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>, state: AppSta
             align_items: AlignItems::Center,
             ..default()
         },
-        BackgroundColor(INK.with_alpha(0.63)),
+        BackgroundColor(t::SOOT_900.with_alpha(0.8)),
         GlobalZIndex(30),
         DespawnOnExit(state),
     ));
@@ -347,18 +328,11 @@ fn spawn(mut commands: Commands, assets: Option<Res<AssetServer>>, state: AppSta
                     border_radius: BorderRadius::all(px(24)),
                     ..default()
                 },
-                BackgroundColor(LAVENDER),
-                BorderColor::all(BORDER),
+                BackgroundColor(PANEL),
+                BorderColor::all(LINE),
             ))
             .with_children(|p| {
                 notebook(p, &check);
-                if state == AppState::InGame {
-                    p.spawn((
-                        button(192.0, 42.0, 12.0, PAPER, 26.0, 594.0),
-                        children![label("Leave game", 17.0, INK, 11.0, 8.0, B)],
-                    ))
-                    .observe(crate::menu::leave_game);
-                }
             });
     });
 }
@@ -378,14 +352,14 @@ fn label(
 fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
     p.spawn((
         Text::new("Make yourself comfortable"),
-        head(35.0, INK),
+        head(35.0, TEXT),
         at(26.0, 18.0, B),
     ));
     p.spawn((
-        button(148.0, 42.0, 12.0, PAPER, 1018.0, 20.0),
+        button(148.0, 42.0, 12.0, RAISED, 1018.0, 20.0),
         children![(
             Part::CloseHint,
-            label("Esc   close", 17.0, INK, 11.0, 8.0, B)
+            label("Esc   close", 17.0, TEXT, 11.0, 8.0, B)
         )],
     ))
     .observe(close);
@@ -399,34 +373,35 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
     {
         p.spawn((
             Part::PageTab(page),
-            button(177.0, 42.0, 12.0, PAPER, 26.0 + 190.0 * i as f32, 76.0),
-            children![label(name, 17.0, INK, 11.0, 8.0, B)],
+            button(177.0, 42.0, 12.0, RAISED, 26.0 + 190.0 * i as f32, 76.0),
+            children![label(name, 17.0, TEXT, 11.0, 8.0, B)],
         ))
         .observe(move |_: On<PointerClick>, mut on: ResMut<OnPage>| on.0 = page);
     }
 
-    // Left: your ears & your name.
+    // Audio page: your ears & your name.
     p.spawn((
+        Part::AudioCard,
         Node {
             width: px(410),
             height: px(436),
             border_radius: BorderRadius::all(px(18)),
-            ..at(26.0, 141.0, B)
+            ..at(AUDIO_X, 141.0, B)
         },
-        BackgroundColor(PAPER),
+        BackgroundColor(PANEL),
     ))
     .with_children(|c| {
         c.spawn((
             Text::new("Your ears & your name"),
-            head(26.0, INK),
+            head(26.0, TEXT),
             at(20.0, 14.0, 0.0),
         ));
         for (v, name, y) in [
             (Volume::Master, "Master volume", 69.0),
             (Volume::Voice, "Voice volume", 164.0),
         ] {
-            c.spawn(label(name, 19.0, INK, 20.0, y, 0.0));
-            c.spawn((Part::Pct(v), label("", 19.0, INDIGO, 313.0, y, 0.0)));
+            c.spawn(label(name, 19.0, TEXT, 20.0, y, 0.0));
+            c.spawn((Part::Pct(v), label("", 19.0, ACCENT, 313.0, y, 0.0)));
             slider(c, v, 20.0, y + 32.0);
         }
         check_row(c, check, Check::Mic, "Microphone (M)", 20.0, 268.0);
@@ -441,7 +416,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         c.spawn(label(
             "Voice is always connected.\nMute your mic, not your friends.",
             15.0,
-            INK,
+            TEXT,
             20.0,
             378.0,
             0.0,
@@ -456,15 +431,15 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             height: px(436),
             border: UiRect::all(px(B)),
             border_radius: BorderRadius::all(px(18)),
-            ..at(460.0, 141.0, B)
+            ..at(CARD_X, 141.0, B)
         },
-        BackgroundColor(PAPER),
-        BorderColor::all(BORDER),
+        BackgroundColor(PANEL),
+        BorderColor::all(LINE),
     ))
     .with_children(|c| {
         c.spawn((
             Text::new("Video / pick your potato"),
-            head(26.0, INK),
+            head(26.0, TEXT),
             at(18.0, 12.0, B),
         ));
         let tabs = [
@@ -474,12 +449,17 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             (None, "Custom"),
         ];
         for (i, (preset, name)) in tabs.into_iter().enumerate() {
-            c.spawn((
+            let mut tab = c.spawn((
                 Part::PresetTab(preset),
-                button(158.0, 42.0, 12.0, PAPER, 18.0 + 170.0 * i as f32, 55.0),
-                children![label(name, 17.0, INK, 11.0, 8.0, B)],
-            ))
-            .observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+                button(158.0, 42.0, 12.0, RAISED, 18.0 + 170.0 * i as f32, 55.0),
+                children![label(name, 17.0, TEXT, 11.0, 8.0, B)],
+            ));
+            // "Custom" is what the options add up to, not a preset to pick:
+            // nothing to press, so the pad skips it.
+            if preset.is_none() {
+                tab.remove::<PadFocusable>();
+            }
+            tab.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
                 if let Some(p) = preset {
                     let want = p.apply(*q);
                     q.set_if_neq(want);
@@ -488,29 +468,32 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         }
         for (i, o) in VIDEO_BOXES.into_iter().enumerate() {
             let (x, y) = (18.0 + 228.0 * (i % 3) as f32, 118.0 + 90.0 * (i / 3) as f32);
-            c.spawn((
+            let mut card = c.spawn((
                 Node {
                     width: px(214),
                     height: px(76),
                     border_radius: BorderRadius::all(px(12)),
                     ..at(x, y, B)
                 },
-                BackgroundColor(PAPER),
-                PadFocusable,
+                BackgroundColor(RAISED),
                 children![
                     checkbox(check, Check::Video(o), 12.0, 24.0),
                     (
                         Part::BoxLabel(o),
                         Text::new(o.name()),
-                        body(16.0, INK),
+                        body(16.0, TEXT),
                         Node {
                             width: px(150),
                             ..at(52.0, 26.0, 0.0)
                         }
                     ),
                 ],
-            ))
-            .observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+            ));
+            // An option this build can't do has nothing to press.
+            if GraphicsQuality::platform_default().value(o) != "N/A" {
+                card.insert(PadFocusable);
+            }
+            card.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
                 if q.value(o) != "N/A" {
                     q.cycle(o);
                 }
@@ -519,7 +502,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         c.spawn(label(
             "Preset changes apply immediately. Change a checkbox: Custom.",
             14.0,
-            INK,
+            TEXT,
             18.0,
             402.0,
             B,
@@ -533,17 +516,17 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             border: UiRect::all(px(B)),
             border_radius: BorderRadius::all(px(18)),
             display: Display::None,
-            ..at(460.0, 141.0, B)
+            ..at(CARD_X, 141.0, B)
         },
-        BackgroundColor(PAPER),
-        BorderColor::all(BORDER),
+        BackgroundColor(PANEL),
+        BorderColor::all(LINE),
     ))
     .with_children(|c| {
-        c.spawn((Text::new("Controls"), head(26.0, INK), at(18.0, 12.0, B)));
+        c.spawn((Text::new("Controls"), head(26.0, TEXT), at(18.0, 12.0, B)));
         // Which pad's button names hints use (Auto: from the pad plugged in).
         c.spawn((
-            button(260.0, 34.0, 10.0, PAPER, 430.0, 10.0),
-            children![(Part::Labels, label("", 15.0, INK, 11.0, 6.0, B))],
+            button(260.0, 34.0, 10.0, RAISED, 430.0, 10.0),
+            children![(Part::Labels, label("", 15.0, TEXT, 11.0, 6.0, B))],
         ))
         .observe(|_: On<PointerClick>, mut pad: ResMut<PadSettings>| {
             pad.labels = next_labels(pad.labels);
@@ -553,10 +536,10 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             (Volume::Deadzone, "Stick deadzone", 18.0),
             (Volume::Look, "Stick look speed", 370.0),
         ] {
-            c.spawn(label(name, 17.0, INK, x, 52.0, B));
+            c.spawn(label(name, 17.0, TEXT, x, 52.0, B));
             c.spawn((
                 Part::Pct(v),
-                label("", 17.0, INDIGO, x + PAD_SLIDER_W - 54.0, 52.0, B),
+                label("", 17.0, ACCENT, x + PAD_SLIDER_W - 54.0, 52.0, B),
             ));
             slider(c, v, x - B, 82.0 - B);
         }
@@ -565,7 +548,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             c.spawn((
                 Part::Help(i),
                 Text::new(help_column(i, crate::input::device())),
-                body(13.0, INK),
+                body(13.0, TEXT),
                 Node {
                     width: px(PAD_SLIDER_W + 30.0),
                     ..at(x, 122.0, B)
@@ -575,8 +558,8 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
     });
 
     p.spawn((
-        button(178.0, 42.0, 12.0, PAPER, 780.0, 594.0),
-        children![label("Reset defaults", 17.0, INK, 11.0, 8.0, B)],
+        button(178.0, 42.0, 12.0, RAISED, 780.0, 594.0),
+        children![label("Reset defaults", 17.0, TEXT, 11.0, 8.0, B)],
     ))
     .observe(
         |_: On<PointerClick>,
@@ -594,8 +577,8 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         },
     );
     p.spawn((
-        button(192.0, 42.0, 12.0, INDIGO, 978.0, 594.0),
-        children![label("Done", 17.0, CREAM, 11.0, 8.0, B)],
+        button(192.0, 42.0, 12.0, ACCENT, 978.0, 594.0),
+        children![label("Done", 17.0, ON_ACCENT, 11.0, 8.0, B)],
     ))
     .observe(close);
 }
@@ -634,7 +617,7 @@ fn slider(c: &mut ChildSpawnerCommands, v: Volume, x: f32, y: f32) {
                         border_radius: BorderRadius::all(px(5)),
                         ..at(0.0, 8.0, 0.0)
                     },
-                    BackgroundColor(INDIGO),
+                    BackgroundColor(ACCENT),
                 ),
                 (
                     Part::Handle(v),
@@ -645,8 +628,8 @@ fn slider(c: &mut ChildSpawnerCommands, v: Volume, x: f32, y: f32) {
                         border_radius: BorderRadius::all(px(13)),
                         ..at(0.0, 0.0, 0.0)
                     },
-                    BackgroundColor(PAPER),
-                    BorderColor::all(INDIGO),
+                    BackgroundColor(t::CARD_100),
+                    BorderColor::all(t::INK),
                     Pickable::IGNORE,
                 ),
             ],
@@ -720,7 +703,7 @@ fn check_row(
         },
         PadFocusable,
         children![
-            label(name, size, INK, 0.0, 4.0, 0.0),
+            label(name, size, TEXT, 0.0, 4.0, 0.0),
             checkbox(check, what, 330.0, 0.0),
         ],
     ))
@@ -746,8 +729,8 @@ fn checkbox(check: &Handle<Image>, what: Check, x: f32, y: f32) -> impl Bundle {
             border_radius: BorderRadius::all(px(5)),
             ..at(x, y, 0.0)
         },
-        BackgroundColor(PAPER),
-        BorderColor::all(BORDER),
+        BackgroundColor(t::SOOT_900),
+        BorderColor::all(LINE),
         Pickable::IGNORE,
         children![(
             Node {
@@ -755,7 +738,7 @@ fn checkbox(check: &Handle<Image>, what: Check, x: f32, y: f32) -> impl Bundle {
                 height: px(18),
                 ..at(3.0, 3.0, B)
             },
-            ImageNode::new(check.clone()).with_color(CREAM),
+            ImageNode::new(check.clone()).with_color(ON_ACCENT),
             Pickable::IGNORE,
         )],
     )
@@ -786,19 +769,19 @@ fn refresh(
         let tab =
             |on: bool, bg: Option<Mut<BackgroundColor>>, texts: &mut Query<&mut TextColor>| {
                 if let Some(mut bg) = bg {
-                    bg.set_if_neq(BackgroundColor(if on { INDIGO } else { PAPER }));
+                    bg.set_if_neq(BackgroundColor(if on { ACCENT } else { RAISED }));
                 }
                 for k in kids.into_iter().flatten() {
                     if let Ok(mut c) = texts.get_mut(*k) {
-                        c.set_if_neq(TextColor(if on { CREAM } else { INK }));
+                        c.set_if_neq(TextColor(if on { ON_ACCENT } else { TEXT }));
                     }
                 }
             };
         match *part {
             Part::PageTab(p) => tab(p == on.0, bg, &mut texts),
             Part::PresetTab(p) => tab(p == preset, bg, &mut texts),
-            Part::VideoCard | Part::ControlsCard => {
-                let show = matches!(part, Part::ControlsCard) == (on.0 == Page::Controls);
+            Part::AudioCard | Part::VideoCard | Part::ControlsCard => {
+                let show = on.0.shows(*part);
                 if let Ok(mut n) = nodes.get_mut(e) {
                     let d = if show { Display::Flex } else { Display::None };
                     if n.display != d {
@@ -862,8 +845,8 @@ fn refresh(
                 };
                 let (fill, edge) = match (disabled, on) {
                     (true, _) => (OFF_FILL, OFF_LINE),
-                    (false, true) => (INDIGO, BORDER),
-                    (false, false) => (PAPER, BORDER),
+                    (false, true) => (ACCENT, LINE),
+                    (false, false) => (t::SOOT_900, LINE),
                 };
                 if let Some(mut bg) = bg {
                     bg.set_if_neq(BackgroundColor(fill));
@@ -902,6 +885,15 @@ mod tests {
         assert_eq!(volume_at(0.79), 0.8);
         assert_eq!(volume_at(-1.0), 0.0);
         assert_eq!(volume_at(1.7), 1.0);
+    }
+
+    #[test]
+    fn each_page_shows_only_its_card() {
+        let cards = [Part::AudioCard, Part::VideoCard, Part::ControlsCard];
+        for (page, want) in [(Page::Audio, 0), (Page::Video, 1), (Page::Controls, 2)] {
+            let shown: Vec<usize> = (0..3).filter(|&i| page.shows(cards[i])).collect();
+            assert_eq!(shown, vec![want]);
+        }
     }
 
     #[test]

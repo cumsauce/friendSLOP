@@ -1,5 +1,5 @@
-//! TeamStrip, top-right: one 116x46 PlayerBadge per player (up to six, gap
-//! 10, right edge 24 px in): mic state, name, gods' tears ×N, and a butter
+//! TeamStrip, top-right: one 134x52 PlayerBadge per player (up to six, gap
+//! 10, right edge 24 px in): mic state, name, gods' tears ×N, and a lilac
 //! highlight plus a waveform while they talk. Badges are keyed by player id,
 //! so people leaving or joining never shuffle someone else's state.
 
@@ -9,13 +9,13 @@ use super::{HudRoot, Icons, at, body, glyph};
 use crate::AppState;
 use crate::features::gods_tears::Transformation;
 use crate::player::{LocalPlayer, Player};
-use crate::theme::indigo::{BORDER, BUTTER, CREAM, EDGE, INK};
+use crate::theme::kit::{EDGE, INK, LILAC_400, SOOT_500, SOOT_800, TEXT, seat, size};
 use crate::voice::{MicMuted, VoiceMuted};
 use crate::voice_chat::{SpeakerId, VoiceActivity};
 
 /// Most badges the strip shows.
 pub const MAX_BADGES: usize = 6;
-const BADGE: Vec2 = Vec2::new(116.0, 46.0);
+const BADGE: Vec2 = Vec2::new(134.0, 52.0);
 const B: f32 = 1.0;
 
 /// What one badge shows. Kept separate (not one string) so each part has its
@@ -177,12 +177,15 @@ fn update(
         }
         return;
     }
-    for ((entity, _), b) in have.iter().zip(&want) {
+    for (i, ((entity, _), b)) in have.iter().zip(&want).enumerate() {
+        // Talking lights the badge lilac; otherwise soot with the friend's own seat colour
+        // on the mic, so a friend is the same colour here as on the pause screen.
         let (fill, line, ink) = if b.speaking {
-            (BUTTER, INK, INK)
+            (LILAC_400, INK, INK)
         } else {
-            (INK, BORDER, CREAM)
+            (SOOT_800, SOOT_500, TEXT)
         };
+        let mic = if b.speaking { ink } else { seat(i) };
         if let Ok((mut bg, mut border, mut seen, mut node)) = looks.get_mut(*entity) {
             bg.set_if_neq(BackgroundColor(fill));
             border.set_if_neq(BorderColor::all(line));
@@ -202,10 +205,11 @@ fn update(
             if let Some(mut c) = color {
                 c.set_if_neq(TextColor(ink));
             }
-            if let (Some(mut img), true) = (image, matches!(part, Part::Mic | Part::Tear))
-                && img.color != ink
-            {
-                img.color = ink;
+            if let (Some(mut img), true) = (image, matches!(part, Part::Mic | Part::Tear)) {
+                let want = if *part == Part::Mic { mic } else { ink };
+                if img.color != want {
+                    img.color = want;
+                }
             }
             let show = match part {
                 Part::Slash => b.muted,
@@ -242,10 +246,10 @@ fn badge(icons: &Icons, b: &BadgeState) -> impl Bundle {
             overflow: Overflow::clip(),
             ..default()
         },
-        BackgroundColor(INK),
-        BorderColor::all(BORDER),
+        BackgroundColor(SOOT_800),
+        BorderColor::all(SOOT_500),
         children![
-            (Part::Mic, glyph(&icons.mic, 16.0, 9.0, 5.0, B, CREAM)),
+            (Part::Mic, glyph(&icons.mic, 16.0, 9.0, 5.0, B, TEXT)),
             (
                 Part::Slash,
                 glyph(&icons.mic_slash, 16.0, 9.0, 5.0, B, Color::WHITE)
@@ -253,27 +257,27 @@ fn badge(icons: &Icons, b: &BadgeState) -> impl Bundle {
             (
                 Part::Name,
                 Text::new(b.name.clone()),
-                body(14.0, CREAM),
+                body(size::LABEL, TEXT),
                 TextLayout::no_wrap(),
                 Node {
                     max_width: px(BADGE.x - 31.0 - 22.0),
                     overflow: Overflow::clip(),
-                    ..at(31.0, 4.0, B)
+                    ..at(31.0, 5.0, B)
                 },
             ),
-            (Part::Tear, glyph(&icons.tear, 16.0, 9.0, 24.0, B, CREAM)),
+            (Part::Tear, glyph(&icons.tear, 16.0, 9.0, 29.0, B, TEXT)),
             (
                 Part::Tears,
                 Text::new(super::times(b.tears)),
-                body(12.0, CREAM),
-                at(31.0, 24.0, B)
+                body(14.0, TEXT),
+                at(31.0, 29.0, B)
             ),
             (
                 Part::Wave,
                 Node {
                     width: px(12),
                     height: px(14),
-                    ..at(93.0, 15.0, B)
+                    ..at(111.0, 18.0, B)
                 },
                 children![bar(1.0, 4.0, 6.0), bar(5.0, 1.0, 12.0), bar(9.0, 3.0, 8.0)],
             ),

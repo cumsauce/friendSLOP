@@ -112,7 +112,7 @@ enum Part {
 
 const BAR_W: f32 = 1104.0;
 
-/// The curtain (Figma 3:2198): ink, the illustrated logo, a progress bar
+/// The curtain (Figma 3:2198), on the kit's soot: the illustrated logo, a progress bar
 /// with how many models have loaded, and a tip.
 fn spawn_curtain(
     mut commands: Commands,
@@ -131,7 +131,7 @@ fn spawn_curtain(
 }
 
 fn spawn(commands: &mut Commands, assets: Option<&AssetServer>) {
-    use crate::theme::indigo::{CREAM, INK, PERIWINKLE};
+    use crate::theme::kit::{SLOP_400, SOOT_700, SOOT_900, TEXT, TEXT_DIM};
     use crate::ui::{at, body, head};
     let logo: Handle<Image> = assets.map(|a| a.load("ui/logo.png")).unwrap_or_default();
     let tip =
@@ -146,7 +146,7 @@ fn spawn(commands: &mut Commands, assets: Option<&AssetServer>) {
             align_items: AlignItems::Center,
             ..default()
         },
-        BackgroundColor(INK),
+        BackgroundColor(SOOT_900),
         GlobalZIndex(1000),
         DespawnOnExit(AppState::InGame),
         children![(
@@ -160,7 +160,7 @@ fn spawn(commands: &mut Commands, assets: Option<&AssetServer>) {
             children![
                 (
                     Text::new("Putting the kettle on…"),
-                    head(24.0, PERIWINKLE),
+                    head(24.0, TEXT_DIM),
                     at(88.0, 72.0, 0.0)
                 ),
                 (
@@ -173,19 +173,19 @@ fn spawn(commands: &mut Commands, assets: Option<&AssetServer>) {
                 ),
                 (
                     Text::new("Negotiating with the landlord…"),
-                    head(34.0, CREAM),
+                    head(34.0, TEXT),
                     at(88.0, 386.0, 0.0)
                 ),
                 (
                     Part::Detail,
                     Text::new(""),
-                    body(20.0, CREAM),
+                    body(20.0, TEXT),
                     at(88.0, 446.0, 0.0)
                 ),
                 (
                     Part::Percent,
                     Text::new(""),
-                    head(36.0, CREAM),
+                    head(36.0, TEXT),
                     at(1100.0, 440.0, 0.0)
                 ),
                 (
@@ -196,7 +196,7 @@ fn spawn(commands: &mut Commands, assets: Option<&AssetServer>) {
                         overflow: Overflow::clip(),
                         ..at(88.0, 494.0, 0.0)
                     },
-                    BackgroundColor(Color::srgb_u8(0xE5, 0xD7, 0xE8)),
+                    BackgroundColor(SOOT_700),
                     children![(
                         Part::Bar,
                         Node {
@@ -205,17 +205,17 @@ fn spawn(commands: &mut Commands, assets: Option<&AssetServer>) {
                             border_radius: BorderRadius::all(px(14)),
                             ..default()
                         },
-                        BackgroundColor(PERIWINKLE),
+                        BackgroundColor(SLOP_400),
                     )],
                 ),
                 (
-                    Text::new(format!("TIP / {tip}")),
-                    body(22.0, CREAM),
+                    Text::new(format!("Tip: {tip}")),
+                    body(22.0, TEXT),
                     at(88.0, 566.0, 0.0)
                 ),
                 (
                     Text::new("Your friends are worth the wait."),
-                    body(17.0, PERIWINKLE),
+                    body(17.0, TEXT_DIM),
                     at(88.0, 636.0, 0.0)
                 ),
             ],

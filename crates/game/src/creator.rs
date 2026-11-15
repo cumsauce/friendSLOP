@@ -5,15 +5,17 @@
 //! whenever you're in a game, which clamps it and replicates it to everyone.
 
 use bevy::camera::Viewport;
-use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_replicon::prelude::*;
 
 use crate::AppState;
-use crate::menu::{self, BaseColor, SettingsPanel};
+use crate::menu::{self, SettingsPanel};
 use crate::people::{CharacterLook, Field, Gait, SetLook};
 use crate::player::{LocalPlayer, Player};
+use crate::theme::kit::{self as t, size};
+use crate::ui::body;
+use crate::ui::kit::{self, Look};
 
 const FILE: &str = "character.txt";
 /// The preview stands far above the menu meadow, out of the orbit camera's view.
@@ -113,37 +115,19 @@ fn send_my_look(
     commands.client_trigger(SetLook(want));
 }
 
-fn small_button<'a>(
+/// A compact kit button for rows of controls and for Back on a panel.
+pub(crate) fn small_button<'a>(
     ui: &'a mut ChildSpawnerCommands,
     label: &str,
-    color: Color,
+    look: Look,
     width: f32,
 ) -> EntityCommands<'a> {
-    let mut e = ui.spawn((
-        Node {
-            width: px(width),
-            padding: UiRect::new(px(8), px(8), px(3), px(2)),
-            justify_content: JustifyContent::Center,
-            border_radius: BorderRadius::all(px(999)),
-            border: UiRect::new(px(1.0), px(1.0), px(1.0), px(3.0)),
-            ..default()
-        },
-        BackgroundColor(color),
-        BorderColor::all(crate::theme::shade(color, 0.28)),
-        crate::theme::shadow(2.0, 6.0),
-        BaseColor(color),
-        Hovered::default(),
-        crate::theme::Squishy::default(),
-        UiTransform::default(),
-    ));
-    e.with_children(|b| {
-        b.spawn((
-            Text::new(label),
-            TextFont::from_font_size(15.0),
-            TextColor(Color::WHITE),
-        ));
-    });
-    e
+    ui.spawn(kit::button_small(look, label, px(width)))
+}
+
+/// A square arrow button for a field row: short, so the twelve rows fit the card.
+fn arrow<'a>(ui: &'a mut ChildSpawnerCommands, label: &str) -> EntityCommands<'a> {
+    ui.spawn(kit::button_sized(Look::Plain, label, px(40), 36.0))
 }
 
 fn spawn_creator(
@@ -159,7 +143,7 @@ fn spawn_creator(
         Camera {
             order: 1,
             is_active: false,
-            clear_color: ClearColorConfig::Custom(Color::srgb(0.93, 0.88, 0.98)),
+            clear_color: ClearColorConfig::Custom(t::SOOT_800),
             ..default()
         },
         Transform::from_translation(PREVIEW_AT + Vec3::new(0.0, 1.3, 4.3))
@@ -169,10 +153,7 @@ fn spawn_creator(
     ));
     commands.spawn((
         Mesh3d(meshes.add(Cylinder::new(0.9, 0.1))),
-        MeshMaterial3d(crate::art::soft(
-            &mut materials,
-            Color::srgb(0.62, 0.8, 0.55),
-        )),
+        MeshMaterial3d(crate::art::soft(&mut materials, t::SLOP_600)),
         Transform::from_translation(PREVIEW_AT - Vec3::Y * 0.05),
         out.clone(),
     ));
@@ -196,75 +177,62 @@ fn spawn_creator(
                 flex_direction: FlexDirection::Column,
                 padding: UiRect::axes(px(20), px(16)),
                 row_gap: px(5),
-                border_radius: BorderRadius::all(px(28)),
+                border_radius: BorderRadius::all(px(t::R_PANEL)),
                 border: UiRect::all(px(2)),
                 display: Display::None,
                 overflow: Overflow::clip_y(),
                 ..default()
             },
-            BackgroundColor(menu::CARD),
-            BorderColor::all(crate::theme::LINE),
-            crate::theme::shadow(10.0, 32.0),
+            BackgroundColor(t::SOOT_800),
+            BorderColor::all(t::SOOT_500),
             crate::theme::Pop::default(),
             crate::theme::PopOnShow::default(),
             UiTransform::default(),
             CreatorPanel,
+            GlobalZIndex(20),
             out,
         ))
         .with_children(|ui| {
+            ui.spawn(kit::display("Your character", size::H1, t::TEXT));
             ui.spawn((
-                Text::new("Your character"),
-                TextFont::from_font_size(28.0),
-                TextColor(menu::INK),
-                crate::assets::DisplayText,
+                Text::new("everyone sees this; villagers roll from the same pool"),
+                body(size::LABEL, t::TEXT_DIM),
             ));
-            menu::text(
-                ui,
-                "everyone sees this; villagers roll from the same pool",
-                12.0,
-                menu::SOFT_INK,
-            );
             for field in Field::ALL {
                 menu::row(ui, |r| {
                     r.spawn((
                         Text::new(field.label()),
-                        TextFont::from_font_size(15.0),
-                        TextColor(menu::INK),
+                        body(size::LABEL, t::TEXT),
                         Node {
-                            width: px(105),
+                            width: px(110),
                             ..default()
                         },
                     ));
-                    small_button(r, "<", menu::LILAC, 34.0).observe(
-                        move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
-                            look.0.nudge(field, -1);
-                        },
-                    );
+                    arrow(r, "<").observe(move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
+                        look.0.nudge(field, -1);
+                    });
                     r.spawn((
                         Text::new(""),
-                        TextFont::from_font_size(15.0),
-                        TextColor(menu::INK),
+                        body(size::LABEL, t::TEXT),
                         TextLayout::justify(Justify::Center),
                         Node {
-                            width: px(120),
+                            width: px(112),
                             ..default()
                         },
                         CreatorValue(field),
                     ));
-                    small_button(r, ">", menu::LILAC, 34.0).observe(
-                        move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
-                            look.0.nudge(field, 1);
-                        },
-                    );
+                    arrow(r, ">").observe(move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
+                        look.0.nudge(field, 1);
+                    });
                 });
             }
             menu::row(ui, |r| {
-                small_button(r, "Randomize", menu::PINK, 150.0).observe(
+                small_button(r, "Randomize", Look::Cardboard, 150.0).observe(
                     |_: On<PointerClick>, mut look: ResMut<MyLook>| {
                         look.0 = CharacterLook::random(clock_seed());
                     },
                 );
-                small_button(r, "Done", menu::MINT, 150.0).observe(
+                small_button(r, "Done", Look::Primary, 120.0).observe(
                     |_: On<PointerClick>, mut open: ResMut<CreatorOpen>| {
                         open.0 = false;
                     },

@@ -6,10 +6,13 @@
 
 use std::net::SocketAddr;
 use std::str::FromStr;
+use std::sync::Arc;
 #[cfg(not(target_os = "android"))]
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use bevy::prelude::*;
+use bevy::tasks::{IoTaskPool, Task, block_on, poll_once};
 use bevy_replicon::prelude::*;
 pub use bevy_replicon_iroh::IrohClient;
 use bevy_replicon_iroh::iroh::endpoint::{EndpointHooks, presets};
@@ -90,6 +93,62 @@ impl Clipboard {
     }
 }
 
+/// A join running off the main thread. `IrohClient::connect_with` blocks until
+/// the handshake is done (up to its connect timeout), so it runs on the IO task
+/// pool and the window keeps drawing. A task cannot be stopped mid-block:
+/// cancelling sets `cancelled`, and the task closes whatever it connected.
+#[derive(Resource)]
+pub struct JoinTask {
+    task: Task<Result<IrohClient, String>>,
+    cancelled: Arc<AtomicBool>,
+}
+
+impl JoinTask {
+    fn spawn(handle: IrohTokioHandle, id: EndpointId) -> Self {
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let flag = cancelled.clone();
+        let task = IoTaskPool::get().spawn(async move {
+            let client = IrohClient::connect_with(
+                &handle,
+                presets::N0,
+                SecretKey::generate(),
+                any_addr(),
+                EndpointAddr::new(id),
+                Vec::new(),
+                NoHooks,
+                IrohClientConfig::default(),
+            )
+            .map_err(|e| e.to_string())?;
+            if flag.load(Ordering::Relaxed) {
+                client.disconnect(&handle);
+                return Err("cancelled".into());
+            }
+            Ok(client)
+        });
+        Self { task, cancelled }
+    }
+}
+
+/// Pick up a finished join: the client goes in, or the menu says why not.
+fn finish_join(
+    mut commands: Commands,
+    task: Option<ResMut<JoinTask>>,
+    mut status: ResMut<NetStatus>,
+) {
+    let Some(mut task) = task else { return };
+    let Some(done) = block_on(poll_once(&mut task.task)) else {
+        return;
+    };
+    commands.remove_resource::<JoinTask>();
+    match done {
+        Ok(client) => {
+            commands.insert_resource(client);
+            status.message = "Connected!".into();
+        }
+        Err(e) => status.message = format!("Could not join: {e}"),
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 struct NoHooks;
 impl EndpointHooks for NoHooks {}
@@ -121,7 +180,7 @@ impl Plugin for NetPlugin {
                 PreUpdate,
                 close_dead_client.before(ClientSystems::ReceivePackets),
             )
-            .add_systems(Update, handle_net_commands)
+            .add_systems(Update, (handle_net_commands, finish_join).chain())
             .add_systems(Last, close_on_exit)
             .add_systems(OnEnter(ClientState::Connected), enter_game)
             .add_systems(OnExit(ClientState::Connected), back_to_menu);
@@ -176,6 +235,9 @@ fn close_dead_client(world: &mut World) {
 /// abandons the connection (peers never see us leave, and the endpoint and
 /// socket leak), so every teardown goes through here. No-op without either.
 pub fn teardown_transport(world: &mut World) {
+    if let Some(join) = world.remove_resource::<JoinTask>() {
+        join.cancelled.store(true, Ordering::Relaxed);
+    }
     let Some(handle) = world.get_resource::<IrohTokioHandle>().cloned() else {
         return;
     };
@@ -243,26 +305,9 @@ fn handle_net_commands(
                         continue;
                     }
                 };
-                status.message = "Connecting...".into();
+                status.message = crate::input::fill("Connecting... {back} cancels.");
                 commands.queue(teardown_transport);
-                // Blocks up to `connect_timeout` (15s). Fine for now; a feature
-                // can move this to a background task if it gets annoying.
-                match IrohClient::connect_with(
-                    &handle,
-                    presets::N0,
-                    SecretKey::generate(),
-                    any_addr(),
-                    EndpointAddr::new(id),
-                    Vec::new(),
-                    NoHooks,
-                    IrohClientConfig::default(),
-                ) {
-                    Ok(client) => {
-                        commands.insert_resource(client);
-                        status.message = "Connected!".into();
-                    }
-                    Err(e) => status.message = format!("Could not join: {e}"),
-                }
+                commands.insert_resource(JoinTask::spawn(handle.clone(), id));
             }
         }
     }

@@ -50,11 +50,12 @@ cp web/manifest.webmanifest "$OUT/"
 # Bevy fetches assets over HTTP from ./assets (LFS files must be real, not pointers).
 cp -R crates/game/assets "$OUT/assets"
 # Phones (#191): decode the modeler's KTX2 textures (BC formats phones lack)
-# to PNG and shrink the 2048 px textures to 512 px (~20 MB -> ~2.5 MB to
-# download, and a fraction of the GPU memory). WEB_TEXTURE_MAX=0 skips it.
-if [[ "${WEB_TEXTURE_MAX:-512}" != 0 ]]; then
+# to PNG and shrink the 2048 px textures to 256 px (a fraction of the
+# download and of the memory: at 512 px an iPhone-class WebKit tab passed
+# 1.4 GB and died while the world loaded, #242). WEB_TEXTURE_MAX=0 skips it.
+if [[ "${WEB_TEXTURE_MAX:-256}" != 0 ]]; then
   cargo run --release --locked --quiet --manifest-path tools/web-textures/Cargo.toml -- \
-    "$OUT/assets" "${WEB_TEXTURE_MAX:-512}"
+    "$OUT/assets" "${WEB_TEXTURE_MAX:-256}"
 fi
 # #242: gzip the models (47 MB -> ~21 MB to download). The game asks for
 # `x.bin.gz` first and inflates it (crates/game/src/gz_assets.rs). Reflection

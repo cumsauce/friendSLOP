@@ -104,7 +104,7 @@ crates/game/src/
   net_web.rs    wasm32 net.rs: iroh relay-only in spawn_local tasks, same wire format (crates/wire)
   web.rs        wasm32 helpers (localStorage)
   screenshot.rs FRIENDSLOP_SCREENSHOT=out.png: frame, save one picture, quit (scripts/screenshot.sh, #167);
-                FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/loading/clean)
+                FRIENDSLOP_SCREENSHOT_SCENE forces a UI state (play/busy/clickable/chapter/tab/title/settings/join/pause/journal/loading/clean)
   perf.rs       FRIENDSLOP_PERF=1: log fps, frame time, entity/mesh/light counts every 5 s;
                 =2 also lists once which models own the meshes and lights; =3 GPU time per pass
   features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
@@ -361,7 +361,7 @@ context's binds and prompt bar come from the same file. A test fails on unknown 
 ### Checking UI
 
 To check UI against its design, screenshot mode can force a HUD state:
-`FRIENDSLOP_SCREENSHOT_SCENE=play|busy|full|clickable|chapter|tab|title|settings|loading` (full: busy with every quiet HUD element forced up) (title and settings run without `host`; and
+`FRIENDSLOP_SCREENSHOT_SCENE=play|busy|full|clickable|chapter|tab|title|settings|join|pause|journal|loading` (full: busy with every quiet HUD element forced up) (title, settings and join run without `host`; and
 `FRIENDSLOP_SCREENSHOT_SIZE=1920x1080`), e.g. `scripts/screenshot.sh busy.png "" busy`. Add
 `FRIENDSLOP_SCREENSHOT_EVERY=3` to keep the game running and re-save the picture every 3 s.
 To frame shots without restarting, add `FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt` (desktop only):

@@ -130,7 +130,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the
-  overview). Esc opens the settings notebook in game (#317, doomy: "dont quit to menu with double escape anymore"); leaving is its "Leave game" button.
+  overview). Esc opens the pause screen in game (#317, doomy: "dont quit to menu with double escape anymore"; the notebook it opened then is now one button on the pause screen); leaving is its "Leave game" button.
 - **Abuela in heaven** (#105, just meat and cheese: "a character similar to my grandma ... she
   only spoke spanish so please have her make old sounding spanish sounds"). Heaven had no place,
   so the highest floating island is now a small heaven: clouds on the rim, flowers, a golden halo
@@ -960,18 +960,23 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   There is no separate lobby screen yet: hosting drops you straight into the world, and friends
   appear on the player list as they join. If the host connection drops, a joiner goes back to
   the menu with the reason ("Lost the connection to the host: ...") instead of crashing (#194).
-  Since the UI redesign (phase 3, UI polish) the title screen is an ink "journal cover" on the
-  left over the meadow: the illustrated friendSLOP logo, Host a commune, Join with a code, a code
-  field (click it to paste), Character creator, and Settings / Whose fault is it / Kori prizes / Quit
-  links. Those panels take turns (opening one closes the others), each has a Back button the pad
-  can focus, and B / Esc closes the top one; the pad scrolls the fault list with the stick.
+  Since the UI restyle the title screen is a soot panel on the left over the meadow in the
+  commune noticeboard kit: the illustrated friendSLOP logo, Host a commune (the one green
+  button), Join a friend, Character, Settings, Whose fault is it, and Kori prizes / Quit. Join a
+  friend opens a cardboard card (an open layer, like the others) with the code box, Paste, Join
+  and the communes open near you; a game hosted near you also shows as a sticky note top right
+  (Y on a pad joins it). B on a join in progress cancels it first. Those panels take turns
+  (opening one closes the others), each has a Back button the pad can focus, and B / Esc closes
+  the top one; the pad scrolls the fault list with the stick.
   Settings is one big "Make yourself comfortable" notebook with three pages: Audio + voice
   (volume sliders, mic and HALT as square checkboxes), Video (presets Low / Medium / High as
   tabs, "Custom" is just what shows once you change anything, and every video option as a
   checkbox card) and Controls (the keys, the pad's feel); Esc or Done closes it. In game Esc opens the
-  same notebook (#317: settings in the game too), freeing the mouse (walking keys do nothing while
-  it is up, and a pad's Select doesn't open the journal over it), plus a "Leave game" button
-  bottom-left that asks "Really leave?" before it leaves; Esc no longer quits to the menu. The loading curtain shows the logo, how many models have loaded, a progress bar
+  pause screen (the game does not stop): Back to the commune, Journal, Settings (the notebook,
+  one layer above it) and Leave game, which asks "Really leave?" before it leaves, with the
+  invite code (X on a pad copies it) and who is in the commune beside them. It frees the mouse
+  (walking keys do nothing while it is up, and a pad's Select doesn't open the journal over it);
+  Esc closes the notebook first, then the pause screen. The loading curtain shows the logo, how many models have loaded, a progress bar
   and a tip.
 - **The Stillness** (#17). Every 16 minutes (it was every minute, then every 4; made rarer at the owner's request) the whole world freezes for 75 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop

@@ -24,6 +24,7 @@ pub mod journal;
 pub mod kit;
 pub mod menu_back;
 pub mod pad_nav;
+pub mod pause;
 pub mod prompt;
 pub mod quest;
 pub mod settings_panel;
@@ -118,6 +119,7 @@ pub fn plugin(app: &mut App) {
             chapter::plugin,
             settings_panel::plugin,
             menu_back::plugin,
+            pause::plugin,
             pad_nav::plugin,
         ));
 }

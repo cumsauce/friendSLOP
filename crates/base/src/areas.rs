@@ -104,6 +104,17 @@ pub fn area_at(p: Vec2) -> Option<String> {
         .map(|a| a.id.clone())
 }
 
+/// The area nearest `p` (x, z): the one holding it, else the closest by
+/// [`Area::gap`]. For things that move between areas (a walker on a route,
+/// a drone): they belong to wherever they are now.
+pub fn nearest_area(p: Vec2) -> Option<String> {
+    areas()
+        .areas
+        .iter()
+        .min_by(|a, b| a.gap(p).total_cmp(&b.gap(p)))
+        .map(|a| a.id.clone())
+}
+
 /// The globals: the only files that may spawn into the world on entering
 /// the game and own nothing in any area. Sky, camera, HUD, input, players
 /// and replicated gameplay state. `tests/it/areas.rs` holds every other
@@ -311,7 +322,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnExit(AppState::InGame), forget)
         .add_systems(
             PreUpdate,
-            (track, own)
+            (track, own, cover_arrivals)
                 .chain()
                 .in_set(AreaSet)
                 .run_if(in_state(AppState::InGame)),
@@ -367,6 +378,21 @@ fn own(
         if !loaded.is(&tag.area, tag.layer) {
             commands.entity(e).despawn();
         }
+    }
+}
+
+/// A teleport landed you inside an area whose visuals weren't loaded (you
+/// didn't walk in: walking loads it `load` m out): put the curtain up while
+/// it loads. Covers every teleport (trains, start points, respawns) without
+/// each one asking.
+fn cover_arrivals(here: Option<Res<Here>>, loaded: Res<Loaded>, mut cover: MessageWriter<Cover>) {
+    let Some(here) = here else { return };
+    if areas()
+        .areas
+        .iter()
+        .any(|a| loaded.loaded(&a.id, Layer::Show) && a.holds(here.0.xz()))
+    {
+        cover.write(Cover);
     }
 }
 

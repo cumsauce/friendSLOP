@@ -245,15 +245,14 @@ fn use_machine(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(show_news)
-        .add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build)
-        .add_systems(
-            Update,
-            show_state
-                .run_if(in_state(AppState::InGame))
-                .run_if(crate::sites::here("nyc")),
-        );
+    crate::area::on_sim(app, build_sim);
+    crate::area::on_show(app, build);
+    app.add_observer(show_news).add_observer(click).add_systems(
+        Update,
+        show_state
+            .run_if(in_state(AppState::InGame))
+            .run_if(crate::sites::here("nyc")),
+    );
 }
 
 #[derive(Component)]
@@ -276,7 +275,7 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
                 assets.load(GltfAssetLabel::Scene(0).from_asset("models/ice-cream.gltf")),
             ),
             Transform::from_translation(at).with_rotation(turn),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
         commands.spawn((
             Card,
@@ -284,20 +283,14 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
                 assets.load(GltfAssetLabel::Scene(0).from_asset("models/out-of-order.gltf")),
             ),
             Transform::from_translation(at).with_rotation(turn),
-            DespawnOnExit(AppState::InGame),
-        ));
-        commands.spawn((
-            Transform::from_translation(at + Vec3::Y * 0.9).with_rotation(turn),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(0.95, 1.8, 0.85),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
         commands.spawn((
             Thing::Machine,
             Transform::from_translation(at),
             Visibility::default(),
             Clickable::at_height(1.2).labelled("soft serve machine"),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
     let mesh = Cuboid::new(0.25, 0.25, 0.25);
@@ -311,7 +304,21 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
             Visibility::default(),
             Clickable::at_height(0.0).labelled(format!("take the {}", part.name).leak()),
             PartMesh(mesh),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
+        ));
+    }
+}
+
+fn build_sim(mut commands: Commands) {
+    let t = tuning();
+    if let Some(foot) = super::high_places::wtc(&super::nyc::MAP.get()) {
+        let at = machine_at(foot, &t);
+        let turn = Quat::from_rotation_y(t.machine_yaw.to_radians());
+        commands.spawn((
+            Transform::from_translation(at + Vec3::Y * 0.9).with_rotation(turn),
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(0.95, 1.8, 0.85),
+            crate::area::sim(),
         ));
     }
 }

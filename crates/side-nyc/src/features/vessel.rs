@@ -50,7 +50,8 @@ const RING_GAP: f32 = 0.3;
 const ARC: usize = 4;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), build);
+    crate::area::on_sim(app, build);
+    crate::features::start::provide(starts);
 }
 
 /// A level's ring radius: the Vessel flares out towards the top.
@@ -283,19 +284,20 @@ fn build(mut commands: Commands) {
                 .with_rotation(p.transform.rotation),
             RigidBody::Static,
             Collider::cuboid(s.x, s.y, s.z),
-            DespawnOnExit(AppState::InGame),
+            crate::area::sim(),
         ));
     }
-    // `FRIENDSLOP_START=vessel` starts you at its foot, `vessel_top` up top.
+}
+
+/// `FRIENDSLOP_START=vessel` starts you at its foot, `vessel_top` up top.
+fn starts() -> Vec<(String, Vec3)> {
+    let Some(at) = foot(&super::nyc::MAP.get()) else {
+        return Vec::new();
+    };
     let foot0 = landing(0, 2);
     let base = at + foot0 + outward(foot0) * (LANE + WIDTH + 1.0) + Vec3::Y * 0.4;
     let top = at + landing(LEVELS - 1, 0) + Vec3::Y * 0.05;
-    commands.queue(move |world: &mut World| {
-        if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>() {
-            p.add("vessel", base);
-            p.add("vessel_top", top);
-        }
-    });
+    vec![("vessel".into(), base), ("vessel_top".into(), top)]
 }
 
 #[cfg(test)]

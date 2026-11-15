@@ -24,13 +24,42 @@ impl StartPoints {
     }
 }
 
-/// Where the start called `name` is: a feature's own start first, then a
-/// spot on the map, on the ground.
+/// Starts a feature works out from its data (name, feet), asked each time a
+/// start is looked up: for places that are only built while their area is
+/// loaded (`areas.rs`), so `FRIENDSLOP_START` finds them before they are.
+pub type Provider = fn() -> Vec<(String, Vec3)>;
+
+static PROVIDERS: std::sync::RwLock<Vec<Provider>> = std::sync::RwLock::new(Vec::new());
+
+/// Add the starts `f` returns (see [`Provider`]). Call it from a protocol
+/// or plugin function.
+pub fn provide(f: Provider) {
+    if let Ok(mut p) = PROVIDERS.write()
+        && !p.contains(&f)
+    {
+        p.push(f);
+    }
+}
+
+fn provided(name: &str) -> Option<Vec3> {
+    let providers = PROVIDERS.read().map(|p| p.clone()).unwrap_or_default();
+    providers
+        .into_iter()
+        .find_map(|f| f().into_iter().find(|(n, _)| n == name).map(|(_, at)| at))
+}
+
+/// Where the start called `name` is: a feature's own start first (added or
+/// provided), then a spot on the map, on the ground.
 pub fn find(points: &StartPoints, name: &str) -> Option<Vec3> {
-    points.0.get(name).copied().or_else(|| {
-        let p = friendslop_world::places::spot(name)?;
-        Some(Vec3::new(p.x, crate::terrain::height_at(p.x, p.y), p.y))
-    })
+    points
+        .0
+        .get(name)
+        .copied()
+        .or_else(|| provided(name))
+        .or_else(|| {
+            let p = friendslop_world::places::spot(name)?;
+            Some(Vec3::new(p.x, crate::terrain::height_at(p.x, p.y), p.y))
+        })
 }
 
 pub fn plugin(app: &mut App) {

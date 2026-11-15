@@ -72,6 +72,8 @@ pub fn protocol(app: &mut App) {
     });
     // Keep the valley's trees off the trail post.
     friendslop_world::footprints::claim(v2(tuning().trail_post), 4.0);
+    // The city's colliders, in its area (see [`build_floor`]).
+    crate::area::on_sim(app, build_floor);
 }
 
 /// Where a traveller from `pos` ends up, or `None` if they aren't at a post.
@@ -317,12 +319,12 @@ fn cull_city(
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
-    app.add_systems(OnEnter(AppState::InGame), build_city)
-        .add_systems(
-            Update,
-            (where_am_i.run_if(crate::sites::here("nyc")), cull_city)
-                .run_if(in_state(AppState::InGame)),
-        );
+    crate::area::on_show(app, build_city);
+    app.add_systems(
+        Update,
+        (where_am_i.run_if(crate::sites::here("nyc")), cull_city)
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
@@ -341,26 +343,8 @@ fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
         NycMap,
         Transform::default(),
         Visibility::default(),
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
-    // Colliders never wait on a model: mesh-less boxes from the map, and the city floor
-    // (in pieces around the holes in the street).
-    for (at, collider) in city_floor() {
-        commands.spawn((
-            at,
-            avian3d::prelude::RigidBody::Static,
-            collider,
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-    for (at, collider) in wall_colliders(&c.walls) {
-        commands.spawn((
-            at,
-            avian3d::prelude::RigidBody::Static,
-            collider,
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
     // The way in and out is the PATH train now (#321, `trains.rs`), not a trail post.
     // Each shop's door (on its avenue side) glows with the shop's name.
     let t = tuning();
@@ -369,7 +353,7 @@ fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
             continue;
         };
         if let Some((at, inwards)) = shop_door(room) {
-            crate::features::doorway::spawn(
+            crate::area::doorway(
                 &mut commands,
                 at,
                 crate::features::doorway::yaw_towards(inwards),
@@ -378,6 +362,22 @@ fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
         }
     }
     commands.insert_resource(Rooms(c));
+}
+
+/// Colliders never wait on a model: mesh-less boxes from the map, and the
+/// city floor (in pieces around the holes in the street). In New York's
+/// colliders layer (the protocol adds it, so the host keeps them while a
+/// friend is in the city, headless too).
+pub fn build_floor(mut commands: Commands) {
+    let c = city(&MAP.get());
+    for (at, collider) in city_floor().into_iter().chain(wall_colliders(&c.walls)) {
+        commands.spawn((
+            at,
+            avian3d::prelude::RigidBody::Static,
+            collider,
+            crate::area::sim(),
+        ));
+    }
 }
 
 #[derive(Resource)]

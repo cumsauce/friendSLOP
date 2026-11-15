@@ -345,6 +345,7 @@ fn spawn(
                 Transform::from_translation(pos),
                 Visibility::default(),
                 DespawnOnExit(AppState::InGame),
+                friendslop_base::areas::InArea::show("nyc"),
             ));
         }
     }
@@ -481,6 +482,7 @@ fn fly_all(
                 MeshMaterial3d(looks.splat_mat.clone()),
                 Transform::from_translation(p.boid.pos - Vec3::Y * 0.1),
                 DespawnOnExit(AppState::InGame),
+                friendslop_base::areas::InArea::show("nyc"),
             ));
         }
     }
@@ -529,6 +531,7 @@ fn droppings(
                 MeshMaterial3d(looks.splat_mat.clone()),
                 Transform::from_translation(at),
                 DespawnOnExit(AppState::InGame),
+                friendslop_base::areas::InArea::show("nyc"),
             ));
         }
     }

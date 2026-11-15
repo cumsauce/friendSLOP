@@ -59,21 +59,6 @@ const NOT_YET_IN_AN_AREA: &[&str] = &[
     "crates/village/src/features/organ_currency.rs",
     "crates/village/src/features/punishment.rs",
     "crates/village/src/features/wendys.rs",
-    // New York (Penn, Fulton and Miami stacked on it).
-    "crates/side-nyc/src/features/boba.rs",
-    "crates/side-nyc/src/features/fulton.rs",
-    "crates/side-nyc/src/features/fulton_hunt.rs",
-    "crates/side-nyc/src/features/hats.rs",
-    "crates/side-nyc/src/features/high_places.rs",
-    "crates/side-nyc/src/features/ice_cream.rs",
-    "crates/side-nyc/src/features/jokah.rs",
-    "crates/side-nyc/src/features/miami.rs",
-    "crates/side-nyc/src/features/nyc.rs",
-    "crates/side-nyc/src/features/penn.rs",
-    "crates/side-nyc/src/features/trains.rs",
-    "crates/side-nyc/src/features/vessel.rs",
-    "crates/side-nyc/src/features/vessel_jump.rs",
-    "crates/side-nyc/src/features/wallet.rs",
     // Interiors.
     "crates/places/src/features/underground/visuals.rs",
     "crates/places/src/features/warehouse/visuals.rs",
@@ -121,10 +106,11 @@ fn only_globals_and_the_ratchet_list_spawn_at_game_start() {
 
 fn load_data() {
     let assets = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets");
-    let files: [&dyn friendslop_data::DataFile; 3] = [
+    let files: [&dyn friendslop_data::DataFile; 4] = [
         &AREAS,
         &friendslop::sites::SITES,
         &friendslop_world::places::COMMUNE,
+        &friendslop::features::nyc::MAP,
     ];
     for file in files {
         let path = file.path();
@@ -206,4 +192,108 @@ fn unloading_every_area_leaves_nothing_of_theirs() {
     }
     let mut owned = world.query_filtered::<(), Or<(With<InArea>, With<AreaRoot>)>>();
     assert_eq!(owned.iter(world).count(), 0, "areas left entities behind");
+}
+
+/// How many colliders `app` holds that belong to `area`.
+fn colliders_in(app: &mut App, area: &str) -> usize {
+    let world = app.world_mut();
+    let mut q = world.query_filtered::<Entity, With<Collider>>();
+    let mut parents = world.query::<&ChildOf>();
+    let mut tags = world.query::<(Option<&InArea>, Option<&AreaRoot>)>();
+    let all: Vec<Entity> = q.iter(world).collect();
+    all.into_iter()
+        .filter(|&e| {
+            let mut at = e;
+            loop {
+                if let Ok((tag, root)) = tags.get(world, at) {
+                    if let Some(t) = tag {
+                        return t.area == area;
+                    }
+                    if let Some(r) = root {
+                        return r.area == area;
+                    }
+                }
+                let Ok(p) = parents.get(world, at) else {
+                    return false;
+                };
+                at = p.parent();
+            }
+        })
+        .count()
+}
+
+fn has(app: &App, area: &str, layer: Layer) -> bool {
+    app.world().resource::<Roots>().get(area, layer).is_some()
+}
+
+/// Put player `id`'s body at `at` (on the server: it replicates).
+fn stand(sim: &mut super::harness::Sim, id: u64, at: Vec3) {
+    let world = sim.server.world_mut();
+    let mut q = world.query::<(
+        &friendslop::player::Player,
+        &mut friendslop::features::fps::Walker,
+    )>();
+    for (p, mut w) in q.iter_mut(world) {
+        if p.id == id {
+            w.pos = at;
+        }
+    }
+}
+
+/// The per-area checklist's two-player test, for New York: a host in the
+/// commune keeps the city's colliders while a friend is in it, without its
+/// visuals; the friend has both and not the commune's visuals; once the
+/// friend leaves, the host lets the city go.
+#[test]
+fn a_host_elsewhere_keeps_new_york_s_colliders_while_a_friend_is_inside() {
+    load_data();
+    let mut sim = super::harness::Sim::new(1);
+    let commune = Vec3::new(0.0, 0.0, 0.0);
+    let city = Vec3::new(0.0, friendslop::rules::nyc::CITY_Y, 223.0);
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        app.init_state::<AppState>();
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::InGame);
+    }
+    // Each peer's "you" (`place::Here`, written by the game's own plugins).
+    sim.server.insert_resource(friendslop::place::Here(commune));
+    sim.clients[0].insert_resource(friendslop::place::Here(city));
+    stand(&mut sim, 0, commune);
+    stand(&mut sim, 1, city);
+    sim.run(0.2);
+
+    // The host: New York's colliders for the friend, none of its visuals.
+    assert!(
+        has(&sim.server, "nyc", Layer::Sim),
+        "the host dropped New York's colliders"
+    );
+    assert!(
+        !has(&sim.server, "nyc", Layer::Show),
+        "the host draws New York from the commune"
+    );
+    assert!(has(&sim.server, "commune", Layer::Show));
+    assert!(
+        colliders_in(&mut sim.server, "nyc") > 100,
+        "no city floor and walls on the host"
+    );
+    // The friend: New York, both layers, and nothing of the commune's visuals.
+    let client = &mut sim.clients[0];
+    assert!(has(client, "nyc", Layer::Sim) && has(client, "nyc", Layer::Show));
+    assert!(
+        !has(client, "commune", Layer::Show),
+        "the friend draws the commune from New York"
+    );
+    assert!(
+        colliders_in(client, "nyc") > 100,
+        "the friend walks New York without its floor"
+    );
+
+    // The friend takes the train home: the host lets New York go.
+    sim.clients[0].insert_resource(friendslop::place::Here(commune));
+    stand(&mut sim, 1, commune);
+    sim.run(0.2);
+    assert!(!has(&sim.server, "nyc", Layer::Sim));
+    assert_eq!(colliders_in(&mut sim.server, "nyc"), 0);
+    assert_eq!(colliders_in(&mut sim.clients[0], "nyc"), 0);
 }

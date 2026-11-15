@@ -37,7 +37,7 @@ use crate::features::abuela::heaven;
 use crate::features::fps::{Walker, spawn_point, teleport};
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, in_reach, within};
 use crate::hud::Toast;
-use crate::player::{LocalPlayer, Player, PlayerOwner};
+use crate::player::{Absent, LocalPlayer, Player, PlayerOwner};
 use crate::voice_chat::{DeviceState, VoiceActivity, VoiceChatState};
 
 /// Lectern top (where the tome lies), above the ground.
@@ -191,6 +191,8 @@ pub fn protocol(app: &mut App) {
         .add_server_event::<Afterlife>(Channel::Ordered)
         .init_resource::<Ledger>()
         .add_observer(on_die)
+        .add_observer(mark_absent)
+        .add_observer(mark_back)
         .add_observer(on_plead)
         .add_observer(on_take_tome)
         .add_observer(on_use_tome)
@@ -682,6 +684,17 @@ impl Default for LastSpoke {
 
 /// You have to have been talking this recently for a plea to count as out loud.
 const ALOUD_WITHIN: f32 = 2.0;
+
+/// The dead are off the map: group checks lower down skip them.
+fn mark_absent(add: On<Add<Dead>>, mut commands: Commands) {
+    commands.entity(add.entity).insert(Absent);
+}
+
+fn mark_back(remove: On<Remove<Dead>>, mut commands: Commands) {
+    if let Ok(mut e) = commands.get_entity(remove.entity) {
+        e.remove::<Absent>();
+    }
+}
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<LastSpoke>()

@@ -14,6 +14,13 @@ pub struct Player {
     pub id: u64,
 }
 
+/// On a player whose body is off the map for now (dead: in heaven or the
+/// hell pit). Group checks that need everyone, like the warehouse door, count
+/// only the players without it, so a friend who died (or idled until the
+/// watchdog got them) can't hold the rest of the group up.
+#[derive(Component, Debug, Default, Clone, Copy)]
+pub struct Absent;
+
 /// Server-only: which connection (replicon client entity) owns this player.
 /// `None` for the host's own player.
 #[derive(Component, Debug)]

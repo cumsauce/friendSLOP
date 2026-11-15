@@ -821,12 +821,12 @@ fn spawn_prompt_bar(mut commands: Commands) {
         },
         Pickable::IGNORE,
         Visibility::Hidden,
-        GlobalZIndex(55),
+        // Under the notebook and journal (30), over the HUD.
+        GlobalZIndex(26),
         DespawnOnExit(AppState::InGame),
         children![(
             Text::new(""),
-            TextFont::from_font_size(18.0),
-            TextColor(LABEL),
+            crate::ui::body(18.0, LABEL),
             BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.55)),
             Node {
                 padding: UiRect::axes(px(14), px(6)),

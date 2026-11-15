@@ -1,0 +1,20 @@
+// Areas (docs/design/performance-and-areas.md, crates/base/src/areas.rs):
+// every part of the world that loads and unloads as a whole. Everything
+// spawned into the world belongs to one area (or is a global, `areas::GLOBALS`).
+// Every site in sites.ron names its area. Nothing is despawned yet that
+// hasn't moved under an area. Edit and save: the game picks it up.
+(
+    // Each area: its id (what code and sites.ron call it), its name, its box
+    // on the ground ((min x, min z), (max x, max z), m; as tall as the world),
+    // its modeler map (`Some("maps/<area>.bsn")` or `None`), how far (m)
+    // outside the box it starts loading, and how much further (m) everyone
+    // must be before it unloads (so walking along the edge doesn't flicker).
+    areas: [
+        // The whole commune map, edge-of-world hills included (one area
+        // for now; districts later, maybe).
+        (id: "commune", name: "The commune", bounds: ((-110.0, -110.0), (110.0, 110.0)), map: Some("maps/commune.bsn"), load: 40.0, unload: 20.0),
+        // New York's city floor, with Penn Station, Fulton St and Miami
+        // stacked over and under it.
+        (id: "nyc", name: "New York City", bounds: ((-90.0, 116.0), (90.0, 330.0)), map: Some("maps/nyc.bsn"), load: 40.0, unload: 20.0),
+    ],
+)

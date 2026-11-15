@@ -96,6 +96,7 @@ crates/game/src/
   graphics.rs   Low/High graphics preset (Low by default in the browser)
   textures.rs   model textures: capped at 1024 px and mipmapped as they load (#227)
   place.rs      (base) where you are (`Here`) and each place's look (`PlaceLooks`, data/base/place_looks.ron)
+  areas.rs      (base) what's loaded where: areas, layers, roots, globals (data/base/areas.ron)
   sites.rs      (base) where each mechanic lives and whether it's awake (`Awake`, data/base/sites.ron, #412)
   probes.rs     reflections: world env map on the camera, FRIENDSLOP_BAKE=1 bakes every probe
   lod.rs        trees: lighter far meshes, dithered in by distance (#227); modeler LOD nodes; tree wind
@@ -174,6 +175,19 @@ Rules for growing it:
   it away, `sites::at("<id>")` for where it stands. A sleeping site costs nothing and shows
   nothing. Nothing new runs everywhere, for everyone, all the time, unless the issue asks for
   "everywhere". `tests/it/sites.rs` fails on an id the file doesn't have.
+- **Everything in the world is in an area (Part 2 of `docs/design/performance-and-areas.md`).**
+  An area is a line in `assets/data/base/areas.ron` (id, bounds, map, load distance, unload
+  slack); every site names its area. A feature spawns its world things when its area's layer
+  loads, never at game start: colliders and simulation in a system
+  `.run_if(areas::loaded(Layer::Sim, "<area>"))`, meshes, lights and sound in one
+  `.run_if(areas::loaded(Layer::Show, "<area>"))`, each as a child of
+  `areas::Roots::get(area, layer)` (or tagged `InArea::sim/show(area)` when it can't be a
+  child). Unloading despawns them; nothing else to write. `areas::live` / `areas::shown`
+  gate systems on a layer. Replicated gameplay state stays as it is (always kept, never under
+  an area). Only `areas::GLOBALS` may spawn on `OnEnter(AppState::InGame)`; the ratchet in
+  `tests/it/areas.rs` fails on any other new one and on a migrated file still listed. A
+  teleport sends `areas::Cover` to put the loading curtain up while the place loads.
+  `FRIENDSLOP_PERF=1` logs entities/meshes/colliders per area and for "no area".
 - **Data, not constants.** Anything a friend might want to tweak lives in a data file under
   `crates/game/assets/`, not in Rust: positions and layout (the modeler map), tuning numbers
   (timers, costs, speeds, chances, health, counts: `assets/data/<crate>/<feature>.ron`), and

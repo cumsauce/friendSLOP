@@ -14,6 +14,7 @@ pub mod voice_chat {
 }
 
 pub mod android_pad;
+pub mod areas;
 pub mod assets;
 pub mod graphics;
 pub mod hud;
@@ -73,5 +74,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &graphics::TUNING,
         &input::BINDINGS,
         &sites::SITES,
+        &areas::AREAS,
     ]
 }

@@ -58,6 +58,12 @@ pub struct Connecting {
 
 impl Connecting {
     pub const TIMEOUT_SECS: f32 = 20.0;
+
+    /// A join that stays under way (screenshot mode): the send is held back.
+    pub(crate) fn stage(&mut self, code: &str) {
+        self.pending = Some((code.to_owned(), u8::MAX));
+        self.waited = 0.0;
+    }
 }
 
 /// What's typed (or pasted) into the join box.

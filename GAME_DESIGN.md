@@ -1414,8 +1414,8 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
 
 - **LAN discovery** (#410, bben: "LAN discovery for multiplayer", no details). While you host on
   the desktop, the game broadcasts its join code on the local network once a second (UDP port
-  47410). The menu listens and shows a "Join <host>'s commune (LAN)" button under the code field
-  (or "Looking for games on your Wi-Fi..."); one click joins through iroh as usual. The name is
+  47410). The menu listens and shows a "Join <host>'s commune" button under the code field
+  (or "Looking for friends near you..."); one click joins through iroh as usual. The name is
   your computer's user name. Browsers can't do UDP, so the button just keeps looking there
   (`crates/game/src/lan.rs`).
 

@@ -11,7 +11,8 @@
 //! # the 9 s "CHAPTER 1" card is gone)
 //! FRIENDSLOP_SCREENSHOT_WAIT=12
 //! # optional: force a HUD state for visual checks against the Figma frames
-//! # (play, busy, full, clickable, chapter, tab; see `Scene`)
+//! # (play, busy, full, clickable, chapter, tab, pause, journal; title, settings, join, creator,
+//! # fault and kori run without `host`; see `Scene`)
 //! FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt  (lines `out.png x,y,z,lx,ly,lz`; edit and save it
 //!   while the game runs to take more pictures without restarting)
 //! FRIENDSLOP_SCREENSHOT_SCENE=busy
@@ -62,6 +63,12 @@ pub enum Scene {
     Settings,
     /// The join screen with a code typed in and the join under way (run without `host`).
     Join,
+    /// The character creator open (run without `host`).
+    Creator,
+    /// The Whose fault is it list open (run without `host`).
+    Fault,
+    /// The Kori prize shelf open (run without `host`).
+    Kori,
     /// The journal kept open on its first tab.
     Journal,
     /// The pause screen (Esc in game).
@@ -85,6 +92,9 @@ impl Scene {
             "title" => Scene::Title,
             "settings" => Scene::Settings,
             "join" => Scene::Join,
+            "creator" => Scene::Creator,
+            "fault" => Scene::Fault,
+            "kori" => Scene::Kori,
             "journal" => Scene::Journal,
             "pause" => Scene::Pause,
             "loading" => Scene::Loading,
@@ -109,7 +119,12 @@ impl Scene {
             // Before the chapter intro shrinks away.
             Scene::Chapter => 2.0,
             // Real seconds after the title screen opens.
-            Scene::Title | Scene::Settings | Scene::Join => 4.0,
+            Scene::Title
+            | Scene::Settings
+            | Scene::Join
+            | Scene::Creator
+            | Scene::Fault
+            | Scene::Kori => 4.0,
             // Real seconds after entering the game, curtain still up.
             Scene::Loading => 0.6,
         }
@@ -117,14 +132,28 @@ impl Scene {
 
     /// Shot on the title screen instead of in game.
     pub fn on_title(self) -> bool {
-        matches!(self, Scene::Title | Scene::Settings | Scene::Join)
+        matches!(
+            self,
+            Scene::Title
+                | Scene::Settings
+                | Scene::Join
+                | Scene::Creator
+                | Scene::Fault
+                | Scene::Kori
+        )
     }
 
     /// Doesn't wait for the loading curtain to lift.
     fn early(self) -> bool {
         matches!(
             self,
-            Scene::Title | Scene::Settings | Scene::Join | Scene::Loading
+            Scene::Title
+                | Scene::Settings
+                | Scene::Join
+                | Scene::Creator
+                | Scene::Fault
+                | Scene::Kori
+                | Scene::Loading
         )
     }
 }
@@ -391,6 +420,25 @@ impl Plugin for ScreenshotPlugin {
             Scene::Join => {
                 app.add_systems(Update, stage_join.run_if(in_state(AppState::Menu)));
             }
+            Scene::Creator => {
+                app.add_systems(
+                    Update,
+                    (|mut open: ResMut<crate::creator::CreatorOpen>| open.0 = true)
+                        .run_if(in_state(AppState::Menu)),
+                );
+            }
+            Scene::Fault => {
+                app.add_systems(
+                    Update,
+                    open_panel::<crate::fault::FaultPanel>.run_if(in_state(AppState::Menu)),
+                );
+            }
+            Scene::Kori => {
+                app.add_systems(
+                    Update,
+                    open_panel::<crate::kori_shelf::ShelfPanel>.run_if(in_state(AppState::Menu)),
+                );
+            }
             Scene::Pause => {
                 app.add_systems(Update, open_pause.run_if(in_state(AppState::InGame)));
             }
@@ -517,6 +565,16 @@ fn open_settings(
     if !*done && !panel.is_empty() {
         *done = true;
         crate::ui::settings_panel::toggle(&mut panel);
+    }
+}
+
+/// Fault and Kori scenes: show the panel once.
+fn open_panel<P: Component>(mut done: Local<bool>, mut panel: Query<&mut Node, With<P>>) {
+    if !*done && !panel.is_empty() {
+        *done = true;
+        for mut n in &mut panel {
+            n.display = Display::Flex;
+        }
     }
 }
 

@@ -258,25 +258,35 @@ impl Dresser<'_, '_, '_> {
         scale: f32,
         small: bool,
     ) -> Entity {
+        let tree = TREES.contains(&file) || DEAD_TREES.contains(&file);
+        let transform = Transform::from_xyz(at.x, ground(at), at.y)
+            .with_rotation(yaw)
+            .with_scale(Vec3::splat(scale));
+        // A tree is a light root: shared plain meshes from afar, its rigged
+        // glTF only while you're near (`lod::StaticTree`).
+        if tree {
+            return self
+                .commands
+                .spawn((
+                    transform,
+                    Visibility::default(),
+                    crate::lod::StaticTree::new(file, !small),
+                    DespawnOnExit(AppState::InGame),
+                ))
+                .id();
+        }
         let mut e = self.commands.spawn((
             nature_model(self.assets, file),
-            Transform::from_xyz(at.x, ground(at), at.y)
-                .with_rotation(yaw)
-                .with_scale(Vec3::splat(scale)),
+            transform,
             DespawnOnExit(AppState::InGame),
         ));
-        let tree = TREES.contains(&file) || DEAD_TREES.contains(&file);
         // Rocks and pebbles don't bend in the wind (#151: every swaying prop
         // re-propagates its whole glTF hierarchy). Trees are rigged and bend
         // their own branches instead (`modeler_bevy`, steered in lod.rs).
         if !is_rigid(file) && !tree {
             e.insert(crate::ambience::Sway::default());
         }
-        // Trees get a far mesh and draw to the fog instead of vanishing like
-        // small props (#227); `small` ones just cast no shadow.
-        if tree {
-            e.insert(crate::lod::TreeLod { shadows: !small });
-        } else if small {
+        if small {
             e.insert(SmallProp);
         }
         e.id()

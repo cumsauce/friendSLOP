@@ -28,5 +28,6 @@ mod sites_bench;
 mod skills;
 mod surf;
 mod underground;
+mod vessel_climb;
 mod warehouse;
 mod wendys;

@@ -167,7 +167,7 @@ fn jump(
     let Some((entity, _, _, walker)) = players.iter().find(|(_, _, o, _)| o.0 == owner) else {
         return;
     };
-    let top_radius = super::vessel::radius(super::vessel::LEVELS - 1);
+    let top_radius = super::vessel::reach();
     if !at_the_top(walker.pos, foot, tuning().min_height, top_radius) {
         deny(
             &mut commands,
@@ -275,7 +275,7 @@ mod tests {
             top,
             foot,
             tu.min_height,
-            super::super::vessel::radius(super::super::vessel::LEVELS - 1)
+            super::super::vessel::reach()
         ));
         // Halfway up is not the top, and neither is the right height across town.
         let half = foot + super::super::vessel::landing(8, 0);
@@ -283,13 +283,13 @@ mod tests {
             half,
             foot,
             tu.min_height,
-            super::super::vessel::radius(super::super::vessel::LEVELS - 1)
+            super::super::vessel::reach()
         ));
         assert!(!at_the_top(
             Vec3::new(100.0, 45.0, 100.0),
             foot,
             tu.min_height,
-            super::super::vessel::radius(super::super::vessel::LEVELS - 1)
+            super::super::vessel::reach()
         ));
     }
 

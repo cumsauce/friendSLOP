@@ -6,6 +6,7 @@ use bevy::prelude::*;
 
 pub mod ambience;
 pub use friendslop_art::art;
+pub use friendslop_base::android_pad;
 pub use friendslop_base::assets;
 pub mod atmosphere;
 pub use friendslop_world::buildings;
@@ -118,6 +119,9 @@ impl Plugin for GamePlugin {
         app.add_plugins(friendslop_data::DataPlugin {
             files: data_files(),
         });
+        // Pads on Android come through winit, not gilrs (#354).
+        #[cfg(target_os = "android")]
+        app.add_plugins(android_pad::plugin);
         app.add_plugins((
             input::plugin,
             controls::plugin,

@@ -50,8 +50,9 @@ pub fn plugin(app: &mut App) {
                 dress_crows,
                 animate_crows,
                 crow_clips,
-                update_caw_text,
-                caw_sound,
+                // Their flight follows the shared clock, so they never jump
+                // on waking; only the cawing sleeps with the meadow (#412).
+                (update_caw_text, caw_sound).run_if(crate::sites::here("crows")),
             )
                 .run_if(in_state(AppState::InGame)),
         );
@@ -188,6 +189,7 @@ fn spawn_caw_text(mut commands: Commands) {
         Text::new(""),
         CawText,
         crate::hud::slot(crate::hud::HudSlot::Subtitle),
+        crate::sites::AtSite("crows"),
         DespawnOnExit(AppState::InGame),
     ));
 }

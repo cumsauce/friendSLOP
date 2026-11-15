@@ -24,6 +24,7 @@ mod replication;
 mod round_reset;
 mod shipwreck;
 mod sites;
+mod sites_bench;
 mod skills;
 mod surf;
 mod underground;

@@ -59,14 +59,17 @@ fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
     };
     commands.spawn((bed(&sounds.birds, 0.18), Bed::Birds));
     commands.spawn((bed(&sounds.wind, 0.22), Bed::Wind));
-    // Heard where it burns (see `crate::spatial`).
-    crate::spatial::loop_at(
+    // Heard where it burns (see `crate::spatial`), and only from its site (#412).
+    let fire = crate::spatial::loop_at(
         &mut commands,
         &sounds.fire,
         crate::scenery::bonfire_at() + Vec3::Y * 0.5,
         0.9,
         crate::spatial::Carry::NEARBY,
     );
+    commands
+        .entity(fire)
+        .insert(crate::sites::AtSite("bonfire"));
 }
 
 /// Which looping bed an ambient player is, so the district mix can steer it.

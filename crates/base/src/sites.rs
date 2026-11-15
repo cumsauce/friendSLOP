@@ -204,6 +204,13 @@ pub fn left(id: &'static str) -> impl FnMut(Res<Awake>) -> bool + Clone {
     move |a: Res<Awake>| a.left(id)
 }
 
+/// Belongs to the site `id`: a HUD line or key hint is shown, and a looping
+/// world sound is heard, only while you're there (`hud.rs`, `spatial.rs`).
+/// Put it next to [`crate::hud::slot`] or on what [`crate::spatial::loop_at`]
+/// returns.
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct AtSite(pub &'static str);
+
 /// Despawn everything with `C`: a sleeping site's local dressing.
 pub fn put_away<C: Component>(mut commands: Commands, things: Query<Entity, With<C>>) {
     for e in &things {

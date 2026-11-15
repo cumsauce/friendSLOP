@@ -136,7 +136,16 @@ pub fn plugin(app: &mut App) {
     app.add_systems(OnEnter(AppState::InGame), spawn_subtitle)
         .add_systems(
             Update,
-            (dress_music_boxes, bob_music_boxes, speak).run_if(in_state(AppState::InGame)),
+            (
+                dress_music_boxes,
+                bob_music_boxes,
+                // The lines follow the shared clock; they're only heard and
+                // shown at one of the boxes (#412).
+                speak.run_if(|a: Res<crate::sites::Awake>| {
+                    a.me("music_box_1") || a.me("music_box_2")
+                }),
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 

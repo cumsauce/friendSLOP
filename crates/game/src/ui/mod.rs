@@ -99,7 +99,10 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<Icons>()
         .init_resource::<Overlay>()
         .add_systems(Startup, load)
-        .add_systems(Update, (scale_ui, apply_fonts))
+        .add_systems(Update, scale_ui)
+        // After the frame's spawns, before text is measured: a card built this
+        // frame is drawn in its own face, not for one frame in the fallback.
+        .add_systems(PostUpdate, apply_fonts.before(bevy::ui::UiSystems::Content))
         .add_systems(OnEnter(AppState::InGame), spawn_root)
         .add_plugins((
             quest::plugin,
@@ -199,6 +202,16 @@ fn spawn_root(mut commands: Commands) {
     ));
 }
 
+/// `text` cut to `max` characters, ending in "..." when it was longer (so a
+/// line never runs out of its card).
+pub fn ellipsize(text: &str, max: usize) -> String {
+    if text.chars().count() <= max {
+        return text.to_string();
+    }
+    let head: String = text.chars().take(max.saturating_sub(3)).collect();
+    format!("{}...", head.trim_end())
+}
+
 /// `MM:SS`, clamped at zero (never negative).
 pub fn mmss(secs: f32) -> String {
     let s = if secs.is_finite() {
@@ -221,6 +234,14 @@ pub fn times(n: u32) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn long_lines_end_in_dots() {
+        assert_eq!(ellipsize("short", 10), "short");
+        assert_eq!(ellipsize("exactly ten", 11), "exactly ten");
+        assert_eq!(ellipsize("one two three four", 10), "one two...");
+        assert!(ellipsize("é".repeat(50).as_str(), 8).chars().count() <= 8);
+    }
 
     #[test]
     fn countdowns_clamp_and_counts_cap() {

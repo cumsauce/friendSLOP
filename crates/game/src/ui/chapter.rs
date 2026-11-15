@@ -110,6 +110,10 @@ fn show(
     }
 }
 
+/// Longest task line the card shows before it ends in "..." (15 px text in a
+/// 395 px column, with room to spare).
+const TASK_CHARS: usize = 50;
+
 fn card_for(c: &Campaign) -> impl Bundle {
     let ch = c.current();
     let tasks: Vec<(String, bool)> = ch
@@ -182,7 +186,7 @@ fn card_for(c: &Campaign) -> impl Bundle {
                             BackgroundColor(if done { BUTTER } else { Color::NONE }),
                         ),
                         (
-                            Text::new(label),
+                            Text::new(super::ellipsize(&label, TASK_CHARS)),
                             body(15.0, CREAM),
                             TextLayout::no_wrap(),
                             Node {

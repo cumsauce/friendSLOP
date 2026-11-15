@@ -648,7 +648,7 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
                         .into()
                 ),
                 body(16.0, CREAM),
-                at(568.0, 12.0, 0.0)
+                at(440.0, 12.0, 0.0)
             ),
         ],
     ));

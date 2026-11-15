@@ -358,9 +358,11 @@ pub fn stranger_outside(q: Queue) -> bool {
 // ------------------------------------------------------------------ every peer (all local)
 
 pub fn plugin(app: &mut App) {
+    crate::area::on_sim(app, build_sim);
+    crate::area::on_show(app, build);
+    crate::features::start::provide(starts);
     app.init_resource::<Line>()
         .add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build)
         .add_systems(OnExit(AppState::InGame), |mut l: ResMut<Line>| {
             *l = Line::default()
         })
@@ -406,16 +408,8 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
             assets.load(GltfAssetLabel::Scene(0).from_asset("models/penn-station.gltf")),
         ),
         f,
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
-    for (c, s) in boxes() {
-        commands.spawn((
-            Transform::from_translation(f.transform_point(c)).with_rotation(f.rotation),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
     spawn_stranger(&mut commands, &f, 0);
     // The trash fires' light (flickered by `fires`).
     for (i, at) in FIRES.iter().enumerate() {
@@ -428,30 +422,24 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
                 ..default()
             },
             Transform::from_translation(f.transform_point(*at + Vec3::Y * 1.5)),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
     // The ways in and out.
     let out = f.rotation * Vec3::NEG_Z;
-    crate::features::doorway::spawn(
+    crate::area::doorway(
         &mut commands,
         f.transform_point(EXIT),
         crate::features::doorway::yaw_towards(Vec2::new(out.x, out.z)),
         crate::features::doorway::Doorway::way_out("7 Av & 33 St").size(3.0, 2.4),
     );
     if let Some(spot) = street_spot(&super::nyc::MAP.get()) {
-        crate::features::doorway::spawn(
+        crate::area::doorway(
             &mut commands,
             spot + DOORS,
             crate::features::doorway::yaw_towards(Vec2::NEG_X),
             crate::features::doorway::Doorway::way_in("Penn Station").size(3.6, 2.8),
         );
-        let street = spot + STREET;
-        commands.queue(move |world: &mut World| {
-            if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>() {
-                p.add("penn_street", street);
-            }
-        });
     }
     for (thing, at, label, h) in [
         (Thing::Toilet, TOILET, "use the bathroom", 0.5),
@@ -467,16 +455,36 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
             thing,
             Transform::from_translation(f.transform_point(at)),
             Clickable::at_height(h).labelled(label),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
-    // `FRIENDSLOP_START=penn` starts you in the concourse.
-    let start = f.transform_point(Vec3::new(-10.0, 0.05, 16.0));
-    commands.queue(move |world: &mut World| {
-        if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>() {
-            p.add("penn", start);
-        }
-    });
+}
+
+fn build_sim(mut commands: Commands) {
+    let Some(f) = frame() else { return };
+    for (c, s) in boxes() {
+        commands.spawn((
+            Transform::from_translation(f.transform_point(c)).with_rotation(f.rotation),
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
+            crate::area::sim(),
+        ));
+    }
+}
+
+/// `FRIENDSLOP_START=penn` starts you in the concourse, `penn_street` at its doors.
+fn starts() -> Vec<(String, Vec3)> {
+    let mut out = Vec::new();
+    if let Some(f) = frame() {
+        out.push((
+            "penn".into(),
+            f.transform_point(Vec3::new(-10.0, 0.05, 16.0)),
+        ));
+    }
+    if let Some(spot) = street_spot(&super::nyc::MAP.get()) {
+        out.push(("penn_street".into(), spot + STREET));
+    }
+    out
 }
 
 #[derive(Component)]
@@ -575,7 +583,7 @@ fn spawn_stranger(commands: &mut Commands, f: &Transform, visit: usize) {
         Transform::from_translation(f.transform_point(IN_LINE)).with_rotation(turn),
         Visibility::default(),
         crate::people::CharacterLook::random(0x0357_0000 + visit as u64 * 7919),
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
 }
 

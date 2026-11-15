@@ -54,7 +54,10 @@ pub static TUNING: friendslop_data::Data<Tuning> =
 pub fn plugin(app: &mut App) {
     app.init_resource::<ProbeBakes>();
     if probes::baking() {
-        app.init_resource::<Bake>()
+        // Every place's bake point is registered as it builds, and each
+        // builds only while its area is loaded: load them all.
+        app.insert_resource(crate::areas::Force(Some(true)))
+            .init_resource::<Bake>()
             .add_systems(Update, bake.run_if(in_state(crate::AppState::InGame)));
     } else if !cfg!(target_arch = "wasm32") {
         // Browsers (#242) skip reflections: two more cubemaps to download,

@@ -346,7 +346,9 @@ fn draw_cars(
         &Car,
         Option<&mut Transform>,
         Option<&mut Visibility>,
+        Option<&Children>,
     )>,
+    dresses: Query<(), With<crate::area::Dress>>,
 ) {
     let tu = tuning();
     let near = camera
@@ -354,7 +356,7 @@ fn draw_cars(
         .next()
         .is_some_and(|g| super::nyc::city_drawn(g.translation().x, g.translation().z));
     let blend = 1.0 - (-15.0 * time.delta_secs()).exp();
-    for (entity, car, transform, vis) in &mut cars {
+    for (entity, car, transform, vis, children) in &mut cars {
         let Some(road) = tu.roads.get(car.route as usize) else {
             continue;
         };
@@ -373,13 +375,18 @@ fn draw_cars(
                 v.set_if_neq(shown);
             }
             _ => {
-                commands.entity(entity).insert((
-                    want,
-                    shown,
-                    WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset(CAB_MODEL))),
-                    DespawnOnExit(AppState::InGame),
-                ));
+                commands.entity(entity).insert((want, shown));
             }
+        }
+        // The cab is replicated and stays; its model is New York's visuals.
+        if !crate::area::dressed(children, &dresses) {
+            commands.spawn((
+                crate::area::Dress,
+                WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset(CAB_MODEL))),
+                Transform::default(),
+                crate::area::show(),
+                ChildOf(entity),
+            ));
         }
     }
 }

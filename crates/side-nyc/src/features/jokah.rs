@@ -222,8 +222,10 @@ pub fn look(t: &Tuning, mode: Mode) -> crate::people::CharacterLook {
     l
 }
 
-/// The Jokah himself (local).
-#[derive(Component)]
+/// The Jokah himself (local): where he is on his walk. He walks between
+/// the commune and New York, so he isn't in an area himself; his [`Body`]
+/// is, in whichever one he's in, drawn while that one shows.
+#[derive(Resource)]
 struct Jokah {
     walk: Walk,
     pos: Vec2,
@@ -240,8 +242,18 @@ struct Jokah {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn)
-        .add_systems(Update, (walk, sound).run_if(in_state(AppState::InGame)));
+    app.add_systems(OnExit(AppState::InGame), |mut commands: Commands| {
+        commands.remove_resource::<Jokah>()
+    })
+    .add_systems(
+        Update,
+        (
+            start.run_if(not(resource_exists::<Jokah>)),
+            (walk, body, sound).run_if(resource_exists::<Jokah>),
+        )
+            .chain()
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 fn path() -> Vec<Vec2> {
@@ -263,45 +275,83 @@ fn ground(p: Vec2) -> Vec3 {
     Vec3::new(p.x, y, p.y)
 }
 
-fn spawn(mut commands: Commands) {
+fn start(mut commands: Commands) {
     let t = tuning();
     let pts = path();
-    let at = pts[0];
-    commands.spawn((
-        Jokah {
-            walk: Walk::start(pts.len()),
-            pos: at,
-            heading: Vec2::Y,
-            next_sound: 2.0,
-            said: 0,
-            last_laugh: None,
-            next_slide: between(t.slide_every, hash(377, 1)),
-            sliding: 0.0,
-            slide: Vec2::ZERO,
-            slides: 0,
-        },
-        crate::people::Gait::default(),
-        Transform::from_translation(ground(at)),
-        Visibility::default(),
-        look(&t, Mode::Jokah),
-        DespawnOnExit(AppState::InGame),
-    ));
+    let Some(&at) = pts.first() else { return };
+    commands.insert_resource(Jokah {
+        walk: Walk::start(pts.len()),
+        pos: at,
+        heading: Vec2::Y,
+        next_sound: 2.0,
+        said: 0,
+        last_laugh: None,
+        next_slide: between(t.slide_every, hash(377, 1)),
+        sliding: 0.0,
+        slide: Vec2::ZERO,
+        slides: 0,
+    });
 }
 
-/// Walk him along, change him at the ends and slide him as Michael.
-fn walk(
-    time: Res<Time>,
-    mut q: Query<(
-        &mut Jokah,
+/// His body, in the area he's in (and the look it wears).
+#[derive(Component)]
+struct Body {
+    area: String,
+    mode: Mode,
+}
+
+/// Local: draw him where he is, while the area he's in shows.
+fn body(
+    mut commands: Commands,
+    j: Res<Jokah>,
+    loaded: Res<friendslop_base::areas::Loaded>,
+    mut bodies: Query<(
+        Entity,
+        &mut Body,
         &mut Transform,
         &mut crate::people::CharacterLook,
     )>,
 ) {
+    let Some(area) = friendslop_base::areas::nearest_area(j.pos) else {
+        return;
+    };
+    let at = Transform::from_translation(ground(j.pos))
+        .with_rotation(Quat::from_rotation_y(j.heading.x.atan2(j.heading.y)));
+    let mut have = false;
+    for (e, mut b, mut tf, mut l) in &mut bodies {
+        if b.area != area {
+            commands.entity(e).despawn();
+            continue;
+        }
+        have = true;
+        *tf = at;
+        if b.mode != j.walk.mode {
+            b.mode = j.walk.mode;
+            *l = look(&tuning(), b.mode);
+        }
+    }
+    if !have && loaded.is(&area, friendslop_base::areas::Layer::Show) {
+        commands.spawn((
+            Body {
+                area: area.clone(),
+                mode: j.walk.mode,
+            },
+            crate::people::Gait::default(),
+            at,
+            Visibility::default(),
+            look(&tuning(), j.walk.mode),
+            crate::area::show_in(&area),
+        ));
+    }
+}
+
+/// Walk him along, change him at the ends and slide him as Michael.
+fn walk(time: Res<Time>, mut j: ResMut<Jokah>) {
     let t = tuning();
     let dt = time.delta_secs();
     let pts = path();
     let (arrive, pause) = (t.arrive, t.pause_secs);
-    for (mut j, mut tf, mut l) in &mut q {
+    {
         let j = &mut *j;
         if j.sliding > 0.0 {
             j.sliding -= dt;
@@ -319,7 +369,6 @@ fn walk(
                 j.heading = d.normalize();
             }
             if arrived.is_some() {
-                *l = look(&t, j.walk.mode);
                 j.next_sound = 1.0;
             }
             if j.walk.mode == Mode::Michael && j.walk.wait <= 0.0 {
@@ -332,8 +381,6 @@ fn walk(
                 }
             }
         }
-        tf.translation = ground(j.pos);
-        tf.rotation = Quat::from_rotation_y(j.heading.x.atan2(j.heading.y));
     }
 }
 
@@ -343,7 +390,7 @@ fn sound(
     time: Res<Time>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
-    mut q: Query<(&mut Jokah, &Transform)>,
+    mut j: ResMut<Jokah>,
 ) {
     let Some(me) = me else {
         return;
@@ -352,10 +399,11 @@ fn sound(
         return;
     };
     let t = tuning();
-    for (mut j, tf) in &mut q {
+    let at = ground(j.pos);
+    {
         j.next_sound -= time.delta_secs();
         if j.next_sound > 0.0 {
-            continue;
+            return;
         }
         j.said += 1;
         let h = hash(377, j.said + 100);
@@ -363,7 +411,7 @@ fn sound(
             Mode::Jokah => {
                 j.next_sound = between(t.laugh_every, h);
                 if t.laughs.is_empty() {
-                    continue;
+                    return;
                 }
                 let i = pick_laugh(h, t.laughs.len(), j.last_laugh);
                 j.last_laugh = Some(i);
@@ -373,17 +421,17 @@ fn sound(
             Mode::Michael => {
                 j.next_sound = between(t.scat_every, h);
                 if t.scats.is_empty() {
-                    continue;
+                    return;
                 }
                 (t.scats[h as usize % t.scats.len()].clone(), t.scat_voice)
             }
         };
-        if tf.translation.distance(w.pos) > t.hear_range {
-            continue;
+        if at.distance(w.pos) > t.hear_range {
+            return;
         }
         crate::spatial::play_wav_at(
             &mut commands,
-            tf.translation + Vec3::Y * 1.6,
+            at + Vec3::Y * 1.6,
             t.volume,
             crate::spatial::Carry::CALL,
             move || {

@@ -215,9 +215,9 @@ fn pick(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
+    crate::area::on_show(app, build);
     app.add_observer(show_news)
         .add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build)
         .add_systems(Update, wear.run_if(in_state(AppState::InGame)));
 }
 
@@ -251,7 +251,7 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
             Transform::from_translation(at - Vec3::Y * 0.2).with_rotation(face),
             Visibility::default(),
             Clickable::at_height(0.25).labelled(format!("{} (${})", kind.name, kind.price).leak()),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
             children![(hat_scene(&assets, kind), Transform::from_xyz(0.0, 0.0, 0.0))],
         ));
     }

@@ -324,7 +324,7 @@ fn spawn(
             ))),
             Visibility::default(),
             crate::people::CharacterLook::random(0x0358_0000 + i as u64 * 31),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
         match p.kind {
             Kind::Preacher => {

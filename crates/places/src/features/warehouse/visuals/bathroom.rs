@@ -19,7 +19,7 @@ pub fn plugin(app: &mut App) {
     app.add_observer(on_gassed).add_systems(
         Update,
         (
-            dress_fart_monsters,
+            dress_fart_monsters.run_if(crate::areas::shown(super::AREA)),
             animate_fart_monsters,
             load_bath_models,
             tile_floors,
@@ -630,7 +630,7 @@ fn bathroom_air(
 }
 
 #[derive(Component)]
-struct FartDressed {
+pub(super) struct FartDressed {
     puffs: u32,
     cloud: Handle<StandardMaterial>,
     puff: Handle<Mesh>,
@@ -690,6 +690,7 @@ fn dress_fart_monsters(
                 // behind towards +z), shuffling with `idle` / `waddle`.
                 p.spawn((
                     FartBody,
+                    crate::areas::InArea::show(super::AREA),
                     crate::rigged::Rigged { path: FART_MONSTER },
                     crate::rigged::RigClip::looping("idle"),
                     Transform::default(),

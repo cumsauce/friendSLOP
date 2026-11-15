@@ -344,6 +344,7 @@ pub struct UseHatch {
 
 pub fn protocol(app: &mut App) {
     claim_ground();
+    visuals::protocol(app);
     app.add_client_event::<UseHatch>(Channel::Ordered)
         .add_observer(use_hatch)
         .add_systems(

@@ -14,6 +14,7 @@ use bevy::world_serialization::WorldInstanceReady;
 use super::wfc::{CELL, E, ENTRANCE, H, N, Plan, Rng, S, W, WEST, cell_centre};
 use super::*;
 use crate::AppState;
+use crate::areas::{self, InArea, Layer};
 use crate::features::bear::wav_bytes;
 use crate::features::interact::{Clickable, Clicked};
 use crate::hud::{HudSlot, Toast};
@@ -21,22 +22,48 @@ use crate::people::{CharacterLook, Gait};
 use crate::player::LocalPlayer;
 use crate::world::MainCamera;
 
+/// The inside's area (`data/base/areas.ron`); the outside is the commune's.
+pub const AREA: &str = "warehouse";
+
+/// Every peer (the host for anyone in there): the outside's colliders with
+/// the commune's, and the inside built from the seed while either of its
+/// layers is loaded, each part filed under its layer ([`file_parts`]).
+pub(super) fn protocol(app: &mut App) {
+    areas::on_sim(app, "commune", build_outside_sim);
+    app.init_resource::<Spooked>()
+        .init_resource::<Built>()
+        .add_systems(OnExit(AppState::InGame), reset)
+        .add_systems(
+            PreUpdate,
+            (build_inside, file_parts)
+                .chain()
+                .after(areas::AreaSet)
+                .run_if(in_state(AppState::InGame)),
+        );
+}
+
 pub fn plugin(app: &mut App) {
     bathroom::plugin(app);
+    areas::on_show(app, "commune", build_outside);
     app.init_resource::<Spooked>()
         .init_resource::<Built>()
         .add_observer(click)
         .add_observer(on_caught)
         .add_observer(on_delivered)
         .add_observer(no_shadows)
-        .add_systems(OnEnter(AppState::InGame), (build_outside, spawn_ui, reset))
-        .add_systems(OnExit(AppState::InGame), reset)
+        .add_systems(
+            Update,
+            undress
+                .run_if(areas::unloaded(Layer::Show, AREA))
+                .run_if(in_state(AppState::InGame)),
+        )
         .add_systems(
             Update,
             (
-                build_inside,
+                spawn_ui.run_if(not(any_with_component::<StatusText>)),
+                undress_pieces,
                 dress_pieces,
-                dress_monsters,
+                dress_monsters.run_if(areas::shown(AREA)),
                 animate_pieces,
                 animate_monsters,
                 flicker,
@@ -148,9 +175,9 @@ fn finish_sound_bake(
     }
 }
 
-/// Which floor plan is built (and its parts).
+/// Which floor plan is built, and for which layers (colliders, visuals).
 #[derive(Resource, Default)]
-struct Built(Option<u32>);
+struct Built(Option<(u32, bool, bool)>);
 
 fn reset(mut spooked: ResMut<Spooked>, mut built: ResMut<Built>) {
     let sounds = spooked.sounds.take();
@@ -214,6 +241,52 @@ fn block(
     e.id()
 }
 
+/// The junk in the yard by the door: two drums and a crate (on the ground).
+fn yard() -> Vec<Vec3> {
+    let d = door_at();
+    [
+        Vec2::new(-4.5, -1.0),
+        Vec2::new(-5.4, -0.6),
+        Vec2::new(-4.9, -2.0),
+    ]
+    .iter()
+    .map(|off| {
+        let at = Vec3::new(d.x + off.x, 0.0, d.z + off.y);
+        at.with_y(crate::terrain::height_at(at.x, at.z))
+    })
+    .collect()
+}
+
+/// The outside's colliders: the shell (the same box as before the model)
+/// and the junk in the yard.
+fn build_outside_sim(mut commands: Commands) {
+    let c = Vec3::new(outside_at().x, outside_floor(), outside_at().y);
+    let (sx, sz, hy) = (outside_size().x, outside_size().y, outside_height());
+    commands.spawn((
+        Transform::from_translation(c + Vec3::Y * hy / 2.0).with_scale(Vec3::new(sx, hy, sz)),
+        avian3d::prelude::RigidBody::Static,
+        avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+        areas::sim("commune"),
+    ));
+    for (i, at) in yard().into_iter().enumerate() {
+        if i == 2 {
+            commands.spawn((
+                Transform::from_translation(at + Vec3::Y * 0.45).with_scale(Vec3::splat(0.9)),
+                avian3d::prelude::RigidBody::Static,
+                avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+                areas::sim("commune"),
+            ));
+        } else {
+            commands.spawn((
+                Transform::from_translation(at + Vec3::Y * 0.48),
+                avian3d::prelude::RigidBody::Static,
+                avian3d::prelude::Collider::cylinder(0.35, 0.95),
+                areas::sim("commune"),
+            ));
+        }
+    }
+}
+
 /// The building outside, its door and lamp, and Jegg.
 fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     let Some(assets) = assets else {
@@ -228,21 +301,13 @@ fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     };
     let y0 = outside_floor();
     let c = Vec3::new(outside_at().x, y0, outside_at().y);
-    let (sx, sz, hy) = (outside_size().x, outside_size().y, outside_height());
     // The building outside: plinth (hides the slope), rusty ribbed shell,
     // roof, dead windows (some boarded up), the rolling shutter and the lamp
     // over the door, all one model at the floor centre.
     commands.spawn((
         model("warehouse_exterior.gltf"),
         Transform::from_translation(c),
-        DespawnOnExit(AppState::InGame),
-    ));
-    // The shell still blocks bodies (the same box as before the model).
-    commands.spawn((
-        Transform::from_translation(c + Vec3::Y * hy / 2.0).with_scale(Vec3::new(sx, hy, sz)),
-        avian3d::prelude::RigidBody::Static,
-        avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
-        DespawnOnExit(AppState::InGame),
+        areas::show("commune"),
     ));
     let d = door_at();
     commands.spawn((
@@ -252,15 +317,16 @@ fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
         Clickable::at_height(1.6)
             .radius(110.0)
             .labelled("vote to go in"),
-        DespawnOnExit(AppState::InGame),
+        areas::show("commune"),
     ));
     // The rolling shutter glows as the way in (you walk in northwards, +z).
-    crate::features::doorway::spawn(
+    let way = crate::features::doorway::spawn(
         &mut commands,
         d - Vec3::Z * 0.3,
         crate::features::doorway::yaw_towards(Vec2::Y),
         crate::features::doorway::Doorway::way_in("the warehouse").size(3.0, 3.0),
     );
+    commands.entity(way).insert(InArea::show("commune"));
     // One sick, buzzing lamp over the door.
     commands.spawn((
         PointLight {
@@ -275,39 +341,22 @@ fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             bad: 0.7,
         },
         Transform::from_translation(Vec3::new(d.x, d.y + 5.0, d.z - 0.8)),
-        DespawnOnExit(AppState::InGame),
+        areas::show("commune"),
     ));
-    // Junk in the yard.
-    for (i, off) in [
-        Vec2::new(-4.5, -1.0),
-        Vec2::new(-5.4, -0.6),
-        Vec2::new(-4.9, -2.0),
-    ]
-    .iter()
-    .enumerate()
-    {
-        let at = Vec3::new(d.x + off.x, 0.0, d.z + off.y);
-        let at = at.with_y(crate::terrain::height_at(at.x, at.z));
+    // Junk in the yard (its colliders: [`build_outside_sim`]).
+    for (i, at) in yard().into_iter().enumerate() {
         if i == 2 {
             // `wh-crate`: 0.9 m, origin on the ground under its middle.
             commands.spawn((
                 model("wh_crate.gltf"),
                 Transform::from_translation(at).with_rotation(Quat::from_rotation_y(0.4)),
-                DespawnOnExit(AppState::InGame),
-            ));
-            commands.spawn((
-                Transform::from_translation(at + Vec3::Y * 0.45).with_scale(Vec3::splat(0.9)),
-                avian3d::prelude::RigidBody::Static,
-                avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
-                DespawnOnExit(AppState::InGame),
+                areas::show("commune"),
             ));
         } else {
             commands.spawn((
                 model("oil_drum.gltf"),
                 Transform::from_translation(at + Vec3::Y * 0.48),
-                avian3d::prelude::RigidBody::Static,
-                avian3d::prelude::Collider::cylinder(0.35, 0.95),
-                DespawnOnExit(AppState::InGame),
+                areas::show("commune"),
             ));
         }
     }
@@ -323,7 +372,7 @@ fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
             Clickable::at_height(1.0)
                 .radius(70.0)
                 .labelled("talk to Jegg"),
-            DespawnOnExit(AppState::InGame),
+            areas::show("commune"),
         ))
         .with_children(|p| {
             p.spawn((model("lantern.gltf"), Transform::from_xyz(0.45, 0.13, -0.2)));
@@ -339,12 +388,15 @@ fn build_outside(mut commands: Commands, assets: Option<Res<AssetServer>>) {
         });
 }
 
-/// Every peer: build the inside for the current seed (and take down the old one).
+/// Every peer: build the inside for the current seed and whichever of its
+/// layers are loaded (and take down the old one). The parts are spawned as
+/// one, then [`file_parts`] files each under its layer.
 #[allow(clippy::too_many_arguments)]
 fn build_inside(
     mut commands: Commands,
     mut built: ResMut<Built>,
     mut spooked: ResMut<Spooked>,
+    loaded: Res<areas::Loaded>,
     warehouse: Query<&Warehouse>,
     parts: Query<Entity, With<InteriorPart>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
@@ -353,18 +405,37 @@ fn build_inside(
     audio: Option<ResMut<Assets<AudioSource>>>,
     assets: Option<Res<AssetServer>>,
 ) {
-    let want = warehouse.iter().next().and_then(|w| w.seed);
+    let (live, shown) = (loaded.is(AREA, Layer::Sim), loaded.is(AREA, Layer::Show));
+    let want = warehouse
+        .iter()
+        .next()
+        .and_then(|w| w.seed)
+        .filter(|_| live || shown)
+        .map(|seed| (seed, live, shown));
     if built.0 == want {
         return;
     }
-    let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
-        return;
-    };
     for e in &parts {
         commands.entity(e).despawn();
     }
     built.0 = want;
-    let Some(seed) = want else { return };
+    let Some((seed, ..)) = want else { return };
+    // Headless (no renderer) the visuals go into throwaway stores: only the
+    // colliders are kept there anyway.
+    let (mut no_meshes, mut no_materials) = (Assets::<Mesh>::default(), Assets::default());
+    let mut meshes = meshes;
+    let mut materials = materials;
+    let meshes: &mut Assets<Mesh> = match meshes.as_deref_mut() {
+        Some(m) => m,
+        None => &mut no_meshes,
+    };
+    let materials: &mut Assets<StandardMaterial> = match materials.as_deref_mut() {
+        Some(m) => m,
+        None => &mut no_materials,
+    };
+    let assets = assets.filter(|_| shown);
+    let images = images.filter(|_| shown);
+    let audio = audio.filter(|_| shown);
     let plan = Plan::generate(seed);
     let tiles = super::wfc::TILES.get();
     let mut rng = Rng::new(seed ^ 0xdec0);
@@ -373,21 +444,14 @@ fn build_inside(
     let bath = super::bathroom::zone(seed);
     let in_bath = |c: (usize, usize)| bath.is_some_and(|b| b.contains(c));
     let ceiling = |c: (usize, usize)| super::bathroom::ceiling(bath, c);
-    let kit = bath.map(|_| {
-        bathroom::kit(
-            &mut meshes,
-            &mut materials,
-            images.map(|i| i.into_inner()),
-            &cube,
-        )
-    });
+    let kit = bath.map(|_| bathroom::kit(meshes, materials, images.map(|i| i.into_inner()), &cube));
     let hum = audio.map(|mut a| sounds(&mut spooked, &mut a, &mut commands).still);
     let tall = if bath.is_some() {
         super::bathroom::CEILING
     } else {
         INSIDE_WALL
     };
-    let wall = mat(&mut materials, Color::srgb(0.3, 0.29, 0.27), 0.95);
+    let wall = mat(materials, Color::srgb(0.3, 0.29, 0.27), 0.95);
     let (gw, gh) = (W as f32 * CELL, H as f32 * CELL);
     let y = INSIDE_Y;
     let top = y + INSIDE_WALL;
@@ -793,6 +857,89 @@ fn build_inside(
     }
 }
 
+/// File each new inside part under its layer: colliders with the colliders,
+/// the rest (models, lights, sound) with the visuals; a part that is both
+/// becomes two. What belongs to a layer that isn't loaded goes at once.
+#[allow(clippy::type_complexity)]
+fn file_parts(
+    mut commands: Commands,
+    loaded: Res<areas::Loaded>,
+    new: Query<
+        (
+            Entity,
+            Option<&Transform>,
+            Option<&avian3d::prelude::Collider>,
+            Has<Visibility>,
+        ),
+        (With<InteriorPart>, Without<InArea>),
+    >,
+) {
+    let (live, shown) = (loaded.is(AREA, Layer::Sim), loaded.is(AREA, Layer::Show));
+    for (e, tf, collider, drawn) in &new {
+        let solid = collider.cloned();
+        if let Some(collider) = solid.clone().filter(|_| live && drawn) {
+            commands.spawn((
+                InteriorPart,
+                tf.copied().unwrap_or_default(),
+                avian3d::prelude::RigidBody::Static,
+                collider,
+                areas::sim(AREA),
+            ));
+        }
+        let (layer, keep) = match (solid.is_some(), drawn) {
+            (true, false) => (Layer::Sim, live),
+            _ => (Layer::Show, shown),
+        };
+        if !keep {
+            commands.entity(e).despawn();
+            continue;
+        }
+        let mut e = commands.entity(e);
+        if layer == Layer::Show && solid.is_some() {
+            e.remove::<(avian3d::prelude::RigidBody, avian3d::prelude::Collider)>();
+        }
+        e.insert(InArea {
+            area: AREA.into(),
+            layer,
+        });
+    }
+}
+
+/// The inside's visuals unloaded (their dressing went with them): dress the
+/// monsters afresh next time.
+fn undress(
+    mut commands: Commands,
+    monsters: Query<Entity, Or<(With<MonsterDressed>, With<bathroom::FartDressed>)>>,
+) {
+    for e in &monsters {
+        commands
+            .entity(e)
+            .remove::<(MonsterDressed, bathroom::FartDressed)>();
+    }
+}
+
+/// A piece is drawn in the area it's in (carried out, it's the commune's):
+/// moved to another, or that one unloaded, it's dressed again there.
+fn undress_pieces(
+    mut commands: Commands,
+    loaded: Res<areas::Loaded>,
+    pieces: Query<(Entity, &SoulPiece, &PieceDressed, Option<&Children>)>,
+    crystals: Query<(), With<Crystal>>,
+) {
+    for (e, piece, dressed, children) in &pieces {
+        let area = areas::nearest_area(piece.pos).unwrap_or_default();
+        if area == dressed.0 && loaded.is(&area, Layer::Show) {
+            continue;
+        }
+        for c in children.into_iter().flatten() {
+            if crystals.contains(*c) {
+                commands.entity(*c).try_despawn();
+            }
+        }
+        commands.entity(e).remove::<(PieceDressed, Clickable)>();
+    }
+}
+
 /// Dying lights: mostly on, sometimes stuttering off.
 fn flicker(time: Res<Time>, mut lights: Query<(&Flicker, &mut PointLight)>) {
     let t = time.elapsed_secs();
@@ -811,8 +958,9 @@ fn flicker(time: Res<Time>, mut lights: Query<(&Flicker, &mut PointLight)>) {
     }
 }
 
+/// Dressed, in this area.
 #[derive(Component)]
-struct PieceDressed;
+struct PieceDressed(String);
 
 #[derive(Component)]
 struct Crystal;
@@ -840,32 +988,40 @@ fn no_shadows(
 
 /// The soul crystal: a modeler-made glowing bipyramid (0.28 wide, 0.6 tall,
 /// centred on its origin; prefab `wh-crystal`) and its light.
-fn crystal(p: &mut ChildSpawnerCommands, assets: Option<&AssetServer>) {
-    p.spawn((Crystal, Transform::default(), Visibility::default()))
-        .with_children(|c| {
-            if let Some(assets) = assets {
-                c.spawn((
-                    WorldAssetRoot(assets.load(
-                        GltfAssetLabel::Scene(0).from_asset("models/features/wh_crystal.gltf"),
-                    )),
-                    NoShadows,
-                    Transform::default(),
-                ));
-            }
+fn crystal(p: &mut ChildSpawnerCommands, assets: Option<&AssetServer>, area: &str) {
+    p.spawn((
+        Crystal,
+        Transform::default(),
+        Visibility::default(),
+        InArea::show(area),
+    ))
+    .with_children(|c| {
+        if let Some(assets) = assets {
             c.spawn((
-                PointLight {
-                    color: Color::srgb(0.55, 0.8, 1.0),
-                    intensity: 9_000.0,
-                    range: 5.0,
-                    ..default()
-                },
+                WorldAssetRoot(
+                    assets.load(
+                        GltfAssetLabel::Scene(0).from_asset("models/features/wh_crystal.gltf"),
+                    ),
+                ),
+                NoShadows,
                 Transform::default(),
             ));
-        });
+        }
+        c.spawn((
+            PointLight {
+                color: Color::srgb(0.55, 0.8, 1.0),
+                intensity: 9_000.0,
+                range: 5.0,
+                ..default()
+            },
+            Transform::default(),
+        ));
+    });
 }
 
 fn dress_pieces(
     mut commands: Commands,
+    loaded: Res<areas::Loaded>,
     new: Query<(Entity, &SoulPiece), Without<PieceDressed>>,
     assets: Option<Res<AssetServer>>,
 ) {
@@ -873,17 +1029,21 @@ fn dress_pieces(
         return;
     };
     for (e, piece) in &new {
+        let area = areas::nearest_area(piece.pos).unwrap_or_default();
+        if !loaded.is(&area, Layer::Show) {
+            continue;
+        }
         commands
             .entity(e)
             .insert((
-                PieceDressed,
+                PieceDressed(area.clone()),
                 Transform::from_translation(piece.pos),
                 Visibility::default(),
                 Clickable::at_height(0.0)
                     .radius(60.0)
                     .labelled("take the soul piece"),
             ))
-            .with_children(|p| crystal(p, Some(&assets)));
+            .with_children(|p| crystal(p, Some(&assets), &area));
     }
 }
 
@@ -961,39 +1121,44 @@ fn dress_monsters(
                 Visibility::default(),
             ))
             .with_children(|p| {
-                p.spawn((MonsterBody, Transform::default(), Visibility::default()))
-                    .with_children(|b| {
-                        // Tall, thin and hunched, arms down past its knees.
-                        let mut body = b.spawn((Transform::default(), Visibility::default()));
-                        if let Some(m) = model("wh_monster_body.gltf") {
-                            body.insert(m);
-                        }
-                        for side in [-1.0f32, 1.0] {
-                            b.spawn((
-                                MonsterArm(side),
-                                Transform::from_xyz(side * 0.3, 2.25, -0.15),
-                                Visibility::default(),
-                            ))
-                            .with_children(|a| {
-                                let mut arm =
-                                    a.spawn((Transform::default(), Visibility::default()));
-                                if let Some(m) = model("wh_monster_arm.gltf") {
-                                    arm.insert(m);
-                                }
-                            });
-                        }
-                        let mut head =
-                            b.spawn((Transform::from_xyz(0.0, 2.5, -0.35), Visibility::default()));
-                        if let Some(m) = model("wh_monster_head.gltf") {
-                            head.insert(m);
-                        }
-                    });
+                p.spawn((
+                    MonsterBody,
+                    Transform::default(),
+                    Visibility::default(),
+                    InArea::show(AREA),
+                ))
+                .with_children(|b| {
+                    // Tall, thin and hunched, arms down past its knees.
+                    let mut body = b.spawn((Transform::default(), Visibility::default()));
+                    if let Some(m) = model("wh_monster_body.gltf") {
+                        body.insert(m);
+                    }
+                    for side in [-1.0f32, 1.0] {
+                        b.spawn((
+                            MonsterArm(side),
+                            Transform::from_xyz(side * 0.3, 2.25, -0.15),
+                            Visibility::default(),
+                        ))
+                        .with_children(|a| {
+                            let mut arm = a.spawn((Transform::default(), Visibility::default()));
+                            if let Some(m) = model("wh_monster_arm.gltf") {
+                                arm.insert(m);
+                            }
+                        });
+                    }
+                    let mut head =
+                        b.spawn((Transform::from_xyz(0.0, 2.5, -0.35), Visibility::default()));
+                    if let Some(m) = model("wh_monster_head.gltf") {
+                        head.insert(m);
+                    }
+                });
                 p.spawn((
                     MonsterDecoy,
                     Transform::from_xyz(0.0, 0.8, 0.0),
                     Visibility::Hidden,
+                    InArea::show(AREA),
                 ))
-                .with_children(|d| crystal(d, assets.as_deref()));
+                .with_children(|d| crystal(d, assets.as_deref(), AREA));
             });
         // Its breathing follows it about.
         let Some(audio) = audio.as_deref_mut() else {
@@ -1007,9 +1172,11 @@ fn dress_monsters(
             0.8,
             crate::spatial::Carry::STEP,
         );
-        commands
-            .entity(breath)
-            .insert((ChildOf(e), Transform::from_xyz(0.0, 2.2, 0.0)));
+        commands.entity(breath).insert((
+            ChildOf(e),
+            Transform::from_xyz(0.0, 2.2, 0.0),
+            InArea::show(AREA),
+        ));
     }
 }
 

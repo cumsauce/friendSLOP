@@ -52,7 +52,7 @@
         (id: "journal", label: "journal (hold) / scoreboard", keys: ["Tab"], pad: ["Select"], group: "screens"),
         (id: "journal_keep", label: "keep the journal open", keys: ["KeyJ"], group: "screens"),
         (id: "help", label: "controls (this)", keys: ["KeyH"], group: "screens"),
-        (id: "copy", label: "copy the invite code", keys: ["KeyC"], group: ""),
+        (id: "copy", label: "copy the invite code", keys: ["KeyC"], pad: ["LeftTrigger2"], group: ""),
         (id: "confirm", label: "continue", keys: ["Enter"], pad: ["RightThumb"], group: "screens"),
         (id: "back", label: "close / back", keys: ["Escape"], group: ""),
         (id: "settings", label: "settings / free the mouse", keys: ["Escape"], pad: ["Start"], group: "screens"),
@@ -72,5 +72,6 @@
     wheel: [
         ["help", "brag", "insurance", "smoke", "sleep", "piss", "journal_keep", "hide_seek"],
         ["duel_1", "duel_2", "duel_3", "duel_4", "lex", "pry", "totem", "mute_spell"],
+        ["kill_cat"],
     ],
 )

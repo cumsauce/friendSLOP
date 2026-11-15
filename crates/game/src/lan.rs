@@ -71,7 +71,7 @@ pub fn parse(text: &str) -> Option<(&str, &str)> {
 
 /// What the menu's button says for a game.
 pub fn button_text(game: &LanGame) -> String {
-    format!("Join {}'s commune (LAN)", game.host)
+    format!("Join {}'s commune", game.host)
 }
 
 pub fn plugin(app: &mut App) {
@@ -214,7 +214,7 @@ mod tests {
                 host: "bben".into(),
                 age: 0.0
             }),
-            "Join bben's commune (LAN)"
+            "Join bben's commune"
         );
     }
 }

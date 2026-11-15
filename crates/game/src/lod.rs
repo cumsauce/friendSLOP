@@ -429,6 +429,7 @@ fn sway_near(
     let Some((eye, frustum)) = camera.iter().next().map(|(g, f)| (g.translation(), f)) else {
         return;
     };
+    let frozen = crate::screenshot::frozen();
     for (mut sway, at) in &mut rigs {
         // Tree wind is a function of time, so a tree out of view can hold
         // still (its bones aren't re-propagated) and is where it should be
@@ -438,7 +439,8 @@ fn sway_near(
             at.translation() + Vec3::Y * TREE_MIDDLE,
             TREE_BALL,
         );
-        let live = seen && sways(eye.distance(at.translation()));
+        // Screenshot captures hold every tree still (goldens, S3).
+        let live = !frozen && seen && sways(eye.distance(at.translation()));
         if sway.live != live {
             sway.live = live;
         }
@@ -450,6 +452,12 @@ fn steer_wind(
     still: Query<&crate::features::stillness::Stillness>,
     mut wind: ResMut<modeler_bevy::Wind>,
 ) {
+    if crate::screenshot::frozen() {
+        if wind.enabled {
+            wind.enabled = false;
+        }
+        return;
+    }
     let strength = wind_strength(gusts.map_or(0.0, |g| g.strength()));
     let enabled = !crate::features::stillness::is_frozen(&still);
     if wind.strength != Some(strength) || wind.enabled != enabled {

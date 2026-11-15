@@ -32,7 +32,8 @@ use wasm_bindgen_futures::{JsFuture, spawn_local};
 use crate::AppState;
 use crate::menu::JoinCode;
 use crate::net_wire::{
-    ALPN, STREAM_MARKER, STREAM_PRIORITY, encode_datagram, frame_header, parse_header,
+    ALPN, STREAM_PRIORITY, encode_datagram, frame_header, handshake_greeting,
+    handshake_greeting_ok, parse_header,
 };
 
 /// Ask the network layer to host or join.
@@ -49,6 +50,33 @@ pub struct NetStatus {
     pub join_code: Option<String>,
     /// Last human-readable status or error.
     pub message: String,
+}
+
+/// Why the host connection went away, kept for the menu's status line (the
+/// same channel the desktop `net.rs` has; the browser transport used to drop
+/// connections silently).
+#[derive(Resource, Default)]
+struct DropReason(Option<String>);
+
+/// What the menu says when the server rejects this build's protocol hash.
+/// Same wording as the desktop `net.rs`.
+pub const MISMATCH_REASON: &str = "this build doesn't match the host's game version";
+
+/// What the menu says after losing the host (pure, for tests).
+pub fn drop_message(reason: Option<&str>) -> String {
+    match reason {
+        Some(reason) => format!("Lost the connection to the host: {reason}"),
+        None => "Disconnected.".into(),
+    }
+}
+
+/// First-write-wins: the first reason is the most specific one (a protocol
+/// mismatch names the version skew; the generic close reason that follows
+/// must not clobber it).
+fn note_drop(slot: &mut Option<String>, reason: String) {
+    if slot.is_none() {
+        *slot = Some(reason);
+    }
 }
 
 /// The browser clipboard is async and needs a user gesture: `get` starts a
@@ -130,7 +158,16 @@ impl Plugin for NetPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<NetStatus>()
             .init_resource::<Clipboard>()
+            .init_resource::<DropReason>()
             .add_message::<NetCommand>()
+            // Not a registration: an observer never touches the protocol hash.
+            .add_observer(
+                |_on: On<ProtocolMismatch>, mut reason: ResMut<DropReason>| {
+                    // The server reports the mismatch and disconnects right
+                    // away; name it before the generic close reason lands.
+                    reason.0 = Some(MISMATCH_REASON.to_string());
+                },
+            )
             .add_systems(Startup, (listen_for_paste, join_from_url))
             .add_systems(Update, (handle_net_commands, deliver_paste))
             .add_systems(OnEnter(ClientState::Connected), enter_game)
@@ -210,6 +247,7 @@ fn handle_net_commands(
     clipboard: Res<Clipboard>,
     mut status: ResMut<NetStatus>,
     mut next: ResMut<NextState<AppState>>,
+    mut drop: ResMut<DropReason>,
     ready: Option<Res<friendslop_data::FilesReady>>,
     mut pending: Local<Vec<NetCommand>>,
 ) {
@@ -223,6 +261,7 @@ fn handle_net_commands(
         return;
     }
     for request in std::mem::take(&mut *pending).iter() {
+        drop.0 = None;
         match request {
             NetCommand::Host => {
                 commands.queue(teardown_transport);
@@ -374,13 +413,15 @@ async fn handshake(
     let err = |e: &dyn std::fmt::Display| format!("{e}");
     let mut send = connection.open_uni().await.map_err(|e| err(&e))?;
     send.set_priority(STREAM_PRIORITY).map_err(|e| err(&e))?;
-    send.write_all(&[STREAM_MARKER])
+    // The greeting bytes live in `crates/wire` so the desktop transport's
+    // tests can pin them to `bevy_replicon_iroh`'s handshake.
+    send.write_all(&handshake_greeting())
         .await
         .map_err(|e| err(&e))?;
     let mut recv = connection.accept_uni().await.map_err(|e| err(&e))?;
     let mut marker = [0u8; 1];
     recv.read_exact(&mut marker).await.map_err(|e| err(&e))?;
-    if marker[0] != STREAM_MARKER {
+    if !handshake_greeting_ok(&marker) {
         connection.close(0u32.into(), b"bad stream marker");
         return Err("the other side runs an incompatible version".into());
     }
@@ -471,7 +512,20 @@ fn client_started(mut state: ResMut<NextState<ClientState>>) {
     state.set(ClientState::Connecting);
 }
 
-fn client_stopped(mut state: ResMut<NextState<ClientState>>) {
+fn client_stopped(
+    current: Res<State<ClientState>>,
+    mut state: ResMut<NextState<ClientState>>,
+    mut drop: ResMut<DropReason>,
+    mut status: ResMut<NetStatus>,
+) {
+    // Leaving `Connected` runs `back_to_menu`, which shows the reason; a
+    // client that stopped outside it (a join that died before connecting)
+    // gets the reason on the status line here.
+    if *current.get() != ClientState::Connected
+        && let Some(why) = drop.0.take()
+    {
+        status.message = drop_message(Some(&why));
+    }
     state.set(ClientState::Disconnected);
 }
 
@@ -481,6 +535,7 @@ fn client_receive(
     mut messages: ResMut<ClientMessages>,
     mut state: ResMut<NextState<ClientState>>,
     mut status: ResMut<NetStatus>,
+    mut drop: ResMut<DropReason>,
 ) {
     if client.link.is_none() {
         match client.pending.try_recv() {
@@ -505,6 +560,7 @@ fn client_receive(
     let Some(link) = &client.link else { return };
     if let Ok(reason) = link.closed.try_recv() {
         debug!("host connection closed: {reason}");
+        note_drop(&mut drop.0, reason);
         commands.remove_resource::<IrohClient>();
     }
     while let Ok((channel, bytes)) = link.incoming.try_recv() {
@@ -601,6 +657,7 @@ fn back_to_menu(
     replicated: Query<Entity, With<Replicated>>,
     mut next: ResMut<NextState<AppState>>,
     mut status: ResMut<NetStatus>,
+    mut drop: ResMut<DropReason>,
 ) {
     // Passive disconnects (host quit, connection dropped) land here.
     commands.queue(teardown_transport);
@@ -608,7 +665,8 @@ fn back_to_menu(
     for e in &replicated {
         commands.entity(e).despawn();
     }
-    status.message = "Disconnected.".into();
+    status.join_code = None;
+    status.message = drop_message(drop.0.take().as_deref());
     next.set(AppState::Menu);
 }
 

@@ -448,11 +448,57 @@ pub fn plugin(app: &mut App) {
             (spawn_overlay, spawn_wheel, spawn_prompt_bar),
         )
         .add_systems(PreUpdate, gather.after(InputSystems))
+        .add_systems(PreUpdate, silence_world_keys.after(gather))
         .add_systems(
             Update,
             (draw_overlay, draw_wheel, draw_prompt_bar).run_if(in_state(AppState::InGame)),
         )
         .add_systems(PostUpdate, save_pad_settings);
+}
+
+/// Keys the journal and the settings notebook still read, or that walk.
+const NOTEBOOK_KEYS: [KeyCode; 19] = [
+    KeyCode::Escape,
+    KeyCode::Tab,
+    KeyCode::KeyJ,
+    KeyCode::KeyH,
+    KeyCode::KeyW,
+    KeyCode::KeyA,
+    KeyCode::KeyS,
+    KeyCode::KeyD,
+    KeyCode::ArrowUp,
+    KeyCode::ArrowDown,
+    KeyCode::ArrowLeft,
+    KeyCode::ArrowRight,
+    KeyCode::Enter,
+    KeyCode::Space,
+    KeyCode::Backspace,
+    KeyCode::ShiftLeft,
+    KeyCode::ShiftRight,
+    KeyCode::F3,
+    KeyCode::KeyM,
+];
+
+/// Behind the journal or the notebook only walking and the notebook's own keys
+/// work: every other action key (and a pad's button mapped to one) is dropped
+/// before the world's systems read it.
+fn silence_world_keys(
+    overlay: Res<crate::ui::Overlay>,
+    state: Res<State<AppState>>,
+    mut keys: ResMut<ButtonInput<KeyCode>>,
+) {
+    if *state.get() != AppState::InGame || !(overlay.journal || overlay.settings) {
+        return;
+    }
+    let stray: Vec<KeyCode> = keys
+        .get_pressed()
+        .chain(keys.get_just_pressed())
+        .filter(|k| !NOTEBOOK_KEYS.contains(k))
+        .copied()
+        .collect();
+    for k in stray {
+        keys.reset(k);
+    }
 }
 
 /// A radial deadzone `dz`, rescaled so the stick still reaches every speed:

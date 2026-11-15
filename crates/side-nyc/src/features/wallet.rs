@@ -87,6 +87,11 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
     TUNING.get()
 }
 
+/// Pirate doubloons this player has (#185, spent at the bodega, #215). Replicated
+/// by the shipwreck's protocol.
+#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct Doubloons(pub u32);
+
 /// A player's money. `lost` is what's in their wallet while it's lost.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq)]
 pub struct Cash {

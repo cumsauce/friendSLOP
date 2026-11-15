@@ -12,7 +12,10 @@
         (name: "TAX ME top hat", model: "models/hats/tax-me.gltf", price: 40),
         (name: "YEEHAW (IRONIC) cowboy hat", model: "models/hats/yeehaw.gltf", price: 25),
     ],
-    // {hat}, {price}, {cash} are filled in.
+    // The bodega takes pirate doubloons (#215) when your dollars run short: this many dollars each.
+    doubloon_dollars: 3,
+    // {hat}, {price}, {cash} are filled in ({doubloons} too in doubloon_line).
+    doubloon_line: "you bought the {hat} for ${price}, topped up with {doubloons} doubloons. the bodega cat bites one to check. everyone can see it.",
     bought_line: "you bought the {hat} for ${price}. ${cash} left. everyone can see it. that's the point.",
     broke_line: "the {hat} is ${price}. you have ${cash}. the bodega cat judges you.",
     off_line: "you took off the {hat}. the statement has been retracted.",

@@ -72,10 +72,15 @@ pub fn button(look: Look, label: &str, width: Val) -> impl Bundle {
 /// A compact button, 44 px tall with its label centred: for rows of controls and for Back on
 /// a panel. Same colours as [`button`], pad-reachable.
 pub fn button_small(look: Look, label: &str, width: Val) -> impl Bundle {
+    button_sized(look, label, width, t::BUTTON_H - 12.0)
+}
+
+/// [`button_small`] at an explicit `height`, for a tall list of rows that must fit a panel.
+pub fn button_sized(look: Look, label: &str, width: Val, height: f32) -> impl Bundle {
     (
         Node {
             width,
-            height: px(t::BUTTON_H - 12.0),
+            height: px(height),
             padding: UiRect::horizontal(px(8)),
             align_items: AlignItems::Center,
             justify_content: JustifyContent::Center,

@@ -125,6 +125,11 @@ pub(crate) fn small_button<'a>(
     ui.spawn(kit::button_small(look, label, px(width)))
 }
 
+/// A square arrow button for a field row: short, so the twelve rows fit the card.
+fn arrow<'a>(ui: &'a mut ChildSpawnerCommands, label: &str) -> EntityCommands<'a> {
+    ui.spawn(kit::button_sized(Look::Plain, label, px(40), 36.0))
+}
+
 fn spawn_creator(
     mut commands: Commands,
     look: Res<MyLook>,
@@ -138,7 +143,7 @@ fn spawn_creator(
         Camera {
             order: 1,
             is_active: false,
-            clear_color: ClearColorConfig::Custom(t::SOOT_900),
+            clear_color: ClearColorConfig::Custom(t::SOOT_800),
             ..default()
         },
         Transform::from_translation(PREVIEW_AT + Vec3::new(0.0, 1.3, 4.3))
@@ -203,11 +208,9 @@ fn spawn_creator(
                             ..default()
                         },
                     ));
-                    small_button(r, "<", Look::Plain, 44.0).observe(
-                        move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
-                            look.0.nudge(field, -1);
-                        },
-                    );
+                    arrow(r, "<").observe(move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
+                        look.0.nudge(field, -1);
+                    });
                     r.spawn((
                         Text::new(""),
                         body(size::LABEL, t::TEXT),
@@ -218,11 +221,9 @@ fn spawn_creator(
                         },
                         CreatorValue(field),
                     ));
-                    small_button(r, ">", Look::Plain, 44.0).observe(
-                        move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
-                            look.0.nudge(field, 1);
-                        },
-                    );
+                    arrow(r, ">").observe(move |_: On<PointerClick>, mut look: ResMut<MyLook>| {
+                        look.0.nudge(field, 1);
+                    });
                 });
             }
             menu::row(ui, |r| {

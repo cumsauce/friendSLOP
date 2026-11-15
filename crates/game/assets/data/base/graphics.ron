@@ -16,4 +16,10 @@
     // stretched to fit; the menus and HUD stay sharp. 1920x1080 is 2.1,
     // 2560x1440 is 3.7. 0 = no cap.
     max_megapixels: 2.6,
+    // The sun's shadow cascades (the Shadows option: Long, Short or Off).
+    // count: shadow maps (every caster is drawn once per cascade, ~0.8-1 ms
+    // each at 2560x1440); first: how far the sharpest one reaches (m);
+    // distance: how far shadows reach at all (m). Every preset uses Long.
+    long_shadows: (count: 3, first: 12.0, distance: 80.0),
+    short_shadows: (count: 2, first: 12.0, distance: 40.0),
 )

@@ -485,7 +485,8 @@ fn spawn_atmosphere(
     // Golden-hour sun (#131): lower and warmer, so shadows stretch long across
     // the meadow and faces facing it glow. Three cascades over 80 m keep shadows crisp up close
     // and cheap (1 shadow-casting light only; every caster is drawn once per cascade, and a
-    // fourth cascade cost more frame time than any other video option).
+    // fourth cascade cost more frame time than any other video option). graphics.rs replaces
+    // these with the Shadows option's (Long or Short, data/base/graphics.ron).
     commands.spawn((
         DirectionalLight {
             color: Color::srgb(1.0, 0.88, 0.7),

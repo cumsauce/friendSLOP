@@ -17,6 +17,26 @@ pub mod world {
 
     #[derive(Component)]
     pub struct MainCamera;
+
+    /// Whether a ball `radius` metres round `center` is in the main camera's
+    /// view. Animation nobody can see is wasted transform propagation, so
+    /// stateless animators (sway, walk cycles) skip what this rules out; with
+    /// no camera everything counts as seen.
+    pub fn in_view(
+        frustum: Option<&bevy::camera::primitives::Frustum>,
+        center: Vec3,
+        radius: f32,
+    ) -> bool {
+        frustum.is_none_or(|f| {
+            f.intersects_sphere(
+                &bevy::camera::primitives::Sphere {
+                    center: center.into(),
+                    radius,
+                },
+                false,
+            )
+        })
+    }
 }
 
 /// From the game's `camera.rs`: the overhead camera's target.

@@ -303,23 +303,14 @@ fn swap_rigs(
     let Some(eye) = camera.iter().next().map(GlobalTransform::translation) else {
         return;
     };
+    // Spawning a rig is a glTF instance of ~35 entities: start only the
+    // nearest few each frame so walking into a wood doesn't hitch.
+    let mut wanted: Vec<(f32, Entity)> = Vec::new();
     for (entity, at, mut tree) in &mut trees {
-        let want = wants_rig(eye.distance(at.translation()), tree.rig.is_some());
+        let distance = eye.distance(at.translation());
+        let want = wants_rig(distance, tree.rig.is_some());
         match (want, tree.rig) {
-            (true, None) => {
-                let rig = commands
-                    .spawn((
-                        crate::scenery::nature_model(&assets, &tree.file),
-                        Transform::IDENTITY,
-                        TreeLod {
-                            shadows: tree.shadows,
-                        },
-                        TreeRig,
-                        ChildOf(entity),
-                    ))
-                    .id();
-                tree.rig = Some(rig);
-            }
+            (true, None) => wanted.push((distance, entity)),
             (false, Some(rig)) => {
                 commands.entity(rig).despawn();
                 tree.rig = None;
@@ -331,6 +322,32 @@ fn swap_rigs(
             _ => {}
         }
     }
+    for entity in nearest(wanted, RIGS_PER_FRAME) {
+        let Ok((_, _, mut tree)) = trees.get_mut(entity) else {
+            continue;
+        };
+        let rig = commands
+            .spawn((
+                crate::scenery::nature_model(&assets, &tree.file),
+                Transform::IDENTITY,
+                TreeLod {
+                    shadows: tree.shadows,
+                },
+                TreeRig,
+                ChildOf(entity),
+            ))
+            .id();
+        tree.rig = Some(rig);
+    }
+}
+
+/// How many tree rigs may start spawning in one frame.
+const RIGS_PER_FRAME: usize = 2;
+
+/// Pure: the `n` nearest of `(distance, what)`, nearest first.
+pub fn nearest<T>(mut wanted: Vec<(f32, T)>, n: usize) -> impl Iterator<Item = T> {
+    wanted.sort_by(|a, b| a.0.total_cmp(&b.0));
+    wanted.into_iter().take(n).map(|(_, t)| t)
 }
 
 /// The rigged model is in: hide the plain meshes it replaces.
@@ -361,6 +378,11 @@ pub const SWAY_RANGE: f32 = 40.0;
 /// rigged with) and at the height of a great-storm gust.
 const BREEZE: f32 = 0.5;
 const GALE: f32 = 1.6;
+
+/// A ball round a tree for the view test: its centre above the root and its
+/// radius (m), roomy enough for the tallest pine and its shadow's start.
+const TREE_MIDDLE: f32 = 6.0;
+const TREE_BALL: f32 = 10.0;
 
 /// Whether a tree at `distance` metres from the camera sways.
 pub fn sways(distance: f32) -> bool {
@@ -398,14 +420,25 @@ fn calm_trees(add: On<Add<modeler_bevy::Sway>>, mut rigs: Query<&mut modeler_bev
 }
 
 fn sway_near(
-    camera: Query<&GlobalTransform, (With<Camera3d>, With<crate::world::MainCamera>)>,
+    camera: Query<
+        (&GlobalTransform, &bevy::camera::primitives::Frustum),
+        (With<Camera3d>, With<crate::world::MainCamera>),
+    >,
     mut rigs: Query<(&mut modeler_bevy::Sway, &GlobalTransform)>,
 ) {
-    let Some(eye) = camera.iter().next().map(GlobalTransform::translation) else {
+    let Some((eye, frustum)) = camera.iter().next().map(|(g, f)| (g.translation(), f)) else {
         return;
     };
     for (mut sway, at) in &mut rigs {
-        let live = sways(eye.distance(at.translation()));
+        // Tree wind is a function of time, so a tree out of view can hold
+        // still (its bones aren't re-propagated) and is where it should be
+        // when you turn back.
+        let seen = crate::world::in_view(
+            Some(frustum),
+            at.translation() + Vec3::Y * TREE_MIDDLE,
+            TREE_BALL,
+        );
+        let live = seen && sways(eye.distance(at.translation()));
         if sway.live != live {
             sway.live = live;
         }
@@ -648,6 +681,12 @@ fn modeler_lods(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn rigs_start_nearest_first_a_few_at_a_time() {
+        let got: Vec<_> = nearest(vec![(30.0, 'c'), (5.0, 'a'), (12.0, 'b')], 2).collect();
+        assert_eq!(got, vec!['a', 'b']);
+    }
 
     #[test]
     fn abrupt_ranges_switch_mid_band_without_a_fade() {

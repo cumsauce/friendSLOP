@@ -44,15 +44,46 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), spawn_curtain)
         .add_systems(
             Update,
+            cover
+                .run_if(in_state(AppState::InGame))
+                .run_if(on_message::<crate::areas::Cover>),
+        )
+        .add_systems(
+            Update,
             lift_curtain
                 .run_if(in_state(AppState::InGame))
                 .run_if(resource_exists::<WorldReadyPending>),
         );
 }
 
-/// Present while the curtain is up.
+/// Present while the curtain is up (`travel`: put up by a teleport, so
+/// lifting it leaves [`WorldReady`] as the first load set it).
 #[derive(Resource)]
-struct WorldReadyPending;
+struct WorldReadyPending {
+    travel: bool,
+}
+
+/// A teleport asked for the curtain (`areas::Cover`): put it up again until
+/// the place you land in has loaded and frames are smooth.
+fn cover(
+    mut commands: Commands,
+    mut covers: MessageReader<crate::areas::Cover>,
+    time: Res<Time<Real>>,
+    assets: Option<Res<AssetServer>>,
+    pending: Option<Res<WorldReadyPending>>,
+    mut progress: ResMut<Progress>,
+) {
+    covers.clear();
+    if pending.is_some() {
+        return;
+    }
+    *progress = Progress {
+        started: time.elapsed_secs(),
+        smooth: 0,
+    };
+    commands.insert_resource(WorldReadyPending { travel: true });
+    spawn(&mut commands, assets.as_deref());
+}
 
 /// Tips under the progress bar, one per load (by the clock).
 pub const TIPS: [&str; 4] = [
@@ -90,14 +121,18 @@ fn spawn_curtain(
     mut ready: ResMut<WorldReady>,
     mut progress: ResMut<Progress>,
 ) {
-    use crate::theme::indigo::{CREAM, INK, PERIWINKLE};
-    use crate::ui::{at, body, head};
     *ready = WorldReady::default();
     *progress = Progress {
         started: time.elapsed_secs(),
         smooth: 0,
     };
-    commands.insert_resource(WorldReadyPending);
+    commands.insert_resource(WorldReadyPending { travel: false });
+    spawn(&mut commands, assets.as_deref());
+}
+
+fn spawn(commands: &mut Commands, assets: Option<&AssetServer>) {
+    use crate::theme::indigo::{CREAM, INK, PERIWINKLE};
+    use crate::ui::{at, body, head};
     let logo: Handle<Image> = assets.map(|a| a.load("ui/logo.png")).unwrap_or_default();
     let tip =
         crate::input::fill(TIPS[(crate::settings::since_epoch().as_secs() as usize) % TIPS.len()]);
@@ -195,6 +230,7 @@ fn lift_curtain(
     roots: Query<&WorldAssetRoot>,
     curtains: Query<Entity, With<Curtain>>,
     mut parts: Query<(&Part, Option<&mut Text>, &mut Node)>,
+    pending: Res<WorldReadyPending>,
     mut ready: ResMut<WorldReady>,
     mut progress: ResMut<Progress>,
 ) {
@@ -246,6 +282,9 @@ fn lift_curtain(
         commands.entity(e).despawn();
     }
     commands.remove_resource::<WorldReadyPending>();
+    if pending.travel {
+        return;
+    }
     *ready = WorldReady {
         ready: true,
         took_secs: elapsed,

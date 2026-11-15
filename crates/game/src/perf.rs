@@ -25,7 +25,7 @@ impl Plugin for PerfPlugin {
             if !app.is_plugin_added::<FrameTimeDiagnosticsPlugin>() {
                 app.add_plugins(FrameTimeDiagnosticsPlugin::default());
             }
-            app.add_systems(Last, (report, breakdown));
+            app.add_systems(Last, (report, breakdown, census));
         }
     }
 }
@@ -81,6 +81,43 @@ fn report(
         lights.iter().count(),
         awake.ids().join(", ")
     );
+}
+
+/// Every 5 s, entities, meshes and colliders per area, and the count that
+/// belongs to no area (`areas.rs`; that last line is the migration's
+/// progress bar: it reaches zero when only globals are left outside areas).
+fn census(
+    time: Res<Time<Real>>,
+    mut last: Local<f32>,
+    all: Query<(Entity, Has<Mesh3d>, Has<avian3d::prelude::Collider>)>,
+    parents: Query<&ChildOf>,
+    tags: Query<(
+        Option<&crate::areas::InArea>,
+        Option<&crate::areas::AreaRoot>,
+    )>,
+) {
+    let now = time.elapsed_secs();
+    if now - *last < 5.0 {
+        return;
+    }
+    *last = now;
+    let lines = crate::areas::census(
+        all.iter()
+            .map(|(e, mesh, collider)| (crate::areas::owner(e, &parents, &tags), mesh, collider)),
+    );
+    let text: Vec<String> = lines
+        .iter()
+        .map(|(area, c)| {
+            format!(
+                "{} {} entities {} meshes {} colliders",
+                area.unwrap_or("no area"),
+                c.entities,
+                c.meshes,
+                c.colliders
+            )
+        })
+        .collect();
+    info!("perf areas: {}", text.join(" | "));
 }
 
 /// `FRIENDSLOP_PERF=3`: every 5 s, the GPU time of each render pass that

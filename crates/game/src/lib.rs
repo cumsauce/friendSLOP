@@ -7,6 +7,7 @@ use bevy::prelude::*;
 pub mod ambience;
 pub use friendslop_art::art;
 pub use friendslop_base::android_pad;
+pub use friendslop_base::areas;
 pub use friendslop_base::assets;
 pub mod atmosphere;
 pub use friendslop_world::buildings;
@@ -74,6 +75,8 @@ impl Plugin for ProtocolPlugin {
     fn build(&self, app: &mut App) {
         // The sites first: the features' simulation asks which are awake.
         app.add_plugins(sites::plugin);
+        // The areas next: what's loaded follows the same people.
+        app.add_plugins(areas::plugin);
         app.add_plugins((player::PlayerPlugin, features::FeaturesProtocolPlugin));
     }
 }

@@ -187,6 +187,12 @@ fn mipmap(
         d.size.width = tw;
         d.size.height = th;
         d.mip_level_count = levels;
+        // Browser (#242): nothing reads a model texture's pixels after this,
+        // so let the GPU upload take them instead of keeping a second copy
+        // in wasm memory (phones kill tabs well under 1 GB).
+        if cfg!(target_arch = "wasm32") {
+            image.asset_usage = bevy::asset::RenderAssetUsages::RENDER_WORLD;
+        }
     }
 }
 

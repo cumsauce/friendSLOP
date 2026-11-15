@@ -436,7 +436,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   Fennel, each with a line when you first take him on. Click a pirate to battle: three hits and he
   yields and sits for 90 s; he swings back, sometimes knocking you 3 m away (the 5% action failure
   applies). While all three are down the chest is open: click it for 25 doubloons, once each until
-  the crew gets up. Doubloons show bottom-right and buy nothing yet (`features/shipwreck.rs`).
+  the crew gets up. Doubloons show bottom-right and the bodega takes them (#215: they top up your dollars at 3 dollars each, see Hats) (`features/shipwreck.rs`).
   It's the first feature to keep trees off its ground by claiming a footprint
   (`world::footprints`) instead of being imported by the map.
 - **Click hints**. Whatever your aim point (crosshair, or the cursor in the overview camera) is
@@ -601,7 +601,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   theyre all making a statement"). A rack on the bodega's back wall with five modeler hats:
   TOUCH GRASS cap, EAT THE RICH beanie, I <3 RENT CONTROL bucket hat, TAX ME top hat, YEEHAW
   (IRONIC) cowboy hat (`data/side/hats.ron`). Click to buy with dollars; the replicated `Hat`
-  puts it on your head for everyone. Buying another swaps it; click yours to take it off.
+  puts it on your head for everyone. Buying another swaps it; click yours to take it off. **Doubloons** (#215, what the pirates' doubloons are good for): the bodega takes them too. Your dollars go first and any shortfall is made up in doubloons at 3 dollars each (`doubloon_dollars` in `hats.ron`), so a TAX ME top hat costs $40, or $25 and five doubloons. The shop is the site; the pirates' gold finally buys a statement.
 - **Street people** (#358, catherine: "add random preachers, street performers and tweakers to
   the city and especially to Penn Station and the subway station"). Fifteen locals in New York
   (`data/side/street_people.ron`: kind and spot): tweakers pace and scream one side of an
@@ -1691,7 +1691,6 @@ restarts its world anyway. Saves are versioned and fitted to the chapter list if
   What does the Watcher want, is it tied to the whispers or the landlord, and where does the ARG go next?
 - The game has day and night now (#284), but nothing cares what time it is: what should
   change at night? Night whispers (#235) still follow your real clock.
-- The shipwreck's pirates hand out doubloons (#185). What should they buy?
 - Hide and seek: should found hiders seek, or just watch? Should the world change each round?
 - What does "still recovering" from the storm mean for us: are we rebuilding, scavenging, or something else?
 - Everything: what are we, and where are we? (The goal: free the Commune from the landlord.)

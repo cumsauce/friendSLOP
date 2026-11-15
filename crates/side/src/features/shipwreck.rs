@@ -82,9 +82,9 @@ impl Pirate {
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Treasure;
 
-/// How many doubloons this player has. Replicated.
-#[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct Doubloons(pub u32);
+/// How many doubloons this player has. Replicated (the type lives with the
+/// wallet, where the bodega spends them).
+pub use crate::features::wallet::Doubloons;
 
 /// Client -> server: I attack pirate `id`.
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]

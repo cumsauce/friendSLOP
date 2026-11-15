@@ -967,7 +967,11 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   and the communes open near you; a game hosted near you also shows as a sticky note top right
   (Y on a pad joins it). B on a join in progress cancels it first. Those panels take turns
   (opening one closes the others), each has a Back button the pad can focus, and B / Esc closes
-  the top one; the pad scrolls the fault list with the stick.
+  the top one; the pad scrolls the fault list with the stick. The chapter intro card waits
+  (hidden, not ageing) while the pause screen is up. The character creator, Whose fault is it and
+  the Kori shelf are soot panels with the same kit buttons. Pad hint glyphs keep the Xbox
+  positions and colours but follow the pad's own lettering (Nintendo swaps A/B and X/Y,
+  PlayStation shows ×, O, Sq, Tr).
   Settings is one big "Make yourself comfortable" notebook with three pages: Audio + voice
   (volume sliders, mic and HALT as square checkboxes), Video (presets Low / Medium / High as
   tabs, "Custom" is just what shows once you change anything, and every video option as a
@@ -1305,21 +1309,24 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   stay real-time (off on Low). There's still no GPU in CI, so the 3x target isn't measured
   (software rendering is too slow to compare frame rates). `FRIENDSLOP_BENCH=1` now also prints
   how many meshes there are, how many distinct ones, and their vertex count.
-- **HUD: "E · Indigo journal"** (UI polish, not a friend idea; from the Figma UI brief in
-  `docs/figma-ui-brief.md`, which answered "about 12 floating cards at once"). Solid deep-indigo
-  cards with cream text (`theme::indigo`; the restyle to the soot-and-cardboard "commune
-  noticeboard" kit, `theme::kit` and `ui/kit.rs`, is landing layer by layer), Lilita One for titles
+- **HUD: the commune noticeboard** (UI polish, not a friend idea; first drawn as "E · Indigo journal"
+  from the Figma UI brief in `docs/figma-ui-brief.md`, which answered "about 12 floating cards at
+  once", restyled in layer 10 of the UI restyle). Soot panels and chips with cream text, cardboard
+  cards held on with tape for anything you read (quest card, chapter intro), slime green for
+  progress, butter for news and focus, landlord red for danger only (`theme::kit` and
+  `ui/kit.rs`; the old `theme::indigo` palette is only left in the loading curtain), Lilita One for titles
   and counters, Atkinson Hyperlegible for the rest, Bowlby One for big headings, authored at
   1280x800 and scaled up uniformly with bigger windows (`ui/`). On
   screen: a **quest card** top-left (chapter N/5 and its name, jobs done, Heaven Pass tier, and
   "now:" the next job); a **team strip** top-right (one badge per player: mic, name, gods' tears
-  ×N; butter with a waveform while they talk, a slash when muted; mute state is replicated
+  ×N, the mic in the friend's seat colour; lilac with a waveform while they talk, a slash when muted; mute state is replicated
   now); a **danger lane** under it (ATTACK MODE, the Stillness, the rent raise in its last
   minute, the helicopter, being carried or floated; most urgent first, at most three, with
   MM:SS countdowns); an **event feed** on the left (every toast and toast line: at most three,
-  repeats within 2 s merge into ×N, 4 s then a fade); the **gas meter, mic chip and cat size**
-  bottom-right (the cat card turns into a blinking butter "PET. THE. CAT." fuse card at
-  critical mass); a "Tab / J journal" hint bottom-left (J toggles the Tab panel); subtitles
+  repeats within 2 s merge into ×N, 4 s then a fade; the bar down a toast's edge is red for
+  something going wrong, lilac for an achievement and butter for news); the **gas meter, mic chip and cat size**
+  bottom-right (the cash line is a soot chip above them)
+  (the cat card turns into a blinking butter "PET. THE. CAT." sticky note at critical mass); a "Tab / J journal, Esc pause" hint bottom-left (J toggles the Tab panel); subtitles
   bottom-centre; and a **context prompt** under the aim point ("Pet the cat · LMB / B · in
   reach", or "Too far · move closer"), with the crosshair turning into a hand. Lines other
   features still put in HUD slots sit around these on matching ink chips. The full chapter

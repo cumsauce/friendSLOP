@@ -245,3 +245,43 @@ fn the_fart_monster_gasses_you_out() {
         .map(|w| w.1);
     assert!(pos.is_some_and(|p| !inside(p)), "gassed out: {pos:?}");
 }
+
+/// #368: a friend who died (in heaven or the hell pit, maybe idle until the
+/// watchdog got them) can't knock, so they no longer hold the door shut: the
+/// living go in without them, and the dead stay where they are.
+#[test]
+fn the_dead_dont_hold_the_door_shut() {
+    let (mut server, mut client) = (peer(), peer());
+    server.insert_resource(friendslop::features::warehouse::FixedPlan(7));
+    server.connect_client(&mut client);
+    exchange(&mut server, &mut client, 3);
+    let Some(&(friend, _)) = walkers(&mut server).iter().find(|w| w.0 != 0) else {
+        panic!("no friend");
+    };
+    place(&mut server, 0, door_at() - Vec3::Z * 1.5);
+    server
+        .world_mut()
+        .trigger(friendslop::features::afterlife::Die { player: friend });
+    exchange(&mut server, &mut client, 2);
+    let dead_at = walkers(&mut server)
+        .iter()
+        .find(|w| w.0 == friend)
+        .map(|w| w.1);
+
+    server.world_mut().client_trigger(KnockDoor);
+    exchange(&mut server, &mut client, 3);
+    assert!(
+        warehouse(&mut client).seed.is_some(),
+        "the host goes in alone"
+    );
+    let now = walkers(&mut server);
+    assert!(now.iter().any(|(id, p)| *id == 0 && inside(*p)));
+    let friend_at = now.iter().find(|w| w.0 == friend).map(|w| w.1);
+    assert!(
+        friend_at.is_some_and(|p| !inside(p))
+            && friend_at
+                .zip(dead_at)
+                .is_some_and(|(a, b)| a.xz() == b.xz()),
+        "the dead friend stays in the afterlife: {friend_at:?} vs {dead_at:?}"
+    );
+}

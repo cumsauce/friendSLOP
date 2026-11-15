@@ -798,7 +798,8 @@ free, and dollars only buy boba, joints and hats so far. Six players beat the la
   past the pond to it) stands a dark, rusting warehouse with a rolling loading door, boarded
   windows and one buzzing lamp, and **Jegg** waits beside the door with a lantern. Click the door
   to agree to go in (click again to take it back; walking 20 m away drops your vote). When
-  **every** player in the game has agreed, the host rolls a seed and everyone is taken inside: a
+  **every** player in the game has agreed (the dead don't count: a friend in heaven or the hell
+  pit can't hold the door shut, #368), the host rolls a seed and everyone is taken inside: a
   map of its own, 60 m under the meadow, whose 7x7 floor plan (5 m cells) every peer builds from
   that seed with **wave function collapse** (`features/warehouse/wfc.rs`: each cell is a tile of
   open/walled sides, neighbours must agree, the outer wall is closed except the loading door,

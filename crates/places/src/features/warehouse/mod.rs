@@ -31,7 +31,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{SERVER_REACH, deny, within};
-use crate::player::{Player, PlayerOwner};
+use crate::player::{Absent, Player, PlayerOwner};
 
 pub mod bathroom;
 pub mod sound;
@@ -347,6 +347,7 @@ fn knock(
     fixed: Option<Res<FixedPlan>>,
     still: Query<&super::stillness::Stillness>,
     mut warehouse: Query<&mut Warehouse>,
+    absent: Query<&Player, With<Absent>>,
     mut bodies: Bodies,
 ) {
     if super::stillness::is_frozen(&still) {
@@ -387,8 +388,8 @@ fn knock(
         return;
     }
     wh.votes.push(me.0);
-    let everyone: Vec<u64> = bodies.iter().map(|b| b.0.id).collect();
-    if !everyone.iter().all(|id| wh.votes.contains(id)) {
+    let away: Vec<u64> = absent.iter().map(|p| p.id).collect();
+    if !everyone_agrees(&wh.votes, bodies.iter().map(|b| b.0.id), &away) {
         return;
     }
     // Everyone agrees: in we go, into a building nobody has seen before.
@@ -397,9 +398,27 @@ fn knock(
         |f| f.0,
     );
     start_expedition(&mut commands, &mut wh, seed);
-    for (i, (_, _, mut w, input, kcc)) in bodies.iter_mut().enumerate() {
+    let here = bodies.iter_mut().filter(|b| !away.contains(&b.0.id));
+    for (i, (_, _, mut w, input, kcc)) in here.enumerate() {
         put(&mut w, input, kcc, in_spot(i));
     }
+}
+
+/// Whether every player who's on the map has voted. Players in `away` (dead,
+/// for now) don't count, so they can't hold the door shut for the rest.
+pub fn everyone_agrees(
+    votes: &[u64],
+    players: impl IntoIterator<Item = u64>,
+    away: &[u64],
+) -> bool {
+    let mut any = false;
+    for id in players.into_iter().filter(|id| !away.contains(id)) {
+        if !votes.contains(&id) {
+            return false;
+        }
+        any = true;
+    }
+    any
 }
 
 /// Server: open the warehouse with floor plan `seed`: soul pieces in its
@@ -934,6 +953,16 @@ fn music_signals(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn everyone_on_the_map_must_agree() {
+        assert!(!everyone_agrees(&[0], [0, 1], &[]));
+        assert!(everyone_agrees(&[0, 1], [0, 1], &[]));
+        // Player 1 is dead: the rest decide.
+        assert!(everyone_agrees(&[0], [0, 1], &[1]));
+        // Nobody left to agree is not an agreement.
+        assert!(!everyone_agrees(&[], [1], &[1]));
+    }
 
     fn brain() -> MonsterBrain {
         MonsterBrain {

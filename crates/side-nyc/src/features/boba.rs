@@ -235,9 +235,16 @@ fn wear_off(time: Res<Time>, mut acc: Local<f32>, mut buzzes: Query<&mut Buzz>) 
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
+    crate::area::on_sim(app, build_sim);
+    crate::area::on_show(app, build);
     app.add_observer(show_news)
         .add_observer(click_cup)
-        .add_systems(OnEnter(AppState::InGame), build)
+        .add_systems(
+            Update,
+            build_ui
+                .run_if(in_state(AppState::InGame))
+                .run_if(not(any_with_component::<BuzzText>)),
+        )
         .add_systems(
             Update,
             (show_buzz, step_in.run_if(crate::sites::here("nyc")))
@@ -266,16 +273,8 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
         commands.spawn((
             WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset(shop.model.clone()))),
             f,
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
-        for (c, s) in BOXES {
-            commands.spawn((
-                Transform::from_translation(f.transform_point(c)).with_rotation(f.rotation),
-                avian3d::prelude::RigidBody::Static,
-                avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
-                DespawnOnExit(AppState::InGame),
-            ));
-        }
         for (d, cup) in CUPS.iter().enumerate().take(shop.drinks.len()) {
             commands.spawn((
                 Cup {
@@ -285,7 +284,7 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
                 Transform::from_translation(f.transform_point(*cup)),
                 Visibility::default(),
                 Clickable::at_height(0.0).labelled("buy this boba"),
-                DespawnOnExit(AppState::InGame),
+                crate::area::show(),
             ));
         }
         // Fully staffed: one at the register, one at the tea urns.
@@ -295,10 +294,28 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
                 Transform::from_translation(f.transform_point(*at)).with_rotation(f.rotation),
                 Visibility::default(),
                 crate::people::CharacterLook::random(0x0356_0000 + (i * 2 + k) as u64 * 13),
-                DespawnOnExit(AppState::InGame),
+                crate::area::show(),
             ));
         }
     }
+}
+
+fn build_sim(mut commands: Commands) {
+    for shop in tuning().shops.iter() {
+        let f = frame(shop);
+        for (c, s) in BOXES {
+            commands.spawn((
+                Transform::from_translation(f.transform_point(c)).with_rotation(f.rotation),
+                avian3d::prelude::RigidBody::Static,
+                avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
+                crate::area::sim(),
+            ));
+        }
+    }
+}
+
+/// The buzz line and tint (the HUD's: they follow you out of New York).
+fn build_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         BuzzText,

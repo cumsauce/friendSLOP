@@ -106,9 +106,11 @@ pub fn protocol(app: &mut App) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_prompt)
-        .add_observer(jump_clicked)
-        .add_systems(Update, show_splats);
+    crate::area::on_show(app, spawn_prompt);
+    app.add_observer(jump_clicked).add_systems(
+        Update,
+        show_splats.run_if(friendslop_base::areas::shown(crate::area::NYC)),
+    );
 }
 
 /// A little glowing knob hovering over the top landing: click it to jump.
@@ -136,7 +138,7 @@ fn spawn_prompt(
             ..default()
         })),
         Transform::from_translation(at + Vec3::Y * 0.9),
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
 }
 
@@ -192,19 +194,22 @@ fn jump(
 }
 
 /// Everyone: a splat is a dark red, slightly squashed puddle on the ground.
+/// Local: draw each splat (a child in New York's visuals, so it goes when you
+/// leave and comes back when you return; the splat itself is replicated).
 fn show_splats(
     mut commands: Commands,
-    new: Query<(Entity, &BloodSplat), Added<BloodSplat>>,
+    splats: Query<(Entity, &BloodSplat, Option<&Children>)>,
+    dresses: Query<(), With<crate::area::Dress>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
-    if new.is_empty() {
-        return;
-    }
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
         return;
     };
-    for (e, splat) in &new {
+    for (e, splat, children) in &splats {
+        if crate::area::dressed(children, &dresses) {
+            continue;
+        }
         let mat = materials.add(StandardMaterial {
             base_color: Color::srgba(0.45, 0.04, 0.04, 0.85),
             alpha_mode: AlphaMode::Blend,
@@ -212,12 +217,16 @@ fn show_splats(
             ..default()
         });
         commands.entity(e).insert((
+            Transform::from_translation(splat.at + Vec3::Y * 0.02),
+            Visibility::default(),
+        ));
+        commands.spawn((
+            crate::area::Dress,
             Mesh3d(meshes.add(Cylinder::new(splat.size, 0.012))),
             MeshMaterial3d(mat),
-            Transform::from_translation(splat.at + Vec3::Y * 0.02)
-                .with_scale(Vec3::new(1.0, 1.0, 0.7)),
-            Visibility::default(),
-            DespawnOnExit(AppState::InGame),
+            Transform::from_scale(Vec3::new(1.0, 1.0, 0.7)),
+            crate::area::show(),
+            ChildOf(e),
         ));
     }
 }

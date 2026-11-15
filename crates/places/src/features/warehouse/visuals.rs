@@ -1231,6 +1231,8 @@ fn spawn_ui(mut commands: Commands) {
             ..default()
         },
         BackgroundColor(Color::NONE),
+        // A see-through flash over everything: never in the way of a click.
+        Pickable::IGNORE,
         GlobalZIndex(50),
         Scare(0.0, Vec3::ZERO),
         DespawnOnExit(AppState::InGame),

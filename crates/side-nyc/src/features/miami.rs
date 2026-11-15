@@ -253,10 +253,12 @@ fn catch_fallers(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
+    crate::area::on_sim(app, build_sim);
+    crate::area::on_show(app, build);
+    crate::features::start::provide(starts);
     app.init_resource::<Trip>()
         .add_observer(feel_k)
         .add_observer(click_dealer)
-        .add_systems(OnEnter(AppState::InGame), build)
         .add_systems(OnExit(AppState::InGame), sober_up)
         .add_systems(
             Update,
@@ -312,16 +314,8 @@ fn build(
             assets.load(GltfAssetLabel::Scene(0).from_asset("models/miami-factory-town.gltf")),
         ),
         Transform::from_translation(g),
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
-    for (c, s) in boxes() {
-        commands.spawn((
-            Transform::from_translation(g + c),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
     // The crowd.
     for i in 0..t.dancers {
         let at = g + dancer_spot(i, t.dancers);
@@ -332,7 +326,7 @@ fn build(
                 .with_rotation(Quat::from_rotation_y(std::f32::consts::PI)),
             Visibility::default(),
             crate::people::CharacterLook::random(0x0345_0000 + i as u64 * 11),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
     // The dealer by the bar.
@@ -344,7 +338,7 @@ fn build(
         Visibility::default(),
         Clickable::at_height(1.0).labelled("buy a bump of ketamine"),
         crate::people::CharacterLook::random(0x0345_dea1),
-        DespawnOnExit(AppState::InGame),
+        crate::area::show(),
     ));
     // Lasers fanning out over the crowd from the DJ booth, and coloured lights.
     let beam = meshes.add(Cuboid::new(0.05, 0.05, 30.0));
@@ -362,7 +356,7 @@ fn build(
                 ..default()
             })),
             Transform::from_translation(booth),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
     for (i, x) in [-10.0, 0.0, 10.0].into_iter().enumerate() {
@@ -374,16 +368,30 @@ fn build(
                 ..default()
             },
             Transform::from_translation(g + Vec3::new(VENUE.x + x, VENUE_H - 1.5, VENUE.y)),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
-    // `FRIENDSLOP_START=factory_town` starts you on the dance floor.
-    let floor = g + Vec3::new(VENUE.x, 0.05, VENUE.y - 8.0);
-    commands.queue(move |world: &mut World| {
-        if let Some(mut p) = world.get_resource_mut::<crate::features::start::StartPoints>() {
-            p.add("factory_town", floor);
-        }
-    });
+}
+
+fn build_sim(mut commands: Commands) {
+    let g = Vec3::from(tuning().ground);
+    for (c, s) in boxes() {
+        commands.spawn((
+            Transform::from_translation(g + c),
+            avian3d::prelude::RigidBody::Static,
+            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
+            crate::area::sim(),
+        ));
+    }
+}
+
+/// `FRIENDSLOP_START=factory_town` starts you on the dance floor.
+fn starts() -> Vec<(String, Vec3)> {
+    let g = Vec3::from(tuning().ground);
+    vec![(
+        "factory_town".into(),
+        g + Vec3::new(VENUE.x, 0.05, VENUE.y - 8.0),
+    )]
 }
 
 fn dance(time: Res<Time>, mut dancers: Query<(&Dancer, &mut Transform)>) {

@@ -737,14 +737,22 @@ fn hide(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
+    crate::area::on_show(app, place_lockers);
     app.add_observer(on_phone)
-        .add_observer(dress_hunter)
         .add_observer(click_locker)
         .init_resource::<Call>()
-        .add_systems(OnEnter(AppState::InGame), (build_ui, place_lockers))
+        .add_systems(OnExit(AppState::InGame), |mut call: ResMut<Call>| {
+            *call = Call::default()
+        })
         .add_systems(
             Update,
-            (ring, move_hunters)
+            build_ui
+                .run_if(in_state(AppState::InGame))
+                .run_if(not(any_with_component::<PhoneBanner>)),
+        )
+        .add_systems(
+            Update,
+            (ring, dress_hunters, move_hunters)
                 .run_if(in_state(AppState::InGame))
                 .run_if(crate::sites::here("nyc")),
         );
@@ -770,8 +778,7 @@ struct PhoneBanner;
 #[derive(Component)]
 struct PhoneSubtitle;
 
-fn build_ui(mut commands: Commands, mut call: ResMut<Call>) {
-    *call = Call::default();
+fn build_ui(mut commands: Commands) {
     commands.spawn((
         Text::new(""),
         TextFont::from_font_size(30.0),
@@ -936,7 +943,7 @@ fn place_lockers(mut commands: Commands) {
             Transform::from_translation(at),
             Visibility::default(),
             Clickable::at_height(1.2).radius(60.0).labelled(label),
-            DespawnOnExit(AppState::InGame),
+            crate::area::show(),
         ));
     }
 }
@@ -947,17 +954,30 @@ fn click_locker(ev: On<Clicked>, mut commands: Commands, lockers: Query<(), With
     }
 }
 
-fn dress_hunter(add: On<Add<Hunter>>, mut commands: Commands, assets: Res<AssetServer>) {
-    commands.entity(add.entity).insert((
-        Transform::default(),
-        Visibility::default(),
-        children![(
+/// Local: draw each hunter (a child in New York's visuals; the hunter is replicated).
+fn dress_hunters(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    hunters: Query<(Entity, Option<&Children>), With<Hunter>>,
+    dresses: Query<(), With<crate::area::Dress>>,
+) {
+    for (e, children) in &hunters {
+        if crate::area::dressed(children, &dresses) {
+            continue;
+        }
+        commands
+            .entity(e)
+            .insert_if_new((Transform::default(), Visibility::default()));
+        commands.spawn((
+            crate::area::Dress,
             WorldAssetRoot(
                 assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/fs_hunter.gltf")),
             ),
             Transform::default(),
-        )],
-    ));
+            crate::area::show(),
+            ChildOf(e),
+        ));
+    }
 }
 
 /// Local: put the hunter where the server says, smoothly, with a loping sway.

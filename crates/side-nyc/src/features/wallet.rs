@@ -227,7 +227,7 @@ pub fn protocol(app: &mut App) {
         .add_observer(give_cash)
         .add_observer(insure)
         .add_observer(brag)
-        .add_systems(OnEnter(AppState::InGame), |mut b: ResMut<Below>| {
+        .add_systems(OnExit(AppState::InGame), |mut b: ResMut<Below>| {
             *b = Below::default()
         })
         .add_systems(
@@ -522,12 +522,17 @@ fn fly_drones(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
-    app.add_observer(show_news)
-        .add_systems(OnEnter(AppState::InGame), spawn_ui)
-        .add_systems(
-            Update,
-            (keys, show_cash, dress, place_drones).run_if(in_state(AppState::InGame)),
-        );
+    app.add_observer(show_news).add_systems(
+        Update,
+        (
+            spawn_ui.run_if(not(any_with_component::<CashText>)),
+            keys,
+            show_cash,
+            dress,
+            place_drones,
+        )
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 fn show_news(ev: On<WalletNews>, me: Option<Res<LocalPlayer>>, toast: Option<ResMut<Toast>>) {
@@ -600,9 +605,6 @@ fn show_cash(
     }
 }
 
-#[derive(Component)]
-struct Dressed;
-
 fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
     WorldAssetRoot(
         assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
@@ -610,38 +612,53 @@ fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
 }
 
 /// Wallets and coins get their models (drawn bigger than life so you can spot them).
+/// Local: draw wallets, coins and drones as children in the visuals of the
+/// area they're in (they're replicated and stay; their models come and go).
+#[allow(clippy::type_complexity)]
 fn dress(
     mut commands: Commands,
     assets: Res<AssetServer>,
-    wallets: Query<(Entity, &Wallet), Without<Dressed>>,
-    coins: Query<(Entity, &Coin), Without<Dressed>>,
-    drones: Query<(Entity, &Drone), Without<Dressed>>,
+    loaded: Res<friendslop_base::areas::Loaded>,
+    wallets: Query<(Entity, &Wallet, Option<&Children>)>,
+    coins: Query<(Entity, &Coin, Option<&Children>)>,
+    drones: Query<(Entity, &Drone, Option<&Children>)>,
+    dresses: Query<(), With<crate::area::Dress>>,
 ) {
-    for (e, w) in &wallets {
-        commands.entity(e).insert((
-            Dressed,
-            model(&assets, "fs-wallet.gltf"),
-            Transform::from_translation(w.at)
-                .with_rotation(Quat::from_rotation_y(w.at.x * 7.0))
-                .with_scale(Vec3::splat(2.5)),
-            Visibility::default(),
+    use friendslop_base::areas::{Layer, nearest_area};
+    let mut put = |e: Entity, children: Option<&Children>, at: Vec3, place: Transform, file| {
+        let Some(area) = nearest_area(at.xz()) else {
+            return;
+        };
+        if crate::area::dressed(children, &dresses) || !loaded.is(&area, Layer::Show) {
+            return;
+        }
+        commands.entity(e).insert((place, Visibility::default()));
+        commands.spawn((
+            crate::area::Dress,
+            model(&assets, file),
+            Transform::default(),
+            crate::area::show_in(&area),
+            ChildOf(e),
         ));
+    };
+    for (e, w, c) in &wallets {
+        let place = Transform::from_translation(w.at)
+            .with_rotation(Quat::from_rotation_y(w.at.x * 7.0))
+            .with_scale(Vec3::splat(2.5));
+        put(e, c, w.at, place, "fs-wallet.gltf");
     }
-    for (e, c) in &coins {
-        commands.entity(e).insert((
-            Dressed,
-            model(&assets, "fs-coin.gltf"),
-            Transform::from_translation(c.at).with_scale(Vec3::splat(4.0)),
-            Visibility::default(),
-        ));
+    for (e, coin, c) in &coins {
+        let place = Transform::from_translation(coin.at).with_scale(Vec3::splat(4.0));
+        put(e, c, coin.at, place, "fs-coin.gltf");
     }
-    for (e, d) in &drones {
-        commands.entity(e).insert((
-            Dressed,
-            model(&assets, "fs-insurance-drone.gltf"),
+    for (e, d, c) in &drones {
+        put(
+            e,
+            c,
+            d.at,
             Transform::from_translation(d.at),
-            Visibility::default(),
-        ));
+            "fs-insurance-drone.gltf",
+        );
     }
 }
 

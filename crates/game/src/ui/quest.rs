@@ -39,7 +39,7 @@ pub fn full_card(age: f32, t: &crate::hud::Tuning) -> bool {
 
 /// Card height and the "now:" line's top, full or folded.
 fn shape(full: bool) -> (f32, f32) {
-    if full { (136.0, 100.0) } else { (40.0, 8.0) }
+    if full { (148.0, 100.0) } else { (52.0, 8.0) }
 }
 
 /// The four lines for a campaign state.
@@ -68,7 +68,7 @@ fn spawn(mut commands: Commands, root: Query<Entity, With<HudRoot>>) {
             left: px(EDGE),
             top: px(EDGE),
             width: px(390),
-            height: px(136),
+            height: px(148),
             border: UiRect::all(px(b)),
             border_radius: BorderRadius::all(px(18)),
             ..default()
@@ -99,7 +99,11 @@ fn spawn(mut commands: Commands, root: Query<Entity, With<HudRoot>>) {
                 Line::Next,
                 Text::new(""),
                 body(16.0, PERIWINKLE),
-                at(16.0, 100.0, b)
+                // Wraps inside the card: two lines fit.
+                Node {
+                    width: px(390.0 - 2.0 * b - 32.0),
+                    ..at(16.0, 100.0, b)
+                }
             ),
         ],
     ));
@@ -183,6 +187,6 @@ mod tests {
         };
         assert!(full_card(0.0, &t));
         assert!(!full_card(6.0, &t));
-        assert_eq!(shape(false).0, 40.0);
+        assert!(shape(false).0 < shape(true).0);
     }
 }

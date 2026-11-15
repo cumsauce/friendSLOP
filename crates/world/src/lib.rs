@@ -20,5 +20,10 @@ pub(crate) use friendslop_core::AppState;
 
 /// The map's data files (loaded at run time, see `friendslop_data`).
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
-    vec![&places::COMMUNE, &terrain::HEIGHTS, &wastes::TUNING]
+    vec![
+        &places::COMMUNE,
+        &terrain::HEIGHTS,
+        &wastes::TUNING,
+        &buildings::PROPS,
+    ]
 }

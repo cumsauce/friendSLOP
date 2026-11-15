@@ -113,7 +113,7 @@ fn send_my_look(
     commands.client_trigger(SetLook(want));
 }
 
-fn small_button<'a>(
+pub(crate) fn small_button<'a>(
     ui: &'a mut ChildSpawnerCommands,
     label: &str,
     color: Color,
@@ -135,6 +135,7 @@ fn small_button<'a>(
         Hovered::default(),
         crate::theme::Squishy::default(),
         UiTransform::default(),
+        crate::ui::pad_nav::PadFocusable,
     ));
     e.with_children(|b| {
         b.spawn((
@@ -209,6 +210,7 @@ fn spawn_creator(
             crate::theme::PopOnShow::default(),
             UiTransform::default(),
             CreatorPanel,
+            GlobalZIndex(20),
             out,
         ))
         .with_children(|ui| {

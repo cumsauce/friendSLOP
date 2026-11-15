@@ -140,7 +140,8 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 - `fonts/AtkinsonHyperlegible-Regular.ttf`, `fonts/AtkinsonHyperlegible-Bold.ttf` —
   **Atkinson Hyperlegible** by the Braille Institute of America (https://brailleinstitute.org/freefont),
   licensed under the [SIL Open Font License 1.1](https://openfontlicense.org). Reading text:
-  buttons, rows, toasts, hints. The HUD falls back to Bevy's built-in font if the files are missing.
+  buttons, rows, toasts, hints. Modified: the slashed zero is an open oval, so numbers read as
+  plain figures (outlines edited, same licence, same name). The HUD falls back to Bevy's built-in font if the files are missing.
 - `fonts/LilitaOne-Regular.ttf` — **Lilita One** by Juan Montoreano, from
   [google/fonts](https://github.com/google/fonts/tree/main/ofl/lilitaone), licensed under the
   [SIL Open Font License 1.1](https://openfontlicense.org). Card titles, tabs and counters;

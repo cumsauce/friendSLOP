@@ -141,6 +141,10 @@ pub mod ui {
     #[derive(Component, Clone, Copy, Debug, Default)]
     pub struct Body;
 
+    /// [`Body`] text at regular weight (explanations, toasts) instead of bold.
+    #[derive(Component, Clone, Copy, Debug, Default)]
+    pub struct Regular;
+
     /// Text in the heading face (Lilita One, or Atkinson Hyperlegible Bold when
     /// the Lilita file is missing) once it has loaded.
     #[derive(Component, Clone, Copy, Debug, Default)]

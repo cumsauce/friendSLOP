@@ -80,8 +80,12 @@ fn apply_display_font(
 
 fn load_font(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     let Some(assets) = assets else { return };
-    commands.insert_resource(UiFont(assets.load("fonts/AtkinsonHyperlegible-Regular.ttf")));
-    commands.insert_resource(UiFontBold(assets.load("fonts/AtkinsonHyperlegible-Bold.ttf")));
+    commands.insert_resource(UiFont(
+        assets.load("fonts/AtkinsonHyperlegible-Regular.ttf"),
+    ));
+    commands.insert_resource(UiFontBold(
+        assets.load("fonts/AtkinsonHyperlegible-Bold.ttf"),
+    ));
     commands.insert_resource(DisplayFont(assets.load("fonts/BowlbyOne-Regular.ttf")));
 }
 

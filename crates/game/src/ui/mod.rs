@@ -4,7 +4,7 @@
 //! gas / mic / cat stack bottom-right, the journal hint bottom-left and the
 //! context prompt under the aim point.
 //!
-//! Everything is authored at 1280x720 logical pixels and scaled uniformly
+//! Everything is authored at 1280x800 logical pixels (the Deck) and scaled uniformly
 //! with the window ([`UiScale`]). Widgets only display state the features
 //! own; they never change it. Lines features still drop into
 //! [`crate::hud::slot`]s keep working around these widgets.
@@ -13,7 +13,7 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
 use crate::AppState;
-use crate::theme::indigo;
+use crate::theme::kit as kit_tokens;
 pub use friendslop_base::ui::*;
 
 pub mod annotations;
@@ -21,6 +21,7 @@ pub mod chapter;
 pub mod danger;
 pub mod feed;
 pub mod journal;
+pub mod kit;
 pub mod menu_back;
 pub mod pad_nav;
 pub mod prompt;
@@ -105,6 +106,7 @@ pub fn plugin(app: &mut App) {
         .add_systems(PostUpdate, apply_fonts.before(bevy::ui::UiSystems::Content))
         .add_systems(OnEnter(AppState::InGame), spawn_root)
         .add_plugins((
+            kit::plugin,
             quest::plugin,
             team::plugin,
             danger::plugin,
@@ -141,7 +143,7 @@ fn load(mut commands: Commands, assets: Option<Res<AssetServer>>) {
 /// `graphics::ui_fit`, and shrinking twice would make the UI tiny again (#191).
 fn scale_ui(window: Query<&Window, With<PrimaryWindow>>, mut scale: ResMut<UiScale>) {
     let Ok(window) = window.single() else { return };
-    let want = indigo::ui_scale(window.width(), window.height()).max(1.0);
+    let want = kit_tokens::ui_scale(window.width(), window.height()).max(1.0);
     if (scale.0 - want).abs() > 1e-3 {
         scale.0 = want;
     }
@@ -153,7 +155,7 @@ fn apply_fonts(
     assets: Option<Res<AssetServer>>,
     ui: Option<Res<crate::assets::UiFont>>,
     display: Option<Res<HeadFont>>,
-    mut texts: Query<(&mut TextFont, Has<Head>), Or<(With<Body>, With<Head>)>>,
+    mut texts: Query<(&mut TextFont, Has<Head>, Has<Regular>), Or<(With<Body>, With<Head>)>>,
     mut known: Local<(bool, bool)>,
 ) {
     let (Some(assets), Some(ui)) = (assets, ui) else {
@@ -170,13 +172,13 @@ fn apply_fonts(
     // When a face finishes loading (or fails), revisit every text once.
     let full = (ui_ok, head_settled) != *known;
     *known = (ui_ok, head_settled);
-    for (mut tf, is_head) in &mut texts {
+    for (mut tf, is_head, regular) in &mut texts {
         if !full && !tf.is_added() {
             continue;
         }
         let want = match (is_head, head) {
             (true, Some(h)) => Some((h.0.clone(), 400)),
-            _ if ui_ok => Some((ui.0.clone(), 700)),
+            _ if ui_ok => Some((ui.0.clone(), if regular { 400 } else { 700 })),
             _ => None,
         };
         let Some((font, weight)) = want else { continue };
@@ -259,7 +261,7 @@ mod tests {
     fn steam_deck_screen_fits_the_menus() {
         // 1280x800 (16:10): authored size, no shrinking, 80 px spare height.
         let (w, h) = (1280.0, 800.0);
-        let s = indigo::ui_scale(w, h).max(1.0);
+        let s = kit_tokens::ui_scale(w, h).max(1.0);
         assert_eq!(s, 1.0);
         // The settings notebook (1200x664) and the title card (left 44,
         // top 40, 418x640) stay on screen.

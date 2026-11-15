@@ -130,7 +130,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
   put you in the arena with a duel body; your walking body waits where you left it. Each body
   has a floating "player N" label, and yours wears a little yellow marker (seen from the
-  overview). Esc opens the settings notebook in game (#317, doomy: "dont quit to menu with double escape anymore"); leaving is its "Leave game" button.
+  overview). Esc opens the pause screen in game (#317, doomy: "dont quit to menu with double escape anymore"; the notebook it opened then is now one button on the pause screen); leaving is its "Leave game" button.
 - **Abuela in heaven** (#105, just meat and cheese: "a character similar to my grandma ... she
   only spoke spanish so please have her make old sounding spanish sounds"). Heaven had no place,
   so the highest floating island is now a small heaven: clouds on the rim, flowers, a golden halo
@@ -960,14 +960,27 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   There is no separate lobby screen yet: hosting drops you straight into the world, and friends
   appear on the player list as they join. If the host connection drops, a joiner goes back to
   the menu with the reason ("Lost the connection to the host: ...") instead of crashing (#194).
-  Since the UI redesign (phase 3, UI polish) the title screen is an ink "journal cover" on the
-  left over the meadow: the illustrated friendSLOP logo, Host a commune, Join with a code, a code
-  field (click it to paste), Character creator, and Settings / Whose fault is it / Quit links.
-  Settings is one big "Make yourself comfortable" notebook: volume sliders, mic and HALT as
-  square checkboxes, video presets (Low / Medium / High, Custom when you change anything) as
-  tabs and every video option as a checkbox card; a Controls tab lists the keys; Esc or Done
-  closes it. In game Esc opens the same notebook (#317: settings in the game too), freeing the
-  mouse, plus a "Leave game" button bottom-left; Esc no longer quits to the menu. The loading curtain shows the logo, how many models have loaded, a progress bar
+  Since the UI restyle the title screen is a soot panel on the left over the meadow in the
+  commune noticeboard kit: the illustrated friendSLOP logo, Host a commune (the one green
+  button), Join a friend, Character, Settings, Whose fault is it, and Kori prizes / Quit. Join a
+  friend opens a cardboard card (an open layer, like the others) with the code box, Paste, Join
+  and the communes open near you; a game hosted near you also shows as a sticky note top right
+  (Y on a pad joins it). B on a join in progress cancels it first. Those panels take turns
+  (opening one closes the others), each has a Back button the pad can focus, and B / Esc closes
+  the top one; the pad scrolls the fault list with the stick. The chapter intro card waits
+  (hidden, not ageing) while the pause screen is up. The character creator, Whose fault is it and
+  the Kori shelf are soot panels with the same kit buttons. Pad hint glyphs keep the Xbox
+  positions and colours but follow the pad's own lettering (Nintendo swaps A/B and X/Y,
+  PlayStation shows ×, O, Sq, Tr).
+  Settings is one big "Make yourself comfortable" notebook with three pages: Audio + voice
+  (volume sliders, mic and HALT as square checkboxes), Video (presets Low / Medium / High as
+  tabs, "Custom" is just what shows once you change anything, and every video option as a
+  checkbox card) and Controls (the keys, the pad's feel); Esc or Done closes it. In game Esc opens the
+  pause screen (the game does not stop): Back to the commune, Journal, Settings (the notebook,
+  one layer above it) and Leave game, which asks "Really leave?" before it leaves, with the
+  invite code (X on a pad copies it) and who is in the commune beside them. It frees the mouse
+  (walking keys do nothing while it is up, and a pad's Select doesn't open the journal over it);
+  Esc closes the notebook first, then the pause screen. The loading curtain shows the logo, how many models have loaded, a progress bar
   and a tip.
 - **The Stillness** (#17). Every 16 minutes (it was every minute, then every 4; made rarer at the owner's request) the whole world freezes for 75 seconds so everyone
   can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
@@ -1239,7 +1252,9 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   Fullscreen. Low is everything off (default in the browser, on a Steam Deck (`SteamDeck=1`, which also moves
   settings saved there before this to Low once), or `FRIENDSLOP_LOW=1`), Medium is
   everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
-  Fullscreen alone. Saved locally (old Low/High saves still load). 60 fps on low-end phones is
+  Fullscreen alone. Saved locally (old Low/High saves still load). Master and voice volume and
+  the HALT-username switch are saved the same way (UI audit); the mic mute is not, so you never
+  start a session silent by accident. 60 fps on low-end phones is
   the aim for Low, not measured. Steam Deck (#393, Tally): GPU-bound even on Low-ish settings;
   Bloom off now also drops the HDR float render target, so Low draws into an 8-bit target
   (about half the per-pixel memory traffic). Low on desktop now also renders at 0.7 scale
@@ -1294,19 +1309,24 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   stay real-time (off on Low). There's still no GPU in CI, so the 3x target isn't measured
   (software rendering is too slow to compare frame rates). `FRIENDSLOP_BENCH=1` now also prints
   how many meshes there are, how many distinct ones, and their vertex count.
-- **HUD: "E · Indigo journal"** (UI polish, not a friend idea; from the Figma UI brief in
-  `docs/figma-ui-brief.md`, which answered "about 12 floating cards at once"). Solid deep-indigo
-  cards with cream text (`theme::indigo`), Fredoka for titles and countdowns, Nunito Bold for
-  the rest, authored at 1280x720 and scaled up uniformly with bigger windows (`ui/`). On
+- **HUD: the commune noticeboard** (UI polish, not a friend idea; first drawn as "E · Indigo journal"
+  from the Figma UI brief in `docs/figma-ui-brief.md`, which answered "about 12 floating cards at
+  once", restyled in layer 10 of the UI restyle). Soot panels and chips with cream text, cardboard
+  cards held on with tape for anything you read (quest card, chapter intro), slime green for
+  progress, butter for news and focus, landlord red for danger only (`theme::kit` and
+  `ui/kit.rs`; the old `theme::indigo` palette is only left in the loading curtain), Lilita One for titles
+  and counters, Slop Legible for the rest, Bowlby One for big headings, authored at
+  1280x800 and scaled up uniformly with bigger windows (`ui/`). On
   screen: a **quest card** top-left (chapter N/5 and its name, jobs done, Heaven Pass tier, and
   "now:" the next job); a **team strip** top-right (one badge per player: mic, name, gods' tears
-  ×N; butter with a waveform while they talk, a slash when muted; mute state is replicated
+  ×N, the mic in the friend's seat colour; lilac with a waveform while they talk, a slash when muted; mute state is replicated
   now); a **danger lane** under it (ATTACK MODE, the Stillness, the rent raise in its last
   minute, the helicopter, being carried or floated; most urgent first, at most three, with
   MM:SS countdowns); an **event feed** on the left (every toast and toast line: at most three,
-  repeats within 2 s merge into ×N, 4 s then a fade); the **gas meter, mic chip and cat size**
-  bottom-right (the cat card turns into a blinking butter "PET. THE. CAT." fuse card at
-  critical mass); a "Tab / J journal" hint bottom-left (J toggles the Tab panel); subtitles
+  repeats within 2 s merge into ×N, 4 s then a fade; the bar down a toast's edge is red for
+  something going wrong, lilac for an achievement and butter for news); the **gas meter, mic chip and cat size**
+  bottom-right (the cash line is a soot chip above them)
+  (the cat card turns into a blinking butter "PET. THE. CAT." sticky note at critical mass); a "Tab / J journal, Esc pause" hint bottom-left (J toggles the Tab panel); subtitles
   bottom-centre; and a **context prompt** under the aim point ("Pet the cat · LMB / B · in
   reach", or "Too far · move closer"), with the crosshair turning into a hand. Lines other
   features still put in HUD slots sit around these on matching ink chips. The full chapter
@@ -1324,7 +1344,9 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   from 50% or when ready; the cat's size when it grows a whole step, when you're near it or
   past 75% of max (the fuse card always); the mic chip only when muted; your own team badge
   only when muted, talking, your tears just changed, or others are here. The "Tab / J
-  journal" and "M mic" hints show for the first 90 s of a session.
+  journal" and "M mic" hints show for the first 90 s of a session. Keys inside hints are drawn
+  as keycaps (`input::KeyRow`) that follow the device (Tab, J, Esc on keyboard, pad buttons on a
+  pad); UI numbers use plain zeros (the bundled Slop Legible (from Atkinson)'s slash is opened up).
 - **The commune journal and chapter intro** (UI polish, phase 2 of the same brief). Hold Tab to
   peek at the journal, J keeps it open, H opens it on Help, Esc closes it (Esc no longer leaves
   the game while it's open; the mouse is freed so its tabs can be clicked). Tabs: **Party** (a
@@ -1408,8 +1430,8 @@ couple lines. Pink-heart signposts at the centre, the bonfire and the village po
 
 - **LAN discovery** (#410, bben: "LAN discovery for multiplayer", no details). While you host on
   the desktop, the game broadcasts its join code on the local network once a second (UDP port
-  47410). The menu listens and shows a "Join <host>'s commune (LAN)" button under the code field
-  (or "Looking for games on your Wi-Fi..."); one click joins through iroh as usual. The name is
+  47410). The menu listens and shows a "Join <host>'s commune" button under the code field
+  (or "Looking for friends near you..."); one click joins through iroh as usual. The name is
   your computer's user name. Browsers can't do UDP, so the button just keeps looking there
   (`crates/game/src/lan.rs`).
 

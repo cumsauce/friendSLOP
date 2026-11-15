@@ -448,11 +448,57 @@ pub fn plugin(app: &mut App) {
             (spawn_overlay, spawn_wheel, spawn_prompt_bar),
         )
         .add_systems(PreUpdate, gather.after(InputSystems))
+        .add_systems(PreUpdate, silence_world_keys.after(gather))
         .add_systems(
             Update,
             (draw_overlay, draw_wheel, draw_prompt_bar).run_if(in_state(AppState::InGame)),
         )
         .add_systems(PostUpdate, save_pad_settings);
+}
+
+/// Keys the journal and the settings notebook still read, or that walk.
+const NOTEBOOK_KEYS: [KeyCode; 19] = [
+    KeyCode::Escape,
+    KeyCode::Tab,
+    KeyCode::KeyJ,
+    KeyCode::KeyH,
+    KeyCode::KeyW,
+    KeyCode::KeyA,
+    KeyCode::KeyS,
+    KeyCode::KeyD,
+    KeyCode::ArrowUp,
+    KeyCode::ArrowDown,
+    KeyCode::ArrowLeft,
+    KeyCode::ArrowRight,
+    KeyCode::Enter,
+    KeyCode::Space,
+    KeyCode::Backspace,
+    KeyCode::ShiftLeft,
+    KeyCode::ShiftRight,
+    KeyCode::F3,
+    KeyCode::KeyM,
+];
+
+/// Behind the journal or the notebook only walking and the notebook's own keys
+/// work: every other action key (and a pad's button mapped to one) is dropped
+/// before the world's systems read it.
+fn silence_world_keys(
+    overlay: Res<crate::ui::Overlay>,
+    state: Res<State<AppState>>,
+    mut keys: ResMut<ButtonInput<KeyCode>>,
+) {
+    if *state.get() != AppState::InGame || !(overlay.journal || overlay.settings) {
+        return;
+    }
+    let stray: Vec<KeyCode> = keys
+        .get_pressed()
+        .chain(keys.get_just_pressed())
+        .filter(|k| !NOTEBOOK_KEYS.contains(k))
+        .copied()
+        .collect();
+    for k in stray {
+        keys.reset(k);
+    }
 }
 
 /// A radial deadzone `dz`, rescaled so the stick still reaches every speed:
@@ -573,12 +619,14 @@ fn gather(
     let mut wheel_now: Option<Wheel> = None;
     for pad in &gamepads {
         if ui {
+            // Select opens the notebook on the title screen; in game it would
+            // open the journal on top of it.
             for (button, key) in [
                 (GamepadButton::Select, KeyCode::Tab),
                 (GamepadButton::Start, KeyCode::Escape),
                 (GamepadButton::East, KeyCode::Escape),
             ] {
-                if pad.pressed(button) {
+                if pad.pressed(button) && !(in_game && key == KeyCode::Tab) {
                     want_keys.push(key);
                 }
             }
@@ -819,12 +867,12 @@ fn spawn_prompt_bar(mut commands: Commands) {
         },
         Pickable::IGNORE,
         Visibility::Hidden,
-        GlobalZIndex(55),
+        // Under the notebook and journal (30), over the HUD.
+        GlobalZIndex(26),
         DespawnOnExit(AppState::InGame),
         children![(
             Text::new(""),
-            TextFont::from_font_size(18.0),
-            TextColor(LABEL),
+            crate::ui::body(18.0, LABEL),
             BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.55)),
             Node {
                 padding: UiRect::axes(px(14), px(6)),

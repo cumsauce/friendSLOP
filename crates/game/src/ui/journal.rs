@@ -20,7 +20,9 @@ use crate::hud::{HudSlot, InSlot};
 use crate::net::NetStatus;
 use crate::player::{LocalPlayer, Player};
 use crate::rules::morality::Morality;
-use crate::theme::indigo::{BORDER, BUTTER, CREAM, INDIGO, INK, LAVENDER, PAPER};
+use crate::theme::kit::{
+    CARD_100, INK, LILAC_400, SOOT_500, SOOT_700, SOOT_800, SOOT_900, TEXT, TEXT_DIM, size,
+};
 use crate::voice::VoiceMuted;
 use crate::voice_chat::{SpeakerId, VoiceActivity};
 
@@ -150,8 +152,8 @@ fn spawn(mut commands: Commands) {
             commands
                 .spawn((
                     TabButton(t),
-                    BackgroundColor(PAPER),
-                    BorderColor::all(BORDER),
+                    BackgroundColor(SOOT_700),
+                    BorderColor::all(SOOT_500),
                     Node {
                         width: px(132),
                         height: px(42),
@@ -159,7 +161,7 @@ fn spawn(mut commands: Commands) {
                         border_radius: BorderRadius::all(px(12)),
                         ..at(26.0 + 144.0 * i as f32, 77.0, B)
                     },
-                    children![(Text::new(t.name()), body(17.0, INK), at(11.0, 8.0, B))],
+                    children![(Text::new(t.name()), body(17.0, TEXT), at(11.0, 8.0, B))],
                 ))
                 .observe(move |_: On<PointerClick>, mut j: ResMut<Journal>| {
                     j.tab = t;
@@ -180,12 +182,12 @@ fn spawn(mut commands: Commands) {
                 border_radius: BorderRadius::all(px(24)),
                 ..default()
             },
-            BackgroundColor(LAVENDER),
-            BorderColor::all(BORDER),
+            BackgroundColor(SOOT_800),
+            BorderColor::all(SOOT_500),
             children![
                 (
                     Text::new("The commune journal"),
-                    head(35.0, INK),
+                    head(size::H1, TEXT),
                     at(26.0, 18.0, B)
                 ),
                 (
@@ -194,16 +196,17 @@ fn spawn(mut commands: Commands) {
                         height: px(42),
                         border: UiRect::all(px(B)),
                         border_radius: BorderRadius::all(px(12)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        column_gap: px(8),
                         ..at(1018.0, 20.0, B)
                     },
-                    BackgroundColor(PAPER),
-                    BorderColor::all(BORDER),
-                    children![(
-                        Text::new(""),
-                        crate::input::Hint("{journal}   close".into()),
-                        body(17.0, INK),
-                        at(11.0, 8.0, B)
-                    )],
+                    BackgroundColor(SOOT_700),
+                    BorderColor::all(SOOT_500),
+                    crate::input::KeyRow::new(
+                        crate::input::Hint("{back}   close".into()),
+                        crate::input::KeyStyle::Dark,
+                    ),
                 ),
                 (
                     Content,
@@ -227,14 +230,26 @@ fn spawn(mut commands: Commands) {
                 display: Display::None,
                 ..default()
             },
-            BackgroundColor(INK.with_alpha(0.63)),
+            BackgroundColor(SOOT_900.with_alpha(0.78)),
             GlobalZIndex(30),
             DespawnOnExit(AppState::InGame),
         ))
         .add_child(panel);
 }
 
-fn keys(keys: Res<ButtonInput<KeyCode>>, overlay: Res<Overlay>, mut journal: ResMut<Journal>) {
+/// The tab `step` places along from `tab`, wrapping round.
+pub fn tab_step(tab: Tab, step: isize) -> Tab {
+    let n = Tab::ALL.len() as isize;
+    let at = Tab::ALL.iter().position(|t| *t == tab).unwrap_or(0) as isize;
+    Tab::ALL[(at + step).rem_euclid(n) as usize]
+}
+
+fn keys(
+    keys: Res<ButtonInput<KeyCode>>,
+    pads: Query<&Gamepad>,
+    overlay: Res<Overlay>,
+    mut journal: ResMut<Journal>,
+) {
     let tab_held = keys.pressed(KeyCode::Tab);
     // Esc goes to the chapter intro first when it's up.
     let esc = keys.just_pressed(KeyCode::Escape) && !overlay.intro;
@@ -251,6 +266,19 @@ fn keys(keys: Res<ButtonInput<KeyCode>>, overlay: Res<Overlay>, mut journal: Res
     }
     if journal.tab != tab {
         journal.tab = tab;
+    }
+    // A pad's bumpers turn the pages while the journal is up (LB back, RB on).
+    if kept || tab_held {
+        let turn = pads
+            .iter()
+            .map(|p| {
+                isize::from(p.just_pressed(GamepadButton::RightTrigger))
+                    - isize::from(p.just_pressed(GamepadButton::LeftTrigger))
+            })
+            .sum::<isize>();
+        if turn != 0 {
+            journal.tab = tab_step(journal.tab, turn);
+        }
     }
     // Tab released after a peek: back to the party page next time.
     if !kept && !tab_held && journal.tab != Tab::Party {
@@ -468,9 +496,13 @@ fn look_tabs(
 ) {
     for (t, kids, mut bg, mut line) in &mut tabs {
         let on = t.0 == journal.tab;
-        let (fill, ink) = if on { (INDIGO, CREAM) } else { (PAPER, INK) };
+        let (fill, ink) = if on {
+            (CARD_100, INK)
+        } else {
+            (SOOT_700, TEXT_DIM)
+        };
         bg.set_if_neq(BackgroundColor(fill));
-        line.set_if_neq(BorderColor::all(if on { INDIGO } else { BORDER }));
+        line.set_if_neq(BorderColor::all(if on { CARD_100 } else { SOOT_500 }));
         for k in kids {
             if let Ok(mut c) = texts.get_mut(*k) {
                 c.set_if_neq(TextColor(ink));
@@ -487,7 +519,7 @@ fn place(x: f32, y: f32) -> Node {
 fn party(c: &mut ChildSpawnerCommands, page: &Page) {
     c.spawn((
         Text::new(page.status.clone()),
-        body(18.0, INDIGO),
+        body(size::BODY_REG, TEXT_DIM),
         place(26.0, 137.0),
     ));
     // The party table.
@@ -498,7 +530,7 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
             border_radius: BorderRadius::all(px(16)),
             ..place(26.0, 174.0)
         },
-        BackgroundColor(PAPER),
+        BackgroundColor(SOOT_700),
     ))
     .with_children(|t| {
         for (x, h) in [
@@ -508,7 +540,7 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
             (486.0, "ORGANS"),
             (645.0, "TOTEMS"),
         ] {
-            t.spawn((Text::new(h), body(13.0, INDIGO), at(x, 14.0, 0.0)));
+            t.spawn((Text::new(h), body(size::LABEL, TEXT_DIM), at(x, 14.0, 0.0)));
         }
         for (i, r) in page.rows.iter().enumerate() {
             t.spawn((
@@ -518,12 +550,14 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
                     border_radius: BorderRadius::all(px(8)),
                     ..at(10.0, 44.0 + 34.0 * i as f32, 0.0)
                 },
-                BackgroundColor(if r.talking { BUTTER } else { Color::NONE }),
+                BackgroundColor(if r.talking { LILAC_400 } else { Color::NONE }),
             ))
             .with_children(|row| {
+                // Ink on the lilac of someone talking, text on soot otherwise.
+                let ink = if r.talking { INK } else { TEXT };
                 row.spawn((
                     Text::new(r.name.clone()),
-                    body(15.0, INK),
+                    body(size::LABEL, ink),
                     at(6.0, 5.0, 0.0),
                 ));
                 for (x, s) in [
@@ -534,7 +568,7 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
                 ] {
                     row.spawn((
                         Text::new(s.clone()),
-                        body(14.0, INK),
+                        body(size::LABEL, ink),
                         TextLayout::no_wrap(),
                         at(x, 6.0, 0.0),
                     ));
@@ -544,14 +578,14 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
     });
     c.spawn((
         Text::new("YOUR SKILLS   1–100"),
-        body(15.0, INDIGO),
+        body(size::LABEL, TEXT_DIM),
         place(26.0, 456.0),
     ));
     for (i, (name, lvl)) in page.skills.iter().enumerate() {
         let (x, y) = (26.0 + 250.0 * (i % 3) as f32, 486.0 + 53.0 * (i / 3) as f32);
         c.spawn((
-            BackgroundColor(PAPER),
-            BorderColor::all(BORDER),
+            BackgroundColor(SOOT_700),
+            BorderColor::all(SOOT_500),
             Node {
                 width: px(237),
                 height: px(42),
@@ -561,7 +595,7 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
             },
             children![(
                 Text::new(format!("{name}  {lvl}")),
-                body(17.0, INK),
+                body(17.0, TEXT),
                 at(11.0, 8.0, B)
             )],
         ));
@@ -581,17 +615,17 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
             overflow: Overflow::clip(),
             ..place(810.0, 134.0)
         },
-        BackgroundColor(PAPER),
-        BorderColor::all(BORDER),
+        BackgroundColor(SOOT_700),
+        BorderColor::all(SOOT_500),
         children![
             (
                 Text::new("One bag. Zero dignity."),
-                head(25.0, INK),
+                head(25.0, TEXT),
                 at(16.0, 12.0, B)
             ),
             (
                 Text::new(mine),
-                body(15.0, INK),
+                body(size::LABEL, TEXT),
                 Node {
                     width: px(328),
                     ..at(16.0, 58.0, B)
@@ -606,12 +640,12 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
             border_radius: BorderRadius::all(px(18)),
             ..place(810.0, 377.0)
         },
-        BackgroundColor(PAPER),
+        BackgroundColor(SOOT_700),
         children![
             (
                 Text::new(""),
                 crate::input::Hint("{help}   How do I…".into()),
-                head(24.0, INK),
+                head(24.0, TEXT),
                 at(18.0, 14.0, 0.0)
             ),
             (
@@ -622,7 +656,7 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
                 Text::new(
                     ""
                 ),
-                body(15.0, INK),
+                body(size::LABEL, TEXT),
                 at(18.0, 60.0, 0.0)
             ),
         ],
@@ -634,11 +668,11 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
             border_radius: BorderRadius::all(px(12)),
             ..place(26.0, 594.0)
         },
-        BackgroundColor(INK),
+        BackgroundColor(SOOT_900),
         children![
             (
                 Text::new(page.invite.clone()),
-                body(17.0, CREAM),
+                body(17.0, TEXT),
                 at(16.0, 11.0, 0.0)
             ),
             (
@@ -647,8 +681,8 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
                     "{copy}  copy invite     ·     {journal}  release to close     ·     {journal_keep}  keep open"
                         .into()
                 ),
-                body(16.0, CREAM),
-                at(568.0, 12.0, 0.0)
+                body(size::LABEL, TEXT),
+                at(440.0, 12.0, 0.0)
             ),
         ],
     ));
@@ -656,7 +690,7 @@ fn party(c: &mut ChildSpawnerCommands, page: &Page) {
 
 /// A titled paper card of free text, in two columns when there's a lot.
 fn text_page(c: &mut ChildSpawnerCommands, title: &str, blocks: &[String]) {
-    c.spawn((Text::new(title), head(25.0, INK), place(26.0, 140.0)));
+    c.spawn((Text::new(title), head(25.0, TEXT), place(26.0, 140.0)));
     let empty = ["Nothing here yet.".to_string()];
     let blocks = if blocks.is_empty() {
         &empty[..]
@@ -686,10 +720,10 @@ fn text_page(c: &mut ChildSpawnerCommands, title: &str, blocks: &[String]) {
                 overflow: Overflow::clip(),
                 ..place(26.0 + 586.0 * i as f32, 182.0)
             },
-            BackgroundColor(PAPER),
+            BackgroundColor(SOOT_700),
             children![(
                 Text::new(col.trim_end().to_string()),
-                body(14.0, INK),
+                body(size::LABEL, TEXT),
                 Node {
                     width: px(526),
                     ..default()
@@ -702,12 +736,12 @@ fn text_page(c: &mut ChildSpawnerCommands, title: &str, blocks: &[String]) {
 fn skills_page(c: &mut ChildSpawnerCommands, page: &Page) {
     c.spawn((
         Text::new("Your skills"),
-        head(25.0, INK),
+        head(25.0, TEXT),
         place(26.0, 140.0),
     ));
     c.spawn((
         Text::new("Levels go 1 to 100. Do a thing to get better at it."),
-        body(16.0, INDIGO),
+        body(size::LABEL, TEXT_DIM),
         place(26.0, 180.0),
     ));
     for (i, (name, lvl)) in page.skills.iter().enumerate() {
@@ -723,13 +757,13 @@ fn skills_page(c: &mut ChildSpawnerCommands, page: &Page) {
                 border_radius: BorderRadius::all(px(16)),
                 ..place(x, y)
             },
-            BackgroundColor(PAPER),
-            BorderColor::all(BORDER),
+            BackgroundColor(SOOT_700),
+            BorderColor::all(SOOT_500),
             children![
-                (Text::new(name.clone()), head(24.0, INK), at(16.0, 12.0, B)),
+                (Text::new(name.clone()), head(24.0, TEXT), at(16.0, 12.0, B)),
                 (
                     Text::new(format!("level {lvl}")),
-                    body(16.0, INDIGO),
+                    body(size::LABEL, TEXT_DIM),
                     at(16.0, 48.0, B)
                 ),
             ],
@@ -762,6 +796,13 @@ mod tests {
         assert!(s.contains("Fart gas: 40%"));
         assert!(s.contains("Your cat: 2.0×"));
         assert!(right_now(&[], None, None).is_empty());
+    }
+
+    #[test]
+    fn bumpers_wrap_round_the_tabs() {
+        assert_eq!(tab_step(Tab::Party, 1), Tab::Bag);
+        assert_eq!(tab_step(Tab::Party, -1), Tab::Credits);
+        assert_eq!(tab_step(Tab::Credits, 1), Tab::Party);
     }
 
     #[test]

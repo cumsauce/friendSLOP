@@ -12,13 +12,16 @@ use crate::features::fart::Gas;
 use crate::features::fat_cat::{FatCat, Fuse, Lapping, MAX_SIZE};
 use crate::features::weed::High;
 use crate::player::{LocalPlayer, Player};
-use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK, PERIWINKLE, RAISED};
+use crate::theme::kit::{
+    BUTTER_400, CARD_100, INK, LILAC_400, RENT_500, SLOP_400, SOOT_500, SOOT_700, SOOT_800, TEXT,
+    TEXT_DIM, size,
+};
 use crate::voice::VoiceMuted;
 use crate::voice_chat::VoiceActivity;
 pub use friendslop_base::ui::StatusMount;
 
-const W: f32 = 200.0;
-const TRACK: f32 = 172.0;
+const W: f32 = 232.0;
+const TRACK: f32 = 204.0;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
 enum Card {
@@ -138,14 +141,14 @@ fn shell(card: Card, h: f32, radius: f32, fill: Color, line: Color) -> impl Bund
 fn gas(icons: &Icons) -> impl Bundle {
     let b = 2.0;
     (
-        shell(Card::Gas, 84.0, 18.0, INK, BORDER),
+        shell(Card::Gas, 88.0, 14.0, SOOT_800, SOOT_500),
         children![
-            glyph(&icons.gas, 25.0, 12.0, 12.0, b, CREAM),
+            glyph(&icons.gas, 25.0, 12.0, 12.0, b, TEXT),
             (
                 Part::GasLabel,
                 Text::new(""),
-                body(18.0, PERIWINKLE),
-                at(46.0, 10.0, b)
+                body(size::LABEL, TEXT_DIM),
+                at(46.0, 12.0, b)
             ),
             (
                 Node {
@@ -153,9 +156,9 @@ fn gas(icons: &Icons) -> impl Bundle {
                     height: px(10),
                     border_radius: BorderRadius::all(px(5)),
                     overflow: Overflow::clip(),
-                    ..at(12.0, 41.0, b)
+                    ..at(12.0, 42.0, b)
                 },
-                BackgroundColor(RAISED),
+                BackgroundColor(SOOT_700),
                 children![(
                     Part::GasFill,
                     Node {
@@ -164,14 +167,14 @@ fn gas(icons: &Icons) -> impl Bundle {
                         border_radius: BorderRadius::all(px(5)),
                         ..default()
                     },
-                    BackgroundColor(BUTTER),
+                    BackgroundColor(SLOP_400),
                 )],
             ),
             (
                 Part::GasHint,
                 Text::new(""),
-                body(15.0, CREAM),
-                at(12.0, 56.0, b)
+                body(size::LABEL, TEXT),
+                at(12.0, 60.0, b)
             ),
         ],
     )
@@ -180,12 +183,12 @@ fn gas(icons: &Icons) -> impl Bundle {
 fn stoned() -> impl Bundle {
     let b = 2.0;
     (
-        shell(Card::Stoned, 56.0, 18.0, INK, BORDER),
+        shell(Card::Stoned, 58.0, 14.0, SOOT_800, SOOT_500),
         children![
             (
                 Part::StonedLabel,
                 Text::new(""),
-                body(17.0, PERIWINKLE),
+                body(size::LABEL, TEXT_DIM),
                 at(12.0, 8.0, b)
             ),
             (
@@ -196,7 +199,7 @@ fn stoned() -> impl Bundle {
                     overflow: Overflow::clip(),
                     ..at(12.0, 34.0, b)
                 },
-                BackgroundColor(RAISED),
+                BackgroundColor(SOOT_700),
                 children![(
                     Part::StonedFill,
                     Node {
@@ -212,31 +215,40 @@ fn stoned() -> impl Bundle {
     )
 }
 
-/// The stoned meter's fill: a leafy green.
-const STONED: Color = Color::srgb(0.45, 0.78, 0.38);
+/// The stoned meter's fill: slime green, like every meter.
+const STONED: Color = SLOP_400;
 
 fn mic(icons: &Icons) -> impl Bundle {
     let b = 2.0;
     (
-        shell(Card::Mic, 47.0, 14.0, INK, INK),
+        shell(Card::Mic, 50.0, 14.0, SOOT_800, SOOT_800),
         children![
-            (Part::MicIcon, glyph(&icons.mic, 24.0, 10.0, 9.0, b, CREAM)),
+            (
+                Part::MicIcon,
+                glyph(&icons.mic, 24.0, 10.0, 10.0, b, SLOP_400)
+            ),
             (
                 Part::MicSlash,
-                glyph(&icons.mic_slash, 24.0, 10.0, 9.0, b, Color::WHITE)
+                glyph(&icons.mic_slash, 24.0, 10.0, 10.0, b, RENT_500)
             ),
             (
                 Part::MicLabel,
-                Text::new(""),
-                body(15.0, CREAM),
-                at(42.0, 10.0, b)
+                crate::input::KeyRow::new(
+                    crate::input::Hint("{mic}  mic on".into()),
+                    crate::input::KeyStyle::Dark
+                ),
+                Node {
+                    align_items: AlignItems::Center,
+                    column_gap: px(8),
+                    ..at(42.0, 8.0, b)
+                },
             ),
             (
                 Part::MicWave,
                 Node {
                     width: px(12),
                     height: px(14),
-                    ..at(176.0, 15.0, b)
+                    ..at(208.0, 16.0, b)
                 },
                 children![bar(1.0, 4.0, 6.0), bar(5.0, 1.0, 12.0), bar(9.0, 3.0, 8.0)],
             ),
@@ -255,20 +267,20 @@ fn bar(x: f32, y: f32, h: f32) -> impl Bundle {
             border_radius: BorderRadius::all(px(1)),
             ..default()
         },
-        BackgroundColor(BUTTER),
+        BackgroundColor(SLOP_400),
     )
 }
 
 fn cat(icons: &Icons) -> impl Bundle {
     let b = 2.0;
     (
-        shell(Card::Cat, 54.0, 18.0, INK, BORDER),
+        shell(Card::Cat, 54.0, 14.0, SOOT_800, SOOT_500),
         children![
-            glyph(&icons.cat, 28.0, 10.0, 12.0, b, CREAM),
+            glyph(&icons.cat, 28.0, 10.0, 12.0, b, LILAC_400),
             (
                 Part::CatLabel,
                 Text::new(""),
-                body(17.0, CREAM),
+                body(size::LABEL, TEXT),
                 at(47.0, 13.0, b)
             ),
         ],
@@ -278,31 +290,31 @@ fn cat(icons: &Icons) -> impl Bundle {
 fn bomb(icons: &Icons) -> impl Bundle {
     let b = 2.0;
     (
-        shell(Card::Bomb, 110.0, 18.0, BUTTER, INK),
+        shell(Card::Bomb, 118.0, 4.0, BUTTER_400, BUTTER_400),
         children![
             glyph(&icons.warn, 28.0, 10.0, 12.0, b, INK),
             (
                 Text::new("PET. THE. CAT."),
-                body(18.0, INK),
-                at(47.0, 10.0, b)
+                body(size::LABEL, INK),
+                at(47.0, 12.0, b)
             ),
             (
                 Part::BombTime,
                 Text::new(""),
-                head(36.0, INK),
+                head(36.0, RENT_500),
                 at(12.0, 34.0, b)
             ),
             (
                 Part::BombSize,
                 Text::new(""),
-                body(14.0, INK),
-                at(114.0, 46.0, b)
+                body(size::LABEL, INK),
+                at(120.0, 50.0, b)
             ),
             (
                 Text::new(""),
                 crate::input::Hint("Hold {use} to pet it smaller".into()),
-                body(13.0, INK),
-                at(12.0, 82.0, b)
+                body(size::LABEL, INK),
+                at(12.0, 88.0, b)
             ),
         ],
     )
@@ -328,6 +340,7 @@ fn update(
             &mut Node,
             Option<&mut Text>,
             Option<&mut BackgroundColor>,
+            Option<&mut crate::input::KeyRow>,
         ),
         Without<Card>,
     >,
@@ -385,9 +398,9 @@ fn update(
             // 14 px to the gas meter, like the design (8 + 6).
             node.margin.bottom = px(6);
             let want = if blink {
-                BUTTER
+                BUTTER_400
             } else {
-                BUTTER.mix(&CREAM, 0.55)
+                BUTTER_400.mix(&CARD_100, 0.55)
             };
             bg.set_if_neq(BackgroundColor(want));
         }
@@ -395,7 +408,7 @@ fn update(
 
     let (gas_label, gas_frac, gas_hint) = gas_lines(gas);
     let ready = gas >= crate::features::fart::tuning().min_gas;
-    for (part, mut node, text, bg) in &mut parts {
+    for (part, mut node, text, bg, key_row) in &mut parts {
         let set = |s: String| {
             if let Some(mut t) = text
                 && t.0 != s
@@ -412,7 +425,7 @@ fn update(
                     node.width = w;
                 }
                 if let Some(mut bg) = bg {
-                    bg.set_if_neq(BackgroundColor(if ready { BUTTER } else { PERIWINKLE }));
+                    bg.set_if_neq(BackgroundColor(if ready { SLOP_400 } else { TEXT_DIM }));
                 }
             }
             Part::StonedLabel => set(stoned_label.clone()),
@@ -422,11 +435,18 @@ fn update(
                     node.width = w;
                 }
             }
-            Part::MicLabel => set(crate::input::fill(if muted {
-                "{mic}  muted"
-            } else {
-                "{mic}  mic on"
-            })),
+            Part::MicLabel => {
+                let want = if muted {
+                    "{mic}  muted"
+                } else {
+                    "{mic}  mic on"
+                };
+                if let Some(mut row) = key_row
+                    && row.hint.0 != want
+                {
+                    row.hint.0 = want.into();
+                }
+            }
             Part::MicSlash | Part::MicWave | Part::MicIcon => {
                 let show = match part {
                     Part::MicSlash => muted,

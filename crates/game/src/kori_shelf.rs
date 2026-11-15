@@ -7,8 +7,11 @@ use bevy::prelude::*;
 use bevy::render::render_resource::TextureFormat;
 
 use crate::AppState;
+use crate::creator::small_button;
 use crate::features::kori::{Shelf, tuning};
-use crate::menu::{self, INK, SOFT_INK};
+use crate::theme::kit::{self as t, size};
+use crate::ui::kit::{self, Look};
+use crate::ui::{Regular, body};
 
 /// Where the inspect stage stands, far under the menu's backdrop.
 const STAGE: Vec3 = Vec3::new(0.0, -800.0, 0.0);
@@ -43,6 +46,13 @@ pub fn toggle(panel: &mut Query<&mut Node, With<ShelfPanel>>) {
     }
 }
 
+/// Hide the page.
+pub fn close<'a>(panel: impl Iterator<Item = Mut<'a, Node>>) {
+    for mut node in panel {
+        node.display = Display::None;
+    }
+}
+
 /// Pure: a prize's row: its name and count, or "???" until you have one.
 pub fn row_text(name: &str, count: u32) -> String {
     if count == 0 {
@@ -65,7 +75,7 @@ fn spawn_panel(mut commands: Commands, mut images: ResMut<Assets<Image>>, shelf:
         Camera {
             order: -5,
             is_active: false,
-            clear_color: ClearColorConfig::Custom(crate::theme::CARD),
+            clear_color: ClearColorConfig::Custom(t::SOOT_900),
             ..default()
         },
         RenderTarget::Image(view.clone().into()),
@@ -96,33 +106,27 @@ fn spawn_panel(mut commands: Commands, mut images: ResMut<Assets<Image>>, shelf:
                 flex_direction: FlexDirection::Column,
                 padding: UiRect::all(px(22)),
                 row_gap: px(8),
-                border_radius: BorderRadius::all(px(24)),
+                border_radius: BorderRadius::all(px(t::R_PANEL)),
                 border: UiRect::all(px(2)),
                 display: Display::None,
                 ..default()
             },
-            BackgroundColor(crate::theme::CARD),
-            BorderColor::all(crate::theme::LINE),
+            BackgroundColor(t::SOOT_800),
+            BorderColor::all(t::SOOT_500),
             GlobalZIndex(20),
             ShelfPanel,
             DespawnOnExit(AppState::Menu),
         ))
         .with_children(|ui| {
+            ui.spawn(kit::display("Kori prizes", size::H1, t::TEXT));
             ui.spawn((
-                Text::new("Kori prizes"),
-                TextFont::from_font_size(28.0),
-                TextColor(INK),
-                crate::assets::DisplayText,
-            ));
-            menu::text(
-                ui,
-                &format!(
+                Text::new(format!(
                     "{owned} of {} found. Win them at the claw machine by the gambling table; the . key holds one in game.",
                     t.prizes.len()
-                ),
-                15.0,
-                SOFT_INK,
-            );
+                )),
+                body(size::LABEL, t::TEXT_DIM),
+                Regular,
+            ));
             ui.spawn(Node {
                 column_gap: px(16),
                 ..default()
@@ -137,12 +141,16 @@ fn spawn_panel(mut commands: Commands, mut images: ResMut<Assets<Image>>, shelf:
                 .with_children(|list| {
                     for (i, p) in t.prizes.iter().enumerate() {
                         let n = shelf.count(&p.name);
-                        list.spawn((
+                        let mut row = list.spawn((
                             Text::new(row_text(&p.name, n)),
-                            TextFont::from_font_size(18.0),
-                            TextColor(if n > 0 { INK } else { SOFT_INK }),
-                        ))
-                        .observe(move |_: On<PointerClick>, mut commands: Commands, shelf: Res<Shelf>,
+                            body(size::BODY, if n > 0 { t::TEXT } else { t::TEXT_DIM }),
+                        ));
+                        // Only the prizes you've won can be inspected, so only
+                        // those take the pad's focus.
+                        if n > 0 {
+                            row.insert(crate::ui::pad_nav::PadFocusable);
+                        }
+                        row.observe(move |_: On<PointerClick>, mut commands: Commands, shelf: Res<Shelf>,
                                        assets: Res<AssetServer>,
                                        staged: Query<Entity, With<OnStage>>,
                                        mut cams: Query<&mut Camera, With<StageCamera>>,
@@ -184,11 +192,16 @@ fn spawn_panel(mut commands: Commands, mut images: ResMut<Assets<Image>>, shelf:
                 ));
             });
             ui.spawn((
-                Text::new("Click a prize you've won to inspect it."),
-                TextFont::from_font_size(15.0),
-                TextColor(SOFT_INK),
+                Text::new("Pick a prize you've won to inspect it."),
+                body(size::LABEL, t::TEXT_DIM),
+                Regular,
                 Blurb,
             ));
+            small_button(ui, "Back", Look::Plain, 150.0).observe(
+                |_: On<PointerClick>, mut panel: Query<&mut Node, With<ShelfPanel>>| {
+                    close(panel.iter_mut());
+                },
+            );
         });
 }
 

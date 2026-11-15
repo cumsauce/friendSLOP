@@ -10,10 +10,10 @@ use std::collections::VecDeque;
 
 use bevy::prelude::*;
 
-use super::{HudRoot, body};
+use super::{HudRoot, Regular, body};
 use crate::AppState;
 use crate::hud::{HudSlot, InSlot, Toast};
-use crate::theme::indigo::{BORDER, CREAM, EDGE, INK};
+use crate::theme::kit::{BUTTER_400, EDGE, LILAC_400, RENT_500, SOOT_700, TEXT, size};
 
 pub const MAX_VISIBLE: usize = 3;
 pub const MERGE_SECS: f32 = 2.0;
@@ -146,6 +146,22 @@ impl EventFeed {
     }
 }
 
+/// The colour of a toast's bar: red for something going wrong, lilac for a friend's
+/// achievement, butter for the rest of the news.
+pub fn bar_for(text: &str) -> Color {
+    let t = text.to_lowercase();
+    if ["failed", "died", "caught", "lost", "guilty", "attack"]
+        .iter()
+        .any(|w| t.contains(w))
+    {
+        RENT_500
+    } else if t.starts_with("achievement") {
+        LILAC_400
+    } else {
+        BUTTER_400
+    }
+}
+
 /// Opacity `age` seconds after a toast showed (or last changed).
 pub fn alpha(age: f32) -> f32 {
     (1.0 - (age - HOLD_SECS) / FADE_SECS).clamp(0.0, 1.0)
@@ -172,7 +188,6 @@ pub fn plugin(app: &mut App) {
 
 fn spawn(mut commands: Commands, root: Query<Entity, With<HudRoot>>) {
     let Ok(root) = root.single() else { return };
-    let b = 2.0;
     commands.entity(root).with_children(|c| {
         c.spawn((
             Feed,
@@ -193,20 +208,16 @@ fn spawn(mut commands: Commands, root: Query<Entity, With<HudRoot>>) {
                     Node {
                         width: px(W),
                         min_height: px(55),
-                        padding: UiRect {
-                            left: px(12.0 - b),
-                            right: px(12.0 - b),
-                            top: px(14.0 - b),
-                            bottom: px(12.0 - b),
-                        },
-                        border: UiRect::all(px(b)),
-                        border_radius: BorderRadius::all(px(5)),
+                        padding: UiRect::new(px(16), px(14), px(10), px(10)),
+                        // The bar down the left edge says how the news is.
+                        border: UiRect::left(px(6)),
+                        border_radius: BorderRadius::all(px(4)),
                         display: Display::None,
                         ..default()
                     },
-                    BackgroundColor(INK),
-                    BorderColor::all(BORDER),
-                    children![(Text::new(""), body(16.0, CREAM))],
+                    BackgroundColor(SOOT_700),
+                    BorderColor::all(BUTTER_400),
+                    children![(Text::new(""), body(size::BODY_REG, TEXT), Regular)],
                 ));
             }
         });
@@ -261,14 +272,14 @@ fn draw(
             node.display = d;
         }
         let Some((want, a)) = item else { continue };
-        bg.set_if_neq(BackgroundColor(INK.with_alpha(*a)));
-        border.set_if_neq(BorderColor::all(BORDER.with_alpha(*a)));
+        bg.set_if_neq(BackgroundColor(SOOT_700.with_alpha(*a)));
+        border.set_if_neq(BorderColor::all(bar_for(want).with_alpha(*a)));
         for kid in kids.iter() {
             if let Ok((mut text, mut color)) = texts.get_mut(kid) {
                 if &text.0 != want {
                     text.0.clone_from(want);
                 }
-                color.set_if_neq(TextColor(CREAM.with_alpha(*a)));
+                color.set_if_neq(TextColor(TEXT.with_alpha(*a)));
             }
         }
     }
@@ -306,6 +317,13 @@ mod tests {
         );
         assert_eq!(alpha(0.0), 1.0);
         assert_eq!(alpha(HOLD_SECS + FADE_SECS), 0.0);
+    }
+
+    #[test]
+    fn bars_say_how_the_news_is() {
+        assert_eq!(bar_for("ACTION FAILED: everyone is bees"), RENT_500);
+        assert_eq!(bar_for("Achievement: Stood around"), LILAC_400);
+        assert_eq!(bar_for("You pocket a crow egg"), BUTTER_400);
     }
 
     #[test]

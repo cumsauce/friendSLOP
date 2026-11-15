@@ -343,7 +343,7 @@ fn dress(
                     translation: Val2::percent(-50.0, -100.0),
                     ..default()
                 },
-                BackgroundColor(crate::theme::indigo::INK.with_alpha(0.86)),
+                BackgroundColor(crate::theme::kit::SOOT_800.with_alpha(0.9)),
                 BorderColor::all(accent.with_alpha(0.9)),
                 Visibility::Hidden,
                 DespawnOnExit(AppState::InGame),
@@ -359,7 +359,7 @@ fn dress(
                     p.spawn((
                         Text::new(name),
                         TextFont::from_font_size(t.label_size),
-                        TextColor(crate::theme::indigo::CREAM),
+                        TextColor(crate::theme::kit::TEXT),
                         crate::assets::DisplayText,
                     ));
                 }

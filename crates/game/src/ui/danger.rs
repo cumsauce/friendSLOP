@@ -14,7 +14,7 @@ use crate::features::landlord::{Act3, Tenancy};
 use crate::features::punishment::AttackMode;
 use crate::features::stillness::Stillness;
 use crate::player::LocalPlayer;
-use crate::theme::indigo::{BORDER, BUTTER, CREAM, INK};
+use crate::theme::kit::{BUTTER_400, INK, RENT_500, RENT_700, SOOT_500, SOOT_800, TEXT, size};
 pub use friendslop_base::ui::DangerMount;
 
 /// Most warnings shown at once (no second HUD wall).
@@ -32,7 +32,7 @@ pub struct Warning {
     pub secs: Option<f32>,
     /// Higher goes first.
     pub urgency: u8,
-    /// About you (butter), or about someone else (ink).
+    /// About you (red or butter), or about someone else (soot).
     pub mine: bool,
 }
 
@@ -176,25 +176,25 @@ fn big(icons: &Icons) -> impl Bundle {
             width: px(W),
             height: px(78),
             border: UiRect::all(px(b)),
-            border_radius: BorderRadius::all(px(18)),
+            border_radius: BorderRadius::all(px(14)),
             display: Display::None,
             ..default()
         },
-        BackgroundColor(BUTTER),
-        BorderColor::all(INK),
+        BackgroundColor(RENT_500),
+        BorderColor::all(RENT_700),
         children![
-            (Part::Icon, glyph(&icons.warn, 32.0, 14.0, 20.0, b, INK)),
+            (Part::Icon, glyph(&icons.warn, 32.0, 14.0, 20.0, b, TEXT)),
             (
                 Part::Title,
                 Text::new(""),
-                head(23.0, INK),
-                at(58.0, 7.0, b)
+                head(size::H2 - 2.0, TEXT),
+                at(58.0, 6.0, b)
             ),
             (
                 Part::Line,
                 Text::new(""),
-                body(17.0, INK),
-                at(58.0, 41.0, b)
+                body(size::LABEL, TEXT),
+                at(58.0, 42.0, b)
             ),
         ],
     )
@@ -214,20 +214,20 @@ fn chip(icons: &Icons, i: usize) -> impl Bundle {
             display: Display::None,
             ..default()
         },
-        BackgroundColor(INK),
-        BorderColor::all(BORDER),
+        BackgroundColor(SOOT_800),
+        BorderColor::all(SOOT_500),
         children![
-            (Part::Icon, glyph(&icons.warn, 20.0, 10.0, 11.0, b, CREAM)),
+            (Part::Icon, glyph(&icons.warn, 20.0, 10.0, 11.0, b, TEXT)),
             (
                 Part::Title,
                 Text::new(""),
-                body(16.0, CREAM),
-                at(38.0, 13.0, b)
+                body(size::LABEL, TEXT),
+                at(38.0, 12.0, b)
             ),
             (
                 Part::Time,
                 Text::new(""),
-                head(22.0, CREAM),
+                head(22.0, TEXT),
                 Node {
                     position_type: PositionType::Absolute,
                     right: px(12.0 - b),
@@ -287,11 +287,12 @@ fn update(
         }
         let Some(w) = w else { continue };
         let lead = slot.0 == 0;
-        // The lead card is always butter; a chip turns butter when it's yours.
-        let (fill, line, ink) = if lead || w.mine {
-            (BUTTER, INK, INK)
-        } else {
-            (INK, BORDER, CREAM)
+        // The lead card is landlord red when it's yours and butter when it's about someone
+        // else; a chip turns butter when it's yours. Always a word and a timer, not colour alone.
+        let (fill, line, ink) = match (lead, w.mine) {
+            (true, true) => (RENT_500, RENT_700, TEXT),
+            (true, false) | (false, true) => (BUTTER_400, INK, INK),
+            (false, false) => (SOOT_800, SOOT_500, TEXT),
         };
         bg.set_if_neq(BackgroundColor(fill));
         border.set_if_neq(BorderColor::all(line));

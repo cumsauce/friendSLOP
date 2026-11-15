@@ -137,12 +137,16 @@ pub mod ui {
         pub hand: Handle<Image>,
     }
 
-    /// Text in the UI face (Nunito Bold) once it has loaded.
+    /// Text in the UI face (Slop Legible) once it has loaded.
     #[derive(Component, Clone, Copy, Debug, Default)]
     pub struct Body;
 
-    /// Text in the display face (Fredoka SemiBold, or Nunito ExtraBold when the
-    /// Fredoka file is missing) once it has loaded.
+    /// [`Body`] text at regular weight (explanations, toasts) instead of bold.
+    #[derive(Component, Clone, Copy, Debug, Default)]
+    pub struct Regular;
+
+    /// Text in the heading face (Lilita One, or Slop Legible Bold when
+    /// the Lilita file is missing) once it has loaded.
     #[derive(Component, Clone, Copy, Debug, Default)]
     pub struct Head;
 

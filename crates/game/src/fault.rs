@@ -8,7 +8,10 @@ use bevy::input::mouse::{MouseScrollUnit, MouseWheel};
 use bevy::prelude::*;
 
 use crate::AppState;
-use crate::menu::{self, INK, SOFT_INK};
+use crate::creator::small_button;
+use crate::theme::kit::{self as t, size};
+use crate::ui::kit::{self, Look};
+use crate::ui::{Regular, body};
 
 const DESIGN: &str = include_str!("../../../GAME_DESIGN.md");
 
@@ -92,6 +95,13 @@ pub fn toggle(panel: &mut Query<&mut Node, With<FaultPanel>>) {
     }
 }
 
+/// Hide the screen.
+pub fn close<'a>(panel: impl Iterator<Item = Mut<'a, Node>>) {
+    for mut node in panel {
+        node.display = Display::None;
+    }
+}
+
 fn spawn_panel(mut commands: Commands) {
     let list = faults(DESIGN);
     commands
@@ -107,30 +117,26 @@ fn spawn_panel(mut commands: Commands) {
                 flex_direction: FlexDirection::Column,
                 padding: UiRect::all(px(22)),
                 row_gap: px(8),
-                border_radius: BorderRadius::all(px(24)),
+                border_radius: BorderRadius::all(px(t::R_PANEL)),
                 border: UiRect::all(px(2)),
                 display: Display::None,
                 ..default()
             },
-            BackgroundColor(crate::theme::CARD),
-            BorderColor::all(crate::theme::LINE),
+            BackgroundColor(t::SOOT_800),
+            BorderColor::all(t::SOOT_500),
             GlobalZIndex(20),
             FaultPanel,
             DespawnOnExit(AppState::Menu),
         ))
         .with_children(|ui| {
+            ui.spawn(kit::display("Whose fault is it", size::H1, t::TEXT));
             ui.spawn((
-                Text::new("Whose fault is it"),
-                TextFont::from_font_size(28.0),
-                TextColor(INK),
-                crate::assets::DisplayText,
+                Text::new(format!(
+                    "{} ideas, and the friends to blame (scroll)",
+                    list.len()
+                )),
+                body(size::LABEL, t::TEXT_DIM),
             ));
-            menu::text(
-                ui,
-                &format!("{} ideas, and the friends to blame (scroll)", list.len()),
-                15.0,
-                SOFT_INK,
-            );
             ui.spawn((
                 Node {
                     flex_direction: FlexDirection::Column,
@@ -153,27 +159,46 @@ fn spawn_panel(mut commands: Commands) {
                     .with_children(|e| {
                         e.spawn((
                             Text::new(format!("#{}: {}'s fault", f.issue, f.who)),
-                            TextFont::from_font_size(17.0),
-                            TextColor(INK),
+                            body(size::BODY, t::TEXT),
                         ));
                         e.spawn((
                             Text::new(f.what.clone()),
-                            TextFont::from_font_size(14.0),
-                            TextColor(SOFT_INK),
+                            body(size::LABEL, t::TEXT_DIM),
+                            Regular,
                         ));
                     });
                 }
             });
+            small_button(ui, "Back", Look::Plain, 150.0).observe(
+                |_: On<PointerClick>, mut panel: Query<&mut Node, With<FaultPanel>>| {
+                    close(panel.iter_mut());
+                },
+            );
         });
 }
 
-/// Mouse wheel scrolls the list while the screen is open.
+/// How fast the pad's stick or D-pad scrolls the list (px per second).
+const PAD_SCROLL: f32 = 600.0;
+
+/// Mouse wheel, stick or D-pad scrolls the list while the screen is open.
 fn scroll(
     mut wheel: MessageReader<MouseWheel>,
+    time: Res<Time>,
+    pads: Query<&Gamepad>,
     panel: Query<&Node, With<FaultPanel>>,
     mut lists: Query<&mut ScrollPosition, With<FaultList>>,
 ) {
     let open = panel.iter().any(|n| n.display != Display::None);
+    let held = pads
+        .iter()
+        .map(|p| crate::ui::pad_nav::held_dir(p).y)
+        .find(|y| *y != 0)
+        .unwrap_or(0);
+    if open && held != 0 {
+        for mut pos in &mut lists {
+            pos.y = (pos.y + held as f32 * PAD_SCROLL * time.delta_secs()).max(0.0);
+        }
+    }
     for ev in wheel.read() {
         if !open {
             continue;

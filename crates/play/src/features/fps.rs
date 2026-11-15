@@ -548,6 +548,7 @@ fn walk_controls(
     mut was_walking: Local<bool>,
     time: Res<Time<Real>>,
     mut last_sent: Local<Option<(WalkControl, f32)>>,
+    overlay: Option<Res<crate::ui::Overlay>>,
 ) {
     let Some(w) = my_walker(me.as_deref(), &walkers, &duelists) else {
         // Duelling (the duel drives the cursor) or not spawned yet.
@@ -609,6 +610,9 @@ fn walk_controls(
     // Touch drag / right stick (#106) look whether or not a cursor is grabbed.
     view.yaw -= virt.look.x;
     view.pitch = (view.pitch - virt.look.y).clamp(-1.5, 1.5);
+    // The settings notebook owns the keyboard: arrows and Space there must
+    // not walk the player about.
+    let keys_free = !overlay.is_some_and(|o| o.settings);
     let mut stick = Vec2::ZERO;
     for (a, b, dir) in [
         (KeyCode::KeyW, KeyCode::ArrowUp, Vec2::Y),
@@ -616,7 +620,7 @@ fn walk_controls(
         (KeyCode::KeyA, KeyCode::ArrowLeft, Vec2::NEG_X),
         (KeyCode::KeyD, KeyCode::ArrowRight, Vec2::X),
     ] {
-        if keys.pressed(a) || keys.pressed(b) {
+        if keys_free && (keys.pressed(a) || keys.pressed(b)) {
             stick += dir;
         }
     }
@@ -629,8 +633,8 @@ fn walk_controls(
     let control = WalkControl {
         stick,
         yaw: view.yaw,
-        jump: keys.pressed(KeyCode::Space) || virt.jump,
-        run: keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) || virt.run,
+        jump: keys_free && keys.pressed(KeyCode::Space) || virt.jump,
+        run: keys_free && keys.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) || virt.run,
     };
     // Only send what changed (#151: standing still sent a packet every
     // frame). The channel is unreliable, so repeat the same input a few

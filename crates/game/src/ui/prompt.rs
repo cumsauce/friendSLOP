@@ -10,7 +10,7 @@ use super::{HudRoot, Icons, at, body, glyph, head};
 use crate::AppState;
 use crate::features::fps::WalkCrosshair;
 use crate::features::interact::{AimHover, verb};
-use crate::theme::indigo::{BORDER, CREAM, INK, PERIWINKLE};
+use crate::theme::kit::{SLOP_400, SOOT_500, SOOT_800, TEXT, size};
 
 /// Gap between the aim point and the top of the prompt.
 const BELOW: f32 = 26.0;
@@ -60,23 +60,23 @@ fn spawn(mut commands: Commands, icons: Res<Icons>, root: Query<Entity, With<Hud
             Node {
                 position_type: PositionType::Absolute,
                 min_width: px(READY_W),
-                height: px(91),
+                height: px(96),
                 padding: UiRect::right(px(20)),
                 border: UiRect::all(px(b)),
-                border_radius: BorderRadius::all(px(18)),
+                border_radius: BorderRadius::all(px(14)),
                 display: Display::None,
                 ..default()
             },
-            BackgroundColor(INK),
-            BorderColor::all(BORDER),
+            BackgroundColor(SOOT_800),
+            BorderColor::all(SOOT_500),
             GlobalZIndex(30),
             children![
-                glyph(&icons.hand, 30.0, 16.0, 15.0, b, CREAM),
+                glyph(&icons.hand, 30.0, 16.0, 15.0, b, SLOP_400),
                 // In flow (not absolute) so a long verb widens the card.
                 (
                     Part::Verb,
                     Text::new(""),
-                    head(25.0, CREAM),
+                    head(size::H2, TEXT),
                     TextLayout::no_wrap(),
                     Node {
                         margin: UiRect {
@@ -90,8 +90,8 @@ fn spawn(mut commands: Commands, icons: Res<Icons>, root: Query<Entity, With<Hud
                 (
                     Part::Binding,
                     Text::new(""),
-                    body(15.0, PERIWINKLE),
-                    at(60.0, 46.0, b)
+                    body(size::LABEL, SLOP_400),
+                    at(60.0, 48.0, b)
                 ),
             ],
         ));
@@ -100,19 +100,19 @@ fn spawn(mut commands: Commands, icons: Res<Icons>, root: Query<Entity, With<Hud
             Node {
                 position_type: PositionType::Absolute,
                 height: px(44),
-                padding: UiRect::axes(px(10.0 - b), px(10.0 - b)),
+                padding: UiRect::axes(px(16.0 - b), px(10.0 - b)),
                 border: UiRect::all(px(b)),
-                border_radius: BorderRadius::all(px(12)),
+                border_radius: BorderRadius::all(px(22)),
                 display: Display::None,
                 ..default()
             },
-            BackgroundColor(INK),
-            BorderColor::all(INK),
+            BackgroundColor(SOOT_800),
+            BorderColor::all(SOOT_800),
             GlobalZIndex(30),
             children![(
                 Part::Far,
                 Text::new(""),
-                body(15.0, CREAM),
+                body(size::LABEL, TEXT),
                 TextLayout::no_wrap()
             )],
         ));

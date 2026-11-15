@@ -357,6 +357,9 @@ fn play_clips(
     mut players: Query<(&mut AnimationPlayer, &mut AnimationTransitions)>,
     library: Res<RigLibrary>,
 ) {
+    if crate::settings::frozen() {
+        return;
+    }
     for (rig, clip, ready) in &rigs {
         let Some((_, node)) = library.node(rig.path, clip.name) else {
             continue;

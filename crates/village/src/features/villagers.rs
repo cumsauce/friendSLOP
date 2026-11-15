@@ -210,6 +210,10 @@ fn think(
         Option<&AgentState>,
     )>,
 ) {
+    // Screenshot captures hold every villager still (goldens, S3).
+    if crate::settings::frozen() {
+        return;
+    }
     *acc += time.delta_secs();
     let dt = 1.0 / AI_HZ;
     if *acc < dt {

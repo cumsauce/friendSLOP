@@ -37,6 +37,21 @@ pub fn encode_datagram(channel_id: u8, payload: &[u8]) -> Vec<u8> {
     buf
 }
 
+/// The handshake greeting: what each side writes first on its uni stream,
+/// before any frames. Today that is the [`STREAM_MARKER`] byte alone — it is
+/// the version tag; ALPN names the protocol version and iroh's QUIC carries
+/// the key exchange, so there is no separate version or nonce field. Any
+/// future handshake fields belong in this one function.
+pub fn handshake_greeting() -> [u8; 1] {
+    [STREAM_MARKER]
+}
+
+/// Whether the peer's handshake greeting is ours (the version check both
+/// transports run before any frames).
+pub fn handshake_greeting_ok(peer: &[u8]) -> bool {
+    peer == handshake_greeting()
+}
+
 #[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
     use super::*;
@@ -49,6 +64,22 @@ mod tests {
             STREAM_PRIORITY,
             bevy_replicon_iroh::REPLICON_STREAM_PRIORITY
         );
+    }
+
+    #[test]
+    fn handshake_greeting_matches_bevy_replicon_iroh() {
+        // The greeting is what `bevy_replicon_iroh::frame` writes as its
+        // stream-marker handshake (one marker byte).
+        assert_eq!(
+            handshake_greeting(),
+            [bevy_replicon_iroh::frame::STREAM_MARKER]
+        );
+        assert!(handshake_greeting_ok(&handshake_greeting()));
+        assert!(handshake_greeting_ok(&[
+            bevy_replicon_iroh::frame::STREAM_MARKER
+        ]));
+        assert!(!handshake_greeting_ok(&[]));
+        assert!(!handshake_greeting_ok(&[STREAM_MARKER.wrapping_add(1)]));
     }
 
     #[test]

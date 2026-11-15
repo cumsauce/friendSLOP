@@ -115,6 +115,7 @@ pub const GLOBALS: &[(&str, &str)] = &[
     ("crates/base/src/features/voice_lines.rs", "voice lines"),
     ("crates/game/src/ui/mod.rs", "UI"),
     ("crates/game/src/ui/settings_panel.rs", "settings panel"),
+    ("crates/game/src/ui/pause.rs", "pause screen"),
     ("crates/game/src/camera.rs", "camera"),
     ("crates/game/src/controls.rs", "input"),
     ("crates/game/src/loading.rs", "loading curtain"),

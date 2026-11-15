@@ -41,6 +41,8 @@ pub struct Site {
     pub name: String,
     /// The part of the map it's in.
     pub district: String,
+    /// The area (`data/base/areas.ron`) it's in: it loads and unloads with it.
+    pub area: String,
     /// Its middle.
     pub place: Place,
     /// How far from its middle it wakes.
@@ -244,6 +246,7 @@ mod tests {
             id: "grove".into(),
             name: "The Still Grove".into(),
             district: "forest".into(),
+            area: "commune".into(),
             place: Place::At(10.0, 0.0),
             reach,
         }

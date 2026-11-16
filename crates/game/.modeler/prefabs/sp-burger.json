@@ -1,13 +1,11 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "sp-burger",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 53895,
   "ops": [
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "bun_b",
         "profile": [
           [
@@ -33,18 +31,18 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "extrude": {
-        "height": 0.016,
         "name": "lettuce",
         "profile": [
           [
@@ -146,7 +144,7 @@
             ]
           ]
         ],
-        "rotation": null,
+        "height": 0.016,
         "scale_top": [
           1.0,
           1.0
@@ -156,12 +154,12 @@
           0.0,
           0.042,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "patty",
         "profile": [
           [
@@ -187,18 +185,18 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "extrude": {
-        "height": 0.012,
         "name": "cheese",
         "profile": [
           [
@@ -228,12 +226,7 @@
             ]
           ]
         ],
-        "rotation": [
-          0.0,
-          0.19936793,
-          0.0,
-          0.9799247
-        ],
+        "height": 0.012,
         "scale_top": [
           1.0,
           1.0
@@ -243,12 +236,17 @@
           0.0,
           0.098,
           0.0
+        ],
+        "rotation": [
+          0.0,
+          0.19936793,
+          0.0,
+          0.9799247
         ]
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "bun_t",
         "profile": [
           [
@@ -282,47 +280,39 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "seed_0",
-        "rotation": [
-          0.0,
-          0.0,
-          0.0,
-          1.0
-        ],
+        "kind": "box",
         "size": [
           0.016,
           0.008,
           0.009
         ],
         "translation": [
-          0.03,
-          0.1866,
-          0.0
-        ]
+          0.045,
+          0.1856,
+          0.014
+        ],
+        "rotation": null,
+        "round": 0.003,
+        "segments": 2
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "seed_1",
-        "rotation": [
-          0.0,
-          0.34202012,
-          0.0,
-          0.9396926
-        ],
+        "kind": "box",
         "size": [
           0.016,
           0.008,
@@ -332,19 +322,21 @@
           -0.036869686,
           0.183,
           0.033773158
-        ]
+        ],
+        "rotation": [
+          0.0,
+          0.34202015,
+          0.0,
+          0.93969274
+        ],
+        "round": 0.003,
+        "segments": 2
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "seed_2",
-        "rotation": [
-          0.0,
-          0.6427876,
-          0.0,
-          0.76604444
-        ],
+        "kind": "box",
         "size": [
           0.016,
           0.008,
@@ -354,19 +346,21 @@
           0.006124929,
           0.1794,
           -0.069731526
-        ]
+        ],
+        "rotation": [
+          0.0,
+          0.64278764,
+          0.0,
+          0.76604456
+        ],
+        "round": 0.003,
+        "segments": 2
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "seed_3",
-        "rotation": [
-          0.0,
-          0.86602545,
-          0.0,
-          0.49999997
-        ],
+        "kind": "box",
         "size": [
           0.016,
           0.008,
@@ -376,19 +370,21 @@
           0.024334053,
           0.1848,
           0.031746715
-        ]
+        ],
+        "rotation": [
+          0.0,
+          0.86602545,
+          0.0,
+          0.49999997
+        ],
+        "round": 0.003,
+        "segments": 2
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "seed_4",
-        "rotation": [
-          0.0,
-          0.9848077,
-          0.0,
-          0.17364822
-        ],
+        "kind": "box",
         "size": [
           0.016,
           0.008,
@@ -398,19 +394,21 @@
           -0.06400471,
           0.1803,
           -0.011331241
-        ]
+        ],
+        "rotation": [
+          0.0,
+          0.98480785,
+          0.0,
+          0.17364824
+        ],
+        "round": 0.003,
+        "segments": 2
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "seed_5",
-        "rotation": [
-          0.0,
-          0.9848077,
-          0.0,
-          -0.1736482
-        ],
+        "kind": "box",
         "size": [
           0.016,
           0.008,
@@ -420,19 +418,21 @@
           0.06750832,
           0.1776,
           -0.042925835
-        ]
+        ],
+        "rotation": [
+          0.0,
+          0.98480785,
+          0.0,
+          -0.17364821
+        ],
+        "round": 0.003,
+        "segments": 2
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "seed_6",
-        "rotation": [
-          0.0,
-          0.8660254,
-          0.0,
-          -0.50000006
-        ],
+        "kind": "box",
         "size": [
           0.016,
           0.008,
@@ -442,11 +442,20 @@
           -0.014289955,
           0.1821,
           0.053111177
-        ]
+        ],
+        "rotation": [
+          0.0,
+          0.8660254,
+          0.0,
+          -0.50000006
+        ],
+        "round": 0.003,
+        "segments": 2
       }
     },
     {
       "group": {
+        "name": "seeds",
         "inputs": [
           "seed_0",
           "seed_1",
@@ -455,33 +464,37 @@
           "seed_4",
           "seed_5",
           "seed_6"
-        ],
-        "name": "seeds"
+        ]
       }
     },
     {
       "group": {
+        "name": "buns",
         "inputs": [
           "bun_b",
           "bun_t"
-        ],
-        "name": "buns"
+        ]
       }
     },
     {
       "material": {
+        "name": "buns",
+        "input": "buns",
         "base_color": [
           0.92,
           0.66,
           0.34,
           1.0
         ],
-        "input": "buns",
+        "roughness": 0.7,
         "metalness": null,
-        "name": "buns",
         "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -565,30 +578,30 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "sp-paint",
-          "scale": 1.0
-        },
-        "roughness": 0.7
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "lettuce",
+        "input": "lettuce",
         "base_color": [
           0.42,
           0.78,
           0.3,
           1.0
         ],
-        "input": "lettuce",
+        "roughness": 0.6,
         "metalness": null,
-        "name": "lettuce",
         "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -672,30 +685,30 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "sp-paint",
-          "scale": 1.0
-        },
-        "roughness": 0.6
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "patty",
+        "input": "patty",
         "base_color": [
           1.0,
           0.75,
           0.75,
           1.0
         ],
-        "input": "patty",
+        "roughness": null,
         "metalness": null,
-        "name": "patty",
         "pbr": {
+          "material": "sp-soil",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -777,30 +790,30 @@
                 "type": "math"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "sp-soil",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "cheese",
+        "input": "cheese",
         "base_color": [
           1.0,
           0.82,
           0.2,
           1.0
         ],
-        "input": "cheese",
+        "roughness": 0.5,
         "metalness": null,
-        "name": "cheese",
         "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -884,30 +897,30 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "sp-paint",
-          "scale": 1.0
-        },
-        "roughness": 0.5
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "seeds",
+        "input": "seeds",
         "base_color": [
           1.0,
           0.95,
           0.8,
           1.0
         ],
-        "input": "seeds",
+        "roughness": null,
         "metalness": null,
-        "name": "seeds",
         "pbr": {
+          "material": "sp-paint",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -991,80 +1004,92 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "sp-paint",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "seed_0",
         "name": "seed_0",
+        "input": "seed_0",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "seed_1",
         "name": "seed_1",
+        "input": "seed_1",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "seed_2",
         "name": "seed_2",
+        "input": "seed_2",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "seed_3",
         "name": "seed_3",
+        "input": "seed_3",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "seed_4",
         "name": "seed_4",
+        "input": "seed_4",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "seed_5",
         "name": "seed_5",
+        "input": "seed_5",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "seed_6",
         "name": "seed_6",
+        "input": "seed_6",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "bun_b",
         "name": "bun_b",
+        "input": "bun_b",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "bun_t",
         "name": "bun_t",
+        "input": "bun_t",
         "visible": false
+      }
+    },
+    {
+      "move": {
+        "name": "lettuce_on_bun",
+        "parts": [
+          "lettuce"
+        ],
+        "translation": null,
+        "rotation": null,
+        "pivot": [
+          0.0,
+          0.042,
+          0.0
+        ],
+        "on": "bun_b"
       }
     }
   ],
-  "parts": [],
-  "version": 9916
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

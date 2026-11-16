@@ -1542,6 +1542,13 @@ const HIDES: &str = "fulton";
 #[allow(clippy::type_complexity)]
 fn hide_surface(
     mut commands: Commands,
+    owned: Query<
+        (),
+        Or<(
+            With<friendslop_base::areas::AreaRoot>,
+            With<friendslop_base::areas::InArea>,
+        )>,
+    >,
     time: Res<Time>,
     mut rescan: Local<Option<f32>>,
     here: Res<crate::place::Here>,
@@ -1584,6 +1591,11 @@ fn hide_surface(
         if !surface(g.translation().y) {
             continue;
         }
+        // Only what belongs to an area: globals (the sky, the camera's
+        // helpers) stay, or nothing at all is drawn down here.
+        if !owned.contains(e) {
+            continue;
+        }
         match h {
             Some(mut h) => {
                 if !h.has(HIDES) {
@@ -1593,7 +1605,7 @@ fn hide_surface(
             None => {
                 commands
                     .entity(e)
-                    .insert(crate::place::HiddenBy::new(HIDES));
+                    .try_insert(crate::place::HiddenBy::new(HIDES));
             }
         }
     }

@@ -242,6 +242,43 @@ pub fn city_floor() -> Vec<(Transform, avian3d::prelude::Collider)> {
     )
 }
 
+/// The city's edge: four tall invisible walls just outside the city floor,
+/// so nobody walks off New York into the hills (the map has no wall there).
+pub fn edge_colliders() -> Vec<(Transform, avian3d::prelude::Collider)> {
+    const THICK: f32 = 1.0;
+    const TALL: f32 = 60.0;
+    let (min, max) = (CITY_MIN, CITY_MAX);
+    let mid = (min + max) / 2.0;
+    let size = max - min + Vec2::splat(THICK * 2.0);
+    let y = CITY_Y + TALL / 2.0 - 1.0;
+    [
+        (
+            Vec2::new(mid.x, min.y - THICK / 2.0),
+            Vec2::new(size.x, THICK),
+        ),
+        (
+            Vec2::new(mid.x, max.y + THICK / 2.0),
+            Vec2::new(size.x, THICK),
+        ),
+        (
+            Vec2::new(min.x - THICK / 2.0, mid.y),
+            Vec2::new(THICK, size.y),
+        ),
+        (
+            Vec2::new(max.x + THICK / 2.0, mid.y),
+            Vec2::new(THICK, size.y),
+        ),
+    ]
+    .into_iter()
+    .map(|(at, s)| {
+        (
+            Transform::from_xyz(at.x, y, at.y),
+            avian3d::prelude::Collider::cuboid(s.x, TALL, s.y),
+        )
+    })
+    .collect()
+}
+
 /// The map's boxes as colliders. A flat slab lying on the street (a
 /// sidewalk) is split around the holes in the street like the floor, or it
 /// would cover the stairs down.
@@ -370,7 +407,11 @@ fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
 /// friend is in the city, headless too).
 pub fn build_floor(mut commands: Commands) {
     let c = city(&MAP.get());
-    for (at, collider) in city_floor().into_iter().chain(wall_colliders(&c.walls)) {
+    for (at, collider) in city_floor()
+        .into_iter()
+        .chain(wall_colliders(&c.walls))
+        .chain(edge_colliders())
+    {
         commands.spawn((
             at,
             avian3d::prelude::RigidBody::Static,

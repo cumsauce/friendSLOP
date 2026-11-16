@@ -90,13 +90,16 @@ fn see_through(
 /// Brushed-metal (anisotropic) materials go wrong under the reflection
 /// probes: faces blow out to pure white or black, worst on real Apple GPUs.
 /// Plain metal looks the same from a step away, so every material loads
-/// without it.
+/// without it, and keeps it off when it's loaded again: a model re-exported
+/// while the game runs comes back as `Modified`, not `Added`, with the glTF's
+/// anisotropy on again (clearing it is itself a change, but then it's zero
+/// and nothing more happens).
 fn no_anisotropy(
     mut events: MessageReader<AssetEvent<StandardMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for e in events.read() {
-        let AssetEvent::Added { id } = e else {
+        let (AssetEvent::Added { id } | AssetEvent::Modified { id }) = e else {
             continue;
         };
         if materials
@@ -199,6 +202,45 @@ fn mipmap(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn anisotropy_stays_off_when_a_material_reloads() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .init_asset::<StandardMaterial>()
+            .add_systems(
+                PostUpdate,
+                no_anisotropy.after(bevy::asset::AssetEventSystems),
+            );
+        // Kept alive for the whole test.
+        let handle = app
+            .world_mut()
+            .resource_mut::<Assets<StandardMaterial>>()
+            .add(StandardMaterial {
+                anisotropy_strength: 0.8,
+                ..default()
+            });
+        let id = handle.id();
+        let strength = |app: &App| {
+            app.world()
+                .resource::<Assets<StandardMaterial>>()
+                .get(id)
+                .map(|m| m.anisotropy_strength)
+        };
+        app.update();
+        assert_eq!(strength(&app), Some(0.0), "on load");
+        // Reloaded (the model re-exported while the game runs): it comes back.
+        if let Some(mut m) = app
+            .world_mut()
+            .resource_mut::<Assets<StandardMaterial>>()
+            .get_mut(id)
+        {
+            m.anisotropy_strength = 0.6;
+        }
+        app.update();
+        app.update();
+        assert_eq!(strength(&app), Some(0.0), "on reload");
+    }
 
     #[test]
     fn only_glass_in_listed_models() {

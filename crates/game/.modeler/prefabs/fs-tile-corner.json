@@ -2,74 +2,78 @@
   "format_version": 1,
   "name": "fs-tile-corner",
   "parts": [],
-  "version": 64114,
+  "version": 66573,
   "ops": [
     {
       "primitive": {
         "name": "floor",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          -0.095,
+          0.0,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "up"
       }
     },
     {
       "primitive": {
         "name": "ceiling",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          3.895,
+          3.8,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "down"
       }
     },
     {
       "primitive": {
         "name": "wall_W",
-        "kind": "box",
+        "kind": "plane",
         "size": [
-          0.197,
+          5.94,
           3.99,
-          5.94
+          0.0
         ],
         "translation": [
-          -2.8985,
+          -2.8,
           1.995,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "+x"
       }
     },
     {
       "primitive": {
         "name": "wall_S",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           5.94,
           3.99,
-          0.197
+          0.0
         ],
         "translation": [
           0.0,
           1.995,
-          2.8985
+          2.8
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "-z"
       }
     },
     {

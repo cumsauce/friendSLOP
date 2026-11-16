@@ -2,40 +2,42 @@
   "format_version": 1,
   "name": "fs-tile-cross",
   "parts": [],
-  "version": 44404,
+  "version": 66576,
   "ops": [
     {
       "primitive": {
         "name": "floor",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          -0.095,
+          0.0,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "up"
       }
     },
     {
       "primitive": {
         "name": "ceiling",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          3.895,
+          3.8,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "down"
       }
     },
     {

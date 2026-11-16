@@ -2,40 +2,42 @@
   "format_version": 1,
   "name": "fs-room-ceiling",
   "parts": [],
-  "version": 64211,
+  "version": 66627,
   "ops": [
     {
       "primitive": {
         "name": "floor",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          -0.095,
+          0.0,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "up"
       }
     },
     {
       "primitive": {
         "name": "ceiling",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          3.895,
+          3.8,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "down"
       }
     },
     {

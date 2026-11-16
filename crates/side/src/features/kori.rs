@@ -21,6 +21,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -334,7 +335,7 @@ pub fn plugin(app: &mut App) {
     app.insert_resource(Shelf::load())
         .add_observer(click)
         .add_observer(result)
-        .add_systems(OnEnter(AppState::InGame), spawn_ui)
+        .add_hud(spawn_ui)
         .add_systems(
             Update,
             (dress, show_coins, cycle_held, draw_held).run_if(in_state(AppState::InGame)),

@@ -12,6 +12,7 @@
 //!
 //! The server is authoritative: clients only send stick/look input and "shoot".
 
+use friendslop_base::areas::AreaApp as _;
 use std::collections::HashMap;
 
 use bevy::asset::LoadState;
@@ -505,7 +506,8 @@ pub fn plugin(app: &mut App) {
         .init_resource::<DuelRigs>()
         .add_observer(on_challenged)
         .add_observer(on_news)
-        .add_systems(OnEnter(AppState::InGame), (spawn_arena, spawn_duel_hud))
+        .spawn_into("commune", spawn_arena)
+        .add_hud(spawn_duel_hud)
         .add_systems(OnExit(AppState::InGame), reset_view)
         .add_systems(
             Update,

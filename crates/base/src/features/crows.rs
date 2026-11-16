@@ -7,6 +7,7 @@
 //! step with the session clock. A "caw" is a puff-up and open beak, a line
 //! of text at the bottom of the screen and a caw sound (from `assets/audio`).
 
+use crate::areas::AreaApp as _;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -43,19 +44,18 @@ fn spawn_crows(mut commands: Commands) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_caw_text)
-        .add_systems(
-            Update,
-            (
-                dress_crows,
-                animate_crows,
-                crow_clips,
-                // Their flight follows the shared clock, so they never jump
-                // on waking; only the cawing sleeps with the meadow (#412).
-                (update_caw_text, caw_sound).run_if(crate::sites::here("crows")),
-            )
-                .run_if(in_state(AppState::InGame)),
-        );
+    app.add_hud(spawn_caw_text).add_systems(
+        Update,
+        (
+            dress_crows,
+            animate_crows,
+            crow_clips,
+            // Their flight follows the shared clock, so they never jump
+            // on waking; only the cawing sleeps with the meadow (#412).
+            (update_caw_text, caw_sound).run_if(crate::sites::here("crows")),
+        )
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 /// Seconds between one crow's caws.

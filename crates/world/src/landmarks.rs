@@ -18,11 +18,9 @@ use crate::places::bonfire_at;
 use crate::terrain::pond_at;
 
 pub fn plugin(app: &mut App) {
+    // `dress_pond`, `dress_campfire` and `string_lights` run when the
+    // commune's area loads (the game registers them).
     app.add_systems(
-        OnEnter(AppState::InGame),
-        (dress_pond, dress_campfire, string_lights),
-    )
-    .add_systems(
         Update,
         (ripple, bob, paddle, glow_embers).run_if(in_state(AppState::InGame)),
     )
@@ -119,7 +117,7 @@ fn jetty_dir() -> Vec2 {
     (-pond_at()).normalize_or(Vec2::NEG_X)
 }
 
-fn dress_pond(
+pub fn dress_pond(
     mut commands: Commands,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -287,7 +285,7 @@ fn dress_pond(
     }
 }
 
-fn dress_campfire(
+pub fn dress_campfire(
     mut commands: Commands,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -341,7 +339,7 @@ fn dress_campfire(
 
 /// Lantern posts along the paths from the middle to the campfire and the
 /// pond, strung with emissive bulbs (no lights of their own).
-fn string_lights(
+pub fn string_lights(
     mut commands: Commands,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,

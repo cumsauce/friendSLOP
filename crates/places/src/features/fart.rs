@@ -16,6 +16,7 @@ use bevy::post_process::dof::DepthOfField;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -248,7 +249,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.init_resource::<Shame>()
         .add_observer(hear_fart)
-        .add_systems(OnEnter(AppState::InGame), spawn_fart_ui)
+        .add_hud(spawn_fart_ui)
         .add_systems(OnExit(AppState::InGame), forget_shame)
         .add_systems(
             Update,

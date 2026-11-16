@@ -41,12 +41,8 @@ const T: f32 = 0.25;
 const STOREY: f32 = 3.0;
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(
-        Update,
-        spawn_village
-            .run_if(in_state(AppState::InGame))
-            .run_if(resource_exists_and_changed::<WorldSeed>),
-    );
+    // `spawn_village` runs when the commune's area loads and again on a new
+    // world seed (the game registers it: this crate doesn't know areas).
     app.add_systems(Update, near_lights.run_if(in_state(AppState::InGame)));
     app.add_observer(dress_prop_meshes);
 }
@@ -1015,17 +1011,14 @@ fn has_model(name: &str) -> bool {
     PROP_MODELS.contains(&name)
 }
 
-fn spawn_village(
+pub fn spawn_village(
     mut commands: Commands,
     seed: Res<WorldSeed>,
-    old: Query<Entity, With<VillagePart>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     assets: Res<AssetServer>,
 ) {
-    for e in &old {
-        commands.entity(e).despawn();
-    }
+    // A new seed's old village is cleared by whoever asks for it again.
     let kit = layout(village_seed(*seed));
     let mut mats: Vec<(Mat, Handle<StandardMaterial>)> = Vec::new();
     // One merged mesh per house and material, with UVs already in world

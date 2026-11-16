@@ -933,6 +933,16 @@ fn tint(
     }
 }
 
+/// Spawn HUD and UI (text, panels, cards: never anything in the world, which
+/// goes in an area, `crate::areas`) on entering the game. The HUD is a global
+/// (`areas::GLOBALS`), so its spawns are allowed at game start.
+pub fn on_enter_game<M>(
+    app: &mut App,
+    systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+) {
+    app.add_systems(OnEnter(AppState::InGame), systems);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

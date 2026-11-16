@@ -11,6 +11,7 @@
 //! Large cover (trunks, rocks, walls, sheds, bales, crates) gets a static
 //! avian3d collider so it actually blocks.
 
+use crate::areas::AreaApp as _;
 use avian3d::prelude::*;
 use bevy::gltf::GltfAssetLabel;
 use bevy::light::NotShadowCaster;
@@ -24,7 +25,7 @@ use friendslop_world::places::{arena_center, arena_half, parliament_at};
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<KitCache>()
-        .add_systems(OnEnter(AppState::InGame), (dress_floor, light_bonfire))
+        .spawn_into("commune", (dress_floor, light_bonfire))
         .add_systems(Update, flicker_bonfire)
         .add_observer(no_shadows_on_small_props);
 }

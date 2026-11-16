@@ -21,6 +21,7 @@
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -105,7 +106,7 @@ fn set_tone(
 
 pub fn plugin(app: &mut App) {
     app.add_observer(play_fart)
-        .add_systems(OnEnter(AppState::InGame), spawn_tone_text)
+        .add_hud(spawn_tone_text)
         .add_systems(
             Update,
             (tune_fart, show_tone.run_if(crate::world::hud_tick()))

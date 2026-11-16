@@ -9,6 +9,7 @@
 //!
 //! Missing sample files (no LFS data) just stay silent.
 
+use friendslop_base::areas::AreaApp as _;
 use std::sync::Arc;
 
 use bevy::audio::{AudioSource, Volume};
@@ -26,7 +27,7 @@ struct AmbientSounds {
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, load_ambience)
-        .add_systems(OnEnter(AppState::InGame), start_ambience)
+        .spawn_into("commune", start_ambience)
         .add_systems(Update, district_mix.run_if(in_state(AppState::InGame)));
 }
 

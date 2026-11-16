@@ -15,6 +15,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -254,7 +255,7 @@ struct LilySign;
 struct LilyHeart(usize);
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_garden)
+    app.spawn_into("commune", spawn_garden)
         .add_observer(click)
         .add_observer(news)
         .add_systems(

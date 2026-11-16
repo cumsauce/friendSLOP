@@ -24,7 +24,9 @@ pub struct TerrainPlugin;
 
 impl Plugin for TerrainPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::InGame), spawn_terrain);
+        // `spawn_terrain` runs when the commune's area loads (the game
+        // registers it: this crate doesn't know areas).
+        let _ = app;
     }
 }
 
@@ -587,7 +589,7 @@ pub fn ground_collider() -> Collider {
 #[derive(Component, Debug)]
 pub struct GroundCollider;
 
-fn spawn_terrain(
+pub fn spawn_terrain(
     mut commands: Commands,
     detail: Option<Res<friendslop_core::Detail>>,
     mut meshes: ResMut<Assets<Mesh>>,

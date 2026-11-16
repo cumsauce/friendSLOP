@@ -28,6 +28,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -387,10 +388,8 @@ fn scale_rent(odds_q: Query<&HouseOdds>, mut tenancy: Query<&mut Tenancy>, mut s
 pub fn plugin(app: &mut App) {
     app.add_observer(click)
         .add_observer(on_spun)
-        .add_systems(
-            OnEnter(AppState::InGame),
-            (spawn_booth, spawn_hud, spawn_help),
-        )
+        .spawn_into("commune", spawn_booth)
+        .add_hud((spawn_hud, spawn_help))
         .add_systems(
             Update,
             (dress_wizard, turn_wheel, update_hud).run_if(in_state(AppState::InGame)),

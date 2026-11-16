@@ -16,50 +16,7 @@ const AT_START: &str = "OnEnter(AppState::InGame)";
 /// its area (spawning in `areas::loaded(..)` systems under its root) means
 /// taking its files off this list; a new file that spawns at game start
 /// fails here: spawn it when its area loads instead.
-const NOT_YET_IN_AN_AREA: &[&str] = &[
-    // Commune.
-    "crates/base/src/features/bear.rs",
-    "crates/base/src/features/crows.rs",
-    "crates/base/src/features/dave_commune.rs",
-    "crates/base/src/features/great_storm.rs",
-    "crates/game/src/scenery.rs",
-    "crates/game/src/world.rs",
-    "crates/game/src/zones.rs",
-    "crates/world/src/holes.rs",
-    "crates/world/src/landmarks.rs",
-    "crates/world/src/terrain.rs",
-    "crates/places/src/features/fart.rs",
-    "crates/places/src/features/fart_sound.rs",
-    "crates/places/src/features/helicopter.rs",
-    "crates/places/src/features/skills.rs",
-    "crates/places/src/features/smoking.rs",
-    "crates/places/src/features/weed.rs",
-    "crates/play/src/features/climb.rs",
-    "crates/play/src/features/duel.rs",
-    "crates/side/src/features/affair.rs",
-    "crates/side/src/features/ambience.rs",
-    "crates/side/src/features/broadcast.rs",
-    "crates/side/src/features/clues.rs",
-    "crates/side/src/features/goat.rs",
-    "crates/side/src/features/kori.rs",
-    "crates/side/src/features/lily_garden.rs",
-    "crates/side/src/features/organ_butcher.rs",
-    "crates/side/src/features/sesbian_lex.rs",
-    "crates/side/src/features/shipwreck.rs",
-    "crates/side/src/features/surf.rs",
-    "crates/story/src/features/abuela.rs",
-    "crates/story/src/features/gamble.rs",
-    "crates/story/src/features/gods_tears.rs",
-    "crates/story/src/features/halt.rs",
-    "crates/story/src/features/landlord.rs",
-    "crates/story/src/features/mushroom.rs",
-    "crates/story/src/features/pets.rs",
-    "crates/story/src/features/totems.rs",
-    "crates/village/src/features/hide_and_seek.rs",
-    "crates/village/src/features/organ_currency.rs",
-    "crates/village/src/features/punishment.rs",
-    "crates/village/src/features/wendys.rs",
-];
+const NOT_YET_IN_AN_AREA: &[&str] = &[];
 
 fn spawns_at_start() -> Vec<String> {
     let mut files: Vec<String> = super::place_looks::sources()
@@ -425,4 +382,61 @@ fn a_host_down_here_keeps_the_sky_courses_colliders_while_a_friend_is_up_there()
             app.insert_resource(friendslop::features::infinite::Plan::seeded(1));
         }
     });
+}
+
+/// The commune's two-player test: a host in New York keeps the commune's
+/// colliders (ground included) for a friend at home, without its visuals;
+/// the friend has both. Once the friend is in New York too, nobody keeps any
+/// of the commune.
+#[test]
+fn a_host_in_new_york_keeps_the_commune_s_colliders_while_a_friend_is_home() {
+    load_data();
+    let home = Vec3::new(0.0, friendslop::terrain::height_at(0.0, 0.0), 0.0);
+    let city = Vec3::new(0.0, friendslop::rules::nyc::CITY_Y, 223.0);
+    let mut sim = two_players(city, home);
+    sim.run(0.2);
+    assert!(
+        has(&sim.server, "commune", Layer::Sim),
+        "the host dropped the commune's colliders"
+    );
+    assert!(
+        !has(&sim.server, "commune", Layer::Show),
+        "the host draws the commune from New York"
+    );
+    assert!(
+        colliders_in(&mut sim.server, "commune") > 0,
+        "no commune ground on the host"
+    );
+    let client = &mut sim.clients[0];
+    assert!(has(client, "commune", Layer::Sim) && has(client, "commune", Layer::Show));
+    assert!(
+        colliders_in(client, "commune") > 0,
+        "the friend has no ground"
+    );
+
+    sim.clients[0].insert_resource(friendslop::place::Here(city));
+    stand(&mut sim, 1, city);
+    sim.run(0.2);
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        assert!(!has(app, "commune", Layer::Sim) && !has(app, "commune", Layer::Show));
+        assert_eq!(
+            colliders_in(app, "commune"),
+            0,
+            "the commune left colliders"
+        );
+    }
+}
+
+/// Everyone in a place stacked under the commune (the tunnels): the commune
+/// unloads, though the tunnels are inside its box.
+#[test]
+fn the_commune_unloads_while_everyone_is_in_the_tunnels() {
+    load_data();
+    let down = Vec3::new(0.0, -30.0, 0.0);
+    let mut sim = two_players(down, down);
+    sim.run(0.2);
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        assert!(!has(app, "commune", Layer::Sim) && !has(app, "commune", Layer::Show));
+        assert_eq!(colliders_in(app, "commune"), 0);
+    }
 }

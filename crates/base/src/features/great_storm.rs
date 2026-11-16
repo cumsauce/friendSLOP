@@ -8,6 +8,7 @@
 //! plaque's British translation pops up. Local-only scenery on every peer;
 //! gusts pause during the Stillness.
 
+use crate::areas::AreaApp as _;
 use bevy::prelude::*;
 
 use crate::AppState;
@@ -32,7 +33,8 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Gusts>()
-        .add_systems(OnEnter(AppState::InGame), (spawn_wreckage, reset_gusts))
+        .spawn_into("commune", spawn_wreckage)
+        .add_systems(OnExit(AppState::InGame), reset_gusts)
         .add_systems(Update, blow.run_if(in_state(AppState::InGame)));
 }
 

@@ -11,6 +11,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use super::watcher::WatcherVanished;
@@ -72,7 +73,7 @@ pub fn protocol(app: &mut App) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_text)
+    app.add_hud(spawn_text)
         .add_systems(Update, (dress, read).run_if(in_state(AppState::InGame)))
         .add_observer(click_scrap);
 }

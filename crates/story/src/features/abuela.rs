@@ -194,6 +194,8 @@ fn greet_arrivals(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Abuela>(app);
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(hear_abuela)
         .add_observer(click_abuela)
@@ -229,7 +231,7 @@ struct Dressed;
 
 fn dress_abuela(
     mut commands: Commands,
-    new: Query<Entity, (With<Abuela>, Without<Dressed>)>,
+    new: Query<Entity, (With<Abuela>, Added<friendslop_base::areas::Shown>)>,
     assets: Option<Res<AssetServer>>,
 ) {
     let Some(assets) = assets else {

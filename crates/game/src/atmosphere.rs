@@ -528,6 +528,7 @@ fn spawn_atmosphere(
         .build(),
         crate::graphics::SunShadows,
         Sun,
+        crate::areas::Global,
         Transform::from_xyz(9.0, 6.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
         DespawnOnExit(AppState::InGame),
     ));
@@ -541,6 +542,7 @@ fn spawn_atmosphere(
         },
         Transform::from_xyz(-6.0, 3.0, -4.0).looking_at(Vec3::ZERO, Vec3::Y),
         Bounce,
+        crate::areas::Global,
         DespawnOnExit(AppState::InGame),
     ));
 
@@ -558,6 +560,7 @@ fn spawn_atmosphere(
     );
     commands.spawn((
         Mesh3d(meshes.add(sky_dome())),
+        crate::areas::Global,
         MeshMaterial3d(sky),
         SkyDome,
         NotShadowCaster,
@@ -579,6 +582,7 @@ fn spawn_atmosphere(
     };
     commands.spawn((
         Mesh3d(meshes.add(star_field(tuning.stars, tuning.star_size))),
+        crate::areas::Global,
         MeshMaterial3d(night_sky(&mut materials, AlphaMode::Add)),
         Stars,
         Visibility::Hidden,
@@ -595,6 +599,7 @@ fn spawn_atmosphere(
     });
     commands.spawn((
         Mesh3d(meshes.add(Sphere::new(1.0).mesh().uv(24, 12))),
+        crate::areas::Global,
         MeshMaterial3d(moon),
         Moon,
         Transform::from_xyz(0.0, -380.0, 0.0),
@@ -639,6 +644,7 @@ fn spawn_atmosphere(
                 Cloud {
                     speed: 0.4 + art::hash(i, 4, 31) * 0.5,
                 },
+                crate::areas::Global,
                 DespawnOnExit(AppState::InGame),
             ))
             .with_children(|p| {

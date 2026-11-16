@@ -549,6 +549,17 @@ fn spawn_pending(
         .id()
 }
 
+/// A sound out in the world is in the visuals layer of the area it plays
+/// in (gone if you leave before it ends); one outside every area, or a
+/// loop (the feature that starts it stops it), is [`crate::areas::Global`].
+fn file_sound(commands: &mut Commands, e: Entity, at: Vec3, looping: bool) -> Entity {
+    match crate::areas::area_at(at).filter(|_| !looping) {
+        Some(area) => commands.entity(e).insert(crate::areas::InArea::show(&area)),
+        None => commands.entity(e).insert(crate::areas::Global),
+    };
+    e
+}
+
 /// Play a sound once at `at` in the world. Returns its entity (despawn to stop).
 pub fn play_at(
     commands: &mut Commands,
@@ -558,14 +569,15 @@ pub fn play_at(
     carry: Carry,
 ) -> Entity {
     let from = Pending::Asset(sound.clone());
-    spawn_pending(
+    let e = spawn_pending(
         commands,
         from,
         Transform::from_translation(at),
         volume,
         carry,
         false,
-    )
+    );
+    file_sound(commands, e, at, false)
 }
 
 /// Play a sound once, riding along with `parent` (offset in its space).
@@ -598,14 +610,15 @@ pub fn loop_at(
     carry: Carry,
 ) -> Entity {
     let from = Pending::Asset(sound.clone());
-    spawn_pending(
+    let e = spawn_pending(
         commands,
         from,
         Transform::from_translation(at),
         volume,
         carry,
         true,
-    )
+    );
+    file_sound(commands, e, at, true)
 }
 
 /// Synthesize a WAV off the main thread, then play it once at `at`.
@@ -622,14 +635,15 @@ pub fn play_wav_at(
             bytes: Arc::from(make_wav()),
         })
     });
-    spawn_pending(
+    let e = spawn_pending(
         commands,
         Pending::Synth(task),
         Transform::from_translation(at),
         volume,
         carry,
         false,
-    )
+    );
+    file_sound(commands, e, at, false)
 }
 
 /// Decoded clips by sound file (holding the handle so its id isn't reused).
@@ -718,6 +732,7 @@ fn spawn_ears(mut commands: Commands) {
         VoiceListener::default(),
         Transform::default(),
         Name::new("Ears"),
+        crate::areas::Global,
     ));
 }
 

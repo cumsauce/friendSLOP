@@ -702,6 +702,8 @@ fn mark_back(remove: On<Remove<Dead>>, mut commands: Commands) {
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Tome>(app);
     areas::on_show(app, AREA, dig_hell);
     // `FRIENDSLOP_START=hell_pit`: on the first stepping stone.
     crate::features::start::provide(|| {
@@ -909,7 +911,7 @@ fn label_graves(
 /// prefab `by-tome`, centred on the tome's own transform; it glows).
 fn dress_tome(
     mut commands: Commands,
-    new: Query<Entity, Added<Tome>>,
+    new: Query<Entity, (With<Tome>, Added<friendslop_base::areas::Shown>)>,
     assets: Option<Res<AssetServer>>,
 ) {
     if new.is_empty() {

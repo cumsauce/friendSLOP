@@ -313,6 +313,8 @@ fn smell_perfume(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Wife>(app);
     app.add_observer(click)
         .add_observer(show_news)
         .spawn_into("commune", spawn_officer)
@@ -379,7 +381,10 @@ fn spawn_officer(mut commands: Commands) {
     ));
 }
 
-fn dress_wife(mut commands: Commands, new: Query<(Entity, &Wife), Without<Dressed>>) {
+fn dress_wife(
+    mut commands: Commands,
+    new: Query<(Entity, &Wife), Added<friendslop_base::areas::Shown>>,
+) {
     for (entity, w) in &new {
         let y = crate::terrain::height_at(w.pos.x, w.pos.y);
         commands.entity(entity).insert((

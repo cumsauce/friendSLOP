@@ -29,6 +29,12 @@ pub struct Rigged {
     pub path: &'static str,
 }
 
+/// Take a rig off an entity (its scene child goes separately), so inserting
+/// [`Rigged`] again builds it afresh.
+pub fn forget(e: &mut EntityCommands) {
+    e.remove::<(Rigged, RigReady, Springs, modeler_bevy::Sway)>();
+}
+
 /// The clip a [`Rigged`] entity plays. Change it to crossfade to another.
 #[derive(Component, Clone, Debug, PartialEq)]
 pub struct RigClip {

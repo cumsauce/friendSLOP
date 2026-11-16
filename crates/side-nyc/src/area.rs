@@ -74,11 +74,7 @@ pub fn doorway(
 }
 
 /// A local child drawing a replicated entity (tag it with [`show`] or
-/// [`show_in`] as well).
-#[derive(Component, Debug, Default, Clone, Copy)]
-pub struct Dress;
-
-/// Has `children` a [`Dress`] among them?
-pub fn dressed(children: Option<&Children>, dresses: &Query<(), With<Dress>>) -> bool {
-    children.is_some_and(|c| c.iter().any(|e| dresses.contains(e)))
-}
+/// [`show_in`] as well): the shared one, `friendslop_base::areas::Dress`.
+/// A replicated type can also let the areas file its dressing for it:
+/// `app.dress_in_area::<C>()`.
+pub use friendslop_base::areas::{Dress, dressed};

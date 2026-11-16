@@ -187,7 +187,12 @@ Rules for growing it:
   an area). Only `areas::GLOBALS` may spawn on `OnEnter(AppState::InGame)`; the ratchet in
   `tests/it/areas.rs` fails on any other new one and on a migrated file still listed. A
   teleport sends `areas::Cover` to put the loading curtain up while the place loads.
-  `FRIENDSLOP_PERF=1` logs entities/meshes/colliders per area and for "no area".
+  A replicated thing's local looks follow its area: `app.dress_in_area::<C>()`, and dress on
+  `Added<areas::Shown>` (it fires again each time the area shows), colliders kept out of the
+  dressing. Something that truly follows you everywhere (the camera, the sky, ambience around you)
+  carries `areas::Global` instead. `FRIENDSLOP_PERF=1` logs entities/meshes/colliders per
+  area, `globals`, `replicated`, `wastes` and "no area", which must stay at zero
+  (`FRIENDSLOP_PERF=2` names what's in it; `tests/it/areas.rs` checks it headless).
 - **Data, not constants.** Anything a friend might want to tweak lives in a data file under
   `crates/game/assets/`, not in Rust: positions and layout (the modeler map), tuning numbers
   (timers, costs, speeds, chances, health, counts: `assets/data/<crate>/<feature>.ron`), and

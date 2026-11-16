@@ -44,6 +44,8 @@ fn spawn_crows(mut commands: Commands) {
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    crate::areas::dress_in_area::<Crow>(app);
     app.add_hud(spawn_caw_text).add_systems(
         Update,
         (
@@ -89,7 +91,7 @@ pub const FEET: f32 = 0.3;
 struct CrowRig(Entity);
 
 /// Give every new crow (on every peer) its rigged model.
-fn dress_crows(mut commands: Commands, new: Query<(Entity, &Crow), Added<Crow>>) {
+fn dress_crows(mut commands: Commands, new: Query<(Entity, &Crow), Added<crate::areas::Shown>>) {
     for (entity, crow) in &new {
         let rig = commands
             .spawn((

@@ -50,7 +50,7 @@
         // FRIENDSLOP_BAKE=1), this bright.
         probe: 1.0,
         // The nearest this many cell lights cast shadows (0 for none).
-        shadow_lights: 4,
+        shadow_lights: 2,
         // How dark it is down here (no sky, a dim haze): data/base/place_looks.ron ("fulton").
     ),
     // Big rooms (concourses, fare halls) a few cells across among the
@@ -77,7 +77,7 @@
     // data/text/fulton_calls.ron).
     hunt: (
         // He calls when you first reach these levels (0 is the top).
-        call_levels: [1, 14, 22],
+        call_levels: [1, 2, 3],
         // Ringing this long answers it anyway.
         ring_secs: 10.0,
         // Seconds between lines.
@@ -85,7 +85,7 @@
         // His voice per call: (pitch Hz, speed). Angrier, higher, faster.
         voice: [(92.0, 1.0), (118.0, 1.15), (150.0, 1.35)],
         // After the third call, the one he sent arrives this many seconds later.
-        spawn_delay: 12.0,
+        spawn_delay: 4.0,
         // Its speeds (m/s): wandering and searching, and chasing. You walk 5 and run 10.5.
         walk_speed: 3.0,
         chase_speed: 6.5,

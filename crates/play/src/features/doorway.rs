@@ -313,18 +313,25 @@ fn dress(
             .map(|(c, s)| (c, s, 0.0))
             .collect();
         boxes.extend(chevron(&t, d));
-        commands.entity(e).insert(Dressed).with_children(|p| {
-            for (c, s, yaw) in boxes {
-                p.spawn((
-                    Mesh3d(kit.cube.clone()),
-                    MeshMaterial3d(mat.clone()),
-                    Transform::from_translation(c)
-                        .with_rotation(Quat::from_rotation_y(yaw))
-                        .with_scale(s),
-                    bevy::light::NotShadowCaster,
-                ));
-            }
-        });
+        // Silenced: a doorway can be despawned the same frame (Fulton's
+        // levels come and go as you climb), and dressing it then is moot.
+        let cube = kit.cube.clone();
+        commands
+            .entity(e)
+            .queue_silenced(move |mut door: EntityWorldMut| {
+                door.insert(Dressed).with_children(|p| {
+                    for (c, s, yaw) in boxes {
+                        p.spawn((
+                            Mesh3d(cube.clone()),
+                            MeshMaterial3d(mat.clone()),
+                            Transform::from_translation(c)
+                                .with_rotation(Quat::from_rotation_y(yaw))
+                                .with_scale(s),
+                            bevy::light::NotShadowCaster,
+                        ));
+                    }
+                });
+            });
         let (word, name) = label_lines(&t, d);
         let accent = colour(&t, d.way);
         commands

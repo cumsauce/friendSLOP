@@ -277,6 +277,13 @@ fn day_night(
     let here = crate::place::pick(places.ids(), &looks).map(|(_, l)| l);
     let lights = crate::place::blend(outdoor, here);
     set(&mut light.illuminance, lights.sun);
+    // A place that puts the sun out (Fulton St, a ride car, the tunnels)
+    // needs no sun shadows: its cascades would still render the whole world
+    // every frame for nothing.
+    let shadows = quality.as_ref().is_none_or(|q| q.shadows) && lights.sun > 0.5;
+    if light.shadow_maps_enabled != shadows {
+        light.shadow_maps_enabled = shadows;
+    }
     // The bounce follows the sun (out with it in a dark place).
     let bounce_lux = BOUNCE_LUX * lit * lights.sun / outdoor.sun;
     for mut b in &mut bounce {

@@ -185,7 +185,9 @@ pub fn spot_in_station(
     let i = *reach.get(rng.below(reach.len().max(1)))?;
     let c = (i % l.width, i / l.width);
     let jitter = Vec3::new(rng.roll() - 0.5, 0.0, rng.roll() - 0.5) * 3.0;
-    Some(fulton::cell_world(t, li, c) + jitter + Vec3::Y * 0.02)
+    let p = fulton::cell_world(t, li, c) + jitter;
+    // On the floor (down in a tall room's sunken cells, or on their stairs).
+    Some(p.with_y(fulton::floor_at(t, station, p) + 0.02))
 }
 
 fn fill(line: &str, cash: u32, who: u64, share: f32) -> String {

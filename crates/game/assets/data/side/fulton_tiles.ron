@@ -46,5 +46,20 @@
         floor: "fs_room_floor.gltf",
         wall: "fs_room_wall.gltf",
         column: "fs_room_column.gltf",
+        // Tall rooms (fulton.ron's rooms.tall; sources `fs-room-pit`,
+        // `fs-room-ceiling`, `fs-room-wall-plain`, `fs-room-stairs`,
+        // `fs-room-rail`): a sunken floor, a ceiling alone over it, a plain
+        // 1 m wall strip stretched up (the tall walls, the faces under the
+        // decks), stairs from a deck's edge down 1.6 m (stretched to the
+        // sink), and 1 m of railing stretched along a deck's edge.
+        pit: "fs_room_pit.gltf",
+        ceiling: "fs_room_ceiling.gltf",
+        wall_plain: "fs_room_wall_plain.gltf",
+        stairs: "fs_room_stairs.gltf",
+        rail: "fs_room_rail.gltf",
+        // Caved-in corridors (fulton.ron's collapse; source `fs-rubble`): a
+        // heap filling a corridor across, squeezed thin either side of a gap
+        // for a squeeze.
+        rubble: "fs_rubble.gltf",
     ),
 )

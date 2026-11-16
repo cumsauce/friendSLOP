@@ -72,6 +72,14 @@
         // of a cell's middle (never solid). `lift` raises a model onto the
         // floor, `size` is a wall prop's collider (along, up, out; zeros for
         // none), `scale` its size.
+        // L-shaped rooms: the chance a room 2x2 or bigger loses a corner
+        // block (half its size each way, rounded down) back to corridor.
+        l_chance: 0.35,
+        // Tall rooms with mezzanines: the chance a room is tall, and how far
+        // (m, at most 1.9) its floor sinks into the level below (whose cells
+        // there turn solid). The cells with doors stay up as railed decks;
+        // stairs go down from them until the whole room joins up.
+        tall: (chance: 0.45, sink: 1.6),
         kinds: [
             (name: "concourse", weight: 2.0, sizes: [(3, 3), (3, 2), (2, 4)], columns: true, props: [
                 (model: "props/lily_bench.gltf", chance: 0.3, slots: [0.0], lift: 0.47, size: (1.5, 0.9, 0.4)),
@@ -107,6 +115,11 @@
             ]),
         ],
     ),
+    // Caved-in corridors, rolled for every open side between two corridor
+    // cells: the chance it's blocked by rubble (only where there's another
+    // way round; where there isn't it becomes a squeeze instead), the chance
+    // it's a squeeze (rubble heaps either side), and a squeeze's gap (m).
+    collapse: (blocked: 0.07, squeeze: 0.02, gap: 1.4),
     // The reward for reaching the J: this much Pelf (the stats' wealth, max 10).
     reward_pelf: 3,
     // Toasts.

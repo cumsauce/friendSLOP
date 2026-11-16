@@ -249,7 +249,12 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   (columns), waiting room (benches), token booth, storage (crates, barrels), boiler room
   (drums, pipes, grates), flooded hall (puddles, debris), long gallery. Up to 4 doors, so
   levels loop. Kinds, sizes and props in `fulton.ron` (`rooms.kinds`); room code in
-  `friendslop_wfc::rooms`.
+  `friendslop_wfc::rooms`. Some rooms are L-shaped (a corner block left as corridor), and
+  some are tall: the floor away from the doors sinks 1.6 m (5.6 m ceilings; solid under it on
+  the level below), the door cells stay up as railed mezzanine decks with stairs down. The
+  hunter uses the stairs. Some corridor joins have caved in: rubble only where there's
+  another way round, otherwise a squeeze between two heaps. Chances in `fulton.ron`
+  (`rooms.l_chance`, `rooms.tall`, `collapse`).
 - **Fulton St lighting**. Station is dark with fluorescent fittings per cell and some shadows.
   `fulton.ron` (`light`).
 - **Reflections**. Shiny things reflect baked environment maps (world and Fulton St), baked with

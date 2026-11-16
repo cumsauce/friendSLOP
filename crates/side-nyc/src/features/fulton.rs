@@ -106,6 +106,9 @@ pub struct Tuning {
     /// Big rooms several cells across, among the corridors.
     #[serde(default)]
     pub rooms: Rooms,
+    /// Caved-in corridors: rubble you can't pass, or a squeeze.
+    #[serde(default)]
+    pub collapse: Collapse,
     /// Pelf for reaching the J.
     pub reward_pelf: u8,
     /// Toast on entering.
@@ -176,6 +179,37 @@ pub struct Rooms {
     /// its size. None: every room is a plain hall with columns.
     #[serde(default)]
     pub kinds: Vec<RoomKind>,
+    /// The chance a room (2 by 2 or bigger) loses a corner block and is
+    /// L-shaped (the corner goes back to corridor).
+    #[serde(default)]
+    pub l_chance: f32,
+    /// Tall rooms with mezzanines.
+    #[serde(default)]
+    pub tall: Tall,
+}
+
+/// Tall rooms: the room's floor away from its doors sinks into the level
+/// below (whose cells there are solid), so its ceiling is that much higher,
+/// and the cells with doors stay up as railed mezzanine decks with stairs
+/// down.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Tall {
+    /// The chance a room is tall (when it has a cell with no door).
+    pub chance: f32,
+    /// How far its floor sinks (m; at most 1.9).
+    pub sink: f32,
+}
+
+/// Caved-in corridors, rolled for each open side between two corridor cells.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Collapse {
+    /// The chance it's blocked solid (only where there's another way round:
+    /// a blocked side never cuts anything off; elsewhere it's a squeeze).
+    pub blocked: f32,
+    /// The chance it's a squeeze: heaps either side and a gap between.
+    pub squeeze: f32,
+    /// A squeeze's gap (m).
+    pub gap: f32,
 }
 
 /// What a big room is for, and what's in it.
@@ -353,6 +387,39 @@ pub struct RoomKit {
     pub wall: String,
     /// A column, modelled at the cell's middle; stood where four room cells meet.
     pub column: String,
+    /// A tall room's sunken floor (no ceiling).
+    #[serde(default)]
+    pub pit: String,
+    /// A ceiling alone (over a sunken floor).
+    #[serde(default)]
+    pub ceiling: String,
+    /// A plain 1 m wall strip along the N edge, stretched up.
+    #[serde(default)]
+    pub wall_plain: String,
+    /// Mezzanine stairs: from a deck's edge (origin) down towards +z.
+    #[serde(default)]
+    pub stairs: String,
+    /// 1 m of railing along x, stretched.
+    #[serde(default)]
+    pub rail: String,
+    /// A heap of rubble filling a corridor across (x), centred on the side.
+    #[serde(default)]
+    pub rubble: String,
+}
+
+impl RoomKit {
+    /// The model a shape is drawn with.
+    pub fn file(&self, piece: ShapePiece) -> &str {
+        match piece {
+            ShapePiece::Pit => &self.pit,
+            ShapePiece::Ceiling => &self.ceiling,
+            ShapePiece::Wall => &self.wall,
+            ShapePiece::WallPlain => &self.wall_plain,
+            ShapePiece::Stairs => &self.stairs,
+            ShapePiece::Rail => &self.rail,
+            ShapePiece::Rubble => &self.rubble,
+        }
+    }
 }
 
 pub static TILES: friendslop_data::Data<TileSet> =
@@ -419,19 +486,89 @@ pub struct Level {
     pub goal_entry: wfc::Side,
     /// The signed way: `arrive` to `goal`, both included.
     pub path: Vec<wfc::Cell>,
-    /// The big rooms on it.
+    /// The big rooms on it (their bounding rectangles: an L-shaped room's
+    /// missing corner is corridor; a cell is in room `i` when its kind is
+    /// `Kind::Room(i)`).
     pub rooms: Vec<wfc::Room>,
+    /// Per cell: the sides blocked by rubble (bits by side; empty: none).
+    pub rubble: Vec<u8>,
+    /// Per cell: the sides with a squeeze (rubble either side of a gap).
+    pub squeeze: Vec<u8>,
+    /// Per cell: a tall room's sunken floor, [`Level::sink`] down.
+    pub sunk: Vec<bool>,
+    /// Per cell: a mezzanine deck's sides with stairs down into the sunken
+    /// cell next door.
+    pub stairs: Vec<u8>,
+    /// How far sunken cells are sunk (m).
+    pub sink: f32,
 }
 
 impl Level {
+    /// No cells yet (a base for the plan's `..`).
+    fn empty(w: usize, h: usize) -> Level {
+        Level {
+            width: w,
+            depth: h,
+            cells: Vec::new(),
+            arrive: (0, 0),
+            goal: (0, 0),
+            goal_entry: wfc::Side::North,
+            path: Vec::new(),
+            rooms: Vec::new(),
+            rubble: Vec::new(),
+            squeeze: Vec::new(),
+            sunk: Vec::new(),
+            stairs: Vec::new(),
+            sink: 0.0,
+        }
+    }
+
     pub fn fill(&self, c: wfc::Cell) -> Fill {
         self.cells[c.1 * self.width + c.0]
     }
 
-    /// Can you walk from `c` across `s`? (Both cells open on the shared side.)
+    fn side_bit(v: &[u8], i: usize, s: wfc::Side) -> bool {
+        v.get(i).is_some_and(|b| b & bit(s) != 0)
+    }
+
+    /// Is side `s` of `c` blocked by rubble?
+    pub fn rubble(&self, c: wfc::Cell, s: wfc::Side) -> bool {
+        Self::side_bit(&self.rubble, c.1 * self.width + c.0, s)
+    }
+
+    /// Is side `s` of `c` a squeeze?
+    pub fn squeeze(&self, c: wfc::Cell, s: wfc::Side) -> bool {
+        Self::side_bit(&self.squeeze, c.1 * self.width + c.0, s)
+    }
+
+    /// Is `c` a tall room's sunken floor?
+    pub fn sunk(&self, c: wfc::Cell) -> bool {
+        self.sunk
+            .get(c.1 * self.width + c.0)
+            .copied()
+            .unwrap_or(false)
+    }
+
+    /// Do stairs go down from deck `c` across `s`?
+    pub fn stairs_down(&self, c: wfc::Cell, s: wfc::Side) -> bool {
+        Self::side_bit(&self.stairs, c.1 * self.width + c.0, s)
+    }
+
+    /// How far below the level's floor `c`'s floor is.
+    pub fn drop(&self, c: wfc::Cell) -> f32 {
+        if self.sunk(c) { self.sink } else { 0.0 }
+    }
+
+    /// Can you walk from `c` across `s`? (Both cells open on the shared
+    /// side, no rubble, and between a deck and a sunken floor only by stairs.)
     pub fn open(&self, c: wfc::Cell, s: wfc::Side) -> bool {
         wfc::neighbour(self.width, self.depth, c, s).is_some_and(|n| {
-            self.fill(c).mask & bit(s) != 0 && self.fill(n).mask & bit(s.opposite()) != 0
+            self.fill(c).mask & bit(s) != 0
+                && self.fill(n).mask & bit(s.opposite()) != 0
+                && !self.rubble(c, s)
+                && (self.sunk(c) == self.sunk(n)
+                    || self.stairs_down(c, s)
+                    || self.stairs_down(n, s.opposite()))
         })
     }
 
@@ -549,8 +686,13 @@ fn socket(f: &Fill, s: wfc::Side) -> u8 {
 /// cells off the track (which stay open below) must hang together, and no
 /// row or column may be track from end to end.
 fn leaves_room_below(l: &Level) -> bool {
+    hangs_together(l, |c| l.fill(c).track != 0)
+}
+
+/// Does the level below hang together with the cells `solid` says sink
+/// into it (track beds, sunken floors) solid there?
+fn hangs_together(l: &Level, track: impl Fn(wfc::Cell) -> bool) -> bool {
     let (w, h) = (l.width, l.depth);
-    let track = |c: wfc::Cell| l.fill(c).track != 0;
     // The landing below (under the stairs) opens one way only: count it as
     // blocked too.
     let blocked = |c: wfc::Cell| track(c) || c == l.goal;
@@ -672,10 +814,54 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
         } else {
             Vec::new()
         };
+        // L-shaped rooms: a corner block goes back to corridor.
+        let mut rooms = rooms;
+        let cuts: Vec<Vec<wfc::Cell>> = rooms
+            .iter_mut()
+            .map(|(room, doors)| {
+                let (a, b) = room.size;
+                if a < 2 || b < 2 || rng.roll() >= room_ask.l_chance {
+                    return Vec::new();
+                }
+                let corner = rng.below(4);
+                let (ca, cb) = (a / 2, b / 2);
+                let x0 = if corner.is_multiple_of(2) {
+                    room.at.0
+                } else {
+                    room.at.0 + a - ca
+                };
+                let z0 = if corner < 2 {
+                    room.at.1
+                } else {
+                    room.at.1 + b - cb
+                };
+                let cut: Vec<wfc::Cell> = (z0..z0 + cb)
+                    .flat_map(|z| (x0..x0 + ca).map(move |x| (x, z)))
+                    .collect();
+                let kept: Vec<_> = doors
+                    .iter()
+                    .copied()
+                    .filter(|(c, _)| !cut.contains(c))
+                    .collect();
+                if kept.is_empty() {
+                    return Vec::new();
+                }
+                *doors = kept;
+                cut
+            })
+            .collect();
         let mut room_tile = vec![None; w * h];
         for (ri, (room, doors)) in rooms.iter().enumerate() {
-            for c in room.cells() {
-                let edges = wfc::Side::ALL.map(|s| room.edge(c, s, doors));
+            let cut = &cuts[ri];
+            for c in room.cells().filter(|c| !cut.contains(c)) {
+                let edges = wfc::Side::ALL.map(|s| {
+                    let into_cut = wfc::neighbour(w, h, c, s).is_some_and(|n| cut.contains(&n));
+                    if into_cut {
+                        wfc::Edge::Wall
+                    } else {
+                        room.edge(c, s, doors)
+                    }
+                });
                 let mask = wfc::Side::ALL
                     .into_iter()
                     .filter(|s| edges[s.index()] != wfc::Edge::Wall)
@@ -730,6 +916,7 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
             goal_entry: entry,
             path: Vec::new(),
             rooms: rooms.iter().map(|r| r.0).collect(),
+            ..Level::empty(w, h)
         };
         let solved = problem.solve_until(
             rng,
@@ -841,11 +1028,165 @@ fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
         goal,
         goal_entry: entry,
         path: Vec::new(),
-        rooms: Vec::new(),
+        ..Level::empty(w, h)
     };
     let d = level.distances();
     level.path = path_to(&level, &d);
     level
+}
+
+/// After the plan: tall rooms (sunken floors, mezzanine decks and their
+/// stairs) and caved-in corridors, rolled per station, level, room and side
+/// (so they don't touch the plan's random numbers). Never cuts anything off:
+/// every cell you could reach before you still can.
+fn shape_level(t: &Tuning, li: usize, l: &mut Level) {
+    let n = l.width * l.depth;
+    l.rubble = vec![0; n];
+    l.squeeze = vec![0; n];
+    l.sunk = vec![false; n];
+    l.stairs = vec![0; n];
+    l.sink = t.rooms.tall.sink.clamp(0.0, 1.9);
+    let reach = |l: &Level| -> Vec<bool> { l.distances().iter().map(|d| d.is_some()).collect() };
+    let before = reach(l);
+    if l.sink > 0.2 {
+        for ri in 0..l.rooms.len() {
+            if dress_roll(t, [li, ri, usize::MAX - 1, 0]) < t.rooms.tall.chance {
+                make_tall(l, ri, |k| dress_roll(t, [li, ri, usize::MAX - 1, k + 1]));
+            }
+        }
+    }
+    let c = &t.collapse;
+    let w = l.width;
+    for i in 0..n {
+        let a = (i % w, i / w);
+        for s in [wfc::Side::East, wfc::Side::South] {
+            let Some(b) = wfc::neighbour(w, l.depth, a, s) else {
+                continue;
+            };
+            let corridor = |c: wfc::Cell| {
+                let f = l.fill(c);
+                matches!(f.kind, Kind::Corridor(_)) && f.track == 0
+            };
+            if !corridor(a) || !corridor(b) || !l.open(a, s) {
+                continue;
+            }
+            let j = b.1 * w + b.0;
+            let roll = dress_roll(t, [li, i, s.index(), 7]);
+            let mut squeeze = roll >= c.blocked && roll < c.blocked + c.squeeze;
+            if roll < c.blocked {
+                l.rubble[i] |= bit(s);
+                l.rubble[j] |= bit(s.opposite());
+                let after = reach(l);
+                if before.iter().zip(&after).any(|(b, a)| *b && !*a) {
+                    // The only way through: it caves in partly.
+                    l.rubble[i] &= !bit(s);
+                    l.rubble[j] &= !bit(s.opposite());
+                    squeeze = true;
+                }
+            }
+            if squeeze {
+                l.squeeze[i] |= bit(s);
+                l.squeeze[j] |= bit(s.opposite());
+            }
+        }
+    }
+    let d = l.distances();
+    l.path = path_to(l, &d);
+}
+
+/// Make room `ri` tall if it can be: the cells with a door stay up as
+/// decks, the rest sink, and stairs go down from decks (one landing per
+/// sunken cell) until the room hangs together. Leaves it alone when it has
+/// no cell without a door, or the level below wouldn't hang together.
+fn make_tall(l: &mut Level, ri: usize, roll: impl Fn(usize) -> f32) {
+    let (w, h) = (l.width, l.depth);
+    let mine = |c: wfc::Cell| l.fill(c).kind == Kind::Room(ri as u8);
+    let cells: Vec<wfc::Cell> = (0..w * h)
+        .map(|i| (i % w, i / w))
+        .filter(|&c| mine(c))
+        .collect();
+    let deck = |c: wfc::Cell| {
+        wfc::Side::ALL.into_iter().any(|s| {
+            l.fill(c).mask & bit(s) != 0 && wfc::neighbour(w, h, c, s).is_some_and(|n| !mine(n))
+        })
+    };
+    let pit: Vec<bool> = (0..w * h)
+        .map(|i| mine((i % w, i / w)) && !deck((i % w, i / w)))
+        .collect();
+    let pits = pit.iter().filter(|p| **p).count();
+    if pits == 0 || pits == cells.len() {
+        return;
+    }
+    let solid = |c: wfc::Cell| {
+        let i = c.1 * w + c.0;
+        l.fill(c).track != 0 || l.sunk[i] || pit[i]
+    };
+    if !hangs_together(l, solid) {
+        return;
+    }
+    // Join the room up: same-height neighbours always, a deck and a sunken
+    // cell by stairs.
+    let mut group: Vec<usize> = (0..w * h).collect();
+    fn find(g: &mut [usize], mut i: usize) -> usize {
+        while g[i] != i {
+            g[i] = g[g[i]];
+            i = g[i];
+        }
+        i
+    }
+    let mut stairs: Vec<(wfc::Cell, wfc::Side)> = Vec::new();
+    let mut ways = Vec::new();
+    for &c in &cells {
+        for s in [
+            wfc::Side::East,
+            wfc::Side::South,
+            wfc::Side::North,
+            wfc::Side::West,
+        ] {
+            let Some(n) = wfc::neighbour(w, h, c, s) else {
+                continue;
+            };
+            if !mine(n) || l.fill(c).mask & bit(s) == 0 {
+                continue;
+            }
+            let (ic, inn) = (c.1 * w + c.0, n.1 * w + n.0);
+            if pit[ic] == pit[inn] {
+                let (a, b) = (find(&mut group, ic), find(&mut group, inn));
+                group[a] = b;
+            } else if !pit[ic] {
+                ways.push((roll(ic * 4 + s.index()), c, s));
+            }
+        }
+    }
+    ways.sort_by(|a, b| a.0.total_cmp(&b.0));
+    let mut landed = Vec::new();
+    for (_, c, s) in ways {
+        let Some(n) = wfc::neighbour(w, h, c, s) else {
+            continue;
+        };
+        let (ic, inn) = (c.1 * w + c.0, n.1 * w + n.0);
+        let (a, b) = (find(&mut group, ic), find(&mut group, inn));
+        if a != b && !landed.contains(&n) {
+            group[a] = b;
+            landed.push(n);
+            stairs.push((c, s));
+        }
+    }
+    let root = find(&mut group, cells[0].1 * w + cells[0].0);
+    if cells
+        .iter()
+        .any(|c| find(&mut group, c.1 * w + c.0) != root)
+    {
+        return;
+    }
+    for (i, p) in pit.iter().enumerate() {
+        if *p {
+            l.sunk[i] = true;
+        }
+    }
+    for (c, s) in stairs {
+        l.stairs[c.1 * w + c.0] |= bit(s);
+    }
 }
 
 /// The station's plan so far, planned a level at a time (each takes a WFC
@@ -911,9 +1252,13 @@ impl StationPlan {
         } else {
             plan_level(&mut self.rng, self.size, &ask, &self.vars)
         };
+        let mut level = level;
+        shape_level(t, l, &mut level);
         self.arrive = level.goal;
         self.landing = Some(level.goal_entry.opposite());
-        self.under = level.cells.iter().map(|f| f.track != 0).collect();
+        self.under = (0..level.cells.len())
+            .map(|i| level.cells[i].track != 0 || level.sunk[i])
+            .collect();
         self.levels.push(level);
         self.levels.last()
     }
@@ -957,6 +1302,42 @@ pub fn level_at(y: f32) -> usize {
     ((STATION_TOP_Y - y) / STATION_LEVEL_H).round().max(0.0) as usize
 }
 
+/// The floor's height under `p` (on the level `p` is on): lower in a tall
+/// room's sunken cells, on the way down their stairs.
+pub fn floor_at(t: &Tuning, levels: &[Level], p: Vec3) -> f32 {
+    let li = level_at(p.y);
+    let top = level_floor(li);
+    let Some(l) = levels.get(li) else {
+        return top;
+    };
+    let o = cell_world(t, li, (0, 0));
+    let (x, z) = (((p.x - o.x) / CELL).round(), ((p.z - o.z) / CELL).round());
+    if x < 0.0 || z < 0.0 || x as usize >= l.width || z as usize >= l.depth {
+        return top;
+    }
+    let c = (x as usize, z as usize);
+    if !l.sunk(c) {
+        return top;
+    }
+    let off = p - cell_world(t, li, c);
+    let mut y = top - l.sink;
+    for s in wfc::Side::ALL {
+        let Some(n) = wfc::neighbour(l.width, l.depth, c, s) else {
+            continue;
+        };
+        if !l.stairs_down(n, s.opposite()) {
+            continue;
+        }
+        let d = dir(s);
+        let into = CELL / 2.0 - off.dot(d);
+        let across = (off - d * off.dot(d)).with_y(0.0).length();
+        if across <= STAIRS_W / 2.0 && into < STAIRS_RUN {
+            y = y.max(top - l.sink * (into.max(0.0) / STAIRS_RUN));
+        }
+    }
+    y
+}
+
 /// A unit step across a side, in the world (x, z).
 fn dir(s: wfc::Side) -> Vec3 {
     let (dx, dz) = s.offset();
@@ -989,7 +1370,7 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
             if f.mask == 0 {
                 // Solid; under a track bed only up to the bed's underside.
                 let top = if f.kind == Kind::Under {
-                    ROOM_H - TRACK_DROP - 0.2
+                    ROOM_H - TRACK_DROP.max(t.rooms.tall.sink.clamp(0.0, 1.9)) - 0.2
                 } else {
                     ROOM_H
                 };
@@ -1008,10 +1389,19 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                     });
                 }
             } else if f.kind != Kind::Stairs {
-                out.push(flat(at - Vec3::Y * 0.1, Vec3::new(CELL, 0.2, CELL)));
+                let drop = level.drop(c);
+                out.push(flat(
+                    at - Vec3::Y * (0.1 + drop),
+                    Vec3::new(CELL, 0.2, CELL),
+                ));
             }
-            // A track cell's walls go on down past the bed.
-            let low = if f.track != 0 { TRACK_DROP + 0.2 } else { 0.0 };
+            // A track cell's walls go on down past the bed, a sunken cell's
+            // down to its floor.
+            let low = if f.track != 0 {
+                TRACK_DROP + 0.2
+            } else {
+                level.drop(c)
+            };
             for s in wfc::Side::ALL {
                 if f.mask & bit(s) != 0 {
                     continue;
@@ -1061,6 +1451,7 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
             .into_iter()
             .filter_map(|d| d.block),
     );
+    out.extend(shapes(t, li, level).into_iter().filter_map(|s| s.block));
     for at in room_columns(t, li, level) {
         out.push(Block {
             centre: at + Vec3::Y * (ROOM_H / 2.0),
@@ -1079,7 +1470,19 @@ pub fn room_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
         .iter()
         .enumerate()
         .filter(|&(ri, r)| room_kind(t, li, ri, r).is_none_or(|k| k.columns))
-        .flat_map(|(_, r)| r.inner_corners())
+        // Not in a tall room (its floor isn't all one height).
+        .filter(|&(ri, r)| {
+            !r.cells()
+                .any(|c| level.sunk(c) && level.fill(c).kind == Kind::Room(ri as u8))
+        })
+        .flat_map(|(ri, r)| {
+            r.inner_corners().filter(move |c| {
+                // All four cells in the room (not an L-shaped room's missing corner).
+                [(0, 0), (1, 0), (0, 1), (1, 1)]
+                    .iter()
+                    .all(|(dx, dz)| level.fill((c.0 + dx, c.1 + dz)).kind == Kind::Room(ri as u8))
+            })
+        })
         .map(|c| cell_world(t, li, c) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0))
         .collect()
 }
@@ -1146,7 +1549,10 @@ pub fn room_dressing(t: &Tuning, li: usize, level: &Level) -> Vec<Dressing> {
         };
         for (ci, c) in r.cells().enumerate() {
             let f = level.fill(c);
-            let at = cell_world(t, li, c);
+            if f.kind != Kind::Room(ri as u8) {
+                continue;
+            }
+            let at = cell_world(t, li, c) - Vec3::Y * level.drop(c);
             for (pi, p) in kind.props.iter().enumerate() {
                 let scale = if p.scale > 0.0 { p.scale } else { 1.0 };
                 let roll = |side: usize, slot: usize, k: usize| {
@@ -1203,6 +1609,203 @@ pub fn room_dressing(t: &Tuning, li: usize, level: &Level) -> Vec<Dressing> {
                                 .with_scale(Vec3::splat(scale)),
                             block: None,
                         });
+                    }
+                }
+            }
+        }
+    }
+    out
+}
+
+/// What a [`Shape`] is drawn with (the room kit's tall-room and rubble pieces).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ShapePiece {
+    /// A sunken cell's floor.
+    Pit,
+    /// A sunken cell's ceiling (at the level's usual ceiling).
+    Ceiling,
+    /// The usual room wall.
+    Wall,
+    /// A plain wall strip, stretched up.
+    WallPlain,
+    /// Stairs from a deck down into a sunken cell.
+    Stairs,
+    /// A railing, stretched along.
+    Rail,
+    /// A heap of rubble.
+    Rubble,
+}
+
+/// One piece of a tall room or a caved-in corridor, and its collider.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Shape {
+    pub piece: ShapePiece,
+    pub transform: Transform,
+    pub block: Option<Block>,
+}
+
+/// The mezzanine stairs' run (m) and width, as modelled (`fs-room-stairs`,
+/// 1.6 m down: scaled to the level's sink).
+pub const STAIRS_RUN: f32 = 2.6;
+pub const STAIRS_W: f32 = 2.4;
+const STAIRS_MODEL_DROP: f32 = 1.6;
+/// How tall a deck's railing's collider is.
+const RAIL_H: f32 = 1.1;
+/// How deep (m, across the side) a rubble heap's collider is.
+const RUBBLE_DEPTH: f32 = 2.4;
+
+/// A wall piece (modelled along the N edge) turned onto side `s`.
+fn side_turn(s: wfc::Side) -> Quat {
+    Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2 * s.index() as f32)
+}
+
+/// The tall rooms' and caved-in corridors' pieces on level `li`, from the
+/// plan: sunken floors with their tall walls, the faces under the decks,
+/// stairs, railings (open where the stairs go down), rubble heaps.
+pub fn shapes(t: &Tuning, li: usize, level: &Level) -> Vec<Shape> {
+    let mut out = Vec::new();
+    let half = CELL / 2.0;
+    let drop = level.sink;
+    let (w, h) = (level.width, level.depth);
+    let put = |piece, at: Vec3, rotation: Quat, scale: Vec3, block: Option<Block>| Shape {
+        piece,
+        transform: Transform::from_translation(at)
+            .with_rotation(rotation)
+            .with_scale(scale),
+        block,
+    };
+    for z in 0..h {
+        for x in 0..w {
+            let c = (x, z);
+            let f = level.fill(c);
+            let at = cell_world(t, li, c);
+            let in_room = |n: wfc::Cell| {
+                matches!(level.fill(n).kind, Kind::Room(_)) && level.fill(n).kind == f.kind
+            };
+            if level.sunk(c) {
+                let floor = at - Vec3::Y * drop;
+                out.push(put(ShapePiece::Pit, floor, Quat::IDENTITY, Vec3::ONE, None));
+                out.push(put(
+                    ShapePiece::Ceiling,
+                    at,
+                    Quat::IDENTITY,
+                    Vec3::ONE,
+                    None,
+                ));
+                for s in wfc::Side::ALL {
+                    let turn = side_turn(s);
+                    let stretch = Vec3::new(1.0, drop, 1.0);
+                    if f.mask & bit(s) == 0 {
+                        out.push(put(ShapePiece::Wall, floor, turn, Vec3::ONE, None));
+                        out.push(put(
+                            ShapePiece::WallPlain,
+                            floor + Vec3::Y * ROOM_H,
+                            turn,
+                            stretch,
+                            None,
+                        ));
+                    } else if wfc::neighbour(w, h, c, s)
+                        .is_some_and(|n| in_room(n) && !level.sunk(n))
+                    {
+                        // The face under a deck.
+                        out.push(put(
+                            ShapePiece::WallPlain,
+                            floor,
+                            turn,
+                            stretch,
+                            Some(Block {
+                                centre: at + dir(s) * (half - 0.1) - Vec3::Y * (drop / 2.0),
+                                size: Vec3::new(CELL, drop, 0.2),
+                                rotation: turn,
+                            }),
+                        ));
+                    }
+                }
+            } else if matches!(f.kind, Kind::Room(_)) {
+                for s in wfc::Side::ALL {
+                    if f.mask & bit(s) == 0
+                        || !wfc::neighbour(w, h, c, s).is_some_and(|n| in_room(n) && level.sunk(n))
+                    {
+                        continue;
+                    }
+                    let turn = side_turn(s);
+                    let edge = at + dir(s) * half;
+                    let segments: &[(f32, f32)] = if level.stairs_down(c, s) {
+                        let down = Quat::from_rotation_y(
+                            std::f32::consts::PI - std::f32::consts::FRAC_PI_2 * s.index() as f32,
+                        );
+                        let tilt = (drop / STAIRS_RUN).atan();
+                        let ramp = Quat::from_rotation_x(tilt);
+                        let normal = ramp * Vec3::Y;
+                        let local = Vec3::new(0.0, -drop / 2.0, STAIRS_RUN / 2.0) - normal * 0.15;
+                        out.push(put(
+                            ShapePiece::Stairs,
+                            edge,
+                            down,
+                            Vec3::new(1.0, drop / STAIRS_MODEL_DROP, 1.0),
+                            Some(Block {
+                                centre: edge + down * local,
+                                size: Vec3::new(
+                                    STAIRS_W,
+                                    0.3,
+                                    (STAIRS_RUN * STAIRS_RUN + drop * drop).sqrt(),
+                                ),
+                                rotation: down * ramp,
+                            }),
+                        ));
+                        &[(-half, -STAIRS_W / 2.0), (STAIRS_W / 2.0, half)]
+                    } else {
+                        &[(-half, half)]
+                    };
+                    for &(a, b) in segments {
+                        let local = Vec3::new((a + b) / 2.0, 0.0, -(half - 0.08));
+                        out.push(put(
+                            ShapePiece::Rail,
+                            at + turn * local,
+                            turn,
+                            Vec3::new(b - a, 1.0, 1.0),
+                            Some(Block {
+                                centre: at + turn * (local + Vec3::Y * (RAIL_H / 2.0)),
+                                size: Vec3::new(b - a, RAIL_H, 0.1),
+                                rotation: turn,
+                            }),
+                        ));
+                    }
+                }
+            }
+            // Caved-in sides, once per side (from its W / N cell).
+            for s in [wfc::Side::East, wfc::Side::South] {
+                let turn = side_turn(s);
+                let edge = at + dir(s) * half;
+                if level.rubble(c, s) {
+                    out.push(put(
+                        ShapePiece::Rubble,
+                        edge,
+                        turn,
+                        Vec3::ONE,
+                        Some(Block {
+                            centre: edge + Vec3::Y * (ROOM_H / 2.0),
+                            size: Vec3::new(CELL, ROOM_H, RUBBLE_DEPTH),
+                            rotation: turn,
+                        }),
+                    ));
+                } else if level.squeeze(c, s) {
+                    let gap = t.collapse.gap.clamp(0.8, 4.0);
+                    let heap = half - gap / 2.0;
+                    for sign in [-1.0, 1.0] {
+                        let along = sign * (gap / 2.0 + heap / 2.0);
+                        let centre = edge + turn * Vec3::new(along, 0.0, 0.0);
+                        out.push(put(
+                            ShapePiece::Rubble,
+                            centre,
+                            turn,
+                            Vec3::new(heap / CELL * 1.05, 0.75, 0.7),
+                            Some(Block {
+                                centre: centre + Vec3::Y * 1.5,
+                                size: Vec3::new(heap, 3.0, RUBBLE_DEPTH * 0.7),
+                                rotation: turn,
+                            }),
+                        ));
                     }
                 }
             }
@@ -2077,6 +2680,7 @@ fn stream_levels(
                 };
                 let Some(file) = file else { continue };
                 let at = cell_world(&t, li, (x, z));
+                let sunk = level.sunk((x, z));
                 // Its ceiling tubes light it (no shadows: there are a lot of them).
                 if t.light.cell_lumens > 0.0 {
                     commands.spawn((
@@ -2091,6 +2695,10 @@ fn stream_levels(
                         Transform::from_translation(at + Vec3::Y * t.light.cell_height),
                         ChildOf(root),
                     ));
+                }
+                // A sunken cell is drawn by its shapes (below).
+                if sunk {
+                    continue;
                 }
                 commands.spawn((
                     model(&assets, file),
@@ -2125,6 +2733,14 @@ fn stream_levels(
                     }
                 }
             }
+        }
+        // Tall rooms (sunken floors, decks, stairs, railings) and rubble.
+        for sh in shapes(&t, li, level) {
+            let file = set.room.file(sh.piece);
+            if file.is_empty() {
+                continue;
+            }
+            commands.spawn((model(&assets, file), sh.transform, ChildOf(root)));
         }
         // The big rooms' dressing (benches, crates, drums, puddles...).
         for d in room_dressing(&t, li, level) {
@@ -2530,13 +3146,16 @@ mod tests {
             let d = l.distances();
             for (ri, r) in l.rooms.iter().enumerate() {
                 assert!(r.size.0 * r.size.1 >= 4, "level {li}");
-                for c in r.cells() {
-                    let f = l.fill(c);
-                    assert_eq!(f.kind, Kind::Room(ri as u8), "level {li} {c:?}");
-                    // No walls inside a room, and you can walk into it.
+                // (An L-shaped room's missing corner is corridor.)
+                let mine = |c: wfc::Cell| l.fill(c).kind == Kind::Room(ri as u8);
+                assert!(r.cells().filter(|&c| mine(c)).count() >= 3, "level {li}");
+                for c in r.cells().filter(|&c| mine(c)) {
+                    // No walls inside a room (but a tall room's decks and
+                    // sunken floor meet only at stairs), and you can walk into it.
                     for s in wfc::Side::ALL {
                         if let Some(n) = wfc::neighbour(l.width, l.depth, c, s)
-                            && r.contains(n)
+                            && mine(n)
+                            && l.sunk(c) == l.sunk(n)
                         {
                             assert!(l.open(c, s), "level {li} {c:?} {s:?}");
                         }
@@ -2654,6 +3273,133 @@ mod tests {
                 .zip(&b)
                 .all(|(a, b)| a.cells == b.cells && a.path == b.path)
         );
+        // And the same tall rooms, stairs and rubble.
+        for (li, (a, b)) in a.iter().zip(&b).enumerate() {
+            assert_eq!(
+                (&a.sunk, &a.stairs, &a.rubble, &a.squeeze),
+                (&b.sunk, &b.stairs, &b.rubble, &b.squeeze)
+            );
+            assert_eq!(shapes(&t, li, a), shapes(&t, li, b));
+        }
+    }
+
+    #[test]
+    fn l_shaped_rooms_appear_and_join_the_way() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        let mut l_rooms = 0;
+        for l in &levels {
+            let d = l.distances();
+            for (ri, r) in l.rooms.iter().enumerate() {
+                let cells: Vec<_> = r
+                    .cells()
+                    .filter(|&c| l.fill(c).kind == Kind::Room(ri as u8))
+                    .collect();
+                if cells.len() < r.size.0 * r.size.1 {
+                    l_rooms += 1;
+                    // An L: the rectangle less one corner block.
+                    assert!(cells.len() >= 3);
+                }
+                for c in cells {
+                    assert!(d[c.1 * l.width + c.0].is_some(), "room cell {c:?} cut off");
+                }
+            }
+        }
+        println!("L-shaped rooms: {l_rooms}");
+        assert!(l_rooms >= 3, "only {l_rooms} L-shaped rooms");
+    }
+
+    #[test]
+    fn collapses_never_cut_the_way_or_anything_off() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        let (mut blocked, mut squeezes) = (0, 0);
+        for (li, l) in levels.iter().enumerate() {
+            blocked += l.rubble.iter().map(|b| b.count_ones()).sum::<u32>() / 2;
+            squeezes += l.squeeze.iter().map(|b| b.count_ones()).sum::<u32>() / 2;
+            // The way down is still there, and signed.
+            assert_eq!(l.path.first(), Some(&l.arrive), "level {li}");
+            assert_eq!(l.path.last(), Some(&l.goal), "level {li}");
+            // Everything you could reach without the rubble you still can.
+            let clear = Level {
+                rubble: Vec::new(),
+                ..l.clone()
+            };
+            let (with, without) = (l.distances(), clear.distances());
+            for (a, b) in with.iter().zip(&without) {
+                assert_eq!(a.is_some(), b.is_some(), "level {li} cut off");
+            }
+            // Rubble only across corridors, and nothing walks through it.
+            for i in 0..l.width * l.depth {
+                let c = (i % l.width, i / l.width);
+                for s in wfc::Side::ALL {
+                    if l.rubble(c, s) {
+                        assert!(!l.open(c, s));
+                        assert!(matches!(l.fill(c).kind, Kind::Corridor(_)));
+                        assert!(
+                            !crate::features::fulton_hunt::neighbours(&levels, (li, c.0, c.1))
+                                .iter()
+                                .any(|n| wfc::neighbour(l.width, l.depth, c, s)
+                                    == Some((n.1, n.2))
+                                    && n.0 == li)
+                        );
+                    }
+                }
+            }
+        }
+        println!("blocked {blocked}, squeezes {squeezes}");
+        assert!(blocked > 0 && squeezes > 0);
+    }
+
+    #[test]
+    fn mezzanines_are_reachable_by_stairs_you_can_walk() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        let (mut tall, mut stairs) = (0, 0);
+        for (li, l) in levels.iter().enumerate() {
+            let d = l.distances();
+            let sunk: Vec<usize> = (0..l.sunk.len()).filter(|&i| l.sunk[i]).collect();
+            if sunk.is_empty() {
+                continue;
+            }
+            tall += 1;
+            for &i in &sunk {
+                assert!(d[i].is_some(), "level {li}: sunken cell {i} cut off");
+                assert!(matches!(l.cells[i].kind, Kind::Room(_)));
+            }
+            // The level below is solid under them.
+            if let Some(below) = levels.get(li + 1) {
+                for &i in &sunk {
+                    assert_eq!(below.cells[i].kind, Kind::Under, "level {}", li + 1);
+                }
+            }
+            for sh in shapes(&t, li, l) {
+                if sh.piece != ShapePiece::Stairs {
+                    continue;
+                }
+                stairs += 1;
+                // Eight steps no taller than the controller climbs, a slope it walks.
+                assert!(l.sink / 8.0 <= 0.3);
+                assert!((l.sink / STAIRS_RUN).atan().to_degrees() <= 40.0);
+                // The ramp's top meets the deck and its foot the sunken floor.
+                let Some(b) = sh.block else {
+                    panic!("stairs with no collider")
+                };
+                let top_at = |z: f32| {
+                    let p = b.centre + b.rotation * Vec3::new(0.0, 0.15, z);
+                    p.y - level_floor(li)
+                };
+                let half = b.size.z / 2.0;
+                assert!(top_at(-half).abs() < 0.1, "{}", top_at(-half));
+                assert!((top_at(half) + l.sink).abs() < 0.1, "{}", top_at(half));
+                // And the floor heights agree.
+                let foot =
+                    sh.transform.translation + sh.transform.rotation * Vec3::Z * (STAIRS_RUN - 0.3);
+                assert!((floor_at(&t, &levels, foot) - level_floor(li) + l.sink).abs() < 0.3);
+            }
+        }
+        println!("tall rooms on {tall} levels, {stairs} stairs");
+        assert!(tall >= 3 && stairs >= tall);
     }
 
     #[test]
@@ -2739,7 +3485,7 @@ mod tests {
             goal: (2, 2),
             goal_entry: wfc::Side::North,
             path: vec![(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)],
-            rooms: Vec::new(),
+            ..Level::empty(3, 3)
         };
         let t = Tuning {
             width: 3,

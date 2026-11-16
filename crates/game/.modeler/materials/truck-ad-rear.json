@@ -1,0 +1,504 @@
+{
+  "name": "truck-ad-rear",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.9,
+        0.9
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.95,
+        0.3
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "l1",
+      "size": 0.125,
+      "text": "HOW'S MY DRIVING?",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.95,
+        0.6
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "l2",
+      "size": 0.13,
+      "text": "CALL 555-0199",
+      "type": "text"
+    },
+    {
+      "coords": "c",
+      "name": "bar",
+      "points": [
+        [
+          0,
+          0.78
+        ],
+        [
+          1.9,
+          0.78
+        ],
+        [
+          1.9,
+          0.9
+        ],
+        [
+          0,
+          0.9
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "mode": "fill",
+      "name": "m1",
+      "sdf": "l1",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m2",
+      "sdf": "l2",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "mb",
+      "sdf": "bar",
+      "type": "mask"
+    },
+    {
+      "a": "#f6f4ee",
+      "b": "#f39a1e",
+      "c": "mb",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#1d3577",
+      "c": "m1",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#1d1a16",
+      "c": "m2",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 3,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "truck-ad-rear",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.9,
+                0.9
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.95,
+                0.62
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l1",
+              "size": 0.15,
+              "text": "HOW'S MY DRIVING?",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.95,
+                0.3
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l2",
+              "size": 0.13,
+              "text": "CALL 555-0199",
+              "type": "text"
+            },
+            {
+              "coords": "c",
+              "name": "bar",
+              "points": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  1.9,
+                  0
+                ],
+                [
+                  1.9,
+                  0.12
+                ],
+                [
+                  0,
+                  0.12
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "mode": "fill",
+              "name": "m1",
+              "sdf": "l1",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m2",
+              "sdf": "l2",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "mb",
+              "sdf": "bar",
+              "type": "mask"
+            },
+            {
+              "a": "#f6f4ee",
+              "b": "#f39a1e",
+              "c": "mb",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#1d3577",
+              "c": "m1",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#1d1a16",
+              "c": "m2",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +c +l1 +l2 +bar +m1 +m2 +mb +c0 +c1 +col +out"
+      },
+      {
+        "model": {
+          "name": "truck-ad-rear",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.9,
+                0.9
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.95,
+                0.3
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l1",
+              "size": 0.15,
+              "text": "HOW'S MY DRIVING?",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.95,
+                0.6
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l2",
+              "size": 0.13,
+              "text": "CALL 555-0199",
+              "type": "text"
+            },
+            {
+              "coords": "c",
+              "name": "bar",
+              "points": [
+                [
+                  0,
+                  0.78
+                ],
+                [
+                  1.9,
+                  0.78
+                ],
+                [
+                  1.9,
+                  0.9
+                ],
+                [
+                  0,
+                  0.9
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "mode": "fill",
+              "name": "m1",
+              "sdf": "l1",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m2",
+              "sdf": "l2",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "mb",
+              "sdf": "bar",
+              "type": "mask"
+            },
+            {
+              "a": "#f6f4ee",
+              "b": "#f39a1e",
+              "c": "mb",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#1d3577",
+              "c": "m1",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#1d1a16",
+              "c": "m2",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "~l1 ~l2 ~bar"
+      },
+      {
+        "model": {
+          "name": "truck-ad-rear",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.9,
+                0.9
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.95,
+                0.3
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l1",
+              "size": 0.125,
+              "text": "HOW'S MY DRIVING?",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.95,
+                0.6
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l2",
+              "size": 0.13,
+              "text": "CALL 555-0199",
+              "type": "text"
+            },
+            {
+              "coords": "c",
+              "name": "bar",
+              "points": [
+                [
+                  0,
+                  0.78
+                ],
+                [
+                  1.9,
+                  0.78
+                ],
+                [
+                  1.9,
+                  0.9
+                ],
+                [
+                  0,
+                  0.9
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "mode": "fill",
+              "name": "m1",
+              "sdf": "l1",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m2",
+              "sdf": "l2",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "mb",
+              "sdf": "bar",
+              "type": "mask"
+            },
+            {
+              "a": "#f6f4ee",
+              "b": "#f39a1e",
+              "c": "mb",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#1d3577",
+              "c": "m1",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#1d1a16",
+              "c": "m2",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [],
+        "label": "~l1"
+      }
+    ],
+    "current": 2
+  }
+}

@@ -1,0 +1,13 @@
+// Extra dressing inside the warehouse (crates/places/src/features/warehouse/visuals.rs):
+// oil drums tucked into walled corners and bare bulbs hanging on their cords.
+// Edit and save: the running game picks it up within a second (next expedition).
+(
+    // Chance an open cell gets a cluster of drums (`whd-drums`) in a walled corner.
+    drum_chance: 0.25,
+    // Chance an open cell gets a bare bulb (`whd_bulb`), and the most there are.
+    bulb_chance: 0.3,
+    max_bulbs: 6,
+    // The bulb's warm light: brightness and reach (m).
+    bulb_intensity: 9000.0,
+    bulb_range: 6.0,
+)

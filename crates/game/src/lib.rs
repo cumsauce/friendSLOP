@@ -38,6 +38,8 @@ pub use friendslop_base::player;
 /// `bevy_replicon_iroh`'s wire format, shared by the browser transport.
 pub use friendslop_wire as net_wire;
 /// Screenshot mode for Discord posts (#167); off unless `FRIENDSLOP_SCREENSHOT` is set.
+/// `FRIENDSLOP_BOT=<route>`: a scripted autopilot for profiling runs.
+pub mod bot;
 pub mod perf;
 pub mod scenery;
 pub mod screenshot;
@@ -105,7 +107,7 @@ impl Plugin for GamePlugin {
                 ambience::plugin,
                 loading::plugin,
             ))
-            .add_plugins((probes::plugin, lan::plugin))
+            .add_plugins((probes::plugin, lan::plugin, bot::plugin))
             .add_plugins((
                 landmarks::plugin,
                 zones::plugin,
@@ -160,6 +162,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     files.push(&probes::TUNING);
     files.push(&lod::TREES);
     files.push(&controls::PAD);
+    files.push(&bot::ROUTES);
     files.push(&ui::annotations::LINES);
     files
 }

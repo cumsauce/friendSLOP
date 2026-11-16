@@ -925,6 +925,7 @@ dependencies = [
  "bevy_audio",
  "bevy_camera",
  "bevy_color",
+ "bevy_core_pipeline",
  "bevy_diagnostic",
  "bevy_ecs",
  "bevy_extract",
@@ -934,6 +935,7 @@ dependencies = [
  "bevy_log",
  "bevy_math",
  "bevy_mesh",
+ "bevy_pbr",
  "bevy_picking",
  "bevy_platform",
  "bevy_reflect",
@@ -945,6 +947,7 @@ dependencies = [
  "bevy_time",
  "bevy_transform",
  "bevy_ui",
+ "bevy_ui_render",
  "bevy_ui_widgets",
  "bevy_utils",
  "bevy_window",
@@ -1709,7 +1712,9 @@ checksum = "913a440cfd2b7ca59b4d35c3611fe26f698e725a580900de62b16db46a72d7a9"
 dependencies = [
  "anyhow",
  "async-channel",
+ "async-io",
  "bevy_app",
+ "bevy_asset",
  "bevy_color",
  "bevy_derive",
  "bevy_dev_tools",
@@ -1717,10 +1722,14 @@ dependencies = [
  "bevy_log",
  "bevy_platform",
  "bevy_reflect",
+ "bevy_render",
  "bevy_tasks",
  "bevy_utils",
+ "http-body-util",
+ "hyper",
  "serde",
  "serde_json",
+ "smol-hyper",
 ]
 
 [[package]]
@@ -3636,6 +3645,7 @@ dependencies = [
  "avian_rerecast",
  "bevy",
  "bevy_landmass",
+ "bevy_remote",
  "bevy_replicon",
  "bevy_replicon_iroh",
  "bevy_rerecast",
@@ -8134,6 +8144,19 @@ dependencies = [
  "wayland-protocols-wlr",
  "wayland-scanner",
  "xkeysym",
+]
+
+[[package]]
+name = "smol-hyper"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7428a49d323867702cd12b97b08a6b0104f39ec13b49117911f101271321bc1a"
+dependencies = [
+ "async-executor",
+ "async-io",
+ "futures-io",
+ "hyper",
+ "pin-project-lite",
 ]
 
 [[package]]

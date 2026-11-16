@@ -482,7 +482,8 @@ const NOTEBOOK_KEYS: [KeyCode; 19] = [
 /// Behind the journal or the notebook only walking and the notebook's own keys
 /// work: every other action key (and a pad's button mapped to one) is dropped
 /// before the world's systems read it.
-fn silence_world_keys(
+/// Last to write [`VirtualInput`] in `PreUpdate` (the bot runs after it).
+pub fn silence_world_keys(
     overlay: Res<crate::ui::Overlay>,
     state: Res<State<AppState>>,
     mut keys: ResMut<ButtonInput<KeyCode>>,

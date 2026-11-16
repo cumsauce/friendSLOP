@@ -1,0 +1,76 @@
+// The profiling bot's routes (crates/game/src/bot.rs): FRIENDSLOP_BOT=<route>
+// with `host` drives your own body through one, then logs each step's frame
+// times and the worst hitches and quits. Add FRIENDSLOP_PERF=1 for the usual
+// 5 s report lines (they say which step the bot was on).
+//
+// Steps:
+//   Start("<name>")            teleport to a FRIENDSLOP_START name: a map spot
+//                              (bonfire, lake, village, ...) or a feature's
+//                              start (fulton, penn_station, wastes, vessel, ...)
+//   Walk([(x, z), ...])        walk through these points in turn
+//   Run([(x, z), ...])         the same, running
+//   WalkTo("<name>")           walk to a start's point
+//   Ride(from: "<stop>", to: "<stop>")
+//                              board the train (or plane) standing at `from`
+//                              (a stop's start name) and ride it to `to`
+//   Wait(secs)  Spin(secs)     stand still / turn on the spot (draws every way)
+//   Look(yaw, pitch)           face this way (degrees; pitch down)
+//   Click                      click the nearest thing in reach
+//   Repeat(n, [ ... ])         do these steps n times
+(
+    // Within this far (m) of a point counts as there.
+    reach: 1.5,
+    // No progress for this long (s): hop. For this long: give up on the step
+    // (logged as GAVE UP) and go on.
+    stuck_jump: 1.0,
+    give_up: 6.0,
+    // A frame over this many ms is a hitch (25 ms: a visible stutter at 60 fps).
+    hitch_ms: 25.0,
+    routes: {
+        // Everywhere once: the commune on foot, then each place by its way in.
+        "tour": [
+            Start("bonfire"),
+            Spin(4.0),
+            WalkTo("village"),
+            Spin(4.0),
+            WalkTo("lake"),
+            WalkTo("warehouse"),
+            Spin(4.0),
+            Start("tunnels"),
+            Spin(4.0),
+            Start("fulton"),
+            Spin(4.0),
+            Start("world_trade_center"),
+            Ride(from: "world_trade_center", to: "the_valley"),
+            Spin(4.0),
+            Start("chambers_st"),
+            Ride(from: "chambers_st", to: "penn_station"),
+            Spin(4.0),
+            Start("jfk"),
+            Ride(from: "jfk", to: "miami"),
+            Spin(4.0),
+            Start("vessel"),
+            Spin(4.0),
+            Start("wastes"),
+            Spin(4.0),
+            Start("bonfire"),
+            Wait(3.0),
+        ],
+        // In and out of places, again and again: every hop loads one area
+        // and unloads another, which is where hitches hide.
+        "borders": [
+            Repeat(3, [
+                Start("bonfire"),
+                Wait(2.0),
+                Start("penn_station"),
+                Wait(2.0),
+                Start("fulton"),
+                Wait(2.0),
+                Start("tunnels"),
+                Wait(2.0),
+                Start("wastes"),
+                Wait(2.0),
+            ]),
+        ],
+    },
+)

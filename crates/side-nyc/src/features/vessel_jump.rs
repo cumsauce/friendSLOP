@@ -20,9 +20,9 @@ use crate::player::{Player, PlayerOwner};
 /// Tuning numbers: `assets/data/side/vessel_jump.ron`.
 #[derive(Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
-    /// The outward push when you jump (m/s).
+    /// The push the way you face when you jump (m/s).
     pub push: f32,
-    /// The little hop up over the parapet (m/s).
+    /// The hop up over the parapet (m/s).
     pub hop: f32,
     /// How high above the plaza your feet must be to jump (m).
     pub min_height: f32,
@@ -69,20 +69,27 @@ pub fn at_the_top(pos: Vec3, foot: Vec3, min_height: f32, top_radius: f32) -> bo
         && Vec2::new(pos.x - foot.x, pos.z - foot.z).length() <= top_radius + 2.0
 }
 
-/// Where a jumper from `pos` (pushed `push` m/s away from the Vessel's `axis`)
-/// touches down, if the plaza is at `floor_y`: a straight ballistic drop.
-pub fn landing_spot(pos: Vec3, axis: Vec3, floor_y: f32, push: f32) -> Vec3 {
-    let out = (pos - axis).with_y(0.0);
-    let dir = out.try_normalize().unwrap_or(Vec3::X);
+/// The flat way a jumper with look `yaw` goes: the way they face (the same
+/// forward the walk uses, `-Z` turned by `yaw`). A broken yaw falls back to
+/// straight out from the Vessel's `axis`.
+pub fn launch_dir(yaw: f32, pos: Vec3, axis: Vec3) -> Vec3 {
+    let facing = Quat::from_rotation_y(yaw) * Vec3::NEG_Z;
+    if yaw.is_finite() {
+        return facing;
+    }
+    (pos - axis).with_y(0.0).try_normalize().unwrap_or(Vec3::X)
+}
+
+/// Where a jumper from `pos` going flat `dir` at `push` m/s touches down, if
+/// the plaza is at `floor_y`: a straight ballistic drop.
+pub fn landing_spot(pos: Vec3, dir: Vec3, floor_y: f32, push: f32) -> Vec3 {
     let t = (2.0 * (pos.y - floor_y) / 9.81).sqrt();
     (pos + dir * (push * t)).with_y(floor_y)
 }
 
-/// The velocity a jump starts with: a hop up, then pushed away from the
-/// Vessel's middle.
-pub fn jump_velocity(pos: Vec3, axis: Vec3, tu: &Tuning) -> Vec3 {
-    let out = (pos - axis).with_y(0.0);
-    let dir = out.try_normalize().unwrap_or(Vec3::X);
+/// The velocity a jump starts with: a hop up over the parapet and a push
+/// along `dir` (see `launch_dir`).
+pub fn jump_velocity(dir: Vec3, tu: &Tuning) -> Vec3 {
     dir * tu.push + Vec3::Y * tu.hop
 }
 
@@ -179,8 +186,9 @@ fn jump(
         return;
     }
     let tu = tuning();
-    let vel = jump_velocity(walker.pos, foot, &tu);
-    let splat_at = landing_spot(walker.pos, foot, foot.y, tu.push);
+    let dir = launch_dir(walker.yaw, walker.pos, foot);
+    let vel = jump_velocity(dir, &tu);
+    let splat_at = landing_spot(walker.pos, dir, foot.y, tu.push);
     // The splat is already waiting on the plaza when they come down.
     commands.spawn((
         BloodSplat {
@@ -263,7 +271,7 @@ mod tests {
     fn the_tuning_file_is_sane() {
         let tu = tuning();
         assert!(tu.push > 0.5 && tu.push < 10.0, "push {}", tu.push);
-        assert!(tu.hop >= 0.0 && tu.hop < 5.0, "hop {}", tu.hop);
+        assert!(tu.hop >= 0.0 && tu.hop < 8.0, "hop {}", tu.hop);
         assert!(
             (35.0..42.0).contains(&tu.min_height),
             "the top of the Vessel is 42.5 m up, min_height {}",
@@ -307,7 +315,11 @@ mod tests {
         let foot = Vec3::ZERO;
         let top = super::super::vessel::landing(super::super::vessel::LEVELS - 1, 2);
         let tu = tuning();
-        let spot = landing_spot(top + foot, foot, foot.y, tu.push);
+        // Facing straight out from the middle (yaw turns -Z; out is +x, +z..).
+        let out = top.with_y(0.0).normalize();
+        let yaw = (-out.x).atan2(-out.z);
+        let dir = launch_dir(yaw, top + foot, foot);
+        let spot = landing_spot(top + foot, dir, foot.y, tu.push);
         assert!(spot.y.abs() < 1e-3, "lands on the plaza: {spot}");
         let pushed = Vec2::new(spot.x, spot.z).length();
         let started = Vec2::new(top.x, top.z).length();
@@ -317,5 +329,39 @@ mod tests {
         );
         // And clear of the Vessel's base, so you don't clip the stairs on the way.
         assert!(pushed > super::super::vessel::RADIUS.0 + 1.0);
+    }
+
+    #[test]
+    fn you_go_the_way_you_face() {
+        let tu = tuning();
+        let pos = Vec3::new(18.0, 45.0, 0.0);
+        // yaw 0 faces -Z, a quarter turn left faces -X, a half turn +Z.
+        for (yaw, want) in [
+            (0.0, Vec3::NEG_Z),
+            (std::f32::consts::FRAC_PI_2, Vec3::NEG_X),
+            (std::f32::consts::PI, Vec3::Z),
+            (-std::f32::consts::FRAC_PI_2, Vec3::X),
+        ] {
+            let dir = launch_dir(yaw, pos, Vec3::ZERO);
+            assert!((dir - want).length() < 1e-4, "yaw {yaw}: {dir} vs {want}");
+            let v = jump_velocity(dir, &tu);
+            assert!(v.with_y(0.0).normalize().dot(want) > 0.999, "pushed {v}");
+            assert!(v.y > 0.0, "a hop up");
+            let spot = landing_spot(pos, dir, 0.0, tu.push);
+            assert!((spot - pos).with_y(0.0).normalize().dot(want) > 0.999);
+        }
+        // It matches the walk's forward: W at the same yaw goes the same way.
+        let yaw = 0.7;
+        let walk = Quat::from_rotation_y(yaw) * Vec3::new(0.0, 0.0, -1.0);
+        assert!((launch_dir(yaw, pos, Vec3::ZERO) - walk).length() < 1e-5);
+        // A broken yaw still throws you outward.
+        assert!(launch_dir(f32::NAN, pos, Vec3::ZERO).dot(Vec3::X) > 0.999);
+    }
+
+    #[test]
+    fn the_hop_clears_the_parapet() {
+        // 1.1 m parapet: the rise v²/2g must top it.
+        let tu = tuning();
+        assert!(tu.hop * tu.hop / (2.0 * 9.81) > 1.2, "hop {}", tu.hop);
     }
 }

@@ -583,6 +583,14 @@ pub enum Look {
     Ceiling,
     Timber,
     Lamp,
+    /// Skirting, dado rail and cornice: dark varnished trim.
+    Trim,
+    /// A picture's faded canvas.
+    Canvas,
+    /// The worn runner down the middle of the hallway.
+    Rug,
+    /// The lamps' brass cords and the sconces.
+    Brass,
 }
 
 /// Every box of a copy (pure, the same on every peer), and its lamps.
@@ -629,6 +637,28 @@ pub fn blocks(space: &Space) -> (Vec<Block>, Vec<Vec3>) {
         let size = Vec3::new(T, h + 1.0, w + 2.0 * T);
         put(c, size, rot, Look::Wall, Solid::Wall);
     }
+    // The long trim, the same the whole way: skirting, a dado rail and a
+    // cornice on both walls, and a runner down the hallway's middle.
+    for k in [-1.0f32, 1.0] {
+        let wall = side * k * (w / 2.0 - 0.03);
+        for (y, sy, sz) in [
+            (0.07, 0.14, 0.05),
+            (0.95, 0.05, 0.04),
+            (h - 0.06, 0.12, 0.07),
+        ] {
+            put(
+                mid + wall + up * y,
+                Vec3::new(len, sy, sz),
+                rot,
+                Look::Trim,
+                Solid::None,
+            );
+        }
+    }
+    if space.floor == Floor::Hall {
+        let rug = Vec3::new(len, 0.012, w * 0.55);
+        put(mid + up * 0.006, rug, rot, Look::Rug, Solid::None);
+    }
     // Every stretch: a timber frame, a lamp, and its steps.
     for k in -tuning().behind..tuning().ahead {
         let s = k as f32 * space.seg;
@@ -653,6 +683,39 @@ pub fn blocks(space: &Space) -> (Vec<Block>, Vec<Vec3>) {
             Solid::None,
         );
         lamps.push(lamp - Vec3::Y * 0.35);
+        // The lamp's brass cord to the ceiling, the same picture on the
+        // left wall every stretch (so nobody can tell they've moved), and
+        // an unlit sconce opposite it.
+        put(
+            lamp + up * 0.03,
+            Vec3::new(0.05, 0.03, 0.05),
+            rot,
+            Look::Brass,
+            Solid::None,
+        );
+        let pic = space.line(s + space.seg / 2.0) + up * 1.65 - side * (w / 2.0 - 0.03);
+        put(
+            pic,
+            Vec3::new(0.62, 0.48, 0.04),
+            rot,
+            Look::Trim,
+            Solid::None,
+        );
+        put(
+            pic + side * 0.012,
+            Vec3::new(0.5, 0.36, 0.03),
+            rot,
+            Look::Canvas,
+            Solid::None,
+        );
+        let sconce = space.line(s + space.seg / 4.0) + up * 1.75 + side * (w / 2.0 - 0.06);
+        put(
+            sconce,
+            Vec3::new(0.08, 0.22, 0.1),
+            rot,
+            Look::Brass,
+            Solid::None,
+        );
         if let Floor::Steps { run } = space.floor {
             let n = (space.seg / run).round() as i32;
             let flat = Quat::from_rotation_y((-space.dir.z).atan2(space.dir.x));
@@ -741,6 +804,15 @@ fn build(
     let ceiling = mat(Color::srgb(0.7, 0.66, 0.56), 0.0);
     let timber = mat(Color::srgb(0.3, 0.2, 0.13), 0.0);
     let lamp = mat(Color::srgb(1.0, 0.86, 0.6), 6.0);
+    let trim = mat(Color::srgb(0.2, 0.13, 0.08), 0.0);
+    let canvas = mat(Color::srgb(0.42, 0.4, 0.3), 0.0);
+    let rug = mat(Color::srgb(0.36, 0.11, 0.09), 0.0);
+    let brass = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.7, 0.52, 0.24),
+        metallic: 0.8,
+        perceptual_roughness: 0.4,
+        ..default()
+    });
     for (i, space) in plan.spaces.iter().enumerate() {
         let root = commands
             .spawn((
@@ -762,6 +834,10 @@ fn build(
                 Look::Ceiling => Some(&ceiling),
                 Look::Timber => Some(&timber),
                 Look::Lamp => Some(&lamp),
+                Look::Trim => Some(&trim),
+                Look::Canvas => Some(&canvas),
+                Look::Rug => Some(&rug),
+                Look::Brass => Some(&brass),
             };
             if let Some(m) = look {
                 commands.spawn((

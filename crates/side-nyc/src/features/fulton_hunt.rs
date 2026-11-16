@@ -39,8 +39,8 @@ use friendslop_wfc as wfc;
 use serde::{Deserialize, Serialize};
 
 use super::fulton::{
-    CELL, HIDE_AT, Kind, Level, LevelModels, Station, TILES, TileSet, Tuning, cell_world, level_at,
-    street_at, tuning,
+    CELL, HIDE_AT, Kind, Level, LevelModels, Station, TILES, TileSet, Tuning, cell_world, floor_at,
+    level_at, street_at, tuning,
 };
 use crate::AppState;
 use crate::features::fps::{WalkInput, Walker, teleport};
@@ -420,7 +420,7 @@ pub fn think(
             }
         }
     }
-    walk(t, hunter, brain, dt);
+    walk(t, levels, hunter, brain, dt);
     // In the same cell as whoever it's chasing: straight at them.
     if let Some(p) = seen
         && brain.route.is_empty()
@@ -442,8 +442,15 @@ fn around_dist(levels: &[Level], n: Node, from: Node, cells: u32) -> bool {
         .any(|(m, _)| *m == n)
 }
 
-/// Move along the route.
-fn walk(t: &Tuning, hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
+/// Where it stands in a node: the middle, on its floor (down in a tall
+/// room's sunken cells).
+pub fn node_floor(t: &Tuning, levels: &[Level], n: Node) -> Vec3 {
+    let p = node_pos(t, n);
+    p.with_y(floor_at(t, levels, p))
+}
+
+/// Move along the route (on the floor: up and down a tall room's stairs).
+fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
     let speed = if hunter.mode == Mode::Chase {
         t.hunt.chase_speed
     } else {
@@ -454,7 +461,8 @@ fn walk(t: &Tuning, hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
         let Some(&next) = brain.route.first() else {
             break;
         };
-        let to = node_pos(t, next);
+        let to = node_floor(t, levels, next);
+        let same_level = level_at(to.y) == level_at(hunter.pos.y);
         let d = to - hunter.pos;
         let len = d.length();
         if d.xz().length() > 0.01 {
@@ -466,6 +474,9 @@ fn walk(t: &Tuning, hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
             brain.route.remove(0);
         } else {
             hunter.pos += d / len * left;
+            if same_level {
+                hunter.pos.y = floor_at(t, levels, hunter.pos);
+            }
             left = 0.0;
         }
     }
@@ -582,7 +593,7 @@ fn calls(
         let Some(you) = node_at(&t, station.levels(), w.pos) else {
             continue;
         };
-        let at = node_pos(&t, arrival(station.levels(), you));
+        let at = node_floor(&t, station.levels(), arrival(station.levels(), you));
         hunted.ticks = hunted.ticks.wrapping_add(1);
         commands.spawn((
             Replicated,

@@ -96,7 +96,8 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   `golden_log` (listed in `data/side/kori.ron`).
 - `models/` (root) — the one-model-one-area places, each dropped in whole:
   `high-places`, `ice-cream`, `miami-factory-town`, `out-of-order`,
-  `pigeon`, `plane-car`, `plane-gate`, the three boba shops
+  `pigeon`, `plane-car`, `plane-gate`, `sports-car` (a low-poly
+  red coupe), the three boba shops
   (`nyc-boba-gong-chaw`, `nyc-boba-kung-fu-tee`, `nyc-boba-tiger-sugah`) and
   the six PATH rail pieces (`path-car`, `path-hall`, `path-platform`,
   `path-station`, `path-tunnel`, `path-viaduct`).

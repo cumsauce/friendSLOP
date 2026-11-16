@@ -17,6 +17,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -219,7 +220,7 @@ fn use_tear(
 
 pub fn plugin(app: &mut App) {
     app.add_observer(click_tear)
-        .add_systems(OnEnter(AppState::InGame), spawn_tears_hud)
+        .add_hud(spawn_tears_hud)
         .add_systems(
             Update,
             (

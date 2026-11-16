@@ -16,6 +16,7 @@
 //! (`fa-dave`, a rigged plush lad playing his `idle` clip). A missing file
 //! just draws nothing.
 
+use crate::areas::AreaApp as _;
 use bevy::prelude::*;
 
 use crate::AppState;
@@ -24,7 +25,7 @@ use crate::rigged::{RigClip, Rigged};
 pub fn protocol(_app: &mut App) {}
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_commune);
+    app.spawn_into("commune", spawn_commune);
 }
 
 /// Where the burnt-out parliament stands (x, z).

@@ -24,6 +24,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -157,7 +158,7 @@ fn leave(ev: On<FromClient<LeaveSurf>>, mut commands: Commands, mut bodies: Quer
 
 pub fn plugin(app: &mut App) {
     app.add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build)
+        .spawn_into("commune", build)
         .add_systems(Update, timer.run_if(in_state(AppState::InGame)));
 }
 

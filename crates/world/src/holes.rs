@@ -621,20 +621,31 @@ pub struct HolesPlugin;
 
 impl Plugin for HolesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::InGame), spawn_linings)
-            .add_systems(
-                PostUpdate,
-                cut_loaded_meshes.after(bevy::transform::TransformSystems::Propagate),
-            );
+        // Linings are spawned per area by the game (`spawn_linings(within)`).
+        app.add_systems(
+            PostUpdate,
+            cut_loaded_meshes.after(bevy::transform::TransformSystems::Propagate),
+        );
     }
 }
 
-fn spawn_linings(
+/// A system that lines every hole whose middle `within` keeps (one area's).
+pub fn spawn_linings(
+    within: fn(Vec2) -> bool,
+) -> impl FnMut(Commands, ResMut<Assets<Mesh>>, ResMut<Assets<StandardMaterial>>) {
+    move |commands, meshes, materials| line_holes(within, commands, meshes, materials)
+}
+
+fn line_holes(
+    within: fn(Vec2) -> bool,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let holes: Vec<Hole> = all().into_iter().filter(|h| h.depth > 0.0).collect();
+    let holes: Vec<Hole> = all()
+        .into_iter()
+        .filter(|h| h.depth > 0.0 && within(h.at))
+        .collect();
     if holes.is_empty() {
         return;
     }

@@ -21,6 +21,7 @@
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -196,7 +197,7 @@ pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(hear_abuela)
         .add_observer(click_abuela)
-        .add_systems(OnEnter(AppState::InGame), build_heaven)
+        .spawn_into("commune", build_heaven)
         .add_systems(
             Update,
             (dress_abuela, glasses_and_bun, rock, show_words).run_if(in_state(AppState::InGame)),

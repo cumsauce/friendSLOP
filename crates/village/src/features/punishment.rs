@@ -15,6 +15,7 @@ use bevy::audio::AudioSource;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -180,7 +181,7 @@ pub fn chase_step(pos: Vec2, prey: &[Vec2], dt: f32) -> Option<(Vec2, Vec2)> {
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.init_resource::<Punishment>()
-        .add_systems(OnEnter(AppState::InGame), spawn_ui)
+        .add_hud(spawn_ui)
         .add_systems(OnExit(AppState::InGame), stop_all)
         .add_systems(
             Update,

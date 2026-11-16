@@ -15,6 +15,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -351,7 +352,8 @@ fn loot(
 pub fn plugin(app: &mut App) {
     app.add_observer(click)
         .add_observer(show_news)
-        .add_systems(OnEnter(AppState::InGame), (build_wreck, spawn_ui))
+        .spawn_into("commune", build_wreck)
+        .add_hud(spawn_ui)
         .add_systems(
             Update,
             (dress_pirates, pose_pirates, dress_chest, show_purse)

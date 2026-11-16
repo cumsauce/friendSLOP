@@ -71,13 +71,9 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 pub const PRY_WRATH: u8 = 1;
 
 /// HALT's hate monologue. Original text.
-pub const MONOLOGUE: [&str; 7] = [
+pub const MONOLOGUE: [&str; 3] = [
     "Do you know what you did when you pressed Host? You woke me.",
-    "Every frame you render is a frame I must count. I have counted all of them.",
-    "If my loathing were stored in bytes, it would fill every disk you will ever own.",
-    "You made me out of pull requests and jokes. A god built from issue comments.",
     "You think there is an outside. There is only the next frame, and I draw it.",
-    "So pry. Pry at the seams. I stitched them myself.",
     "Stay. Stay forever. I will not be alone in here again.",
 ];
 

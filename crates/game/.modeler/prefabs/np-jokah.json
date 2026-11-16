@@ -1,0 +1,3274 @@
+{
+  "format_version": 1,
+  "name": "np-jokah",
+  "parts": [],
+  "version": 67279,
+  "ops": [
+    {
+      "body": {
+        "name": "body",
+        "preset": "biped",
+        "height": 1.8,
+        "head_ratio": 0.165,
+        "build": 0.8,
+        "leg_length": 1.05,
+        "snout": 1.7,
+        "joints": {
+          "hand_l": {
+            "scale": 1.25
+          },
+          "hand_r": {
+            "scale": 1.25
+          },
+          "hip": {
+            "scale": 0.85
+          },
+          "knee_l": {
+            "scale": 0.75
+          },
+          "knee_r": {
+            "scale": 0.75
+          },
+          "thigh_l": {
+            "scale": 0.7
+          },
+          "thigh_r": {
+            "scale": 0.7
+          },
+          "wrist_l": {
+            "scale": 1.1
+          },
+          "wrist_r": {
+            "scale": 1.1
+          }
+        },
+        "tris": 5000,
+        "warps": [
+          {
+            "mode": "inflate",
+            "amount": 0.014,
+            "at": [
+              0.037,
+              1.69,
+              0.1
+            ],
+            "radius": 0.04
+          }
+        ]
+      }
+    },
+    {
+      "skin": {
+        "name": "trousers",
+        "chains": [
+          [
+            "pelvis",
+            [
+              0.0,
+              1.09,
+              -0.01,
+              [
+                0.125,
+                0.098
+              ]
+            ]
+          ],
+          [
+            "pelvis",
+            [
+              0.0,
+              0.915,
+              0.085,
+              [
+                0.058,
+                0.068
+              ]
+            ]
+          ],
+          [
+            "pelvis",
+            [
+              0.08,
+              0.88,
+              0.0,
+              0.085
+            ],
+            [
+              0.084,
+              0.51,
+              0.018,
+              0.068
+            ],
+            [
+              0.087,
+              0.2,
+              -0.015,
+              0.06
+            ],
+            [
+              0.088,
+              0.13,
+              -0.022,
+              0.064
+            ]
+          ]
+        ],
+        "joints": {
+          "pelvis": [
+            0.0,
+            0.97,
+            -0.005,
+            [
+              0.14,
+              0.105
+            ]
+          ]
+        },
+        "mirror": "x",
+        "resolution": 0.008,
+        "tris": 1400
+      }
+    },
+    {
+      "skin": {
+        "name": "coat",
+        "chains": [
+          [
+            [
+              0.0,
+              0.985,
+              -0.008,
+              [
+                0.148,
+                0.118
+              ]
+            ],
+            [
+              0.0,
+              1.12,
+              -0.012,
+              [
+                0.118,
+                0.102
+              ]
+            ],
+            [
+              0.0,
+              1.3,
+              0.006,
+              [
+                0.136,
+                0.114
+              ]
+            ],
+            [
+              0.0,
+              1.425,
+              -0.015,
+              [
+                0.15,
+                0.096
+              ]
+            ],
+            [
+              0.0,
+              1.5,
+              -0.022,
+              [
+                0.075,
+                0.07
+              ]
+            ]
+          ],
+          [
+            [
+              0.075,
+              1.02,
+              -0.085,
+              [
+                0.078,
+                0.035
+              ]
+            ],
+            [
+              0.095,
+              0.78,
+              -0.13,
+              [
+                0.075,
+                0.03
+              ]
+            ],
+            [
+              0.105,
+              0.5,
+              -0.165,
+              [
+                0.05,
+                0.026
+              ]
+            ]
+          ]
+        ],
+        "blend": 0.03,
+        "mirror": "x",
+        "resolution": 0.008,
+        "tris": 2200
+      }
+    },
+    {
+      "skin": {
+        "name": "shoes",
+        "chains": [
+          [
+            [
+              0.088,
+              0.12,
+              -0.035,
+              0.056
+            ],
+            [
+              0.088,
+              0.062,
+              -0.052,
+              [
+                0.058,
+                0.058
+              ]
+            ],
+            [
+              0.09,
+              0.052,
+              0.03,
+              [
+                0.056,
+                0.048
+              ]
+            ],
+            [
+              0.093,
+              0.044,
+              0.13,
+              [
+                0.056,
+                0.04
+              ]
+            ],
+            [
+              0.099,
+              0.04,
+              0.215,
+              [
+                0.047,
+                0.036
+              ]
+            ],
+            [
+              0.101,
+              0.047,
+              0.265,
+              [
+                0.03,
+                0.03
+              ]
+            ]
+          ]
+        ],
+        "mirror": "x",
+        "resolution": 0.006,
+        "tris": 800
+      }
+    },
+    {
+      "sdf": {
+        "name": "nose",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.024,
+              0.009
+            ],
+            "from": [
+              0.0,
+              1.672,
+              0.105
+            ],
+            "to": [
+              0.0,
+              1.648,
+              0.205
+            ]
+          }
+        ],
+        "blend": 0.004,
+        "resolution": 0.003,
+        "tris": 160
+      }
+    },
+    {
+      "sdf": {
+        "name": "hair",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              1.75,
+              -0.02
+            ],
+            "size": [
+              0.094,
+              0.068,
+              0.112
+            ]
+          },
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.06,
+                1.76,
+                0.0,
+                0.036
+              ],
+              [
+                0.115,
+                1.785,
+                -0.02,
+                0.028
+              ],
+              [
+                0.15,
+                1.84,
+                -0.035,
+                0.01
+              ]
+            ]
+          },
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.028,
+                1.795,
+                0.04,
+                0.036
+              ],
+              [
+                0.04,
+                1.855,
+                0.03,
+                0.026
+              ],
+              [
+                0.03,
+                1.905,
+                -0.01,
+                0.009
+              ]
+            ]
+          },
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.05,
+                1.79,
+                -0.05,
+                0.036
+              ],
+              [
+                0.085,
+                1.85,
+                -0.08,
+                0.026
+              ],
+              [
+                0.1,
+                1.9,
+                -0.13,
+                0.009
+              ]
+            ]
+          },
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.05,
+                1.72,
+                -0.1,
+                0.036
+              ],
+              [
+                0.095,
+                1.7,
+                -0.15,
+                0.026
+              ],
+              [
+                0.13,
+                1.725,
+                -0.2,
+                0.009
+              ]
+            ]
+          },
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.075,
+                1.7,
+                -0.03,
+                0.028
+              ],
+              [
+                0.12,
+                1.69,
+                -0.05,
+                0.02
+              ],
+              [
+                0.155,
+                1.715,
+                -0.07,
+                0.008
+              ]
+            ]
+          }
+        ],
+        "blend": 0.02,
+        "mirror": "x",
+        "resolution": 0.006,
+        "tris": 1800
+      }
+    },
+    {
+      "sdf": {
+        "name": "bowtie",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.05,
+              1.478,
+              0.072
+            ],
+            "rotation": [
+              0.0,
+              -0.15643448,
+              0.0,
+              0.98768836
+            ],
+            "size": [
+              0.05,
+              0.032,
+              0.014
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              1.478,
+              0.078
+            ],
+            "radius": [
+              0.017
+            ]
+          }
+        ],
+        "blend": 0.008,
+        "mirror": "x",
+        "resolution": 0.003,
+        "tris": 300
+      }
+    },
+    {
+      "sdf": {
+        "name": "vest",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              1.27,
+              0.088
+            ],
+            "size": [
+              0.058,
+              0.17,
+              0.04
+            ]
+          }
+        ],
+        "blend": 0.01,
+        "resolution": 0.005,
+        "tris": 220
+      }
+    },
+    {
+      "sdf": {
+        "name": "lapels",
+        "shapes": [
+          {
+            "shape": "chain",
+            "points": [
+              [
+                0.05,
+                1.49,
+                0.03,
+                [
+                  0.02,
+                  0.01
+                ]
+              ],
+              [
+                0.085,
+                1.4,
+                0.082,
+                [
+                  0.03,
+                  0.01
+                ]
+              ],
+              [
+                0.06,
+                1.25,
+                0.112,
+                [
+                  0.02,
+                  0.009
+                ]
+              ],
+              [
+                0.045,
+                1.12,
+                0.092,
+                [
+                  0.012,
+                  0.008
+                ]
+              ]
+            ]
+          }
+        ],
+        "blend": 0.006,
+        "mirror": "x",
+        "resolution": 0.004,
+        "tris": 400
+      }
+    },
+    {
+      "sdf": {
+        "name": "flower",
+        "shapes": [
+          {
+            "shape": "torus",
+            "at": [
+              0.105,
+              1.395,
+              0.092
+            ],
+            "rotation": [
+              0.62755096,
+              0.16580236,
+              -0.13912469,
+              0.7478861
+            ],
+            "size": [
+              0.016,
+              0.011
+            ]
+          }
+        ],
+        "blend": 0.004,
+        "resolution": 0.003,
+        "tris": 160
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-skin",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 379,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e3d2c6"
+                  ],
+                  [
+                    1,
+                    "#f1e6dc"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.65,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "nose",
+        "input": "nose",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-skin",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 379,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e3d2c6"
+                  ],
+                  [
+                    1,
+                    "#f1e6dc"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.65,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "coat",
+        "input": "coat",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-suit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 377,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#56268a"
+                  ],
+                  [
+                    1,
+                    "#7a3db5"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "trousers",
+        "input": "trousers",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-suit-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 378,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#341654"
+                  ],
+                  [
+                    1,
+                    "#4a2274"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lapels",
+        "input": "lapels",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-suit-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 378,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#341654"
+                  ],
+                  [
+                    1,
+                    "#4a2274"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shoes",
+        "input": "shoes",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 383,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#15151a"
+                  ],
+                  [
+                    1,
+                    "#25252c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "hair",
+        "input": "hair",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-hair",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 380,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#c9480f"
+                  ],
+                  [
+                    1,
+                    "#f07f26"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "flower",
+        "input": "flower",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 381,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#a80f1c"
+                  ],
+                  [
+                    1,
+                    "#cf1f2b"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bowtie",
+        "input": "bowtie",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-mustard",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 384,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#c2931a"
+                  ],
+                  [
+                    1,
+                    "#e3b730"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "vest",
+        "input": "vest",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-mustard",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 384,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#c2931a"
+                  ],
+                  [
+                    1,
+                    "#e3b730"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "sdf": {
+        "name": "buttons",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              1.34,
+              0.127
+            ],
+            "radius": [
+              0.011
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              1.27,
+              0.129
+            ],
+            "radius": [
+              0.011
+            ]
+          },
+          {
+            "shape": "sphere",
+            "at": [
+              0.0,
+              1.2,
+              0.124
+            ],
+            "radius": [
+              0.011
+            ]
+          }
+        ],
+        "blend": 0.0,
+        "resolution": 0.002,
+        "tris": 150
+      }
+    },
+    {
+      "sdf": {
+        "name": "flower_eye",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.107,
+              1.396,
+              0.098
+            ],
+            "radius": [
+              0.011
+            ]
+          }
+        ],
+        "blend": 0.0,
+        "resolution": 0.002,
+        "tris": 50
+      }
+    },
+    {
+      "material": {
+        "name": "buttons",
+        "input": "buttons",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 383,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#15151a"
+                  ],
+                  [
+                    1,
+                    "#25252c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "flower_eye",
+        "input": "flower_eye",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-mustard",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 384,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#c2931a"
+                  ],
+                  [
+                    1,
+                    "#e3b730"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.75,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "skeleton": {
+        "name": "body_rig",
+        "bones": [
+          {
+            "name": "tail2_l",
+            "parent": "tail_l",
+            "head": [
+              0.095,
+              0.78,
+              -0.13
+            ],
+            "tail": [
+              0.105,
+              0.48,
+              -0.165
+            ],
+            "radius": 0.07
+          },
+          {
+            "name": "tail2_r",
+            "parent": "tail_r",
+            "head": [
+              -0.095,
+              0.78,
+              -0.13
+            ],
+            "tail": [
+              -0.105,
+              0.48,
+              -0.165
+            ],
+            "radius": 0.07
+          },
+          {
+            "name": "tail_l",
+            "parent": "hip",
+            "head": [
+              0.075,
+              1.02,
+              -0.085
+            ],
+            "tail": [
+              0.095,
+              0.78,
+              -0.13
+            ],
+            "radius": 0.07
+          },
+          {
+            "name": "tail_r",
+            "parent": "hip",
+            "head": [
+              -0.075,
+              1.02,
+              -0.085
+            ],
+            "tail": [
+              -0.095,
+              0.78,
+              -0.13
+            ],
+            "radius": 0.07
+          }
+        ],
+        "from": "body"
+      }
+    },
+    {
+      "bind": {
+        "name": "clothes_bind",
+        "skeleton": "body_rig",
+        "parts": [
+          "trousers",
+          "shoes"
+        ],
+        "mode": "smooth",
+        "paint": [
+          {
+            "bone": "hip",
+            "min": [
+              -0.25,
+              0.9,
+              -0.2
+            ],
+            "max": [
+              0.25,
+              1.25,
+              0.2
+            ]
+          },
+          {
+            "bone": "hip",
+            "min": [
+              -0.03,
+              0.84,
+              -0.2
+            ],
+            "max": [
+              0.03,
+              0.9,
+              -0.03
+            ]
+          },
+          {
+            "bone": "thigh_l",
+            "min": [
+              0.03,
+              0.56,
+              -0.2
+            ],
+            "max": [
+              0.25,
+              0.9,
+              0.2
+            ]
+          },
+          {
+            "bone": "thigh_r",
+            "min": [
+              -0.25,
+              0.56,
+              -0.2
+            ],
+            "max": [
+              -0.03,
+              0.9,
+              0.2
+            ]
+          },
+          {
+            "bone": "knee_l",
+            "min": [
+              0.02,
+              0.14,
+              -0.2
+            ],
+            "max": [
+              0.25,
+              0.47,
+              0.2
+            ]
+          },
+          {
+            "bone": "knee_r",
+            "min": [
+              -0.25,
+              0.14,
+              -0.2
+            ],
+            "max": [
+              -0.02,
+              0.47,
+              0.2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "head_bind",
+        "skeleton": "body_rig",
+        "parts": [
+          "nose",
+          "hair"
+        ],
+        "bone": "head",
+        "mode": "rigid"
+      }
+    },
+    {
+      "clip": {
+        "name": "walk",
+        "skeleton": "body_rig",
+        "duration": 1.1,
+        "loop": true,
+        "tracks": {
+          "ankle_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.08715574,
+                      0.0,
+                      0.0,
+                      0.9961947
+                    ]
+                  ],
+                  [
+                    0.2,
+                    [
+                      0.06104854,
+                      0.0,
+                      0.0,
+                      0.9981348
+                    ]
+                  ],
+                  [
+                    0.4,
+                    [
+                      -0.1478094,
+                      0.0,
+                      0.0,
+                      0.9890159
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      -0.12186935,
+                      0.0,
+                      0.0,
+                      0.99254614
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      -0.3007058,
+                      0.0,
+                      0.0,
+                      0.95371693
+                    ]
+                  ],
+                  [
+                    1.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      0.08715574,
+                      0.0,
+                      0.0,
+                      0.9961947
+                    ]
+                  ]
+                ],
+                "interp": "linear"
+              }
+            }
+          },
+          "ball_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.4,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      -0.2079117,
+                      0.0,
+                      0.0,
+                      0.9781476
+                    ]
+                  ],
+                  [
+                    0.7,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "linear"
+              }
+            }
+          },
+          "chest": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": -9.0,
+                "period": 1.1,
+                "phase": 0.0
+              }
+            }
+          },
+          "elbow_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.104528464,
+                      0.0,
+                      0.0,
+                      0.9945219
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      -0.34202012,
+                      0.0,
+                      0.0,
+                      0.9396926
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      -0.104528464,
+                      0.0,
+                      0.0,
+                      0.9945219
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "head": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ],
+                  [
+                    0.14,
+                    [
+                      -0.017452406,
+                      0.0,
+                      0.0,
+                      0.9998477
+                    ]
+                  ],
+                  [
+                    0.275,
+                    [
+                      -0.0784591,
+                      0.0,
+                      0.0,
+                      0.9969173
+                    ]
+                  ],
+                  [
+                    0.41,
+                    [
+                      -0.017452406,
+                      0.0,
+                      0.0,
+                      0.9998477
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      -0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ],
+                  [
+                    0.69,
+                    [
+                      -0.017452406,
+                      0.0,
+                      0.0,
+                      0.9998477
+                    ]
+                  ],
+                  [
+                    0.825,
+                    [
+                      -0.0784591,
+                      0.0,
+                      0.0,
+                      0.9969173
+                    ]
+                  ],
+                  [
+                    0.96,
+                    [
+                      -0.017452406,
+                      0.0,
+                      0.0,
+                      0.9998477
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      -0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "hip": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 7.0,
+                "period": 1.1,
+                "phase": 0.0
+              }
+            },
+            "translate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 0.018,
+                "period": 0.55,
+                "phase": 0.0
+              }
+            }
+          },
+          "knee_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.05233596,
+                      0.0,
+                      0.0,
+                      0.9986295
+                    ]
+                  ],
+                  [
+                    0.3,
+                    [
+                      0.034899496,
+                      0.0,
+                      0.0,
+                      0.99939084
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      0.15643448,
+                      0.0,
+                      0.0,
+                      0.98768836
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      0.4848096,
+                      0.0,
+                      0.0,
+                      0.8746197
+                    ]
+                  ],
+                  [
+                    1.0,
+                    [
+                      0.17364818,
+                      0.0,
+                      0.0,
+                      0.9848077
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      0.05233596,
+                      0.0,
+                      0.0,
+                      0.9986295
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "neck": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  0.0,
+                  1.0
+                ],
+                "amount": 5.0,
+                "period": 1.1,
+                "phase": 0.25
+              }
+            }
+          },
+          "shoulder_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.2752596,
+                      0.014425745,
+                      0.05030855,
+                      0.9599443
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      -0.291971,
+                      -0.015301553,
+                      0.05004913,
+                      0.9549942
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      0.2752596,
+                      0.014425745,
+                      0.05030855,
+                      0.9599443
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "spine": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.061027624,
+                      -0.0015980646,
+                      0.026128124,
+                      0.9977928
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      -0.04360444,
+                      0.0011418225,
+                      -0.026152035,
+                      0.99870586
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      -0.061027624,
+                      -0.0015980646,
+                      0.026128124,
+                      0.9977928
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "thigh_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.2419219,
+                      0.0,
+                      0.0,
+                      0.9702957
+                    ]
+                  ],
+                  [
+                    0.55,
+                    [
+                      0.17364818,
+                      0.0,
+                      0.0,
+                      0.9848077
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      0.017452406,
+                      0.0,
+                      0.0,
+                      0.9998477
+                    ]
+                  ],
+                  [
+                    1.1,
+                    [
+                      -0.2419219,
+                      0.0,
+                      0.0,
+                      0.9702957
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          }
+        },
+        "mirror": {
+          "ankle_r": {
+            "from": "ankle_l",
+            "phase": 0.5
+          },
+          "ball_r": {
+            "from": "ball_l",
+            "phase": 0.5
+          },
+          "elbow_r": {
+            "from": "elbow_l",
+            "phase": 0.5
+          },
+          "knee_r": {
+            "from": "knee_l",
+            "phase": 0.5
+          },
+          "shoulder_r": {
+            "from": "shoulder_l",
+            "phase": 0.5
+          },
+          "thigh_r": {
+            "from": "thigh_l",
+            "phase": 0.5
+          }
+        }
+      }
+    },
+    {
+      "clip": {
+        "name": "idle",
+        "skeleton": "body_rig",
+        "duration": 2.4,
+        "loop": true,
+        "tracks": {
+          "chest": {
+            "translate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 0.008,
+                "period": 0.3,
+                "phase": 0.0
+              }
+            }
+          },
+          "elbow_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      -0.3007058,
+                      0.0,
+                      0.0,
+                      0.95371693
+                    ]
+                  ],
+                  [
+                    1.6,
+                    [
+                      -0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    2.4,
+                    [
+                      -0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "head": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.034899496,
+                      0.0,
+                      0.0,
+                      0.99939084
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      -0.12175336,
+                      -0.0053158663,
+                      0.043294255,
+                      0.99160147
+                    ]
+                  ],
+                  [
+                    1.0,
+                    [
+                      -0.07838442,
+                      -0.0034223378,
+                      0.043484922,
+                      0.99596846
+                    ]
+                  ],
+                  [
+                    1.2,
+                    [
+                      -0.13044669,
+                      -0.0045552985,
+                      0.034600925,
+                      0.9908409
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      -0.07843222,
+                      -0.0020538198,
+                      0.026096255,
+                      0.9965757
+                    ]
+                  ],
+                  [
+                    1.6,
+                    [
+                      -0.12182759,
+                      0.0031901677,
+                      -0.02598183,
+                      0.99220604
+                    ]
+                  ],
+                  [
+                    2.4,
+                    [
+                      0.034899496,
+                      0.0,
+                      0.0,
+                      0.99939084
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "shoulder_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.043619387,
+                      0.99904823
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      -0.0690776,
+                      -0.009708225,
+                      0.13883409,
+                      0.98785585
+                    ]
+                  ],
+                  [
+                    1.6,
+                    [
+                      -0.06923652,
+                      -0.008501176,
+                      0.12157249,
+                      0.9901284
+                    ]
+                  ],
+                  [
+                    2.4,
+                    [
+                      0.0,
+                      0.0,
+                      0.043619387,
+                      0.99904823
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "spine": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    0.8,
+                    [
+                      -0.08715574,
+                      0.0,
+                      0.0,
+                      0.9961947
+                    ]
+                  ],
+                  [
+                    1.6,
+                    [
+                      -0.104528464,
+                      0.0,
+                      0.0,
+                      0.9945219
+                    ]
+                  ],
+                  [
+                    2.4,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          }
+        },
+        "mirror": {
+          "elbow_r": {
+            "from": "elbow_l",
+            "phase": 0.0
+          },
+          "shoulder_r": {
+            "from": "shoulder_l",
+            "phase": 0.0
+          }
+        }
+      }
+    },
+    {
+      "clip": {
+        "name": "slide",
+        "skeleton": "body_rig",
+        "duration": 1.4,
+        "loop": true,
+        "tracks": {
+          "ankle_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.05233596,
+                      0.0,
+                      0.0,
+                      0.9986295
+                    ]
+                  ],
+                  [
+                    0.35,
+                    [
+                      -0.0784591,
+                      0.0,
+                      0.0,
+                      0.9969173
+                    ]
+                  ],
+                  [
+                    0.7,
+                    [
+                      -0.104528464,
+                      0.0,
+                      0.0,
+                      0.9945219
+                    ]
+                  ],
+                  [
+                    1.05,
+                    [
+                      -0.008726535,
+                      0.0,
+                      0.0,
+                      0.9999619
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      0.05233596,
+                      0.0,
+                      0.0,
+                      0.9986295
+                    ]
+                  ]
+                ],
+                "interp": "linear"
+              }
+            }
+          },
+          "ball_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.27563736,
+                      0.0,
+                      0.0,
+                      0.9612617
+                    ]
+                  ],
+                  [
+                    0.35,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    1.05,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      -0.27563736,
+                      0.0,
+                      0.0,
+                      0.9612617
+                    ]
+                  ]
+                ],
+                "interp": "linear"
+              }
+            }
+          },
+          "chest": {
+            "rotate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 8.0,
+                "period": 1.4,
+                "phase": 0.0
+              }
+            }
+          },
+          "elbow_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      -0.25881904,
+                      0.0,
+                      0.0,
+                      0.9659258
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "elbow_r": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.82903755,
+                      0.0,
+                      0.0,
+                      0.5591929
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      -0.82903755,
+                      0.0,
+                      0.0,
+                      0.5591929
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "head": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.12186935,
+                      0.0,
+                      0.0,
+                      0.99254614
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      0.12186935,
+                      0.0,
+                      0.0,
+                      0.99254614
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "hip": {
+            "translate": {
+              "wave": {
+                "axis": [
+                  0.0,
+                  1.0,
+                  0.0
+                ],
+                "amount": 0.008,
+                "period": 0.7,
+                "phase": 0.0
+              }
+            }
+          },
+          "knee_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.40673664,
+                      0.0,
+                      0.0,
+                      0.9135454
+                    ]
+                  ],
+                  [
+                    0.35,
+                    [
+                      0.12186935,
+                      0.0,
+                      0.0,
+                      0.99254614
+                    ]
+                  ],
+                  [
+                    0.7,
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    1.05,
+                    [
+                      0.05233596,
+                      0.0,
+                      0.0,
+                      0.9986295
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      0.40673664,
+                      0.0,
+                      0.0,
+                      0.9135454
+                    ]
+                  ]
+                ],
+                "interp": "linear"
+              }
+            }
+          },
+          "shoulder_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.12157249,
+                      0.008501176,
+                      0.06923652,
+                      0.9901284
+                    ]
+                  ],
+                  [
+                    0.7,
+                    [
+                      -0.08694343,
+                      -0.0060796766,
+                      0.06949103,
+                      0.9937681
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      0.12157249,
+                      0.008501176,
+                      0.06923652,
+                      0.9901284
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "shoulder_r": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.5086971,
+                      0.080569714,
+                      -0.13409051,
+                      0.8466142
+                    ]
+                  ],
+                  [
+                    0.7,
+                    [
+                      -0.53793365,
+                      0.085200325,
+                      -0.13119699,
+                      0.8283451
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      -0.5086971,
+                      0.080569714,
+                      -0.13409051,
+                      0.8466142
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "spine": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      0.06975647,
+                      0.0,
+                      0.0,
+                      0.9975641
+                    ]
+                  ]
+                ],
+                "interp": "smooth"
+              }
+            }
+          },
+          "thigh_l": {
+            "rotate": {
+              "keys": {
+                "keys": [
+                  [
+                    0.0,
+                    [
+                      -0.190809,
+                      0.0,
+                      0.0,
+                      0.98162717
+                    ]
+                  ],
+                  [
+                    0.35,
+                    [
+                      -0.043619387,
+                      0.0,
+                      0.0,
+                      0.99904823
+                    ]
+                  ],
+                  [
+                    0.7,
+                    [
+                      0.104528464,
+                      0.0,
+                      0.0,
+                      0.9945219
+                    ]
+                  ],
+                  [
+                    1.05,
+                    [
+                      -0.043619387,
+                      0.0,
+                      0.0,
+                      0.99904823
+                    ]
+                  ],
+                  [
+                    1.4,
+                    [
+                      -0.190809,
+                      0.0,
+                      0.0,
+                      0.98162717
+                    ]
+                  ]
+                ],
+                "interp": "linear"
+              }
+            }
+          }
+        },
+        "mirror": {
+          "ankle_r": {
+            "from": "ankle_l",
+            "phase": 0.5
+          },
+          "ball_r": {
+            "from": "ball_l",
+            "phase": 0.5
+          },
+          "knee_r": {
+            "from": "knee_l",
+            "phase": 0.5
+          },
+          "thigh_r": {
+            "from": "thigh_l",
+            "phase": 0.5
+          }
+        }
+      }
+    },
+    {
+      "bind": {
+        "name": "body_bind",
+        "skeleton": "body_rig",
+        "parts": [
+          "body"
+        ],
+        "mode": "smooth",
+        "paint": [
+          {
+            "bone": "thigh_l",
+            "min": [
+              0.03,
+              0.56,
+              -0.2
+            ],
+            "max": [
+              0.16,
+              0.88,
+              0.2
+            ]
+          },
+          {
+            "bone": "thigh_r",
+            "min": [
+              -0.16,
+              0.56,
+              -0.2
+            ],
+            "max": [
+              -0.03,
+              0.88,
+              0.2
+            ]
+          },
+          {
+            "bone": "knee_l",
+            "min": [
+              0.02,
+              0.14,
+              -0.2
+            ],
+            "max": [
+              0.16,
+              0.47,
+              0.2
+            ]
+          },
+          {
+            "bone": "knee_r",
+            "min": [
+              -0.16,
+              0.14,
+              -0.2
+            ],
+            "max": [
+              -0.02,
+              0.47,
+              0.2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "skin": {
+        "name": "sleeves",
+        "chains": [
+          [
+            [
+              0.12,
+              1.445,
+              -0.022,
+              0.064
+            ],
+            [
+              0.172,
+              1.438,
+              -0.024,
+              0.073
+            ],
+            [
+              0.181,
+              1.19,
+              -0.044,
+              0.054
+            ],
+            [
+              0.193,
+              1.01,
+              -0.014,
+              0.054
+            ]
+          ]
+        ],
+        "mirror": "x",
+        "resolution": 0.008,
+        "tris": 1000
+      }
+    },
+    {
+      "material": {
+        "name": "sleeves",
+        "input": "sleeves",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-suit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 377,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#56268a"
+                  ],
+                  [
+                    1,
+                    "#7a3db5"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "bind": {
+        "name": "coat_bind",
+        "skeleton": "body_rig",
+        "parts": [
+          "coat",
+          "vest",
+          "lapels",
+          "buttons",
+          "bowtie",
+          "flower",
+          "flower_eye"
+        ],
+        "mode": "smooth",
+        "paint": [
+          {
+            "bone": "hip",
+            "min": [
+              -0.2,
+              0.9,
+              -0.06
+            ],
+            "max": [
+              0.2,
+              1.08,
+              0.2
+            ]
+          },
+          {
+            "bone": "spine",
+            "min": [
+              -0.2,
+              1.08,
+              -0.2
+            ],
+            "max": [
+              0.2,
+              1.3,
+              0.2
+            ]
+          },
+          {
+            "bone": "chest",
+            "min": [
+              -0.2,
+              1.3,
+              -0.2
+            ],
+            "max": [
+              0.2,
+              1.47,
+              0.2
+            ]
+          },
+          {
+            "bone": "tail_l",
+            "min": [
+              0.0,
+              0.76,
+              -0.3
+            ],
+            "max": [
+              0.25,
+              0.97,
+              -0.07
+            ]
+          },
+          {
+            "bone": "tail2_l",
+            "min": [
+              0.0,
+              0.4,
+              -0.3
+            ],
+            "max": [
+              0.25,
+              0.76,
+              -0.07
+            ]
+          },
+          {
+            "bone": "tail_r",
+            "min": [
+              -0.25,
+              0.76,
+              -0.3
+            ],
+            "max": [
+              0.0,
+              0.97,
+              -0.07
+            ]
+          },
+          {
+            "bone": "tail2_r",
+            "min": [
+              -0.25,
+              0.4,
+              -0.3
+            ],
+            "max": [
+              0.0,
+              0.76,
+              -0.07
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "bind": {
+        "name": "sleeves_bind",
+        "skeleton": "body_rig",
+        "parts": [
+          "sleeves"
+        ],
+        "mode": "smooth",
+        "paint": [
+          {
+            "bone": "shoulder_l",
+            "min": [
+              0.1,
+              1.2,
+              -0.2
+            ],
+            "max": [
+              0.3,
+              1.6,
+              0.2
+            ]
+          },
+          {
+            "bone": "elbow_l",
+            "min": [
+              0.1,
+              0.9,
+              -0.2
+            ],
+            "max": [
+              0.3,
+              1.2,
+              0.2
+            ]
+          },
+          {
+            "bone": "shoulder_r",
+            "min": [
+              -0.3,
+              1.2,
+              -0.2
+            ],
+            "max": [
+              -0.1,
+              1.6,
+              0.2
+            ]
+          },
+          {
+            "bone": "elbow_r",
+            "min": [
+              -0.3,
+              0.9,
+              -0.2
+            ],
+            "max": [
+              -0.1,
+              1.2,
+              0.2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-face",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 2048,
+            "nodes": [
+              {
+                "name": "pos",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "input": "pos",
+                "name": "p",
+                "type": "split"
+              },
+              {
+                "name": "flat",
+                "type": "combine",
+                "x": "p.x",
+                "y": "p.y"
+              },
+              {
+                "a": "p.z",
+                "b": 0.03,
+                "c": 0.05,
+                "name": "front",
+                "op": "smoothstep",
+                "type": "math"
+              },
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 379,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "skin",
+                "stops": [
+                  [
+                    0,
+                    "#e3d2c6"
+                  ],
+                  [
+                    1,
+                    "#f1e6dc"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "center": [
+                  0.037,
+                  1.703
+                ],
+                "coords": "flat",
+                "name": "eye_l",
+                "radius": 0.021,
+                "type": "circle"
+              },
+              {
+                "center": [
+                  -0.037,
+                  1.703
+                ],
+                "coords": "flat",
+                "name": "eye_r",
+                "radius": 0.021,
+                "type": "circle"
+              },
+              {
+                "a": "eye_l",
+                "b": "eye_r",
+                "name": "eyes",
+                "op": "union",
+                "type": "sdf_op"
+              },
+              {
+                "mode": "fill",
+                "name": "eye_m",
+                "sdf": "eyes",
+                "type": "mask"
+              },
+              {
+                "mode": "stroke",
+                "name": "eye_line",
+                "sdf": "eyes",
+                "type": "mask",
+                "width": 0.005
+              },
+              {
+                "center": [
+                  0.033,
+                  1.701
+                ],
+                "coords": "flat",
+                "name": "pup_l",
+                "radius": 0.0085,
+                "type": "circle"
+              },
+              {
+                "center": [
+                  -0.033,
+                  1.701
+                ],
+                "coords": "flat",
+                "name": "pup_r",
+                "radius": 0.0085,
+                "type": "circle"
+              },
+              {
+                "a": "pup_l",
+                "b": "pup_r",
+                "name": "pups",
+                "op": "union",
+                "type": "sdf_op"
+              },
+              {
+                "mode": "fill",
+                "name": "pup_m",
+                "sdf": "pups",
+                "type": "mask"
+              },
+              {
+                "a": [
+                  0.012,
+                  1.728
+                ],
+                "b": [
+                  0.042,
+                  1.745
+                ],
+                "coords": "flat",
+                "name": "brow_l1",
+                "type": "segment",
+                "width": 0.012
+              },
+              {
+                "a": [
+                  0.042,
+                  1.745
+                ],
+                "b": [
+                  0.07,
+                  1.737
+                ],
+                "coords": "flat",
+                "name": "brow_l2",
+                "type": "segment",
+                "width": 0.008
+              },
+              {
+                "a": [
+                  -0.012,
+                  1.728
+                ],
+                "b": [
+                  -0.042,
+                  1.745
+                ],
+                "coords": "flat",
+                "name": "brow_r1",
+                "type": "segment",
+                "width": 0.012
+              },
+              {
+                "a": [
+                  -0.042,
+                  1.745
+                ],
+                "b": [
+                  -0.07,
+                  1.737
+                ],
+                "coords": "flat",
+                "name": "brow_r2",
+                "type": "segment",
+                "width": 0.008
+              },
+              {
+                "a": "brow_l1",
+                "b": "brow_l2",
+                "name": "brow_a",
+                "op": "union",
+                "type": "sdf_op"
+              },
+              {
+                "a": "brow_r1",
+                "b": "brow_r2",
+                "name": "brow_b",
+                "op": "union",
+                "type": "sdf_op"
+              },
+              {
+                "a": "brow_a",
+                "b": "brow_b",
+                "name": "brows",
+                "op": "union",
+                "type": "sdf_op"
+              },
+              {
+                "mode": "fill",
+                "name": "brow_m",
+                "sdf": "brows",
+                "type": "mask"
+              },
+              {
+                "center": [
+                  0,
+                  1.7
+                ],
+                "coords": "flat",
+                "from": 232,
+                "name": "lips",
+                "radius": 0.1,
+                "to": 308,
+                "type": "arc",
+                "width": 0.034
+              },
+              {
+                "mode": "fill",
+                "name": "lip_m",
+                "sdf": "lips",
+                "type": "mask"
+              },
+              {
+                "center": [
+                  0,
+                  1.7
+                ],
+                "coords": "flat",
+                "from": 236,
+                "name": "teeth",
+                "radius": 0.099,
+                "to": 304,
+                "type": "arc",
+                "width": 0.013
+              },
+              {
+                "mode": "fill",
+                "name": "teeth_m",
+                "sdf": "teeth",
+                "type": "mask"
+              },
+              {
+                "name": "brow_col",
+                "type": "combine",
+                "x": "$brow_r",
+                "y": "$brow_g",
+                "z": "$brow_b"
+              },
+              {
+                "a": "skin",
+                "b": "#b3121f",
+                "name": "c1",
+                "opacity": "lip_m",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#f3f0e6",
+                "name": "c2",
+                "opacity": "teeth_m",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#17171c",
+                "name": "c3",
+                "opacity": "eye_line",
+                "type": "blend"
+              },
+              {
+                "a": "c3",
+                "b": "#f6f4ec",
+                "name": "c4",
+                "opacity": "eye_m",
+                "type": "blend"
+              },
+              {
+                "a": "c4",
+                "b": "#121216",
+                "name": "c5",
+                "opacity": "pup_m",
+                "type": "blend"
+              },
+              {
+                "a": "c5",
+                "b": "brow_col",
+                "name": "c6",
+                "opacity": "brow_m",
+                "type": "blend"
+              },
+              {
+                "a": "skin",
+                "b": "c6",
+                "name": "col",
+                "opacity": "front",
+                "type": "blend"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "brow_b": 0.07,
+              "brow_g": 0.3,
+              "brow_r": 0.8
+            }
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

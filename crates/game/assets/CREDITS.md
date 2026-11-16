@@ -30,7 +30,8 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   (idle, walk, shoot and hit clips, revolver in hand).
 - `models/creatures/` — the rigged animals and figures with their clips: the
   bear, goat, landlord, Dave, the pets (dog, cat, bunny, pet duck), crows, the
-  fat cat, rats, birds and butterflies; plus the pond ducks and falling leaves.
+  fat cat, rats, birds and butterflies, the Jokah (`jokah`, and `jokah_michael`
+  in his Michael Jackson outfit); plus the pond ducks and falling leaves.
 - `models/people/` — the parts of the character creator's bodies (torsos,
   heads, eyes, snouts, ears, horns, tails, limbs, hats and accessories), knitted
   and tinted by each look's palette in game.

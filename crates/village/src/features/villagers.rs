@@ -35,7 +35,7 @@ use bevy_landmass::{
 };
 use bevy_replicon::prelude::*;
 use bevy_rerecast::prelude::{NavmeshGenerator, NavmeshPlugins, NavmeshReady, NavmeshSettings};
-use landmass_rerecast::{Island3dBundle, LandmassRerecastPlugin, NavMeshHandle3d};
+use landmass_rerecast::LandmassRerecastPlugin;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -621,6 +621,7 @@ fn on_navmesh_ready(
     nav: Option<ResMut<VillageNav>>,
     mut navs: ResMut<friendslop_base::nav::AreaNavs>,
     navmeshes: Res<Assets<bevy_rerecast::Navmesh>>,
+    mut landmass: ResMut<Assets<bevy_landmass::NavMesh3d>>,
     mut commands: Commands,
 ) {
     // Other areas' meshes (`nav.rs`) are ready too: only ours counts here.
@@ -637,14 +638,22 @@ fn on_navmesh_ready(
         nav.started.elapsed().as_secs_f32(),
     );
     info!("villager navmesh ready: {verts} vertices, built in {secs:.1}s");
+    // Converted ourselves, dropping the odd bad sliver (`nav::to_landmass`):
+    // landmass refuses a whole mesh over one, leaving every villager off it.
+    if friendslop_base::nav::spawn_island(
+        &mut commands,
+        &navmeshes,
+        &mut landmass,
+        &nav.mesh,
+        nav.archipelago,
+    )
+    .is_none()
+    {
+        return;
+    }
     nav.ready = true;
     // The commune's mesh for everyone else too (`nav.rs`).
     navs.provide(COMMUNE, nav.archipelago, true);
-    commands.spawn(Island3dBundle {
-        island: bevy_landmass::Island,
-        archipelago_ref: ArchipelagoRef3d::new(nav.archipelago),
-        nav_mesh: NavMeshHandle3d(nav.mesh.clone()),
-    });
 }
 
 /// Server: once the archipelago exists, every villager gets a landmass agent

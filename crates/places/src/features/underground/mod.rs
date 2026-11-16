@@ -37,6 +37,7 @@ use crate::features::interact::{SERVER_REACH, deny, within};
 use crate::player::PlayerOwner;
 pub use friendslop_core::WorldSeed;
 
+pub mod dressing;
 pub(crate) mod visuals;
 
 pub use crate::rules::depths::*;

@@ -310,6 +310,19 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 - **Wendy's** (#117, Kori.exe). A walk-in burger restaurant east of the commune with a dining
   room, counter, kitchen, butcher's backroom and attic. Click a human meat burger on the counter
   to pocket it; it respawns later. Nothing else uses them yet (`features/wendys.rs`).
+- **The Ceiling Fan Museum** (doomy). Its own area on the north-east outskirts: a big-box store
+  laid out as a one-way museum route. From the lobby a START HERE sign turns you right into "A Brief
+  History of Moving Air": nine ceiling fans from 1889 to 2014, each with a dated panel. At the back,
+  the Hall of Fame: ten invented fan celebrities signed beside their favourite fan (spinning on the
+  wall), with benches in an atrium under a 12-blade industrial fan and the crystal Chandelier
+  Supreme. Down the west side, the Cabinet of Curiosities: weird fans hung low over roped-off
+  exhibits (The Ouroboros, Cutlery Cyclone, The Applause, Kraken Breeze, B-Side Spinner). Its west
+  door leads to two installation halls: The Grate One (an 11 m fan behind a steel grate) and The
+  Möbius (a twisted strip carrying 276 desk fans). Out past the gift shop. Dressed like a real
+  museum: mouldings and pilasters, track lights, banners, red runners, vintage fan posters and five
+  glass cases (an 1882 motor, the original patent, antique blades, pull chains, old controls). Just a place to visit;
+  nothing to do there yet. The whole place is one modeler map (`cfm-museum`, `maps/fan_museum.bsn`):
+  move things, change speeds (`Spin`) or colliders (`Block`) there.
 - **Smoking and Sewer Paul** (#129, doomy). Pocket crow eggs by each crow's home, trade them to
   Sewer Paul (in the sewer) for cigs, or flirt with him for joints. P smokes, with puffs everyone
   sees. Joints get you high (#370) (`features/smoking.rs`).
@@ -561,12 +574,14 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 - doomy (#306): surf map in an NYC building: brownstone door, two-ramp hall, run timer.
 - catherine (#356): staffed boba shops, stacking timed effects, parody names; three shops, speed buzz.
 - Kori.exe (#379): random feces toilets; eat for 20 s speed; +100%, one eater.
+- doomy: a Ceiling Fan Museum on the outskirts, every fan spinning, and a wall of signed fan celebs.
 - #377: The Jokah, laughing Michael Jackson impersonator walking Wendy's to J station; Fulton St loop.
 - catherine (#382): Kori coins from farts and poop buy claw machine figures; hold one for speed.
 - catherine (#459): a fully built claw machine game with physics, like Yakuza 0; one in every boba store and subway station.
 
 ## Open questions
 
+- The Ceiling Fan Museum is only something to look at. Should it do anything (tickets, a gift shop, fan powers)?
 - Saves (#424) keep the campaign's chapter and ticks. Should anything else carry over between
   sessions (dollars, stats, tears, your fat cat), and should there be a way to start over or keep several saves?
 

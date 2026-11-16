@@ -1,0 +1,392 @@
+{
+  "name": "cfm-panel-grate",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.6,
+        0.8
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.8,
+        0.4
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        1.54,
+        0.74
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.8,
+        0.4
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        1.5,
+        0.7
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.8,
+        0.28
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.11,
+      "text": "THE GRATE ONE",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.8,
+        0.48
+      ],
+      "coords": "c",
+      "font": "sans",
+      "name": "t2",
+      "size": 0.036,
+      "text": "The largest ceiling fan ever hung. Stand behind the rail.",
+      "type": "text"
+    },
+    {
+      "a": "t1",
+      "b": "t2",
+      "name": "ta",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mt",
+      "sdf": "ta",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mt",
+      "name": "gold",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#141210",
+      "b": "#e8e0cc",
+      "c": "gold",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-panel-grate",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.6,
+                0.8
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.8,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                1.54,
+                0.74
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.8,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                1.5,
+                0.7
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.8,
+                0.28
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.11,
+              "text": "THE GRATE ONE",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.8,
+                0.48
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t2",
+              "size": 0.05,
+              "text": "The largest ceiling fan ever hung. Stand behind the rail.",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ta",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ta",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#e8e0cc",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +t1 +t2 +ta +mt +gold +col +out"
+      },
+      {
+        "model": {
+          "name": "cfm-panel-grate",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.6,
+                0.8
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.8,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                1.54,
+                0.74
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.8,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                1.5,
+                0.7
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.8,
+                0.28
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.11,
+              "text": "THE GRATE ONE",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.8,
+                0.48
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t2",
+              "size": 0.036,
+              "text": "The largest ceiling fan ever hung. Stand behind the rail.",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ta",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ta",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#e8e0cc",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~t2"
+      }
+    ],
+    "current": 1
+  }
+}

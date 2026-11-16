@@ -1,0 +1,934 @@
+{
+  "name": "cfm-patent-drawing",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 768,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.24,
+        0.3
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.12,
+        0.15
+      ],
+      "coords": "c",
+      "name": "fo",
+      "size": [
+        0.22,
+        0.28
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.15
+      ],
+      "coords": "c",
+      "name": "fi",
+      "size": [
+        0.216,
+        0.276
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.085
+      ],
+      "coords": "c",
+      "name": "cano",
+      "size": [
+        0.04,
+        0.012
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.085
+      ],
+      "coords": "c",
+      "name": "cani",
+      "size": [
+        0.036,
+        0.008
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.11
+      ],
+      "coords": "c",
+      "name": "rodo",
+      "size": [
+        0.008,
+        0.038
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.11
+      ],
+      "coords": "c",
+      "name": "rodi",
+      "size": [
+        0.004,
+        0.034
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.145
+      ],
+      "coords": "c",
+      "name": "moto",
+      "radius": 0.022,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.12,
+        0.145
+      ],
+      "coords": "c",
+      "name": "moti",
+      "radius": 0.02,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.12,
+        0.148
+      ],
+      "coords": "c",
+      "name": "blo",
+      "size": [
+        0.19,
+        0.014
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.148
+      ],
+      "coords": "c",
+      "name": "bli",
+      "size": [
+        0.186,
+        0.01
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.178
+      ],
+      "coords": "c",
+      "name": "lmo",
+      "size": [
+        0.03,
+        0.016
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.178
+      ],
+      "coords": "c",
+      "name": "lmi",
+      "size": [
+        0.026,
+        0.012
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.135,
+        0.2
+      ],
+      "coords": "c",
+      "name": "chain",
+      "size": [
+        0.0015,
+        0.03
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.215
+      ],
+      "coords": "c",
+      "name": "dim",
+      "size": [
+        0.19,
+        0.001
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.12,
+        0.035
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.012,
+      "text": "U.S. PATENT 1,234,567",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.12,
+        0.055
+      ],
+      "coords": "c",
+      "font": "sans",
+      "name": "t2",
+      "size": 0.007,
+      "text": "IMPROVEMENT IN CEILING FANS",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.12,
+        0.245
+      ],
+      "coords": "c",
+      "font": "sans",
+      "name": "t3",
+      "size": 0.009,
+      "text": "FIG. 1",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.19,
+        0.27
+      ],
+      "coords": "c",
+      "font": "sans",
+      "name": "t4",
+      "size": 0.006,
+      "text": "INVENTOR",
+      "type": "text"
+    },
+    {
+      "name": "a1",
+      "sdf": "fo",
+      "type": "mask"
+    },
+    {
+      "name": "a2",
+      "sdf": "fi",
+      "type": "mask"
+    },
+    {
+      "a": "a1",
+      "b": "a2",
+      "name": "l1",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "name": "b1",
+      "sdf": "cano",
+      "type": "mask"
+    },
+    {
+      "name": "b2",
+      "sdf": "cani",
+      "type": "mask"
+    },
+    {
+      "a": "b1",
+      "b": "b2",
+      "name": "l2",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "name": "c1",
+      "sdf": "rodo",
+      "type": "mask"
+    },
+    {
+      "name": "c2",
+      "sdf": "rodi",
+      "type": "mask"
+    },
+    {
+      "a": "c1",
+      "b": "c2",
+      "name": "l3",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "name": "d1",
+      "sdf": "moto",
+      "type": "mask"
+    },
+    {
+      "name": "d2",
+      "sdf": "moti",
+      "type": "mask"
+    },
+    {
+      "a": "d1",
+      "b": "d2",
+      "name": "l4",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "name": "e1",
+      "sdf": "blo",
+      "type": "mask"
+    },
+    {
+      "name": "e2",
+      "sdf": "bli",
+      "type": "mask"
+    },
+    {
+      "a": "e1",
+      "b": "e2",
+      "name": "l5",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "name": "f1",
+      "sdf": "lmo",
+      "type": "mask"
+    },
+    {
+      "name": "f2",
+      "sdf": "lmi",
+      "type": "mask"
+    },
+    {
+      "a": "f1",
+      "b": "f2",
+      "name": "l6",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "t1",
+      "b": "t2",
+      "name": "s1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "s1",
+      "b": "t3",
+      "name": "s2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "s2",
+      "b": "t4",
+      "name": "s3",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "s3",
+      "b": "chain",
+      "name": "s4",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "s4",
+      "b": "dim",
+      "name": "s5",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "l7",
+      "sdf": "s5",
+      "type": "mask"
+    },
+    {
+      "a": "l1",
+      "b": "l2",
+      "name": "m1",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "m1",
+      "b": "l3",
+      "name": "m2",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "m2",
+      "b": "l4",
+      "name": "m3",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "m3",
+      "b": "l5",
+      "name": "m4",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "m4",
+      "b": "l6",
+      "name": "m5",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "m5",
+      "b": "l7",
+      "name": "ink",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "coords": "c",
+      "name": "n",
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "a": "#d9c79a",
+      "b": "#efe2bd",
+      "c": "n",
+      "name": "paper",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "paper",
+      "b": "#2a2018",
+      "c": "ink",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.85,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-patent-drawing",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 768,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.24,
+                0.3
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.12,
+                0.15
+              ],
+              "coords": "c",
+              "name": "fo",
+              "size": [
+                0.22,
+                0.28
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.15
+              ],
+              "coords": "c",
+              "name": "fi",
+              "size": [
+                0.216,
+                0.276
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.085
+              ],
+              "coords": "c",
+              "name": "cano",
+              "size": [
+                0.04,
+                0.012
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.085
+              ],
+              "coords": "c",
+              "name": "cani",
+              "size": [
+                0.036,
+                0.008
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.11
+              ],
+              "coords": "c",
+              "name": "rodo",
+              "size": [
+                0.008,
+                0.038
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.11
+              ],
+              "coords": "c",
+              "name": "rodi",
+              "size": [
+                0.004,
+                0.034
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.145
+              ],
+              "coords": "c",
+              "name": "moto",
+              "radius": 0.022,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.12,
+                0.145
+              ],
+              "coords": "c",
+              "name": "moti",
+              "radius": 0.02,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.12,
+                0.148
+              ],
+              "coords": "c",
+              "name": "blo",
+              "size": [
+                0.19,
+                0.014
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.148
+              ],
+              "coords": "c",
+              "name": "bli",
+              "size": [
+                0.186,
+                0.01
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.178
+              ],
+              "coords": "c",
+              "name": "lmo",
+              "size": [
+                0.03,
+                0.016
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.178
+              ],
+              "coords": "c",
+              "name": "lmi",
+              "size": [
+                0.026,
+                0.012
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.135,
+                0.2
+              ],
+              "coords": "c",
+              "name": "chain",
+              "size": [
+                0.0015,
+                0.03
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.215
+              ],
+              "coords": "c",
+              "name": "dim",
+              "size": [
+                0.19,
+                0.001
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.12,
+                0.035
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.012,
+              "text": "U.S. PATENT 1,234,567",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.12,
+                0.055
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t2",
+              "size": 0.007,
+              "text": "IMPROVEMENT IN CEILING FANS",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.12,
+                0.245
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t3",
+              "size": 0.009,
+              "text": "FIG. 1",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.19,
+                0.27
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t4",
+              "size": 0.006,
+              "text": "INVENTOR",
+              "type": "text"
+            },
+            {
+              "name": "a1",
+              "sdf": "fo",
+              "type": "mask"
+            },
+            {
+              "name": "a2",
+              "sdf": "fi",
+              "type": "mask"
+            },
+            {
+              "a": "a1",
+              "b": "a2",
+              "name": "l1",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "name": "b1",
+              "sdf": "cano",
+              "type": "mask"
+            },
+            {
+              "name": "b2",
+              "sdf": "cani",
+              "type": "mask"
+            },
+            {
+              "a": "b1",
+              "b": "b2",
+              "name": "l2",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "name": "c1",
+              "sdf": "rodo",
+              "type": "mask"
+            },
+            {
+              "name": "c2",
+              "sdf": "rodi",
+              "type": "mask"
+            },
+            {
+              "a": "c1",
+              "b": "c2",
+              "name": "l3",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "name": "d1",
+              "sdf": "moto",
+              "type": "mask"
+            },
+            {
+              "name": "d2",
+              "sdf": "moti",
+              "type": "mask"
+            },
+            {
+              "a": "d1",
+              "b": "d2",
+              "name": "l4",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "name": "e1",
+              "sdf": "blo",
+              "type": "mask"
+            },
+            {
+              "name": "e2",
+              "sdf": "bli",
+              "type": "mask"
+            },
+            {
+              "a": "e1",
+              "b": "e2",
+              "name": "l5",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "name": "f1",
+              "sdf": "lmo",
+              "type": "mask"
+            },
+            {
+              "name": "f2",
+              "sdf": "lmi",
+              "type": "mask"
+            },
+            {
+              "a": "f1",
+              "b": "f2",
+              "name": "l6",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "s1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "s1",
+              "b": "t3",
+              "name": "s2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "s2",
+              "b": "t4",
+              "name": "s3",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "s3",
+              "b": "chain",
+              "name": "s4",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "s4",
+              "b": "dim",
+              "name": "s5",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "l7",
+              "sdf": "s5",
+              "type": "mask"
+            },
+            {
+              "a": "l1",
+              "b": "l2",
+              "name": "m1",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "m1",
+              "b": "l3",
+              "name": "m2",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "m2",
+              "b": "l4",
+              "name": "m3",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "m3",
+              "b": "l5",
+              "name": "m4",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "m4",
+              "b": "l6",
+              "name": "m5",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "m5",
+              "b": "l7",
+              "name": "ink",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "coords": "c",
+              "name": "n",
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "a": "#d9c79a",
+              "b": "#efe2bd",
+              "c": "n",
+              "name": "paper",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "paper",
+              "b": "#2a2018",
+              "c": "ink",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.85,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +fo +fi +cano +cani +rodo +rodi +moto +moti +blo +bli +lmo +lmi +chain +dim +t1 +t2 +t3 +t4 +a1 +a2 +l1 +b1 +b2 +l2 +c1 +c2 +l3 +d1 +d2 +l4 +e1 +e2 +l5 +f1 +f2 +l6 +s1 +s2 +s3 +s4 +s5 +l7 +m1 +m2 +m3 +m4 +m5 +ink +n +paper +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

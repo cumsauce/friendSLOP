@@ -78,6 +78,21 @@
         "lip": "f32"
       },
       "doc": "A hole in the ground: the marker's box (x by z, turned by its yaw), or a circle its width across (round); its lining goes depth metres down from lip above the floor. On a map with its own flat floor (New York), the marker's height is the floor."
+    },
+    "Spin": {
+      "type": "friendslop_world::map::Spin",
+      "fields": {
+        "rpm": "f32"
+      },
+      "doc": "Turns about its own up axis, rpm turns a minute (put it on a fan rotor's prefab instance; negative turns the other way)."
+    },
+    "Lamp": {
+      "type": "friendslop_world::map::Lamp",
+      "fields": {
+        "lumens": "f32",
+        "range": "f32"
+      },
+      "doc": "A point light at the marker: lumens and reach (m)."
     }
   }
 }

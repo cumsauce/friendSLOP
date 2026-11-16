@@ -2,26 +2,93 @@
 // Surf: song 1 (its own song). See moods.ron for what the fields mean.
 // "Tidewater": chill liquid drum and bass for the surf hall (#306). A rolling
 // two-step at 174 and a long sub, with a wobbling Reese doubling the bass all
-// through. Warm analog chords and a slow pulse pad; supersaw stabs take the
-// hook and B. The Reese calls and a warm analog lead answers, two bars
-// each; the chords and pad duck hard under the drums. No bells, no flute.
+// through. Piano chords and a slow pulse pad; supersaw stabs take the
+// hook and B. The Reese calls and a supersaw lead answers, two bars
+// each; a square arp runs up and down in the drops and breakdown; the chords (all the way through) and pad duck under the drums. No bells, no flute.
+// Its own mix: crushed, squashed breaks with a mono low end; a driven,
+// growling bass; wide chorused chords and pad; a ping-pong dotted echo. The
+// intro and breakdown are filtered and open up into the drop, and the echo
+// swells into the end of each B.
 (
-    mood: "Surf", band: "street",
+    mood: "Surf", band: "street", form: "dnb",
     bpm: 174.0, swing: 0.0, key: 2,
     a: "MARKET_A", b: "EXPLORE_B", hook: "KITE_B",
     intensity: 0.6, odd: 0.0, modulate: 0.0, kime: 0.0,
+    mix: {
+        // Breaks: snappy, parallel-squashed so the ghosts and hats come up, a
+        // touch of jungle crush, mono below 120 Hz. The filter is open (it
+        // sweeps in the breakdown).
+        "drums": (
+            transient: Some((0.55, -0.25)),
+            comp: Some((-30.0, 8.0, 2.0, 70.0, 0.55)),
+            crush: Some((10.0, 22050.0, 0.15)),
+            drive: Some((0.3, 0.75)),
+            filter: Some((Hp, 20.0, 0.7)),
+            width: Some((1.1, 120.0)),
+        ),
+        // Sub and Reese: warm drive for the growl, tight comp, all mono down low.
+        "bass": (
+            drive: Some((0.55, 0.45)),
+            comp: Some((-22.0, 4.0, 8.0, 120.0, 1.0)),
+            pump: 0.45,
+            width: Some((1.0, 160.0)),
+        ),
+        // Piano: no suitcase tremolo, a slow chorus, lightly driven, wide.
+        "keys": (
+            trim: 2.1,
+            autopan: None,
+            chorus: Some((0.25, 10.0, 3.0, 0.55)),
+            drive: Some((0.25, 0.5)),
+            filter: Some((Lp, 18000.0, 0.7)),
+            width: Some((1.5, 200.0)),
+        ),
+        // The pad: lush and wide, filtered so it can open.
+        "pad": (
+            chorus: Some((0.2, 12.0, 4.0, 0.75)),
+            phaser: Some((0.08, 0.7, 0.4, 0.3)),
+            filter: Some((Lp, 18000.0, 0.7)),
+            width: Some((1.8, 220.0)),
+        ),
+        // Supersaw stabs: wide, a bit of grit.
+        "brass": (
+            drive: Some((0.2, 0.7)),
+            width: Some((1.7, 220.0)),
+        ),
+        // The answering supersaw lead: a little saturated.
+        "lead": (
+            drive: Some((0.3, 0.5)),
+            width: Some((1.2, 200.0)),
+        ),
+    },
+    echo: Some((division: DottedEighth, pingpong: true, feedback: 0.4, tone: 0.45)),
+    mix_auto: [
+        // The intro: chords and pad behind a low-pass that opens over its eight bars.
+        (bus: "keys", param: "filter.cutoff", how: Set, curve: Ramp(400.0, 12000.0), bars: 8.0, sections: [Intro]),
+        (bus: "pad", param: "filter.cutoff", how: Set, curve: Ramp(400.0, 12000.0), bars: 8.0, sections: [Intro]),
+        // The breakdown: the breaks thin out under a high-pass that falls back
+        // to full over its eight bars and drops again; the pad dips and returns with them.
+        (bus: "drums", param: "filter.cutoff", how: Set, curve: Ramp(1500.0, 20.0), bars: 8.0, sections: [Breakdown]),
+        (bus: "pad", param: "filter.cutoff", how: Set, curve: Ramp(1200.0, 12000.0), bars: 8.0, sections: [Breakdown]),
+        // B: the echo builds over its eight bars, wetter into the next section.
+        (bus: "master", param: "feedback", how: Set, curve: Ramp(0.3, 0.65), bars: 8.0, sections: [B]),
+        (bus: "master", param: "echo", how: Set, curve: Ramp(1.0, 1.6), bars: 8.0, sections: [B]),
+        // The hook: the crush comes up a little, more grit on the drop.
+        (bus: "drums", param: "crush.mix", how: Set, curve: Steps([0.25]), bars: 16.0, sections: [Hook]),
+        // A slow breathing chorus on the pad all through.
+        (bus: "pad", param: "chorus.depth", how: Set, curve: Lfo(shape: Sine, center: 4.0, depth: 1.5), bars: 8.0),
+    ],
     parts: [
         (play: Drums(groove: "Liquid", kit: "liquid", ride: true), not: [Intro]),
         (play: Lane(lane: "shaker"), not: [Intro, Breakdown]),
         (play: Bass(lines: ["LIQUID", "LIQUID2"]), inst: SubBass, bus: "bass", not: [Intro]),
-        (play: Chords(comp: "Long"), inst: WarmPoly, sections: [Intro, A, Breakdown],
-            // Ducked hard under every kick and snare (a sixteenth-step sidechain).
-            auto: [(param: "level_db", curve: Steps([-16.0, -9.0, -4.0, -1.0, -16.0, -9.0, -4.0, -1.0, 0.0, 0.0, -16.0, -9.0, -16.0, -9.0, -4.0, -1.0]), bars: 0.0625, not: [Intro])]),
+        (play: Chords(comp: "Laid"), inst: Piano,
+            // Ducked under every kick and snare (a sixteenth-step sidechain).
+            auto: [(param: "level_db", curve: Steps([-9.0, -5.0, -2.0, 0.0, -9.0, -5.0, -2.0, 0.0, 0.0, 0.0, -9.0, -5.0, -9.0, -5.0, -2.0, 0.0]), bars: 0.0625, not: [Intro])]),
         // The stabs open up across each eight bars of the hook and B.
         (play: Chords(comp: "Stabs"), inst: SuperSaw, sections: [Hook, B],
             auto: [(param: "cut_base", how: Octaves, curve: Ramp(-1.5, 1.0), bars: 8.0)]),
         // Call and response: the Reese calls on the first two bars of every four,
-        // the warm lead answers on the other two (while the sub holds the floor).
+        // the supersaw lead answers on the other two (while the sub holds the floor).
         (play: Bass(lines: ["LIQUID", "LIQUID2"]), inst: Reese, not: [Intro], register: (38, 55),
             when: [(before: (4, 2))],
             // A slow two-bar wobble, a touch of resonance on top.
@@ -29,7 +96,15 @@
                 (param: "cut_base", how: Octaves, curve: Lfo(shape: Triangle, center: 0.0, depth: 1.2), bars: 2.0),
                 (param: "k", how: Times, curve: Lfo(shape: Sine, center: 0.65, depth: 0.15), bars: 4.0),
             ]),
+        // A warm square arp running up and down two octaves in sixteenths, in the
+        // drops and the breakdown while you fly, its filter opening across each eight bars.
+        (play: Arpeggio(dir: UpDown, every: 1, octaves: 2, gate: 0.55), inst: SquareArp,
+            sections: [Hook, Breakdown], register: (62, 90),
+            // Only while you're in the air (or sliding a ramp): it fades in as
+            // you leave the ground and out when you land.
+            follow: (signal: "airborne", fade: 0.35),
+            auto: [(param: "cut_base", how: Octaves, curve: Ramp(-1.0, 1.0), bars: 8.0)]),
         (play: Pad(), inst: WarmPad, auto: [(param: "level_db", curve: Steps([-16.0, -9.0, -4.0, -1.0, -16.0, -9.0, -4.0, -1.0, 0.0, 0.0, -16.0, -9.0, -16.0, -9.0, -4.0, -1.0]), bars: 0.0625, not: [Intro])]),
-        (play: Melody(style: "riff"), inst: WarmLead, not: [Intro], when: [(every: (4, 2))]),
+        (play: Melody(style: "liquid"), inst: SawLead, not: [Intro], when: [(every: (4, 2))]),
     ],
 )

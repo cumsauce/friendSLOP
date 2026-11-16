@@ -1,0 +1,122 @@
+{
+  "name": "cfm-vinyl",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 5,
+      "seed": 9,
+      "size": 0.01,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#050505"
+        ],
+        [
+          1,
+          "#1c1c1e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "n",
+      "name": "r",
+      "stops": [
+        [
+          0,
+          0.15
+        ],
+        [
+          1,
+          0.45
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "metallic": 0,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-vinyl",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 5,
+              "seed": 9,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#050505"
+                ],
+                [
+                  1,
+                  "#1c1c1e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "n",
+              "name": "r",
+              "stops": [
+                [
+                  0,
+                  0.15
+                ],
+                [
+                  1,
+                  0.45
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +c +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

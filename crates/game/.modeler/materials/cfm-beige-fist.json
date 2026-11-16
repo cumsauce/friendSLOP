@@ -1,0 +1,92 @@
+{
+  "name": "cfm-beige-fist",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 4,
+      "seed": 8,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#a88f6c"
+        ],
+        [
+          1,
+          "#c9b08a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-beige-fist",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 4,
+              "seed": 8,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#a88f6c"
+                ],
+                [
+                  1,
+                  "#c9b08a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +c +out"
+      }
+    ],
+    "current": 0
+  }
+}

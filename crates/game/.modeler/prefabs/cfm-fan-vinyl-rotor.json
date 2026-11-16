@@ -1,0 +1,544 @@
+{
+  "format_version": 1,
+  "name": "cfm-fan-vinyl-rotor",
+  "parts": [],
+  "version": 84991,
+  "ops": [
+    {
+      "primitive": {
+        "name": "hub",
+        "kind": "cylinder",
+        "size": [
+          0.09,
+          0.05,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.01
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm",
+        "kind": "box",
+        "size": [
+          0.48,
+          0.012,
+          0.035
+        ],
+        "translation": [
+          0.31,
+          0.0,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.004
+      }
+    },
+    {
+      "primitive": {
+        "name": "rec",
+        "kind": "cylinder",
+        "size": [
+          0.15,
+          0.003,
+          0.0
+        ],
+        "translation": [
+          0.65,
+          -0.01,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "lab_a",
+        "kind": "cylinder",
+        "size": [
+          0.05,
+          0.0034,
+          0.0
+        ],
+        "translation": [
+          0.65,
+          -0.01,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "transform": {
+        "name": "lab_b",
+        "input": "lab_a",
+        "translation": null,
+        "rotation": [
+          0.0,
+          0.70710677,
+          0.0,
+          0.70710677
+        ],
+        "scale": null,
+        "relative": true,
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "radial_array": {
+        "name": "arms",
+        "input": "arm",
+        "count": 4,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": false
+      }
+    },
+    {
+      "radial_array": {
+        "name": "recs",
+        "input": "rec",
+        "count": 4,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": false
+      }
+    },
+    {
+      "radial_array": {
+        "name": "laba",
+        "input": "lab_a",
+        "count": 2,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": false
+      }
+    },
+    {
+      "radial_array": {
+        "name": "labb",
+        "input": "lab_b",
+        "count": 2,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": false
+      }
+    },
+    {
+      "group": {
+        "name": "arms_all",
+        "inputs": [
+          "hub",
+          "arms_0",
+          "arms_1",
+          "arms_2",
+          "arms_3"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "records",
+        "inputs": [
+          "recs_0",
+          "recs_1",
+          "recs_2",
+          "recs_3"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "labels_red",
+        "inputs": [
+          "laba_0",
+          "laba_1"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "labels_blue",
+        "inputs": [
+          "labb_0",
+          "labb_1"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "arms_all",
+        "input": "arms_all",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#c8ccd0"
+                  ],
+                  [
+                    1,
+                    "#eef0f2"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.12,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "records",
+        "input": "records",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-vinyl",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 9,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#050505"
+                  ],
+                  [
+                    1,
+                    "#1c1c1e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "n",
+                "name": "r",
+                "stops": [
+                  [
+                    0,
+                    0.15
+                  ],
+                  [
+                    1,
+                    0.45
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "labels_red",
+        "input": "labels_red",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-label-red",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 6,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b0202a"
+                  ],
+                  [
+                    1,
+                    "#d8a030"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "labels_blue",
+        "input": "labels_blue",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-label-blue",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#1f4fa8"
+                  ],
+                  [
+                    1,
+                    "#40c0d0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "hub",
+        "input": "hub",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arm",
+        "input": "arm",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rec",
+        "input": "rec",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "lab_a",
+        "input": "lab_a",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "lab_b",
+        "input": "lab_b",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arms_0",
+        "input": "arms_0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arms_1",
+        "input": "arms_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arms_2",
+        "input": "arms_2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arms_3",
+        "input": "arms_3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "recs_0",
+        "input": "recs_0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "recs_1",
+        "input": "recs_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "recs_2",
+        "input": "recs_2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "recs_3",
+        "input": "recs_3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "laba_0",
+        "input": "laba_0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "laba_1",
+        "input": "laba_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "labb_0",
+        "input": "labb_0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "labb_1",
+        "input": "labb_1",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

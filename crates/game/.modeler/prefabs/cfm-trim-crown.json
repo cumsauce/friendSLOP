@@ -1,0 +1,184 @@
+{
+  "format_version": 1,
+  "name": "cfm-trim-crown",
+  "parts": [],
+  "version": 89203,
+  "ops": [
+    {
+      "sweep": {
+        "name": "crown",
+        "profile": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -0.18
+          ],
+          [
+            -0.035,
+            -0.18
+          ],
+          [
+            -0.06,
+            -0.15
+          ],
+          [
+            -0.15,
+            -0.07
+          ],
+          [
+            -0.2,
+            -0.045
+          ],
+          [
+            -0.25,
+            -0.03
+          ],
+          [
+            -0.25,
+            0.0
+          ]
+        ],
+        "path": [
+          [
+            -0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.5,
+            0.0,
+            0.0
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "primitive": {
+        "name": "bead",
+        "kind": "box",
+        "size": [
+          1.0,
+          0.022,
+          0.012
+        ],
+        "translation": [
+          0.0,
+          -0.02,
+          -0.18
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "crown",
+        "input": "crown",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-cream-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e6dcc0"
+                  ],
+                  [
+                    1,
+                    "#f1e8d0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.55,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bead",
+        "input": "bead",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b8862b"
+                  ],
+                  [
+                    1,
+                    "#e0b850"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": [
+                  1,
+                  0.78,
+                  0.34
+                ],
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

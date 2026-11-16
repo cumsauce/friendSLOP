@@ -1,0 +1,478 @@
+{
+  "format_version": 1,
+  "name": "cfm-fan-vinyl-mount",
+  "parts": [],
+  "version": 89192,
+  "ops": [
+    {
+      "primitive": {
+        "name": "canopy",
+        "kind": "cylinder",
+        "size": [
+          0.14,
+          0.08,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.04,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.015
+      }
+    },
+    {
+      "primitive": {
+        "name": "rod",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          5.3,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -2.73,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "plinth",
+        "kind": "box",
+        "size": [
+          0.42,
+          0.08,
+          0.34
+        ],
+        "translation": [
+          0.0,
+          -5.4,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.012
+      }
+    },
+    {
+      "primitive": {
+        "name": "platter",
+        "kind": "cylinder",
+        "size": [
+          0.14,
+          0.02,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -5.45,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm_pivot",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.03,
+          0.0
+        ],
+        "translation": [
+          0.16,
+          -5.455,
+          -0.12
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm",
+        "kind": "box",
+        "size": [
+          0.012,
+          0.008,
+          0.2
+        ],
+        "translation": [
+          0.14,
+          -5.47,
+          -0.03
+        ],
+        "rotation": [
+          0.0,
+          0.104528464,
+          0.0,
+          0.9945219
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "headshell",
+        "kind": "box",
+        "size": [
+          0.025,
+          0.012,
+          0.035
+        ],
+        "translation": [
+          0.12,
+          -5.472,
+          0.07
+        ],
+        "rotation": [
+          0.0,
+          0.104528464,
+          0.0,
+          0.9945219
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_a",
+        "kind": "cylinder",
+        "size": [
+          0.015,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          -0.17,
+          -5.445,
+          0.13
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "knob_b",
+        "kind": "cylinder",
+        "size": [
+          0.015,
+          0.012,
+          0.0
+        ],
+        "translation": [
+          -0.13,
+          -5.445,
+          0.13
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "group": {
+        "name": "tonearm",
+        "inputs": [
+          "arm_pivot",
+          "arm",
+          "headshell",
+          "knob_a",
+          "knob_b"
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "metal",
+        "inputs": [
+          "canopy",
+          "rod",
+          "platter"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "spindle",
+        "kind": "cylinder",
+        "size": [
+          0.03,
+          0.15,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -5.53,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "metal",
+        "input": "metal",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#c8ccd0"
+                  ],
+                  [
+                    1,
+                    "#eef0f2"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.12,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tonearm",
+        "input": "tonearm",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#c8ccd0"
+                  ],
+                  [
+                    1,
+                    "#eef0f2"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.12,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "spindle",
+        "input": "spindle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#c8ccd0"
+                  ],
+                  [
+                    1,
+                    "#eef0f2"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.12,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "plinth",
+        "input": "plinth",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-walnut",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 9,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2e1a0e"
+                  ],
+                  [
+                    0.5,
+                    "#4a2c18"
+                  ],
+                  [
+                    1,
+                    "#6b4428"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "arm_pivot",
+        "input": "arm_pivot",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arm",
+        "input": "arm",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "headshell",
+        "input": "headshell",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_a",
+        "input": "knob_a",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "knob_b",
+        "input": "knob_b",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "canopy",
+        "input": "canopy",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "rod",
+        "input": "rod",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "platter",
+        "input": "platter",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

@@ -1,0 +1,82 @@
+{
+  "format_version": 1,
+  "name": "cfm-trim-base",
+  "parts": [],
+  "version": 89232,
+  "ops": [
+    {
+      "primitive": {
+        "name": "board",
+        "kind": "box",
+        "size": [
+          1.0,
+          0.2,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          0.1,
+          -0.02
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "board",
+        "input": "board",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-walnut",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 9,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2e1a0e"
+                  ],
+                  [
+                    0.5,
+                    "#4a2c18"
+                  ],
+                  [
+                    1,
+                    "#6b4428"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

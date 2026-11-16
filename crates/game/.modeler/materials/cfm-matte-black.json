@@ -1,0 +1,90 @@
+{
+  "name": "cfm-matte-black",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 1,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#141414"
+        ],
+        [
+          1,
+          "#222222"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "name": "out",
+      "roughness": 0.8,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-matte-black",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 1,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#141414"
+                ],
+                [
+                  1,
+                  "#222222"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "name": "out",
+              "roughness": 0.8,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +c +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "np-jokah-mj",
   "parts": [],
-  "version": 67259,
+  "version": 67355,
   "ops": [
     {
       "body": {
@@ -46,13 +46,23 @@
         "warps": [
           {
             "mode": "inflate",
-            "amount": 0.014,
+            "amount": 0.02,
             "at": [
               0.037,
               1.69,
               0.1
             ],
-            "radius": 0.04
+            "radius": 0.05
+          },
+          {
+            "mode": "smooth",
+            "at": [
+              0.0,
+              1.67,
+              0.1
+            ],
+            "radius": 0.09,
+            "size": 0.02
           }
         ]
       }
@@ -3332,6 +3342,63 @@
           }
         }
       }
+    },
+    {
+      "material": {
+        "name": "glove",
+        "input": "glove",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "jk-glove",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 2,
+                "seed": 382,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e8f4ff"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "col",
+                "b": 4,
+                "name": "em",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
     }
   ],
   "annotations": [
@@ -3382,8 +3449,36 @@
         "reply": "The eyes, pupils, brows, lips and teeth are now painted by the object-domain material jk-face onto the body's unwrapped atlas (2048 px); the modelled face parts are gone. Only the nose is still geometry.",
         "by": "pid:88904"
       }
+    },
+    {
+      "id": 3,
+      "part": "glove",
+      "face": null,
+      "vertex": null,
+      "position": [
+        -0.19736119,
+        0.9432099,
+        -0.0009341051
+      ],
+      "text": "make this emit",
+      "resolved": {
+        "reply": "The glove now has its own material, jk-glove (white, emissive), so it glows; the socks, shirt and hat band keep the plain jk-white. Re-exported jokah_michael.gltf.",
+        "by": "pid:94439"
+      }
+    },
+    {
+      "id": 4,
+      "part": "body",
+      "face": 4892,
+      "vertex": null,
+      "position": [
+        0.040605217,
+        1.6547478,
+        0.10343623
+      ],
+      "text": "this still looks like a weird dimple or an eye socket too low."
     }
   ],
-  "next_annotation_id": 3,
+  "next_annotation_id": 5,
   "derived_from_ops": true
 }

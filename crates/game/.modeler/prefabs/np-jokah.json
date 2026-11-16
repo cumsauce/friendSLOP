@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "np-jokah",
   "parts": [],
-  "version": 67279,
+  "version": 67354,
   "ops": [
     {
       "body": {
@@ -46,13 +46,23 @@
         "warps": [
           {
             "mode": "inflate",
-            "amount": 0.014,
+            "amount": 0.02,
             "at": [
               0.037,
               1.69,
               0.1
             ],
-            "radius": 0.04
+            "radius": 0.05
+          },
+          {
+            "mode": "smooth",
+            "at": [
+              0.0,
+              1.67,
+              0.1
+            ],
+            "radius": 0.09,
+            "size": 0.02
           }
         ]
       }
@@ -3268,7 +3278,20 @@
       }
     }
   ],
-  "annotations": [],
-  "next_annotation_id": 0,
+  "annotations": [
+    {
+      "id": 0,
+      "part": "body",
+      "face": 2456,
+      "vertex": null,
+      "position": [
+        -0.019004643,
+        1.6450126,
+        0.0969401
+      ],
+      "text": "same eyesocket comment as mj"
+    }
+  ],
+  "next_annotation_id": 1,
   "derived_from_ops": true
 }

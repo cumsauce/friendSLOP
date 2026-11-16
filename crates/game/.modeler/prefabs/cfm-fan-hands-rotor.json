@@ -1,0 +1,320 @@
+{
+  "format_version": 1,
+  "name": "cfm-fan-hands-rotor",
+  "parts": [],
+  "version": 84720,
+  "ops": [
+    {
+      "primitive": {
+        "name": "hub",
+        "kind": "cylinder",
+        "size": [
+          0.11,
+          0.07,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.02
+      }
+    },
+    {
+      "skin": {
+        "name": "hand",
+        "chains": [
+          [
+            [
+              0.08,
+              0.0,
+              0.0,
+              0.022
+            ],
+            [
+              0.3,
+              0.0,
+              0.0,
+              0.03
+            ],
+            "wrist"
+          ],
+          [
+            "wrist",
+            "palm"
+          ],
+          [
+            "palm",
+            [
+              0.62,
+              0.0,
+              -0.06,
+              0.016
+            ],
+            [
+              0.72,
+              0.0,
+              -0.07,
+              0.013
+            ],
+            [
+              0.79,
+              0.0,
+              -0.075,
+              0.011
+            ]
+          ],
+          [
+            "palm",
+            [
+              0.635,
+              0.0,
+              -0.022,
+              0.017
+            ],
+            [
+              0.73,
+              0.0,
+              -0.025,
+              0.014
+            ],
+            [
+              0.8,
+              0.0,
+              -0.027,
+              0.012
+            ]
+          ],
+          [
+            "palm",
+            [
+              0.635,
+              0.0,
+              0.02,
+              0.017
+            ],
+            [
+              0.73,
+              0.0,
+              0.024,
+              0.014
+            ],
+            [
+              0.795,
+              0.0,
+              0.026,
+              0.012
+            ]
+          ],
+          [
+            "palm",
+            [
+              0.62,
+              0.0,
+              0.058,
+              0.015
+            ],
+            [
+              0.7,
+              0.0,
+              0.068,
+              0.012
+            ],
+            [
+              0.75,
+              0.0,
+              0.073,
+              0.01
+            ]
+          ],
+          [
+            "palm",
+            [
+              0.53,
+              0.0,
+              0.08,
+              0.018
+            ],
+            [
+              0.58,
+              0.0,
+              0.13,
+              0.014
+            ],
+            [
+              0.62,
+              0.0,
+              0.16,
+              0.012
+            ]
+          ]
+        ],
+        "joints": {
+          "palm": [
+            0.55,
+            0.0,
+            0.0,
+            [
+              0.075,
+              0.025
+            ]
+          ],
+          "wrist": [
+            0.42,
+            0.0,
+            0.0,
+            [
+              0.04,
+              0.03
+            ]
+          ]
+        },
+        "tris": 550
+      }
+    },
+    {
+      "transform": {
+        "name": "blade",
+        "input": "hand",
+        "translation": null,
+        "rotation": [
+          0.104528464,
+          0.0,
+          0.0,
+          0.9945219
+        ],
+        "scale": null
+      }
+    },
+    {
+      "radial_array": {
+        "name": "blade",
+        "input": "blade",
+        "count": 6,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "material": {
+        "name": "hub",
+        "input": "hub",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-beige-fist",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 8,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#a88f6c"
+                  ],
+                  [
+                    1,
+                    "#c9b08a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade",
+        "input": "blade",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-mannequin",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d9c7b0"
+                  ],
+                  [
+                    1,
+                    "#efe2cf"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "hand",
+        "input": "hand",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

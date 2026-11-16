@@ -1,0 +1,368 @@
+{
+  "name": "cfm-placard-vinyl",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.6,
+        0.36
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.3,
+        0.18
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        0.57,
+        0.33
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.3,
+        0.18
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        0.555,
+        0.315
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.3,
+        0.1
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.05,
+      "text": "B-SIDE SPINNER",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.3,
+        0.19
+      ],
+      "coords": "c",
+      "font": "sans",
+      "name": "t2",
+      "size": 0.024,
+      "text": "33 1/3 rpm. Always.",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.3,
+        0.275
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t3",
+      "size": 0.022,
+      "text": "DO NOT TOUCH",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.3,
+        0.14
+      ],
+      "coords": "c",
+      "name": "rl",
+      "size": [
+        0.4,
+        0.003
+      ],
+      "type": "rect"
+    },
+    {
+      "a": "t1",
+      "b": "t2",
+      "name": "ta",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "ta",
+      "b": "rl",
+      "name": "tb",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mink",
+      "sdf": "tb",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mink",
+      "name": "gold",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "name": "mred",
+      "sdf": "t3",
+      "type": "mask"
+    },
+    {
+      "a": "#141210",
+      "b": "#d8b45a",
+      "c": "gold",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#c8202a",
+      "c": "mred",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.1,
+      "b": 0.9,
+      "c": "gold",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": "met",
+      "name": "out",
+      "roughness": 0.45,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-placard-vinyl",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.6,
+                0.36
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.3,
+                0.18
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                0.57,
+                0.33
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.3,
+                0.18
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                0.555,
+                0.315
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.3,
+                0.1
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.05,
+              "text": "B-SIDE SPINNER",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.3,
+                0.19
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t2",
+              "size": 0.024,
+              "text": "33 1/3 rpm. Always.",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.3,
+                0.275
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t3",
+              "size": 0.022,
+              "text": "DO NOT TOUCH",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.3,
+                0.14
+              ],
+              "coords": "c",
+              "name": "rl",
+              "size": [
+                0.4,
+                0.003
+              ],
+              "type": "rect"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ta",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "ta",
+              "b": "rl",
+              "name": "tb",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mink",
+              "sdf": "tb",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mink",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "name": "mred",
+              "sdf": "t3",
+              "type": "mask"
+            },
+            {
+              "a": "#141210",
+              "b": "#d8b45a",
+              "c": "gold",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#c8202a",
+              "c": "mred",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.1,
+              "b": 0.9,
+              "c": "gold",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": "met",
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +t1 +t2 +t3 +rl +ta +tb +mink +gold +mred +c1 +col +met +out"
+      }
+    ],
+    "current": 0
+  }
+}

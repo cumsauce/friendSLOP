@@ -1,0 +1,90 @@
+{
+  "name": "cfm-annex-floor",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 5,
+      "seed": 31,
+      "size": 0.4,
+      "type": "noise"
+    },
+    {
+      "a": "#2a2a2c",
+      "b": "#3a3a3d",
+      "c": "n",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.18,
+      "b": 0.32,
+      "c": "n",
+      "name": "r",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-annex-floor",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 5,
+              "seed": 31,
+              "size": 0.4,
+              "type": "noise"
+            },
+            {
+              "a": "#2a2a2c",
+              "b": "#3a3a3d",
+              "c": "n",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.18,
+              "b": 0.32,
+              "c": "n",
+              "name": "r",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

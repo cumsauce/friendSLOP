@@ -173,6 +173,39 @@ fn hash(seed: u32, i: u32) -> f32 {
 /// The city around the course: tall towers you weave between, building
 /// sites just under the ramps' sides with kickers, cranes and girders over
 /// the ramps. Nothing comes within reach of a ramp it would block.
+/// Space set pieces have taken for themselves (hall coordinates: centre,
+/// half size): the city and the generated props keep out of it.
+static CLAIMS: std::sync::RwLock<Vec<(Vec3, Vec3)>> = std::sync::RwLock::new(Vec::new());
+
+/// Keep the city and the props out of a box (hall coordinates: centre,
+/// half size). Set pieces call it from their plugin.
+pub fn claim(centre: Vec3, half: Vec3) {
+    if let Ok(mut c) = CLAIMS.write()
+        && !c.contains(&(centre, half))
+    {
+        c.push((centre, half));
+    }
+}
+
+/// Is a point (with `reach` metres around it) in a claimed box?
+pub fn claimed(p: Vec3, reach: f32) -> bool {
+    CLAIMS.read().is_ok_and(|c| {
+        c.iter()
+            .any(|(m, h)| ((p - *m).abs() - *h).max_element() < reach)
+    })
+}
+
+/// Does a box (centre, half size; turned any way about y) touch a claimed box?
+pub fn claimed_box(centre: Vec3, half: Vec3) -> bool {
+    let r = Vec2::new(half.x, half.z).length();
+    CLAIMS.read().is_ok_and(|c| {
+        c.iter().any(|(m, h)| {
+            let d = (centre - *m).abs();
+            d.x < h.x + r && d.z < h.z + r && d.y < h.y + half.y
+        })
+    })
+}
+
 pub fn city(t: &Tuning) -> Vec<Block> {
     let c = &t.city;
     let mut n = 0u32;
@@ -326,6 +359,9 @@ pub fn city(t: &Tuning) -> Vec<Block> {
             }
         }
     }
+    // Nothing in a set piece's own space (the slalom, the skyscraper
+    // complex, the sky train's line): see [`claim`].
+    out.retain(|b| !claimed_box(b.centre, b.size / 2.0));
     out
 }
 
@@ -509,6 +545,24 @@ pub fn on_pad(p: (Vec3, Vec3), local: Vec3) -> bool {
     (local.x - c.x).abs() <= s.x / 2.0
         && (local.z - c.z).abs() <= s.z / 2.0
         && (top - 0.3..top + 2.0).contains(&local.y)
+}
+
+/// Are feet at this hall-coordinate point standing on something flat: the
+/// top of a stage pad, the finish or a solid block? (Ramps are too steep to
+/// stand on: sliding down one is surfing, which counts as in the air.)
+pub fn standing(t: &Tuning, local: Vec3) -> bool {
+    t.stages
+        .iter()
+        .map(|s| s.pad)
+        .chain(std::iter::once(t.finish))
+        .chain(t.blocks.iter().copied())
+        .map(pad)
+        .any(|(c, s)| {
+            let top = c.y + s.y / 2.0;
+            (local.x - c.x).abs() <= s.x / 2.0
+                && (local.z - c.z).abs() <= s.z / 2.0
+                && (top - 0.3..top + 0.25).contains(&local.y)
+        })
 }
 
 /// Is a hall-coordinate point passing through this pad's checkpoint: over

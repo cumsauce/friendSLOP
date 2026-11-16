@@ -1,0 +1,50 @@
+// The skyscraper complex on stage 4 of the surf map (surf_tower.rs).
+// All positions are hall coordinates (the start pad's top is 0, 0, 0).
+// The ramp's ridge runs through it untouched: the building is carved
+// around it, keeping `clear_side` metres either side of the ridge line and
+// `clear_up` metres over it (all the way down, so a fall drops out of the
+// bottom). Change the box and the walls, floors and openings follow.
+(
+    // The podium's box (min, max corners). Stage 4's first ramp enters
+    // through the north face (z max) and bursts out of the south face.
+    min: (252.0, -431.0, -1590.0),
+    max: (356.0, -326.0, -1462.0),
+    // Floor grid cell (m) and storey height (m): the box's sizes should be
+    // whole numbers of them.
+    cell: 8.0,
+    storey: 7.0,
+    // Floor slab and facade wall thickness, column width (m).
+    slab: 0.6,
+    wall: 0.8,
+    column: 1.4,
+    // A column every this many grid cells.
+    column_every: 2,
+    // The tunnel around the ramp: sideways from the ridge line (the faces
+    // reach 6 m, so this is 6 m past them plus a little) and above the ridge.
+    clear_side: 13.0,
+    clear_up: 8.0,
+    // Balcony railing height (m); a neon sign on every this many balcony
+    // edges, and an escalator on every this many.
+    rail: 1.1,
+    sign_every: 5,
+    escalator_every: 9,
+    // The towers on the podium's roof: centre (x, z), half size (x, z),
+    // and the roof's height (y).
+    towers: [
+        ((268.0, -1478.0), (14.0, 14.0), -150.0),
+        ((342.0, -1504.0), (12.0, 12.0), -200.0),
+        ((264.0, -1546.0), (10.0, 16.0), -230.0),
+        ((340.0, -1574.0), (14.0, 12.0), -180.0),
+    ],
+    // The giant ring hanging in the atrium near the exit: centre, radius,
+    // tube radius (m). Looks only.
+    sculpture: ((300.0, -342.0, -1566.0), 7.0, 0.8),
+    // Lights over the ridge inside: one every this many metres of ridge,
+    // this high over it, colour (r, g, b), intensity (lumens) and range (m).
+    // No shadows.
+    light_every: 30.0,
+    light_up: 10.0,
+    light_colour: (1.0, 0.35, 0.8),
+    light_intensity: 6000000.0,
+    light_range: 60.0,
+)

@@ -1,0 +1,240 @@
+{
+  "name": "cfm-vlabel-motor",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.44,
+        0.1
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.22,
+        0.05
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        0.42,
+        0.08
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.22,
+        0.05
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        0.412,
+        0.072
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.22,
+        0.05
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.032,
+      "text": "THE 1882 MOTOR",
+      "type": "text"
+    },
+    {
+      "name": "mt",
+      "sdf": "t1",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mt",
+      "name": "ink",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#c9a24a",
+      "b": "#1a140e",
+      "c": "ink",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.9,
+      "b": 0.1,
+      "c": "ink",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": "met",
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-vlabel-motor",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.44,
+                0.1
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.22,
+                0.05
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                0.42,
+                0.08
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.22,
+                0.05
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                0.412,
+                0.072
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.22,
+                0.05
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.032,
+              "text": "THE 1882 MOTOR",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t1",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "ink",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#c9a24a",
+              "b": "#1a140e",
+              "c": "ink",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.9,
+              "b": 0.1,
+              "c": "ink",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": "met",
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +t1 +mt +ink +col +met +out"
+      }
+    ],
+    "current": 0
+  }
+}

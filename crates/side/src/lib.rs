@@ -27,6 +27,7 @@ pub mod features {
     pub mod clues;
     pub mod discord_friends;
     pub mod emotes;
+    pub mod fan_museum;
     pub mod fusion;
     pub mod gaslighting;
     pub mod goat;
@@ -42,6 +43,9 @@ pub mod features {
     pub mod shipwreck;
     pub mod surf;
     pub mod surf_props;
+    pub mod surf_slalom;
+    pub mod surf_tower;
+    pub mod surf_train;
     pub mod wastes;
     pub mod watcher;
 }
@@ -58,11 +62,16 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::affair::TUNING,
         &features::surf::DRESSING,
         &features::surf_props::PROPS,
+        &features::surf_slalom::SLALOM,
+        &features::surf_tower::TOWER,
+        &features::surf_train::TRAIN,
         &features::ambience::TUNING,
         &features::discord_friends::TUNING,
         &features::gaslighting::TUNING,
         &features::hi::TUNING,
         &features::goat::TUNING,
+        &features::fan_museum::MAP,
+        &features::fan_museum::TUNING,
         &features::infinite::TUNING,
         &features::organ_butcher::TUNING,
         &features::rats::TUNING,

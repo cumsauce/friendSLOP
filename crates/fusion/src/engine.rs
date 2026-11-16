@@ -49,6 +49,13 @@ impl Engine {
 
     /// Duck the music (1 = full level), e.g. under voice chat. Eased: down
     /// in a quarter second, back up over a second or so.
+    /// The game's live signals, in [`crate::live::names`] order (0..1).
+    pub fn set_live(&mut self, values: &[f32]) {
+        for (slot, v) in self.band.live.iter_mut().zip(values) {
+            *slot = v.clamp(0.0, 1.0);
+        }
+    }
+
     pub fn set_duck(&mut self, level: f32) {
         self.band.duck_target = level.clamp(0.0, 1.0);
     }
@@ -76,6 +83,7 @@ impl Engine {
                 self.band.auto.clone_from(&self.bar.auto);
                 self.band.auto_pos = self.bar.at_bar;
                 self.band.auto_step = 1.0 / self.bar.len.max(1) as f32;
+                self.band.follow.clone_from(&self.bar.follow);
                 self.band.song_mix = self.bar.mix;
                 self.band.mix_lanes.clone_from(&self.bar.mix_lanes);
                 self.band.mix_pos = self.bar.at_bar;

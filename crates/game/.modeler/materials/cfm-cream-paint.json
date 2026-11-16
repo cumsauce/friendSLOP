@@ -1,0 +1,88 @@
+{
+  "name": "cfm-cream-paint",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 11,
+      "size": 0.2,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#e6dcc0"
+        ],
+        [
+          1,
+          "#f1e8d0"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "name": "out",
+      "roughness": 0.55,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-cream-paint",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 11,
+              "size": 0.2,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#e6dcc0"
+                ],
+                [
+                  1,
+                  "#f1e8d0"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "name": "out",
+              "roughness": 0.55,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +c +out"
+      }
+    ],
+    "current": 0
+  }
+}

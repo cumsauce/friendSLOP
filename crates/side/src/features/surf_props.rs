@@ -151,6 +151,8 @@ pub fn clear(
     })
 }
 
+pub use crate::rules::surf::{claim, claimed};
+
 /// Where everything goes.
 pub fn layout(t: &Tuning, p: &Props) -> Vec<Placed> {
     let mut out = Vec::new();
@@ -390,6 +392,8 @@ pub fn layout(t: &Tuning, p: &Props) -> Vec<Placed> {
         }
     }
     let _ = used;
+    // Nothing in another set piece's space.
+    out.retain(|x| !claimed(x.at, 0.0));
     out
 }
 

@@ -1,0 +1,674 @@
+{
+  "name": "cfm-banner-since",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.2,
+        3
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.6,
+        1.5
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        1.08,
+        2.88
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.6,
+        1.5
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        1.03,
+        2.83
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.6,
+        0.85
+      ],
+      "coords": "c",
+      "name": "ro",
+      "radius": 0.44,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.6,
+        0.85
+      ],
+      "coords": "c",
+      "name": "ri",
+      "radius": 0.41,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.6,
+        0.85
+      ],
+      "coords": "c",
+      "name": "hub",
+      "radius": 0.075,
+      "type": "circle"
+    },
+    {
+      "coords": "c",
+      "name": "b1",
+      "points": [
+        [
+          0.635,
+          0.77
+        ],
+        [
+          0.71,
+          0.55
+        ],
+        [
+          0.62,
+          0.48
+        ],
+        [
+          0.52,
+          0.52
+        ],
+        [
+          0.565,
+          0.77
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "coords": "c",
+      "name": "b2",
+      "points": [
+        [
+          0.5132,
+          0.8597
+        ],
+        [
+          0.2852,
+          0.9047
+        ],
+        [
+          0.2696,
+          1.0177
+        ],
+        [
+          0.3542,
+          1.0843
+        ],
+        [
+          0.5482,
+          0.9203
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "coords": "c",
+      "name": "b3",
+      "points": [
+        [
+          0.6518,
+          0.9203
+        ],
+        [
+          0.8048,
+          1.0953
+        ],
+        [
+          0.9104,
+          1.0523
+        ],
+        [
+          0.9258,
+          0.9457
+        ],
+        [
+          0.6868,
+          0.8597
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "hub",
+      "b": "b1",
+      "name": "f1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "f1",
+      "b": "b2",
+      "name": "f2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "f2",
+      "b": "b3",
+      "name": "fan",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mfan",
+      "sdf": "fan",
+      "type": "mask"
+    },
+    {
+      "name": "mro",
+      "sdf": "ro",
+      "type": "mask"
+    },
+    {
+      "name": "mri",
+      "sdf": "ri",
+      "type": "mask"
+    },
+    {
+      "a": "mro",
+      "b": "mri",
+      "name": "ring",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.6,
+        1.75
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.2,
+      "text": "SINCE",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.6,
+        2.15
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t2",
+      "size": 0.28,
+      "text": "1882",
+      "type": "text"
+    },
+    {
+      "a": "t1",
+      "b": "t2",
+      "name": "tb",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mt",
+      "sdf": "tb",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mfan",
+      "name": "i1",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "i1",
+      "b": "ring",
+      "name": "i2",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "i2",
+      "b": "mt",
+      "name": "ink",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 7,
+      "size": 0.01,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "navy",
+      "stops": [
+        [
+          0,
+          "#16223f"
+        ],
+        [
+          1,
+          "#1f2e52"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "navy",
+      "b": "#d4a843",
+      "c": "ink",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.9,
+      "b": 0.45,
+      "c": "ink",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0,
+      "b": 0.6,
+      "c": "ink",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": "met",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-banner-since",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.2,
+                3
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.6,
+                1.5
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                1.08,
+                2.88
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.6,
+                1.5
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                1.03,
+                2.83
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.6,
+                0.85
+              ],
+              "coords": "c",
+              "name": "ro",
+              "radius": 0.44,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.6,
+                0.85
+              ],
+              "coords": "c",
+              "name": "ri",
+              "radius": 0.41,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.6,
+                0.85
+              ],
+              "coords": "c",
+              "name": "hub",
+              "radius": 0.075,
+              "type": "circle"
+            },
+            {
+              "coords": "c",
+              "name": "b1",
+              "points": [
+                [
+                  0.635,
+                  0.77
+                ],
+                [
+                  0.71,
+                  0.55
+                ],
+                [
+                  0.62,
+                  0.48
+                ],
+                [
+                  0.52,
+                  0.52
+                ],
+                [
+                  0.565,
+                  0.77
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "coords": "c",
+              "name": "b2",
+              "points": [
+                [
+                  0.5132,
+                  0.8597
+                ],
+                [
+                  0.2852,
+                  0.9047
+                ],
+                [
+                  0.2696,
+                  1.0177
+                ],
+                [
+                  0.3542,
+                  1.0843
+                ],
+                [
+                  0.5482,
+                  0.9203
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "coords": "c",
+              "name": "b3",
+              "points": [
+                [
+                  0.6518,
+                  0.9203
+                ],
+                [
+                  0.8048,
+                  1.0953
+                ],
+                [
+                  0.9104,
+                  1.0523
+                ],
+                [
+                  0.9258,
+                  0.9457
+                ],
+                [
+                  0.6868,
+                  0.8597
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "hub",
+              "b": "b1",
+              "name": "f1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "f1",
+              "b": "b2",
+              "name": "f2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "f2",
+              "b": "b3",
+              "name": "fan",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mfan",
+              "sdf": "fan",
+              "type": "mask"
+            },
+            {
+              "name": "mro",
+              "sdf": "ro",
+              "type": "mask"
+            },
+            {
+              "name": "mri",
+              "sdf": "ri",
+              "type": "mask"
+            },
+            {
+              "a": "mro",
+              "b": "mri",
+              "name": "ring",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.6,
+                1.75
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.2,
+              "text": "SINCE",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.6,
+                2.15
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.28,
+              "text": "1882",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "tb",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "tb",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mfan",
+              "name": "i1",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "i1",
+              "b": "ring",
+              "name": "i2",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "i2",
+              "b": "mt",
+              "name": "ink",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "navy",
+              "stops": [
+                [
+                  0,
+                  "#16223f"
+                ],
+                [
+                  1,
+                  "#1f2e52"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "navy",
+              "b": "#d4a843",
+              "c": "ink",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.9,
+              "b": 0.45,
+              "c": "ink",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0,
+              "b": 0.6,
+              "c": "ink",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": "met",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +ro +ri +hub +b1 +b2 +b3 +f1 +f2 +fan +mfan +mro +mri +ring +t1 +t2 +tb +mt +i1 +i2 +ink +n +navy +col +rough +met +out"
+      }
+    ],
+    "current": 0
+  }
+}

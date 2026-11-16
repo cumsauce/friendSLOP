@@ -31,7 +31,7 @@ mod humanize;
 pub mod library;
 mod melody;
 mod mood;
-mod score;
+pub(crate) mod score;
 
 use form::*;
 use library::Ctx;
@@ -121,6 +121,8 @@ pub struct Bar {
     /// Automation lanes playing this bar, and how many bars into its
     /// section the bar starts.
     pub auto: Vec<crate::auto::Lane>,
+    /// Parts whose level follows a live signal this bar.
+    pub follow: Vec<crate::live::Followed>,
     /// The song's mix, its bus automation lanes playing this bar, and how
     /// many bars into its section the bar starts.
     pub mix: &'static crate::fx::song_mix::SongMix,
@@ -141,6 +143,7 @@ impl Bar {
             echo_mix: None,
             tone: Tone::NEUTRAL,
             auto: Vec::new(),
+            follow: Vec::new(),
             mix: &crate::fx::song_mix::NO_MIX,
             mix_lanes: Vec::new(),
             at_bar: 0.0,
@@ -406,6 +409,7 @@ impl Composer {
     pub fn next_bar(&mut self, cue: Cue, bar: &mut Bar) {
         bar.events.clear();
         bar.auto.clear();
+        bar.follow.clear();
         self.intensity += (cue.intensity.clamp(0.0, 1.0) - self.intensity) * 0.5;
         self.climb = cue.climb.clamp(-1.0, 1.0);
         if self.bars_played > 0 {
@@ -681,6 +685,14 @@ impl Composer {
             if !part.on(&ctx) {
                 continue;
             }
+            if let Some((slot, fade, invert)) = part.follow {
+                bar.follow.push(crate::live::Followed {
+                    inst: part.inst,
+                    slot,
+                    fade,
+                    invert,
+                });
+            }
             for a in part.auto.iter().filter(|a| a.on(kind)) {
                 bar.auto.push(crate::auto::Lane {
                     inst: part.inst,
@@ -706,6 +718,7 @@ impl Composer {
                 G::Horns { .. } => self.write_horns(bar, part),
                 G::Pad { .. } => self.write_pad(bar, part),
                 G::Arp => self.write_arp(bar, part),
+                G::Arpeggio { .. } => self.write_arpeggio(bar, part),
                 G::Ostinato { .. } => self.write_ostinato(bar, part),
                 G::Bells => {
                     if self.plan.bar == 1 {

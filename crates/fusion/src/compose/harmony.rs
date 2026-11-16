@@ -348,6 +348,44 @@ impl Composer {
 
 impl Composer {
     /// Bells, harp or chimes arpeggiating the chord.
+    /// A steady arpeggio (`Arpeggio`): the chord's tones, root up, over its
+    /// octaves, walked in its direction and carried on across the bar.
+    pub(super) fn write_arpeggio(&mut self, bar: &mut Bar, part: &'static Part) {
+        let G::Arpeggio {
+            dir,
+            every,
+            octaves,
+            gate,
+        } = part.play
+        else {
+            return;
+        };
+        let (from, top) = part.register;
+        let len = self.len(every as f32 * gate);
+        let mut st = 0;
+        let mut k = 0usize;
+        while st < self.steps {
+            let ch = self.chord(st);
+            let notes = arp_notes(ch.q.voicing(), octaves);
+            let idx = arp_index(dir, notes.len(), k);
+            let n = ch.root_from(from) + notes[idx];
+            let at = self.at(st);
+            Self::push(
+                bar,
+                Ev {
+                    at,
+                    inst: part.inst,
+                    note: n.min(top),
+                    vel: 0.55 + 0.15 * self.rand() + if k.is_multiple_of(4) { 0.15 } else { 0.0 },
+                    len,
+                    glide: false,
+                },
+            );
+            st += every;
+            k += 1;
+        }
+    }
+
     pub(super) fn write_arp(&mut self, bar: &mut Bar, part: &'static Part) {
         let inst = part.inst;
         let (from, top) = part.register;
@@ -672,4 +710,49 @@ impl Composer {
     }
 
     // --- Kimes ----------------------------------------------------------
+}
+
+/// A chord's arpeggio tones above its root: the root, then its voicing's
+/// tones folded into one octave (sorted, no repeats), over `octaves` octaves.
+pub(super) fn arp_notes(voicing: [u8; 4], octaves: u8) -> Vec<u8> {
+    let mut one: Vec<u8> = std::iter::once(0)
+        .chain(voicing.iter().map(|v| v % 12))
+        .collect();
+    one.sort_unstable();
+    one.dedup();
+    (0..octaves.max(1))
+        .flat_map(|o| one.iter().map(move |t| t + 12 * o))
+        .collect()
+}
+
+/// Which of `n` notes the `k`th arpeggio step plays.
+pub(super) fn arp_index(dir: super::score::ArpDir, n: usize, k: usize) -> usize {
+    use super::score::ArpDir;
+    let n = n.max(1);
+    match dir {
+        ArpDir::Up => k % n,
+        ArpDir::Down => n - 1 - k % n,
+        ArpDir::UpDown if n < 2 => 0,
+        ArpDir::UpDown => {
+            let cycle = 2 * n - 2;
+            let i = k % cycle;
+            if i < n { i } else { cycle - i }
+        }
+    }
+}
+
+#[cfg(test)]
+mod arp_tests {
+    use super::super::score::ArpDir;
+    use super::*;
+
+    #[test]
+    fn an_up_down_arpeggio_turns_without_repeating_its_ends() {
+        let notes = arp_notes([4, 7, 12, 12], 2);
+        assert_eq!(notes, vec![0, 4, 7, 12, 16, 19]);
+        let walk: Vec<_> = (0..12).map(|k| arp_index(ArpDir::UpDown, 6, k)).collect();
+        assert_eq!(walk, vec![0, 1, 2, 3, 4, 5, 4, 3, 2, 1, 0, 1]);
+        assert_eq!(arp_index(ArpDir::Down, 3, 0), 2);
+        assert_eq!(arp_index(ArpDir::Up, 3, 4), 1);
+    }
 }

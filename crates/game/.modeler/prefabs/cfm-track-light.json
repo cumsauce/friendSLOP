@@ -1,0 +1,1022 @@
+{
+  "format_version": 1,
+  "name": "cfm-track-light",
+  "parts": [],
+  "version": 89591,
+  "ops": [
+    {
+      "primitive": {
+        "name": "rail",
+        "kind": "box",
+        "size": [
+          3.0,
+          0.04,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          -0.02,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "rail",
+        "input": "rail",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "stem0",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.07,
+          0.02
+        ],
+        "translation": [
+          -1.125,
+          -0.07,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "head0",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.15
+            ],
+            [
+              0.045,
+              -0.15
+            ],
+            [
+              0.05,
+              -0.03
+            ],
+            [
+              0.03,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          -1.125,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "lens0",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.148
+            ],
+            [
+              0.0,
+              -0.148
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          -1.125,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "stem0",
+        "input": "stem0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "head0",
+        "input": "head0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lens0",
+        "input": "lens0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-lens-warm",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#fff2d0",
+                "emissive": "#ffe2a8",
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "stem1",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.07,
+          0.02
+        ],
+        "translation": [
+          -0.375,
+          -0.07,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "head1",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.15
+            ],
+            [
+              0.045,
+              -0.15
+            ],
+            [
+              0.05,
+              -0.03
+            ],
+            [
+              0.03,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          -0.375,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "lens1",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.148
+            ],
+            [
+              0.0,
+              -0.148
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          -0.375,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "stem1",
+        "input": "stem1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "head1",
+        "input": "head1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lens1",
+        "input": "lens1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-lens-warm",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#fff2d0",
+                "emissive": "#ffe2a8",
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "stem2",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.07,
+          0.02
+        ],
+        "translation": [
+          0.375,
+          -0.07,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "head2",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.15
+            ],
+            [
+              0.045,
+              -0.15
+            ],
+            [
+              0.05,
+              -0.03
+            ],
+            [
+              0.03,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          0.375,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "lens2",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.148
+            ],
+            [
+              0.0,
+              -0.148
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          0.375,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "stem2",
+        "input": "stem2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "head2",
+        "input": "head2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lens2",
+        "input": "lens2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-lens-warm",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#fff2d0",
+                "emissive": "#ffe2a8",
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "stem3",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.07,
+          0.02
+        ],
+        "translation": [
+          1.125,
+          -0.07,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "head3",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.15
+            ],
+            [
+              0.045,
+              -0.15
+            ],
+            [
+              0.05,
+              -0.03
+            ],
+            [
+              0.03,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          1.125,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "lens3",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.155
+            ],
+            [
+              0.04,
+              -0.148
+            ],
+            [
+              0.0,
+              -0.148
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 10,
+        "translation": [
+          1.125,
+          -0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "stem3",
+        "input": "stem3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "head3",
+        "input": "head3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "lens3",
+        "input": "lens3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-lens-warm",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#fff2d0",
+                "emissive": "#ffe2a8",
+                "name": "out",
+                "roughness": 0.2,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "move": {
+        "name": "tilt0",
+        "parts": [
+          "head0",
+          "lens0"
+        ],
+        "translation": null,
+        "rotation": [
+          0.3007058,
+          0.0,
+          0.0,
+          0.95371693
+        ],
+        "pivot": [
+          -1.125,
+          -0.1,
+          0.0
+        ]
+      }
+    },
+    {
+      "move": {
+        "name": "tilt1",
+        "parts": [
+          "head1",
+          "lens1"
+        ],
+        "translation": null,
+        "rotation": [
+          -0.3007058,
+          -0.0,
+          -0.0,
+          0.95371693
+        ],
+        "pivot": [
+          -0.375,
+          -0.1,
+          0.0
+        ]
+      }
+    },
+    {
+      "move": {
+        "name": "tilt2",
+        "parts": [
+          "head2",
+          "lens2"
+        ],
+        "translation": null,
+        "rotation": [
+          0.3007058,
+          0.0,
+          0.0,
+          0.95371693
+        ],
+        "pivot": [
+          0.375,
+          -0.1,
+          0.0
+        ]
+      }
+    },
+    {
+      "move": {
+        "name": "tilt3",
+        "parts": [
+          "head3",
+          "lens3"
+        ],
+        "translation": null,
+        "rotation": [
+          -0.3007058,
+          -0.0,
+          -0.0,
+          0.95371693
+        ],
+        "pivot": [
+          1.125,
+          -0.1,
+          0.0
+        ]
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

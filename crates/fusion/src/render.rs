@@ -40,6 +40,18 @@ pub fn render_score(
     mute: u8,
     plan: impl Fn(f32) -> Cue,
 ) -> (Vec<f32>, Vec<(f32, String)>) {
+    render_score_live(seed, secs, mute, plan, |_| [0.0; crate::live::LIVE])
+}
+
+/// [`render_score`], with the game's live signals (in [`crate::live::names`]
+/// order) at each moment from `live`.
+pub fn render_score_live(
+    seed: u64,
+    secs: f32,
+    mute: u8,
+    plan: impl Fn(f32) -> Cue,
+    live: impl Fn(f32) -> [f32; crate::live::LIVE],
+) -> (Vec<f32>, Vec<(f32, String)>) {
     let bank = Arc::new(Bank::build());
     let mut engine = Engine::new(bank, seed);
     engine.set_mute(mute);
@@ -52,6 +64,7 @@ pub fn render_score(
     while t < total {
         let s = t as f32 / RATE as f32;
         let cue = plan(s);
+        engine.set_live(&live(s));
         engine.render(&mut buf, &mut || cue);
         let now = Some((engine.mood(), engine.section(), cue.lift));
         if now != last {

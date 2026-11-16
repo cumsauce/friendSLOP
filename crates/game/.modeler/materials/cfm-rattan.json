@@ -1,0 +1,94 @@
+{
+  "name": "cfm-rattan",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "jitter": 0.6,
+      "name": "w",
+      "size": 0.02,
+      "type": "worley"
+    },
+    {
+      "input": "w.f1",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#7a5a30"
+        ],
+        [
+          0.5,
+          "#b08a50"
+        ],
+        [
+          1,
+          "#d4b47a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "name": "out",
+      "roughness": 0.75,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-rattan",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "jitter": 0.6,
+              "name": "w",
+              "size": 0.02,
+              "type": "worley"
+            },
+            {
+              "input": "w.f1",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#7a5a30"
+                ],
+                [
+                  0.5,
+                  "#b08a50"
+                ],
+                [
+                  1,
+                  "#d4b47a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+w +c +out"
+      }
+    ],
+    "current": 0
+  }
+}

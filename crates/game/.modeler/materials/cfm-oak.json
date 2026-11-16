@@ -1,0 +1,98 @@
+{
+  "name": "cfm-oak",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 5,
+      "seed": 7,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#6e4a26"
+        ],
+        [
+          0.5,
+          "#9a6c3c"
+        ],
+        [
+          1,
+          "#c09060"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-oak",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 5,
+              "seed": 7,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#6e4a26"
+                ],
+                [
+                  0.5,
+                  "#9a6c3c"
+                ],
+                [
+                  1,
+                  "#c09060"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +c +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -1,0 +1,642 @@
+{
+  "format_version": 1,
+  "name": "fs-duct-elbow",
+  "parts": [],
+  "version": 65445,
+  "ops": [
+    {
+      "primitive": {
+        "name": "arm_x",
+        "kind": "box",
+        "size": [
+          1.3,
+          0.4,
+          0.6
+        ],
+        "translation": [
+          -0.35,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm_z",
+        "kind": "box",
+        "size": [
+          0.6,
+          0.4,
+          1.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "corner",
+        "kind": "cylinder",
+        "size": [
+          0.3,
+          0.4,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "duct_ab",
+        "op": "union",
+        "a": "arm_x",
+        "b": "arm_z"
+      }
+    },
+    {
+      "primitive": {
+        "name": "flange_x",
+        "kind": "box",
+        "size": [
+          0.04,
+          0.48,
+          0.68
+        ],
+        "translation": [
+          -0.98,
+          0.0,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.005
+      }
+    },
+    {
+      "primitive": {
+        "name": "flange_z",
+        "kind": "box",
+        "size": [
+          0.68,
+          0.48,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.98
+        ],
+        "rotation": null,
+        "round": 0.005
+      }
+    },
+    {
+      "primitive": {
+        "name": "rib_x",
+        "kind": "box",
+        "size": [
+          0.015,
+          0.41,
+          0.61
+        ],
+        "translation": [
+          -0.5,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rib_z",
+        "kind": "box",
+        "size": [
+          0.61,
+          0.41,
+          0.015
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.5
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "duct_ab",
+        "input": "duct_ab",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-galvanized",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 77,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "dn",
+                "octaves": 3,
+                "seed": 78,
+                "size": 0.6,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "dn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#7c8086"
+                  ],
+                  [
+                    0.5,
+                    "#9da2a8"
+                  ],
+                  [
+                    1,
+                    "#878b90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#3a352e",
+                "c": "grime",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "flange_x",
+        "input": "flange_x",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-galvanized",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 77,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "dn",
+                "octaves": 3,
+                "seed": 78,
+                "size": 0.6,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "dn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#7c8086"
+                  ],
+                  [
+                    0.5,
+                    "#9da2a8"
+                  ],
+                  [
+                    1,
+                    "#878b90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#3a352e",
+                "c": "grime",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "flange_z",
+        "input": "flange_z",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-galvanized",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 77,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "dn",
+                "octaves": 3,
+                "seed": 78,
+                "size": 0.6,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "dn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#7c8086"
+                  ],
+                  [
+                    0.5,
+                    "#9da2a8"
+                  ],
+                  [
+                    1,
+                    "#878b90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#3a352e",
+                "c": "grime",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rib_x",
+        "input": "rib_x",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-galvanized",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 77,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "dn",
+                "octaves": 3,
+                "seed": 78,
+                "size": 0.6,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "dn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#7c8086"
+                  ],
+                  [
+                    0.5,
+                    "#9da2a8"
+                  ],
+                  [
+                    1,
+                    "#878b90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#3a352e",
+                "c": "grime",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rib_z",
+        "input": "rib_z",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-galvanized",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 77,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "dn",
+                "octaves": 3,
+                "seed": 78,
+                "size": 0.6,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "dn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#7c8086"
+                  ],
+                  [
+                    0.5,
+                    "#9da2a8"
+                  ],
+                  [
+                    1,
+                    "#878b90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#3a352e",
+                "c": "grime",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "c",
+        "parts": [
+          "arm_x",
+          "arm_z"
+        ],
+        "shape": "box",
+        "body": "static",
+        "sensor": false,
+        "hidden": true
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "duct_ab",
+          "flange_*",
+          "rib_*"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arm_x",
+        "input": "arm_x",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "arm_z",
+        "input": "arm_z",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "corner",
+        "input": "corner",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

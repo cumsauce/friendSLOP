@@ -2714,11 +2714,11 @@
     },
     {
       "name": "commune-map",
-      "description": "",
+      "description": "The commune map (see AGENTS.md); now with cv- lived-in dressing: laundry lines, vegetable beds, storm repair piles.",
       "tags": [],
       "prompt": "",
       "file": "commune-map.json",
-      "created_at": "2026-11-12T17:23:31Z"
+      "created_at": "2026-11-16T19:57:58Z"
     },
     {
       "name": "sp-wendys",
@@ -3549,51 +3549,35 @@
     },
     {
       "name": "fs-tile-straight",
-      "description": "Fulton St corridor tile, 6 m: floor, ceiling and side walls as one-sided inward planes, wall bands, lamps.",
-      "tags": [
-        "fulton",
-        "tile",
-        "subway"
-      ],
+      "description": "Fulton St corridor tile: straight N-S, full-length walls, no end caps.",
+      "tags": [],
       "prompt": "",
       "file": "fs-tile-straight.json",
-      "created_at": "2026-11-16T19:12:38Z"
+      "created_at": "2026-11-16T19:39:07Z"
     },
     {
       "name": "fs-tile-end",
-      "description": "Fulton St dead-end tile, 6 m: floor, ceiling and three walls as one-sided inward planes.",
-      "tags": [
-        "fulton",
-        "tile",
-        "subway"
-      ],
+      "description": "Fulton St corridor tile: dead end open N, full-length walls, no end caps.",
+      "tags": [],
       "prompt": "",
       "file": "fs-tile-end.json",
-      "created_at": "2026-11-16T19:12:53Z"
+      "created_at": "2026-11-16T19:39:51Z"
     },
     {
       "name": "fs-tile-corner",
-      "description": "Fulton St corner tile, 6 m: floor, ceiling and two walls as one-sided inward planes.",
-      "tags": [
-        "fulton",
-        "tile",
-        "subway"
-      ],
+      "description": "Fulton St corridor tile: corner N-E, green pillar at the inner corner, full-length walls, no end caps.",
+      "tags": [],
       "prompt": "",
       "file": "fs-tile-corner.json",
-      "created_at": "2026-11-16T19:12:45Z"
+      "created_at": "2026-11-16T19:39:41Z"
     },
     {
       "name": "fs-tile-tee",
-      "description": "Fulton St T-junction tile, 6 m: floor, ceiling and one wall as one-sided inward planes.",
-      "tags": [
-        "fulton",
-        "tile",
-        "subway"
-      ],
+      "description": "Fulton St corridor tile: tee N-E-S, green pillars at the inner corners, full-length wall, no end caps.",
+      "tags": [],
       "prompt": "",
       "file": "fs-tile-tee.json",
-      "created_at": "2026-11-16T19:12:59Z"
+      "created_at": "2026-11-16T19:40:51Z"
     },
     {
       "name": "fs-tile-cross",
@@ -3621,15 +3605,11 @@
     },
     {
       "name": "fs-tile-stairs",
-      "description": "Fulton St stair tile between two levels: lower floor, ceiling and walls as one-sided inward planes, stairs solid.",
-      "tags": [
-        "fulton",
-        "tile",
-        "subway"
-      ],
+      "description": "Fulton St stairs tile, full-length walls, no end caps.",
+      "tags": [],
       "prompt": "",
       "file": "fs-tile-stairs.json",
-      "created_at": "2026-11-16T19:13:06Z"
+      "created_at": "2026-11-16T19:40:40Z"
     },
     {
       "name": "fs-tile-platform",
@@ -3685,15 +3665,11 @@
     },
     {
       "name": "fs-tile-lockers",
-      "description": "Fulton St locker-room dead end, 6 m: floor, ceiling and three walls as one-sided inward planes, lockers.",
-      "tags": [
-        "fulton",
-        "tile",
-        "subway"
-      ],
+      "description": "Fulton St corridor tile: lockers dead end, full-length walls, no end caps.",
+      "tags": [],
       "prompt": "",
       "file": "fs-tile-lockers.json",
-      "created_at": "2026-11-16T19:12:59Z"
+      "created_at": "2026-11-16T19:40:00Z"
     },
     {
       "name": "fs-hunter",
@@ -3859,15 +3835,11 @@
     },
     {
       "name": "fs-room-wall",
-      "description": "Fulton St room wall, 6 m: the wall a one-sided plane facing into the room, with its band.",
-      "tags": [
-        "fulton",
-        "room",
-        "subway"
-      ],
+      "description": "Fulton St room wall along a cell's N edge: full 6 m, no end caps (wall ends get a pillar from the game).",
+      "tags": [],
       "prompt": "",
       "file": "fs-room-wall.json",
-      "created_at": "2026-11-16T19:13:55Z"
+      "created_at": "2026-11-16T19:39:30Z"
     },
     {
       "name": "fs-room-column",
@@ -4781,15 +4753,11 @@
     },
     {
       "name": "fs-room-wall-plain",
-      "description": "Fulton St plain room wall, 6 m x 1 m (stretched to height): a one-sided plane facing into the room.",
-      "tags": [
-        "fulton",
-        "room",
-        "subway"
-      ],
+      "description": "Fulton St plain room wall strip (1 m, stretched up): full 6 m, no end caps.",
+      "tags": [],
       "prompt": "",
       "file": "fs-room-wall-plain.json",
-      "created_at": "2026-11-16T19:13:55Z"
+      "created_at": "2026-11-16T19:38:52Z"
     },
     {
       "name": "fs-room-stairs",
@@ -4823,6 +4791,581 @@
       "prompt": "",
       "file": "fs-rubble.json",
       "created_at": "2026-11-16T16:01:23Z"
+    },
+    {
+      "name": "fs-train-stopped",
+      "description": "A stopped Fulton St subway car, 18 m long along x, 3 m wide, wheels on the rails at y = 0 (gauge 1.435 m). Brushed steel with a purple stripe, dark windows, four doors a side, dim headlamps. Box colliders on body and underframe.",
+      "tags": [
+        "fulton",
+        "subway",
+        "train",
+        "vehicle"
+      ],
+      "prompt": "a stopped train in one of the Fulton St stations",
+      "file": "fs-train-stopped.json",
+      "created_at": "2026-11-16T16:53:28Z"
+    },
+    {
+      "name": "fs-trash-bag",
+      "description": "A tied black trash bag, ~0.65 m tall, lumpy, sitting on y = 0 (~900 tris). Hull collider.",
+      "tags": [
+        "fulton",
+        "trash",
+        "prop"
+      ],
+      "prompt": "general garbage/trash models for Fulton St",
+      "file": "fs-trash-bag.json",
+      "created_at": "2026-11-16T16:53:58Z"
+    },
+    {
+      "name": "fs-trash-litter",
+      "description": "A ~1 m patch of floor litter: red cans, a paper cup, newspapers, paper wads and a flattened box. No colliders (walk-over dressing).",
+      "tags": [
+        "fulton",
+        "trash",
+        "litter",
+        "prop"
+      ],
+      "prompt": "general garbage/trash models for Fulton St",
+      "file": "fs-trash-litter.json",
+      "created_at": "2026-11-16T16:54:19Z"
+    },
+    {
+      "name": "fs-trash-pile",
+      "description": "A heap of four black trash bags, a cardboard box and loose litter, about 1.7 x 1.5 m, 0.95 m tall. Hull colliders on bags and box.",
+      "tags": [
+        "fulton",
+        "trash",
+        "prop"
+      ],
+      "prompt": "general garbage/trash models for Fulton St",
+      "file": "fs-trash-pile.json",
+      "created_at": "2026-11-16T16:54:32Z"
+    },
+    {
+      "name": "fs-duct-straight",
+      "description": "Tileable straight ventilation duct: 2 m along x (ends at x = +-1 with flanges), 0.6 m wide (z) x 0.4 m tall (y), centred on the origin; hanger strap with rods rising 0.8 m above the centre to a ceiling. Galvanized steel. Box collider on the duct.",
+      "tags": [
+        "fulton",
+        "duct",
+        "vent",
+        "tileable"
+      ],
+      "prompt": "ventilation ductwork for Fulton St",
+      "file": "fs-duct-straight.json",
+      "created_at": "2026-11-16T16:55:11Z"
+    },
+    {
+      "name": "fs-duct-elbow",
+      "description": "Tileable 90-degree duct elbow, 0.6 x 0.4 m section: one end at x = -1 (facing -x), the other at z = +1 (facing +z), corner on the origin. Matches fs-duct-straight. Box colliders.",
+      "tags": [
+        "fulton",
+        "duct",
+        "vent",
+        "tileable"
+      ],
+      "prompt": "ventilation ductwork for Fulton St",
+      "file": "fs-duct-elbow.json",
+      "created_at": "2026-11-16T16:55:30Z"
+    },
+    {
+      "name": "fs-duct-tee",
+      "description": "Tileable duct tee, 0.6 x 0.4 m section: run along x (ends at x = +-1), branch to +z (end at z = +1), centred on the origin. Matches fs-duct-straight. Box colliders.",
+      "tags": [
+        "fulton",
+        "duct",
+        "vent",
+        "tileable"
+      ],
+      "prompt": "ventilation ductwork for Fulton St",
+      "file": "fs-duct-tee.json",
+      "created_at": "2026-11-16T16:55:39Z"
+    },
+    {
+      "name": "fs-duct-vent",
+      "description": "Duct end with a louvred grille underneath: 1 m long, open flanged end at x = -1 (joins fs-duct-straight), capped at x = 0; 0.6 x 0.4 m section centred on y = 0. Box collider.",
+      "tags": [
+        "fulton",
+        "duct",
+        "vent",
+        "tileable"
+      ],
+      "prompt": "ventilation ductwork for Fulton St",
+      "file": "fs-duct-vent.json",
+      "created_at": "2026-11-16T16:55:43Z"
+    },
+    {
+      "name": "fs-pipe-run",
+      "description": "Tileable wall-mounted pipe run: three pipes (red r0.08, green r0.05, galvanized r0.032) 2 m along x (ends at x = +-1, half-couplings so tiles meet as one coupling), back against a wall at z = 0, biggest pipe centred on y = 0. One iron wall bracket. Box colliders on the pipes.",
+      "tags": [
+        "fulton",
+        "pipe",
+        "tileable"
+      ],
+      "prompt": "tileable pipes for Fulton St",
+      "file": "fs-pipe-run.json",
+      "created_at": "2026-11-16T16:56:12Z"
+    },
+    {
+      "name": "fs-pipe-corner",
+      "description": "Inside-corner piece for fs-pipe-run: the same three pipes come in along the z = 0 wall from x = -1 and turn 90 degrees to run along the x = 0 wall out to z = +1. Mesh colliders (static).",
+      "tags": [
+        "fulton",
+        "pipe",
+        "tileable"
+      ],
+      "prompt": "tileable pipes for Fulton St",
+      "file": "fs-pipe-corner.json",
+      "created_at": "2026-11-16T16:56:33Z"
+    },
+    {
+      "name": "fs-pipe-valve",
+      "description": "fs-pipe-run variant with a flanged gate valve and red handwheel on the big pipe at x = 0. Same 2 m tile, ends at x = +-1, wall at z = 0. Box colliders on the pipes.",
+      "tags": [
+        "fulton",
+        "pipe",
+        "tileable"
+      ],
+      "prompt": "tileable pipes for Fulton St",
+      "file": "fs-pipe-valve.json",
+      "created_at": "2026-11-16T16:56:59Z"
+    },
+    {
+      "name": "fs-turnstile",
+      "description": "Tripod turnstile: steel cabinet 1.2 m along z, 1 m tall, card reader on top, three arms reaching into the aisle on +x. Box colliders.",
+      "tags": [
+        "fulton",
+        "station",
+        "prop"
+      ],
+      "prompt": "station furniture: turnstiles",
+      "file": "fs-turnstile.json",
+      "created_at": "2026-11-16T16:59:40Z"
+    },
+    {
+      "name": "fs-fare-gate",
+      "description": "Barred emergency exit gate: two posts 1.32 m apart along z, rails and vertical bars, orange EXIT plate; 1.2 m tall. Box colliders (posts, top rail, and a hidden blocker for the gate).",
+      "tags": [
+        "fulton",
+        "station",
+        "prop"
+      ],
+      "prompt": "station furniture: fare gate",
+      "file": "fs-fare-gate.json",
+      "created_at": "2026-11-16T16:59:41Z"
+    },
+    {
+      "name": "fs-bench",
+      "description": "Platform bench, 2 m long along x: iron legs, wooden seat and back slats, seat at 0.48 m, back toward -z. Hidden box collider for the seat.",
+      "tags": [
+        "fulton",
+        "station",
+        "prop"
+      ],
+      "prompt": "station furniture: bench",
+      "file": "fs-bench.json",
+      "created_at": "2026-11-16T17:00:01Z"
+    },
+    {
+      "name": "fs-trash-can",
+      "description": "Green steel trash can, 0.9 m tall, 0.62 m across, black liner over the rim, full of paper. Hull collider.",
+      "tags": [
+        "fulton",
+        "trash",
+        "station",
+        "prop"
+      ],
+      "prompt": "station furniture: trash can",
+      "file": "fs-trash-can.json",
+      "created_at": "2026-11-16T17:00:17Z"
+    },
+    {
+      "name": "fs-vending-machine",
+      "description": "Fare card vending machine, 1 x 1.9 x 0.5 m, back against a wall at z = -0.25, front facing +z: glowing screen, yellow header, card/cash slots, keypad, tray. Box collider.",
+      "tags": [
+        "fulton",
+        "station",
+        "prop"
+      ],
+      "prompt": "station furniture: card vending machine",
+      "file": "fs-vending-machine.json",
+      "created_at": "2026-11-16T17:00:17Z"
+    },
+    {
+      "name": "fs-payphone",
+      "description": "Wall payphone in a steel hood, 0.7 x 0.9 x 0.4 m, mounted 1.0-1.9 m up a wall at z = 0, opening facing +z. Hidden box collider over the hood.",
+      "tags": [
+        "fulton",
+        "station",
+        "prop",
+        "wall"
+      ],
+      "prompt": "station furniture: payphone",
+      "file": "fs-payphone.json",
+      "created_at": "2026-11-16T17:00:36Z"
+    },
+    {
+      "name": "fs-poster-frame",
+      "description": "Wall ad frame with a faded, torn poster: 1.2 x 1.6 m, centred 1.5 m up a wall at z = 0, facing +z. No collider.",
+      "tags": [
+        "fulton",
+        "station",
+        "prop",
+        "wall"
+      ],
+      "prompt": "station furniture: map / ad poster frame",
+      "file": "fs-poster-frame.json",
+      "created_at": "2026-11-16T17:00:36Z"
+    },
+    {
+      "name": "fs-platform-clock",
+      "description": "Double-sided platform clock hanging from a ceiling point at the origin (rod 0.5 m, dial 0.56 m across, centre 0.78 m below), faces toward +z and -z. No collider.",
+      "tags": [
+        "fulton",
+        "station",
+        "prop",
+        "ceiling"
+      ],
+      "prompt": "station furniture: platform clock",
+      "file": "fs-platform-clock.json",
+      "created_at": "2026-11-16T17:00:52Z"
+    },
+    {
+      "name": "fs-call-box",
+      "description": "Red emergency call box / help point on a wall at z = 0, 1.1-1.7 m up: yellow push button, speaker grille, glowing lamp on top. No collider.",
+      "tags": [
+        "fulton",
+        "station",
+        "prop",
+        "wall"
+      ],
+      "prompt": "station furniture: emergency call box / help point",
+      "file": "fs-call-box.json",
+      "created_at": "2026-11-16T17:01:05Z"
+    },
+    {
+      "name": "fs-third-rail",
+      "description": "Tileable third rail with its yellow cover board: 2 m along x (ends at x = +-1), sits on the track bed at y = 0 on insulators, 0.35 m tall; cover overhangs toward +z on brackets. Box colliders.",
+      "tags": [
+        "fulton",
+        "track",
+        "tileable"
+      ],
+      "prompt": "track and tunnel: third rail",
+      "file": "fs-third-rail.json",
+      "created_at": "2026-11-16T17:01:06Z"
+    },
+    {
+      "name": "fs-signal",
+      "description": "Track signal: 2.7 m mast on a base at y = 0, three-aspect head facing +z with visors; red aspect lit (emissive), yellow and green dark. Box colliders.",
+      "tags": [
+        "fulton",
+        "track",
+        "prop"
+      ],
+      "prompt": "track and tunnel: signal mast",
+      "file": "fs-signal.json",
+      "created_at": "2026-11-16T17:01:27Z"
+    },
+    {
+      "name": "fs-buffer-stop",
+      "description": "Track-end buffer stop: red beam with yellow stripes and two buffer pads facing +x at 0.85 m, iron posts on the rails (z = +-0.72), struts braced back toward -x. Box colliders on beam and posts.",
+      "tags": [
+        "fulton",
+        "track",
+        "prop"
+      ],
+      "prompt": "track and tunnel: buffer stop",
+      "file": "fs-buffer-stop.json",
+      "created_at": "2026-11-16T17:01:44Z"
+    },
+    {
+      "name": "fs-handcar",
+      "description": "Track maintenance handcar: 2 x 1.7 m wooden deck at 0.64 m on four wheels on the rails (gauge 1.435 m, wheels on y = 0), pump-beam handle on a red tower, 1.7 m tall. Box colliders on deck, frame, tower.",
+      "tags": [
+        "fulton",
+        "track",
+        "vehicle",
+        "prop"
+      ],
+      "prompt": "track and tunnel: maintenance cart / handcar",
+      "file": "fs-handcar.json",
+      "created_at": "2026-11-16T17:01:56Z"
+    },
+    {
+      "name": "fs-cable-tray",
+      "description": "Tileable wall cable tray: 2 m ladder tray along x (ends at x = +-1), 0.3 m wide, sticking out from a wall at z = 0 on one arm, tray floor at y = 0, five black cables. No collider.",
+      "tags": [
+        "fulton",
+        "cable",
+        "tileable",
+        "wall"
+      ],
+      "prompt": "track and tunnel: cable trays and conduit",
+      "file": "fs-cable-tray.json",
+      "created_at": "2026-11-16T17:01:57Z"
+    },
+    {
+      "name": "fs-puddle",
+      "description": "Flat dark water puddle (about 1.8 x 1.3 m plus a splash 0.35 m off to the side), 6 mm thick on y = 0, glossy. No collider.",
+      "tags": [
+        "fulton",
+        "decay",
+        "floor"
+      ],
+      "prompt": "decay and mood: puddles / water stains",
+      "file": "fs-puddle.json",
+      "created_at": "2026-11-16T17:02:12Z"
+    },
+    {
+      "name": "fs-broken-light",
+      "description": "Broken fluorescent fixture hanging from a ceiling at y = 0: one chain snapped, so the cream housing dangles at an angle about 0.5-1.1 m below; one tube still lit (emissive), one half-tube dead, a loose wire. No collider.",
+      "tags": [
+        "fulton",
+        "decay",
+        "ceiling",
+        "light"
+      ],
+      "prompt": "decay and mood: hanging broken fluorescent fixture",
+      "file": "fs-broken-light.json",
+      "created_at": "2026-11-16T17:02:25Z"
+    },
+    {
+      "name": "fs-ceiling-panel",
+      "description": "A fallen drop-ceiling panel on the floor (y = 0): one panel propped on debris, a broken half panel, a bent ceiling rail and plaster chunks, about 2 x 1.7 m. No collider.",
+      "tags": [
+        "fulton",
+        "decay",
+        "floor"
+      ],
+      "prompt": "decay and mood: fallen ceiling panel",
+      "file": "fs-ceiling-panel.json",
+      "created_at": "2026-11-16T17:02:40Z"
+    },
+    {
+      "name": "fs-camp",
+      "description": "A makeshift camp against a wall at z = 0: blue tarp lean-to from 1.2 m up the wall down to the floor at z ~1.2, cardboard mats, a green sleeping bag and pillow under it, a trash bag and litter. Box collider on the tarp.",
+      "tags": [
+        "fulton",
+        "decay",
+        "prop"
+      ],
+      "prompt": "decay and mood: cardboard-and-tarp camp / sleeping bag",
+      "file": "fs-camp.json",
+      "created_at": "2026-11-16T17:02:54Z"
+    },
+    {
+      "name": "fs-shopping-cart",
+      "description": "Abandoned shopping cart, 0.98 x 1.1 x 0.6 m, handle toward -x, steel basket with a trash bag in it. Hidden box collider over the basket.",
+      "tags": [
+        "fulton",
+        "decay",
+        "prop"
+      ],
+      "prompt": "decay and mood: shopping cart",
+      "file": "fs-shopping-cart.json",
+      "created_at": "2026-11-16T17:03:23Z"
+    },
+    {
+      "name": "fs-cone",
+      "description": "Orange traffic cone, 0.7 m tall on a 0.38 m black foot, white reflective band. Hull collider.",
+      "tags": [
+        "fulton",
+        "decay",
+        "prop",
+        "barrier"
+      ],
+      "prompt": "decay and mood: traffic cones",
+      "file": "fs-cone.json",
+      "created_at": "2026-11-16T17:03:36Z"
+    },
+    {
+      "name": "fs-barricade",
+      "description": "Sawhorse barricade, 1.8 m wide along x, 1 m tall, A-frame legs, two white boards with orange chevron stripes facing +z. Hidden box collider.",
+      "tags": [
+        "fulton",
+        "decay",
+        "prop",
+        "barrier"
+      ],
+      "prompt": "decay and mood: sawhorse barricades",
+      "file": "fs-barricade.json",
+      "created_at": "2026-11-16T17:03:51Z"
+    },
+    {
+      "name": "fs-caution-tape",
+      "description": "Two sagging strands of yellow caution tape strung 2 m along x between attach points at x = +-1 (upper at 1.0 m, lower at 0.55 m), slightly twisted. Hangs between posts, cones or barricades. No collider.",
+      "tags": [
+        "fulton",
+        "decay",
+        "barrier"
+      ],
+      "prompt": "decay and mood: caution tape",
+      "file": "fs-caution-tape.json",
+      "created_at": "2026-11-16T17:04:03Z"
+    },
+    {
+      "name": "fs-breaker-box",
+      "description": "Wall breaker panel on a wall at z = 0, 1.0-1.9 m up: cream cabinet with its door hanging open to the left, two rows of breakers, warning label, conduit up to 2.5 m. Box collider on the cabinet.",
+      "tags": [
+        "fulton",
+        "utility",
+        "wall"
+      ],
+      "prompt": "utility: breaker / fuse boxes",
+      "file": "fs-breaker-box.json",
+      "created_at": "2026-11-16T17:04:30Z"
+    },
+    {
+      "name": "fs-valve-cluster",
+      "description": "Valve manifold against a wall at z = 0: red header pipe 1.4 m along x at 0.9 m with wall brackets, three drops to the floor each with a handwheel valve facing +z, two pressure gauges on top. Box colliders on the pipes.",
+      "tags": [
+        "fulton",
+        "utility",
+        "pipe",
+        "wall"
+      ],
+      "prompt": "utility: valve wheel cluster, gauges",
+      "file": "fs-valve-cluster.json",
+      "created_at": "2026-11-16T17:04:44Z"
+    },
+    {
+      "name": "fs-pump",
+      "description": "Sump pump on an iron skid, 1.5 x 0.7 m footprint: green finned motor, yellow coupling, green pump casing, red outlet rising to a flange at 1.14 m and an inlet toward +x. Hidden box colliders.",
+      "tags": [
+        "fulton",
+        "utility",
+        "machine"
+      ],
+      "prompt": "utility: pump unit",
+      "file": "fs-pump.json",
+      "created_at": "2026-11-16T17:04:55Z"
+    },
+    {
+      "name": "fs-floor-drain",
+      "description": "Square iron floor drain grate, 0.6 m, flush with the floor (top at y = 0.012), dark water 15 cm below. Needs a matching hole in the floor (holes::cut) to show the pit. No collider (walk over it).",
+      "tags": [
+        "fulton",
+        "utility",
+        "floor"
+      ],
+      "prompt": "utility: floor drain grates",
+      "file": "fs-floor-drain.json",
+      "created_at": "2026-11-16T17:04:56Z"
+    },
+    {
+      "name": "fs-wall-grille",
+      "description": "Louvred wall vent grille, 0.8 x 0.5 m, flat on a wall at z = 0 (centre 0.5 m up; move it to any height), dark backing behind angled galvanized slats. No collider.",
+      "tags": [
+        "fulton",
+        "utility",
+        "vent",
+        "wall"
+      ],
+      "prompt": "utility: wall vent grilles",
+      "file": "fs-wall-grille.json",
+      "created_at": "2026-11-16T17:05:13Z"
+    },
+    {
+      "name": "fs-hatch",
+      "description": "Open floor access hatch: 0.9 m iron frame flush at y = 0, lid propped open toward -z, a 2 m concrete shaft below (0.76 m inside) with ladder rungs on the +z wall. Needs holes::cut for a 0.76 m opening. Mesh colliders on lid and shaft walls.",
+      "tags": [
+        "fulton",
+        "utility",
+        "floor"
+      ],
+      "prompt": "utility: access hatch / manhole",
+      "file": "fs-hatch.json",
+      "created_at": "2026-11-16T17:05:19Z"
+    },
+    {
+      "name": "fs-train-dead",
+      "description": "Dead variant of fs-train-stopped (same size and placement: 18 m along x, wheels on y = 0): grimy unpainted steel, faded red stripe, headlamps dark, one smashed side window and a missing door window on the +z side. Box colliders on body and underframe.",
+      "tags": [
+        "fulton",
+        "subway",
+        "train",
+        "vehicle",
+        "decay"
+      ],
+      "prompt": "train extras: a darker dead car",
+      "file": "fs-train-dead.json",
+      "created_at": "2026-11-16T17:05:35Z"
+    },
+    {
+      "name": "fs-train-interior",
+      "description": "Walkable subway car shell, same footprint as fs-train-stopped (18 m along x, 3 m wide; floor top at y = 1.1, ceiling at 3.2). Steel walls with glass windows, +z doors slid open (1.3 x 2 m openings), -z doors closed, orange bench seats along both sides, poles at each door, grab rails, two lit ceiling strips. No wheels or outside trim. Mesh colliders on floor, ceiling and walls; box colliders on seats, poles, door leaves and glass.",
+      "tags": [
+        "fulton",
+        "subway",
+        "train",
+        "interior"
+      ],
+      "prompt": "train extras: a car interior shell with seats and poles, so players can walk inside the stopped train",
+      "file": "fs-train-interior.json",
+      "created_at": "2026-11-16T17:06:34Z"
+    },
+    {
+      "name": "fs-train-open",
+      "description": "Open-door version of the subway car: fs-train-interior (walkable inside, +z doors slid open, -z doors closed) with the outside trim of fs-train-stopped (roof cap, purple stripe, lit headlamps, bogies, wheels on the rails at y = 0, couplers). Same placement as fs-train-stopped; floor inside at y = 1.1. Colliders from the interior plus the underframe.",
+      "tags": [
+        "fulton",
+        "subway",
+        "train",
+        "vehicle",
+        "interior"
+      ],
+      "prompt": "train extras: a second car variant with an open door",
+      "file": "fs-train-open.json",
+      "created_at": "2026-11-16T17:07:01Z"
+    },
+    {
+      "name": "whd-drums",
+      "description": "Three oil drums (two standing, one on its side) for the warehouse's dressing.",
+      "tags": [
+        "warehouse",
+        "props"
+      ],
+      "prompt": "",
+      "file": "whd-drums.json",
+      "created_at": "2026-11-16T19:56:05Z"
+    },
+    {
+      "name": "cv-laundry-line",
+      "description": "Commune laundry line: two posts, a sagging line, sheet, shirt and towel drying, a basket.",
+      "tags": [
+        "commune",
+        "village",
+        "dressing"
+      ],
+      "prompt": "",
+      "file": "cv-laundry-line.json",
+      "created_at": "2026-11-16T19:56:39Z"
+    },
+    {
+      "name": "cv-veg-bed",
+      "description": "Raised plank vegetable bed with cabbages and sprouts, a stake at one corner.",
+      "tags": [
+        "commune",
+        "village",
+        "garden"
+      ],
+      "prompt": "",
+      "file": "cv-veg-bed.json",
+      "created_at": "2026-11-16T19:56:58Z"
+    },
+    {
+      "name": "cv-repair-pile",
+      "description": "Storm repairs in progress: sawhorse with a board across it, a plank stack under a blue tarp, a pail.",
+      "tags": [
+        "commune",
+        "village",
+        "repair",
+        "storm"
+      ],
+      "prompt": "",
+      "file": "cv-repair-pile.json",
+      "created_at": "2026-11-16T19:57:20Z"
     }
   ]
 }

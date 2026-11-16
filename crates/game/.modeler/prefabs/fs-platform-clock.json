@@ -1,0 +1,644 @@
+{
+  "format_version": 1,
+  "name": "fs-platform-clock",
+  "parts": [],
+  "version": 65721,
+  "ops": [
+    {
+      "primitive": {
+        "name": "rod",
+        "kind": "cylinder",
+        "size": [
+          0.015,
+          0.5,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.25,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "case",
+        "kind": "cylinder",
+        "size": [
+          0.28,
+          0.12,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.78,
+          0.0
+        ],
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ],
+        "round": 0.02
+      }
+    },
+    {
+      "primitive": {
+        "name": "face(-1)",
+        "kind": "cylinder",
+        "size": [
+          0.24,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.78,
+          -0.061
+        ],
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "hour(-1)",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.13,
+          0.006
+        ],
+        "translation": [
+          0.03,
+          -0.73,
+          -0.068
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.3007058,
+          0.95371693
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "minute(-1)",
+        "kind": "box",
+        "size": [
+          0.014,
+          0.2,
+          0.006
+        ],
+        "translation": [
+          -0.06,
+          -0.72,
+          -0.07
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.34202012,
+          0.9396926
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "face1",
+        "kind": "cylinder",
+        "size": [
+          0.24,
+          0.01,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.78,
+          0.061
+        ],
+        "rotation": [
+          0.70710677,
+          0.0,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "hour1",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.13,
+          0.006
+        ],
+        "translation": [
+          0.03,
+          -0.73,
+          0.068
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.3007058,
+          0.95371693
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "minute1",
+        "kind": "box",
+        "size": [
+          0.014,
+          0.2,
+          0.006
+        ],
+        "translation": [
+          -0.06,
+          -0.72,
+          0.07
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.34202012,
+          0.9396926
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "rod",
+        "input": "rod",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "case",
+        "input": "case",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "face(-1)",
+        "input": "face(-1)",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-vinyl",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e8e8e8"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.25,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "face1",
+        "input": "face1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-vinyl",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#e8e8e8"
+                  ],
+                  [
+                    1,
+                    "#ffffff"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.25,
+                  0.4
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "hour(-1)",
+        "input": "hour(-1)",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "hour1",
+        "input": "hour1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "minute(-1)",
+        "input": "minute(-1)",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "minute1",
+        "input": "minute1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "*"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

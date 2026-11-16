@@ -1,0 +1,164 @@
+{
+  "name": "fs-pipe-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 5,
+      "seed": 91,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "name": "rn",
+      "octaves": 4,
+      "seed": 92,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.6,
+        0.8
+      ],
+      "input": "rn",
+      "name": "rust",
+      "type": "levels"
+    },
+    {
+      "input": "fn",
+      "name": "c0",
+      "stops": [
+        [
+          0,
+          "#6e1c16"
+        ],
+        [
+          1,
+          "#8a2a1e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c0",
+      "b": "#4a2a18",
+      "c": "rust",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "rust",
+      "name": "r",
+      "to": [
+        0.45,
+        0.85
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.2,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fs-pipe-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 5,
+              "seed": 91,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "name": "rn",
+              "octaves": 4,
+              "seed": 92,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.6,
+                0.8
+              ],
+              "input": "rn",
+              "name": "rust",
+              "type": "levels"
+            },
+            {
+              "input": "fn",
+              "name": "c0",
+              "stops": [
+                [
+                  0,
+                  "#6e1c16"
+                ],
+                [
+                  1,
+                  "#8a2a1e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c0",
+              "b": "#4a2a18",
+              "c": "rust",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "rust",
+              "name": "r",
+              "to": [
+                0.45,
+                0.85
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.2,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +rn +rust +c0 +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

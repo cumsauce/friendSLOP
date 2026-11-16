@@ -1,0 +1,608 @@
+{
+  "format_version": 1,
+  "name": "fs-payphone",
+  "parts": [],
+  "version": 65695,
+  "ops": [
+    {
+      "primitive": {
+        "name": "hood",
+        "kind": "box",
+        "size": [
+          0.7,
+          0.9,
+          0.4
+        ],
+        "translation": [
+          0.0,
+          1.45,
+          0.2
+        ],
+        "rotation": null,
+        "round": 0.02
+      }
+    },
+    {
+      "primitive": {
+        "name": "hood_hole",
+        "kind": "box",
+        "size": [
+          0.6,
+          0.8,
+          0.4
+        ],
+        "translation": [
+          0.0,
+          1.42,
+          0.28
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "hood_cut",
+        "op": "difference",
+        "a": "hood",
+        "b": "hood_hole"
+      }
+    },
+    {
+      "primitive": {
+        "name": "phone",
+        "kind": "box",
+        "size": [
+          0.24,
+          0.5,
+          0.14
+        ],
+        "translation": [
+          0.0,
+          1.4,
+          0.12
+        ],
+        "rotation": null,
+        "round": 0.02
+      }
+    },
+    {
+      "primitive": {
+        "name": "handset",
+        "kind": "capsule",
+        "size": [
+          0.025,
+          0.18,
+          0.0
+        ],
+        "translation": [
+          -0.09,
+          1.45,
+          0.21
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "keys",
+        "kind": "box",
+        "size": [
+          0.09,
+          0.12,
+          0.01
+        ],
+        "translation": [
+          0.04,
+          1.42,
+          0.195
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "coin",
+        "kind": "box",
+        "size": [
+          0.03,
+          0.06,
+          0.01
+        ],
+        "translation": [
+          0.08,
+          1.58,
+          0.195
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "sweep": {
+        "name": "cord",
+        "profile": [
+          [
+            0.006,
+            0.0
+          ],
+          [
+            0.0042426405,
+            0.0042426405
+          ],
+          [
+            -2.6226832e-10,
+            0.006
+          ],
+          [
+            -0.0042426405,
+            0.0042426405
+          ],
+          [
+            -0.006,
+            -5.2453664e-10
+          ],
+          [
+            -0.004242641,
+            -0.0042426405
+          ],
+          [
+            7.154929e-11,
+            -0.006
+          ],
+          [
+            0.00424264,
+            -0.0042426414
+          ]
+        ],
+        "path": [
+          [
+            -0.09,
+            1.33,
+            0.21
+          ],
+          [
+            -0.1,
+            1.22,
+            0.24
+          ],
+          [
+            -0.06,
+            1.2,
+            0.22
+          ],
+          [
+            -0.04,
+            1.25,
+            0.19
+          ]
+        ],
+        "closed": false,
+        "smooth": true
+      }
+    },
+    {
+      "material": {
+        "name": "hood_cut",
+        "input": "hood_cut",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "phone",
+        "input": "phone",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "handset",
+        "input": "handset",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "keys",
+        "input": "keys",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "coin",
+        "input": "coin",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cord",
+        "input": "cord",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "c",
+        "parts": [
+          "hood"
+        ],
+        "shape": "box",
+        "body": "static",
+        "sensor": false,
+        "hidden": true
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "hood_cut",
+          "phone",
+          "handset",
+          "keys",
+          "coin",
+          "cord"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hood",
+        "input": "hood",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hood_hole",
+        "input": "hood_hole",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "fs-tile-lockers",
   "parts": [],
-  "version": 66588,
+  "version": 66962,
   "ops": [
     {
       "primitive": {
@@ -45,7 +45,7 @@
         "name": "wall_E",
         "kind": "plane",
         "size": [
-          5.94,
+          6.0,
           3.99,
           0.0
         ],
@@ -63,7 +63,7 @@
         "name": "wall_W",
         "kind": "plane",
         "size": [
-          5.94,
+          6.0,
           3.99,
           0.0
         ],
@@ -81,7 +81,7 @@
         "name": "wall_S",
         "kind": "plane",
         "size": [
-          5.94,
+          6.0,
           3.99,
           0.0
         ],
@@ -2267,226 +2267,6 @@
           0.13333334,
           1.0
         ],
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "ns-paint",
-          "scale": 1.0,
-          "graph": {
-            "domain": "tile",
-            "tile": 1.0,
-            "resolution": 128,
-            "nodes": [
-              {
-                "name": "fn",
-                "octaves": 4,
-                "seed": 11,
-                "size": 0.3,
-                "type": "noise"
-              },
-              {
-                "input": "fn",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#e2e0da"
-                  ],
-                  [
-                    1,
-                    "#f2f0ea"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "fn",
-                "name": "r",
-                "to": [
-                  0.45,
-                  0.6
-                ],
-                "type": "remap"
-              },
-              {
-                "base_color": "col",
-                "metallic": 0,
-                "name": "out",
-                "roughness": "r",
-                "type": "output"
-              }
-            ],
-            "params": {}
-          }
-        }
-      }
-    },
-    {
-      "primitive": {
-        "name": "wall_E_capa",
-        "kind": "box",
-        "size": [
-          0.197,
-          3.99,
-          0.03
-        ],
-        "translation": [
-          2.8985,
-          1.995,
-          2.985
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "wall_E_capb",
-        "kind": "box",
-        "size": [
-          0.197,
-          3.99,
-          0.03
-        ],
-        "translation": [
-          2.8985,
-          1.995,
-          -2.985
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "wall_S_capa",
-        "kind": "box",
-        "size": [
-          0.03,
-          3.99,
-          0.197
-        ],
-        "translation": [
-          2.985,
-          1.995,
-          2.8985
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "wall_S_capb",
-        "kind": "box",
-        "size": [
-          0.03,
-          3.99,
-          0.197
-        ],
-        "translation": [
-          -2.985,
-          1.995,
-          2.8985
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "wall_W_capa",
-        "kind": "box",
-        "size": [
-          0.197,
-          3.99,
-          0.03
-        ],
-        "translation": [
-          -2.8985,
-          1.995,
-          2.985
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "wall_W_capb",
-        "kind": "box",
-        "size": [
-          0.197,
-          3.99,
-          0.03
-        ],
-        "translation": [
-          -2.8985,
-          1.995,
-          -2.985
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "group": {
-        "name": "caps",
-        "inputs": [
-          "wall_E_capa",
-          "wall_E_capb",
-          "wall_S_capa",
-          "wall_S_capb",
-          "wall_W_capa",
-          "wall_W_capb"
-        ]
-      }
-    },
-    {
-      "visibility": {
-        "name": "wall_E_capa",
-        "input": "wall_E_capa",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "wall_E_capb",
-        "input": "wall_E_capb",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "wall_S_capa",
-        "input": "wall_S_capa",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "wall_S_capb",
-        "input": "wall_S_capb",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "wall_W_capa",
-        "input": "wall_W_capa",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "name": "wall_W_capb",
-        "input": "wall_W_capb",
-        "visible": false
-      }
-    },
-    {
-      "material": {
-        "name": "caps",
-        "input": "caps",
-        "base_color": null,
         "roughness": null,
         "metalness": null,
         "pbr": {

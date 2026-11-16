@@ -1,0 +1,465 @@
+{
+  "format_version": 1,
+  "name": "fs-turnstile",
+  "parts": [],
+  "version": 65594,
+  "ops": [
+    {
+      "primitive": {
+        "name": "cabinet",
+        "kind": "box",
+        "size": [
+          0.3,
+          1.0,
+          1.2
+        ],
+        "translation": [
+          0.0,
+          0.5,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.03
+      }
+    },
+    {
+      "primitive": {
+        "name": "top",
+        "kind": "box",
+        "size": [
+          0.32,
+          0.03,
+          1.22
+        ],
+        "translation": [
+          0.0,
+          1.015,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.01
+      }
+    },
+    {
+      "primitive": {
+        "name": "reader",
+        "kind": "box",
+        "size": [
+          0.2,
+          0.06,
+          0.25
+        ],
+        "translation": [
+          0.0,
+          1.06,
+          0.4
+        ],
+        "rotation": [
+          0.08715574,
+          0.0,
+          0.0,
+          0.9961947
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "hub",
+        "kind": "cylinder",
+        "size": [
+          0.08,
+          0.12,
+          0.0
+        ],
+        "translation": [
+          0.2,
+          0.9,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "arm",
+        "kind": "cylinder",
+        "size": [
+          0.022,
+          0.5,
+          0.0
+        ],
+        "translation": [
+          0.38,
+          0.9,
+          0.18
+        ],
+        "rotation": [
+          0.65328145,
+          0.27059805,
+          -0.27059805,
+          0.65328145
+        ]
+      }
+    },
+    {
+      "radial_array": {
+        "name": "arms",
+        "input": "arm",
+        "count": 3,
+        "center": [
+          0.25,
+          0.9,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "x",
+        "include_source": true
+      }
+    },
+    {
+      "material": {
+        "name": "cabinet",
+        "input": "cabinet",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "top",
+        "input": "top",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "reader",
+        "input": "reader",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "hub",
+        "input": "hub",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "arm",
+        "input": "arm",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "c",
+        "parts": [
+          "cabinet",
+          "arm*"
+        ],
+        "shape": "box",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "top",
+          "reader",
+          "hub"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

@@ -1,0 +1,441 @@
+{
+  "format_version": 1,
+  "name": "fs-trash-pile",
+  "parts": [],
+  "version": 65382,
+  "ops": [
+    {
+      "prefab": {
+        "name": "b1",
+        "prefab": "fs-trash-bag",
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "bag_lo"
+        ],
+        "digest": 18037952095039748131
+      }
+    },
+    {
+      "prefab": {
+        "name": "b2",
+        "prefab": "fs-trash-bag",
+        "translation": [
+          0.55,
+          0.0,
+          0.15
+        ],
+        "rotation": [
+          0.0,
+          0.86602545,
+          0.0,
+          0.49999997
+        ],
+        "scale": [
+          0.9,
+          0.85,
+          0.9
+        ],
+        "parts": [
+          "bag_lo"
+        ],
+        "digest": 18037952095039748131
+      }
+    },
+    {
+      "prefab": {
+        "name": "b3",
+        "prefab": "fs-trash-bag",
+        "translation": [
+          -0.5,
+          0.0,
+          0.3
+        ],
+        "rotation": [
+          0.0,
+          0.9396926,
+          0.0,
+          -0.34202012
+        ],
+        "scale": [
+          1.1,
+          0.9,
+          1.0
+        ],
+        "parts": [
+          "bag_lo"
+        ],
+        "digest": 18037952095039748131
+      }
+    },
+    {
+      "prefab": {
+        "name": "b4",
+        "prefab": "fs-trash-bag",
+        "translation": [
+          0.2,
+          0.42,
+          0.1
+        ],
+        "rotation": [
+          -0.10821981,
+          0.488148,
+          0.1874422,
+          0.84549713
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ],
+        "parts": [
+          "bag_lo"
+        ],
+        "digest": 18037952095039748131
+      }
+    },
+    {
+      "primitive": {
+        "name": "box",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.4,
+          0.4
+        ],
+        "translation": [
+          -0.3,
+          0.2,
+          -0.5
+        ],
+        "rotation": [
+          0.0,
+          0.17364818,
+          0.0,
+          0.9848077
+        ],
+        "round": 0.01
+      }
+    },
+    {
+      "primitive": {
+        "name": "flap",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.01,
+          0.2
+        ],
+        "translation": [
+          -0.28,
+          0.44,
+          -0.22
+        ],
+        "rotation": [
+          -0.33682406,
+          0.16317591,
+          0.05939117,
+          0.9254165
+        ]
+      }
+    },
+    {
+      "prefab": {
+        "name": "lit",
+        "prefab": "fs-trash-litter",
+        "translation": [
+          0.5,
+          0.0,
+          -0.5
+        ],
+        "rotation": null,
+        "scale": [
+          0.8,
+          1.0,
+          0.8
+        ],
+        "parts": [
+          "can_a",
+          "can_b",
+          "can_c",
+          "cup",
+          "paper_a",
+          "paper_b",
+          "paper_c",
+          "box_flat",
+          "wad_a_lo",
+          "wad_b_lo"
+        ],
+        "digest": 14199237527936136671
+      }
+    },
+    {
+      "material": {
+        "name": "box",
+        "input": "box",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-cardboard",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 401,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 3,
+                "seed": 402,
+                "size": 0.35,
+                "type": "noise"
+              },
+              {
+                "name": "sn",
+                "octaves": 2,
+                "seed": 403,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "bn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "sn",
+                "name": "spot",
+                "type": "levels"
+              },
+              {
+                "a": "grime",
+                "b": 0.55,
+                "name": "gm0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "spot",
+                "b": 0.25,
+                "name": "sp",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": "sp",
+                "name": "gm",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "fn",
+                "name": "col0",
+                "stops": [
+                  [
+                    0,
+                    "#73593b"
+                  ],
+                  [
+                    1,
+                    "#8f714e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "col0",
+                "b": "#2a2119",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "flap",
+        "input": "flap",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-cardboard",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 401,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 3,
+                "seed": 402,
+                "size": 0.35,
+                "type": "noise"
+              },
+              {
+                "name": "sn",
+                "octaves": 2,
+                "seed": 403,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "bn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "sn",
+                "name": "spot",
+                "type": "levels"
+              },
+              {
+                "a": "grime",
+                "b": 0.55,
+                "name": "gm0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "spot",
+                "b": 0.25,
+                "name": "sp",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": "sp",
+                "name": "gm",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "fn",
+                "name": "col0",
+                "stops": [
+                  [
+                    0,
+                    "#73593b"
+                  ],
+                  [
+                    1,
+                    "#8f714e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "col0",
+                "b": "#2a2119",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "c",
+        "parts": [
+          "b*.bag_lo",
+          "box"
+        ],
+        "shape": "hull",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "lit.*",
+          "flap"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

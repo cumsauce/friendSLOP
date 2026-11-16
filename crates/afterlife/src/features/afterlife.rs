@@ -66,6 +66,13 @@ pub struct Tuning {
     pub exit_radius: f32,
     /// Stand this close to the white light to get out.
     pub exit_reach: f32,
+    /// Dressing: embers drifting up off the lava (how many, metres a second).
+    pub embers: u32,
+    pub ember_speed: f32,
+    /// Dressing: basalt stalactites hanging from the roof.
+    pub stalactites: u32,
+    /// Dressing: how much the lava's glow flickers (0 steady, 1 wild).
+    pub flicker: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -714,6 +721,7 @@ pub fn plugin(app: &mut App) {
             .collect()
     });
     areas::on_show(app, "commune", build_lectern);
+    app.add_systems(Update, hell_look.in_set(crate::place::PlaceSet));
     app.init_resource::<LastSpoke>()
         .add_observer(click_grave)
         .add_observer(click_tome)
@@ -738,6 +746,7 @@ pub fn plugin(app: &mut App) {
                 dress_tome,
                 place_tome,
                 glow_exit,
+                (flicker_lava, drift_embers).run_if(areas::shown(AREA)),
                 update_hud.run_if(crate::world::hud_tick()),
             )
                 .run_if(in_state(AppState::InGame)),
@@ -1144,6 +1153,7 @@ fn dig_hell(
                 ..default()
             },
             Transform::from_translation(centre + Vec3::new(a.cos() * 8.0, 3.0, a.sin() * 8.0)),
+            LavaGlow(i as f32 * 1.7),
             areas::show(AREA),
         ));
     }
@@ -1157,6 +1167,143 @@ fn dig_hell(
         Transform::from_translation(exit + Vec3::Y * 3.0),
         areas::show(AREA),
     ));
+    dress_hell(
+        &mut commands,
+        assets.as_deref(),
+        &mut meshes,
+        &mut materials,
+    );
+}
+
+/// The pit's look (`data/base/place_looks.ron`): no sky, a smoky red haze.
+pub const LOOK: &str = "hell";
+
+/// Is `at` inside the pit's cave?
+pub fn in_pit(at: Vec3) -> bool {
+    at.xz().distance(hell_at()) < pit_radius() + 2.0
+        && at.y > lava_y() - 2.0
+        && at.y < lava_y() + pit_height() + 2.0
+}
+
+/// Local: down there the sky is out and the air is smoke.
+fn hell_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
+    if in_pit(here.0) {
+        looks.push(LOOK);
+    }
+}
+
+/// Local: a lava light that flickers (its phase).
+#[derive(Component)]
+struct LavaGlow(f32);
+
+/// Local: an ember rising off the lava (its phase, its spot on the lake).
+#[derive(Component)]
+struct Ember(f32, Vec2);
+
+/// Pure: an ember's offset from the lava at `t` seconds: it rises, sways and
+/// starts over every `height / speed` seconds.
+pub fn ember_offset(phase: f32, t: f32, speed: f32, height: f32) -> Vec3 {
+    let height = height.max(1.0);
+    let y = (phase * height + t * speed.max(0.01)).rem_euclid(height);
+    let sway = (t * 1.3 + phase * 11.0).sin() * 0.4;
+    Vec3::new(sway, y, (t * 0.9 + phase * 7.0).cos() * 0.4)
+}
+
+/// Pure: a light's brightness (times its base) at `t`.
+pub fn flicker_at(phase: f32, t: f32, amount: f32) -> f32 {
+    let n = (t * 7.3 + phase).sin() * 0.5 + (t * 13.1 + phase * 2.0).sin() * 0.3;
+    (1.0 + n * amount.clamp(0.0, 1.0) * 0.5).max(0.1)
+}
+
+/// The cave's dressing: embers, stalactites, a crust of cooled rock at the
+/// lava's rim. Local looks only, no colliders.
+fn dress_hell(
+    commands: &mut Commands,
+    assets: Option<&AssetServer>,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) {
+    let t = tuning();
+    let centre = hell_at().extend(lava_y()).xzy();
+    let ember = materials.add(StandardMaterial {
+        base_color: Color::srgb(1.0, 0.5, 0.1),
+        emissive: LinearRgba::rgb(9.0, 2.5, 0.3),
+        unlit: true,
+        ..default()
+    });
+    let ember_mesh = meshes.add(Cuboid::new(0.06, 0.06, 0.06));
+    let ring = pit_radius() * 0.9;
+    for i in 0..t.embers {
+        let f = i as f32 / t.embers.max(1) as f32;
+        let a = f * 97.0;
+        let r = ring * ((f * 31.7).fract()).sqrt();
+        commands.spawn((
+            Mesh3d(ember_mesh.clone()),
+            MeshMaterial3d(ember.clone()),
+            Transform::from_translation(centre),
+            Ember(f, Vec2::new(a.cos(), a.sin()) * r),
+            bevy::light::NotShadowCaster,
+            areas::show(AREA),
+        ));
+    }
+    let crust = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.06, 0.04, 0.04),
+        perceptual_roughness: 0.95,
+        ..default()
+    });
+    // Cooled crust floating on the lava by the walls.
+    let slab = meshes.add(Cylinder::new(1.0, 0.25));
+    for i in 0..18 {
+        let a = i as f32 * 2.17;
+        let r = pit_radius() - 1.5 - (i as f32 * 0.37).fract() * 2.0;
+        let size = 0.8 + (i as f32 * 0.61).fract() * 1.4;
+        commands.spawn((
+            Mesh3d(slab.clone()),
+            MeshMaterial3d(crust.clone()),
+            Transform::from_translation(centre + Vec3::new(a.cos() * r, 0.08, a.sin() * r))
+                .with_scale(Vec3::new(size, 1.0, size * 0.7))
+                .with_rotation(Quat::from_rotation_y(a)),
+            areas::show(AREA),
+        ));
+    }
+    // Stalactites: the basalt column model, upside down from the roof.
+    let Some(assets) = assets else {
+        return;
+    };
+    let roof = lava_y() + pit_height();
+    for i in 0..t.stalactites {
+        let f = i as f32 / t.stalactites.max(1) as f32;
+        let a = f * std::f32::consts::TAU + (f * 13.0).fract();
+        let r = pit_radius() * (0.35 + (f * 7.3).fract() * 0.6);
+        let len = 2.0 + (f * 5.1).fract() * 4.0;
+        let thick = 0.3 + (f * 3.7).fract() * 0.4;
+        commands.spawn((
+            model(assets, "basalt_column.gltf"),
+            Transform::from_translation(
+                centre.with_y(roof - len / 2.0) + Vec3::new(a.cos() * r, 0.0, a.sin() * r),
+            )
+            .with_rotation(Quat::from_rotation_x(std::f32::consts::PI) * Quat::from_rotation_y(a))
+            .with_scale(Vec3::new(thick, len / 4.0, thick)),
+            areas::show(AREA),
+        ));
+    }
+}
+
+fn flicker_lava(time: Res<Time>, mut lights: Query<(&mut PointLight, &LavaGlow)>) {
+    let amount = tuning().flicker;
+    for (mut light, glow) in &mut lights {
+        light.intensity = 400_000.0 * flicker_at(glow.0, time.elapsed_secs(), amount);
+    }
+}
+
+fn drift_embers(time: Res<Time>, mut embers: Query<(&mut Transform, &Ember)>) {
+    let t = tuning();
+    let base = hell_at().extend(lava_y()).xzy();
+    let height = pit_height() * 0.8;
+    for (mut tf, ember) in &mut embers {
+        let off = ember_offset(ember.0, time.elapsed_secs(), t.ember_speed, height);
+        tf.translation = base + ember.1.extend(0.0).xzy() + off;
+    }
 }
 
 #[derive(Component)]

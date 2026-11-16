@@ -1,15 +1,13 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pk-stall-panel",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 54289,
   "ops": [
     {
       "primitive": {
-        "kind": "box",
         "name": "panel_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.05,
           2.0,
@@ -19,25 +17,25 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "panel",
         "input": "panel_raw",
         "mode": "chamfer",
-        "name": "panel",
         "radius": 0.012,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "foot0",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
-          0.022,
+          0.025,
           0.26,
           0.0
         ],
@@ -45,14 +43,14 @@
           0.0,
           -1.12,
           -0.6
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "pad0",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.045,
           0.02,
@@ -62,16 +60,16 @@
           0.0,
           -1.24,
           -0.6
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "foot1",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
-          0.022,
+          0.025,
           0.26,
           0.0
         ],
@@ -79,14 +77,14 @@
           0.0,
           -1.12,
           0.6
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "pad1",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.045,
           0.02,
@@ -96,18 +94,24 @@
           0.0,
           -1.24,
           0.6
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "panel",
-        "metalness": null,
         "name": "panel",
+        "input": "panel",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-stall",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -191,25 +195,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 1.0
-          },
-          "material": "pk-stall",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "foot0",
-        "metalness": null,
         "name": "foot0",
+        "input": "foot0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "sf-metal",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -417,25 +421,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.2
-          },
-          "material": "sf-metal",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "foot1",
-        "metalness": null,
         "name": "foot1",
+        "input": "foot1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "sf-metal",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -643,25 +647,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.2
-          },
-          "material": "sf-metal",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "pad0",
-        "metalness": null,
         "name": "pad0",
+        "input": "pad0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "sf-metal",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -869,25 +873,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.2
-          },
-          "material": "sf-metal",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "pad1",
-        "metalness": null,
         "name": "pad1",
+        "input": "pad1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "sf-metal",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -1095,24 +1099,20 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.2
-          },
-          "material": "sf-metal",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "panel_raw",
         "name": "panel_raw",
+        "input": "panel_raw",
         "visible": false
       }
     }
   ],
-  "parts": [],
-  "version": 9285
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

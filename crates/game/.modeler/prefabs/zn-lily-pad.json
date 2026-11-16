@@ -1,13 +1,11 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-lily-pad",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 54460,
   "ops": [
     {
       "extrude": {
-        "height": 0.012,
         "name": "pad",
         "profile": [
           [
@@ -48,7 +46,7 @@
               -0.2815
             ],
             [
-              -0.0,
+              0.0,
               -0.3
             ],
             [
@@ -85,28 +83,35 @@
             ]
           ]
         ],
-        "rotation": null,
+        "height": 0.012,
         "scale_top": [
           1.0,
           1.0
         ],
         "slices": 0,
+        "round": 0.015,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "pad",
-        "metalness": null,
         "name": "pad",
+        "input": "pad",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-lily",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "fn",
@@ -156,19 +161,16 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "zn-lily",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     }
   ],
-  "parts": [],
+  "annotations": [],
+  "next_annotation_id": 0,
   "style": {
+    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -183,10 +185,9 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
-    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "version": 8841
+  "derived_from_ops": true
 }

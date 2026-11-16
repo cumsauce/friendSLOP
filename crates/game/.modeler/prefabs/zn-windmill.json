@@ -1,13 +1,11 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-windmill",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 54391,
   "ops": [
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "plinth_raw",
         "profile": [
           [
@@ -29,37 +27,44 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 16,
+        "round": 0.03,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "plinth_raw",
         "name": "plinth",
-        "rotation": null,
-        "scale": null,
+        "input": "plinth_raw",
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plinth",
-        "metalness": null,
         "name": "plinth",
+        "input": "plinth",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -199,19 +204,13 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "tower_raw",
         "profile": [
           [
@@ -233,37 +232,43 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 16,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "tower_raw",
         "name": "tower",
-        "rotation": null,
-        "scale": null,
+        "input": "tower_raw",
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "tower",
-        "metalness": null,
         "name": "tower",
+        "input": "tower",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plaster",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.5,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -321,19 +326,13 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.5
-          },
-          "material": "zn-plaster",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "roof_raw",
         "profile": [
           [
@@ -355,37 +354,43 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 16,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "roof_raw",
         "name": "roof",
-        "rotation": null,
-        "scale": null,
+        "input": "roof_raw",
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "roof",
-        "metalness": null,
         "name": "roof",
+        "input": "roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-shingle",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -469,21 +474,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-shingle",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "door_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           1.1,
           2.0,
@@ -493,40 +492,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "door_ch",
         "input": "door_raw",
         "mode": "chamfer",
-        "name": "door_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "door_ch",
         "name": "door",
-        "rotation": null,
-        "scale": null,
+        "input": "door_ch",
         "translation": [
           0.0,
           1.25,
           2.5
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "door",
-        "metalness": null,
         "name": "door",
+        "input": "door",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -615,21 +620,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "axle_raw",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.16,
           0.9,
@@ -639,36 +638,43 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "round": 0.02
       }
     },
     {
       "transform": {
-        "input": "axle_raw",
         "name": "axle",
+        "input": "axle_raw",
+        "translation": [
+          0.0,
+          9.5,
+          1.55
+        ],
         "rotation": [
           0.70710677,
           0.0,
           0.0,
           0.70710677
         ],
-        "scale": null,
-        "translation": [
-          0.0,
-          9.5,
-          1.55
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "axle",
-        "metalness": null,
         "name": "axle",
+        "input": "axle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -757,61 +763,313 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "plinth_raw",
         "name": "plinth_raw",
+        "input": "plinth_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "tower_raw",
         "name": "tower_raw",
+        "input": "tower_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "roof_raw",
         "name": "roof_raw",
+        "input": "roof_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "door_raw",
         "name": "door_raw",
+        "input": "door_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "axle_raw",
         "name": "axle_raw",
+        "input": "axle_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "door_ch",
         "name": "door_ch",
+        "input": "door_ch",
         "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "tower",
+        "input": "tower",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-plaster",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.5,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 101,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 2,
+                "seed": 102,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "fn",
+                "b": "bn",
+                "c": 0.5,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#cfc6b6"
+                  ],
+                  [
+                    0.5,
+                    "#e4dccd"
+                  ],
+                  [
+                    1,
+                    "#f1ebdf"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "fn",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        },
+        "finish": {
+          "macro": {
+            "amount": 0.12,
+            "scale": 3.0,
+            "ground_dirt": 0.45,
+            "ground_height": 1.4,
+            "seed": 3
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tower",
+        "input": "tower",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-plaster",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.5,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 101,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 2,
+                "seed": 102,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "fn",
+                "b": "bn",
+                "c": 0.5,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#cfc6b6"
+                  ],
+                  [
+                    0.5,
+                    "#e4dccd"
+                  ],
+                  [
+                    1,
+                    "#f1ebdf"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "fn",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        },
+        "finish": {
+          "macro": {
+            "amount": 0.5,
+            "scale": 3.0,
+            "ground_dirt": 1.0,
+            "ground_height": 2.0,
+            "seed": 3
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tower",
+        "input": "tower",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "zn-plaster",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.5,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 101,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 2,
+                "seed": 102,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "a": "fn",
+                "b": "bn",
+                "c": 0.5,
+                "name": "t0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "input": "t0",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#cfc6b6"
+                  ],
+                  [
+                    0.5,
+                    "#e4dccd"
+                  ],
+                  [
+                    1,
+                    "#f1ebdf"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "fn",
+                "b": 0.003,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        },
+        "finish": {
+          "macro": {
+            "amount": 0.25,
+            "scale": 3.0,
+            "ground_dirt": 0.8,
+            "ground_height": 1.6,
+            "seed": 3
+          }
+        }
       }
     }
   ],
-  "parts": [],
+  "annotations": [],
+  "next_annotation_id": 0,
   "style": {
+    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -826,10 +1084,9 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
-    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "version": 7786
+  "derived_from_ops": true
 }
